@@ -1,9 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Arc R (A01/DoS): cron-only fn must reject non-service callers.
+import { resolveIdentity } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -33,8 +37,23 @@ const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "trigger-ml-retrain");  // I6 observability
 
   try {
+    // Arc R (A01/DoS): cron-only. An all-hives GBM retrain is expensive; the fn ran
+    // verify_jwt=false with NO in-code gate, so any anon caller could trigger repeated
+    // platform-wide retrains (compute/cost DoS). Require service_role, matching the
+    // batch-risk-scoring / parts-staging-recommender cron gate.
+    {
+      const { isServiceRole } = await resolveIdentity(createClient(SUPABASE_URL, SERVICE_KEY), req);
+      if (!isServiceRole) {
+        return new Response(
+          JSON.stringify({ error: "service_role required (cron-only)", code: "forbidden" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     if (!PYTHON_URL) {
       return new Response(
         JSON.stringify({ error: "PYTHON_API_URL not configured — cannot retrain." }),
@@ -97,7 +116,7 @@ serve(async (req) => {
     // POST to Python API /ml/train
     const trainResp = await fetch(`${PYTHON_URL}/ml/train`, {
       method:  "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-API-Key": Deno.env.get("PYTHON_API_KEY") ?? "" },
       signal:  AbortSignal.timeout(300000), // 5min — training can take a while
       body:    JSON.stringify({
         inputs: { logbook_entries: logbook, pm_completions, pm_scope_items, inv_transactions },

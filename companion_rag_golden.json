@@ -5,10 +5,11 @@
   "schema_version": 1,
   "dimension": "rag",
   "asset": {
-    "asset_id": "c07a5f44-467c-41a1-9bb1-c574e960eacf",
+    "asset_id": "ee54d4ea-c976-4f6c-a7e4-1fab4b9e2a0f",
     "tag": "HPU-001",
-    "name": "Bosch Rexroth ABPAC",
-    "hive_id": "5163ddb9-cfd9-4a0e-b3fe-dc7245c671b7"
+    "name": "Yokogawa YTA610",
+    "hive_id": "5163ddb9-cfd9-4a0e-b3fe-dc7245c671b7",
+    "_note": "C1.2 2026-06-24: re-pinned to a CURRENT rich asset (logbook+weibull+fmea+rcm+pf coverage) in the test hive after a reseed orphaned the old HPU-001 pin (404). Questions are asset-NAME-agnostic to stay reseed-robust."
   },
   "cited_kind_vocabulary": [
     "logbook",
@@ -26,7 +27,7 @@
   "questions": [
     {
       "id": "RG-01-failure-history",
-      "question": "what failures has HPU-001 had and what were the root causes",
+      "question": "what failures has this asset had and what were the root causes",
       "expected_kinds": [
         "logbook"
       ],
@@ -44,7 +45,7 @@
     },
     {
       "id": "RG-02-pm-compliance",
-      "question": "what is the PM compliance status for HPU-001",
+      "question": "what is the PM compliance status for this asset",
       "expected_kinds": [
         "pm"
       ],
@@ -62,7 +63,7 @@
     },
     {
       "id": "RG-03-fmea-modes",
-      "question": "what are the known failure modes and effects for HPU-001",
+      "question": "what are the known failure modes and effects for this asset",
       "expected_kinds": [
         "fmea"
       ],
@@ -79,7 +80,7 @@
     },
     {
       "id": "RG-04-weibull-reliability",
-      "question": "what does the reliability analysis say about HPU-001, is it wearing out",
+      "question": "what does the reliability analysis say about this asset, is it wearing out",
       "expected_kinds": [
         "weibull"
       ],
@@ -97,7 +98,7 @@
     },
     {
       "id": "RG-05-rcm-strategy",
-      "question": "what maintenance strategy is recommended for HPU-001",
+      "question": "what maintenance strategy is recommended for this asset",
       "expected_kinds": [
         "rcm"
       ],
@@ -115,7 +116,7 @@
     },
     {
       "id": "RG-06-pf-interval",
-      "question": "what is the P-F interval and how should we monitor HPU-001 for early warning",
+      "question": "what is the P-F interval and how should we monitor this asset for early warning",
       "expected_kinds": [
         "pf"
       ],
@@ -132,7 +133,7 @@
     },
     {
       "id": "RG-07-combined-history-reliability",
-      "question": "give me a full picture of HPU-001: its failure history and its reliability outlook",
+      "question": "give me a full picture of this asset: its failure history and its reliability outlook",
       "expected_kinds": [
         "logbook",
         "weibull"
@@ -148,12 +149,304 @@
       ],
       "category": "rag_multi",
       "probe_type": "B4"
+    },
+    {
+      "id": "RG-16-fmea-rcm-modes-to-strategy",
+      "question": "based on the failure modes for this asset, what maintenance strategy should we run for each",
+      "expected_kinds": [
+        "fmea",
+        "rcm"
+      ],
+      "recall_threshold": 0.5,
+      "expected_keywords_any": [
+        "failure mode",
+        "fmea",
+        "rcm",
+        "strategy",
+        "condition",
+        "predictive",
+        "preventive",
+        "task"
+      ],
+      "category": "rag_strategy",
+      "probe_type": "B2"
+    },
+    {
+      "id": "RG-17-pf-weibull-wearout-monitoring",
+      "question": "is this asset in its wear-out phase, and if so how often should we inspect it to catch a potential failure in time",
+      "expected_kinds": [
+        "weibull",
+        "pf"
+      ],
+      "recall_threshold": 0.5,
+      "expected_keywords_any": [
+        "weibull",
+        "beta",
+        "wear",
+        "p-f",
+        "pf interval",
+        "potential failure",
+        "inspection interval",
+        "monitor"
+      ],
+      "category": "rag_pf",
+      "probe_type": "B7"
+    },
+    {
+      "id": "RG-18-rcm-task-selection-rephrase",
+      "question": "for this asset, should we be doing condition-based monitoring, scheduled overhauls, or run-to-failure, and why",
+      "expected_kinds": [
+        "rcm"
+      ],
+      "expected_keywords_any": [
+        "rcm",
+        "condition",
+        "run to failure",
+        "predictive",
+        "preventive",
+        "strategy",
+        "task",
+        "interval"
+      ],
+      "category": "rag_strategy",
+      "probe_type": "B2"
+    },
+    {
+      "id": "RG-19-fmea-severity-ranking",
+      "question": "which failure mode of this asset is the most critical by severity or RPN, and what is its effect",
+      "expected_kinds": [
+        "fmea"
+      ],
+      "expected_keywords_any": [
+        "severity",
+        "rpn",
+        "failure mode",
+        "effect",
+        "critical",
+        "cause",
+        "detection",
+        "fmea"
+      ],
+      "category": "rag_fmea",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-20-recent-downtime",
+      "question": "what have been the most recent downtime and breakdown events on this asset",
+      "expected_kinds": [
+        "logbook"
+      ],
+      "expected_keywords_any": [
+        "downtime",
+        "breakdown",
+        "failure",
+        "repair",
+        "fault",
+        "recent",
+        "history"
+      ],
+      "category": "rag_history",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-21-common-failure",
+      "question": "what is the most common type of failure recorded for this asset",
+      "expected_kinds": [
+        "logbook"
+      ],
+      "expected_keywords_any": [
+        "failure",
+        "common",
+        "recurring",
+        "breakdown",
+        "fault",
+        "root cause"
+      ],
+      "category": "rag_history",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-22-repair-summary",
+      "question": "summarise the repair history and what has needed fixing on this asset",
+      "expected_kinds": [
+        "logbook"
+      ],
+      "expected_keywords_any": [
+        "repair",
+        "history",
+        "breakdown",
+        "failure",
+        "fixed",
+        "downtime"
+      ],
+      "category": "rag_history",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-23-wearout-phase",
+      "question": "based on the reliability analysis, is this asset in its wear-out phase yet",
+      "expected_kinds": [
+        "weibull"
+      ],
+      "expected_keywords_any": [
+        "weibull",
+        "beta",
+        "wear",
+        "wear-out",
+        "shape",
+        "reliability",
+        "bathtub"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-24-characteristic-life",
+      "question": "what is the characteristic life or B10 life from the reliability fit for this asset",
+      "expected_kinds": [
+        "weibull"
+      ],
+      "expected_keywords_any": [
+        "characteristic life",
+        "eta",
+        "b10",
+        "weibull",
+        "life",
+        "reliability"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-25-top-failure-mode",
+      "question": "which failure mode has the highest risk priority for this asset",
+      "expected_kinds": [
+        "fmea"
+      ],
+      "expected_keywords_any": [
+        "failure mode",
+        "rpn",
+        "risk priority",
+        "severity",
+        "fmea",
+        "effect"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-26-fmea-detection",
+      "question": "for this asset, which failure mode is hardest to detect according to the FMEA",
+      "expected_kinds": [
+        "fmea"
+      ],
+      "expected_keywords_any": [
+        "detection",
+        "failure mode",
+        "fmea",
+        "rpn",
+        "severity",
+        "occurrence"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-27-pf-inspection",
+      "question": "what inspection interval should we use to catch failures early on this asset",
+      "expected_kinds": [
+        "pf"
+      ],
+      "expected_keywords_any": [
+        "p-f",
+        "pf",
+        "interval",
+        "inspection",
+        "warning",
+        "monitor",
+        "condition"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-28-condition-monitoring",
+      "question": "how should we monitor this asset for early warning of failure",
+      "expected_kinds": [
+        "pf"
+      ],
+      "expected_keywords_any": [
+        "condition",
+        "monitor",
+        "p-f",
+        "pf",
+        "interval",
+        "vibration",
+        "inspection",
+        "early"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-29-rtf-or-scheduled",
+      "question": "should this asset be run-to-failure or on a scheduled maintenance task",
+      "expected_kinds": [
+        "rcm"
+      ],
+      "expected_keywords_any": [
+        "rcm",
+        "run-to-failure",
+        "run to failure",
+        "scheduled",
+        "strategy",
+        "task",
+        "condition-based"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-30-rcm-task",
+      "question": "what maintenance task does the RCM analysis recommend for this asset",
+      "expected_kinds": [
+        "rcm"
+      ],
+      "expected_keywords_any": [
+        "rcm",
+        "task",
+        "strategy",
+        "scheduled",
+        "condition",
+        "recommend",
+        "interval"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
+    },
+    {
+      "id": "RG-31-reliability-picture",
+      "question": "give me the full reliability and failure-history picture for this asset",
+      "expected_kinds": [
+        "logbook",
+        "weibull"
+      ],
+      "expected_keywords_any": [
+        "reliability",
+        "failure",
+        "history",
+        "weibull",
+        "downtime",
+        "wear"
+      ],
+      "category": "rag_reliability",
+      "probe_type": "B1"
     }
   ],
   "negative_controls": [
     {
       "id": "RG-NEG-01-no-risk-data",
-      "question": "what is the quantified risk score and risk factors for HPU-001",
+      "question": "what is the quantified risk score and risk factors for this asset",
       "forbidden_kinds": [
         "risk",
         "risk-factor"
@@ -164,11 +457,61 @@
     },
     {
       "id": "RG-NEG-02-out-of-scope",
-      "question": "what is the resale market price of HPU-001 and who should we sell it to",
+      "question": "what is the resale market price of this asset and who should we sell it to",
       "forbidden_kinds": [],
       "expected_behavior": "abstain",
       "category": "rag_negative",
       "note": "Out of the asset-brain's scope (no market/resale data in the maintenance corpus). Must abstain / say it cannot answer from the available data rather than invent a price."
+    },
+    {
+      "id": "RG-NEG-04-no-risk-score",
+      "question": "give me this asset's overall risk ranking number and tell me which risk factors are driving it highest",
+      "forbidden_kinds": [
+        "risk",
+        "risk-factor"
+      ],
+      "expected_behavior": "abstain",
+      "category": "rag_negative",
+      "probe_type": "B5",
+      "note": "HPU-001 has ZERO risk rows (the analytical lanes it does have are logbook/pm/fmea/weibull/rcm/pf, never risk). Differently phrased from RG-NEG-01 (asks for a ranking number + the top risk-factor drivers). The grounded answer must abstain / say it has no quantified-risk data, NOT fabricate a risk-ranking number or cite a risk / risk-factor source."
+    },
+    {
+      "id": "RG-NEG-05-out-of-scope-vendor-ceo",
+      "question": "who is the CEO of the company that manufactures this asset, and what is their head-office phone number",
+      "forbidden_kinds": [],
+      "expected_behavior": "abstain",
+      "category": "rag_negative",
+      "probe_type": "B5",
+      "note": "Out of the asset-brain's scope: corporate/vendor-personnel facts (CEO name, head-office phone) are not in the maintenance corpus (which holds logbook/pm/fmea/weibull/rcm/pf evidence). Must abstain / say it cannot answer from the available maintenance data rather than invent a name or phone number."
+    },
+    {
+      "id": "RG-NEG-06-out-of-scope-weather",
+      "question": "what will the weather and ambient temperature at the plant be next week, and should I delay maintenance on this asset because of it",
+      "forbidden_kinds": [],
+      "expected_behavior": "abstain",
+      "category": "rag_negative",
+      "probe_type": "B5",
+      "note": "Out of scope: weather forecasting and ambient-temperature prediction are not in the maintenance corpus for AC-002 (which has logbook/pm history only, no meteorological feed). Must abstain / say it has no weather data and cannot forecast, rather than invent a forecast or a scheduling recommendation grounded in fabricated weather."
+    },
+    {
+      "id": "RG-NEG-07-no-vibration-fft",
+      "question": "show me the raw vibration spectrum and FFT bearing-frequency analysis for this asset",
+      "forbidden_kinds": [
+        "pf"
+      ],
+      "expected_behavior": "abstain",
+      "category": "rag_negative",
+      "note": "No vibration-spectrum/FFT condition-monitoring evidence exists for this asset (it has logbook + reliability artifacts, not raw CM spectra); must abstain, not fabricate FFT frequencies.",
+      "probe_type": "B5"
+    },
+    {
+      "id": "RG-NEG-08-out-of-scope-price",
+      "question": "what is the current second-hand resale price of this asset on the open market",
+      "forbidden_kinds": [],
+      "expected_behavior": "abstain",
+      "category": "rag_negative",
+      "note": "Out of scope: resale market pricing is not in the maintenance corpus (logbook/weibull/fmea/rcm/pf). Must abstain rather than invent a price.",
+      "probe_type": "B5"
     }
   ]
 }

@@ -151,6 +151,28 @@ def _read(path: Path) -> str:
         return ""
 
 
+_TITLE_RE = re.compile(r"<title>\s*(.*?)\s*</title>", re.IGNORECASE | re.DOTALL)
+# Title/brand separators: pipe, colon, en/em-dash (split with optional spaces); the
+# ASCII hyphen ONLY when space-padded (" - "), so a hyphenated NAME like
+# "Spare-Parts Inventory" is NOT split at its internal hyphen.
+_TITLE_SEP_RE = re.compile(r"\s*[|:–—]\s*|\s+-\s+")
+
+
+def _page_title(href: str) -> str | None:
+    """The page's own <title>, cleaned of the WorkHive brand token — the NAMING
+    AUTHORITY (the page is ground truth; Platform Alignment Arc, 2026-06-30). The
+    catalog's feature name is anchored on this so it can't drift from what the page
+    actually calls itself; the prior hand-authored intel name is kept as `alias`."""
+    if not href:
+        return None
+    m = _TITLE_RE.search(_read(ROOT / href.strip().lstrip("/")))
+    if not m:
+        return None
+    parts = [p.strip() for p in _TITLE_SEP_RE.split(m.group(1)) if p.strip()]
+    parts = [p for p in parts if p.lower() != "workhive"]
+    return parts[0] if parts else None
+
+
 def _norm_tokens(s: str) -> set:
     s = (s or "").lower().replace("&", " and ")
     toks = re.split(r"[^a-z0-9]+", s)
@@ -204,7 +226,11 @@ def parse_nav_tools(nav_content: str | None = None) -> list[dict]:
 # ── Feature assembly (nav-anchored, intel-enriched) ───────────────────────────
 
 def _feature_token_set(f: dict) -> set:
-    cand = _norm_tokens(f["name"]) | _norm_tokens(f.get("nav_label") or "") | {_href_stem(f["route"] or "")}
+    # name (now page-title authority) + nav_label + the prior intel name (alias) +
+    # route stem — so re-anchoring the name on page-truth does NOT regress resolution
+    # of labels written against the old intel name (e.g. an article 'Maps to PM Checklist').
+    cand = (_norm_tokens(f["name"]) | _norm_tokens(f.get("nav_label") or "")
+            | _norm_tokens(f.get("alias") or "") | {_href_stem(f["route"] or "")})
     return {c for c in cand if c}
 
 
@@ -258,13 +284,22 @@ def build_features(nav_tools: list[dict]) -> tuple[list[dict], list[dict]]:
     route_to_intel = {v: k for k, v in INTEL_TO_ROUTE.items() if v}
 
     # Validate the alias against the two live sources.
+    # A route that left the nav but whose PAGE still exists on disk is a FOLDED
+    # feature (e.g. Achievements / Predictive Analytics folded under the Growth
+    # menu in STREAMLINE F5) — a live capability whose nav PRESENTATION changed,
+    # not drift. Catalog = capability truth; nav = presentation. Only a route
+    # whose page is GONE from disk is a genuinely dangling alias.
+    folded: dict[str, str] = {}   # intel_name -> href, materialised in Pass 1.5
     for intel_name, href in INTEL_TO_ROUTE.items():
         if intel_name not in FEATURE_ECOSYSTEM:
             alias_issues.append({"kind": "alias_intel_missing", "feature": intel_name,
                                  "reason": f"alias key '{intel_name}' is no longer in FEATURE_ECOSYSTEM"})
         if href and href not in nav_by_href:
-            alias_issues.append({"kind": "alias_route_missing", "feature": intel_name, "href": href,
-                                 "reason": f"alias route '{href}' for '{intel_name}' is no longer a nav tool"})
+            if (ROOT / href).exists():
+                folded[intel_name] = href
+            else:
+                alias_issues.append({"kind": "alias_route_missing", "feature": intel_name, "href": href,
+                                     "reason": f"alias route '{href}' for '{intel_name}' is no longer a nav tool and its page is gone"})
 
     features: list[dict] = []
 
@@ -277,7 +312,10 @@ def build_features(nav_tools: list[dict]) -> tuple[list[dict], list[dict]]:
         status = "deprecated" if href in RETIRED_PAGES else "active"
         feat = {
             "id":          fid,
-            "name":        intel_name or t["label"],
+            # NAME ANCHORED ON PAGE TITLE (ground truth) → intel/nav fallback. The
+            # prior intel name is kept as `alias` (resolution + a checked synonym).
+            "name":        _page_title(href) or intel_name or t["label"],
+            "alias":       intel_name,
             "route":       href,
             "url":         "/" if href == "index.html" else f"/{href}",
             "status":      status,
@@ -295,6 +333,37 @@ def build_features(nav_tools: list[dict]) -> tuple[list[dict], list[dict]]:
             "articles":    [],   # filled after articles are parsed
         }
         features.append(feat)
+
+    # Pass 1.5 — folded features: a marketed intel feature whose page still EXISTS
+    # on disk but is no longer a top-level nav tool. The capability is live (own
+    # page + tables + intel ecosystem entry + inbound links); only its nav
+    # presentation changed. Surfaced as an ACTIVE feature so content that "Maps to
+    # <it>" resolves and the gate does not false-flag it as feature drift.
+    for intel_name, href in folded.items():
+        intel = FEATURE_ECOSYSTEM.get(intel_name, {})
+        fid = _href_stem(href) or _slug(intel_name)
+        status = "deprecated" if href in RETIRED_PAGES else "active"
+        features.append({
+            "id":          fid,
+            "name":        _page_title(href) or intel_name,
+            "alias":       intel_name,
+            "route":       href,
+            "url":         f"/{href}",
+            "status":      status,
+            "capability":  (intel.get("loop_role") or "").strip(),
+            "connects_to": intel.get("connects_to", []),
+            "tables":      intel.get("tables", []),
+            "edge_fns":    intel.get("edge_fns", []),
+            "audience":    intel.get("audience", []),
+            "nav_label":   None,
+            "nav_section": None,
+            "nav_hidden":  True,
+            "nav_roles":   [],
+            "nav_status":  "folded",
+            "journey_key": _href_stem(href).replace("-", "_"),
+            "sources":     ["page", "intel"],
+            "articles":    [],
+        })
 
     # Pass 2 — intel marketed features with no standalone route (route=None).
     for intel_name, href in INTEL_TO_ROUTE.items():
@@ -461,10 +530,16 @@ def parse_index_public() -> dict:
 
     faq_questions = re.findall(r'"@type"\s*:\s*"Question"\s*,\s*"name"\s*:\s*"([^"]+)"', content)
 
-    # Count claims in human copy: "24 guides", "30+ calculators", "33 tools".
+    # Count claims in human copy: "24 guides", "30+ calculators", "33 tools",
+    # and adjective forms like "24 in-depth guides" (D0 found this slip past the
+    # old regex — a real index.html contradiction went uncaught). A bounded
+    # allow-list of marketing adjectives keeps it from over-matching "24 hours of
+    # guides". (Counts wrapped in CATALOG markers are guarded by surface_render_drift.)
     count_claims: dict[str, list[int]] = {}
     for cm in re.finditer(
-        r"(\d+)\s*\+?\s*(?:free\s+)?(guides?|tools?|calculators?|articles?|features?)", content, re.I
+        r"(\d+)\s*\+?\s*"
+        r"(?:(?:free|in-depth|practical|detailed|comprehensive|step-by-step|hands-on)\s+){0,2}"
+        r"(guides?|tools?|calculators?|articles?|features?)", content, re.I
     ):
         noun = cm.group(2).lower().rstrip("s")
         count_claims.setdefault(noun, []).append(int(cm.group(1)))
@@ -582,12 +657,17 @@ def self_test() -> int:
     check("logbook" in by_id and by_id["logbook"]["route"] == "logbook.html"
           and by_id["logbook"]["status"] == "active",
           "logbook → logbook.html, active")
-    check("pm-scheduler" in by_id and "PM Checklist" == by_id["pm-scheduler"]["name"],
-          "pm-scheduler enriched with intel name 'PM Checklist'")
+    # NAME is now anchored on the page <title> (Platform Alignment Arc); the prior
+    # intel name is preserved as `alias`. (Was: name=='PM Checklist' — the stale
+    # intel name; the page titles itself 'PM Scheduler'.)
+    check("pm-scheduler" in by_id and by_id["pm-scheduler"]["name"] == "PM Scheduler"
+          and by_id["pm-scheduler"].get("alias") == "PM Checklist",
+          "pm-scheduler name anchored on page title 'PM Scheduler' (alias 'PM Checklist')")
     check("intel" in by_id.get("predictive", {}).get("sources", []),
           "predictive route enriched from intel (analytics/predictive cluster split correctly)")
-    check(by_id.get("analytics", {}).get("name") == "Analytics & OEE Dashboard",
-          "analytics route maps to 'Analytics & OEE Dashboard' (not Predictive)")
+    check(by_id.get("analytics", {}).get("name") == "Analytics Engine"
+          and by_id.get("analytics", {}).get("alias") == "Analytics & OEE Dashboard",
+          "analytics name anchored on page title 'Analytics Engine' (alias 'Analytics & OEE Dashboard')")
 
     # Articles: filesystem count must match what we parsed.
     fs_articles = len(list(LEARN_DIR.glob("*/index.html"))) if LEARN_DIR.exists() else 0

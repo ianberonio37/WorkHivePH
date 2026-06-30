@@ -7,7 +7,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 - Calm-opted-in pages: **15**
 - Fully compliant pages (0 drift + 0 gap): **13** (86%)
-- Canonical reads (✅): **41**
+- Canonical reads (✅): **42**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
 - Gap reads (❌ no wrapper exists yet): **2**
 - Allowed reads (legitimate raw): **50**
@@ -20,13 +20,13 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `achievements.html` | 2 | 0 | 0 | 1 | ✓ | ✅ |
 | `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | — | ✅ |
 | `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
-| `alert-hub.html` | 5 | 0 | 0 | 5 | ✓ | ✅ |
+| `alert-hub.html` | 5 | 0 | 0 | 6 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 1 | 0 | ✓ | ❌ |
-| `asset-hub.html` | 10 | 0 | 0 | 13 | ✓ | ✅ |
+| `asset-hub.html` | 10 | 0 | 0 | 12 | ✓ | ✅ |
 | `dayplanner.html` | 1 | 0 | 0 | 2 | ✓ | ✅ |
 | `founder-console.html` | 2 | 0 | 0 | 5 | ✓ | ✅ |
 | `hive.html` | 10 | 0 | 0 | 9 | ✓ | ✅ |
-| `index.html` | 8 | 0 | 0 | 4 | ✓ | ✅ |
+| `index.html` | 9 | 0 | 0 | 4 | ✓ | ✅ |
 | `ph-intelligence.html` | 0 | 0 | 0 | 2 | — | ✅ |
 | `plant-connections.html` | 1 | 0 | 0 | 5 | ✓ | ✅ |
 | `platform-health.html` | 0 | 0 | 0 | 1 | — | ✅ |
@@ -64,7 +64,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ### `alert-hub.html` — ✅ compliant
 
 **Canonical** (5): `v_alert_truth`, `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_scope_items_truth`, `v_risk_truth`
-**Allowed raw** (5): `amc_briefings`, `anomaly_signals`, `automation_log`, `hive_audit_log`, `parts_staging_recommendations`
+**Allowed raw** (6): `alert_dismissals`, `amc_briefings`, `anomaly_signals`, `automation_log`, `hive_audit_log`, `parts_staging_recommendations`
 
 ### `analytics.html` — ❌ not compliant
 
@@ -73,7 +73,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ### `asset-hub.html` — ✅ compliant
 
 **Canonical** (10): `v_asset_truth`, `v_external_sync_truth`, `v_fmea_truth`, `v_logbook_truth`, `v_marketplace_listings_truth`, `v_pf_truth`, `v_rcm_truth`, `v_risk_truth`, `v_sensor_truth`, `v_weibull_truth`
-**Allowed raw** (13): `asset_edges`, `asset_nodes`, `equipment_reading_templates`, `hive_audit_log`, `hive_members`, `parts_staged_reservations`, `parts_staging_recommendations`, `pm_assets`, `pm_completions`, `pm_scope_items`, `rcm_fmea_modes`, `rcm_strategies`, `v_sensor_recent`
+**Allowed raw** (12): `asset_nodes`, `equipment_reading_templates`, `hive_audit_log`, `hive_members`, `parts_staged_reservations`, `parts_staging_recommendations`, `pm_assets`, `pm_completions`, `pm_scope_items`, `rcm_fmea_modes`, `rcm_strategies`, `v_sensor_recent`
 
 ### `dayplanner.html` — ✅ compliant
 
@@ -92,7 +92,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `index.html` — ✅ compliant
 
-**Canonical** (8): `v_alert_truth`, `v_amc_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_scope_items_truth`, `v_risk_truth`, `v_sensor_truth`, `v_worker_truth`
+**Canonical** (9): `v_alert_truth`, `v_amc_truth`, `v_hives_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_scope_items_truth`, `v_risk_truth`, `v_sensor_truth`, `v_worker_truth`
 **Allowed raw** (4): `early_access_emails`, `pm_assets`, `pm_completions`, `worker_profiles`
 
 ### `ph-intelligence.html` — ✅ compliant

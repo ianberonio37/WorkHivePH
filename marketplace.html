@@ -61,7 +61,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -142,7 +142,7 @@
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.625rem; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 0.8rem;
-      cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+      cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; min-height: 44px; /* D1 U2 */
     }
     .btn-filter.active { border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
 
@@ -239,7 +239,7 @@
     /* Heart watchlist toggle on listing card */
     .heart-btn {
       position: absolute; top: 0.5rem; right: 0.5rem;
-      width: 32px; height: 32px; border-radius: 50%; border: none;
+      width: 44px; height: 44px; border-radius: 50%; border: none; /* D1 U2: 32→44 gloved-field tap target */
       background: rgba(15,25,35,0.7);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: background 0.15s, transform 0.15s;
@@ -271,6 +271,8 @@
       padding-top: 0.625rem; border-top: 1px solid rgba(255,255,255,0.05);
     }
     .seller-row { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .seller-link { min-height: 44px; } /* D1 U2: the card's seller-profile link is a real tap target → 44px */
+    .star-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; } /* D1 U2: review rating-input stars → 44px tap targets */
     .seller-avatar {
       width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
       background: rgba(247,162,27,0.2); border: 1px solid rgba(247,162,27,0.3);
@@ -281,7 +283,7 @@
     .stars { color: var(--wh-orange); font-size: 0.7rem; letter-spacing: -1px; }
     .rating-val { font-size: 0.7rem; color: #9aa6b3; }
     .btn-view {
-      padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer;
+      padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; min-height: 44px; /* D1 U2: gloved-field tap target */
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
       color: var(--wh-orange); font-size: 0.72rem; font-weight: 600;
       font-family: 'Poppins', sans-serif; white-space: nowrap;
@@ -337,7 +339,7 @@
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .sheet-title { font-size: 1rem; font-weight: 700; }
     .btn-close-sheet {
-      width: 32px; height: 32px; border-radius: 50%;
+      width: 44px; height: 44px; border-radius: 50%; /* D1 U2: 32→44 gloved-field tap target */
       background: rgba(255,255,255,0.06); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center; color: #9aa6b3;
     }
@@ -380,7 +382,7 @@
       background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.5rem; color: #9aa6b3;
       font-size: 0.72rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.15s; min-height: 44px; /* D1 U2 */
     }
     .section-toggle-btn.active {
       background: rgba(247,162,27,0.1); border-color: rgba(247,162,27,0.3); color: var(--wh-orange);
@@ -539,7 +541,7 @@
     <div class="verdict-text"><span id="mk-verdict-label">Loading marketplace...</span><small id="mk-verdict-sub">Counting listings, your activity, and open inquiries.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="mk-card-total" data-rag-tile="marketplace:listings_in_view" data-rag-label="Listings in view">
+    <div class="simple-card tag-grey hero" id="mk-card-total" data-rag-tile="marketplace:listings_in_view" data-rag-label="Listings in view">
       <div class="sc-label">Listings in view</div>
       <div class="sc-hero" id="mk-total-hero">0</div>
       <div class="sc-sub" id="mk-total-sub">Loading...</div>
@@ -613,7 +615,7 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span id="txt-total-listings">0 listings</span>
     </div>
-    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       Watchlist
     </button>
@@ -625,7 +627,7 @@
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       My Listings
     </a>
-    <a id="btn-admin-link" href="marketplace-admin.html" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace Admin">
+    <a id="btn-admin-link" href="marketplace-admin.html" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace Admin">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
       Admin
     </a>
@@ -1549,7 +1551,9 @@
       const { data } = await db
         .from('marketplace_watchlist')
         .select('listing_id')
-        .eq('worker_name', WORKER_NAME);
+        // bounded-by-nature: one worker's saved-listing IDs (≤ dozens); .limit(500) is safe insurance — a personal watchlist never reaches 500.
+        .eq('worker_name', WORKER_NAME)
+        .limit(500);
       _watchlist = new Set((data || []).map(r => r.listing_id));
     } catch (_) { _watchlist = new Set(); }
   }
@@ -1633,11 +1637,12 @@
       }
 
       const { data, error } = await db
-        // unbounded-query-allow: bounded by .in('id', ids) — ids array is the upstream cap
+        // unbounded-query-allow: bounded by .in('id', ids) — ids array is the upstream cap (one worker's watchlist, ≤ dozens); .limit(500) is safe insurance on the same bound.
         .from('v_marketplace_listings_truth')
         .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
         .in('id', ids)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(500);
       if (error) throw error;
 
       const items = data || [];
@@ -1663,7 +1668,7 @@
                 ${removed ? `<br><span style="color:#f87171;">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">View</button>` : ''}
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">View</button>` : ''}
                 <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
               </div>
             </div>
@@ -1739,7 +1744,7 @@
               ${item.rating_avg
                 ? `<span class="stars">${renderStars(item.rating_avg)}</span><span class="rating-val">${Number(item.rating_avg).toFixed(1)}</span>`
                 : ''}
-              <button class="btn-view" data-id="${e(item.id)}">View</button>
+              <button class="btn-view" data-id="${e(item.id)}" aria-label="View ${e(item.title)}">View</button>
             </div>
           </div>
         </div>
@@ -1944,8 +1949,15 @@
         .order('created_at', { ascending: false })
         .limit(PAGE_SIZE);
 
-      /* server-side full-text search (uses tsvector index when available) */
-      if (_query) q = q.textSearch('search_vector', _query, { type: 'plain', config: 'english' });
+      /* Server-side search. The canonical truth view (v_marketplace_listings_truth)
+         exposes NO tsvector column, so the previous full-text-search call on a
+         search_vector column returned HTTP 400 for EVERY search (search was fully
+         broken). Fall back to an ILIKE on the title + description columns the view
+         does expose. User input is sanitised of PostgREST/or() delimiters + LIKE wildcards. */
+      if (_query) {
+        const _safe = _query.replace(/[,()%*\\_]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (_safe) q = q.or(`title.ilike.%${_safe}%,description.ilike.%${_safe}%`);
+      }
 
       /* category + price filters (server-side, index-backed) */
       if (_cat !== 'All')  q = q.eq('category', _cat);
@@ -1988,16 +2000,20 @@
   ============================================================ */
   async function loadCounts() {
     try {
-      const { data } = await db
-        // unbounded-query-allow: section-count rollup; trades a full-table read for 3 separate per-section head-counts (TODO if listings exceed ~5k)
-        .from('v_marketplace_listings_truth')
-        .select('section')
-        .eq('status', 'published');
-      if (data) {
-        _counts = { parts: 0, training: 0, jobs: 0 };
-        data.forEach(row => { if (_counts[row.section] != null) _counts[row.section]++; });
-        updateCountBadges();
-      }
+      // Arc L/L2: 3 per-section head:true COUNT queries (count-only, zero row egress)
+      // instead of streaming every published row's `section` to tally client-side.
+      const sections = ['parts', 'training', 'jobs'];
+      const next = { parts: 0, training: 0, jobs: 0 };
+      await Promise.all(sections.map(async (s) => {
+        const { count } = await db
+          .from('v_marketplace_listings_truth')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'published')
+          .eq('section', s);
+        next[s] = count || 0;
+      }));
+      _counts = next;
+      updateCountBadges();
     } catch (_) { /* ignore — table may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
@@ -2488,7 +2504,7 @@
       writeAuditLog('create_listing', 'marketplace_listings', null, title,
         { section, category, price, status: 'draft' });
 
-      showToast('Listing submitted for review!', 'success');
+      showToast('✓ Listing submitted for review → in your Seller dashboard now · goes live to buyers in the Marketplace once approved', 'success');
       closeSheet('post');
       document.getElementById('form-post')?.reset();
       document.querySelectorAll('.section-toggle-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
@@ -2587,7 +2603,7 @@
         updateCountBadges();
         showToast('New listing just posted!', 'info');
       })
-      .subscribe();
+      .subscribe(rtConn());
   }
 
   /* ============================================================
@@ -2777,6 +2793,7 @@
         opened_by:   WORKER_NAME || 'Buyer',
         seller_name: sellerName,
         reason,
+        description: desc || null,   // §13 fix 2026-06-17: was captured + validated (min 20) but DROPPED
         evidence_urls: [],
         status:      'open',
       }]);
@@ -3040,12 +3057,25 @@
     });
     updateQualityWidget();
 
+    /* Arc X A3 (list-state persistence): mirror the active search + price range into
+       the URL (?q=/?min=/?max=) so the browse filters survive a reload / a view-listing-
+       and-back-nav; the restore block below reapplies them before the first load. */
+    function _mktSyncUrl() {
+      try {
+        const url = new URL(window.location.href);
+        _query ? url.searchParams.set('q', _query) : url.searchParams.delete('q');
+        (_priceMin != null) ? url.searchParams.set('min', _priceMin) : url.searchParams.delete('min');
+        (_priceMax != null) ? url.searchParams.set('max', _priceMax) : url.searchParams.delete('max');
+        history.replaceState(null, '', url);
+      } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+    }
+
     /* Search — server-side via tsvector; resets pagination */
     let _searchTimer;
     document.getElementById('search-input')?.addEventListener('input', ev => {
       _query = ev.target.value.trim();
       clearTimeout(_searchTimer);
-      _searchTimer = setTimeout(() => loadListings(), 400);
+      _searchTimer = setTimeout(() => { loadListings(); _mktSyncUrl(); }, 400);
     });
 
     /* Price filter toggle */
@@ -3067,6 +3097,7 @@
         _priceMin = minRaw ? parseFloat(minRaw) : null;
         _priceMax = maxRaw ? parseFloat(maxRaw) : null;
         loadListings();
+        _mktSyncUrl();
       }, 400);
     }
     document.getElementById('price-min')?.addEventListener('input', onPriceInput);
@@ -3083,6 +3114,18 @@
 
     /* Load watchlist first so heart states render correctly on first paint */
     await loadWatchlist();
+
+    /* Arc X A3: restore the browse filters from the URL BEFORE the first load, so a
+       reload / view-listing-and-back-nav keeps the user's search + price range. */
+    try {
+      const _mq = new URLSearchParams(window.location.search);
+      const _q = _mq.get('q');
+      if (_q) { _query = _q; const _si = document.getElementById('search-input'); if (_si) _si.value = _q; }
+      const _mn = _mq.get('min');
+      if (_mn != null && _mn !== '') { _priceMin = parseFloat(_mn); const _pn = document.getElementById('price-min'); if (_pn) _pn.value = _mn; }
+      const _mx = _mq.get('max');
+      if (_mx != null && _mx !== '') { _priceMax = parseFloat(_mx); const _px = document.getElementById('price-max'); if (_px) _px.value = _mx; }
+    } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 
     /* Load data */
     await Promise.all([loadListings(), loadCounts()]);
@@ -3122,5 +3165,7 @@
 <!-- oc-helper.js: optimistic concurrency for listing/order edits (PRODUCTION_FIXES #43) -->
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
 </body>
 </html>

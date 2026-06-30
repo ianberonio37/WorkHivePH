@@ -1,0 +1,544 @@
+{
+  "_doc": "Display ladder classification (Phase E). Each display anchor tagged on Gartner's Descriptive->Diagnostic->Predictive->Prescriptive ladder. grounded = anchor resolves to a canonical source (Phase B RESOLVED*). Ungrounded predictive/prescriptive tiles claim a higher rung than their data backs = residual to fix.",
+  "totals": {
+    "displays": 65,
+    "by_rung": {
+      "predictive": 8,
+      "descriptive": 36,
+      "diagnostic": 19,
+      "prescriptive": 2
+    },
+    "grounded": 65,
+    "grounded_pct": 100.0,
+    "grounded_by_rung": {
+      "predictive": 8,
+      "descriptive": 36,
+      "diagnostic": 19,
+      "prescriptive": 2
+    },
+    "ungrounded_high_rung": 0
+  },
+  "displays": [
+    {
+      "page": "hive.html",
+      "id": "adoption-risk-score",
+      "token": "adoption",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "hive.html",
+      "id": "presence-bar",
+      "token": "presence-bar",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "hive.html",
+      "id": "ss-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "hive.html",
+      "id": "welcome-log-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "hive.html",
+      "id": "welcome-parts-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "hive.html",
+      "id": "hive-focus-label",
+      "token": "hive-focus-label",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "logbook.html",
+      "id": "quality-pct-value",
+      "token": "quality",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "logbook-count-label",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "machine-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "offline-queue-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "open-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "open-jobs-count",
+      "token": "open-jobs",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "pm-tasks-count",
+      "token": "count",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "logbook.html",
+      "id": "total-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "inventory.html",
+      "id": "stat-total",
+      "token": "total",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "inventory.html",
+      "id": "inv-count-label",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "inventory.html",
+      "id": "inv-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "pm-count-label",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "pm-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "analytics.html",
+      "id": "an-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "skillmatrix.html",
+      "id": "result-score",
+      "token": "result-score",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "skillmatrix.html",
+      "id": "sm-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "community.html",
+      "id": "mod-count",
+      "token": "count",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "community.html",
+      "id": "presence-bar",
+      "token": "presence-bar",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "community.html",
+      "id": "profile-xp",
+      "token": "profile-xp",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "marketplace.html",
+      "id": "mk-card-total",
+      "token": "total",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "marketplace.html",
+      "id": "quality-bar",
+      "token": "quality",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "marketplace.html",
+      "id": "quality-score-num",
+      "token": "quality",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "marketplace.html",
+      "id": "mk-verdict-label",
+      "token": "-verdict-label",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "id": "ps-earned",
+      "token": "earned",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "dp-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "sidebar-count-bar",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "sidebar-count-label",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "platform-health.html",
+      "id": "health-label",
+      "token": "health",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "platform-health.html",
+      "id": "health-num",
+      "token": "health",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "platform-health.html",
+      "id": "streak-num",
+      "token": "streak",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "project-manager.html",
+      "id": "pm-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "integrations.html",
+      "id": "it-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "integrations.html",
+      "id": "preview-count-label",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "ph-intelligence.html",
+      "id": "ph-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "predictive.html",
+      "id": "pr-verdict-label",
+      "token": "-verdict-label",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "predictive.html",
+      "id": "trend-label",
+      "token": "trend",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "achievements.html",
+      "id": "ac-card-level",
+      "token": "level",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "achievements.html",
+      "id": "hero-tier-label",
+      "token": "tier",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "achievements.html",
+      "id": "ac-verdict-label",
+      "token": "-verdict-label",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "ah-card-total",
+      "token": "total",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "detail-level",
+      "token": "level",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "pf-pf-days",
+      "token": "pf-pf",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "risk-days",
+      "token": "risk",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "risk-score-num",
+      "token": "risk",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "ah-verdict-label",
+      "token": "-verdict-label",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "pending-assets-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "carry-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "parts-count",
+      "token": "count",
+      "rung": "prescriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "pms-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "risk-count",
+      "token": "count",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "sb-verdict-label",
+      "token": "-verdict-label",
+      "rung": "prescriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "anomaly-engine-count",
+      "token": "anomaly",
+      "rung": "predictive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-assets",
+      "token": "amc-stat",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-crew",
+      "token": "amc-stat",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-parts",
+      "token": "amc-stat",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-pms",
+      "token": "amc-stat",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "voice-journal.html",
+      "id": "entry-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "founder-console.html",
+      "id": "ring-pct-label",
+      "token": "ring-pct",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    },
+    {
+      "page": "founder-console.html",
+      "id": "ring-pct-num",
+      "token": "ring-pct",
+      "rung": "diagnostic",
+      "grounded": true,
+      "source_via": "verified_bind"
+    }
+  ],
+  "ungrounded_high_rung": []
+}

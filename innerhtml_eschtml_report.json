@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_assignments": 506,
+    "pages_scanned": 31,
+    "total_assignments": 510,
     "total_risk": 0,
     "baseline": 0
   },
@@ -60,6 +60,10 @@
     },
     {
       "page": "engineering-design.html",
+      "risks": []
+    },
+    {
+      "page": "engineering-design.js",
       "risks": []
     },
     {

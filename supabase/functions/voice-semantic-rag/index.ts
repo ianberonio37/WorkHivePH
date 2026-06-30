@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
@@ -8,6 +10,7 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // proven in Pillar I) — used to derive the VERIFIED caller for the personal
 // voice-journal scope instead of trusting the client body auth_uid.
 import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkUserRateLimit, userRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // contract-allow: RAG retrieval fn, not a brain output producer
 
@@ -43,6 +46,7 @@ import { resolveIdentity } from "../_shared/tenant-context.ts";
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  logRequestStart(req, "voice-semantic-rag");  // I6 observability
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -80,6 +84,11 @@ serve(async (req) => {
       );
     }
     void _bodyAuthUid; // intentionally ignored — the verified uid is authoritative
+
+    // LLM10 unbounded-consumption: per-user rate-limit (personal voice search; embed + RPC are not free).
+    // Identity-keyed (no hive context); the verified auth_uid is the bucket.
+    const _rl = await checkUserRateLimit(db, "", auth_uid);
+    if (!_rl.allowed) return userRateLimitedResponse(corsHeaders, _rl.user_cap);
 
     // Phase 1.5: Try semantic search via pgvector if embeddings are available
     let results: any[] = [];

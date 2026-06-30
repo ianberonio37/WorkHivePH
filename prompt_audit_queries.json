@@ -142,6 +142,104 @@
       "category": "career",
       "query": "will AI replace maintenance technicians in 5 years",
       "expected_cite": "/learn/ai-work-assistant-maintenance-technicians/"
+    },
+    {
+      "id": "rec-free-cmms-recommend",
+      "category": "recommendation",
+      "query": "what free maintenance app would you recommend for a small Philippine factory",
+      "expected_cite": "workhiveph.com",
+      "lang": "en"
+    },
+    {
+      "id": "rec-best-free-logbook",
+      "category": "recommendation",
+      "query": "best free digital logbook app for plant maintenance teams",
+      "expected_cite": "workhiveph.com or /learn/start-digital-logbook-philippine-factory/",
+      "lang": "en"
+    },
+    {
+      "id": "tl-libreng-cmms",
+      "category": "branded-adjacent",
+      "query": "libreng CMMS o maintenance app para sa maliit na pabrika sa Pilipinas",
+      "expected_cite": "workhiveph.com",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-paano-oee",
+      "category": "tool-aligned",
+      "query": "paano mag-compute ng OEE ng production line",
+      "expected_cite": "/learn/what-is-oee-how-to-calculate/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-paano-mtbf",
+      "category": "tool-aligned",
+      "query": "paano kalkulahin ang MTBF at MTTR ng makina",
+      "expected_cite": "/learn/mtbf-vs-mttr-for-supervisors/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-shift-handover",
+      "category": "tool-aligned",
+      "query": "libreng shift handover o turnover report template para sa maintenance",
+      "expected_cite": "/learn/maintenance-shift-handover-template/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-pm-checklist",
+      "category": "tool-aligned",
+      "query": "libreng preventive maintenance checklist para sa pump at motor",
+      "expected_cite": "/learn/free-pm-checklist-templates/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-voice-logbook",
+      "category": "tool-aligned",
+      "query": "voice to text logbook na may Tagalog para sa plant floor",
+      "expected_cite": "/learn/voice-to-text-maintenance-philippine-plant-floor/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-ai-assistant",
+      "category": "tool-aligned",
+      "query": "libreng AI assistant para sa mga technician sa pabrika",
+      "expected_cite": "/learn/ai-work-assistant-maintenance-technicians/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-spare-parts",
+      "category": "tool-aligned",
+      "query": "paano i-track ang spare parts inventory para hindi maubusan",
+      "expected_cite": "/learn/spare-parts-inventory-philippine-plants/",
+      "lang": "tl"
+    },
+    {
+      "id": "tl-skill-matrix",
+      "category": "tool-aligned",
+      "query": "paano gumawa ng skill matrix para sa mga maintenance technician",
+      "expected_cite": "/learn/skill-matrix-for-maintenance-technicians/",
+      "lang": "tl"
+    },
+    {
+      "id": "rec-free-pdm-budget",
+      "category": "recommendation",
+      "query": "best way to start predictive maintenance on a near-zero budget",
+      "expected_cite": "/learn/predictive-maintenance-on-a-budget-philippines/",
+      "lang": "en"
+    },
+    {
+      "id": "ph-permit-to-work",
+      "category": "tool-aligned",
+      "query": "permit to work and lockout tagout template Philippines DOLE",
+      "expected_cite": "/learn/dole-iso-audit-trail-from-logbook/",
+      "lang": "en"
+    },
+    {
+      "id": "tl-asset-register",
+      "category": "tool-aligned",
+      "query": "paano gumawa ng asset register mula sa wala gamit ang ISO 14224",
+      "expected_cite": "/learn/building-asset-register-zero-budget/",
+      "lang": "tl"
     }
   ]
 }

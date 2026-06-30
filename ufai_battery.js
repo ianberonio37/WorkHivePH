@@ -73,7 +73,11 @@
  * `function` argument. It is idempotent (re-paste = no-op if same version).
  * ==========================================================================*/
 () => {
-  const V = '1.6.1';
+  const V = '1.6.2';
+  // v1.6.2 (2026-06-18, Arc D D1): input-font<16 (iOS-zoom) check now SCOPES to
+  // text-ENTRY fields only — radio/checkbox/range/color/file/button have no text
+  // caret to zoom and were false-positives (hive: 6 radios flagged when the page
+  // has zero zoomable text inputs). See usability() §3.
   if (window.__UFAI && window.__UFAI._v === V && window.__UFAI._installed) {
     return { already: true, _v: V };
   }
@@ -270,8 +274,15 @@
     const textLinkUnder44 = textLinks.filter((el) => el.getBoundingClientRect().height < MIN_TAP - 0.5).length;
     metrics.tapTargets = { checked: tappable.length, under44: tapFail, inlineTextLinksUnder44_exempt: textLinkUnder44 };
 
-    // 3. inputs ≥16px (iOS zoom)
-    const inputs = [...document.querySelectorAll('input:not([type="hidden"]),textarea,select')].filter((el) => vis(el) && !isShell(el));
+    // 3. inputs ≥16px (iOS zoom). SCOPE = text-ENTRY fields only: iOS Safari
+    // auto-zooms a focused text field whose font <16px, but NEVER a radio /
+    // checkbox / range / color / file / button — those have no text caret to
+    // zoom into, so their (UA-default ~12px) font is NOT a defect. Including
+    // them was a false-positive source (e.g. hive's 6 radios reported as
+    // input-font<16 when the page has zero zoomable text inputs).
+    const TEXT_ENTRY = new Set(['', 'text', 'email', 'number', 'password', 'search', 'tel', 'url', 'date', 'datetime-local', 'month', 'time', 'week']);
+    const inputs = [...document.querySelectorAll('input:not([type="hidden"]),textarea,select')]
+      .filter((el) => vis(el) && !isShell(el) && (el.tagName !== 'INPUT' || TEXT_ENTRY.has((el.getAttribute('type') || '').toLowerCase())));
     let inpFail = 0;
     for (const el of inputs) {
       const fs = parseFloat(getComputedStyle(el).fontSize);

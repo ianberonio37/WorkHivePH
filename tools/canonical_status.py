@@ -112,7 +112,20 @@ def _gather() -> dict[str, Any]:
             cite_total += 1
             if p not in cache:
                 pp = ROOT / p
-                cache[p] = pp.read_text(encoding="utf-8", errors="replace") if pp.exists() else ""
+                txt = pp.read_text(encoding="utf-8", errors="replace") if pp.exists() else ""
+                # A citation rendered from the page's OWN loaded JS bundle is user-visible too
+                # (e.g. engineering-design.html renders its calc standards from engineering-design.js).
+                # So also search the local <script src="..."> files the page includes (skip CDN/abs URLs)
+                # — additive: it can only find MORE real citations, never hide one.
+                for m_src in re.finditer(r"<script[^>]*\bsrc=[\"']([^\"']+)[\"']", txt, re.IGNORECASE):
+                    src = m_src.group(1).split("?")[0]
+                    if src.startswith(("http://", "https://", "//")):
+                        continue
+                    sp = ROOT / src.lstrip("/")
+                    if sp.exists() and sp.suffix.lower() in (".js", ".mjs"):
+                        try: txt += "\n" + sp.read_text(encoding="utf-8", errors="replace")
+                        except Exception: pass
+                cache[p] = txt
             if short in cache[p]:
                 cite_present += 1
     out["cite_present"] = cite_present

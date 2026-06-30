@@ -14,7 +14,7 @@
   <link rel="canonical" href="https://workhiveph.com/workhive/analytics-report.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -476,8 +476,8 @@
              print document (needs a project_id, reached from project-manager), a
              different job; fusing it would land users on an empty report. -->
         <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
-          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Analytics report</span>
-          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Send / schedule &rarr;</a>
+          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Analytics report</span>
+          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Send / schedule &rarr;</a>
         </div>
       </div>
       <span class="ar-badge">BETA</span>
@@ -537,7 +537,13 @@
     // empty or stale. Fire-and-forget -- the report renderer reads WORKER_NAME on
     // demand from generate(), so an async update is safe.
     if (typeof restoreIdentityFromSession === 'function') {
-      restoreIdentityFromSession(db).then(function (_n) { if (_n) WORKER_NAME = _n; });
+      restoreIdentityFromSession(db).then(function (_n) {
+        if (_n) { WORKER_NAME = _n; }
+        // Auth I1 (D2 internal-control): an authed-only report must not sit on an empty
+        // shell when logged out — hard-bounce to sign-in like its sibling analytics.html
+        // (fires only when there is no identity in storage AND none in the session).
+        else if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+      });
     }
     var HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
     var HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
@@ -1455,7 +1461,7 @@
       var topP1s = ranking.filter(function(r){ return r.priority === 'P1'; }).slice(0, 2);
       topP1s.forEach(function(r){
         thisWeekActions.push(
-          '<b>Schedule corrective work on ' + r.machine + '</b> (' + (r.criticality || 'Critical') + ') — ' +
+          '<b>Schedule corrective work on ' + escHtml(r.machine) + '</b> (' + escHtml(r.criticality || 'Critical') + ') — ' +
           r.failure_count + ' failures, ' + Number(r.total_downtime_h || 0).toFixed(0) + ' hrs downtime so far.'
         );
       });
@@ -1465,7 +1471,7 @@
       })[0];
       if (pmTopUrgent) {
         thisWeekActions.push(
-          '<b>Tighten PM cadence on ' + (pmTopUrgent.machine_code || pmTopUrgent.asset_name) + '</b> — ' +
+          '<b>Tighten PM cadence on ' + escHtml(pmTopUrgent.machine_code || pmTopUrgent.asset_name) + '</b> — ' +
           'change from ' + (pmTopUrgent.current_interval_d || '?') + 'd to ' +
           (pmTopUrgent.recommended_days || '?') + 'd. Failures are slipping past the current interval.'
         );
@@ -1660,5 +1666,7 @@
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js"></script>
 
+  <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
+  <div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

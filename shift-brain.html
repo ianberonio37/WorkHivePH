@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -534,7 +534,7 @@
           const ap = data && data.action_plan;
           if (ap) bt./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
             renderActionBrief(ap, { title: 'Action Brief', horizon: 'shift', ragTile: 'shift-brain:action_brief' });
-        } catch (_) { /* keep the stored shift_plans briefing as fallback */ }
+        } catch (_) { /* empty-catch-allow: engine action-brief render failed → intentionally keep the stored shift_plans briefing as the fallback */ }
       })();
 
       const p = _activePlan.payload || {};
@@ -876,6 +876,7 @@
     document.addEventListener('DOMContentLoaded', init);
   </script>
   <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>
   <script defer src="connectivity-widget.js"></script>

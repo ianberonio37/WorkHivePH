@@ -55,6 +55,13 @@ MANIFEST_MD = ROOT / "content_substrate_manifest.md"
 DISCOVER_JSON = ROOT / "content_discover_report.json"
 VIDEO_BACKLOG = ROOT / ".tmp" / "video_ideas_backlog.json"
 
+# Real, intentional auxiliary pages that are deliberately NOT standalone catalog
+# features — the platform's own nav declares them so. A landing link to one of these
+# is legitimate (it has backing), NOT "feature drift" (invented/renamed feature).
+# Keep in sync with nav-hub.js: report-sender is folded under "Reports"; public-feed
+# is the public-only page; marketplace-seller is the seller side of Marketplace.
+LANDING_AUX_PAGES = {"report-sender.html", "public-feed.html", "marketplace-seller.html"}
+
 
 # ── Surface scanners ──────────────────────────────────────────────────────────
 
@@ -181,7 +188,16 @@ def discover(cat: dict | None = None) -> dict:
             orphans.append({"source": "index.html#featureList", "claim": fl,
                             "reason": f"JSON-LD featureList '{fl}' resolves to no catalog feature"})
     # (d) landing page links to a page that isn't a catalog route.
+    #     EXEMPT real, intentional auxiliary pages that are deliberately NOT standalone
+    #     catalog features (the platform's own nav declares them so): a sub-page of a
+    #     feature, a folded page, or a public-only page. Linking to a REAL intentional
+    #     page is not "feature drift" (the check's intent = invented/renamed feature).
+    #     Each must exist on disk (link_drift separately verifies non-retired existence).
+    #       report-sender.html      — nav-hub folds it under "Reports" (match: report-sender)
+    #       public-feed.html        — nav-hub: "public read-only page, linked from index, not app nav"
+    #       marketplace-seller.html — the seller side of the Marketplace feature
     catalog_routes = {f["route"] for f in features if f["route"]}
+    catalog_routes |= LANDING_AUX_PAGES
     for href in sorted(landing_linked):
         if href not in catalog_routes:
             orphans.append({"source": "index.html#link", "claim": href,

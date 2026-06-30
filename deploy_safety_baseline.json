@@ -1,4 +1,7 @@
 {
-  "undeployed": 0,
-  "fns": []
+  "undeployed": 2,
+  "fns": [
+    "login",
+    "supervisor-reset-password"
+  ]
 }

@@ -15,7 +15,7 @@
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal listing-quality composite, 0-100). -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,7 +49,7 @@
       display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: var(--wh-orange);
     }
     .profile-info { flex: 1; min-width: 0; }
-    .profile-name { font-size: 1.1rem; font-weight: 800; }
+    .profile-name { font-size: 1.1rem; font-weight: 800; margin: 0; }  /* D1 U1: promoted div→h1 (page's semantic title); reset h1 default margin */
     .profile-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
     .badge-tier { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
     .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
@@ -83,14 +83,14 @@
 
     /* Tabs */
     .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.25rem; background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.35rem; }
-    .tab-btn { flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
+    .tab-btn { flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem; min-height: 44px; }
     .tab-btn.active { background: linear-gradient(135deg, rgba(247,162,27,0.15), rgba(247,162,27,0.08)); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.25); }
     .tab-count { background: rgba(247,162,27,0.2); color: var(--wh-orange); border-radius: 999px; font-size: 0.6rem; padding: 0.1rem 0.4rem; font-weight: 700; }
     .tab-count.red { background: rgba(248,113,113,0.2); color: #f87171; }
 
     /* Status filter chips */
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: var(--wh-steel); font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; }
+    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: var(--wh-steel); font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target */
     .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange); }
 
     /* Listing items */
@@ -184,7 +184,7 @@
     .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .sheet-title { font-size: 1rem; font-weight: 700; }
-    .btn-close-sheet { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel); }
+    .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel); }
 
     /* Form elements */
     .form-group { margin-bottom: 1rem; }
@@ -234,10 +234,10 @@
     <div class="profile-top">
       <div class="profile-avatar" id="profile-avatar">?</div>
       <div class="profile-info">
-        <div class="profile-name" id="profile-name">Loading…</div>
+        <h1 class="profile-name" id="profile-name">Loading…</h1>
         <div class="profile-badges" id="profile-badges"></div>
       </div>
-      <a href="marketplace.html" style="font-size:0.72rem;color:#7B8794;text-decoration:none;white-space:nowrap;">
+      <a href="marketplace.html" style="font-size:0.72rem;color:#7B8794;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target -->
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Browse
       </a>
@@ -265,7 +265,7 @@
       </div>
       <p style="font-size:0.72rem;color:#7B8794;margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
       <div style="display:flex;gap:0.5rem;">
-        <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" style="flex:1;font-size:1rem;" />
+        <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" aria-label="Your Messenger handle" style="flex:1;font-size:1rem;" />
         <button id="btn-save-messenger" style="padding:0.6rem 1rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;">Save</button>
       </div>
       <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:#4ade80;"></div>
@@ -279,9 +279,9 @@
         <span id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:#7B8794;">Not verified</span>
       </div>
       <p style="font-size:0.72rem;color:#7B8794;margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
-      <textarea class="wh-textarea" id="cert-input" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" style="min-height:90px;font-size:1rem;"></textarea>
+      <textarea class="wh-textarea" id="cert-input" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" aria-label="Your trade certifications, one per line" style="min-height:90px;font-size:1rem;"></textarea>
       <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
-        <button id="btn-save-certs" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;">Save certifications</button>
+        <button id="btn-save-certs" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;min-height:44px;">Save certifications</button>
       </div>
     </div>
   </div>
@@ -303,7 +303,7 @@
       <span class="lbl">Orders</span>
       <span class="tab-count" id="badge-orders">0</span>
     </button>
-    <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false">
+    <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-label="Analytics"><!-- D1 U5: label hidden at mobile → needs aria-label (button-name) -->
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
       <span class="lbl">Analytics</span>
     </button>
@@ -320,7 +320,7 @@
   <!-- Content -->
   <div id="content-area" class="item-list"></div>
   <div id="seller-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;">Load More</button>
   </div>
 </main>
 
@@ -572,11 +572,19 @@
     try {
       const { data, error } = await db
         .from('v_marketplace_listings_truth')
-        .select('id,title,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at')
+        .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at')
         .eq('seller_name', WORKER_NAME)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
       if (error) throw error;
       _listings = data || [];
+      // L2: accurate listing COUNT via head-only query (zero row egress) so the
+      // badge/profile stat never undercounts if the list ever exceeds the cap.
+      const { count } = await db
+        .from('v_marketplace_listings_truth')
+        .select('id', { count: 'exact', head: true })
+        .eq('seller_name', WORKER_NAME);
+      _listingsTotal = Number(count || 0);
     } catch (_) { _listings = []; }
     renderListings();
     updateBadges();
@@ -589,6 +597,7 @@
   let _ordersTotal    = 0;
   let _inquiriesTotal = 0;
   let _inquiriesPendingTotal = 0;
+  let _listingsTotal  = 0;
 
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
   async function loadInquiries() {
@@ -651,7 +660,7 @@
     const bl = document.getElementById('badge-listings');
     const bi = document.getElementById('badge-inquiries');
     const bo = document.getElementById('badge-orders');
-    if (bl) bl.textContent = _listings.length;
+    if (bl) bl.textContent = _listingsTotal || _listings.length;
     // Pending inquiry badge uses the head-only count when available, else
     // falls back to the in-memory filter on the limited array.
     if (bi) bi.textContent = _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length;
@@ -663,7 +672,7 @@
     const pss = document.getElementById('ps-sales');
     const psi = document.getElementById('ps-pending-inq');
     const pse = document.getElementById('ps-earned');
-    if (psl) psl.textContent = _listings.length;
+    if (psl) psl.textContent = _listingsTotal || _listings.length;
     if (pss) pss.textContent = _seller?.total_sales || 0;
     if (psi) psi.textContent = _inquiries.filter(i => i.status === 'pending').length;
     const earned = _orders.filter(o => o.status === 'released').reduce((sum, o) => sum + Number(o.price || 0) * 0.95, 0);
@@ -768,7 +777,7 @@
           ${inq.reply_text ? `<div style="font-size:0.72rem;color:#4ade80;padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
           ${!isReplied ? `
             <div class="reply-area">
-              <textarea class="reply-textarea" placeholder="Type your reply… (optional — you can also reply directly via the buyer's contact)" data-inq-id="${e(inq.id)}"></textarea>
+              <textarea class="reply-textarea" placeholder="Type your reply… (optional — you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
               <div class="inq-actions">
                 <button class="btn-sm primary" data-action="reply" data-id="${e(inq.id)}">Send Reply + Mark Replied</button>
                 <button class="btn-sm" data-action="close" data-id="${e(inq.id)}">Close</button>
@@ -839,7 +848,7 @@
             <div id="dispute-block-${e(ord.id)}" style="margin-top:0.75rem;padding:0.75rem;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:0.625rem;">
               <div style="font-size:0.72rem;font-weight:700;color:#f87171;margin-bottom:0.4rem;">DISPUTE OPEN</div>
               <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;">The buyer has opened a dispute. Reply within 48 hours or an admin will intervene.</div>
-              <textarea class="reply-textarea" id="reply-${e(ord.id)}" placeholder="Explain your side clearly — what was shipped, when, any tracking info…" style="margin-bottom:0.4rem;font-size:1rem;"></textarea>
+              <textarea class="reply-textarea" id="reply-${e(ord.id)}" placeholder="Explain your side clearly — what was shipped, when, any tracking info…" aria-label="Your response to this order" style="margin-bottom:0.4rem;font-size:1rem;"></textarea>
               <button class="btn-sm primary" data-action="dispute-reply" data-order-id="${e(ord.id)}">Send Reply to Admin</button>
             </div>` : ''}
         </div>`;
@@ -1175,6 +1184,17 @@
     finally { if (btn) { btn.disabled = false; btn.textContent = 'Connect Stripe'; } }
   }
 
+  /* Arc X A3 (list-state persistence): mirror the active tab + listing status filter
+     into the URL so a reload / leave-and-back returns to the same view. */
+  function _selSyncUrl() {
+    try {
+      const url = new URL(location.href);
+      (_tab && _tab !== 'listings') ? url.searchParams.set('tab', _tab) : url.searchParams.delete('tab');
+      (_statusFilter && _statusFilter !== 'all') ? url.searchParams.set('status', _statusFilter) : url.searchParams.delete('status');
+      history.replaceState(null, '', url);
+    } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+  }
+
   /* ── Tab switch ─────────────────────────────────────────────────────────── */
   function switchTab(tab) {
     _tab = tab;
@@ -1189,6 +1209,7 @@
     if (tab === 'inquiries') loadInquiries();
     if (tab === 'orders')    loadOrders();
     if (tab === 'analytics') loadAnalytics();
+    _selSyncUrl();
   }
 
   /* ── Analytics tab — views, inquiry conversion, response benchmark ───────── */
@@ -1236,7 +1257,8 @@
       const { data } = await db
         .from('v_marketplace_inquiries_truth')
         .select('listing_id, status')
-        .eq('seller_name', WORKER_NAME);
+        .eq('seller_name', WORKER_NAME)
+        .limit(5000); // L2: insurance cap on inquiry-tally egress; a seller's lifetime inquiries are bounded-by-nature well below this (server-side GROUP BY RPC is the scale fix if ever needed)
       (data || []).forEach(r => {
         if (r.listing_id) {
           inqByListing[r.listing_id] = (inqByListing[r.listing_id] || 0) + 1;
@@ -1299,7 +1321,7 @@
       <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;">Listing Performance</div>`;
 
     if (!myListings.length) {
-      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p></div>`;
+      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.6rem;padding:0.45rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;cursor:pointer;">Post a Listing →</button></div>`;
     } else {
       const sorted = [...myListings].sort((a, b) => Number(b.view_count || 0) - Number(a.view_count || 0));
       html += `<div style="display:flex;flex-direction:column;gap:0.5rem;">`;
@@ -1510,6 +1532,19 @@
     if (PAYMENTS_ENABLED) tasks.push(loadOrders());
     await Promise.all(tasks);
 
+    /* Arc X A3: restore the listing status filter + active tab from the URL so a
+       reload / leave-and-back keeps the seller's view. */
+    try {
+      const _stParam = urlParams.get('status');
+      if (_stParam && _stParam !== 'all') {
+        _statusFilter = _stParam;
+        document.querySelectorAll('[data-status]').forEach(c => c.classList.toggle('active', c.dataset.status === _stParam));
+        renderListings();
+      }
+      const _tabParam = urlParams.get('tab');
+      if (_tabParam && ['inquiries', 'orders', 'analytics'].includes(_tabParam)) switchTab(_tabParam);
+    } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
+
     /* After profile loads: show re-check button if seller has Stripe but KYB pending */
     if (PAYMENTS_ENABLED && _seller?.stripe_account_id && !_seller?.kyb_verified) {
       const recheckRow = document.getElementById('stripe-recheck-row');
@@ -1536,5 +1571,6 @@
 <script src="button-lock.js"></script>
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

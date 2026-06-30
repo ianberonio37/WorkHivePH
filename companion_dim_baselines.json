@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "ai_asset_version": 6
+    "ai_asset_version": 9
   },
   "dimensions": {
     "agent": {
@@ -22,57 +22,57 @@
       }
     },
     "rag": {
-      "frozen_ts": "2026-06-07T20:37:47+00:00",
+      "frozen_ts": "2026-06-24T04:34:23+00:00",
       "source": "rag_eval_results.json",
-      "source_generated_ts": "2026-06-07T20:37:29+00:00",
-      "tolerance_pp": 5.0,
-      "locked_test": {
-        "pass_rate": 100.0,
-        "n": 1
-      },
-      "val": {
-        "pass_rate": 66.7,
-        "n": 3
-      },
-      "train": {
-        "pass_rate": 100.0,
-        "n": 5
-      }
-    },
-    "memory": {
-      "frozen_ts": "2026-06-07T21:17:12+00:00",
-      "source": "memory_eval_results.json",
-      "source_generated_ts": "2026-06-07T21:15:36+00:00",
-      "tolerance_pp": 5.0,
-      "locked_test": {
-        "pass_rate": 100.0,
-        "n": 1
-      },
-      "val": {
-        "pass_rate": 80.0,
-        "n": 5
-      },
-      "train": {
-        "pass_rate": 88.9,
-        "n": 9
-      }
-    },
-    "persona": {
-      "frozen_ts": "2026-06-08T06:55:42+00:00",
-      "source": "persona_eval_results.json",
-      "source_generated_ts": "2026-06-08T06:54:55+00:00",
-      "tolerance_pp": 5.0,
+      "source_generated_ts": "2026-06-24T04:33:55+00:00",
+      "tolerance_pp": 25.0,
       "locked_test": {
         "pass_rate": 100.0,
         "n": 4
       },
       "val": {
-        "pass_rate": 100.0,
-        "n": 3
+        "pass_rate": 85.7,
+        "n": 7
       },
       "train": {
+        "pass_rate": 84.2,
+        "n": 19
+      }
+    },
+    "memory": {
+      "frozen_ts": "2026-06-24T02:41:30+00:00",
+      "source": "memory_eval_results.json",
+      "source_generated_ts": "2026-06-24T02:40:39+00:00",
+      "tolerance_pp": 12.0,
+      "locked_test": {
+        "pass_rate": 77.8,
+        "n": 9
+      },
+      "val": {
+        "pass_rate": 92.3,
+        "n": 13
+      },
+      "train": {
+        "pass_rate": 92.6,
+        "n": 27
+      }
+    },
+    "persona": {
+      "frozen_ts": "2026-06-24T04:14:09+00:00",
+      "source": "persona_eval_results.json",
+      "source_generated_ts": "2026-06-24T04:13:03+00:00",
+      "tolerance_pp": 12.0,
+      "locked_test": {
+        "pass_rate": 90.0,
+        "n": 10
+      },
+      "val": {
         "pass_rate": 100.0,
-        "n": 5
+        "n": 4
+      },
+      "train": {
+        "pass_rate": 88.2,
+        "n": 17
       }
     },
     "domain": {

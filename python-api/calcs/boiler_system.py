@@ -174,7 +174,8 @@ def calculate(inputs: dict) -> dict:
 
     return {
         "boiler_type":                  boiler_type,
-        "steam_pressure_bara":          round(p_bara, 3),
+        "steam_pressure_barg":          round(p_gauge, 2),   # gauge (design/working) — boilers rated in barg
+        "steam_pressure_bara":          round(p_bara, 3),    # absolute — used for the saturation table
         "t_sat_c":                      round(t_sat, 1),
         "hg_kj_kg":                     round(hg, 1),
         "hf_fw_kj_kg":                  round(hf_fw, 1),

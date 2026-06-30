@@ -1,0 +1,17 @@
+[
+  {
+    "at": "2026-06-23T23:13:14",
+    "counts": {
+      "worker_profiles": 15,
+      "hive_members": 15,
+      "logbook": 3700,
+      "pm_completions": 1587,
+      "inventory_items": 81,
+      "inventory_transactions": 480,
+      "asset_nodes": 90,
+      "projects": 12,
+      "project_items": 90,
+      "hive_audit_log": 135
+    }
+  }
+]

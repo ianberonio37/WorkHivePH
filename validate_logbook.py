@@ -414,6 +414,48 @@ def check_team_query_first(content, page):
     return issues
 
 
+def check_realtime_live_badge(content, page):
+    """
+    D3.2 (INTERACTIVE_LINEAGE_ROADMAP): the team feed surfaces a teammate's new
+    logbook entry via a live realtime badge. It MUST:
+      - subscribe to a hive-scoped `logbook-feed:` channel (INSERT on logbook),
+      - guard the silent-freeze with rtConn() and clean up on beforeunload,
+      - render a tap-to-refresh badge (NOT auto-prepend — that breaks the
+        query-first team-feed contract, see team_query_first),
+      - skip the user's OWN inserts (already rendered optimistically).
+    """
+    required = {
+        "subscribeLogbookRealtime":       "subscribeLogbookRealtime() missing — no live team-activity feed",
+        "'logbook-feed:'":                "logbook-feed channel name missing (hive-scoped realtime channel)",
+        "refreshFromLiveBadge":           "refreshFromLiveBadge() missing — badge has no tap-to-refresh action",
+        "logbook-live-badge":             "#logbook-live-badge element missing",
+        "rtConn":                         "rtConn() guard missing — subscription can silently freeze",
+        "_logbookRtChannel":              "_logbookRtChannel handle missing — channel can't be cleaned up",
+    }
+    issues = []
+    for token, reason in required.items():
+        if token not in content:
+            issues.append({"check": "realtime_live_badge", "page": page, "reason": reason})
+    # Must skip own inserts (no self-badging) — look for the WORKER_NAME guard
+    # inside the subscription handler.
+    if "subscribeLogbookRealtime" in content and not re.search(
+            r"worker_name\s*===\s*WORKER_NAME", content):
+        issues.append({"check": "realtime_live_badge", "page": page,
+                       "reason": ("Realtime handler does not skip the user's own inserts "
+                                  "(payload.new.worker_name === WORKER_NAME guard missing) — "
+                                  "the user would be badged for their own optimistic entry.")})
+    # Must NOT auto-prepend a teammate INSERT into the live list (query-first
+    # contract). A direct unshift/splice of payload.new into _teamEntries inside
+    # the realtime handler would break it.
+    m = re.search(r"subscribeLogbookRealtime[\s\S]{0,800}?\.subscribe", content)
+    if m and re.search(r"_teamEntries\.(unshift|splice|push)", m.group(0)):
+        issues.append({"check": "realtime_live_badge", "page": page,
+                       "reason": ("Realtime handler mutates _teamEntries directly (auto-prepend) — "
+                                  "breaks the query-first team-feed contract. Use the tap-to-refresh "
+                                  "badge instead.")})
+    return issues
+
+
 def check_optimistic_lock_on_edit(content, page):
     """
     Layer 2 concurrent runner (2026-05-17): saveEditFromForm() must include
@@ -456,6 +498,49 @@ def check_machine_validation_toast(content, page):
     return []
 
 
+def check_required_field_signposting(content, page):
+    """
+    Arc V (EFFORTLESS) — Layer 2 persona-walk feedback (2026-06-25, P1 Marielle).
+    The "Log a Repair" wizard validated Discipline/Category + Symptom + (Breakdown)
+    Impact only at the final Save click, drip-fed one toast at a time — and neither
+    Category nor Symptom was marked 'required', while the Impact 'required for
+    Breakdown' badge was dead code (never .remove('hidden')). An impatient field tech
+    completed the whole wizard, then got bounced back two steps. RATCHET the fix:
+      (1) Discipline/Category label signposts 'required'
+      (2) Symptom label signposts 'required'
+      (3) the consequence-required-badge is actually SHOWN on Breakdown (.remove('hidden'))
+      (4) stepGo validates the step-2 required fields at the step-2 -> step-3 boundary,
+          so the error surfaces on the step the field lives on (no bounce-back).
+    """
+    issues = []
+
+    def label_has_required(label_for):
+        m = re.search(r'<label[^>]*for="' + re.escape(label_for) + r'"[^>]*>(.*?)</label>', content, re.S)
+        return bool(m) and "required" in m.group(1).lower()
+
+    if not label_has_required("f-category"):
+        issues.append({"check": "required_field_signposting", "page": page,
+                       "reason": "Discipline/Category (f-category) is required at Save but its <label> does not signpost 'required'. Add the required badge (parity with Machine)."})
+    if not label_has_required("f-problem"):
+        issues.append({"check": "required_field_signposting", "page": page,
+                       "reason": "Symptom (f-problem) is required at Save but its <label> does not signpost 'required'."})
+
+    # (3) the impact badge must be SHOWN on Breakdown, not only ever hidden.
+    if "consequence-required-badge').classList.remove('hidden')" not in content \
+       and 'consequence-required-badge").classList.remove("hidden")' not in content:
+        issues.append({"check": "required_field_signposting", "page": page,
+                       "reason": "consequence-required-badge ('required for Breakdown') is never shown (.remove('hidden') missing in the Breakdown branch) — the requirement is invisible until the Save-time toast."})
+
+    # (4) stepGo must validate step-2 required fields at the 2->3 boundary.
+    m = re.search(r"function stepGo\(n\)\s*\{(.*?)\n\}", content, re.S)
+    body = m.group(1) if m else ""
+    if "_currentStep === 2" not in body or "f-category" not in body:
+        issues.append({"check": "required_field_signposting", "page": page,
+                       "reason": "stepGo() does not validate the step-2 required fields (f-category) at the step-2 -> step-3 boundary; a missing required field is drip-fed as a surprise toast two steps later at Save instead of being caught on its own step."})
+
+    return issues
+
+
 def check_edit_in_place(content, page):
     """
     Edit must reuse the main add form (edit-in-place) not a parallel mc.innerHTML modal.
@@ -491,10 +576,14 @@ CHECK_NAMES = [
     "highlight_escapes", "await_in_non_async",
     # L4 — feature completeness
     "offline_queue", "team_query_first", "edit_in_place",
+    # L4 — D3.2 interactive-lineage realtime
+    "realtime_live_badge",
     # L3 — Layer 2 E2E feedback
     "machine_validation_toast",
     # L3 — Layer 2 concurrent runner
     "optimistic_lock_on_edit",
+    # L3 — Arc V persona-walk (EFFORTLESS)
+    "required_field_signposting",
 ]
 
 CHECK_LABELS = {
@@ -525,10 +614,14 @@ CHECK_LABELS = {
     "offline_queue":                "L4  Offline queue present (IndexedDB + online drain + banner)",
     "team_query_first":             "L4  Team feed uses query-first UX (not auto-load)",
     "edit_in_place":                "L4  Edit uses main form in-place (not parallel mc.innerHTML)",
+    # L4 — D3.2 interactive-lineage realtime (2026-06-29)
+    "realtime_live_badge":          "L4  Live team-activity badge (logbook-feed realtime, tap-to-refresh, skips own, query-first)",
     # L3 — Layer 2 E2E feedback (2026-05-16)
     "machine_validation_toast":     "L3  Machine-empty guard shows showToast() not just border highlight",
     # L3 — Layer 2 concurrent runner (2026-05-17)
     "optimistic_lock_on_edit":      "L3  saveEditFromForm has updated_at OC guard (no silent last-write-wins)",
+    # L3 — Arc V persona-walk EFFORTLESS (2026-06-25)
+    "required_field_signposting":   "L3  Required fields signposted + validated at their own step (no Save-time drip-bounce)",
 }
 
 
@@ -576,10 +669,14 @@ def main():
     all_issues += check_offline_queue(logbook, LOGBOOK_PAGE)
     all_issues += check_team_query_first(logbook, LOGBOOK_PAGE)
     all_issues += check_edit_in_place(logbook, LOGBOOK_PAGE)
+    all_issues += check_realtime_live_badge(logbook, LOGBOOK_PAGE)
 
     # L3 — Layer 2 E2E + concurrent runner feedback
     all_issues += check_machine_validation_toast(logbook, LOGBOOK_PAGE)
     all_issues += check_optimistic_lock_on_edit(logbook, LOGBOOK_PAGE)
+
+    # L3 — Arc V persona-walk (EFFORTLESS)
+    all_issues += check_required_field_signposting(logbook, LOGBOOK_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

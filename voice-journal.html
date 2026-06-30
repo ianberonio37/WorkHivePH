@@ -16,7 +16,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -204,6 +204,10 @@
        one control missing the >=44px mobile bump that .btn-ghost (line ~96) and
        .filter-chip already have — it rendered 41px on phones. Match the pattern. */
     @media (max-width: 480px) { .persona-chip { min-height: 44px; } }
+    /* D3 A1 (responsive 360→1920): the persona-chip row is flex with no wrap, so at
+       360px the chips overflowed the viewport by 8px (real content overflow — NOT the
+       parked feedback-panel shell artifact, as earlier supposed). Let them wrap. */
+    #persona-row { flex-wrap: wrap; }
     .speak-btn:hover  { background: rgba(247,162,27,0.28); }
     .speak-btn:active { transform: scale(0.96); }
 
@@ -784,8 +788,21 @@
           _voiceDisplayCount = 30;  // reset slice when filter changes
           renderFilters();
           renderHistory();
+          _vjSyncUrl();
         });
       });
+    }
+
+    // Arc X A3 (list-state persistence): mirror the journal's language filter + search
+    // into the URL (?filter=/?q=) so they survive a reload / leave-and-back-nav.
+    function _vjSyncUrl() {
+      try {
+        const url = new URL(location.href);
+        const q = ($('search-input').value || '').trim();
+        q ? url.searchParams.set('q', q) : url.searchParams.delete('q');
+        (_activeFilter && _activeFilter !== 'all') ? url.searchParams.set('filter', _activeFilter) : url.searchParams.delete('filter');
+        history.replaceState(null, '', url);
+      } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
     }
 
     function renderHistory() {
@@ -1032,8 +1049,18 @@
       wirePersonaPicker();
       $('tts-toggle').addEventListener('click', toggleTts);
       $('mic-btn').addEventListener('click', toggleRecord);
-      $('search-input').addEventListener('input', () => { _voiceDisplayCount = 30; renderHistory(); });
+      $('search-input').addEventListener('input', () => { _voiceDisplayCount = 30; renderHistory(); _vjSyncUrl(); });
       window.loadMoreVoice = () => { _voiceDisplayCount += 30; renderHistory(); };
+
+      // Arc X A3: restore the language filter + search from the URL before the history
+      // first renders, so a reload / leave-and-back keeps the journal's filtered view.
+      try {
+        const _vq = new URLSearchParams(location.search);
+        const _q = _vq.get('q');
+        if (_q) { $('search-input').value = _q; }
+        const _f = _vq.get('filter');
+        if (_f) { _activeFilter = _f; }
+      } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 
       // Prime the voice list on browsers that load it asynchronously.
       if (window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
@@ -1052,5 +1079,6 @@
   </script>
 
 </main>
+  <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

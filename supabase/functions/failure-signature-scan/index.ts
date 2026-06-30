@@ -16,6 +16,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
@@ -25,6 +27,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual single-hive path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -278,6 +281,7 @@ async function scanHive(
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  logRequestStart(req, "failure-signature-scan");  // I6 observability
 
   try {
   const db = createClient(
@@ -301,6 +305,10 @@ serve(async (req) => {
           { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
         );
       }
+      // Arc L free-tier B-hardening: per-hive AI cap so a member cannot spam this
+      // generative scan and drain the hive's free-tier LLM budget.
+      const _rl = await checkAIRateLimit(db, String(body.hive_id));
+      if (!_rl.allowed) return rateLimitedResponse(cors);
     }
   }
 

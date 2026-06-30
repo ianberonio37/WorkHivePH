@@ -22,6 +22,26 @@ import { adminClient } from './_db-cleanup';
 
 const FOUNDER_URL = 'http://127.0.0.1:5000/workhive/founder-console.html';
 const PUBLIC_URL  = 'http://127.0.0.1:5000/workhive/about/';
+const SIGNIN_URL  = 'http://127.0.0.1:5000/workhive/index.html?signin=1';
+
+// Seeded platform admin (client_hive.py upserts pabloaguilar into
+// marketplace_platform_admins). After mig 20260621000003 the founder console
+// must AUTHENTICATE to read/subscribe platform_feedback — anon now only sees
+// is_public=true rows (Arc J keystone: closed the anon live-stream of private
+// feedback + PII). So this test signs in first, proving the SECURE prod path:
+// an authenticated platform admin receives private feedback live via Realtime.
+const ADMIN_USER = process.env.WH_TEST_USERNAME || 'pabloaguilar';
+const ADMIN_PASS = process.env.WH_TEST_PASSWORD || 'test1234';
+
+async function signInAsAdmin(page: import('@playwright/test').Page) {
+  await page.goto(SIGNIN_URL, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#signin-modal:not(.hidden)', { timeout: 12000 });
+  await page.fill('#si-username', ADMIN_USER);
+  await page.fill('#si-password', ADMIN_PASS);
+  await page.click('#si-btn');
+  // success = the platform's own login signal (mirrors auth-identity-arc-i.spec.ts)
+  await page.waitForFunction(() => !!localStorage.getItem('wh_last_worker'), { timeout: 15000 });
+}
 
 test.describe('Feedback inbox Realtime (commit cffafdd L2 verification)', () => {
 
@@ -45,6 +65,12 @@ test.describe('Feedback inbox Realtime (commit cffafdd L2 verification)', () => 
       }
     });
 
+    // Authenticate as a platform admin FIRST so the founder console's client
+    // carries a JWT — Realtime evaluates platform_feedback's SELECT RLS against
+    // the subscriber, and post-20260621000003 only an authenticated admin (or
+    // is_public=true) is admitted. Session persists in localStorage → the
+    // founder console restores it → subscribes as admin.
+    await signInAsAdmin(page);
     await page.goto(FOUNDER_URL);
     // Wait until the inbox renders + subscribes (#fb-count-all is the
     // last thing applyFeedbackView writes after subscribeFeedbackRealtime).

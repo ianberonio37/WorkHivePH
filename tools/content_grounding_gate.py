@@ -61,6 +61,7 @@ for _stream in (sys.stdout, sys.stderr):
 import platform_catalog as pc          # noqa: E402
 import content_substrate as cs         # noqa: E402
 import page_evidence as pe             # noqa: E402
+import render_public_surface as rps    # noqa: E402  (D1 derive-and-render guard)
 
 BASELINE_PATH = ROOT / "content_grounding_baseline.json"
 REPORT_PATH = ROOT / "content_grounding_report.json"
@@ -69,6 +70,7 @@ CHECK_ORDER = [
     "feature_drift", "count_drift", "link_drift",
     "learn_hub_unlisted", "sitemap_drift", "schema_featurelist", "undated_articles",
     "capability_drift", "affordance_repetition", "wall_of_text",
+    "surface_render_drift", "llms_article_completeness",
 ]
 
 # Verbs that mark a sentence as ATTRIBUTING a capability to the product (vs stating
@@ -470,6 +472,24 @@ def run_checks() -> dict:
     issues = _wall_of_text_issues(cat["articles"])
     checks["wall_of_text"] = {"count": len(issues), "issues": issues}
 
+    # 11. surface_render_drift — a catalog-derived marker region on a public
+    #     surface (index.html / llms.txt / learn hub) whose rendered value no
+    #     longer matches the catalog (D1 derive-and-render guard). A drift here
+    #     means someone hand-edited a machine-managed fact; heal with
+    #     `python tools/render_public_surface.py --apply`.
+    issues = [{"surface": i["surface"], "key": i["key"], "reason": i["reason"]}
+              for i in rps.check(rps.render_values(cat))]
+    checks["surface_render_drift"] = {"count": len(issues), "issues": issues}
+
+    # 12. llms_article_completeness — every learn article must be named in llms.txt.
+    #     GEO surface: AI crawlers read llms.txt; an article absent from it is
+    #     invisible to them (D1 found the AI-Companion article missing → the 37-vs-38).
+    llms_raw = pc._read(pc.LLMS_TXT)
+    llms_slugs = set(re.findall(r"/learn/([a-z0-9-]+)/", llms_raw))
+    issues = [{"slug": a["slug"], "reason": f"article '{a['slug']}' is not named in llms.txt (GEO gap — invisible to AI crawlers)"}
+              for a in cat["articles"] if a["slug"] not in llms_slugs]
+    checks["llms_article_completeness"] = {"count": len(issues), "issues": issues}
+
     return checks
 
 
@@ -664,10 +684,19 @@ def self_test() -> int:
     check("_wall_probe" in wall_flagged, "wall_of_text FLAGS 800 structureless words")
     check("_scannable_probe" not in wall_flagged, "wall_of_text passes the same length WITH structure")
 
-    # Strict mode must FAIL while real drift exists (teeth), and report total_drift.
-    rc_strict, rep_strict = evaluate(strict=True)
+    # Strict mode must FAIL on ANY drift (teeth). Proven with SYNTHETIC drift (an
+    # empty learn hub → every article flagged), so the assertion is live-state-
+    # INDEPENDENT: it must hold even when the live platform is fully clean — which
+    # is the goal state. A green platform must never starve this teeth test (the
+    # old form read live drift and broke the day the last real drift was healed).
+    _orig_hub = cs._learn_hub_linked_slugs
+    cs._learn_hub_linked_slugs = lambda: set()
+    try:
+        rc_strict, rep_strict = evaluate(strict=True)
+    finally:
+        cs._learn_hub_linked_slugs = _orig_hub
     check(rc_strict == 1 and rep_strict["total_drift"] > 0,
-          "strict mode FAILs while real drift exists (gate has teeth)")
+          "strict mode FAILs on synthetic drift (gate has teeth, live-state-independent)")
 
     # Ratchet mode establishes a baseline and PASSes on pre-existing drift.
     rc_ratchet, rep_ratchet = evaluate(strict=False)

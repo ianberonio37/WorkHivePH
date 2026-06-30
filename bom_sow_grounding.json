@@ -1,0 +1,75 @@
+{
+  "tool": "tools/validate_bom_sow_grounding.py",
+  "subject": "engineering-bom-sow LLM artifact grounds the calc's primary sized values (live)",
+  "cells_total": 7,
+  "cells_grounded": 7,
+  "cells_skipped": 0,
+  "detail": {
+    "Pump Sizing (TDH)": {
+      "bom_http": 200,
+      "bom_len": 8260,
+      "cells": {
+        "motor kW": {
+          "value": 0.18,
+          "as": "0.18",
+          "grounded": true
+        },
+        "TDH": {
+          "value": 25.0,
+          "as": "25",
+          "grounded": true
+        }
+      }
+    },
+    "Transformer Sizing": {
+      "bom_http": 200,
+      "bom_len": 7001,
+      "cells": {
+        "rated kVA": {
+          "value": 1000,
+          "as": "1000",
+          "grounded": true
+        }
+      }
+    },
+    "AHU Sizing": {
+      "bom_http": 200,
+      "bom_len": 10429,
+      "cells": {
+        "coil kW": {
+          "value": 75.12,
+          "as": "75.12",
+          "grounded": true
+        }
+      }
+    },
+    "Fire Pump Sizing": {
+      "bom_http": 200,
+      "bom_len": 9127,
+      "cells": {
+        "flow L/min": {
+          "value": 2840,
+          "as": "2840",
+          "grounded": true
+        },
+        "motor HP": {
+          "value": 100.5,
+          "as": "100.5",
+          "grounded": true
+        }
+      }
+    },
+    "Generator Sizing": {
+      "bom_http": 200,
+      "bom_len": 7884,
+      "cells": {
+        "rated kVA": {
+          "value": 87.5,
+          "as": "87.5",
+          "grounded": true
+        }
+      }
+    }
+  },
+  "result": "PASS"
+}

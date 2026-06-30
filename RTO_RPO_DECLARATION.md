@@ -15,12 +15,31 @@ These are *targets*. Game-day exercises (P2) will confirm or revise.
 
 | Data class | Examples | RTO | RPO | Backup mechanism |
 |---|---|---|---|---|
-| **Auth / identity** | workers, hive memberships, role grants | 15 min | 0 (zero-loss) | Supabase point-in-time recovery + daily logical dump |
-| **Active operational** | logbook_entries, work_orders, inventory_transactions | 1 hour | 5 min | Supabase PITR (7-day window on Pro) |
-| **Analytics / derived** | v_kpi_truth_* views, canonical_period_summaries | 4 hours | 1 hour | Recomputable from source tables |
+| **Auth / identity** | workers, hive memberships, role grants | 15 min | 0 (zero-loss) | Supabase PITR (managed) **+ local logical dump** (`tools/data_backup.py`) |
+| **Active operational** | logbook_entries, work_orders, inventory_transactions | 1 hour | 5 min | Supabase PITR (7-day window) **+ local logical dump** (`tools/data_backup.py`) **+ offline-write queue** (`offline-queue.js`, no in-flight loss) |
+| **Analytics / derived** | v_kpi_truth_* views, canonical_period_summaries | 4 hours | 1 hour | Recomputable from source tables (no separate backup needed) |
 | **Companion / voice** | wh_voice_*, agent_memory, agent_episodic_memory | 4 hours | 15 min | Recomputable / regenerable on next interaction |
-| **Archive** | cold_archive Parquet (DuckDB) | 24 hours | 24 hours | S3 / R2 versioned bucket |
-| **Logs / observability** | wh_traces, agentic_rag_traces, audit-log | 24 hours | 1 hour | Daily export to cold storage; 30-day hot retention |
+| **Archive** | cold_archive Parquet (DuckDB) | 24 hours | 24 hours | Supabase Storage `archive` bucket (`tools/cold_archive_exporter.py`); external **S3/R2 mirror = prod target** ⏳ |
+| **Logs / observability** | hive_audit_log, agentic_rag_traces, automation_log | 24 hours | 1 hour | Supabase PITR + local dump (`tools/data_backup.py` covers `hive_audit_log`); **scheduled prod cold-storage export = prod target** ⏳ |
+
+> **Arc S correction (2026-06-24):** the prior version of this table named two mechanisms that did **not** exist
+> ("daily logical dump", "S3/R2 versioned bucket") — a false-sense recovery posture. They are now either
+> **implemented locally** (the logical dump + restore drill) or **explicitly marked a prod target** (⏳). The
+> `validate_dr_claims` gate fails the build if any mechanism here is stated as live without a backing implementation.
+
+### Implementation status (Arc S — Resilience/DR)
+
+| Mechanism | Status | Backed by |
+|---|---|---|
+| Schema reproducibility | ✅ implemented | migrations + `migration_hashes.json` (`verify_backups.py`) |
+| Logical data dump + restore **drill** | ✅ implemented (local) | `tools/data_backup.py` (`--backup` / `--drill`, round-trip verified) |
+| Silent data-loss detection | ✅ implemented (local) | `tools/dataloss_monitor.py` (rowcount-snapshot alert, in-window) |
+| Offline-write durability (no in-flight loss) | ✅ implemented | `offline-queue.js` wired on logbook/inventory/pm-scheduler |
+| PITR (7-day) | ✅ managed (Supabase) | dashboard restore — `ROLLBACK_RUNBOOK.md` §5 |
+| Restore-from-dump runbook | ✅ documented | `ROLLBACK_RUNBOOK.md` §7 |
+| External S3/R2 archive mirror | ⏳ prod target (Ian-gated) | `cold_archive_exporter.py` writes Supabase Storage today |
+| Scheduled daily cold-storage log export | ⏳ prod target (pg_cron, Ian-gated) | local dump covers it on demand |
+| Game-day PITR drill on **staging** | ⏳ prod target | local restore drill (`data_backup.py --drill`) is the local proxy |
 
 ---
 

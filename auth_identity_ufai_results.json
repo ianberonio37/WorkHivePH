@@ -1,0 +1,322 @@
+{
+  "phase": "I0-baseline",
+  "spine": "AUTH_IDENTITY_UFAI_ROADMAP.md",
+  "overall": {
+    "applicable": 32,
+    "verified": 32,
+    "live": 32,
+    "fix": 0,
+    "covered_pct": 100.0,
+    "verified_pct": 100.0,
+    "live_pct": 100.0
+  },
+  "per_lens": {
+    "U": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 90
+    },
+    "F": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 85
+    },
+    "A": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 85
+    },
+    "I": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 92
+    }
+  },
+  "cells": [
+    {
+      "row": "I1 Credential & Signup",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "signup/login forms render & drive the real flow (Playwright\u2192local stack, 5/5 green)"
+    },
+    {
+      "row": "I1 Credential & Signup",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "credential rules LIVE-block bad input (Playwright: short pw \u2192 'at least 6', bad username \u2192 format error, mismatch \u2192 'do not match')"
+    },
+    {
+      "row": "I1 Credential & Signup",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "synthetic-email login-key isolation LIVE-PROVEN: 15 seeded users map username\u2192username@auth.workhiveph.com in auth.users (docker psql); display-name change never touches the credential"
+    },
+    {
+      "row": "I1 Credential & Signup",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "account-enumeration resistance LIVE-PROVEN (ASVS V2.2): bad login \u2192 uniform 'Wrong username or password' (no user-exists tell), Playwright vs real GoTrue; signup availability via rate-limitable RPC carve-out \u2014 validate_signup_enumeration_safety GREEN"
+    },
+    {
+      "row": "I2 Session & JWT Lifecycle",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "login flips marketing shell \u2192 app (ops-home) live; session UX exercised (Playwright)"
+    },
+    {
+      "row": "I2 Session & JWT Lifecycle",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "login mints a real GoTrue JWT + session SURVIVES reload (restoreIdentityFromSession) \u2014 Playwright vs local stack"
+    },
+    {
+      "row": "I2 Session & JWT Lifecycle",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "shared-device idle expiry LIVE-PROVEN: idle\u2192soft prompt(name)\u2192Continue keeps session\u2192hard-clear wipes identity + redirects signin (Playwright 4/4 via WH_IDLE_TIMEOUT_OVERRIDE clock-seam) \u2014 validate_auth_idle_timeout_live GREEN"
+    },
+    {
+      "row": "I2 Session & JWT Lifecycle",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "logout LIVE-PROVEN full wipe (Playwright: all 7 identity+hive localStorage keys cleared) + JWT validated via auth.getUser() \u2014 ASVS V3"
+    },
+    {
+      "row": "I3 Password & Recovery",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "password + confirm fields render & accept input in the real signup flow (Playwright)"
+    },
+    {
+      "row": "I3 Password & Recovery",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "password min-length LIVE-enforced ('123' \u2192 'Password must be at least 6 characters', Playwright)"
+    },
+    {
+      "row": "I3 Password & Recovery",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "server-side credential strength LIVE-PROVEN: GoTrue rejects a too-short password (422 weak_password, direct API probe) \u2014 observable provider enforcement, not just a doc knob"
+    },
+    {
+      "row": "I3 Password & Recovery",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "password recovery BUILT + LIVE-PROVEN both flows: supervisor-assisted (no-email field workers) \u2014 supervisor-reset-password edge fn sets a same-hive WORKER's temp pw via admin API (200 + temp pw logs in), refuses a worker-caller and refuses resetting a supervisor (403/403), audit-logged; + email fallback (resetPasswordForEmail + PASSWORD_RECOVERY listener) \u2014 validate_password_recovery GREEN (9/9)"
+    },
+    {
+      "row": "I4 Role & Permission (RBAC)",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "role-gated UI render LIVE-PROVEN: supervisor sees supervisor-only blocks (Plain-Read summary, Engagement card, Audit-Log link, SUPERVISOR badge); worker/anon gated+redirected (journey-permissions 9/9, Playwright vs live stack) \u2014 validate_auth_role_render_live GREEN"
+    },
+    {
+      "row": "I4 Role & Permission (RBAC)",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live session JWT resolves to a real worker_profiles identity (auth.uid\u2192display_name, Playwright vs local DB); role read from DB across surveyed pages"
+    },
+    {
+      "row": "I4 Role & Permission (RBAC)",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "function-level role guard ENFORCED live: a seeded WORKER-role JWT invoking the supervisor-only export-hive-data edge fn \u2192 HTTP 403 (validate_auth_role_guard_live) \u2014 RBAC at the function layer, not UI-only"
+    },
+    {
+      "row": "I4 Role & Permission (RBAC)",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "DB-level role gate proven: validate_definer_tenant_gate GREEN (supervisor-only RPCs membership-gated, live two-tenant)"
+    },
+    {
+      "row": "I5 Tenancy Binding",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "tenancy resolved SERVER-SIDE live: 45 edge fns return happy-200 deriving the caller's hive from the validated JWT at runtime (backend_live_invoke), via the single _shared/tenant-context.ts resolver \u2014 not a client hive_id"
+    },
+    {
+      "row": "I5 Tenancy Binding",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "hive_id SERVER-derived from the validated JWT (auth.uid()\u2192hive_members) LIVE-PROVEN across the policy set (docker psql) \u2014 not client-supplied"
+    },
+    {
+      "row": "I5 Tenancy Binding",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "tenancy survives ABUSE live: 34 edge fns BLOCK a spoofed foreign hive_id (403, backend_live_invoke i2_blocked) \u2014 server-resolved tenancy ignores the client-supplied hive_id (BOLA)"
+    },
+    {
+      "row": "I5 Tenancy Binding",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "cross-tenant isolation LIVE-proven: validate_rls_tenant_isolation GREEN (two-tenant, count-other-hive=0)"
+    },
+    {
+      "row": "I6 Auth-Migration Completion",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "migrated identity contract EXERCISED live: login resolves username\u2192synthetic-email\u2192auth_uid\u2192display_name end-to-end (validate_auth_live_flows Playwright + validate_auth_live_db synthetic-email isolation docker-psql) \u2014 the consumer experiences the completed migration model at runtime"
+    },
+    {
+      "row": "I6 Auth-Migration Completion",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "auth.uid() RLS coverage GREEN (validate_rls_coverage \u2014 every hive table RLS-enabled)"
+    },
+    {
+      "row": "I6 Auth-Migration Completion",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "auth-migration backfill LIVE: sync_auth_uid_on_signup trigger present (docker psql) \u2014 a new signup links existing records; synthetic-email survives display_name reuse"
+    },
+    {
+      "row": "I6 Auth-Migration Completion",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "\u2605 migration COMPLETE both halves: DB \u2014 validate_rls_no_permissive_bypass GREEN (legacy USING(true) ratchet 9\u21920) + two-tenant isolation; CLIENT \u2014 validate_anon_key_retirement GREEN (anon reads 0 from all 8 core hive tables + 11/11 production hive-read pages session-gated). The I2-phase 'client anon-key retirement' residual is now CLOSED, not attributed"
+    },
+    {
+      "row": "I7 Bot & Abuse Protection",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "bot-protection contract RENDERED live: the signup page presents the Turnstile widget in-page (validate_signup_bot_protection GREEN \u2014 widget renders + yields a token with the public test sitekey, Playwright) \u2014 the consumer-facing abuse-protection surface is present at runtime (live BLOCK = the dashboard toggle, \u00a78 bucket-4 residual)"
+    },
+    {
+      "row": "I7 Bot & Abuse Protection",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "per-identity AI rate-limit ENFORCED live (LLM10): counter driven to the limit \u2192 real AI edge invoke returns HTTP 429 'AI call limit reached' (validate_auth_rate_limit_live, boundary test + self-reset); coverage also GREEN (validate_ai_rate_limit_coverage)"
+    },
+    {
+      "row": "I7 Bot & Abuse Protection",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "login brute-force BLOCKED server-side LIVE: the `login` edge proxy gates by a real failed-attempt counter (login_attempts + 3 service-role DEFINER RPCs) \u2014 5 bad logins \u2192 423, and a LOCKED account rejects even the CORRECT password (never reaches GoTrue), the property a bypassable client check cannot give \u2014 validate_login_proxy_lockout GREEN (8/8 + live edge proof)"
+    },
+    {
+      "row": "I7 Bot & Abuse Protection",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "Turnstile wiring LIVE-PROVEN: widget renders + yields a token with Cloudflare's public test sitekey (Playwright); live bot-BLOCK still needs the dashboard captcha toggle = attributed residual (\u00a78 bucket-4)"
+    },
+    {
+      "row": "I8 Account Lifecycle",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "account-lifecycle contract EXERCISED live: the consumer-facing controls run end-to-end \u2014 signOut wipes all 7 identity+hive keys (validate_auth_live_flows Playwright) + self-service deactivate_my_account() offboarding (validate_account_deactivation two-tenant docker, rolled back) \u2014 active/signout/deactivate lifecycle is live, not just modelled"
+    },
+    {
+      "row": "I8 Account Lifecycle",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "non-active member exclusion LIVE-PROVEN: 75 membership-gated RLS policies require status='active' (docker psql) \u2192 kicked/deactivated blocked from re-entry; kick = status flag not row-delete"
+    },
+    {
+      "row": "I8 Account Lifecycle",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "signOut LIVE-PROVEN to wipe all 7 identity+hive keys (Playwright; no next-worker inheritance on shared tablet)"
+    },
+    {
+      "row": "I8 Account Lifecycle",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "GDPR/PDPA soft-deactivate+anonymize LIVE-PROVEN two-tenant (local docker psql, rolled back): deactivate_my_account() self-scoped anonymizes A (display_name='Deleted user'/email NULL/deactivated_at) + revokes A's hive access + PRESERVES A's operational records, B UNTOUCHED (5/5 asserts t). validate_account_deactivation GREEN (now also gates the status-CHECK extension caught live). auth.users login-ban = admin-API attributed residual"
+    }
+  ],
+  "scan": {
+    "signup_exists": true,
+    "pw_min_len": true,
+    "username_format": true,
+    "synthetic_email": true,
+    "enum_safe_signup": false,
+    "session_restore": true,
+    "idle_timeout": true,
+    "signout_full_wipe": true,
+    "getuser_validation": true,
+    "pw_confirm": true,
+    "recovery_flow": true,
+    "role_db_validated_frac": 0.833,
+    "role_fn_guard": true,
+    "tenant_ctx_exists": true,
+    "tenant_server_resolved": true,
+    "turnstile": true,
+    "kicked_not_delete": true,
+    "role_pages": "5/6"
+  },
+  "validator_folds": {
+    "validate_rls_no_permissive_bypass": true,
+    "validate_rls_tenant_isolation": true,
+    "validate_definer_tenant_gate": true,
+    "validate_rls_coverage": true,
+    "validate_edge_symbol_imports": true,
+    "validate_ai_rate_limit_coverage": true,
+    "validate_signup_enumeration_safety": true,
+    "validate_signup_bot_protection": true,
+    "validate_account_deactivation": true,
+    "validate_auth_live_flows": true,
+    "validate_auth_live_db": true,
+    "validate_auth_live_gotrue": true,
+    "validate_auth_idle_timeout_live": true,
+    "validate_auth_role_render_live": true,
+    "validate_auth_rate_limit_live": true,
+    "validate_auth_role_guard_live": true,
+    "validate_login_proxy_lockout": true,
+    "validate_password_recovery": true,
+    "validate_anon_key_retirement": true
+  }
+}

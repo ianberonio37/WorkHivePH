@@ -110,6 +110,7 @@ export async function checkRouteRateLimit(
     };
   }
   // Look up per-route quota.
+  // canonical-allow: hive_route_quotas is rate-limiter control-plane config (per-route quota), not a user-facing cross-surface KPI value — no v_*_truth wrapper applies.
   const { data: q } = await db
     .from("hive_route_quotas")
     .select("hourly_cap, enforce")
@@ -126,6 +127,7 @@ export async function checkRouteRateLimit(
   const bucketIso = bucket.toISOString();
 
   // Read current counter.
+  // canonical-allow: hive_route_calls is the rate-limiter's control-plane per-hour counter, not a user-facing cross-surface KPI value — no v_*_truth wrapper applies.
   const { data: c } = await db
     .from("hive_route_calls")
     .select("call_count")

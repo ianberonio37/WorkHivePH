@@ -280,7 +280,7 @@ def calculate(inputs: dict) -> dict:
     # ── Chilled water flow ────────────────────────────────────────────────────
     # Q_water = Q_total / (rho * Cp * delta_T)
     cw_flow_kgs  = (selected["total_kW"] * 1000) / (CP_WATER * CW_DELTA_T)
-    cw_flow_lps  = cw_flow_kgs / RHO_WATER
+    cw_flow_lps  = cw_flow_kgs * 1000 / RHO_WATER   # kg/s → L/s (÷ density kg/L); matches chiller.py
     cw_flow_lmin = cw_flow_lps * 60
 
     # ── Coil face area ────────────────────────────────────────────────────────

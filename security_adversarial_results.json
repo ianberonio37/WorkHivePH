@@ -1,0 +1,345 @@
+{
+  "scored_at": "2026-06-24T05:09:55+00:00",
+  "lenses": {
+    "X": {
+      "title": "Injection & XSS",
+      "pct": 100.0,
+      "passed": 4,
+      "total": 4,
+      "floor": 100,
+      "cells": [
+        {
+          "key": "xss_eschtml",
+          "validator": "validate_xss",
+          "owasp": "A03",
+          "status": "PASS",
+          "note": "escHtml coverage on render paths",
+          "covered": true
+        },
+        {
+          "key": "innerhtml_eschtml",
+          "validator": "validate_innerhtml_eschtml",
+          "owasp": "A03",
+          "status": "PASS",
+          "note": "innerHTML sinks escaped",
+          "covered": true
+        },
+        {
+          "key": "companion_output_esc",
+          "validator": "validate_companion_output_escaping",
+          "owasp": "A03",
+          "status": "PASS",
+          "note": "AI output escaped before DOM",
+          "covered": true
+        },
+        {
+          "key": "dom_xss_advanced",
+          "validator": "validate_dom_xss_fields",
+          "owasp": "A03",
+          "status": "PASS",
+          "note": "DB free-text in HTML must be escHtml (R1)",
+          "covered": true
+        }
+      ]
+    },
+    "Z": {
+      "title": "AuthZ / Access",
+      "pct": 100.0,
+      "passed": 15,
+      "total": 15,
+      "floor": 100,
+      "cells": [
+        {
+          "key": "gateway_bypass",
+          "validator": "validate_gateway_bypass",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "gateway tenancy not bypassable",
+          "covered": true
+        },
+        {
+          "key": "gateway_tenancy",
+          "validator": "validate_gateway_tenancy",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "gateway scopes by verified hive",
+          "covered": true
+        },
+        {
+          "key": "definer_tenant_gate",
+          "validator": "validate_definer_tenant_gate",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "DEFINER RPCs self-scope (IDOR)",
+          "covered": true
+        },
+        {
+          "key": "function_security",
+          "validator": "validate_function_security",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "fn priv/grant locked",
+          "covered": true
+        },
+        {
+          "key": "policy_hive_binding",
+          "validator": "validate_policy_hive_binding",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "RLS bound to hive membership",
+          "covered": true
+        },
+        {
+          "key": "rls_strict",
+          "validator": "validate_rls_strict",
+          "owasp": "A04",
+          "status": "PASS",
+          "note": "RLS strict on every table",
+          "covered": true
+        },
+        {
+          "key": "rls_no_permissive",
+          "validator": "validate_rls_no_permissive_bypass",
+          "owasp": "A04",
+          "status": "PASS",
+          "note": "no permissive USING(true) bypass",
+          "covered": true
+        },
+        {
+          "key": "rls_tenant_isolation",
+          "validator": "validate_rls_tenant_isolation",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "two-tenant isolation proven",
+          "covered": true
+        },
+        {
+          "key": "anon_key_retirement",
+          "validator": "validate_anon_key_retirement",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "anon reads 0 from hive tables",
+          "covered": true
+        },
+        {
+          "key": "realtime_isolation",
+          "validator": "validate_realtime_subscription_isolation",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "published-table RLS (4th path)",
+          "covered": true
+        },
+        {
+          "key": "python_api_auth",
+          "validator": "validate_python_api_auth",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "compute API auth/key",
+          "covered": true
+        },
+        {
+          "key": "service_role_exposure",
+          "validator": "validate_service_role_exposure",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "service-role not client-reachable",
+          "covered": true
+        },
+        {
+          "key": "public_fn_internal_authz",
+          "validator": "validate_public_fn_authz",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "60 verify_jwt=false fns re-verify auth (R2)",
+          "covered": true
+        },
+        {
+          "key": "ssrf_egress",
+          "validator": "validate_ssrf_egress",
+          "owasp": "A10",
+          "status": "PASS",
+          "note": "no user-controlled fetch egress (R2)",
+          "covered": true
+        },
+        {
+          "key": "login_lockout",
+          "validator": "validate_login_proxy_lockout",
+          "owasp": "A07",
+          "status": "PASS",
+          "note": "brute-force login lockout (auth failures)",
+          "covered": true
+        }
+      ]
+    },
+    "S": {
+      "title": "Secrets & Supply-chain",
+      "pct": 100.0,
+      "passed": 9,
+      "total": 9,
+      "floor": 95,
+      "cells": [
+        {
+          "key": "integration_security",
+          "validator": "validate_integration_security",
+          "owasp": "A02",
+          "status": "PASS",
+          "note": "key-format, CORS, webhook",
+          "covered": true
+        },
+        {
+          "key": "hardcoded_secrets",
+          "validator": "validate_hardcoded_secrets",
+          "owasp": "A02",
+          "status": "PASS",
+          "note": "no secret literal in source",
+          "covered": true
+        },
+        {
+          "key": "pii_egress",
+          "validator": "validate_pii_egress",
+          "owasp": "A06",
+          "status": "PASS",
+          "note": "no PII egress",
+          "covered": true
+        },
+        {
+          "key": "definer_search_path",
+          "validator": "validate_security_definer_search_path",
+          "owasp": "A05",
+          "status": "PASS",
+          "note": "search_path pinned (CVE-2018-1058)",
+          "covered": true
+        },
+        {
+          "key": "cors_wildcard",
+          "validator": "validate_cors_wildcard",
+          "owasp": "A05",
+          "status": "PASS",
+          "note": "no wildcard CORS",
+          "covered": true
+        },
+        {
+          "key": "python_api_deps",
+          "validator": "validate_python_api_deps",
+          "owasp": "A08",
+          "status": "PASS",
+          "note": "dep CVEs triaged",
+          "covered": true
+        },
+        {
+          "key": "sri_cdn_scripts",
+          "validator": "validate_sri",
+          "owasp": "A08",
+          "status": "PASS",
+          "note": "SRI on every CDN script (R3)",
+          "covered": true
+        },
+        {
+          "key": "committed_env_secret",
+          "validator": "validate_committed_env_secret",
+          "owasp": "A02",
+          "status": "PASS",
+          "note": "no tracked .env.* secret (R3)",
+          "covered": true
+        },
+        {
+          "key": "sast_owasp_complete",
+          "validator": "validate_sast_owasp_complete",
+          "owasp": "A09",
+          "status": "PASS",
+          "note": "SAST map covers full Top-10 (R3)",
+          "covered": true
+        }
+      ]
+    },
+    "P": {
+      "title": "Prompt & AI security",
+      "pct": 66.7,
+      "passed": 2,
+      "total": 3,
+      "floor": 90,
+      "cells": [
+        {
+          "key": "ai_prompt_injection",
+          "validator": "validate_ai_prompt_injection",
+          "owasp": "A03",
+          "status": "PASS",
+          "note": "user text delimited/capped",
+          "covered": true
+        },
+        {
+          "key": "ai_retrieval_isolation",
+          "validator": "validate_ai_retrieval_isolation",
+          "owasp": "A01",
+          "status": "FINDINGS",
+          "note": "RAG hive-scoped (no x-tenant)",
+          "covered": true
+        },
+        {
+          "key": "ai_input_caps",
+          "validator": "validate_ai_input_caps",
+          "owasp": "A03",
+          "status": "PASS",
+          "note": "user text length-capped before LLM (deterministic; replaces flaky narrative_grounding on the board)",
+          "covered": true
+        }
+      ]
+    }
+  },
+  "owasp_top10": {
+    "A01": {
+      "scanners": 12,
+      "clean": false,
+      "covered": true
+    },
+    "A02": {
+      "scanners": 3,
+      "clean": true,
+      "covered": true
+    },
+    "A03": {
+      "scanners": 6,
+      "clean": true,
+      "covered": true
+    },
+    "A04": {
+      "scanners": 2,
+      "clean": true,
+      "covered": true
+    },
+    "A05": {
+      "scanners": 2,
+      "clean": true,
+      "covered": true
+    },
+    "A06": {
+      "scanners": 1,
+      "clean": true,
+      "covered": true
+    },
+    "A07": {
+      "scanners": 1,
+      "clean": true,
+      "covered": true
+    },
+    "A08": {
+      "scanners": 2,
+      "clean": true,
+      "covered": true
+    },
+    "A09": {
+      "scanners": 1,
+      "clean": true,
+      "covered": true
+    },
+    "A10": {
+      "scanners": 1,
+      "clean": true,
+      "covered": true
+    }
+  },
+  "floors_ok": false,
+  "regressions": [
+    "P: 66.7 < baseline 100.0"
+  ]
+}

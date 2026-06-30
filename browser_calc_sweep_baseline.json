@@ -1,0 +1,10 @@
+{
+  "pass": 53,
+  "diverge": 0,
+  "b3pass": 51,
+  "b3fail": 0,
+  "b2pass": 55,
+  "b2fail": 0,
+  "set": "2026-06-18",
+  "note": "B5 unified baseline: B1 render==python + B3 diagram-cite + B2 BOM/SOW-cite (corrected, staleness-fixed)"
+}

@@ -40,11 +40,31 @@
   --wh-radius-sm: 8px; --wh-radius: 12px; --wh-radius-lg: 16px;
   /* Type */
   --wh-font: 'Poppins', system-ui, -apple-system, sans-serif;
+  /* Elevation (Arc W · W1) — soft dark-mode shadows. Black-based (not brand hex) so they layer on
+     any surface; shadow-3 is for the highest float (overlays/modals). box-shadow is OUTSIDE the box
+     model → zero layout shift / CLS, no tap-target or animation-budget cost. */
+  --wh-shadow-1: 0 1px 2px rgba(0,0,0,0.20), 0 2px 6px rgba(0,0,0,0.16);
+  --wh-shadow-2: 0 4px 10px rgba(0,0,0,0.24), 0 8px 24px rgba(0,0,0,0.18);
+  --wh-shadow-3: 0 12px 32px rgba(0,0,0,0.34), 0 4px 12px rgba(0,0,0,0.22);
+  /* Surface-tint ladder (Material-3 tonal elevation — the dark-mode-correct PRIMARY depth cue:
+     higher layer = lighter surface). Aliases over the navy ladder already in tokens.css. */
+  --wh-elev-0: var(--wh-navy);       /* page base */
+  --wh-elev-1: var(--wh-navy-mid);   /* raised card / panel */
+  --wh-elev-2: var(--wh-navy-light); /* popover / menu floating above a card */
+  /* z-scale — one ladder so overlays/modals/toasts stack predictably (retires ad-hoc z:9999). */
+  --wh-z-base: 1; --wh-z-sticky: 100; --wh-z-overlay: 1000; --wh-z-modal: 1100; --wh-z-toast: 1200;
 }
 
 /* KPI summary cards — the 3-tile "operational heartbeat" header grid */
-.simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
-.simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:14px 16px; }
+/* Arc W · W2: section-separator margin → --wh-space-6 (24px) so the gap BETWEEN sections is ~1.5×
+   the within-card padding (Gestalt grouping; was 14px ≈ card padding = no breathing-room signal). */
+.simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:var(--wh-space-6); }
+/* Arc L · L1 CLS: reserve the settled card height (measured h0 122px placeholder → h1 153px
+   when sc-sub fills to 2–3 lines) so the async value-fill doesn't grow the card and push the
+   whole command-center stack down. min-height = a floor, so shorter cards just pad to uniform. */
+/* Arc W · W1: lift the KPI card off the page with the navy ladder (was background:var(--wh-navy)
+   == page bg → coplanar). The soft shadow comes from the global elevation rule below. */
+.simple-card { background:var(--wh-elev-1); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:14px 16px; min-height:154px; }
 .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
 .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
 .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
@@ -55,12 +75,14 @@
 .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
 
 /* "What to do next" recommendation card */
-.action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:14px 16px; margin-bottom:14px; }
+.action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:14px 16px; margin-bottom:var(--wh-space-6); }
 .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
-.action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+/* Arc L · L1 CLS: reserve ~3 lines for the async recommendation (measured 1-line placeholder
+   20px → up to 79px when the real "what to do next" text fills) so it doesn't grow + shift. */
+.action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:60px; }
 
 /* "Show details" explainer toggle button (behavior = utils.js wireDetailToggle, S10) */
-.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
 .details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
 
 /* ── List loading skeleton + inline error/retry (STREAMLINE E2 — consistent states) ──
@@ -75,3 +97,56 @@
 .wh-list-error .wh-list-error-icon { font-size:1.4rem; }
 .wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:#F4F6FA; font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer; }
 .wh-list-error button:hover { border-color:rgba(255,255,255,0.32); }
+/* D1 U2 (Arc D): shared reports-tab bar — tabs ship inline min-height:34px; an
+   a11y floor must override it to the platform's 44px gloved-field tap target.
+   !important is justified for an accessibility minimum (overrides inline). */
+/* covers the sibling shared tab bars — wh-reports-tabs / wh-growth-tabs /
+   wh-conn-tabs (and any future *-tabs) — whose tab span/link ship inline 34–36px */
+[class*="-tabs"] [role="tab"], [class*="-tabs"] a { min-height:44px !important; box-sizing:border-box; display:inline-flex; align-items:center; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Arc W · W1 — GLOBAL ELEVATION + CONTROL-STATE CRAFT (lifts every linking page)
+   The platform read flat/coplanar (R1: depth_floor=789, 0 box-shadow across 800+
+   card-like els). These rules give card/panel/overlay roles a soft float and add
+   the missing :active / :focus-visible state craft (M/S lens was 0+0).
+
+   Cascade contract (same as the file header): components.css loads BEFORE each
+   page's inline <style>, and these are LOW specificity (one class/attr), so any
+   page that already styles its own box-shadow / :active WINS — we only lift the
+   currently-flat surfaces, never override intentional styling. box-shadow +
+   outline + transform are layout-neutral → zero CLS, no tap-target/anim cost.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* D lens — give cards/panels/tiles/widgets a soft elevation (matches the Arc W probe's
+   card roles so the measured depth_floor falls as these gain a shadow). */
+.simple-card, .action-card, .card, [class*="-card"], .panel, [class*="-panel"],
+.tile, [class*="-tile"], .widget, [class*="-widget"], .wh-card {
+  box-shadow: var(--wh-shadow-1);
+}
+/* Overlays / modals / sheets float highest. */
+.modal, .modal-content, .modal-overlay, .sheet-overlay, [role="dialog"] {
+  box-shadow: var(--wh-shadow-3);
+}
+
+/* H lens (Arc W · W3) — ONE hero metric per dashboard. Add `hero` to the SINGLE most important
+   KPI tile in a `.simple-row`; only its number grows (~2.2–2.4rem) so the eye lands on ONE thing,
+   not six tiles shouting equally (the focal-hierarchy anti-pattern). Specificity 0,2,1 beats a
+   page's `.sc-hero` (0,1,0) so it wins even when components.css loads first. Grows the number only
+   (fits the 154px .simple-card min-height reserve) → no CLS. */
+.simple-card.hero .sc-hero { font-size: clamp(2rem, 5.5vw, 2.4rem); line-height: 1.1; }
+
+/* M/S lens — touch press-feedback (gloved field workers, mobile-maestro rule #5) on every
+   interactive role. transform is layout-neutral; more-specific page rules (.btn-primary:active)
+   override this baseline. */
+button:active, .btn:active, a.btn:active, [role="button"]:active, .details-toggle:active {
+  transform: scale(0.98);
+}
+/* M/S lens — visible keyboard/switch focus ring (WCAG 2.2 SC 2.4.13). Brand orange reads on the
+   navy theme (designer rule: never white outlines). Restores a focus ring on pages that zeroed
+   outline, but ONLY for keyboard focus (:focus-visible) so mouse/touch users see no ring. */
+button:focus-visible, a:focus-visible, [role="button"]:focus-visible, [role="tab"]:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible,
+.details-toggle:focus-visible {
+  outline: 2px solid var(--wh-orange);
+  outline-offset: 2px;
+}

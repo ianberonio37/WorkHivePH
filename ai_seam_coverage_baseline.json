@@ -3,6 +3,6 @@
     "description": "C4 Phase 2a \u2014 frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json."
   },
   "covered": 0,
-  "total": 119,
-  "uncovered": 119
+  "total": 135,
+  "uncovered": 135
 }

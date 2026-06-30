@@ -1,0 +1,127 @@
+{
+  "validator": "gateway-bypass",
+  "gateway_axis_total": 8.0,
+  "n_layers": 13,
+  "measured_layers": 9,
+  "assessed_or_absent": 4,
+  "layers": [
+    {
+      "code": "A",
+      "name": "APIs & Backend Logic",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "gateway_coverage_report.json",
+      "note": "edge fns route through platform-gateway or are code-verified exempt"
+    },
+    {
+      "code": "AU",
+      "name": "Auth & Permissions",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "gateway_tenancy_report.json",
+      "note": "resolveIdentity/resolveTenancy chokepoint; bypass = client-trusted hive_id"
+    },
+    {
+      "code": "S",
+      "name": "Security & RLS",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "policy_hive_binding_report.json",
+      "note": "gateway policy + verified-tenant key; bypass = cross-tenant exploitable site"
+    },
+    {
+      "code": "RL",
+      "name": "Rate Limiting",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "policy_hive_binding_report.json",
+      "note": "rate-limit keyed on verifiedHiveId; bypass = spoofable rate-key"
+    },
+    {
+      "code": "CI",
+      "name": "CI/CD & Version Control",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "auto_discovery_report.json",
+      "note": "run_platform_checks is the change chokepoint; bypass = unclassified change"
+    },
+    {
+      "code": "D",
+      "name": "Database & Storage",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "canonical_sources_report.json",
+      "note": "canonical v_*_truth is the value chokepoint; bypass = raw-source read / drift"
+    },
+    {
+      "code": "F",
+      "name": "Frontend",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
+      "report": "user_facing_kpi_canonical_report.json",
+      "note": "rendered value must map to a canonical source; bypass = surface displaying a non-canonical value"
+    },
+    {
+      "code": "L",
+      "name": "Error Tracking & Logs",
+      "gateway_grade": 0.5,
+      "bypass": 16,
+      "basis": "measured-partial",
+      "report": "structured_log_adoption_report.json",
+      "note": "structured ndjson logger (beginRequest/log) is the convergence; bypass = edge fn not emitting structured logs (partial-adoption ratchet)"
+    },
+    {
+      "code": "AV",
+      "name": "Availability & Recovery",
+      "gateway_grade": 0.5,
+      "bypass": 47,
+      "basis": "measured-partial",
+      "report": "health_surface_discovery_report.json",
+      "note": "/health is the liveness convergence; bypass = edge fn without a /health probe (frozen-baseline ratchet)"
+    },
+    {
+      "code": "CA",
+      "name": "Caching & CDN",
+      "gateway_grade": 0.0,
+      "bypass": null,
+      "basis": "by-absence",
+      "report": null,
+      "note": "no cleanly-countable prevention-chokepoint bypass meter (cache denom unknown / prod-infra is external)"
+    },
+    {
+      "code": "H",
+      "name": "Hosting & Deployment",
+      "gateway_grade": 0.0,
+      "bypass": null,
+      "basis": "by-absence",
+      "report": null,
+      "note": "no cleanly-countable prevention-chokepoint bypass meter (cache denom unknown / prod-infra is external)"
+    },
+    {
+      "code": "C",
+      "name": "Cloud & Compute",
+      "gateway_grade": 0.0,
+      "bypass": null,
+      "basis": "by-absence",
+      "report": null,
+      "note": "no cleanly-countable prevention-chokepoint bypass meter (cache denom unknown / prod-infra is external)"
+    },
+    {
+      "code": "LB",
+      "name": "Load Balancing & Scaling",
+      "gateway_grade": 0.0,
+      "bypass": null,
+      "basis": "by-absence",
+      "report": null,
+      "note": "no cleanly-countable prevention-chokepoint bypass meter (cache denom unknown / prod-infra is external)"
+    }
+  ],
+  "_note": "G2: the \u00a714.6 Gateway axis derived from REAL bypass reports. measured = instrument; by-absence = no chokepoint (honest frontier). D+F bypass = the data-gateway target G1 drives to 0."
+}

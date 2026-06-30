@@ -1,8 +1,8 @@
 {
   "summary": {
-    "files_scanned": 153,
+    "files_scanned": 161,
     "drift": 1,
-    "baseline": 0,
+    "baseline": 1,
     "canonical_roles": [
       "admin",
       "founder",

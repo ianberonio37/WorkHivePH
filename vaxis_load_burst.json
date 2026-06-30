@@ -1,0 +1,11 @@
+{
+  "requests": 200,
+  "vus": 8,
+  "rps": 223.8,
+  "wall_s": 0.89,
+  "p95_ms": 46,
+  "error_rate": 0.0,
+  "p95_slo_ms": 2000,
+  "err_slo": 0.01,
+  "result": "PASS"
+}

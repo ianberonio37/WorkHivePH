@@ -1,14 +1,14 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_links": 208,
+    "total_links": 241,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "link_count": 36,
+      "link_count": 62,
       "broken": []
     },
     {
@@ -38,12 +38,12 @@
     },
     {
       "page": "analytics-report.html",
-      "link_count": 2,
+      "link_count": 4,
       "broken": []
     },
     {
       "page": "skillmatrix.html",
-      "link_count": 6,
+      "link_count": 7,
       "broken": []
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "page": "engineering-design.html",
-      "link_count": 5,
+      "link_count": 3,
       "broken": []
     },
     {
@@ -118,7 +118,7 @@
     },
     {
       "page": "ai-quality.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {
@@ -128,12 +128,12 @@
     },
     {
       "page": "achievements.html",
-      "link_count": 4,
+      "link_count": 5,
       "broken": []
     },
     {
       "page": "asset-hub.html",
-      "link_count": 7,
+      "link_count": 11,
       "broken": []
     },
     {

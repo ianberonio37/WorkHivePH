@@ -388,17 +388,22 @@ def _n_to_block(tol: float) -> int:
     return math.ceil(100.0 / tol) if tol and tol > 0 else 10 ** 9
 
 
-def companion_gate() -> int:
+def companion_gate(baseline_path: Path | None = None, scorecard_path: Path | None = None) -> int:
     """Per-companion-dimension regression gate on the LOCKED-TEST split (Phase 8 §8.3).
     For every dimension that has a frozen baseline AND registry status 'active': score its latest
     results, compare locked-test to the frozen floor, and BLOCK (exit 1) if a *blocking* dim
     regressed beyond tolerance AND its locked-test n is large enough to block without flaking
     (n >= ceil(100/tol)). A blocking-intent dim whose n is still too small WARNs instead of FAILs
     (self-throttle). Dims without a baseline or without fresh results degrade-to-SKIP (never a false
-    FAIL). Does NOT touch the frozen functionality/safety gate() path."""
-    base = _load_json(COMPANION_DIM_BASELINE_PATH) or {}
+    FAIL). Does NOT touch the frozen functionality/safety gate() path.
+
+    `baseline_path`/`scorecard_path` default to the committed files; they are injectable ONLY so the
+    deterministic gate-teeth self-test (tools/companion_gate_teeth.py) can drive this exact decision
+    code with synthetic fixtures without clobbering the real baselines. Production callers
+    (validate_companion_dim_gate.py) call it with no args -> identical behaviour."""
+    base = _load_json(baseline_path or COMPANION_DIM_BASELINE_PATH) or {}
     bdims = base.get("dimensions") or {}
-    reg = _load_json(SCORECARD_PATH) or {}
+    reg = _load_json(scorecard_path or SCORECARD_PATH) or {}
     rdims = reg.get("dimensions") or {}
     if not bdims:
         print(f"{CYAN}SKIP{RESET} — no per-dimension baselines frozen yet "

@@ -7,6 +7,7 @@ import {WorkHiveKinetic} from './Kinetic';
 import {WorkHiveInfographic} from './Infographic';
 import {WorkHiveMindmap} from './Mindmap';
 import {WorkHiveStoryboard, calculateStoryboardMetadata} from './Storyboard';
+import {FlagshipReel, FLAGSHIP_DURATION} from './FlagshipReel';
 
 // 1280x720 matches what video_assembler.py normalises the scene clip to,
 // so this renders straight into the existing scene_clip slot with no rescale.
@@ -117,6 +118,32 @@ export const RemotionRoot: React.FC = () => {
             nodes: ['Logbook', 'AI Assistant', 'Handover', 'PM']},
         ],
       }}
+    />
+    {/* NEW (2026): vertical-first flagship spot — poster DNA, product-as-hero,
+        spring motion, mute-first kinetic captions. Native 1080x1920. */}
+    <Composition
+      id="WorkHiveFlagship"
+      component={FlagshipReel}
+      durationInFrames={FLAGSHIP_DURATION}
+      fps={30}
+      width={1080}
+      height={1920}
+    />
+    <Composition
+      id="WorkHiveFlagshipSquare"
+      component={FlagshipReel}
+      durationInFrames={FLAGSHIP_DURATION}
+      fps={30}
+      width={1080}
+      height={1080}
+    />
+    <Composition
+      id="WorkHiveFlagshipWide"
+      component={FlagshipReel}
+      durationInFrames={FLAGSHIP_DURATION}
+      fps={30}
+      width={1920}
+      height={1080}
     />
     </>
   );

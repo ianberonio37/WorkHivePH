@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_refs": 67,
+    "pages_scanned": 31,
+    "total_refs": 68,
     "total_drift": 0,
     "baseline": 0
   },
@@ -60,6 +60,10 @@
     },
     {
       "page": "engineering-design.html",
+      "drift": []
+    },
+    {
+      "page": "engineering-design.js",
       "drift": []
     },
     {

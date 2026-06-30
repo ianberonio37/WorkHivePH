@@ -103,6 +103,11 @@ export async function saveTurn(
     ...meta_extra,
     saved_via: "ai-gateway",
   };
+  // C3.2b: promote the gateway-measured turn latency (meta.latency_ms) into the typed
+  // response_time_ms COLUMN on the agent row, so the companion memory health gate can threshold
+  // p95 latency from a column instead of digging JSONB (it was schema-present but 0% populated).
+  const rt = Number((meta_extra as Record<string, unknown>).latency_ms);
+  const responseMs = Number.isFinite(rt) && rt > 0 ? Math.round(rt) : null;
   const rows = [
     {
       hive_id:     h.hive_id,
@@ -114,13 +119,14 @@ export async function saveTurn(
       meta:        { ...baseMeta, role: "user" },
     },
     {
-      hive_id:     h.hive_id,
-      worker_name: h.worker_name,
-      auth_uid:    h.auth_uid,
-      agent_id:    h.agent_id,
-      kind:        "turn",
-      turn_text:   agent_text,
-      meta:        { ...baseMeta, role: "agent" },
+      hive_id:         h.hive_id,
+      worker_name:     h.worker_name,
+      auth_uid:        h.auth_uid,
+      agent_id:        h.agent_id,
+      kind:            "turn",
+      turn_text:       agent_text,
+      response_time_ms: responseMs,
+      meta:            { ...baseMeta, role: "agent" },
     },
   ];
   const { error } = await db.from("agent_memory").insert(rows);

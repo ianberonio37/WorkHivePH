@@ -199,6 +199,7 @@ def _parse_migrations() -> dict:
     rls_enabled: dict = {}
     rls_disabled: dict = {}
     hive_scoped: set = set()
+    client_revoked: set = set()  # tables explicitly REVOKE'd ALL from anon/authenticated = deliberately service-role-only
 
     for path in _list_migration_files():
         raw = _read(path)
@@ -245,6 +246,17 @@ def _parse_migrations() -> dict:
             rls_disabled[t] = rel
             rls_enabled.pop(t, None)
 
+        # REVOKE ALL ... ON <table> FROM ... anon/authenticated = deliberately service-role-only.
+        # Such a table is meant to be unreachable by clients (touched only via SECURITY DEFINER
+        # RPCs / service_role, which has BYPASSRLS), so RLS-on + zero-policy is the CORRECT lockdown
+        # for it, NOT a lockout trap (e.g. login_attempts, the brute-force counter — Arc I).
+        for m in re.finditer(
+            r'REVOKE\s+ALL\s+(?:PRIVILEGES\s+)?ON\s+(?:TABLE\s+)?(?:public\.)?(\w+)\b'
+            r'[^;]*\bFROM\b[^;]*\b(?:anon|authenticated)\b',
+            cleaned, re.IGNORECASE,
+        ):
+            client_revoked.add(m.group(1))
+
         # Tables with hive_id column — heuristic: column name appears in a
         # CREATE TABLE block OR in an ALTER TABLE ADD COLUMN. Both are
         # captured by HIVE_ID_COLUMN_RE.
@@ -264,6 +276,7 @@ def _parse_migrations() -> dict:
         "policies":     policies,
         "rls_enabled":  rls_enabled,
         "rls_disabled": rls_disabled,
+        "client_revoked": client_revoked,
         "hive_scoped":  hive_scoped,
     }
 
@@ -279,6 +292,8 @@ def check_lockout_traps(state: dict) -> list[dict]:
     for (table, _name), p in state["policies"].items():
         by_table[table].append(p)
     for table, file in state["rls_enabled"].items():
+        if table in state.get("client_revoked", set()):
+            continue  # deliberately service-role-only (revoke-all from clients) — zero-policy is the lockdown, not a trap
         if not by_table.get(table):
             issues.append({
                 "check": "rls_lockout_trap",

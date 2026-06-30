@@ -488,6 +488,43 @@ def _enforce_abcd(segments: list[dict], primary_label: str) -> list[dict]:
     return out
 
 
+# ── Drift guard ───────────────────────────────────────────────────────────────
+
+def self_test() -> int:
+    """Catalog drift guard for the feature-detection maps.
+
+    The narration regexes and the Shift-Handover-vs-Logbook label distinction are
+    CURATED on purpose (the catalog collapses 'shift_handover' into the Logbook
+    feature — handover has no standalone page — so the maps legitimately carry a
+    finer label than the catalog; a naive derive would lose it). What MUST stay
+    catalog-true are the JOURNEY KEYS: each one drives ui_recorder to a real route,
+    so a feature renamed/removed upstream must not leave a stale key here. This
+    asserts every key still resolves via platform_catalog.build_journey_index() —
+    turning the maps from a silent drift surface into a gated one.
+    """
+    import platform_catalog as pc
+    fails = 0
+
+    def ck(cond: bool, msg: str):
+        nonlocal fails
+        print(("  \033[92mPASS\033[0m  " if cond else "  \033[91mFAIL\033[0m  ") + msg)
+        if not cond:
+            fails += 1
+
+    print("\n\033[1mstoryboard.py --self-test (catalog drift guard)\033[0m")
+    print("=" * 55)
+    valid = set(pc.build_journey_index())
+    kw_bad = sorted({key for _, key, _ in FEATURE_KEYWORDS if key not in valid})
+    ck(not kw_bad, f"all {len(FEATURE_KEYWORDS)} FEATURE_KEYWORDS journey keys resolve to the live catalog"
+       + (f" — STALE: {kw_bad}" if kw_bad else ""))
+    n2k_bad = sorted({v for v in FEATURE_NAME_TO_KEY.values() if v not in valid})
+    ck(not n2k_bad, f"all {len(FEATURE_NAME_TO_KEY)} FEATURE_NAME_TO_KEY journey keys resolve to the live catalog"
+       + (f" — STALE: {n2k_bad}" if n2k_bad else ""))
+    print("=" * 55)
+    print("\033[92m  self-test PASS\033[0m\n" if not fails else f"\033[91m  self-test FAIL — {fails} check(s)\033[0m\n")
+    return 1 if fails else 0
+
+
 # ── CLI (verification) ────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -496,7 +533,12 @@ if __name__ == "__main__":
     ap.add_argument("idea_id", nargs="?", help="Idea ID (defaults to the last in the backlog)")
     ap.add_argument("--voice", default="james")
     ap.add_argument("--brief", action="store_true", help="Print a one-line-per-beat summary")
+    ap.add_argument("--self-test", action="store_true",
+                    help="Catalog drift guard: every journey key still resolves to a live catalog route")
     args = ap.parse_args()
+
+    if args.self_test:
+        raise SystemExit(self_test())
 
     backlog = json.loads((_ROOT / ".tmp/video_ideas_backlog.json").read_text(encoding="utf-8"))
     idea = next((i for i in backlog["ideas"] if i["id"] == args.idea_id), backlog["ideas"][-1])

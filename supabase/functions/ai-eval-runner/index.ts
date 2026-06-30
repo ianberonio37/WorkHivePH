@@ -19,7 +19,7 @@
  * Closes PRODUCTION_FIXES #52 Phase D (runner wired) -- the cron was
  * scheduled in Phase B/C but the endpoint it called did not exist.
  *
- * AI_ASSET_VERSION: 1
+ * AI_ASSET_VERSION: 3
  * C5 (Self-Improving Gate) — bump this integer whenever JUDGE_PROMPT,
  * judge model id, score rubric, or pass-threshold changes. C2's eval
  * gate scores against this judge's verdicts, so an unannounced edit
@@ -29,6 +29,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: eval harness; runs fixtures through ai-gateway
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -37,6 +39,9 @@ import { log } from "../_shared/logger.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
+// Arc R (A01/LLM10): verify_jwt=false eval harness runs callAI per fixture — bound anon abuse.
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Module-scope warm client.
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
@@ -220,6 +225,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  logRequestStart(req, "ai-eval-runner");  // I6 observability
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
   const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -231,12 +237,47 @@ serve(async (req) => {
   }
   const db = _whWarmClient || createClient(SUPABASE_URL, SERVICE_KEY);
 
+  // Arc R (A01/LLM10): the eval harness runs callAI per fixture (paid). It is cron + CI only
+  // (service_role), so bound any EXTERNAL anon caller by IP. service_role (cron) and
+  // server-side/local probes (no forwarded IP) fail open, so the nightly run + Arc-H
+  // {only,limit} live-invoke probe are unaffected.
+  {
+    const _id = await resolveIdentity(db, req);
+    if (!_id.isServiceRole) {
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      if (_ip) {
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(_id.authUid, _ip), 12);
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+      }
+    }
+  }
+
+  // Optional request filter (does NOT change JUDGE_PROMPT/model/rubric/threshold/fixtures — the
+  // frozen golden C2 scores against is untouched; it only narrows WHICH fixtures run this call).
+  //   { "only": "<agent_id>" }  run just one agent's fixtures
+  //   { "limit": <n> }          cap total fixtures run (fast CI smoke / live-invoke probe)
+  // No body / empty body → run the full nightly set, exactly as the pg_cron job does.
+  let onlyAgent: string | null = null;
+  let limit = 0;
+  if (req.method === "POST") {
+    try {
+      const body = await req.json();
+      if (body && typeof body === "object") {
+        if (typeof body.only === "string" && body.only) onlyAgent = body.only;
+        if (typeof body.limit === "number" && body.limit > 0) limit = Math.floor(body.limit);
+      }
+    } catch { /* no/blank body — full run */ }
+  }
+
   const t0 = Date.now();
   const results: Array<{ agent_id: string; question_id: string; passed: boolean; score: number }> = [];
   let totalCalls = 0;
 
+  outer:
   for (const [agentId, fixtures] of Object.entries(FIXTURES)) {
+    if (onlyAgent && agentId !== onlyAgent) continue;
     for (const fixture of fixtures) {
+      if (limit && totalCalls >= limit) break outer;
       totalCalls++;
       let actualAnswer = "";
       try {

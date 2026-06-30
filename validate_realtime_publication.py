@@ -27,13 +27,59 @@ Approach:
 Usage:  python validate_realtime_publication.py
 Output: realtime_publication_report.json
 """
-import re, json, sys, os, glob
+import re, json, sys, os, glob, subprocess
 
 if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 from validator_utils import format_result
+
+# ── Layer 2 (live DB) — the allowlist above is HAND-CURATED and DRIFTED from reality:
+# 8 tables (logbook, inventory_items, pm_completions, community_*, automation_log,
+# marketplace_listings) were in the allowlist as "published" but were NOT in the live
+# publication → their feeds were silently dead. When docker is reachable, cross-check the
+# REAL publication (pg_publication_tables), not just the allowlist. Fixed by migration
+# 20260621000004 (publishes the 7 RLS-safe ones); marketplace_listings stays exempt
+# (RLS-OFF public storefront — needs its own RLS decision before publishing).
+DB_CONTAINER = "supabase_db_workhive"
+LIVE_PUBLISH_EXEMPT = {
+    "marketplace_listings",  # RLS-off public storefront; publishing pending an RLS decision
+}
+
+
+def live_published_tables():
+    """The ACTUAL supabase_realtime publication set via docker psql, or None if unreachable."""
+    sql = "SELECT tablename FROM pg_publication_tables WHERE pubname='supabase_realtime' AND schemaname='public';"
+    try:
+        p = subprocess.run(["docker", "exec", DB_CONTAINER, "psql", "-U", "postgres", "-d", "postgres",
+                            "-tA", "-c", sql], capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=30)
+        if p.returncode != 0:
+            return None
+        return {ln.strip() for ln in p.stdout.splitlines() if ln.strip()}
+    except Exception:
+        return None
+
+
+def check_subscriptions_live_published(found, live):
+    """Layer 2: every subscribed production table must be in the LIVE publication (drift-proof)."""
+    issues = []
+    for table in sorted(found.keys()):
+        if table in LIVE_PUBLISH_EXEMPT or table in live:
+            continue
+        sites = found[table][:3]
+        site_str = "; ".join(f"{p}:{ln}" for p, ln in sites)
+        issues.append({
+            "check": "subscriptions_live_published",
+            "reason": (
+                f"'{table}' is subscribed via postgres_changes ({site_str}) but is NOT in the LIVE "
+                f"supabase_realtime publication → the feed is silently dead (no events). Add it via a "
+                f"migration `ALTER PUBLICATION supabase_realtime ADD TABLE public.{table};` "
+                f"(+ REPLICA IDENTITY FULL for hive_id-filtered DELETE) after confirming it is RLS-safe."
+            )
+        })
+    return issues
 
 # Tables explicitly added to supabase_realtime via:
 #   ALTER PUBLICATION supabase_realtime ADD TABLE <name>;
@@ -113,10 +159,19 @@ EXPECTED_PUBLISHED_TABLES = {
     # subscribes for live triage state flips (new -> triaged -> resolved).
     # Added via 20260519000002_platform_feedback.sql.
     "platform_feedback",
+    # D3.3 INTERACTIVE_LINEAGE (2026-06-29): live cross-page propagation for the
+    # last two realtime gaps. asset_risk_scores backs v_risk_truth (predictive.html
+    # refreshes its risk ranking live when the nightly batch / an asset-hub FMEA
+    # edit re-scores); schedule_items is the personal day plan (dayplanner.html
+    # syncs across a worker's devices). Both RLS-safe (hive- / owner-scoped, no anon
+    # bypass). Added via 20260629000000_realtime_publish_risk_schedule.sql.
+    "asset_risk_scores",
+    "schedule_items",
 }
 
 CHECKS = {
-    "subscriptions_published": "L1  Every subscribed table is in supabase_realtime publication",
+    "subscriptions_published": "L1  Every subscribed table is in EXPECTED_PUBLISHED_TABLES allowlist",
+    "subscriptions_live_published": "L2  Every subscribed table is in the LIVE publication (drift-proof, docker)",
 }
 CHECK_LABELS = CHECKS
 CHECK_NAMES  = list(CHECKS.keys())
@@ -189,6 +244,14 @@ def main():
 
     found = collect_subscribed_tables()
     all_issues = check_subscriptions_published(found)
+
+    # Layer 2 — live publication cross-check (drift-proof). Skips cleanly in CI (no docker).
+    live = live_published_tables()
+    if live is not None:
+        all_issues += check_subscriptions_live_published(found, live)
+    else:
+        all_issues.append({"check": "subscriptions_live_published", "skip": True,
+                           "reason": "docker unavailable — live publication cross-check skipped (allowlist L1 only)"})
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
     total = len(CHECK_NAMES)

@@ -915,7 +915,7 @@ happens to know maintenance, not a manual.`;
             const eb = await error.context.json();
             if (eb && eb.error) msg = eb.error;
           }
-        } catch (_) { /* keep msg */ }
+        } catch (_) { /* empty-catch-allow: error.context body not JSON → intentionally keep the default msg */ }
         const e = new Error(msg);
         if (error.context && error.context.status) e.status = error.context.status;
         throw e;

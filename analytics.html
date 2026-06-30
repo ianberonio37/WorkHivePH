@@ -12,9 +12,9 @@
   <link rel="canonical" href="https://workhiveph.com/workhive/analytics.html" />
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js" integrity="sha384-4zPMCkaV0wO70MQq0L4L61dbpYMWn2Br91U2s3eYnKsTPhwH+2D3PTs0OrvLO8h9" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -124,6 +124,8 @@
     }
     .phase-tab.active { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.35); color: #a78bfa; }
     .phase-tab.soon { opacity: 0.4; cursor: not-allowed; }
+    /* Arc Y Y5: academic term as a small subtitle under the plain JtBD label */
+    .phase-sub { display: block; font-size: 0.58rem; font-weight: 400; opacity: 0.6; letter-spacing: 0.02em; margin-top: 1px; }
 
     /* ── Cards ── */
     .card {
@@ -488,10 +490,13 @@
 
   <!-- Phase tabs -->
   <div class="phase-tabs">
-    <button class="phase-tab active" onclick="setPhase('descriptive')">Descriptive</button>
-    <button class="phase-tab" onclick="setPhase('diagnostic')">Diagnostic</button>
-    <button class="phase-tab" onclick="setPhase('predictive')">Predictive</button>
-    <button class="phase-tab" onclick="setPhase('prescriptive')">Prescriptive</button>
+    <!-- Arc Y Y5 (fork#4): plain job-to-be-done labels lead; the standards-anchored
+         academic term is kept as a subtitle (discoverable for engineers, comprehensible
+         for technicians). setPhase matches on data-phase, not the visible text. -->
+    <button class="phase-tab active" data-phase="descriptive"  onclick="setPhase('descriptive')">What happened<span class="phase-sub">Descriptive</span></button>
+    <button class="phase-tab" data-phase="diagnostic"   onclick="setPhase('diagnostic')">Why it happened<span class="phase-sub">Diagnostic</span></button>
+    <button class="phase-tab" data-phase="predictive"   onclick="setPhase('predictive')">What's coming<span class="phase-sub">Predictive</span></button>
+    <button class="phase-tab" data-phase="prescriptive"  onclick="setPhase('prescriptive')">What to do<span class="phase-sub">Prescriptive</span></button>
   </div>
 
   <!-- Global filters: narrow every panel by criticality + discipline.
@@ -657,7 +662,7 @@
   function setPhase(phase) {
     _phase = phase;
     document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
-      b.classList.toggle('active', b.textContent.toLowerCase() === phase);
+      b.classList.toggle('active', (b.dataset.phase || b.textContent.toLowerCase()) === phase);
     });
     const banner = document.getElementById('phase-banner');
     if (banner && PHASE_BANNERS[phase]) {
@@ -883,7 +888,8 @@
       const { data, error } = await db.from('analytics_snapshots')
         .select('phase, payload, computed_at')
         .eq('hive_id', HIVE_ID)
-        .eq('period_days', _period);
+        .eq('period_days', _period)
+        .limit(500);
       if (error || !data) return [];
       // Fresh = computed today in PHT (UTC+8); the first opener after the PHT
       // day rolls over recomputes, mirroring the "first view of the day" rule.
@@ -1421,7 +1427,14 @@
         annotations: [{ x: 80, y: items.length - 0.5, xref: 'x2', text: '80%', font: { color: '#4ade80', size: 9 }, showarrow: false, yshift: 8 }],
       };
       if (document.getElementById(chartId)) {
-        Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+        // Arc S F-lens (F-007): if the Plotly CDN failed to load, degrade to a
+        // clear message instead of throwing ReferenceError into a silent chart.
+        if (typeof Plotly === 'undefined') {
+          const _el = document.getElementById(chartId);
+          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable — the charting library could not load. Check your connection and refresh.</div>';
+        } else {
+          Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+        }
       }
     });
 
@@ -1770,7 +1783,14 @@
         ],
       };
       if (document.getElementById(chartId)) {
-        Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+        // Arc S F-lens (F-007): if the Plotly CDN failed to load, degrade to a
+        // clear message instead of throwing ReferenceError into a silent chart.
+        if (typeof Plotly === 'undefined') {
+          const _el = document.getElementById(chartId);
+          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable — the charting library could not load. Check your connection and refresh.</div>';
+        } else {
+          Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+        }
       }
     });
 
@@ -1905,13 +1925,17 @@
       </div>`;
     }).join('');
 
+    // Arc Y Y2 fork#2: headline = canonical ASSET-overdue ("how many machines need me"),
+    // matching the hive/pm-scheduler tiles; the per-task counts move to the detail line.
+    const oAssets = d.overdue_asset_count ?? d.overdue_count;       // fallback for stale payloads
+    const sAssets = d.due_soon_asset_count ?? d.due_soon_count;
     return kpiCard({
       title: 'PM Due Calendar',
-      standard: `🔴 ${d.overdue_count} overdue · 🟡 ${d.due_soon_count} due soon · ${d.total_tasks} total`,
-      value: d.overdue_count + d.due_soon_count,
-      unit: 'tasks need attention',
-      sublabel: `${assetOrder.length} asset(s) with pending PM tasks`,
-      color: d.overdue_count > 0 ? 'red' : d.due_soon_count > 0 ? 'yellow' : 'green',
+      standard: `🔴 ${oAssets} asset(s) overdue · 🟡 ${sAssets} due soon · ${d.overdue_count + d.due_soon_count} tasks`,
+      value: oAssets,
+      unit: oAssets === 1 ? 'asset overdue' : 'assets overdue',
+      sublabel: `${assetOrder.length} asset(s) with pending PM · ${d.total_tasks} task(s) total`,
+      color: oAssets > 0 ? 'red' : sAssets > 0 ? 'yellow' : 'green',
       detail: assetBlocks,
     });
   }
@@ -1992,7 +2016,14 @@
         height: 200,
       };
       if (document.getElementById(chartId)) {
-        Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+        // Arc S F-lens (F-007): if the Plotly CDN failed to load, degrade to a
+        // clear message instead of throwing ReferenceError into a silent chart.
+        if (typeof Plotly === 'undefined') {
+          const _el = document.getElementById(chartId);
+          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable — the charting library could not load. Check your connection and refresh.</div>';
+        } else {
+          Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
+        }
       }
     });
 
@@ -2259,7 +2290,7 @@
     // hidden rows on input so matches outside the top-N are still findable.
     const showSearch = searchable && total >= 8;
     const searchInput = showSearch ? `
-      <input type="search" class="list-search" placeholder="${escHtml(searchPlaceholder || ('Filter ' + itemNoun + 's…'))}"
+      <input type="search" class="list-search" aria-label="${escHtml(searchPlaceholder || ('Filter ' + itemNoun + 's'))}" placeholder="${escHtml(searchPlaceholder || ('Filter ' + itemNoun + 's…'))}"
         oninput="filterShowAllList(this)" />
     ` : '';
 
@@ -2451,19 +2482,19 @@
 
     // MTBF worst
     const mtbf = desc?.mtbf?.mtbf_by_asset?.filter(a => a.mtbf_days !== null)[0];
-    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ Worst MTBF</span><span class="val" style="color:${mtbf.mtbf_days<14?'#f87171':mtbf.mtbf_days<30?'#F7A21B':'#4ade80'};">${mtbf.machine} · ${mtbf.mtbf_days}d</span></div>`);
+    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ Worst MTBF</span><span class="val" style="color:${mtbf.mtbf_days<14?'#f87171':mtbf.mtbf_days<30?'#F7A21B':'#4ade80'};">${escHtml(mtbf.machine)} · ${mtbf.mtbf_days}d</span></div>`);
 
     // MTTR worst
     const mttr = desc?.mttr?.mttr_by_asset?.[0];
-    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 Slowest repair</span><span class="val" style="color:${mttr.mttr_hours>24?'#f87171':mttr.mttr_hours>8?'#F7A21B':'#4ade80'};">${mttr.machine} · ${mttr.mttr_hours}h</span></div>`);
+    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 Slowest repair</span><span class="val" style="color:${mttr.mttr_hours>24?'#f87171':mttr.mttr_hours>8?'#F7A21B':'#4ade80'};">${escHtml(mttr.machine)} · ${mttr.mttr_hours}h</span></div>`);
 
     // PM compliance
     const pm = desc?.pm_compliance?.overall_pct;
     if (pm !== null && pm !== undefined) rows.push(`<div class="role-row"><span class="label">📋 PM compliance</span><span class="val" style="color:${pm<70?'#f87171':pm<85?'#F7A21B':'#4ade80'};">${pm}%</span></div>`);
 
-    // Overdue PMs
-    const overdue = pred?.pm_due_calendar?.overdue_count;
-    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 Overdue PMs</span><span class="val" style="color:#f87171;">${overdue} task(s) overdue</span></div>`);
+    // Overdue PMs — Arc Y Y2 fork#2: canonical = ASSETS overdue (matches the tiles), not tasks
+    const overdue = pred?.pm_due_calendar?.overdue_asset_count ?? pred?.pm_due_calendar?.overdue_count;
+    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 Overdue PMs</span><span class="val" style="color:#f87171;">${overdue} asset(s) overdue</span></div>`);
 
     // Training gaps
     const gaps = presc?.training_gaps?.gaps?.[0];
@@ -2540,5 +2571,6 @@
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

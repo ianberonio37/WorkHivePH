@@ -1,0 +1,100 @@
+{
+  "_doc": "§13.16 A7.1 — AI-narrative surface discovery (the narrative-grounding denominator). A surface OWES a grounding check if it invokes a narrative-emitting edge fn AND renders the prose. STRONG = both signals; WEAK = invokes only (prose-render not detected — verify). Evidence-grade, not the loose word-match (the classify-by-evidence rule).",
+  "pages_scanned": 27,
+  "narrative_surfaces": 12,
+  "strong_evidence": [
+    "alert-hub",
+    "analytics",
+    "analytics-report",
+    "asset-hub",
+    "ph-intelligence",
+    "predictive",
+    "project-report",
+    "report-sender",
+    "shift-brain"
+  ],
+  "weak_evidence": [
+    "hive",
+    "integrations",
+    "project-manager"
+  ],
+  "already_grounded": [
+    "assistant"
+  ],
+  "denominator_strong": 9,
+  "by_page": {
+    "alert-hub": {
+      "edge_fns": [
+        "analytics-orchestrator"
+      ],
+      "renders_prose": true
+    },
+    "analytics": {
+      "edge_fns": [
+        "analytics-orchestrator"
+      ],
+      "renders_prose": true
+    },
+    "analytics-report": {
+      "edge_fns": [
+        "analytics-orchestrator"
+      ],
+      "renders_prose": true
+    },
+    "asset-hub": {
+      "edge_fns": [
+        "asset-brain-query"
+      ],
+      "renders_prose": true
+    },
+    "hive": {
+      "edge_fns": [
+        "ai-orchestrator"
+      ],
+      "renders_prose": false
+    },
+    "integrations": {
+      "edge_fns": [
+        "intelligence-api"
+      ],
+      "renders_prose": false
+    },
+    "ph-intelligence": {
+      "edge_fns": [
+        "intelligence-api",
+        "intelligence-report"
+      ],
+      "renders_prose": true
+    },
+    "predictive": {
+      "edge_fns": [
+        "analytics-orchestrator"
+      ],
+      "renders_prose": true
+    },
+    "project-manager": {
+      "edge_fns": [
+        "project-orchestrator"
+      ],
+      "renders_prose": false
+    },
+    "project-report": {
+      "edge_fns": [
+        "project-orchestrator"
+      ],
+      "renders_prose": true
+    },
+    "report-sender": {
+      "edge_fns": [
+        "scheduled-agents"
+      ],
+      "renders_prose": true
+    },
+    "shift-brain": {
+      "edge_fns": [
+        "analytics-orchestrator"
+      ],
+      "renders_prose": true
+    }
+  }
+}

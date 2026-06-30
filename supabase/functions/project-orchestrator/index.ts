@@ -28,6 +28,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { logRequestStart } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
@@ -317,6 +318,7 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req) });
   }
+  logRequestStart(req, "project-orchestrator");  // I6 observability (structured request_start line)
   if (req.method !== 'POST') {
     return errJson('Method not allowed', 405, req);
   }

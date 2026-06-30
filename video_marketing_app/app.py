@@ -1620,6 +1620,94 @@ def produce_status(job_id):
         return jsonify({"success": True, **job})
 
 
+# ── Flagship produce: the MODERN pipeline (data-driven Remotion FlagshipReel) ──
+# Replaces the legacy "produce-all" look (stock-footage PiP + TTS + feature-list)
+# with the poster-DNA flagship: product-as-hero, spring motion, mute-first kinetic
+# captions, native 9:16/1:1/16:9, music bed, and a real creative-quality gate.
+# Reuses PIPELINE_JOBS + the /api/produce-jobs/<job_id> polling endpoint.
+
+FLAGSHIP_OUT = ROOT / "remotion_scenes" / "out"
+FLAGSHIP_SPECS = ROOT / ".tmp" / "video_specs"
+
+
+def _run_flagship(job_id, idea_id, aspects):
+    import subprocess
+    try:
+        _job_set(job_id, stage="spec", message="Writing the flagship spec from the idea...")
+        _job_log(job_id, "generating FlagshipSpec (1 pain · 1 feature · mute-first)")
+        from tools.video_idea_generator import cmd_flagship
+        cmd_flagship(idea_id)  # AI-chain → .tmp/video_specs/<id>_flagship.json
+        spec_file = FLAGSHIP_SPECS / f"{idea_id}_flagship.json"
+        if not spec_file.exists():
+            raise RuntimeError("flagship spec was not created (AI chain returned nothing)")
+        _job_log(job_id, f"spec: {spec_file.name}")
+
+        downloads, score = {}, None
+        for asp in aspects:
+            _job_set(job_id, stage=f"render_{asp}", message=f"Rendering {asp} (Remotion + music + gate)...")
+            cmd = [sys.executable, "tools/render_flagship.py", "--spec", str(spec_file),
+                   "--name", idea_id, "--aspects", asp]
+            proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+            out = (proc.stdout or "") + "\n" + (proc.stderr or "")
+            m = re.search(r"\[gate\]\s+(\S+)\s+score=([\d.]+)", out)
+            if m:
+                score = {"verdict": m.group(1), "score": float(m.group(2))}
+            final = FLAGSHIP_OUT / f"{idea_id}_{asp}_audio.mp4"
+            if proc.returncode != 0 or not final.exists():
+                _job_log(job_id, f"{asp} FAILED: {out.strip()[-400:]}")
+                raise RuntimeError(f"render {asp} failed (see log)")
+            downloads[asp] = f"/api/flagship/{final.name}"
+            _job_log(job_id, f"{asp}: {final.name}" + (f"  · gate {score['verdict']} {score['score']}" if score else ""))
+
+        _job_set(job_id, stage="done", status="complete",
+                 message="Flagship video ready",
+                 result={"downloads": downloads, "score": score, "primary": downloads.get("9x16")})
+        _job_log(job_id, "done — flagship video(s) ready")
+    except Exception as exc:  # noqa: BLE001
+        stg = PIPELINE_JOBS.get(job_id, {}).get("stage", "?")
+        _job_set(job_id, status="error", message=f"Failed at '{stg}': {exc}")
+        _job_log(job_id, f"ERROR: {exc}")
+
+
+@app.route("/api/ideas/<idea_id>/produce-flagship", methods=["POST"])
+def produce_flagship(idea_id):
+    body = request.get_json(silent=True) or {}
+    aspects = body.get("aspects") or ["9x16", "1x1", "16x9"]
+    aspects = [a for a in aspects if a in ("9x16", "1x1", "16x9")] or ["9x16"]
+
+    data = load_backlog()
+    idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
+    if not idea:
+        return jsonify({"success": False, "error": "Idea not found"}), 404
+
+    job_id = f"jobf_{idea_id}_{uuid.uuid4().hex[:8]}"
+    with PIPELINE_LOCK:
+        PIPELINE_JOBS[job_id] = {
+            "job_id":     job_id,
+            "idea_id":    idea_id,
+            "kind":       "flagship",
+            "status":     "running",
+            "stage":      "starting",
+            "stages":     ["spec"] + [f"render_{a}" for a in aspects] + ["done"],
+            "message":    "Starting flagship production...",
+            "log":        [],
+            "started_at": time.time(),
+            "updated_at": time.time(),
+        }
+    threading.Thread(target=_run_flagship, args=(job_id, idea_id, aspects), daemon=True).start()
+    return jsonify({"success": True, "job_id": job_id})
+
+
+@app.route("/api/flagship/<path:filename>")
+def serve_flagship(filename):
+    p = (FLAGSHIP_OUT / filename).resolve()
+    if not str(p).startswith(str(FLAGSHIP_OUT.resolve())) or not p.exists():
+        return jsonify({"success": False, "error": "not found"}), 404
+    force = request.args.get("download") == "1"
+    return send_file(str(p), mimetype="video/mp4", as_attachment=force,
+                     download_name=p.name if force else None)
+
+
 # ── Platform Pack (8-platform social copy from one idea) ─────────────────────
 
 @app.route("/api/ideas/<idea_id>/platform-pack", methods=["GET"])

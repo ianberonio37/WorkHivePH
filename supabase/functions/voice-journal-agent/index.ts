@@ -29,11 +29,17 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: voice journal write + retrieval
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+// Arc L (free-tier B lens, 2026-06-23): this is a PUBLIC fn (verify_jwt=false) with NO
+// membership gate that calls a generative LLM — an anon caller could burn unbounded
+// provider tokens. Cap on the caller's OWN identity (solo scope: no hive here).
+import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -362,6 +368,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
+  logRequestStart(req, "voice-journal-agent");  // I6 observability
 
   if (req.method !== "POST") {
     return json(corsHeaders, 405, { error: "POST only" });
@@ -383,6 +390,25 @@ serve(async (req) => {
   // or phone numbers to the LLM provider. The gateway-redacted "<redacted>"
   // tokens pass through unchanged.
   const message = redactPII(rawMessage.slice(0, MAX_MESSAGE_CHARS));
+
+  // Arc L free-tier B gate: cap generative AI per identity so an anon/bot caller on
+  // this PUBLIC (verify_jwt=false) companion cannot burn unbounded provider tokens.
+  // SOLO scope (no hive): bucket on auth_uid (per-person) with a client-IP floor for
+  // anon (Pillar P — never key on an unverified hive_id). Service-role/internal callers
+  // (the ai-gateway forwards the user JWT; cron uses the service key) are exempt: the
+  // gateway already gates per-hive, and cron volume is schedule-bounded.
+  const _vjAuth = req.headers.get("Authorization") || "";
+  const _vjIsService = !!_WH_SERVICE_KEY && _vjAuth.includes(_WH_SERVICE_KEY);
+  if (!_vjIsService) {
+    const _vjAuthUid = typeof (body as { auth_uid?: unknown }).auth_uid === "string"
+      ? (body as { auth_uid?: string }).auth_uid!.slice(0, 80) : null;
+    const _vjIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    const _vjDb = _whWarmClient || createClient(_WH_SUPABASE_URL, _WH_SERVICE_KEY);
+    const _vjRl = await checkSoloRateLimit(_vjDb, soloRateLimitKey(_vjAuthUid, _vjIp));
+    if (!_vjRl.allowed) {
+      return json(corsHeaders, 429, { error: "AI call limit reached. Please try again in an hour." });
+    }
+  }
 
   const ctx = body.context && typeof body.context === "object" ? body.context : {};
   const rawLang = typeof ctx.lang === "string" ? ctx.lang.trim().toLowerCase() : "";

@@ -12,7 +12,7 @@
   <!-- dashboard-allow: founder-only admin surface. Aggregates platform-wide signals (validators, DAU, hive readiness, AI cost). Honesty doctrine: show gap, not fiction, when N is too low. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <style>
     /* ── Design tokens (mirrors platform-health.html / hive.html) ── */
     :root {
@@ -26,7 +26,7 @@
       --red:       #f87171;
       --yellow:    #fbbf24;
       --purple:    #a78bfa;
-      --muted:     rgba(255,255,255,0.4);
+      --muted:     rgba(255,255,255,0.85); /* D1 a11y: was 0.4 (~2.5:1) → 0.85 meets WCAG 1.4.3 4.5:1 incl. raised .stat cards */
       --text:      #F4F6FA;
     }
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
@@ -80,7 +80,7 @@
     .hdr-meta { font-size:.7rem; color:var(--muted); }
     .hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
     .refresh-btn {
-      display:inline-flex; align-items:center; gap:.35rem;
+      display:inline-flex; align-items:center; gap:.35rem; min-height:44px; /* D1 U2 */
       padding:.45rem .9rem; border-radius:.55rem; cursor:pointer; user-select:none;
       background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
       color:var(--gold); font-family:inherit; font-size:.75rem; font-weight:700;
@@ -91,9 +91,9 @@
     .refresh-btn:disabled { opacity:.4; cursor:not-allowed; }
     .refresh-btn.spinning .refresh-ico { animation:spin .8s linear infinite; display:inline-block; }
     .auto-select {
-      padding:.4rem .7rem; border-radius:.45rem;
+      padding:.4rem .7rem; border-radius:.45rem; min-height:44px; /* D1 U2: gloved-field tap target */
       background:rgba(255,255,255,.04); border:1px solid var(--border);
-      color:var(--text); font-family:inherit; font-size:.72rem; font-weight:600;
+      color:var(--text); font-family:inherit; font-size:1rem; font-weight:600; /* 16px = no iOS auto-zoom */
     }
     .kbd {
       display:inline-block; font-family:ui-monospace,monospace;
@@ -132,9 +132,13 @@
     .stat .n.good { color:var(--green); }
     .stat .n.warn { color:var(--yellow); }
     .stat .n.bad  { color:var(--red); }
+    /* D1 U5: tiny stat labels used the alpha token rgba(255,255,255,.85) — its LIVE
+       contrast is ~11.5:1 (fine), but axe flags semi-transparent text on 9.6px type as
+       a contrast violation (compositing uncertainty). Use the SOLID composite equivalent
+       (identical look, deterministic for axe). Scoped to .stat to keep --muted elsewhere. */
     .stat .l  { font-size:.6rem; font-weight:700; text-transform:uppercase;
-                letter-spacing:.06em; color:var(--muted); }
-    .stat .sub { font-size:.65rem; color:var(--muted); margin-top:.1rem; }
+                letter-spacing:.06em; color:#dce0e5; }
+    .stat .sub { font-size:.65rem; color:#dce0e5; margin-top:.1rem; }
 
     /* ── Page main ── */
     .main { padding:1.25rem 1.5rem 4rem; max-width:1180px; margin:0 auto; }
@@ -168,7 +172,7 @@
     }
     .section-hdr {
       display:flex; align-items:center; gap:.6rem;
-      padding:.2rem .25rem .55rem;
+      padding:.2rem .25rem .55rem; min-height:44px; /* D1 U2: collapsible <summary> = tap target */
       border-bottom:1px solid rgba(255,255,255,.05);
       margin-bottom:1rem;
     }
@@ -221,6 +225,7 @@
     }
     .section-nav a {
       flex-shrink:0; padding:.35rem .75rem; border-radius:999px;
+      min-height:44px; display:inline-flex; align-items:center; /* D1 U2: pill nav = tap target, not inline text */
       font-size:.7rem; font-weight:700; text-decoration:none; color:var(--muted);
       background:rgba(255,255,255,.04); border:1px solid var(--border);
       transition:all .15s;
@@ -489,7 +494,7 @@
       background:transparent; color:var(--muted);
       border:1px solid transparent; border-radius:999px;
       padding:.35rem .75rem; font-size:.75rem; font-weight:500;
-      cursor:pointer; transition:all .15s;
+      cursor:pointer; transition:all .15s; min-height:44px; display:inline-flex; align-items:center; /* D1 U2 */
     }
     .fb-tab:hover { color:var(--text); background:rgba(255,255,255,.04); }
     .fb-tab.active {
@@ -506,8 +511,8 @@
     .fb-filters { display:flex; gap:.5rem; margin-bottom:.75rem; flex-wrap:wrap; }
     .fb-filter {
       background:rgba(22,32,50,.6); border:1px solid rgba(255,255,255,.1);
-      border-radius:.5rem; color:var(--text); padding:.4rem .65rem;
-      font-size:.75rem; outline:none; font-family:inherit;
+      border-radius:.5rem; color:var(--text); padding:.4rem .65rem; min-height:44px; /* D1 U2 */
+      font-size:1rem; outline:none; font-family:inherit; /* 16px = no iOS auto-zoom */
     }
     .fb-filter:focus { border-color:rgba(247,162,27,.5); }
     #fb-filter-search { flex:1; min-width:140px; }
@@ -1242,7 +1247,11 @@
       const isZero = (val === '0' || val === '—' || val === 0);
       const nonZero = [val].filter(v => Number(v) > 0);
       const parent = el && el.closest('.stat');
-      if (parent) parent.style.opacity = (nonZero.length > 0 || !isZero) ? '1' : '0.45';
+      // D1 U5: dim zero tiles to read as "calm/empty", but FLOOR the opacity at 0.7 —
+      // at 0.45 the (already small, 9.6px) .stat .l labels composited to 3.55:1 (axe
+      // WCAG 1.4.3 fail). 0.7 keeps the de-emphasis while holding ≥4.5:1. The big .n
+      // value passes either way (3:1 large-text bar).
+      if (parent) parent.style.opacity = (nonZero.length > 0 || !isZero) ? '1' : '0.7';
     }
 
     // ── RAG dot helper: paint each panel header dot from its data ──
@@ -2103,7 +2112,7 @@
           </div>
         </div>`;
       }).join('');
-      el.innerHTML = `<div class="audit-feed">${rows}</div>` +
+      el.innerHTML = `<div class="audit-feed" tabindex="0" role="region" aria-label="Audit event feed">${rows}</div>` +
         renderSourceChip({ freshness:'live', source:'hive_audit_log', window:'last 50 events', notes:['All hives, ordered by created_at desc'] });
     }
 
@@ -2296,6 +2305,16 @@
       const note      = document.getElementById('fb-d-note').value.trim() || null;
       const isPublic  = document.getElementById('fb-d-public')?.checked || false;
       const btn       = document.getElementById('fb-d-save');
+      // D1 U4 (error protection / WCAG 3.3.4): publishing to the public roadmap is a
+      // consequential, hard-to-reverse action — once /feedback/ is indexed by Google the
+      // content can be cached even after un-publishing. Guard the NEWLY-public case with
+      // an explicit confirm so a founder can't expose contact emails / worker names by a
+      // stray checkbox click. (Un-publishing or saving a private item is not gated.)
+      const wasPublicNow = !!_fb.rows.find(r => r.id === id)?.is_public;
+      if (isPublic && !wasPublicNow &&
+          !confirm('Publish this feedback to the PUBLIC roadmap (/feedback/)?\n\nIt becomes visible to anyone and can be indexed by Google. Make sure it contains nothing private (contact emails, worker names, internal notes).')) {
+        return;
+      }
       btn.disabled = true; btn.textContent = 'Saving…';
       try {
         const { error } = await db.from('platform_feedback')
@@ -2343,7 +2362,7 @@
               showToast('New ' + row.kind + ' from ' + (row.worker_name || row.contact_email || 'anonymous'));
               setRagDot('rag-feedback', 'warn');
             })
-        .subscribe();
+        .subscribe(rtConn());
       window.addEventListener('beforeunload', () => {
         if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }
       });
@@ -2402,5 +2421,6 @@
     };
   </script>
 </main>
+  <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

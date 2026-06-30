@@ -1,0 +1,306 @@
+{
+  "ran": "2026-06-24T19:58:23.553Z",
+  "seeder": "http://127.0.0.1:5000",
+  "hive": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7",
+  "journeys": [
+    {
+      "id": "DAY1",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Schedule a new maintenance task onto the day plan",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "reach": true,
+        "modal": true,
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "DAY2",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Place an open logbook job onto the schedule",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "found": true,
+        "placeClicked": true,
+        "modal": true,
+        "linked": true
+      },
+      "err": null
+    },
+    {
+      "id": "DAY3",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Mark a scheduled item Done and close the linked logbook job",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "blockClicked": true,
+        "schStatus": "done",
+        "logStatus": "Closed",
+        "done": true,
+        "closed": true
+      },
+      "err": null
+    },
+    {
+      "id": "DAY4",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Read the day-plan verdict + counts to decide what to work on",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "baseline": 0,
+        "after": 1,
+        "verdict": "3 items overdue",
+        "tOk": true
+      },
+      "err": null
+    }
+  ],
+  "findings": [
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-box — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.view-tab.active — 1 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.view-tab — 3 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "A keyboard skip-to-content link improves operability for keyboard/AT users",
+      "basis": "qa-tester / WCAG-2.4.1",
+      "severity": 0,
+      "evidence": "body — no skip-to-content link found",
+      "owner": "qa-tester"
+    }
+  ],
+  "summary": {
+    "journeys_total": 4,
+    "applicable": 4,
+    "live": 4,
+    "external": 0,
+    "live_pct": 100,
+    "floor_findings": 0,
+    "heuristic_findings": 5,
+    "critic_catalog_rules": 209
+  },
+  "per_page": [
+    {
+      "page": "dayplanner.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    }
+  ],
+  "per_lens": {
+    "R": {
+      "applicable": 4,
+      "pass": 4,
+      "pct": 100
+    },
+    "J": {
+      "applicable": 4,
+      "pass": 4,
+      "pct": 100
+    },
+    "T": {
+      "applicable": 4,
+      "pass": 4,
+      "pct": 100
+    },
+    "C": {
+      "applicable": 4,
+      "pass": 4,
+      "pct": 100
+    },
+    "X": {
+      "applicable": 3,
+      "pass": 3,
+      "pct": 100
+    }
+  }
+}

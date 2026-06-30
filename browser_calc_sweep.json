@@ -1,0 +1,7691 @@
+{
+  "generated": "2026-06-23T10:20:51.602Z",
+  "denominator_total_calc_types": 53,
+  "specs_run": 55,
+  "pass": 25,
+  "fail_divergence": 0,
+  "no_python_ref": 2,
+  "needs_spec": 28,
+  "errored": 0,
+  "rendered_in_browser": 27,
+  "measured": "B1 value-verified (render==validated Python): 25/53 · rendered-in-browser 27/55",
+  "cells": [
+    {
+      "calcType": "HVAC Cooling Load",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "kW",
+          "served": 14.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.85,
+            "python": 14.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "TR",
+          "served": 4.22,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.22,
+            "python": 4.22
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_design",
+          "served": 16333.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16333.3,
+            "python": 16333.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kW",
+          "served": 18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 18,
+            "python": 18
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 4,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Ventilation / ACH",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "room_volume",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vbz_ls",
+          "served": 28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28,
+            "python": 28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ach_ashrae",
+          "served": 3.36,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.36,
+            "python": 3.36
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_ach",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "min_ach_required",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "supply_cmh",
+          "served": 180,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 180,
+            "python": 180
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "supply_ls",
+          "served": 50,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 50,
+            "python": 50
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "supply_cfm",
+          "served": 106,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 106,
+            "python": 106
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_cmh",
+          "served": 207,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 207,
+            "python": 207
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_cfm",
+          "served": 122,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 122,
+            "python": 122
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_fan_cmh",
+          "served": 300,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 300,
+            "python": 300
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_fan_cfm",
+          "served": 177,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 177,
+            "python": 177
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "outdoor_air_cmh",
+          "served": 101,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 101,
+            "python": 101
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "outdoor_air_cfm",
+          "served": 59,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 59,
+            "python": 59
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 14,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Chiller System — Air Cooled",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "cooling_kW",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cooling_TR",
+          "served": 2.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.84,
+            "python": 2.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cooling_kW_design",
+          "served": 11.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11.5,
+            "python": 11.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cooling_TR_design",
+          "served": 3.27,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.27,
+            "python": 3.27
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kW",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_TR",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "COP_full_load",
+          "served": 3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3,
+            "python": 3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "COP_thermodynamic",
+          "served": 5.153,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.153,
+            "python": 5.153
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "COP_carnot",
+          "served": 7.32,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.32,
+            "python": 7.32
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "EER",
+          "served": 10.24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10.24,
+            "python": 10.24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kW_per_TR",
+          "served": 1.172,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.172,
+            "python": 1.172
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "IPLV",
+          "served": 3.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.1,
+            "python": 3.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "compressor_kW",
+          "served": 3.83,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.83,
+            "python": 3.83
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_evap_ref_c",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_cond_ref_c",
+          "served": 43,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 43,
+            "python": 43
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "evap_approach_K",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cond_approach_K",
+          "served": 8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8,
+            "python": 8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_supply_c",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_return_c",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_delta_T_c",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_flow_lps",
+          "served": 0.55,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.55,
+            "python": 0.55
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_flow_m3hr",
+          "served": 1.98,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.98,
+            "python": 1.98
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_rejection_kW",
+          "served": 15.33,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.33,
+            "python": 15.33
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_rejection_TR",
+          "served": 4.36,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.36,
+            "python": 4.36
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_supply_c",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_return_c",
+          "served": 45,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 45,
+            "python": 45
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_delta_T_c",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_flow_lps",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_flow_m3hr",
+          "served": 6900,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 6900,
+            "python": 6900
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_flow_gpm",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_COP",
+          "served": 2.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.8,
+            "python": 2.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_IPLV",
+          "served": 3.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.05,
+            "python": 3.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_design_kW",
+          "served": 11.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11.5,
+            "python": 11.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_design_TR",
+          "served": 3.27,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.27,
+            "python": 3.27
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_input_kW",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_per_unit_kW",
+          "served": 11.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11.5,
+            "python": 11.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_per_unit_TR",
+          "served": 3.27,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.27,
+            "python": 3.27
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "P_per_unit_kW",
+          "served": 3.83,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.83,
+            "python": 3.83
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "P_total_kW",
+          "served": 3.83,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.83,
+            "python": 3.83
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_rejection_kW",
+          "served": 15.33,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.33,
+            "python": 15.33
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_rejection_TR",
+          "served": 4.36,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.36,
+            "python": 4.36
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_lps",
+          "served": 0.55,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.55,
+            "python": 0.55
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_m3h",
+          "served": 1.98,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.98,
+            "python": 1.98
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_GPM",
+          "served": 8.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.7,
+            "python": 8.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_cw_lps",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_cw_m3h",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_cw_GPM",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_chw_C",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_cw_C",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "iplv",
+          "served": 3.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.1,
+            "python": 3.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cop_margin",
+          "served": 0.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.2,
+            "python": 0.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "iplv_margin",
+          "served": 0.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.05,
+            "python": 0.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_cop",
+          "served": 2.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.8,
+            "python": 2.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_iplv",
+          "served": 3.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.05,
+            "python": 3.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_TR_each",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_kW_each",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_total_TR",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_A_at_400V",
+          "served": 6.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.1,
+            "python": 6.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_kVA",
+          "served": 4.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.3,
+            "python": 4.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_airflow_CMH",
+          "served": 4577,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4577,
+            "python": 4577
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_airflow_CMH_per_unit",
+          "served": 4577,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4577,
+            "python": 4577
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_airflow_CFM",
+          "served": 2694,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2694,
+            "python": 2694
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_flow_lps",
+          "served": 0.55,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.55,
+            "python": 0.55
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_flow_m3h",
+          "served": 1.98,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.98,
+            "python": 1.98
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_flow_GPM",
+          "served": 8.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.7,
+            "python": 8.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_cond_C",
+          "served": 8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8,
+            "python": 8
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.97,
+      "crossEngineKeys": 66,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Chiller System — Water Cooled",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "cooling_kW",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cooling_TR",
+          "served": 2.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.84,
+            "python": 2.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cooling_kW_design",
+          "served": 11,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11,
+            "python": 11
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cooling_TR_design",
+          "served": 3.13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.13,
+            "python": 3.13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kW",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_TR",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "COP_full_load",
+          "served": 5.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.5,
+            "python": 5.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "COP_thermodynamic",
+          "served": 7.531,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.531,
+            "python": 7.531
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "COP_carnot",
+          "served": 10.698,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10.698,
+            "python": 10.698
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "EER",
+          "served": 18.77,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 18.77,
+            "python": 18.77
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kW_per_TR",
+          "served": 0.639,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.639,
+            "python": 0.639
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "IPLV",
+          "served": 5.756,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.756,
+            "python": 5.756
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "compressor_kW",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_evap_ref_c",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_cond_ref_c",
+          "served": 31,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 31,
+            "python": 31
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "evap_approach_K",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cond_approach_K",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_supply_c",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_return_c",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_delta_T_c",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_flow_lps",
+          "served": 0.526,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.526,
+            "python": 0.526
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_flow_m3hr",
+          "served": 1.89,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.89,
+            "python": 1.89
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_rejection_kW",
+          "served": 13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 13,
+            "python": 13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_rejection_TR",
+          "served": 3.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.7,
+            "python": 3.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_supply_c",
+          "served": 29,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 29,
+            "python": 29
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_return_c",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_delta_T_c",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_flow_lps",
+          "served": 0.518,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.518,
+            "python": 0.518
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_flow_m3hr",
+          "served": 1.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.9,
+            "python": 1.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_flow_gpm",
+          "served": 8.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.2,
+            "python": 8.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_COP",
+          "served": 5.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.5,
+            "python": 5.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_IPLV",
+          "served": 6.29,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.29,
+            "python": 6.29
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_design_kW",
+          "served": 11,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11,
+            "python": 11
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_design_TR",
+          "served": 3.13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.13,
+            "python": 3.13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_input_kW",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_per_unit_kW",
+          "served": 5.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.5,
+            "python": 5.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_per_unit_TR",
+          "served": 1.56,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.56,
+            "python": 1.56
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "P_per_unit_kW",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "P_total_kW",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_rejection_kW",
+          "served": 13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 13,
+            "python": 13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_rejection_TR",
+          "served": 3.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.7,
+            "python": 3.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_lps",
+          "served": 0.526,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.526,
+            "python": 0.526
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_m3h",
+          "served": 1.89,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.89,
+            "python": 1.89
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_GPM",
+          "served": 8.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.3,
+            "python": 8.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_cw_lps",
+          "served": 0.518,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.518,
+            "python": 0.518
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_cw_m3h",
+          "served": 1.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.9,
+            "python": 1.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_cw_GPM",
+          "served": 8.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.2,
+            "python": 8.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_chw_C",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_cw_C",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "iplv",
+          "served": 5.756,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.756,
+            "python": 5.756
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cop_margin",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "iplv_margin",
+          "served": -0.534,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": -0.534,
+            "python": -0.534
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_cop",
+          "served": 5.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.5,
+            "python": 5.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_min_iplv",
+          "served": 6.29,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.29,
+            "python": 6.29
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_TR_each",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_kW_each",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_total_TR",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_A_at_400V",
+          "served": 3.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.2,
+            "python": 3.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_kVA",
+          "served": 2.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.2,
+            "python": 2.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_airflow_CMH",
+          "served": 3881,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 3881,
+            "python": 3881
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_airflow_CMH_per_unit",
+          "served": 1940,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 1940,
+            "python": 1940
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_airflow_CFM",
+          "served": 2284,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 2284,
+            "python": 2284
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_flow_lps",
+          "served": 0.526,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.526,
+            "python": 0.526
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_flow_m3h",
+          "served": 1.89,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.89,
+            "python": 1.89
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_flow_GPM",
+          "served": 8.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.3,
+            "python": 8.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_cond_C",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.94,
+      "crossEngineKeys": 66,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Cooling Tower Sizing",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "heat_rejection_kw",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "heat_rejection_tr",
+          "served": 2.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.84,
+            "python": 2.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_hot_in_c",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_cold_out_c",
+          "served": 29.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 29.5,
+            "python": 29.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "wb_design_c",
+          "served": 28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28,
+            "python": 28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "range_c",
+          "served": 5.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.5,
+            "python": 5.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "approach_c",
+          "served": 1.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.5,
+            "python": 1.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "effectiveness",
+          "served": 0.786,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.786,
+            "python": 0.786
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ntu",
+          "served": 3.89,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.89,
+            "python": 3.89
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "l_over_g",
+          "served": 1.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.3,
+            "python": 1.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "h_air_inlet_kJkg",
+          "served": 89.74,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 89.74,
+            "python": 89.74
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "water_flow_lps",
+          "served": 0.436,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.436,
+            "python": 0.436
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "water_flow_lmin",
+          "served": 26.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 26.2,
+            "python": 26.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "water_flow_m3hr",
+          "served": 1.57,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.57,
+            "python": 1.57
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "water_flow_gpm",
+          "served": 6.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.9,
+            "python": 6.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "mass_flow_kgs",
+          "served": 0.434,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.434,
+            "python": 0.434
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "air_flow_m3s",
+          "served": 0.291,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.291,
+            "python": 0.291
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "air_mass_kgs",
+          "served": 0.334,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.334,
+            "python": 0.334
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_power_kw",
+          "served": 0.089,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.089,
+            "python": 0.089
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_fan_kw",
+          "served": 0.37,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.37,
+            "python": 0.37
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_hp",
+          "served": 0.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.5,
+            "python": 0.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "gpm_per_hp",
+          "served": 13.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 13.8,
+            "python": 13.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pump_power_kw",
+          "served": 121.742,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 121.742,
+            "python": 121.742
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_pump_kw",
+          "served": 90,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 90,
+            "python": 90
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pump_head_m",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "evaporation_lps",
+          "served": 0.0032,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0032,
+            "python": 0.0032
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "drift_lps",
+          "served": 0.00009,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.00009,
+            "python": 0.00009
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "blowdown_lps",
+          "served": 0.0011,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0011,
+            "python": 0.0011
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "makeup_water_lps",
+          "served": 0.0044,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0044,
+            "python": 0.0044
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "makeup_water_m3hr",
+          "served": 0.016,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.016,
+            "python": 0.016
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "makeup_water_L_day",
+          "served": 377.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 377.7,
+            "python": 377.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cycles_of_concentration",
+          "served": 4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4,
+            "python": 4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "basin_volume_m3",
+          "served": 0.04,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.04,
+            "python": 0.04
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ewt",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "lwt",
+          "served": 29.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 29.5,
+            "python": 29.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "wbt",
+          "served": 28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28,
+            "python": 28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "lg_ratio",
+          "served": 1.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.3,
+            "python": 1.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coc",
+          "served": 4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4,
+            "python": 4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_cells",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_cell_kw",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_cell_tr",
+          "served": 2.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.84,
+            "python": 2.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_rejection_kw",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_rejection_tr",
+          "served": 2.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.84,
+            "python": 2.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_w_lps",
+          "served": 0.44,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.44,
+            "python": 0.44
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_w_m3hr",
+          "served": 1.57,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.57,
+            "python": 1.57
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_w_GPM",
+          "served": 6.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.9,
+            "python": 6.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_kw_total",
+          "served": 0.089,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.089,
+            "python": 0.089
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_kw_std",
+          "served": 0.37,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.37,
+            "python": 0.37
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_kw_per_cell",
+          "served": 0.089,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.089,
+            "python": 0.089
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_kw_per_100kw",
+          "served": 0.894,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.894,
+            "python": 0.894
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_flow_CMH",
+          "served": 1046,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1046,
+            "python": 1046
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_flow_CMH_cell",
+          "served": 1046,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1046,
+            "python": 1046
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "blowdown_lhr",
+          "served": 3.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.9,
+            "python": 3.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "drift_lhr",
+          "served": 0.31,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.31,
+            "python": 0.31
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "evap_lhr",
+          "served": 11.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11.6,
+            "python": 11.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "makeup_lhr",
+          "served": 15.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.7,
+            "python": 15.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "makeup_m3day",
+          "served": 0.378,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.378,
+            "python": 0.378
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 57,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "AHU Sizing",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "supply_flow_m3s",
+          "served": 0.7858,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.7858,
+            "python": 0.7858
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "supply_flow_m3hr",
+          "served": 2828.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2828.9,
+            "python": 2828.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "supply_flow_cfm",
+          "served": 1665,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1665,
+            "python": 1665
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_flow_m3s",
+          "served": 0.8644,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.8644,
+            "python": 0.8644
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "mass_flow_kgs",
+          "served": 0.9037,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.9037,
+            "python": 0.9037
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "air_changes_per_hr",
+          "served": 94.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 94.3,
+            "python": 94.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_total_kw",
+          "served": 24.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24.05,
+            "python": 24.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_total_tr",
+          "served": 6.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.84,
+            "python": 6.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_sensible_w",
+          "served": 12000,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 12000,
+            "python": 12000
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_latent_w",
+          "served": 12050.2,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 12050.2,
+            "python": 12050.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_shr",
+          "served": 0.499,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.499,
+            "python": 0.499
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_bypass_factor",
+          "served": 0.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.05,
+            "python": 0.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_rows",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "adp_c",
+          "served": 12.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12.3,
+            "python": 12.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_face_area_m2",
+          "served": 0.376,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.376,
+            "python": 0.376
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_face_velocity_ms",
+          "served": 2.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.3,
+            "python": 2.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_height_m",
+          "served": 0.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.5,
+            "python": 0.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "coil_width_m",
+          "served": 0.75,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.75,
+            "python": 0.75
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_total_static_pa",
+          "served": 800,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 800,
+            "python": 800
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_motor_kw",
+          "served": 1.156,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.156,
+            "python": 1.156
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_motor_kw",
+          "served": 1.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.5,
+            "python": 1.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_power_w_lps",
+          "served": 1.338,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.338,
+            "python": 1.338
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "oa_required_lps",
+          "served": 28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28,
+            "python": 28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "oa_delivered_lps",
+          "served": 172.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 172.9,
+            "python": 172.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dehumidification_kg_hr",
+          "served": 16.66,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16.66,
+            "python": 16.66
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_coil_total_kW",
+          "served": 24.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24.05,
+            "python": 24.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_coil_TR",
+          "served": 6.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.84,
+            "python": 6.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_coil_sensible_kW",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_coil_latent_kW",
+          "served": 12.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12.05,
+            "python": 12.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_design_kW",
+          "served": 24.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24.05,
+            "python": 24.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_design_TR",
+          "served": 6.84,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.84,
+            "python": 6.84
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_sensible_kW",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_latent_kW",
+          "served": 12.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12.05,
+            "python": 12.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_input_kW",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_sa_m3s",
+          "served": 0.7858,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.7858,
+            "python": 0.7858
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_sa_CMH",
+          "served": 2828.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2828.9,
+            "python": 2828.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_sa_CMH_each",
+          "served": 2828.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2828.9,
+            "python": 2828.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_sa_CFM",
+          "served": 1665,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1665,
+            "python": 1665
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_oa_CMH",
+          "served": 622.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 622.4,
+            "python": 622.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_ra_CMH",
+          "served": 2206.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2206.5,
+            "python": 2206.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "P_fan_kW",
+          "served": 1.156,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.156,
+            "python": 1.156
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "P_fan_kW_each",
+          "served": 1.156,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.156,
+            "python": 1.156
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_static_pa",
+          "served": 800,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 800,
+            "python": 800
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_lps",
+          "served": 1.149,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.149,
+            "python": 1.149
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_m3h",
+          "served": 4.14,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.14,
+            "python": 4.14
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Q_chw_GPM",
+          "served": 18.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 18.2,
+            "python": 18.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_chw_C",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_supply_C",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_return_C",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "shr",
+          "served": 0.499,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.499,
+            "python": 0.499
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_units",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_AHU_CMH_total",
+          "served": 2828.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2828.9,
+            "python": 2828.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nominal_AHU_CMH_each",
+          "served": 2828.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2828.9,
+            "python": 2828.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ach_actual",
+          "served": 94.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 94.3,
+            "python": 94.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ceiling_height",
+          "served": 3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3,
+            "python": 3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "floor_area",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "zone_volume",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "persons",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "safety_factor",
+          "served": 1.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.1,
+            "python": 1.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "oa_pct_used",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "oa_per_person_lps",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_hp_std",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_hp_total",
+          "served": 1.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.6,
+            "python": 1.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_power_W_lps",
+          "served": 1.338,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.338,
+            "python": 1.338
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_fan_max",
+          "served": 1.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.2,
+            "python": 1.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ashrae_oa_min_lps_person",
+          "served": 2.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.5,
+            "python": 2.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "T_mixed",
+          "served": 26.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 26.2,
+            "python": 26.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "eta_fan",
+          "served": 0.65,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.65,
+            "python": 0.65
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dT_sa",
+          "served": 11,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11,
+            "python": 11
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fan_static_Pa",
+          "served": 800,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 800,
+            "python": 800
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.97,
+      "crossEngineKeys": 70,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "FCU Selection",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "total_units",
+          "served": 4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4,
+            "python": 4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_kw",
+          "served": 28.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28.7,
+            "python": 28.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_tr",
+          "served": 8.16,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.16,
+            "python": 8.16
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_required_kw",
+          "served": 18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 18,
+            "python": 18
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_design_kw",
+          "served": 15.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.3,
+            "python": 15.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_design_tr",
+          "served": 4.35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.35,
+            "python": 4.35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_chw_lps",
+          "served": 1.143,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.143,
+            "python": 1.143
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "main_pipe_nps_mm",
+          "served": 25,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 25,
+            "python": 25
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "main_pipe_vel_ms",
+          "served": 2.33,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.33,
+            "python": 2.33
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "diversity_factor",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fcu_capacity_kW",
+          "served": 7.17,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.17,
+            "python": 7.17
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fcu_airflow_m3hr",
+          "served": 1000,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1000,
+            "python": 1000
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "chw_flow_lps_total",
+          "served": 1.143,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.143,
+            "python": 1.143
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_kw",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "qty",
+          "served": 4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4,
+            "python": 4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_ewt_c",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cw_lwt_c",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 17,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Duct Sizing (Equal Friction)",
+      "discipline": "HVAC & Cooling",
+      "source": "ts-fallback",
+      "rendered": true,
+      "pyStatus": 422,
+      "checks": [
+        {
+          "key": "total_dp_pa",
+          "served": 43.32,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "fittings_factor",
+          "served": 1.5,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "fan_static_pa",
+          "served": 64.98,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "total_length_m",
+          "served": 58,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "max_flow_lps",
+          "served": 1200,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "fan_motor_kw",
+          "served": 0.14,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "fan_motor_hp_calc",
+          "served": 0.19,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "fan_motor_hp_std",
+          "served": 0.5,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "friction_rate",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "air_density",
+          "served": 1.2,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 0,
+      "crossEngineDiverge": 0,
+      "status": "NO-PYREF",
+      "crossEngineOk": "python-no-result"
+    },
+    {
+      "calcType": "Refrigerant Pipe Sizing",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "mass_flow_kgs",
+          "served": 0.0469,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0469,
+            "python": 0.0469
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_suction_m3s",
+          "served": 0.001806,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.001806,
+            "python": 0.001806
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_discharge_m3s",
+          "served": 0.000573,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.000573,
+            "python": 0.000573
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_liquid_m3s",
+          "served": 0.000053,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.000053,
+            "python": 0.000053
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "evap_temp_c",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cond_temp_c",
+          "served": 45,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 45,
+            "python": 45
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 6,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Expansion Tank Sizing",
+      "discipline": "HVAC & Cooling",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "system_volume_L",
+          "served": 500,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 500,
+            "python": 500
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fill_temp_c",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "max_temp_c",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "v_fill",
+          "served": 1.0018,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.0018,
+            "python": 1.0018
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "v_max",
+          "served": 1.0001,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.0001,
+            "python": 1.0001
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "expansion_ratio",
+          "served": 0.0017,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0017,
+            "python": 0.0017
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "V_expansion_L",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "static_head_m",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "precharge_kpa_g",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fill_pressure_kpa_g",
+          "served": 115,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 115,
+            "python": 115
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "max_pressure_kpa_g",
+          "served": 400,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 400,
+            "python": 400
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "acceptance_factor",
+          "served": 0.569,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.569,
+            "python": 0.569
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_volume_L",
+          "served": 1.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.5,
+            "python": 1.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_tank_L",
+          "served": 8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8,
+            "python": 8
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 14,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Pump Sizing (TDH)",
+      "discipline": "Mechanical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "TDH",
+          "served": 10.82,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10.82,
+            "python": 10.82
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_lpm",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_m3hr",
+          "served": 0.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.6,
+            "python": 0.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_velocity",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_dia_mm",
+          "served": 15.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.8,
+            "python": 15.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Reynolds_number",
+          "served": 15045,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 15045,
+            "python": 15045
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "friction_factor",
+          "served": 0.02796,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.02796,
+            "python": 0.02796
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "friction_head_m",
+          "served": 0.652,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.652,
+            "python": 0.652
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "minor_losses_m",
+          "served": 0.13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.13,
+            "python": 0.13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "velocity_head_m",
+          "served": 0.037,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.037,
+            "python": 0.037
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "npsh_available",
+          "served": 19.91,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 19.91,
+            "python": 19.91
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "static_head",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "friction_head",
+          "served": 0.782,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.782,
+            "python": 0.782
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "hydraulic_kw",
+          "served": 0.018,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.018,
+            "python": 0.018
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "shaft_kw",
+          "served": 0.025,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.025,
+            "python": 0.025
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kw",
+          "served": 0.18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.18,
+            "python": 0.18
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_hp",
+          "served": 0.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.2,
+            "python": 0.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fluid_density_kgm3",
+          "served": 997,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 997,
+            "python": 997
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fluid_viscosity_pas",
+          "served": 0.00089,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.00089,
+            "python": 0.00089
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fluid_temp_c",
+          "served": 25,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 25,
+            "python": 25
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "velocity_head",
+          "served": 0.037,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.037,
+            "python": 0.037
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pressure_head",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "brake_kw",
+          "served": 0.025,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.025,
+            "python": 0.025
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "motor_kw",
+          "served": 0.028,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.028,
+            "python": 0.028
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "motor_hp",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.96,
+      "crossEngineKeys": 25,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Pipe Sizing",
+      "discipline": "Mechanical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "recommended_nominal_mm",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_id_mm",
+          "served": 15.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.8,
+            "python": 15.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_dia_mm",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_id_mm",
+          "served": 15.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.8,
+            "python": 15.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_lpm",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_m3hr",
+          "served": 0.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.6,
+            "python": 0.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_velocity",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Reynolds_number",
+          "served": 9409,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9409,
+            "python": 9409
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "friction_factor",
+          "served": 0.03153,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.03153,
+            "python": 0.03153
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "head_loss_m",
+          "served": 0.809,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.809,
+            "python": 0.809
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "friction_head_m",
+          "served": 0.735,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.735,
+            "python": 0.735
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "minor_losses_m",
+          "served": 0.074,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.074,
+            "python": 0.074
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pressure_drop_kpa",
+          "served": 7.209,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.209,
+            "python": 7.209
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pressure_drop_kpa_per_m",
+          "served": 0.7209,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.7209,
+            "python": 0.7209
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fluid_density_kgm3",
+          "served": 999.86,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 999.86,
+            "python": 999.86
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fluid_viscosity_pas",
+          "served": 0.001427,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.001427,
+            "python": 0.001427
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fluid_temp_c",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "flow_lps",
+          "served": 0.17,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.17,
+            "python": 0.17
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dia_mm",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "velocity",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_dia_mm",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_velocity",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "reynolds_number",
+          "served": 9409,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9409,
+            "python": 9409
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "hf_total",
+          "served": 0.809,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.809,
+            "python": 0.809
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "hf_per_m",
+          "served": 0.07349,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.07349,
+            "python": 0.07349
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "press_drop_total",
+          "served": 7.209,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.209,
+            "python": 7.209
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "press_drop_per_m",
+          "served": 0.7209,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.7209,
+            "python": 0.7209
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "press_kpa_m",
+          "served": 0.7209,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.7209,
+            "python": 0.7209
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "velocity_head",
+          "served": 0.0368,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0368,
+            "python": 0.0368
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "velocity_min",
+          "served": 0.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.6,
+            "python": 0.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "velocity_max",
+          "served": 3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3,
+            "python": 3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "equiv_length",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.97,
+      "crossEngineKeys": 32,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Compressed Air",
+      "discipline": "Mechanical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "iso_power_kw",
+          "served": 0.809,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.809,
+            "python": 0.809
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "shaft_power_kw",
+          "served": 0.952,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.952,
+            "python": 0.952
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "motor_power_kw",
+          "served": 1.024,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.024,
+            "python": 1.024
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "installed_kw",
+          "served": 1.828,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.828,
+            "python": 1.828
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kw",
+          "served": 2.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.2,
+            "python": 2.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_hp",
+          "served": 3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3,
+            "python": 3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_m3min",
+          "served": 0.17,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.17,
+            "python": 0.17
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_cfm",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "working_pressure_bar_g",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "receiver_volume_m3",
+          "served": 0.345,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.345,
+            "python": 0.345
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "receiver_volume_L",
+          "served": 344.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 344.5,
+            "python": 344.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_tank_L",
+          "served": 500,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 500,
+            "python": 500
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_pipe_mm",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_id_mm",
+          "served": 15.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.8,
+            "python": 15.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_velocity_ms",
+          "served": 1.827,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.827,
+            "python": 1.827
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_dp_bar",
+          "served": 0.0032,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0032,
+            "python": 0.0032
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pipe_dp_pct",
+          "served": 0.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.05,
+            "python": 0.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "specific_power_kw_m3min",
+          "served": 6.02,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.02,
+            "python": 6.02
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "duty_cycle_pct",
+          "served": 70,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 70,
+            "python": 70
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_cfm",
+          "served": 4.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.8,
+            "python": 4.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "connected_cfm",
+          "served": 6.24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.24,
+            "python": 6.24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "demand_cfm",
+          "served": 4.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.8,
+            "python": 4.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "diversity_cfm",
+          "served": 4.37,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.37,
+            "python": 4.37
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "leakage_cfm",
+          "served": 0.44,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.44,
+            "python": 0.44
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_cfm",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_lps",
+          "served": 2.83,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.83,
+            "python": 2.83
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_m3min",
+          "served": 0.17,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.17,
+            "python": 0.17
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_cfm",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "receiver_litres",
+          "served": 344.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 344.5,
+            "python": 344.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_receiver_L",
+          "served": 500,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 500,
+            "python": 500
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 30,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Boiler System",
+      "discipline": "Mechanical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "steam_pressure_barg",
+          "served": 7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7,
+            "python": 7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "steam_pressure_bara",
+          "served": 8.013,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.013,
+            "python": 8.013
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_sat_c",
+          "served": 170.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 170.5,
+            "python": 170.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "hg_kj_kg",
+          "served": 2768.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2768.4,
+            "python": 2768.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "hf_fw_kj_kg",
+          "served": 335,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 335,
+            "python": 335
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "delta_h_kj_kg",
+          "served": 2433.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2433.4,
+            "python": 2433.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "steam_demand_kg_hr",
+          "served": 500,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 500,
+            "python": 500
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_steam_demand_kg_hr",
+          "served": 625,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 625,
+            "python": 625
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_boiler_kw",
+          "served": 422.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 422.5,
+            "python": 422.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "q_boiler_bhp",
+          "served": 43.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 43.1,
+            "python": 43.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_capacity_kw",
+          "served": 422.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 422.5,
+            "python": 422.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_capacity_bhp",
+          "served": 43.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 43.1,
+            "python": 43.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_lhv_kj_kg",
+          "served": 46100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 46100,
+            "python": 46100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_consumption_kg_hr",
+          "served": 40.24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 40.24,
+            "python": 40.24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_consumption_lhr",
+          "served": 74.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 74.5,
+            "python": 74.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "blowdown_pct",
+          "served": 7.1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.1,
+            "python": 7.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "blowdown_kg_hr",
+          "served": 44.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 44.4,
+            "python": 44.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "makeup_water_kg_hr",
+          "served": 669.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 669.4,
+            "python": 669.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "safety_valve_min_kg_hr",
+          "served": 687.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 687.5,
+            "python": 687.5
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 19,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Load Estimation",
+      "discipline": "Electrical",
+      "retried": true,
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "voltage",
+          "served": 400,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 400,
+            "python": 400
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_va",
+          "served": 5030,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5030,
+            "python": 5030
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_kva",
+          "served": 5.03,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.03,
+            "python": 5.03
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_kw",
+          "served": 4.48,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.48,
+            "python": 4.48
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_va",
+          "served": 5030,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5030,
+            "python": 5030
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_kva",
+          "served": 5.03,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.03,
+            "python": 5.03
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_kw",
+          "served": 4.48,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.48,
+            "python": 4.48
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "computed_ampacity",
+          "served": 7.26,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.26,
+            "python": 7.26
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ampacity_with_spare",
+          "served": 9.08,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9.08,
+            "python": 9.08
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_breaker_A",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 10,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Transformer Sizing",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "load_kva",
+          "served": 80,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 80,
+            "python": 80
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "spare_capacity_pct",
+          "served": 25,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 25,
+            "python": 25
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_kva",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "rated_kva",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "num_units",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_installed_kva",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "loading_pct",
+          "served": 80,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 80,
+            "python": 80
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "primary_voltage",
+          "served": 13800,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 13800,
+            "python": 13800
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "secondary_voltage",
+          "served": 400,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 400,
+            "python": 400
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "phases",
+          "served": 3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3,
+            "python": 3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "I1_full_load_A",
+          "served": 4.18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.18,
+            "python": 4.18
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "I2_full_load_A",
+          "served": 144.34,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 144.34,
+            "python": 144.34
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "impedance_pct",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_secondary_A",
+          "served": 2886.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2886.8,
+            "python": 2886.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_secondary_kA",
+          "served": 2.887,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.887,
+            "python": 2.887
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "core_loss_kW",
+          "served": 0.22,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.22,
+            "python": 0.22
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "copper_loss_kW",
+          "served": 1.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.4,
+            "python": 1.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_loss_fl_kW",
+          "served": 1.62,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.62,
+            "python": 1.62
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_loss_75pct_kW",
+          "served": 1.008,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.008,
+            "python": 1.008
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "efficiency_fl_pct",
+          "served": 98.13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 98.13,
+            "python": 98.13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "efficiency_75pct",
+          "served": 98.44,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 98.44,
+            "python": 98.44
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "voltage_regulation_pct",
+          "served": 3.72,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.72,
+            "python": 3.72
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "load_power_factor",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 23,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Wire Sizing",
+      "discipline": "Electrical",
+      "source": "ts-fallback",
+      "rendered": true,
+      "pyStatus": 422,
+      "checks": [
+        {
+          "key": "voltage",
+          "served": 230,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "power_w",
+          "served": 1000,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "power_factor",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "load_current",
+          "served": 5.12,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "demand_multiplier",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "design_current",
+          "served": 5.12,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "ambient_temp",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "temp_factor",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "fill_factor",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "recommended_size_mm2",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "recommended_ampacity",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        },
+        {
+          "key": "recommended_breaker_A",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": null,
+          "crossEngineOk": null
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 0,
+      "crossEngineDiverge": 0,
+      "status": "NO-PYREF",
+      "crossEngineOk": "python-no-result"
+    },
+    {
+      "calcType": "Cable Tray Sizing",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "depth_mm",
+          "served": 75,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 75,
+            "python": 75
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fill_ratio_pct",
+          "served": 40,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 40,
+            "python": 40
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "nec_fill_limit_pct",
+          "served": 50,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 50,
+            "python": 50
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "span_m",
+          "served": 1.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.5,
+            "python": 1.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "run_length_m",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_fill_area_mm2",
+          "served": 2151.21,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2151.21,
+            "python": 2151.21
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_width_mm",
+          "served": 71.71,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 71.71,
+            "python": 71.71
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_width_mm",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fill_actual_pct",
+          "served": 28.68,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28.68,
+            "python": 28.68
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_weight_kg_m",
+          "served": 90,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 90,
+            "python": 90
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "load_per_span_kg",
+          "served": 135,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 135,
+            "python": 135
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "derating_factor",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 12,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Voltage Drop",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "voltage",
+          "served": 230,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 230,
+            "python": 230
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "current",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "wire_length",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "conductor_mm2",
+          "served": 3.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.5,
+            "python": 3.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "conductor_temp_c",
+          "served": 75,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 75,
+            "python": 75
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vd_limit",
+          "served": 3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3,
+            "python": 3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vd_limit_volts",
+          "served": 6.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.9,
+            "python": 6.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "resistivity",
+          "served": 0.02097,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.02097,
+            "python": 0.02097
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "resistance_ohm_km",
+          "served": 5.99,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.99,
+            "python": 5.99
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vd_volts",
+          "served": 7.19,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.19,
+            "python": 7.19
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vd_pct",
+          "served": 3.13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.13,
+            "python": 3.13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "max_length_m",
+          "served": 29,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 29,
+            "python": 29
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 12,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Short Circuit",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "voltage_lv_V",
+          "served": 400,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 400,
+            "python": 400
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "voltage_hv_V",
+          "served": 22000,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 22000,
+            "python": 22000
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "c_factor",
+          "served": 1.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.05,
+            "python": 1.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_3ph_kA",
+          "served": 9.827,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9.827,
+            "python": 9.827
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_3ph_A",
+          "served": 9827.2,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 9827.2,
+            "python": 9827.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_LL_kA",
+          "served": 8.511,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8.511,
+            "python": 8.511
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_1ph_kA",
+          "served": 9.827,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9.827,
+            "python": 9.827
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Ip_peak_kA",
+          "served": 14.519,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.519,
+            "python": 14.519
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "i_dc_50ms_kA",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fault_MVA",
+          "served": 6.808,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.808,
+            "python": 6.808
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kappa",
+          "served": 1.045,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.045,
+            "python": 1.045
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "xr_ratio_total",
+          "served": 0.81,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.81,
+            "python": 0.81
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ocpd_required_kA",
+          "served": 9.827,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9.827,
+            "python": 9.827
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ocpd_provided_kA",
+          "served": 25,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 25,
+            "python": 25
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_ocpd_kA",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Isc_kA",
+          "served": 9.827,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9.827,
+            "python": 9.827
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Ipeak_kA",
+          "served": 14.519,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.519,
+            "python": 14.519
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Z_total_ohm",
+          "served": 0.024675,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.024675,
+            "python": 0.024675
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "R_cable_ohm",
+          "served": 0.016554,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.016554,
+            "python": 0.016554
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "X_cable_ohm",
+          "served": 0.0024,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0024,
+            "python": 0.0024
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Z_cable_ohm",
+          "served": 0.016727,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.016727,
+            "python": 0.016727
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Z_xfmr_ohm",
+          "served": 0.0128,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.0128,
+            "python": 0.0128
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Z_base_ohm",
+          "served": 0.32,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.32,
+            "python": 0.32
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ic_min_recommended",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ic_margin",
+          "served": 15.173,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 15.173,
+            "python": 15.173
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.88,
+      "crossEngineKeys": 25,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Generator Sizing",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "demand_kW",
+          "served": 4.28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.28,
+            "python": 4.28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "demand_kVA",
+          "served": 5.03,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.03,
+            "python": 5.03
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "power_factor",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_kVA_steady",
+          "served": 6.04,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6.04,
+            "python": 6.04
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "motor_start_kVA",
+          "served": 58.51,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 58.51,
+            "python": 58.51
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kVA_during_start",
+          "served": 58.51,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 58.51,
+            "python": 58.51
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_kVA_governing",
+          "served": 58.51,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 58.51,
+            "python": 58.51
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "installed_kVA_needed",
+          "served": 59.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 59.7,
+            "python": 59.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kVA",
+          "served": 62.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 62.5,
+            "python": 62.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kW_08pf",
+          "served": 50,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 50,
+            "python": 50
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "altitude_m",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ambient_c",
+          "served": 35,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "derate_factor",
+          "served": 0.98,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.98,
+            "python": 0.98
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "derate_pct_loss",
+          "served": 2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2,
+            "python": 2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vdip_pct",
+          "served": 23.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 23.4,
+            "python": 23.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vdip_limit_pct",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "steady_loading_pct",
+          "served": 8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8,
+            "python": 8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_rate_75pct_Lhr",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_rate_100pct_Lhr",
+          "served": 14.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.9,
+            "python": 14.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "tank_required_L",
+          "served": 239,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 239,
+            "python": 239
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_tank_L",
+          "served": 500,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 500,
+            "python": 500
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "backup_hours",
+          "served": 24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24,
+            "python": 24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_kva",
+          "served": 58.51,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 58.51,
+            "python": 58.51
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "controlling_kva",
+          "served": 58.51,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 58.51,
+            "python": 58.51
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_kva",
+          "served": 62.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 62.5,
+            "python": 62.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_kw",
+          "served": 50,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 50,
+            "python": 50
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "running_kw",
+          "served": 4.28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.28,
+            "python": 4.28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "running_kva",
+          "served": 5.03,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.03,
+            "python": 5.03
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "loading_pct",
+          "served": 8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8,
+            "python": 8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "overall_pf",
+          "served": 0.85,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.85,
+            "python": 0.85
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "safety_factor",
+          "served": 1.068,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1.068,
+            "python": 1.068
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "motor_kw",
+          "served": 7.46,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 7.46,
+            "python": 7.46
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "motor_hp",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_100pct_lhr",
+          "served": 14.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.9,
+            "python": 14.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuel_75pct_lhr",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "starting_kva",
+          "served": 58.51,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 58.51,
+            "python": 58.51
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "start_multiplier",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "tank_8hr_litres",
+          "served": 239,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 239,
+            "python": 239
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_va",
+          "served": 5030,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5030,
+            "python": 5030
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_demand_kva",
+          "served": 5.03,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5.03,
+            "python": 5.03
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 40,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "UPS Sizing",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "load_kW",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "load_kVA",
+          "served": 11.11,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11.11,
+            "python": 11.11
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "power_factor",
+          "served": 0.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.9,
+            "python": 0.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ups_kVA_min",
+          "served": 16.67,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16.67,
+            "python": 16.67
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_kVA",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "loading_pct",
+          "served": 55.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 55.6,
+            "python": 55.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "topology_transfer_ms",
+          "served": 0,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0,
+            "python": 0
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ups_efficiency",
+          "served": 0.94,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.94,
+            "python": 0.94
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dc_bus_voltage_V",
+          "served": 192,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 192,
+            "python": 192
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "battery_cells_per_string",
+          "served": 16,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16,
+            "python": 16
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "battery_strings",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_battery_cells",
+          "served": 16,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16,
+            "python": 16
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_Ah",
+          "served": 17.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 17.7,
+            "python": 17.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_Ah",
+          "served": 24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24,
+            "python": 24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_Ah",
+          "served": 24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24,
+            "python": 24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "backup_minutes_target",
+          "served": 15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15,
+            "python": 15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "backup_minutes_actual",
+          "served": 20.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20.4,
+            "python": 20.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ambient_temp_c",
+          "served": 35,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 35,
+            "python": 35
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "battery_life_factor",
+          "served": 0.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.5,
+            "python": 0.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "expected_battery_life_yr",
+          "served": 2.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.5,
+            "python": 2.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "input_current_A",
+          "served": 27.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 27.9,
+            "python": 27.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "output_current_A",
+          "served": 27.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 27.9,
+            "python": 27.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_breaker_A",
+          "served": 40,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 40,
+            "python": 40
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "actual_runtime_min",
+          "served": 20.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20.4,
+            "python": 20.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ah_required",
+          "served": 17.7,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 17.7,
+            "python": 17.7
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "avg_pf",
+          "served": 0.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.9,
+            "python": 0.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "battery_voltage_v",
+          "served": 192,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 192,
+            "python": 192
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "cells_in_series",
+          "served": 16,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16,
+            "python": 16
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_kw",
+          "served": 10.638,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10.638,
+            "python": 10.638
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "design_va",
+          "served": 11820,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11820,
+            "python": 11820
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "input_breaker_a",
+          "served": 40,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 40,
+            "python": 40
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "input_current_a",
+          "served": 27.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 27.9,
+            "python": 27.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "input_va",
+          "served": 11820,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11820,
+            "python": 11820
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "output_current_a",
+          "served": 27.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 27.9,
+            "python": 27.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_ah",
+          "served": 24,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24,
+            "python": 24
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_kva",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_kw",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_connected_va",
+          "served": 11111,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11111,
+            "python": 11111
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.97,
+      "crossEngineKeys": 38,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Power Factor Correction",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "kw",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pf_existing",
+          "served": 0.75,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.75,
+            "python": 0.75
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pf_target",
+          "served": 0.95,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.95,
+            "python": 0.95
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "phi1_deg",
+          "served": 41.41,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 41.41,
+            "python": 41.41
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "phi2_deg",
+          "served": 18.19,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 18.19,
+            "python": 18.19
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "tan_phi1",
+          "served": 0.8819,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.8819,
+            "python": 0.8819
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "tan_phi2",
+          "served": 0.3287,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.3287,
+            "python": 0.3287
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kvar_required",
+          "served": 55.32,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 55.32,
+            "python": 55.32
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "selected_kvar",
+          "served": 60,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 60,
+            "python": 60
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kvar_per_phase",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kva_before",
+          "served": 133.33,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 133.33,
+            "python": 133.33
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kva_after",
+          "served": 105.26,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 105.26,
+            "python": 105.26
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "kva_reduction",
+          "served": 28.07,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28.07,
+            "python": 28.07
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "current_before",
+          "served": 192.45,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 192.45,
+            "python": 192.45
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "current_after",
+          "served": 151.93,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 151.93,
+            "python": 151.93
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "current_reduction",
+          "served": 40.52,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 40.52,
+            "python": 40.52
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "current_reduction_pct",
+          "served": 21.05,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 21.05,
+            "python": 21.05
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "surcharge_pct",
+          "served": 11.76,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 11.76,
+            "python": 11.76
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "monthly_savings_php",
+          "served": 2.12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 2.12,
+            "python": 2.12
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 19,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Harmonic Distortion",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "fundamental_current_A",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "max_demand_current_A",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "system_voltage_V",
+          "served": 400,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 400,
+            "python": 400
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "isc_il_ratio",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "THD_I_pct",
+          "served": 33.18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 33.18,
+            "python": 33.18
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "TDD_pct",
+          "served": 33.18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 33.18,
+            "python": 33.18
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "TDD_limit_pct",
+          "served": 8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8,
+            "python": 8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "K_factor",
+          "served": 3.57,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 3.57,
+            "python": 3.57
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.88,
+      "crossEngineKeys": 8,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Solar PV System",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "panels_per_string",
+          "served": 67,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 67,
+            "python": 67
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "strings_parallel",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_panels",
+          "served": 67,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 67,
+            "python": 67
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "array_kWp",
+          "served": 30.15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30.15,
+            "python": 30.15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "array_Wp",
+          "served": 30150,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 30150,
+            "python": 30150
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "array_area_m2",
+          "served": 113.9,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 113.9,
+            "python": 113.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "roof_area_required_m2",
+          "served": 148.1,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 148.1,
+            "python": 148.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "voc_string_cold_V",
+          "served": 994.9,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 994.9,
+            "python": 994.9
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vmp_string_stc_V",
+          "served": 2780.5,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 2780.5,
+            "python": 2780.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "vmp_string_hot_V",
+          "served": 14250.1,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 14250.1,
+            "python": 14250.1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "isc_array_A",
+          "served": 10.2,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10.2,
+            "python": 10.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "imp_array_A",
+          "served": 9.6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 9.6,
+            "python": 9.6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dc_design_current_A",
+          "served": 12.8,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12.8,
+            "python": 12.8
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuse_min_A",
+          "served": 15.3,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 15.3,
+            "python": 15.3
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "fuse_max_A",
+          "served": 24.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 24.5,
+            "python": 24.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_fuse_A",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "inverter_kVA_min",
+          "served": 27.13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 27.13,
+            "python": 27.13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "recommended_inverter_kVA",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "peak_sun_hours",
+          "served": 4.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.5,
+            "python": 4.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "performance_ratio",
+          "served": 0.768,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.768,
+            "python": 0.768
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "energy_day_kWh",
+          "served": 104.2,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 104.2,
+            "python": 104.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "energy_yr_kWh",
+          "served": 38032,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 38032,
+            "python": 38032
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "energy_yr_MWh",
+          "served": 38.03,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 38.03,
+            "python": 38.03
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "specific_yield_kWh_kWp",
+          "served": 1261,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 1261,
+            "python": 1261
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "co2_offset_kg_yr",
+          "served": 19853,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 19853,
+            "python": 19853
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_cell_hot_c",
+          "served": 66.2,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 66.2,
+            "python": 66.2
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pmax_hot_W",
+          "served": 385,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 385,
+            "python": 385
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "pmax_derate_pct",
+          "served": 14.4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.4,
+            "python": 14.4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "panel_qty",
+          "served": 67,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 67,
+            "python": 67
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "num_strings",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "actual_array_kwp",
+          "served": 30.15,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30.15,
+            "python": 30.15
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "required_array_kwp",
+          "served": 14.47,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14.47,
+            "python": 14.47
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "annual_yield_kwh",
+          "served": 38032,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 38032,
+            "python": 38032
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "inverter_kw",
+          "served": 27,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 27,
+            "python": 27
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "psh_hr",
+          "served": 4.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4.5,
+            "python": 4.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "system_efficiency",
+          "served": 0.768,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.768,
+            "python": 0.768
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "t_min_c",
+          "served": 18,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 18,
+            "python": 18
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "temp_coeff_voc",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_roof_area_m2",
+          "served": 131,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 131,
+            "python": 131
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "voc_max",
+          "served": 994.95,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 994.95,
+            "python": 994.95
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "co2_reduction_kg",
+          "served": 19853,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 19853,
+            "python": 19853
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.78,
+      "crossEngineKeys": 41,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Lightning Protection System (LPS)",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "building_length_m",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "building_width_m",
+          "served": 20,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 20,
+            "python": 20
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "building_height_m",
+          "served": 12,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 12,
+            "python": 12
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "roof_area_m2",
+          "served": 600,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 600,
+            "python": 600
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "rolling_sphere_R_m",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "rolling_sphere_radius_m",
+          "served": 30,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 30,
+            "python": 30
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "mesh_size_m",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Iimp_kA",
+          "served": 150,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 150,
+            "python": 150
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "I_min_kA",
+          "served": 5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 5,
+            "python": 5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "efficiency_pct",
+          "served": 95,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 95,
+            "python": 95
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "protection_efficiency_pct",
+          "served": 95,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 95,
+            "python": 95
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "protection_angle_deg",
+          "served": 28,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 28,
+            "python": 28
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ng_fl_km2_yr",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Ng_fl_km2_yr",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Ad_m2",
+          "served": 8271.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8271.5,
+            "python": 8271.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Nd_strikes_yr",
+          "served": 0.08272,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.08272,
+            "python": 0.08272
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Nd_per_year",
+          "served": 0.08272,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.08272,
+            "python": 0.08272
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Cd",
+          "served": 1,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 1,
+            "python": 1
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "Nt",
+          "served": 0.00001,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.00001,
+            "python": 0.00001
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "risk_ratio",
+          "served": 8271.5,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 8271.5,
+            "python": 8271.5
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "E_required",
+          "served": 0.9999,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.9999,
+            "python": 0.9999
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "E_provided",
+          "served": 0.95,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.95,
+            "python": 0.95
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_air_terminals_est",
+          "served": 14,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 14,
+            "python": 14
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_mesh_cells",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "air_conductor_total_m",
+          "served": 270,
+          "renderFaithful": false,
+          "crossEngine": {
+            "served": 270,
+            "python": 270
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "finials_needed",
+          "served": 4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4,
+            "python": 4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "perimeter_m",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "dc_spacing_m",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_down_conductors",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "down_conductor_length_m",
+          "served": 13,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 13,
+            "python": 13
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "total_down_conductor_m",
+          "served": 130,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 130,
+            "python": 130
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "separation_distance_m",
+          "served": 0.72,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 0.72,
+            "python": 0.72
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "min_electrode_length_m",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_electrodes",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "rho_soil_ohm_m",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "n_earth_rods",
+          "served": 4,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 4,
+            "python": 4
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "ring_earth_m",
+          "served": 100,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 100,
+            "python": 100
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "air_termination_mm2",
+          "served": 50,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 50,
+            "python": 50
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "down_conductor_mm2",
+          "served": 16,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 16,
+            "python": 16
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "earth_conductor_mm2",
+          "served": 50,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 50,
+            "python": 50
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 0.93,
+      "crossEngineKeys": 40,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Earthing / Grounding System",
+      "discipline": "Electrical",
+      "source": "python",
+      "rendered": true,
+      "pyStatus": 200,
+      "checks": [
+        {
+          "key": "r_single_ohm",
+          "served": 29.815,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 29.815,
+            "python": 29.815
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "r_parallel_ohm",
+          "served": 29.815,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 29.815,
+            "python": 29.815
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "r_limit_ohm",
+          "served": 10,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 10,
+            "python": 10
+          },
+          "crossEngineOk": true
+        },
+        {
+          "key": "gec_mm2",
+          "served": 6,
+          "renderFaithful": true,
+          "crossEngine": {
+            "served": 6,
+            "python": 6
+          },
+          "crossEngineOk": true
+        }
+      ],
+      "renderFaithfulRatio": 1,
+      "crossEngineKeys": 4,
+      "crossEngineDiverge": 0,
+      "status": "PASS",
+      "crossEngineOk": true
+    },
+    {
+      "calcType": "Lighting Design",
+      "discipline": "Electrical",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Water Supply Pipe Sizing",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Hot Water Demand",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Water Softener Sizing",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Water Treatment System",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Drainage Pipe Sizing",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Septic Tank Sizing",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Storm Drain / Stormwater",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Grease Trap Sizing",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Roof Drain Sizing",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Wastewater Treatment (STP)",
+      "discipline": "Plumbing",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Fire Sprinkler Hydraulic",
+      "discipline": "Fire Protection",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Fire Pump Sizing",
+      "discipline": "Fire Protection",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Stairwell Pressurization",
+      "discipline": "Fire Protection",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Fire Alarm Battery",
+      "discipline": "Fire Protection",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Clean Agent Suppression",
+      "discipline": "Fire Protection",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "V-Belt Drive Design",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Shaft Design",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Bolt Torque & Preload",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Fluid Power",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Bearing Life (L10)",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Pressure Vessel",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Heat Exchanger",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Beam / Column Design",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Vibration Analysis",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Noise / Acoustics",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Elevator Traffic Analysis",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    },
+    {
+      "calcType": "Hoist Capacity",
+      "discipline": "Machine Design",
+      "source": "ts-fallback",
+      "rendered": false,
+      "status": "NEEDS-SPEC",
+      "reason": "report never rendered (auto-fill did not satisfy guards)"
+    }
+  ]
+}

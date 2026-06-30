@@ -1,8 +1,14 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Arc R (LLM01/LLM10): this verify_jwt=false fn was a live OPEN LLM proxy — bound it.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // contract: voice-model-call (registered in canonical_agent_contracts migration)
 
@@ -33,6 +39,7 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  logRequestStart(req, "voice-model-call");  // I6 observability
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -50,7 +57,34 @@ serve(async (req) => {
     if (!messages || !Array.isArray(messages)) {
       return new Response(
         JSON.stringify({ error: "Missing or invalid messages array" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Arc R (LLM01/LLM10): this fn ran verify_jwt=false with NO auth, NO rate-limit and
+    // NO caps — a live, anonymous OPEN LLM proxy over the platform's provider keys (quota
+    // theft + companion DoS + full attacker prompt control). Bind it by identity-or-IP
+    // (solo bucket; service_role exempt), exactly like the equipment-label-ocr sibling.
+    {
+      const _rlDb = createClient(Deno.env.get("SUPABASE_URL") || "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "");
+      const _id   = await resolveIdentity(_rlDb, req);
+      if (!_id.isServiceRole) {
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+      }
+    }
+
+    // Clamp the cost knobs + cap total prompt size (LLM10 unbounded consumption /
+    // cost amplification). max_tokens server cap 512; total message content cap 8000 chars.
+    const safeMaxTokens = Math.min(Math.max(1, Number(max_tokens) || 280), 512);
+    const safeTemperature = Math.min(Math.max(0, Number(temperature) || 0.7), 2);
+    const _totalChars = messages.reduce(
+      (n: number, m: any) => n + (typeof m?.content === "string" ? m.content.length : 0), 0);
+    if (_totalChars > 8000) {
+      return new Response(
+        JSON.stringify({ error: "messages payload too large (cap 8000 chars)" }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -81,8 +115,8 @@ serve(async (req) => {
           api_key,
           model,
           messages,
-          max_tokens,
-          temperature,
+          safeMaxTokens,
+          safeTemperature,
           5000 // 5s timeout
         );
 

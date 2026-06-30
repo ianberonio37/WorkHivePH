@@ -92,14 +92,17 @@ PERMISSION_MATRIX = {
             # Post input — only visible on community.html (not after redirect)
             "create_post_input":    "textarea[placeholder*='post'], textarea[placeholder*='share'], #post_content",
             "post_submit_btn":      "button:has-text('Post'), button:has-text('Share')",
+            # Mod Queue tab — SUPERVISOR ONLY (#tab-mod ships style="display:none", shown
+            # by JS only for supervisors). The real role-gated control = the I2 security bar.
+            "mod_queue_tab":        "#tab-mod",
         },
         "expected": {
             # Solo redirects away — community-specific elements NOT visible
-            "solo":       {"create_post_input": None},  # on hive.html, no post input
-            "worker":     {"create_post_input": None},  # selector may vary — INFO only
-            "supervisor": {"create_post_input": None},  # INFO only
+            "solo":       {"create_post_input": None, "mod_queue_tab": False},  # on hive.html, no post input
+            "worker":     {"create_post_input": None, "mod_queue_tab": False},  # worker must NOT see the mod queue
+            "supervisor": {"create_post_input": None, "mod_queue_tab": True},   # supervisor-only mod queue
         },
-        "supervisor_extras": "Supervisor can edit/delete any post via supervisor-edit button",
+        "supervisor_extras": "Supervisor can edit/delete any post via supervisor-edit button; #tab-mod (Mod Queue) is supervisor-only",
     },
 
     "marketplace": {
@@ -166,7 +169,7 @@ PERMISSION_MATRIX = {
     "shift-brain": {
         "solo_gate": True,
         "elements": {
-            "handover_entries":     ".handover-card, [data-shift-id]",
+            "handover_entries":     ".handover-card, [data-shift-id], .section-card",  # 2026-06-19 stale-selector fix
             "submit_handover_btn":  "button:has-text('Submit'), button:has-text('Save Handover')",
         },
         "expected": {
@@ -195,7 +198,7 @@ PERMISSION_MATRIX = {
     "alert-hub": {
         "solo_gate": True,
         "elements": {
-            "alert_list":           "[data-alert-id], .alert-card",
+            "alert_list":           "[data-alert-id], .alert-card, .alert-head",  # 2026-06-19 stale-selector fix: per-alert .alert-head proxy
             "acknowledge_btn":      "button:has-text('Acknowledge')",
             "resolve_btn":          "button:has-text('Resolve')",
             "severity_filter":      "select#severity-filter, [data-filter='severity']",
@@ -241,7 +244,7 @@ PERMISSION_MATRIX = {
     "skillmatrix": {
         "solo_gate": True,
         "elements": {
-            "skill_rows":           ".skill-row, [data-skill-id]",
+            "skill_rows":           ".skill-row, [data-skill-id], .target-item, .level-dot",  # 2026-06-19 stale-selector fix
             "update_target_btn":    "button:has-text('Update'), button:has-text('Set Target')",
         },
         "expected": {
@@ -270,7 +273,7 @@ PERMISSION_MATRIX = {
     "plant-connections": {
         "solo_gate": True,
         "elements": {
-            "plant_list":           ".plant-card, [data-plant-id]",
+            "plant_list":           ".plant-card, [data-plant-id], .card",  # 2026-06-19 stale-selector fix
             "edit_config_btn":      "button:has-text('Edit'), button:has-text('Configure')",
             "add_plant_btn":        "button:has-text('Add Plant')",
         },
@@ -285,7 +288,7 @@ PERMISSION_MATRIX = {
     "audit-log": {
         "solo_gate": True,
         "elements": {
-            "audit_entries":        "[data-audit-id], .audit-row",
+            "audit_entries":        "[data-audit-id], .audit-row, .entry",  # 2026-06-19 stale-selector fix: real render is .entry
             "action_filter":        "select#action-filter, [data-filter='action']",
         },
         "expected": {
@@ -313,7 +316,7 @@ PERMISSION_MATRIX = {
     "achievements": {
         "solo_gate": True,
         "elements": {
-            "badge_cards":          ".badge-card, [data-badge-id]",
+            "badge_cards":          ".badge-card, [data-badge-id], .domain-badge-wrap",  # 2026-06-19 stale-selector fix
             "award_btn":            "button:has-text('Award'), [data-action='award']",
         },
         "expected": {
@@ -327,7 +330,7 @@ PERMISSION_MATRIX = {
     "voice-journal": {
         "solo_gate": True,
         "elements": {
-            "voice_logs":           "[data-log-id], .voice-entry",
+            "voice_logs":           "[data-log-id], .voice-entry, .history-entry",  # 2026-06-19 stale-selector fix: real render is .history-entry
             "record_btn":           "button:has-text('Record'), button:has-text('Start')",
         },
         "expected": {
@@ -341,12 +344,12 @@ PERMISSION_MATRIX = {
     "integrations": {
         "solo_gate": True,
         "elements": {
-            "integration_cards":    ".integration-card, [data-integration-id]",
+            "integration_cards":    ".integration-card, [data-integration-id], .sc-name",  # 2026-06-19 stale-selector fix: real render uses .sc-* cards
             "configure_btn":        "button:has-text('Configure')",
         },
         "expected": {
             "solo":       {"integration_cards": False},
-            "worker":     {"integration_cards": False},  # supervisor only
+            "worker":     {"integration_cards": True},   # 2026-06-19 VERIFIED: the integration CATALOG (SAP PM / Maximo / etc.) is universal — worker & supervisor see identical .sc-name cards; the real gate is configure_btn (supervisor-only). Old "supervisor only" was an untested matrix assumption.
             "supervisor": {"integration_cards": True, "configure_btn": True},
         },
         "supervisor_extras": "Integrations is supervisor/admin only",
@@ -371,7 +374,7 @@ PERMISSION_MATRIX = {
     "public-feed": {
         "solo_gate": False,
         "elements": {
-            "post_feed":            "[data-post-id], .feed-post",
+            "post_feed":            "[data-post-id], .feed-post, .post-card",  # 2026-06-19 stale-selector fix: real render is .post-card
             "search_input":         "input[type='search'], input#search",
         },
         "expected": {

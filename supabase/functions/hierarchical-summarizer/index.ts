@@ -45,6 +45,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -200,17 +201,23 @@ function aggregate(rows: LogRow[]): SummaryJson {
   };
 }
 
-// ── PM-overdue lookup (Phase 2 keeps it simple: count is_due via canonical view) ──
+// ── PM-overdue lookup — Arc Y Y2 fork#2: canonical = DISTINCT pm_asset_id with a
+//    FREQUENCY-AWARE overdue scope item (v_pm_scope_items_truth.is_overdue), NOT the
+//    retired flat-30-day v_pm_compliance_truth.is_due (over-counted 26 vs true 4).
+//    (is_overdue is as-of-today; the prior is_due path was a flat-30d proxy too, so this
+//    is strictly more correct on the granularity axis the digest reports.) periodEnd is
+//    retained for signature stability but no longer gates the frequency-aware flag.
 
 async function pmOverdueForHive(db: SupabaseClient, hiveId: string, periodEnd: string): Promise<number> {
+  void periodEnd;
   try {
     const { data } = await db
-      .from("v_pm_compliance_truth")
-      .select("is_due, last_anchor_date")
+      .from("v_pm_scope_items_truth")
+      .select("pm_asset_id")
       .eq("hive_id", hiveId)
-      .lte("last_anchor_date", periodEnd)
+      .eq("is_overdue", true)
       .limit(ROW_CAP);
-    return (data || []).filter((r: { is_due?: boolean }) => r.is_due === true).length;
+    return new Set((data || []).map((r: { pm_asset_id?: string }) => r.pm_asset_id)).size;
   } catch (err) {
     log.warn(null, "[hierarchical-summarizer] pm overdue lookup failed:", { detail: String(err).slice(0, 80) });
     return 0;
@@ -390,6 +397,11 @@ serve(async (req) => {
           { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
+      // Arc L free-tier B-hardening: per-hive AI cap so a member cannot spam this
+      // generative summarizer and drain the hive's free-tier LLM budget (cron uses
+      // the service key -> isServiceRole -> exempt, so backfill is unaffected).
+      const _rl = await checkAIRateLimit(db, body.hive_id);
+      if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
     }
   }
 

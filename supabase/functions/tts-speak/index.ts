@@ -31,6 +31,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -141,6 +143,7 @@ function buildSsml(voice: string, text: string, personaKey: string): string {
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  logRequestStart(req, "tts-speak");  // I6 observability
   if (req.method !== "POST") {
     return json(corsHeaders, 405, { error: "POST only" });
   }

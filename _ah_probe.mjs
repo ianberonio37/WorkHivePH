@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const BASE='http://127.0.0.1:5000',SB='http://127.0.0.1:54321',HIVE='9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+const b=await chromium.launch({headless:true});const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:1});
+const sp=await ctx.newPage();await sp.goto(`${BASE}/workhive/shift-brain.html`,{waitUntil:'domcontentloaded'});
+await sp.waitForFunction(()=>typeof window.getDb==='function'&&!!window.SUPABASE_KEY,{timeout:15000}).catch(()=>{});
+await sp.evaluate(async({hive,url})=>{const db=window._whSupabaseClient||window.getDb(url,window.SUPABASE_KEY);await db.auth.signInWithPassword({email:'leandromarquez@auth.workhiveph.com',password:'test1234'});['wh_active_hive_id','wh_hive_id'].forEach(k=>localStorage.setItem(k,hive));localStorage.setItem('wh_last_worker','Leandro Marquez');localStorage.setItem('wh_hive_name','Baguio Textile Mills');localStorage.setItem('wh_hive_role','supervisor');localStorage.setItem('wh_nav_mode','supervisor');},{hive:HIVE,url:SB});
+await sp.close();
+const p=await ctx.newPage();const errs=[];p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,120));});p.on('pageerror',e=>errs.push('PAGEERR '+String(e).slice(0,120)));
+await p.goto(`${BASE}/workhive/alert-hub.html`,{waitUntil:'domcontentloaded'});await p.waitForTimeout(3500);
+const r=await p.evaluate(()=>({verdict:!!document.getElementById('ah-verdict'),cards:document.querySelectorAll('.simple-row .simple-card').length,action:(document.getElementById('ah-action-text')||{}).textContent?.slice(0,40),back:!!document.querySelector('.back-btn,[data-wh-back]')}));
+console.log('alert-hub:',JSON.stringify(r));console.log('console errors:',errs.length?errs.slice(0,5):'NONE');
+await p.close();await b.close();

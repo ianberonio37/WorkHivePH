@@ -1,0 +1,23 @@
+{
+  "tol": 0,
+  "set": "2026-06-25T09:03:11.491Z",
+  "pages_probed": 25,
+  "records": 50,
+  "lens_floor": 12,
+  "depth_floor": 0,
+  "focal_floor": 0,
+  "whitespace_floor": 12,
+  "grouping_floor": 0,
+  "color_floor": 0,
+  "icon_floor": 0,
+  "consistency_radius_variants": 4,
+  "consistency_pad_variants": 9,
+  "consistency_combo_variants": 27,
+  "consistency_shadow_variants_max": 2,
+  "ms": {
+    "active_rules": 8,
+    "focus_visible_rules": 11,
+    "has_skeleton": true,
+    "has_reduced_motion": true
+  }
+}

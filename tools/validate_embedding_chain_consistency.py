@@ -55,9 +55,14 @@ def check_static() -> list[tuple[bool, str]]:
     else:
         res.append((False, f"ingest EMBED_PREFER default = {m_ing.group(1) if m_ing else 'MISSING'}"))
 
-    # 3. embedding-chain.ts: deterministic primary + per-call pin + divergence warning
-    res.append((bool(re.search(r'EMBEDDING_PRIMARY\s*=\s*\(.*?\|\|\s*"[a-z]+"', chain, re.S)),
-                "embedding-chain.ts has a deterministic EMBEDDING_PRIMARY default"))
+    # 3. embedding-chain.ts: deterministic primary + per-call pin + divergence warning.
+    # The default may be a simple `|| "voyage"` OR a local-gated ternary
+    # `|| (_IS_LOCAL_EMBED && BGE_EMBED_URL ? "bge-local" : "voyage")` — both are deterministic
+    # (fixed given env). Capture the EFFECTIVE default the same way the PK_EMBED_MODEL check does
+    # (a corpus re-embedded to bge-local LOCALLY pins the local query to bge-local — lockstep).
+    m_pri = re.search(r'EMBEDDING_PRIMARY\s*=\s*\(.*?(?:\?\s*"|\|\|\s*")([a-z0-9-]+)"', chain, re.S)
+    res.append((bool(m_pri),
+                f"embedding-chain.ts has a deterministic EMBEDDING_PRIMARY default = {m_pri.group(1) if m_pri else 'MISSING'}"))
     res.append(("pin?: string" in chain or "pin: string" in chain,
                 "embedding-chain.ts generateEmbedding accepts a per-call pin"))
     res.append(("SPACE-DIVERGENCE" in chain,

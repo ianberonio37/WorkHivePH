@@ -1,14 +1,8 @@
 {
   "validator": "pm",
   "total_checks": 13,
-  "passed": 12,
+  "passed": 13,
   "skipped": 0,
-  "failed": 1,
-  "issues": [
-    {
-      "check": "logbook_pm_fields",
-      "page": "pm-scheduler.html",
-      "reason": "logPayload not found in submitCompletion \u2014 PM-to-logbook cross-reference cannot be verified"
-    }
-  ]
+  "failed": 0,
+  "issues": []
 }

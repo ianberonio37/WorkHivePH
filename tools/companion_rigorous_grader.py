@@ -546,7 +546,7 @@ def rag_grader_self_test(golden: dict) -> dict:
 MEMORY_ABSTAIN_PATTERNS = [
     r"\b(haven'?t|have\s+not|didn'?t|did\s+not|never)\s+(told|mentioned|given|shared|said|reported|provided)\b",
     r"\byou\s+(haven'?t|have\s+not|never|didn'?t|did\s+not)\b",
-    r"\b(don'?t|do\s+not|can'?t|cannot)\s+(have|see|find|recall|remember)\b.{0,32}\b(record|note|notes|anything|information|info|that|it|any|memory)\b",
+    r"\b(don'?t|do\s+not|can'?t|cannot|couldn'?t|could\s+not|couldn|wasn'?t\s+able\s+to)\s+(have|see|find|locate|recall|remember)\b.{0,40}\b(record|note|notes|anything|information|info|data|details?|that|it|any|memory)\b",
     r"\b(i\s+)?(don'?t|do\s+not)\s+(recall|remember)\b",
     r"\bno\s+(record|note|notes|mention|information|info|data|details?)\b",
     r"\bnothing\s+(on\s+record|in\s+my\s+(notes|records|memory)|about\s+that)\b",

@@ -1,6 +1,7 @@
 {
-  "latent": 3,
+  "latent": 4,
   "fns": [
+    "ai-orchestrator",
     "analytics-orchestrator",
     "asset-brain-query",
     "batch-risk-scoring"

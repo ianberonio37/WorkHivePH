@@ -7,6 +7,7 @@ Usage:
     python tools/video_idea_generator.py ideas [N]           -- generate N new ideas (default 5)
     python tools/video_idea_generator.py list                -- list all ideas with status
     python tools/video_idea_generator.py script <id>         -- generate full production script
+    python tools/video_idea_generator.py flagship <id>       -- generate a FlagshipSpec JSON for render_flagship.py
     python tools/video_idea_generator.py mark <id> <status>  -- update status
     python tools/video_idea_generator.py help                -- show this message
 
@@ -20,6 +21,14 @@ import re
 import requests
 from pathlib import Path
 from datetime import date
+
+# Make `from tools.X import ...` resolve when this file is run DIRECTLY
+# (`python tools/video_idea_generator.py ...`, the documented CLI): a direct run
+# puts tools/ on sys.path[0], not the repo root, so `import tools.*` would fail
+# (ModuleNotFoundError: No module named 'tools'). Mirrors storyboard.py.
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 # ── Environment ───────────────────────────────────────────────────────────────
 
@@ -44,7 +53,49 @@ ANTHROPIC_KEY  = os.getenv("ANTHROPIC_API_KEY", "")
 
 BACKLOG  = Path(".tmp/video_ideas_backlog.json")
 SCRIPTS  = Path(".tmp/video_scripts")
+SPECS    = Path(".tmp/video_specs")
+PUBLIC_DIR = Path("remotion_scenes/public")
 STATUSES = ["idea", "scripted", "filming", "produced", "published"]
+
+# Real WorkHive screens available as the "product hero" in the flagship video.
+# Add more by capturing pages clean at phone viewport into remotion_scenes/public/.
+SCREEN_CATALOG = {
+    "wh_home_clean.png": "Home dashboard: KPI tiles (Open Jobs, Risk Alerts, PM Overdue, Stock) + a Critical-Risk asset banner. Use for: visibility, early-warning, risk, breakdown-prevention, 'see everything'.",
+    "wh_analytics_clean.png": "Analytics Engine: OEE %, Worst MTBF, PM Compliance with ISO/SMRP citations. Use for: reliability metrics, OEE, trends, benchmarks, proving uptime, planning the fix.",
+    "wh_pm_clean.png": "PM Scheduler: overdue / due-soon / on-track PM cards + app bottom-nav. Use for: preventive maintenance, schedules, due dates, compliance.",
+    "wh_logbook_clean.png": "Digital Logbook: '500 entries, 30 machines' + Log-a-Repair flow with Speak-to-fill + Photo-defect AI capture. Use for: shift handover, fault history, capturing work, voice/photo logging, replacing paper.",
+    "wh_inventory_clean.png": "Spare-Parts Inventory: parts count, low-stock + out-of-stock tiles, reorder. Use for: spare parts, stockouts, reorder-before-breakdown, inventory control.",
+    "wh_skillmatrix_clean.png": "Skill Matrix: disciplines on-target, quizzes available, badges. Use for: skills, training, certifications, career growth, who-is-qualified.",
+    "wh_alerthub_clean.png": "Alert Hub: high-severity alert count, anomaly signals, Critical TX-001 feed with filter chips. Use for: alerts, alert overload, anomaly, prioritization, what-needs-attention.",
+    "wh_assistant_clean.png": "AI Work Assistant: chat greeting 'I can see your job records', Ask-anything input. Use for: AI assistant, ask questions, work buddy, guidance, knowledge.",
+    "wh_engdesign_clean.png": "Engineering Calculators: 53 calculations across 6 disciplines (HVAC, Mechanical, Electrical, Plumbing, Fire Protection, Machine Design), PEC/ASHRAE/NFPA anchored. Use for: engineering design, calculations, sizing, standards, design-with-confidence.",
+}
+
+# Shape the spec-generator must emit (mirrors FlagshipSpec / DEFAULT_SPEC in FlagshipReel.tsx).
+EXAMPLE_SPEC = {
+    "hook": [
+        {"text": "3AM.", "size": 150, "weight": 900},
+        {"text": "The line just stopped.", "size": 78},
+        {"text": "Again.", "size": 88, "weight": 900, "color": "orange"},
+    ],
+    "stakes": [
+        {"text": "No warning.", "size": 84},
+        {"text": "No history.", "size": 84},
+        {"text": "A whole shift, gone.", "size": 70, "color": "steel", "accentWords": ["gone"]},
+    ],
+    "reveal": {"caption": "WorkHive saw it coming.", "accent": ["WorkHive"], "screen": "wh_home_clean.png",
+               "flagTitle": "Critical Risk · Today", "flagSub": "TX-001 · 96% · MTBF 9d", "flagColor": "orange", "flagSide": "left"},
+    "plan": {"caption": "Fix it on your schedule.", "accent": ["your", "schedule"], "screen": "wh_analytics_clean.png",
+             "flagTitle": "OEE · World Class", "flagSub": "87% · ISO 22400", "flagColor": "blue", "flagSide": "right"},
+    "payoff": [
+        {"text": "Less downtime.", "size": 86},
+        {"text": "Longer asset life.", "size": 86, "color": "orange"},
+        {"text": "Lower cost.", "size": 86, "color": "blue"},
+    ],
+    "endTagline": "Built for the plant floor.",
+    "endSub": "Free. Mobile-first. Philippines.",
+    "endCta": "workhiveph.com · start free",
+}
 
 # ── Platform context comes from platform_intel ────────────────────────────────
 
@@ -437,6 +488,212 @@ Write the full script using exactly this structure:
         print(f"\n... ({len(lines) - 25} more lines in file)")
 
 
+# ── Command: flagship (idea -> data-driven FlagshipSpec for render_flagship.py) ─
+
+def _available_screens() -> dict:
+    return {f: d for f, d in SCREEN_CATALOG.items() if (PUBLIC_DIR / f).exists()}
+
+
+def _coerce_spec(spec: dict, avail: list) -> dict:
+    """Validate/clamp the AI output so the render never references a missing screen
+    or an off-brand value. Missing pieces fall back to the reference defaults."""
+    home = "wh_home_clean.png" if "wh_home_clean.png" in avail else (avail[0] if avail else "wh_home_clean.png")
+    ana  = "wh_analytics_clean.png" if "wh_analytics_clean.png" in avail else home
+
+    def clampf(v, lo, hi, d):
+        try:
+            return max(lo, min(hi, float(v)))
+        except (TypeError, ValueError):
+            return d
+
+    def fix_lines(lines, dflt_size):
+        out = []
+        if isinstance(lines, list):
+            for l in lines[:3]:
+                if not isinstance(l, dict) or not str(l.get("text", "")).strip():
+                    continue
+                ln = {"text": str(l["text"])[:42], "size": int(clampf(l.get("size", dflt_size), 36, 160, dflt_size))}
+                if l.get("weight") in (700, 800, 900):
+                    ln["weight"] = l["weight"]
+                if l.get("color") in ("cloud", "orange", "blue", "steel"):
+                    ln["color"] = l["color"]
+                if isinstance(l.get("accentWords"), list):
+                    ln["accentWords"] = [str(w) for w in l["accentWords"][:4]]
+                out.append(ln)
+        return out
+
+    def fix_prod(p, dflt_screen, dflt_color, side):
+        p = p if isinstance(p, dict) else {}
+        scr = p.get("screen")
+        if scr not in avail:
+            scr = dflt_screen
+        acc = p.get("accent")
+        return {
+            "caption":  str(p.get("caption", ""))[:48] or "See it in WorkHive.",
+            "accent":   [str(w) for w in acc[:4]] if isinstance(acc, list) else [],
+            "screen":   scr,
+            "flagTitle": str(p.get("flagTitle", ""))[:28],
+            "flagSub":   str(p.get("flagSub", ""))[:32],
+            "flagColor": p.get("flagColor") if p.get("flagColor") in ("orange", "blue") else dflt_color,
+            "flagSide":  p.get("flagSide") if p.get("flagSide") in ("left", "right") else side,
+        }
+
+    hook   = fix_lines(spec.get("hook"), 90)   or [{"text": "It broke. Again.", "size": 120, "weight": 900}]
+    stakes = fix_lines(spec.get("stakes"), 80) or [{"text": "And nobody saw it coming.", "size": 78}]
+    payoff = fix_lines(spec.get("payoff"), 86) or [{"text": "Less downtime.", "size": 86},
+                                                   {"text": "More control.", "size": 86, "color": "orange"}]
+    return {
+        "hook": hook, "stakes": stakes,
+        "reveal": fix_prod(spec.get("reveal"), home, "orange", "left"),
+        "plan":   fix_prod(spec.get("plan"),  ana,  "blue",  "right"),
+        "payoff": payoff,
+        # End card is a LOCKED brand closer on every video (consistent sign-off,
+        # and avoids AI truncation). Not AI-varied.
+        "endTagline": "Built for the plant floor.",
+        "endSub":     "Free. Mobile-first. Philippines.",
+        "endCta":     "workhiveph.com · start free",
+    }
+
+
+def _evidence_for_feature(feature_name: str):
+    """Resolve a feature NAME to (feature_id, affordance_block) from the LIVE
+    page-evidence — the REAL UI the flagship copy may reference. Born-grounded: the
+    reveal/plan captions + flag callouts must trace to these, not invent UI (the
+    same grounding the article + script generators already use). All lazy + guarded
+    so a missing catalog/evidence can never break spec generation."""
+    try:
+        from tools.platform_catalog import build_catalog, _resolve_label_to_feature
+        from tools.page_evidence import load_evidence
+        cat = build_catalog()
+        fid = _resolve_label_to_feature(feature_name, cat["features"])
+        ev = load_evidence().get(fid) if fid else None
+        if not ev:
+            return fid, ""
+        headings = (ev.get("headings") or [])[:8]
+        actions  = (ev.get("actions") or [])[:10]
+        tabs     = (ev.get("tabs") or [])[:8]
+        block = (
+            f"\nREAL UI AFFORDANCES of the {feature_name} page (the reveal/plan captions and the "
+            f"flagTitle/flagSub data callouts must reference ONLY what actually exists here. Do NOT "
+            f"invent buttons, tabs, screens, metrics, or capabilities the page does not have):\n"
+            f"- headings: {', '.join(headings)}\n"
+            f"- buttons/actions: {', '.join(actions)}\n"
+            + (f"- tabs: {', '.join(tabs)}\n" if tabs else "")
+        )
+        return fid, block
+    except Exception:
+        return None, ""
+
+
+def _spec_grounding_text(spec: dict) -> str:
+    """The product-claim-bearing copy of a FlagshipSpec (captions + data callouts),
+    for the capability gate. The locked end card is brand boilerplate, excluded."""
+    parts: list[str] = []
+    for grp in ("hook", "stakes", "payoff"):
+        for line in spec.get(grp, []) or []:
+            if isinstance(line, dict):
+                parts.append(line.get("text", ""))
+    for beat in ("reveal", "plan"):
+        b = spec.get(beat, {}) or {}
+        parts += [b.get("caption", ""), b.get("flagTitle", ""), b.get("flagSub", "")]
+    return ". ".join(p for p in parts if p)
+
+
+def cmd_flagship(idea_id: str):
+    """Convert an idea into a FlagshipSpec JSON for tools/render_flagship.py."""
+    data = load_backlog()
+    idea = next((i for i in data["ideas"] if i["id"] == idea_id), None)
+    if not idea:
+        print(f"\nERROR: '{idea_id}' not found. Run `list` to see valid IDs.")
+        return
+
+    avail = _available_screens()
+    if not avail:
+        print(f"\nERROR: no product screens in {PUBLIC_DIR}. Capture some clean phone-viewport PNGs first.")
+        return
+    screens_desc = "\n".join(f'- "{f}": {d}' for f, d in avail.items())
+    fid, evidence_block = _evidence_for_feature(idea['solution_feature'])
+
+    prompt = f"""{PLATFORM_CONTEXT}
+
+You are a senior product-marketing video director. Convert ONE WorkHive ad idea into a "FlagshipSpec"
+for a ~17-second VERTICAL, MUTE-FIRST product video: on-screen kinetic captions carry the story, NO voiceover.
+
+IDEA BRIEF:
+- Title:    {idea['title']}
+- Hook:     {idea['hook']}
+- Problem:  {idea['problem']}
+- Feature:  {idea['solution_feature']}
+- Audience: {idea['audience']}
+- Emotion:  {idea['emotion']}
+{evidence_block}
+
+THE 6-BEAT ARC (commit to ONE pain + ONE feature; NEVER list multiple features):
+1) hook    : 2-3 very short kinetic lines = a SPECIFIC pain moment (not a slogan). First line is the biggest.
+2) stakes  : 2-3 short lines = what that pain costs.
+3) reveal  : WorkHive solving it = a caption + the product screen that shows it + a data callout flag.
+4) plan    : the in-product payoff = a second caption + a screen + a callout.
+5) payoff  : exactly 3 short outcome lines.
+6) end card: tagline + sub + CTA.
+
+AVAILABLE PRODUCT SCREENS (set reveal.screen and plan.screen to EXACTLY one of these filenames, whichever fits the feature best):
+{screens_desc}
+
+COPY RULES:
+- Plain simple English only. No Tagalog, no Taglish.
+- NO em dashes anywhere. Use periods, commas, colons, or the middot ·.
+- Short, punchy, instantly mute-readable. One idea per line.
+- 'accent' = the 1-3 words in that caption to highlight orange.
+- 'flagColor' = "orange" or "blue". 'flagSide' = "left" or "right". per-line 'color' = cloud|orange|blue|steel.
+- 'size' guidance: hook first line 130-150, other hook lines 70-90, stakes 78-86, payoff 84-90.
+- flagTitle/flagSub should look like a real WorkHive data callout (short label + a number/metric).
+
+Return ONLY valid JSON (no markdown fences, no commentary), in EXACTLY this shape:
+{json.dumps(EXAMPLE_SPEC, ensure_ascii=False, indent=2)}
+"""
+
+    print(f"\nGenerating flagship spec for [{idea_id}] {idea['title']}...")
+    print("(Using the AI chain -- this may take 20-40 seconds)")
+    raw = ai_call(prompt, high_quality=True)
+
+    m = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not m:
+        print("ERROR: AI did not return JSON. Raw:\n" + raw[:600])
+        return
+    try:
+        spec_raw = json.loads(m.group())
+    except json.JSONDecodeError as exc:
+        print(f"ERROR: JSON parse failed: {exc}\n" + raw[:600])
+        return
+
+    spec = _coerce_spec(spec_raw, list(avail.keys()))
+    SPECS.mkdir(parents=True, exist_ok=True)
+    out_file = SPECS / f"{idea_id}_flagship.json"
+    out_file.write_text(json.dumps(spec, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # Capability gate: the flagship spec is born-grounded like the article + script
+    # generators — its captions and data callouts must trace to the feature's REAL
+    # affordances, or they are invented UI. Guarded so it never blocks a render.
+    if fid:
+        try:
+            from tools.content_grounding_gate import capability_issues_for_text
+            issues = capability_issues_for_text(_spec_grounding_text(spec), fid)
+            if issues:
+                print(f"\n  WARNING capability-grounding: {len(issues)} possibly-invented UI claim(s):")
+                for i in issues[:5]:
+                    print(f"    - {i.get('claim') or i.get('reason')}")
+                print("  Review the reveal/plan captions + flag callouts against the real page.")
+            else:
+                print("  capability-grounding: OK (spec references only real UI affordances).")
+        except Exception:
+            pass
+
+    print(f"\nSpec saved: {out_file}")
+    print(f"  reveal screen: {spec['reveal']['screen']}   plan screen: {spec['plan']['screen']}")
+    print("\nRender it (9:16 + 1:1 + 16:9, with music + SFX, copied to Desktop):")
+    print(f"  python tools/render_flagship.py --spec {out_file} --name {idea_id} --desktop")
+
+
 # ── Command: mark ─────────────────────────────────────────────────────────────
 
 def cmd_mark(idea_id: str, status: str):
@@ -481,6 +738,12 @@ def main():
             print("Usage: python tools/video_idea_generator.py script <idea_id>")
         else:
             cmd_script(args[1])
+
+    elif cmd == "flagship":
+        if len(args) < 2:
+            print("Usage: python tools/video_idea_generator.py flagship <idea_id>")
+        else:
+            cmd_flagship(args[1])
 
     elif cmd == "mark":
         if len(args) < 3:

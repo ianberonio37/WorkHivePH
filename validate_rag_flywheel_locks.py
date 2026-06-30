@@ -79,7 +79,8 @@ TILE_LOCKS: dict = {    "analytics:oee": {"page": "analytics", "label": "OEE (av
     "asset-hub:logbook_count": {"page": "asset-hub", "label": "Asset logbook entries", "first_seen": "turn 30", "route": "None"},
     "asset-hub:pm_count": {"page": "asset-hub", "label": "Asset PM completions", "first_seen": "turn 30", "route": "None"},
     "asset-hub:last_failure": {"page": "asset-hub", "label": "Asset last failure", "first_seen": "turn 30", "route": "None"},
-    "asset-hub:rcm_edges": {"page": "asset-hub", "label": "Asset RCM edges", "first_seen": "turn 30", "route": "None"},
+    # asset-hub:rcm_edges tile-lock RETIRED 2026-06-30 — the "edges" feature was intentionally
+    # CUT in Arc Y (fork#1, 2026-06-27); the data-rag-tile markup was removed with it.
     "pm-scheduler:detail_panel": {"page": "pm-scheduler", "label": "PM detail breakdown", "first_seen": "turn 30", "route": "None"},
     "predictive:detail_panel": {"page": "predictive", "label": "Predictive detail breakdown", "first_seen": "turn 30", "route": "None"},
     "predictive:risk_ranking": {"page": "predictive", "label": "Risk ranking table", "first_seen": "turn 30", "route": "None"},

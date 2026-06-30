@@ -16,7 +16,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -266,8 +266,8 @@
         <!-- Worker name -->
         <div>
           <label for="worker-name" class="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Your Name</label>
-          <input id="worker-name" type="text" class="wh-input" placeholder="e.g. Juan dela Cruz" />
-          <p id="name-error" class="error-text">Please enter your name.</p>
+          <input id="worker-name" type="text" class="wh-input" aria-describedby="name-error" placeholder="e.g. Juan dela Cruz" required aria-required="true" maxlength="80" />
+          <p role="alert" aria-live="assertive" id="name-error" class="error-text">Please enter your name.</p>
         </div>
 
         <!-- Today's context (optional) -->
@@ -276,7 +276,7 @@
             Today's Context
             <span class="text-white/30 normal-case font-normal ml-1">(optional)</span>
           </label>
-          <textarea id="today-context" class="wh-input" rows="4" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
+          <textarea id="today-context" class="wh-input" rows="4" maxlength="500" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
         </div>
 
         <!-- Records summary -->
@@ -299,7 +299,11 @@
   </div>
 
   <!-- ───────── CHAT SCREEN ───────── -->
-  <div id="chat-screen" class="screen" style="display:flex; flex-direction:column; height:100dvh;">
+  <!-- starts HIDDEN via .screen (display:none) — the inline display:flex used to
+       override the class, painting chat-screen 100dvh tall at first paint next to
+       the active setup-screen, then showScreen() collapsed it = ~1.0 CLS (Arc L L1).
+       showScreen('chat-screen') sets display:flex when activated (line ~442). -->
+  <div id="chat-screen" class="screen" style="flex-direction:column; height:100dvh;">
 
     <!-- Chat header -->
     <div class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);">
@@ -359,6 +363,7 @@
           class="chat-textarea"
           placeholder="Ask anything…"
           rows="1"
+          maxlength="2000"
           onkeydown="handleInputKey(event)"
           oninput="autoResize(this)"
         ></textarea>
@@ -521,7 +526,7 @@
       const journalSince = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const [lRes, sRes, skillRes, invRes, pmRes, jRes] = await Promise.all([
         db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
-        db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }),
+        db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
         db.from('v_skill_badges_truth').select('discipline,level').eq('worker_name', name).order('level', { ascending: false }).limit(6),
         hiveIdCtx
           ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).limit(20)
@@ -795,7 +800,7 @@ happens to know maintenance, not a manual.`;
       try {
         // auth_uid OMITTED — the table DEFAULT stamps auth.uid() and RLS binds
         // the row to the caller, so a forged identity is rejected at the DB.
-        await db.from('ai_reply_feedback').insert({
+        const { error: fbErr } = await db.from('ai_reply_feedback').insert({
           hive_id:     hiveId,
           worker_name: (typeof workerName === 'string' && workerName) ? workerName : null,
           agent:       'assistant',
@@ -806,6 +811,7 @@ happens to know maintenance, not a manual.`;
           answer:      String(answer == null ? '' : answer).slice(0, 4000),
           rating:      r,
         });
+        if (fbErr) console.debug('assistant feedback insert failed (best-effort):', fbErr.message);
       } catch (_) { /* non-fatal — feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 

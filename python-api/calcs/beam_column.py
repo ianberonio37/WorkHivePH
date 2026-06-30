@@ -25,12 +25,18 @@ STEEL_GRADES: dict[str, dict] = {
     "ASTM A53 (Pipe)": {"Fy_MPa": 240, "Fu_MPa": 415, "E_MPa": 200_000},
 }
 
+# NOTE: the calc derives β₁ live via _beta1(fc_MPa) (ACI 318-19 §22.2.2.4.3) — that
+# function is the single source of truth. The "beta1" values below are reference-only
+# (not read by calculate()); kept consistent with the standard so they can't mislead.
+# (Fixed 2026-06-23 Arc Q: f'c35 was 0.836 / f'c41 was 0.822 — both wrong; the ACI
+#  formula gives 0.80 and 0.757. They were dead data so never served, but a wrong
+#  standard constant in a table is a latent change-detector trap.)
 CONCRETE_GRADES: dict[str, dict] = {
     "f'c 21 MPa (3000 psi)": {"fc_MPa": 21, "beta1": 0.85},
     "f'c 24 MPa (3500 psi)": {"fc_MPa": 24, "beta1": 0.85},
     "f'c 28 MPa (4000 psi)": {"fc_MPa": 28, "beta1": 0.85},
-    "f'c 35 MPa (5000 psi)": {"fc_MPa": 35, "beta1": 0.836},
-    "f'c 41 MPa (6000 psi)": {"fc_MPa": 41, "beta1": 0.822},
+    "f'c 35 MPa (5000 psi)": {"fc_MPa": 35, "beta1": 0.80},
+    "f'c 41 MPa (6000 psi)": {"fc_MPa": 41, "beta1": 0.757},
 }
 
 REBAR_GRADES: dict[str, dict] = {
@@ -42,28 +48,31 @@ REBAR_GRADES: dict[str, dict] = {
 
 # ─── W-section catalogue (partial - most common Philippine import sizes) ──────
 # d=depth(mm), bf=flange width(mm), tf=flange thickness(mm), tw=web thickness(mm)
-# Ix=moment of inertia(cm⁴), Sx=elastic section modulus(cm³),
-# Zx=plastic section modulus(cm³), A=area(cm²)
+# Ix=strong-axis moment of inertia(cm⁴), Iy=WEAK-axis moment of inertia(cm⁴),
+# Sx=elastic section modulus(cm³), Zx=plastic section modulus(cm³), A=area(cm²)
+# Iy = AISC v16.0 tabulated (Iy[in⁴]×41.6231), added 2026-06-23 Arc Q — the prior
+# geometry estimate (tf·bf³/6 + web) was NON-conservative for 8 of 19 sections
+# (error −48%…+38%, e.g. W150x13/W200x19 OVERSTATED r → unsafe column capacity).
 W_SECTIONS: dict[str, dict] = {
-    "W150x13":  {"d":148,"bf":100,"tf": 7.6,"tw": 4.8,"A": 16.8,"Ix": 981,   "Sx": 132,"Zx": 152},
-    "W200x19":  {"d":203,"bf":102,"tf": 7.7,"tw": 6.4,"A": 24.8,"Ix":3240,   "Sx": 319,"Zx": 367},
-    "W200x27":  {"d":203,"bf":133,"tf": 8.9,"tw": 6.4,"A": 34.4,"Ix":4080,   "Sx": 402,"Zx": 454},
-    "W200x36":  {"d":203,"bf":165,"tf": 8.5,"tw": 6.2,"A": 45.9,"Ix":5150,   "Sx": 508,"Zx": 582},
-    "W250x25":  {"d":257,"bf":102,"tf": 8.4,"tw": 6.1,"A": 32.1,"Ix":6060,   "Sx": 472,"Zx": 543},
-    "W250x33":  {"d":258,"bf":146,"tf": 9.1,"tw": 6.9,"A": 42.0,"Ix":7700,   "Sx": 597,"Zx": 689},
-    "W250x45":  {"d":266,"bf":148,"tf":13.0,"tw": 7.6,"A": 57.4,"Ix":11400,  "Sx": 858,"Zx": 984},
-    "W310x33":  {"d":313,"bf":102,"tf": 8.9,"tw": 6.6,"A": 42.0,"Ix":12500,  "Sx": 799,"Zx": 910},
-    "W310x45":  {"d":313,"bf":166,"tf": 9.7,"tw": 7.1,"A": 57.3,"Ix":16300,  "Sx":1040,"Zx":1180},
-    "W310x60":  {"d":302,"bf":203,"tf":13.1,"tw": 7.5,"A": 75.9,"Ix":20400,  "Sx":1350,"Zx":1530},
-    "W360x33":  {"d":349,"bf":102,"tf": 8.5,"tw": 6.1,"A": 42.0,"Ix":18500,  "Sx":1060,"Zx":1210},
-    "W360x51":  {"d":356,"bf":171,"tf":11.6,"tw": 7.2,"A": 64.9,"Ix":31100,  "Sx":1750,"Zx":1980},
-    "W360x79":  {"d":354,"bf":205,"tf":16.8,"tw": 9.4,"A":100.0,"Ix":48000,  "Sx":2710,"Zx":3080},
-    "W410x38":  {"d":399,"bf":140,"tf": 8.8,"tw": 6.4,"A": 48.4,"Ix":31600,  "Sx":1584,"Zx":1800},
-    "W410x54":  {"d":403,"bf":177,"tf":10.9,"tw": 7.5,"A": 68.5,"Ix":48800,  "Sx":2420,"Zx":2750},
-    "W460x52":  {"d":450,"bf":152,"tf":10.8,"tw": 7.6,"A": 66.4,"Ix":55900,  "Sx":2490,"Zx":2820},
-    "W460x74":  {"d":457,"bf":190,"tf":14.5,"tw": 9.0,"A": 94.2,"Ix":87500,  "Sx":3830,"Zx":4350},
-    "W530x66":  {"d":525,"bf":165,"tf":11.4,"tw": 8.9,"A": 84.3,"Ix":102000, "Sx":3880,"Zx":4430},
-    "W610x82":  {"d":599,"bf":178,"tf":12.8,"tw": 9.9,"A":104.0,"Ix":179000, "Sx":5980,"Zx":6870},
+    "W150x13":  {"d":148,"bf":100,"tf": 7.6,"tw": 4.8,"A": 16.8,"Ix": 981,   "Iy":  91.6,"Sx": 132,"Zx": 152},
+    "W200x19":  {"d":203,"bf":102,"tf": 7.7,"tw": 6.4,"A": 24.8,"Ix":3240,   "Iy": 113.6,"Sx": 319,"Zx": 367},
+    "W200x27":  {"d":203,"bf":133,"tf": 8.9,"tw": 6.4,"A": 34.4,"Ix":4080,   "Iy": 331.7,"Sx": 402,"Zx": 454},
+    "W200x36":  {"d":203,"bf":165,"tf": 8.5,"tw": 6.2,"A": 45.9,"Ix":5150,   "Iy": 761.7,"Sx": 508,"Zx": 582},
+    "W250x25":  {"d":257,"bf":102,"tf": 8.4,"tw": 6.1,"A": 32.1,"Ix":6060,   "Iy": 148.2,"Sx": 472,"Zx": 543},
+    "W250x33":  {"d":258,"bf":146,"tf": 9.1,"tw": 6.9,"A": 42.0,"Ix":7700,   "Iy": 474.5,"Sx": 597,"Zx": 689},
+    "W250x45":  {"d":266,"bf":148,"tf":13.0,"tw": 7.6,"A": 57.4,"Ix":11400,  "Iy": 695.1,"Sx": 858,"Zx": 984},
+    "W310x33":  {"d":313,"bf":102,"tf": 8.9,"tw": 6.6,"A": 42.0,"Ix":12500,  "Iy": 194.0,"Sx": 799,"Zx": 910},
+    "W310x45":  {"d":313,"bf":166,"tf": 9.7,"tw": 7.1,"A": 57.3,"Ix":16300,  "Iy": 844.9,"Sx":1040,"Zx":1180},
+    "W310x60":  {"d":302,"bf":203,"tf":13.1,"tw": 7.5,"A": 75.9,"Ix":20400,  "Iy":1835.6,"Sx":1350,"Zx":1530},
+    "W360x33":  {"d":349,"bf":102,"tf": 8.5,"tw": 6.1,"A": 42.0,"Ix":18500,  "Iy": 291.4,"Sx":1060,"Zx":1210},
+    "W360x51":  {"d":356,"bf":171,"tf":11.6,"tw": 7.2,"A": 64.9,"Ix":31100,  "Iy": 969.8,"Sx":1750,"Zx":1980},
+    "W360x79":  {"d":354,"bf":205,"tf":16.8,"tw": 9.4,"A":100.0,"Ix":48000,  "Iy":2401.7,"Sx":2710,"Zx":3080},
+    "W410x38":  {"d":399,"bf":140,"tf": 8.8,"tw": 6.4,"A": 48.4,"Ix":31600,  "Iy": 399.2,"Sx":1584,"Zx":1800},
+    "W410x54":  {"d":403,"bf":177,"tf":10.9,"tw": 7.5,"A": 68.5,"Ix":48800,  "Iy":1019.8,"Sx":2420,"Zx":2750},
+    "W460x52":  {"d":450,"bf":152,"tf":10.8,"tw": 7.6,"A": 66.4,"Ix":55900,  "Iy": 636.8,"Sx":2490,"Zx":2820},
+    "W460x74":  {"d":457,"bf":190,"tf":14.5,"tw": 9.0,"A": 94.2,"Ix":87500,  "Iy":1669.1,"Sx":3830,"Zx":4350},
+    "W530x66":  {"d":525,"bf":165,"tf":11.4,"tw": 8.9,"A": 84.3,"Ix":102000, "Iy": 861.6,"Sx":3880,"Zx":4430},
+    "W610x82":  {"d":599,"bf":178,"tf":12.8,"tw": 9.9,"A":104.0,"Ix":179000, "Iy":1211.2,"Sx":5980,"Zx":6870},
 }
 
 # ─── LRFD resistance factors (AISC / NSCP) ───────────────────────────────────
@@ -187,15 +196,36 @@ def _rc_beam(b_mm: float, h_mm: float, cover_mm: float,
     }
 
 
+def _iy_cm4(sec: dict) -> float:
+    """Weak-axis second moment of area Iy (cm⁴). Uses the AISC-tabulated value from
+    W_SECTIONS when present — the governing axis for an unbraced doubly-symmetric column
+    is almost always the weak axis, so this value drives min(Ix,Iy) in the column r.
+    Falls back to a geometry estimate (tf·bf³/6 + web, fillets neglected) ONLY when no Iy
+    is tabulated. ⚠ That estimate is NOT reliably conservative: vs AISC it ranges
+    −48%…+38% and OVERSTATES Iy for shallow/wide shapes, so it is a last-resort fallback,
+    never the design basis. (Arc Q 2026-06-23: the column check originally used the
+    STRONG-axis r=√(Ix/A) and overstated weak-axis capacity; exact AISC Iy added after the
+    geometry estimate was found non-conservative for 8 of 19 sections.)"""
+    if sec.get("Iy") is not None:
+        return float(sec["Iy"])
+    bf, tf, d, tw = sec.get("bf"), sec.get("tf"), sec.get("d"), sec.get("tw")
+    if None in (bf, tf, d, tw):
+        return sec["Ix"]   # incomplete geometry → fall back to Ix (no worse than before)
+    iy_mm4 = (tf * bf ** 3) / 6.0 + ((d - 2 * tf) * tw ** 3) / 12.0
+    return iy_mm4 / 1e4    # mm⁴ → cm⁴ (non-conservative fallback only)
+
+
 def _steel_column(sec: dict, Fy: float, E: float,
                   Pu_kN: float, L_m: float, K: float = 1.0) -> dict:
     """AISC 360-22 LRFD column (H-section): Euler + AISC Eq. E3."""
     A_m2    = sec["A"] * 1e-4           # cm² → m²
-    # Least radius of gyration (approx from Ix and A; use Iy if provided)
-    Ix_m4   = sec["Ix"] * 1e-8
-    ry_m    = math.sqrt(Ix_m4 / A_m2)  # conservative: use Ix (should use min of Ix/Iy)
+    # Governing (least) radius of gyration: weak axis usually controls a doubly-symmetric
+    # H-column. Iy is derived from geometry (W_SECTIONS has no Iy column); use min(Ix,Iy).
+    Iy_cm4  = _iy_cm4(sec)
+    I_min_m4 = min(sec["Ix"], Iy_cm4) * 1e-8
+    r_m     = math.sqrt(I_min_m4 / A_m2)
 
-    KL_r    = K * L_m / ry_m            # slenderness ratio
+    KL_r    = K * L_m / r_m             # slenderness ratio (governing axis)
     Fe_MPa  = math.pi**2 * E / KL_r**2 # elastic critical stress
 
     if KL_r <= 4.71 * math.sqrt(E / Fy):
@@ -219,6 +249,8 @@ def _steel_column(sec: dict, Fy: float, E: float,
         "phi_Pn_kN":   round(phi_Pn, 1),
         "DCR_axial":   round(DCR, 3),
         "axial_ok":    DCR <= 1.0,
+        "Iy_cm4":      round(_iy_cm4(sec), 0),
+        "buckling_axis": "weak (y)" if _iy_cm4(sec) < sec["Ix"] else "strong (x)",
     }
 
 

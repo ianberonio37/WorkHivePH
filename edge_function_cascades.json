@@ -1,0 +1,1007 @@
+{
+  "_doc": "Deterministic edge-function cross-table WRITE map (Phase A residual-closer of INTERACTIVE_LINEAGE_ROADMAP). Parsed from each function's index.ts `.from(T).insert/upsert/update/delete`. disposition: data_mapped/data_unmapped (displayed table -> must be in causal_cascades.json) | operational (job/audit log) | self_config | infra (no display page).",
+  "totals": {
+    "edge_fns_with_writes": 37,
+    "data_cascades_mapped": 26,
+    "data_cascades_UNMAPPED": 0,
+    "operational_log_writes": 14,
+    "self_config_writes": 2,
+    "infra_writes": 12
+  },
+  "data_cascades_unmapped": [],
+  "by_fn": {
+    "agentic-rag-loop": {
+      "writes": [
+        {
+          "fn": "agentic-rag-loop",
+          "to_table": "agentic_rag_traces",
+          "line": 793,
+          "evidence": "functions/agentic-rag-loop/index.ts:793",
+          "downstream_pages": [
+            "agentic-rag-observability"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "agentic-rag-loop",
+          "to_table": "ai_rate_limits",
+          "line": 220,
+          "evidence": "functions/agentic-rag-loop/index.ts:220",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "ai_rate_limits",
+        "canonical_period_summaries",
+        "canonical_sources",
+        "v_asset_truth",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_pm_scope_items_truth",
+        "voice_journal_entries"
+      ],
+      "invoked_by_pages": []
+    },
+    "ai-eval-runner": {
+      "writes": [
+        {
+          "fn": "ai-eval-runner",
+          "to_table": "ai_quality_log",
+          "line": 315,
+          "evidence": "functions/ai-eval-runner/index.ts:315",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [],
+      "invoked_by_pages": []
+    },
+    "amc-orchestrator": {
+      "writes": [
+        {
+          "fn": "amc-orchestrator",
+          "to_table": "amc_briefings",
+          "line": 608,
+          "evidence": "functions/amc-orchestrator/index.ts:608",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "parts_staging_recommendations",
+        "v_amc_truth",
+        "v_hives_truth",
+        "v_pm_compliance_truth",
+        "v_risk_truth",
+        "v_worker_skill_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "analytics-orchestrator": {
+      "writes": [
+        {
+          "fn": "analytics-orchestrator",
+          "to_table": "analytics_snapshots",
+          "line": 1062,
+          "evidence": "functions/analytics-orchestrator/index.ts:1062",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "engineering_calcs",
+        "pm_assets",
+        "pm_completions",
+        "v_inventory_items_truth",
+        "v_inventory_transactions_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
+        "v_risk_truth",
+        "v_worker_skill_truth",
+        "v_worker_truth",
+        "worker_profiles"
+      ],
+      "invoked_by_pages": [
+        "alert-hub",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    "asset-brain-query": {
+      "writes": [
+        {
+          "fn": "asset-brain-query",
+          "to_table": "ai_rate_limits",
+          "line": 106,
+          "evidence": "functions/asset-brain-query/index.ts:106",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "ai_rate_limits",
+        "pm_completions",
+        "v_asset_truth",
+        "v_fmea_truth",
+        "v_logbook_truth",
+        "v_pf_truth",
+        "v_rcm_truth",
+        "v_risk_truth",
+        "v_weibull_truth",
+        "v_worker_truth"
+      ],
+      "invoked_by_pages": [
+        "asset-hub"
+      ]
+    },
+    "batch-risk-scoring": {
+      "writes": [
+        {
+          "fn": "batch-risk-scoring",
+          "to_table": "asset_risk_scores",
+          "line": 415,
+          "evidence": "functions/batch-risk-scoring/index.ts:415",
+          "downstream_pages": [
+            "alert-hub",
+            "asset-hub",
+            "predictive"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "batch-risk-scoring",
+          "to_table": "automation_log",
+          "line": 98,
+          "evidence": "functions/batch-risk-scoring/index.ts:98",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "pm_completions",
+        "v_asset_truth",
+        "v_fmea_truth",
+        "v_hives_truth",
+        "v_inventory_items_truth",
+        "v_inventory_transactions_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth",
+        "v_weibull_truth",
+        "v_worker_truth"
+      ],
+      "invoked_by_pages": [
+        "analytics",
+        "predictive"
+      ]
+    },
+    "benchmark-compute": {
+      "writes": [
+        {
+          "fn": "benchmark-compute",
+          "to_table": "automation_log",
+          "line": 277,
+          "evidence": "functions/benchmark-compute/index.ts:277",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "benchmark-compute",
+          "to_table": "hive_benchmarks",
+          "line": 164,
+          "evidence": "functions/benchmark-compute/index.ts:164",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "benchmark-compute",
+          "to_table": "network_benchmarks",
+          "line": 214,
+          "evidence": "functions/benchmark-compute/index.ts:214",
+          "downstream_pages": [
+            "hive"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "hive_benchmarks",
+        "v_hives_truth",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": [
+        "hive"
+      ]
+    },
+    "cmms-push-completion": {
+      "writes": [
+        {
+          "fn": "cmms-push-completion",
+          "to_table": "automation_log",
+          "line": 151,
+          "evidence": "functions/cmms-push-completion/index.ts:151",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "cmms-push-completion",
+          "to_table": "external_sync",
+          "line": 144,
+          "evidence": "functions/cmms-push-completion/index.ts:144",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "integration_configs",
+        "v_external_sync_truth"
+      ],
+      "invoked_by_pages": [
+        "logbook"
+      ]
+    },
+    "cmms-sync": {
+      "writes": [
+        {
+          "fn": "cmms-sync",
+          "to_table": "automation_log",
+          "line": 340,
+          "evidence": "functions/cmms-sync/index.ts:340",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "cmms-sync",
+          "to_table": "cmms_audit_log",
+          "line": 348,
+          "evidence": "functions/cmms-sync/index.ts:348",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "cmms-sync",
+          "to_table": "external_sync",
+          "line": 236,
+          "evidence": "functions/cmms-sync/index.ts:236",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "cmms-sync",
+          "to_table": "fault_knowledge",
+          "line": 246,
+          "evidence": "functions/cmms-sync/index.ts:246",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "cmms-sync",
+          "to_table": "integration_configs",
+          "line": 331,
+          "evidence": "functions/cmms-sync/index.ts:331",
+          "downstream_pages": [
+            "integrations",
+            "plant-connections"
+          ],
+          "disposition": "self_config"
+        },
+        {
+          "fn": "cmms-sync",
+          "to_table": "logbook",
+          "line": 241,
+          "evidence": "functions/cmms-sync/index.ts:241",
+          "downstream_pages": [
+            "asset-hub",
+            "assistant",
+            "dayplanner",
+            "hive",
+            "integrations",
+            "logbook",
+            "pm-scheduler",
+            "project-manager",
+            "resume"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "integration_configs",
+        "v_worker_truth"
+      ],
+      "invoked_by_pages": [
+        "integrations"
+      ]
+    },
+    "cmms-webhook-receiver": {
+      "writes": [
+        {
+          "fn": "cmms-webhook-receiver",
+          "to_table": "external_sync",
+          "line": 246,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:246",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "cmms-webhook-receiver",
+          "to_table": "logbook",
+          "line": 254,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:254",
+          "downstream_pages": [
+            "asset-hub",
+            "assistant",
+            "dayplanner",
+            "hive",
+            "integrations",
+            "logbook",
+            "pm-scheduler",
+            "project-manager",
+            "resume"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "integration_configs",
+        "v_external_sync_truth",
+        "v_worker_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "data-fabric-normalizer": {
+      "writes": [
+        {
+          "fn": "data-fabric-normalizer",
+          "to_table": "unified_events",
+          "line": 193,
+          "evidence": "functions/data-fabric-normalizer/index.ts:193",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [],
+      "invoked_by_pages": []
+    },
+    "export-hive-data": {
+      "writes": [
+        {
+          "fn": "export-hive-data",
+          "to_table": "hive_audit_log",
+          "line": 151,
+          "evidence": "functions/export-hive-data/index.ts:151",
+          "downstream_pages": [
+            "alert-hub",
+            "asset-hub",
+            "audit-log",
+            "community",
+            "founder-console",
+            "hive",
+            "inventory",
+            "logbook",
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "pm-scheduler"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "v_worker_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "failure-signature-scan": {
+      "writes": [
+        {
+          "fn": "failure-signature-scan",
+          "to_table": "automation_log",
+          "line": 343,
+          "evidence": "functions/failure-signature-scan/index.ts:343",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "failure-signature-scan",
+          "to_table": "failure_signature_alerts",
+          "line": 262,
+          "evidence": "functions/failure-signature-scan/index.ts:262",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "v_hives_truth",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "fmea-populator": {
+      "writes": [
+        {
+          "fn": "fmea-populator",
+          "to_table": "ai_rate_limits",
+          "line": 105,
+          "evidence": "functions/fmea-populator/index.ts:105",
+          "downstream_pages": [],
+          "disposition": "infra"
+        },
+        {
+          "fn": "fmea-populator",
+          "to_table": "rcm_fmea_modes",
+          "line": 376,
+          "evidence": "functions/fmea-populator/index.ts:376",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "ai_rate_limits",
+        "rcm_fmea_modes",
+        "v_asset_truth",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": [
+        "asset-hub"
+      ]
+    },
+    "hierarchical-summarizer": {
+      "writes": [
+        {
+          "fn": "hierarchical-summarizer",
+          "to_table": "canonical_period_summaries",
+          "line": 329,
+          "evidence": "functions/hierarchical-summarizer/index.ts:329",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "v_logbook_truth",
+        "v_pm_scope_items_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "intelligence-api": {
+      "writes": [
+        {
+          "fn": "intelligence-api",
+          "to_table": "api_keys",
+          "line": 73,
+          "evidence": "functions/intelligence-api/index.ts:73",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "disposition": "self_config"
+        }
+      ],
+      "reads": [
+        "api_keys",
+        "fault_knowledge",
+        "network_benchmarks",
+        "ph_intelligence_reports"
+      ],
+      "invoked_by_pages": []
+    },
+    "intelligence-report": {
+      "writes": [
+        {
+          "fn": "intelligence-report",
+          "to_table": "automation_log",
+          "line": 265,
+          "evidence": "functions/intelligence-report/index.ts:265",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "intelligence-report",
+          "to_table": "ph_intelligence_reports",
+          "line": 262,
+          "evidence": "functions/intelligence-report/index.ts:262",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "fault_knowledge",
+        "network_benchmarks",
+        "v_inventory_items_truth",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": [
+        "ph-intelligence"
+      ]
+    },
+    "marketplace-checkout": {
+      "writes": [
+        {
+          "fn": "marketplace-checkout",
+          "to_table": "marketplace_orders",
+          "line": 179,
+          "evidence": "functions/marketplace-checkout/index.ts:179",
+          "downstream_pages": [
+            "founder-console",
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_marketplace_listings_truth",
+        "v_marketplace_sellers_truth",
+        "worker_profiles"
+      ],
+      "invoked_by_pages": []
+    },
+    "marketplace-connect-onboard": {
+      "writes": [
+        {
+          "fn": "marketplace-connect-onboard",
+          "to_table": "marketplace_sellers",
+          "line": 141,
+          "evidence": "functions/marketplace-connect-onboard/index.ts:141",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "marketplace-seller-profile"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_marketplace_sellers_truth",
+        "worker_profiles"
+      ],
+      "invoked_by_pages": []
+    },
+    "marketplace-connect-status": {
+      "writes": [
+        {
+          "fn": "marketplace-connect-status",
+          "to_table": "marketplace_sellers",
+          "line": 127,
+          "evidence": "functions/marketplace-connect-status/index.ts:127",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "marketplace-seller-profile"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_marketplace_sellers_truth",
+        "worker_profiles"
+      ],
+      "invoked_by_pages": []
+    },
+    "marketplace-release": {
+      "writes": [
+        {
+          "fn": "marketplace-release",
+          "to_table": "marketplace_orders",
+          "line": 152,
+          "evidence": "functions/marketplace-release/index.ts:152",
+          "downstream_pages": [
+            "founder-console",
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_marketplace_orders_truth",
+        "v_marketplace_sellers_truth",
+        "worker_profiles"
+      ],
+      "invoked_by_pages": []
+    },
+    "marketplace-webhook": {
+      "writes": [
+        {
+          "fn": "marketplace-webhook",
+          "to_table": "marketplace_orders",
+          "line": 140,
+          "evidence": "functions/marketplace-webhook/index.ts:140",
+          "downstream_pages": [
+            "founder-console",
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_marketplace_orders_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "parts-staging-recommender": {
+      "writes": [
+        {
+          "fn": "parts-staging-recommender",
+          "to_table": "automation_log",
+          "line": 80,
+          "evidence": "functions/parts-staging-recommender/index.ts:80",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        },
+        {
+          "fn": "parts-staging-recommender",
+          "to_table": "parts_staging_recommendations",
+          "line": 235,
+          "evidence": "functions/parts-staging-recommender/index.ts:235",
+          "downstream_pages": [
+            "alert-hub",
+            "asset-hub"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_hives_truth",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_risk_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "pdf-ingest": {
+      "writes": [
+        {
+          "fn": "pdf-ingest",
+          "to_table": "pdf_jobs",
+          "line": 61,
+          "evidence": "functions/pdf-ingest/index.ts:61",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "pdf_jobs"
+      ],
+      "invoked_by_pages": []
+    },
+    "pf-calculator": {
+      "writes": [
+        {
+          "fn": "pf-calculator",
+          "to_table": "pf_intervals",
+          "line": 283,
+          "evidence": "functions/pf-calculator/index.ts:283",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_asset_truth",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": [
+        "asset-hub"
+      ]
+    },
+    "platform-gateway": {
+      "writes": [
+        {
+          "fn": "platform-gateway",
+          "to_table": "gateway_audit_log",
+          "line": 289,
+          "evidence": "functions/platform-gateway/index.ts:289",
+          "downstream_pages": [
+            "plant-connections"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [],
+      "invoked_by_pages": []
+    },
+    "scheduled-agents": {
+      "writes": [
+        {
+          "fn": "scheduled-agents",
+          "to_table": "ai_reports",
+          "line": 45,
+          "evidence": "functions/scheduled-agents/index.ts:45",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "disposition": "data_mapped"
+        },
+        {
+          "fn": "scheduled-agents",
+          "to_table": "automation_log",
+          "line": 39,
+          "evidence": "functions/scheduled-agents/index.ts:39",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "project_links",
+        "v_hives_truth",
+        "v_logbook_truth",
+        "v_pm_scope_items_truth",
+        "v_project_progress_truth",
+        "v_project_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "semantic-fact-extractor": {
+      "writes": [
+        {
+          "fn": "semantic-fact-extractor",
+          "to_table": "knowledge_graph_facts",
+          "line": 282,
+          "evidence": "functions/semantic-fact-extractor/index.ts:282",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "knowledge_graph_facts",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "send-report-email": {
+      "writes": [
+        {
+          "fn": "send-report-email",
+          "to_table": "automation_log",
+          "line": 228,
+          "evidence": "functions/send-report-email/index.ts:228",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "automation_log",
+        "v_hives_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "sensor-readings-ingest": {
+      "writes": [
+        {
+          "fn": "sensor-readings-ingest",
+          "to_table": "sensor_readings",
+          "line": 234,
+          "evidence": "functions/sensor-readings-ingest/index.ts:234",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_asset_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "shift-planner-orchestrator": {
+      "writes": [
+        {
+          "fn": "shift-planner-orchestrator",
+          "to_table": "shift_plans",
+          "line": 239,
+          "evidence": "functions/shift-planner-orchestrator/index.ts:239",
+          "downstream_pages": [
+            "shift-brain"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_hives_truth",
+        "v_inventory_items_truth",
+        "v_logbook_truth",
+        "v_pm_scope_items_truth",
+        "v_risk_truth"
+      ],
+      "invoked_by_pages": [
+        "shift-brain"
+      ]
+    },
+    "supervisor-reset-password": {
+      "writes": [
+        {
+          "fn": "supervisor-reset-password",
+          "to_table": "hive_audit_log",
+          "line": 74,
+          "evidence": "functions/supervisor-reset-password/index.ts:74",
+          "downstream_pages": [
+            "alert-hub",
+            "asset-hub",
+            "audit-log",
+            "community",
+            "founder-console",
+            "hive",
+            "inventory",
+            "logbook",
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "pm-scheduler"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "v_worker_truth"
+      ],
+      "invoked_by_pages": [
+        "hive"
+      ]
+    },
+    "temporal-rag-orchestrator": {
+      "writes": [
+        {
+          "fn": "temporal-rag-orchestrator",
+          "to_table": "ai_rate_limits",
+          "line": 273,
+          "evidence": "functions/temporal-rag-orchestrator/index.ts:273",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "ai_rate_limits",
+        "canonical_period_summaries"
+      ],
+      "invoked_by_pages": []
+    },
+    "trigger-ml-retrain": {
+      "writes": [
+        {
+          "fn": "trigger-ml-retrain",
+          "to_table": "automation_log",
+          "line": 129,
+          "evidence": "functions/trigger-ml-retrain/index.ts:129",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "pm_completions",
+        "v_inventory_transactions_truth",
+        "v_logbook_truth",
+        "v_pm_compliance_truth",
+        "v_pm_scope_items_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "visual-defect-capture": {
+      "writes": [
+        {
+          "fn": "visual-defect-capture",
+          "to_table": "ai_rate_limits",
+          "line": 149,
+          "evidence": "functions/visual-defect-capture/index.ts:149",
+          "downstream_pages": [],
+          "disposition": "infra"
+        },
+        {
+          "fn": "visual-defect-capture",
+          "to_table": "fault_knowledge",
+          "line": 420,
+          "evidence": "functions/visual-defect-capture/index.ts:420",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "ai_rate_limits",
+        "v_asset_truth"
+      ],
+      "invoked_by_pages": [
+        "logbook"
+      ]
+    },
+    "voice-action-router": {
+      "writes": [
+        {
+          "fn": "voice-action-router",
+          "to_table": "ai_rate_limits",
+          "line": 176,
+          "evidence": "functions/voice-action-router/index.ts:176",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "ai_rate_limits",
+        "v_asset_truth"
+      ],
+      "invoked_by_pages": []
+    },
+    "weibull-fitter": {
+      "writes": [
+        {
+          "fn": "weibull-fitter",
+          "to_table": "weibull_fits",
+          "line": 289,
+          "evidence": "functions/weibull-fitter/index.ts:289",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "disposition": "data_mapped"
+        }
+      ],
+      "reads": [
+        "v_asset_truth",
+        "v_logbook_truth"
+      ],
+      "invoked_by_pages": [
+        "asset-hub"
+      ]
+    }
+  }
+}

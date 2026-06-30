@@ -30,8 +30,16 @@ CHECK_NAMES = [
 with open("results_keys.json") as f:
     api_keys = json.load(f)
 
-with open("engineering-design.html", "r", encoding="utf-8") as f:
-    html = f.read()
+# engineering-design.html's calculator logic — every render*Report() fn, the calcRef
+# ternary, the null-guards — was extracted to engineering-design.js for a doc-parse-weight
+# win (Arc L / L1). Read BOTH so this contract test sees the renderers wherever they live.
+html = ""
+for _pg in ("engineering-design.html", "engineering-design.js"):
+    try:
+        with open(_pg, "r", encoding="utf-8") as f:
+            html += f.read() + "\n"
+    except FileNotFoundError:
+        pass
 
 # ── Every calc type → its renderer function name ──────────────────────────────
 # This map covers all 46 calc types. TypeScript-only calcs still have renderers

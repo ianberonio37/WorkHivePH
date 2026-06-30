@@ -1,0 +1,748 @@
+{
+  "generated": "2026-06-18T09:42:37.979Z",
+  "hive": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7",
+  "denominator_value_tiles": 47,
+  "already_credited_value_tiles": 12,
+  "measured": "WHOLE render tier 83/83 tile cells accounted · VALUE 47/47 (28 live + 12 credited + 10 dispositioned) · PANEL 36/36 (11 proven + 25 dispositioned) · 40 live-proven, 0 divergence · +2 extended (non-tile)",
+  "counts": {
+    "pass": 28,
+    "diverge": 0,
+    "sql_error": 0,
+    "dispositioned": 10,
+    "credited": 12,
+    "specd": 28,
+    "accounted": 47,
+    "denominator": 47,
+    "open_frontier": 0
+  },
+  "whole_platform": {
+    "accounted": 83,
+    "total": 83,
+    "live_proven": 40
+  },
+  "c2_panel": {
+    "list_pass": 5,
+    "list_fail": 0,
+    "detail_pass": 7,
+    "detail_fail": 0,
+    "proven": 11,
+    "dispositioned": 25,
+    "accounted": 36,
+    "total": 36
+  },
+  "extended_coverage": [
+    "audit-log:feed",
+    "community:profile_posts"
+  ],
+  "open_frontier": [],
+  "cells": [
+    {
+      "page": "achievements.html",
+      "tile_id": "achievements:xp_this_week",
+      "label": "XP this week",
+      "rendered": "+0",
+      "status": "DISPOSITIONED",
+      "disposition": "date-windowed — sum(xp_earned) WHERE earned_at >= now()-7d; time-relative (the window shifts with real time), so not a deterministic ratchet value."
+    },
+    {
+      "page": "achievements.html",
+      "tile_id": "achievements:active_domains",
+      "label": "Active domains",
+      "rendered": "3/12",
+      "canonical": "3",
+      "match": {
+        "ok": true,
+        "rNum": 3,
+        "cNum": 3
+      },
+      "status": "PASS",
+      "note": "active = count(current_level>0); renders \"active/12\" (ratio-kind, numerator)"
+    },
+    {
+      "page": "achievements.html",
+      "tile_id": "achievements:total_level",
+      "label": "Total level",
+      "rendered": "62",
+      "canonical": "62",
+      "match": {
+        "ok": true,
+        "rNum": 62,
+        "cNum": 62
+      },
+      "status": "PASS",
+      "note": "composite = sum(current_level) across the worker achievements"
+    },
+    {
+      "page": "alert-hub.html",
+      "tile_id": "alert-hub:high_severity_alerts",
+      "label": "High-severity alerts",
+      "rendered": "48",
+      "canonical": "48",
+      "match": {
+        "ok": true,
+        "rNum": 48,
+        "cNum": 48
+      },
+      "status": "PASS",
+      "note": "limit-aware 5-source critical/high union (signatures capped at 20-most-recent) == 48"
+    },
+    {
+      "page": "alert-hub.html",
+      "tile_id": "alert-hub:anomaly_signals",
+      "label": "Anomaly signals",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "fused anomalies; tile reads the engine badge sourced from v_anomaly_truth. Faithful for the empty state (0); a nonzero set is engine-threshold-filtered so revisit the filter then."
+    },
+    {
+      "page": "alert-hub.html",
+      "tile_id": "alert-hub:amc_daily_brief",
+      "label": "AMC daily brief",
+      "rendered": "None today",
+      "status": "DISPOSITIONED",
+      "disposition": "string-state — \"None today\" / brief status label from amc_briefings freshness, not a numeric canonical."
+    },
+    {
+      "page": "analytics.html",
+      "tile_id": "analytics:oee",
+      "label": "OEE (avg, partial)",
+      "rendered": "86%",
+      "status": "DISPOSITIONED",
+      "disposition": "svc-derivation-pending — ISO-22400 partial OEE (availability×quality) computed by the :8000 analytics svc; per-asset oee_pct=null (Performance dim unconfigured). vaxis T_analytics documented this honestly; not a single canonical."
+    },
+    {
+      "page": "analytics.html",
+      "tile_id": "analytics:mtbf",
+      "label": "Worst MTBF (partial)",
+      "rendered": "6d",
+      "status": "DISPOSITIONED",
+      "disposition": "svc-derivation-pending — windowed MTBF from the analytics svc; window/derivation not replicated against a single canonical (vaxis T_analytics)."
+    },
+    {
+      "page": "analytics.html",
+      "tile_id": "analytics:pm_compliance",
+      "label": "PM compliance (30d approx)",
+      "rendered": "88%",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "asset-hub.html",
+      "tile_id": "asset-hub:total_assets",
+      "label": "Total assets",
+      "rendered": "30",
+      "canonical": "30",
+      "match": {
+        "ok": true,
+        "rNum": 30,
+        "cNum": 30
+      },
+      "status": "PASS",
+      "note": "_allNodes.length (status=approved, hive-scoped)"
+    },
+    {
+      "page": "asset-hub.html",
+      "tile_id": "asset-hub:critical_assets",
+      "label": "Critical assets",
+      "rendered": "6",
+      "canonical": "6",
+      "match": {
+        "ok": true,
+        "rNum": 6,
+        "cNum": 6
+      },
+      "status": "PASS",
+      "note": "lower(criticality)='critical' ONLY (not high) — L1109"
+    },
+    {
+      "page": "asset-hub.html",
+      "tile_id": "asset-hub:pending_approval",
+      "label": "Pending assets",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "_pendingNodes.filter(status='pending') — L1110"
+    },
+    {
+      "page": "dayplanner.html",
+      "tile_id": "dayplanner:today_count",
+      "label": "Tasks today",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "date == today (worker-scoped)"
+    },
+    {
+      "page": "dayplanner.html",
+      "tile_id": "dayplanner:week_count",
+      "label": "Tasks this week",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "date in this Mon-Sun week"
+    },
+    {
+      "page": "dayplanner.html",
+      "tile_id": "dayplanner:overdue_count",
+      "label": "Overdue tasks",
+      "rendered": "3",
+      "canonical": "3",
+      "match": {
+        "ok": true,
+        "rNum": 3,
+        "cNum": 3
+      },
+      "status": "PASS",
+      "note": "date<today AND not done/closed/cancelled"
+    },
+    {
+      "page": "hive.html",
+      "tile_id": "hive:maturity_stair",
+      "label": "Hive maturity stair",
+      "rendered": "Stair 1",
+      "canonical": "Stair 1",
+      "match": {
+        "ok": true,
+        "rNum": 1,
+        "cNum": 1
+      },
+      "status": "PASS",
+      "note": "render \"Stair N\" == get_hive_readiness_current.current_stair (=1)"
+    },
+    {
+      "page": "hive.html",
+      "tile_id": "hive:adoption_health",
+      "label": "Adoption health",
+      "rendered": "At Risk",
+      "canonical": "At Risk",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "render label == threshold(get_adoption_risk_current.risk_score=43 → At Risk)"
+    },
+    {
+      "page": "hive.html",
+      "tile_id": "hive:open_issues",
+      "label": "Open issues",
+      "rendered": "35",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "integrations.html",
+      "tile_id": "integrations:active",
+      "label": "Active integrations",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "enabled AND last_sync within 7d"
+    },
+    {
+      "page": "integrations.html",
+      "tile_id": "integrations:stale",
+      "label": "Stale syncs",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "enabled AND (no last_sync OR >7d)"
+    },
+    {
+      "page": "integrations.html",
+      "tile_id": "integrations:disabled",
+      "label": "Disabled integrations",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "enabled=false"
+    },
+    {
+      "page": "inventory.html",
+      "tile_id": "inventory:out_of_stock",
+      "label": "Out of stock",
+      "rendered": "1",
+      "canonical": "1",
+      "match": {
+        "ok": true,
+        "rNum": 1,
+        "cNum": 1
+      },
+      "status": "PASS",
+      "note": "out = qty_on_hand<=0"
+    },
+    {
+      "page": "inventory.html",
+      "tile_id": "inventory:low_stock",
+      "label": "Low stock",
+      "rendered": "3",
+      "canonical": "3",
+      "match": {
+        "ok": true,
+        "rNum": 3,
+        "cNum": 3
+      },
+      "status": "PASS",
+      "note": "low = min_qty>0 AND 0<qty<=min_qty (out excluded)"
+    },
+    {
+      "page": "inventory.html",
+      "tile_id": "inventory:pending_approval",
+      "label": "Pending parts",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "items.filter(status='pending')"
+    },
+    {
+      "page": "marketplace.html",
+      "tile_id": "marketplace:listings_in_view",
+      "label": "Listings in view",
+      "rendered": "12",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "marketplace.html",
+      "tile_id": "marketplace:my_listings",
+      "label": "My listings",
+      "rendered": "2",
+      "canonical": "2",
+      "match": {
+        "ok": true,
+        "rNum": 2,
+        "cNum": 2
+      },
+      "status": "PASS",
+      "note": "my published parts listings (default section in view)"
+    },
+    {
+      "page": "marketplace.html",
+      "tile_id": "marketplace:listing_grid",
+      "cell_type": "panel",
+      "rendered_items": 12,
+      "canonical": 12,
+      "status": "PANEL-PASS",
+      "note": "rendered .listing-card count == published parts listings (marketplace spans hives)"
+    },
+    {
+      "page": "ph-intelligence.html",
+      "tile_id": "ph-intelligence:plants_in_network",
+      "label": "Plants in network",
+      "rendered": null,
+      "status": "DISPOSITIONED",
+      "disposition": "LOCAL-threshold-gate — N>=5-hive privacy gate unmet (3 hives seeded); page faithfully renders the refusal state, tiles swapped out. Seedable (add 2 hives), NOT external. Benchmark compute proven separately."
+    },
+    {
+      "page": "ph-intelligence.html",
+      "tile_id": "ph-intelligence:top_failure_cause",
+      "label": "Top failure cause",
+      "rendered": null,
+      "status": "DISPOSITIONED",
+      "disposition": "LOCAL-threshold-gate — same N>=5 privacy gate (3<5); faithful refusal render."
+    },
+    {
+      "page": "ph-intelligence.html",
+      "tile_id": "ph-intelligence:report_freshness",
+      "label": "Report freshness",
+      "rendered": null,
+      "status": "DISPOSITIONED",
+      "disposition": "LOCAL-threshold-gate — same N>=5 privacy gate (3<5); faithful refusal render."
+    },
+    {
+      "page": "pm-scheduler.html",
+      "tile_id": "pm-scheduler:overdue",
+      "label": "Overdue PMs",
+      "rendered": "21",
+      "canonical": "21",
+      "match": {
+        "ok": true,
+        "rNum": 21,
+        "cNum": 21
+      },
+      "status": "PASS",
+      "note": "self-test: direct view→render (vaxis J2). NB data shifted since 2026-06-16 (was 10)"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "tile_id": "pm-scheduler:due_soon",
+      "label": "Due soon (14d)",
+      "rendered": "9",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "tile_id": "pm-scheduler:on_track",
+      "label": "On track",
+      "rendered": "0",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "predictive.html",
+      "tile_id": "predictive:hot_assets",
+      "label": "Hot assets",
+      "rendered": "2",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "predictive.html",
+      "tile_id": "predictive:healthy_assets",
+      "label": "Healthy assets",
+      "rendered": "1",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "predictive.html",
+      "tile_id": "predictive:earliest_forecast",
+      "label": "Earliest forecast failure",
+      "rendered": "1.2d",
+      "status": "DISPOSITIONED",
+      "disposition": "ML-forecast — smallest predicted days-to-failure (Weibull/GBM); no closed-form oracle (the §13 ML-accept class)."
+    },
+    {
+      "page": "predictive.html",
+      "tile_id": "predictive:risk_ranking",
+      "cell_type": "panel",
+      "rendered_items": 5,
+      "canonical": 5,
+      "status": "PANEL-PASS",
+      "note": "rendered ranking rows == risk-scored assets in v_risk_truth"
+    },
+    {
+      "page": "project-manager.html",
+      "tile_id": "project-manager:active_projects",
+      "label": "Active projects",
+      "rendered": "4",
+      "canonical": "4",
+      "match": {
+        "ok": true,
+        "rNum": 4,
+        "cNum": 4
+      },
+      "status": "PASS",
+      "note": "status='active'"
+    },
+    {
+      "page": "project-manager.html",
+      "tile_id": "project-manager:past_end_date",
+      "label": "Past end date",
+      "rendered": "3",
+      "canonical": "3",
+      "match": {
+        "ok": true,
+        "rNum": 3,
+        "cNum": 3
+      },
+      "status": "PASS",
+      "note": "end_date<today AND status not terminal"
+    },
+    {
+      "page": "project-manager.html",
+      "tile_id": "project-manager:on_hold_planning",
+      "label": "On hold or planning",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "status in (on_hold,planning)"
+    },
+    {
+      "page": "project-manager.html",
+      "tile_id": "project-manager:project_cards",
+      "cell_type": "panel",
+      "rendered_items": 4,
+      "canonical": 4,
+      "status": "PANEL-PASS",
+      "note": "rendered .pcard count == non-deleted projects (_projects.length)"
+    },
+    {
+      "page": "project-manager.html",
+      "tile_id": "project-manager:project_list",
+      "cell_type": "panel",
+      "rendered_items": 4,
+      "canonical": 4,
+      "status": "PANEL-PASS",
+      "note": "the list-view renders every project card (== _projects)"
+    },
+    {
+      "page": "report-sender.html",
+      "tile_id": "report-sender:reports_selected",
+      "label": "Reports selected",
+      "rendered": "0",
+      "status": "DISPOSITIONED",
+      "disposition": "transient-UI — count of reports the user has selected in the form (selection state, not a DB-backed canonical)."
+    },
+    {
+      "page": "report-sender.html",
+      "tile_id": "report-sender:recipients",
+      "label": "Recipients",
+      "rendered": "0",
+      "status": "DISPOSITIONED",
+      "disposition": "transient-UI — count of recipients added in the form (selection state, not DB-backed)."
+    },
+    {
+      "page": "report-sender.html",
+      "tile_id": "report-sender:saved_contacts",
+      "label": "Saved contacts",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "PASS",
+      "note": "count(report_contacts) hive-scoped (localStorage fallback only on DB error)"
+    },
+    {
+      "page": "shift-brain.html",
+      "tile_id": "shift-brain:top_risk_this_shift",
+      "label": "Top risk this shift",
+      "rendered": "2",
+      "canonical": "2",
+      "match": {
+        "ok": true,
+        "rNum": 2,
+        "cNum": 2
+      },
+      "status": "PASS",
+      "note": "self-test vs v_risk_truth (vaxis T_shift_brain documented this exact derivation)"
+    },
+    {
+      "page": "shift-brain.html",
+      "tile_id": "shift-brain:pms_due",
+      "label": "PMs due",
+      "rendered": "21",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "shift-brain.html",
+      "tile_id": "shift-brain:carry_forward",
+      "label": "Carry-forward",
+      "rendered": "10",
+      "status": "RENDERED-NO-SPEC"
+    },
+    {
+      "page": "skillmatrix.html",
+      "tile_id": "skillmatrix:on_target",
+      "label": "On target workers",
+      "rendered": "3/5",
+      "canonical": "3",
+      "match": {
+        "ok": true,
+        "rNum": 3,
+        "cNum": 3
+      },
+      "status": "PASS",
+      "note": "count(5 disciplines where actual>=target); target from skill_profiles.targets default 2"
+    },
+    {
+      "page": "skillmatrix.html",
+      "tile_id": "skillmatrix:quizzes_available",
+      "label": "Quizzes available",
+      "rendered": "4",
+      "canonical": "4",
+      "match": {
+        "ok": true,
+        "rNum": 4,
+        "cNum": 4
+      },
+      "status": "PASS",
+      "note": "next level within reach AND not yet maxed"
+    },
+    {
+      "page": "skillmatrix.html",
+      "tile_id": "skillmatrix:total_badges",
+      "label": "Total badges earned",
+      "rendered": "13",
+      "canonical": "13",
+      "match": {
+        "ok": true,
+        "rNum": 13,
+        "cNum": 13
+      },
+      "status": "PASS",
+      "note": "sum of badge levels across the 5 disciplines (all 13 in-list here)"
+    },
+    {
+      "page": "audit-log.html",
+      "tile_id": "audit-log:feed",
+      "cell_type": "panel",
+      "rendered_items": 8,
+      "canonical": 8,
+      "status": "PANEL-PASS",
+      "note": "audit feed rows (All-time) == hive_audit_log rows for the hive"
+    },
+    {
+      "page": "asset-hub.html",
+      "tile_id": "asset-hub:logbook_count",
+      "cell_type": "detail",
+      "rendered": "12",
+      "canonical": "12",
+      "match": {
+        "ok": true,
+        "rNum": 12,
+        "cNum": 12
+      },
+      "status": "DETAIL-PASS",
+      "note": "detail logbook count == v_asset_truth.lifetime_logbook_entries (click AC-001)"
+    },
+    {
+      "page": "asset-hub.html",
+      "tile_id": "asset-hub:pm_count",
+      "cell_type": "detail",
+      "rendered": "28",
+      "canonical": "28",
+      "match": {
+        "ok": true,
+        "rNum": 28,
+        "cNum": 28
+      },
+      "status": "DETAIL-PASS",
+      "note": "detail PM count == v_asset_truth.pm_completed_count"
+    },
+    {
+      "page": "asset-hub.html",
+      "tile_id": "asset-hub:rcm_edges",
+      "cell_type": "detail",
+      "rendered": "0",
+      "canonical": "0",
+      "match": {
+        "ok": true,
+        "rNum": 0,
+        "cNum": 0
+      },
+      "status": "DETAIL-PASS",
+      "note": "detail RCM edges == v_asset_truth.edge_count"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "tile_id": "pm-scheduler:detail_panel",
+      "cell_type": "detail",
+      "rendered": "ABB ACS580-01",
+      "canonical": "ABB ACS580-01",
+      "match": {
+        "ok": true,
+        "rNum": null,
+        "cNum": null
+      },
+      "status": "DETAIL-PASS",
+      "note": "detail name == v_pm_scope_items_truth.asset_name (ABB ACS580-01)"
+    },
+    {
+      "page": "inventory.html",
+      "tile_id": "inventory:detail_panel",
+      "cell_type": "detail",
+      "rendered": "FLT-AIR\nFILTERS\nIN STOCK\n\nAir filter element\n\n17\nPCS ON HAND…",
+      "canonical": "Air filter element",
+      "match": {
+        "ok": true
+      },
+      "status": "DETAIL-PASS",
+      "note": "detail-content innerHTML contains the canonical part_name (Air filter element)"
+    },
+    {
+      "page": "community.html",
+      "tile_id": "community:profile_posts",
+      "cell_type": "detail",
+      "rendered": "11",
+      "canonical": "11",
+      "match": {
+        "ok": true,
+        "rNum": 11,
+        "cNum": 11
+      },
+      "status": "DETAIL-PASS",
+      "note": "profile post count == v_community_posts_truth (hive+author, not deleted)"
+    },
+    {
+      "page": "marketplace.html",
+      "tile_id": "marketplace:detail_panel",
+      "cell_type": "detail",
+      "rendered": "Parts Listing\nPHP 149,068.94\nAtlas Copco GA75 - reconditione…",
+      "canonical": "Atlas Copco GA75 - reconditioned",
+      "match": {
+        "ok": true
+      },
+      "status": "DETAIL-PASS",
+      "note": "click card -> sheet-detail contains the listing title (Atlas Copco GA75)"
+    }
+  ],
+  "c3_parity": {
+    "groups": 2,
+    "ok": 2,
+    "detail": [
+      {
+        "metric": "critical_high_risk_assets",
+        "tiles": [
+          {
+            "id": "shift-brain:top_risk_this_shift",
+            "rendered": "2"
+          },
+          {
+            "id": "predictive:hot_assets",
+            "rendered": "2"
+          }
+        ],
+        "ok": true
+      },
+      {
+        "metric": "overdue_pm_assets",
+        "tiles": [
+          {
+            "id": "pm-scheduler:overdue",
+            "rendered": "21"
+          },
+          {
+            "id": "shift-brain:pms_due",
+            "rendered": "21"
+          }
+        ],
+        "ok": true
+      }
+    ]
+  }
+}

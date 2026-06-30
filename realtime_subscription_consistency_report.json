@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_subs": 37,
+    "pages_scanned": 31,
+    "total_subs": 40,
     "total_drift": 0,
     "baseline": 0
   },
@@ -14,6 +14,7 @@
         "pm_completions",
         "v_alert_truth",
         "v_amc_truth",
+        "v_hives_truth",
         "v_inventory_items_truth",
         "v_logbook_truth",
         "v_pm_scope_items_truth",
@@ -52,67 +53,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 97915
+          "offset": 103451
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 104872
+          "offset": 110408
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 143011
+          "offset": 154629
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 143428
+          "offset": 155046
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 144553
+          "offset": 156171
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 145385
+          "offset": 157003
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 146847
+          "offset": 158465
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 167141
+          "offset": 179794
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 167596
+          "offset": 180249
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 168274
+          "offset": 180927
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 168737
+          "offset": 181390
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 169896
+          "offset": 182549
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 170309
+          "offset": 182962
         }
       ],
       "drift": []
@@ -126,7 +127,6 @@
         "hive_audit_log",
         "hive_members",
         "inventory_items",
-        "inventory_transactions",
         "logbook",
         "pm_assets",
         "pm_completions",
@@ -137,7 +137,13 @@
         "v_pm_compliance_truth",
         "v_pm_scope_items_truth"
       ],
-      "subscriptions": [],
+      "subscriptions": [
+        {
+          "table": "logbook",
+          "allowed": false,
+          "offset": 87860
+        }
+      ],
       "drift": []
     },
     {
@@ -152,7 +158,13 @@
         "v_inventory_items_truth",
         "v_inventory_transactions_truth"
       ],
-      "subscriptions": [],
+      "subscriptions": [
+        {
+          "table": "inventory_items",
+          "allowed": false,
+          "offset": 89371
+        }
+      ],
       "drift": []
     },
     {
@@ -173,7 +185,7 @@
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 64417
+          "offset": 70395
         }
       ],
       "drift": []
@@ -220,42 +232,42 @@
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 91664
+          "offset": 96356
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 92607
+          "offset": 97299
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 94444
+          "offset": 99136
         },
         {
           "table": "community_replies",
           "allowed": false,
-          "offset": 94759
+          "offset": 99451
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 95453
+          "offset": 100145
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 96224
+          "offset": 100916
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 98816
+          "offset": 103508
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 99076
+          "offset": 103768
         }
       ],
       "drift": []
@@ -288,7 +300,7 @@
         {
           "table": "marketplace_listings",
           "allowed": false,
-          "offset": 135257
+          "offset": 136768
         }
       ],
       "drift": []
@@ -316,11 +328,23 @@
         "schedule_items",
         "v_logbook_truth"
       ],
-      "subscriptions": [],
+      "subscriptions": [
+        {
+          "table": "schedule_items",
+          "allowed": false,
+          "offset": 83939
+        }
+      ],
       "drift": []
     },
     {
       "page": "engineering-design.html",
+      "reads": [],
+      "subscriptions": [],
+      "drift": []
+    },
+    {
+      "page": "engineering-design.js",
       "reads": [
         "engineering_calcs"
       ],
@@ -381,17 +405,17 @@
         {
           "table": "projects",
           "allowed": false,
-          "offset": 156110
+          "offset": 158525
         },
         {
           "table": "project_items",
           "allowed": false,
-          "offset": 156254
+          "offset": 158669
         },
         {
           "table": "project_progress_logs",
           "allowed": false,
-          "offset": 156424
+          "offset": 158839
         }
       ],
       "drift": []
@@ -440,7 +464,13 @@
       "reads": [
         "v_risk_truth"
       ],
-      "subscriptions": [],
+      "subscriptions": [
+        {
+          "table": "asset_risk_scores",
+          "allowed": false,
+          "offset": 28736
+        }
+      ],
       "drift": []
     },
     {
@@ -476,7 +506,7 @@
         {
           "table": "worker_achievements",
           "allowed": false,
-          "offset": 44246
+          "offset": 44820
         }
       ],
       "drift": []
@@ -484,7 +514,6 @@
     {
       "page": "asset-hub.html",
       "reads": [
-        "asset_edges",
         "asset_nodes",
         "equipment_reading_templates",
         "hive_audit_log",
@@ -512,37 +541,37 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 104668
+          "offset": 106798
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 164980
+          "offset": 169897
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 165530
-        },
-        {
-          "table": "asset_edges",
-          "allowed": false,
-          "offset": 166019
+          "offset": 170447
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 166768
+          "offset": 171120
+        },
+        {
+          "table": "asset_risk_scores",
+          "allowed": false,
+          "offset": 172296
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 167369
+          "offset": 172979
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 168231
+          "offset": 173841
         }
       ],
       "drift": []
@@ -559,6 +588,7 @@
     {
       "page": "alert-hub.html",
       "reads": [
+        "alert_dismissals",
         "amc_briefings",
         "anomaly_signals",
         "automation_log",
@@ -574,12 +604,12 @@
         {
           "table": "amc_briefings",
           "allowed": false,
-          "offset": 36085
+          "offset": 38602
         },
         {
           "table": "anomaly_signals",
           "allowed": false,
-          "offset": 46858
+          "offset": 49383
         }
       ],
       "drift": []
@@ -589,13 +619,7 @@
       "reads": [
         "hive_audit_log"
       ],
-      "subscriptions": [
-        {
-          "table": "hive_audit_log",
-          "allowed": false,
-          "offset": 14204
-        }
-      ],
+      "subscriptions": [],
       "drift": []
     },
     {

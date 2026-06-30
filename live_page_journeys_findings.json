@@ -1,0 +1,55 @@
+{
+  "ran": "2026-06-24T19:58:23.553Z",
+  "findings": [
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-box — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.view-tab.active — 1 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.view-tab — 3 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "A keyboard skip-to-content link improves operability for keyboard/AT users",
+      "basis": "qa-tester / WCAG-2.4.1",
+      "severity": 0,
+      "evidence": "body — no skip-to-content link found",
+      "owner": "qa-tester"
+    }
+  ]
+}

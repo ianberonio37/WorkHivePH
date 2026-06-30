@@ -1,12 +1,38 @@
 {
-  "fuel_anchor": 0,
+  "fuel_anchor": 5,
   "details": {
-    "fuel_anchor": [],
+    "fuel_anchor": [
+      {
+        "table": "ai_reply_feedback",
+        "migration": "20260609000006_ai_reply_feedback.sql"
+      },
+      {
+        "table": "analytics_snapshots",
+        "migration": "20260610000004_analytics_snapshots.sql"
+      },
+      {
+        "table": "persona_knowledge",
+        "migration": "20260612000000_persona_knowledge.sql"
+      },
+      {
+        "table": "embedding_cache",
+        "migration": "20260613000000_embedding_cache.sql"
+      },
+      {
+        "table": "login_attempts",
+        "migration": "20260621000002_login_attempt_lockout.sql"
+      }
+    ],
     "engine_anchor": [
       {
         "kind": "function",
         "name": "get_oee_by_machine",
         "migration": "20260520000002_get_oee_by_machine.sql"
+      },
+      {
+        "kind": "function",
+        "name": "get_pm_compliance_smrp",
+        "migration": "20260610000001_get_pm_compliance_smrp.sql"
       }
     ],
     "tier_a_anchor": [],
@@ -18,15 +44,27 @@
         "file": "supabase\\functions\\resume-polish\\index.ts"
       },
       {
+        "file": "supabase\\functions\\voice-action-router\\index.ts"
+      },
+      {
         "file": "supabase\\functions\\walkthrough-analyzer\\index.ts"
       }
     ],
     "formula_anchor": [],
-    "standard_anchor": [],
+    "standard_anchor": [
+      {
+        "standard": "iso_22400",
+        "n_files": 2,
+        "sample_files": [
+          "supabase\\functions\\ai-gateway\\index.ts",
+          "supabase\\functions\\voice-journal-agent\\index.ts"
+        ]
+      }
+    ],
     "dashboard_anchor": [
       {
         "page": "resume.html",
-        "n_render_fns": 3
+        "n_render_fns": 6
       }
     ],
     "capture_anchor": [
@@ -48,11 +86,11 @@
       }
     ]
   },
-  "engine_anchor": 1,
+  "engine_anchor": 2,
   "tier_a_anchor": 0,
-  "tier_c_anchor": 3,
+  "tier_c_anchor": 4,
   "formula_anchor": 0,
-  "standard_anchor": 0,
+  "standard_anchor": 1,
   "dashboard_anchor": 1,
   "capture_anchor": 1,
   "seed_render_anchor": 0,

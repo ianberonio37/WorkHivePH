@@ -9,12 +9,16 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads/writes.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// Arc R (A10): tenant-controlled endpoint_url must be SSRF-guarded before fetch.
+import { safeFetch } from "../_shared/ssrf-guard.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -30,6 +34,7 @@ void _whWarmClient;
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  logRequestStart(req, "cmms-push-completion");  // I6 observability
 
   try {
     const body = await req.json();
@@ -123,7 +128,9 @@ serve(async (req) => {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (authToken) headers["Authorization"] = authToken.startsWith("Bearer ") ? authToken : `Bearer ${authToken}`;
 
-    const pushRes = await fetch(pushUrl, {
+    // Arc R (A10): pushUrl derives from tenant-controlled endpoint_url — SSRF-guard it
+    // so it can't target internal/metadata hosts (which would also leak the Bearer authToken).
+    const pushRes = await safeFetch(pushUrl, {
       method: "POST",
       headers,
       body:   JSON.stringify({ ...pushPayload, external_id: extId }),

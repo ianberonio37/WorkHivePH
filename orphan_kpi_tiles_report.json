@@ -1,6 +1,6 @@
 {
   "summary": {
-    "pages_scanned": 30,
+    "pages_scanned": 31,
     "pages_with_orphans": 0,
     "total_orphans": 0,
     "total_allowlisted": 0,
@@ -74,6 +74,11 @@
     },
     {
       "page": "engineering-design.html",
+      "orphans": [],
+      "allowlisted": []
+    },
+    {
+      "page": "engineering-design.js",
       "orphans": [],
       "allowlisted": []
     },

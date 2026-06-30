@@ -54,6 +54,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role logbook reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { checkAIRateLimit } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt; envelope fail() for 429)
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import {
@@ -165,6 +166,10 @@ serve(async (req) => {
     if (!isServiceRole) {
       const t = await resolveTenancy(db, authUid, hiveId);
       if (!t.ok) return fail(ctx, t.code, t.message, { status: t.status });
+      // Arc L free-tier B-hardening: per-hive AI cap so an authenticated member cannot
+      // spam this generative extractor and drain the hive's free-tier LLM budget.
+      const _rl = await checkAIRateLimit(db, hiveId);
+      if (!_rl.allowed) return fail(ctx, "rate_limited", "AI call limit reached for this hive. Try again in an hour.", { status: 429 });
     }
   }
   const errors: string[] = [];

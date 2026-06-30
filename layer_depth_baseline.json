@@ -1,0 +1,41 @@
+{
+  "Frontend": {
+    "score": 8.5
+  },
+  "APIs & Backend Logic": {
+    "score": 9.0
+  },
+  "Database & Storage": {
+    "score": 8.5
+  },
+  "Auth & Permissions": {
+    "score": 7.5
+  },
+  "Hosting & Deployment": {
+    "score": 6.0
+  },
+  "Cloud & Compute": {
+    "score": 4.5
+  },
+  "CI/CD & Version Control": {
+    "score": 6.5
+  },
+  "Security & RLS": {
+    "score": 9.0
+  },
+  "Rate Limiting": {
+    "score": 5.0
+  },
+  "Caching & CDN": {
+    "score": 5.5
+  },
+  "Load Balancing & Scaling": {
+    "score": 3.5
+  },
+  "Error Tracking & Logs": {
+    "score": 5.5
+  },
+  "Availability & Recovery": {
+    "score": 4.5
+  }
+}

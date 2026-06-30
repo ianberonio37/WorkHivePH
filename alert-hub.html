@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
@@ -86,6 +86,30 @@
       transition: background .15s;
     }
     .alert-action:hover { background: rgba(247,162,27,0.15); }
+    /* Arc Y Y3: alert agency — Handled control sits next to the open-action link */
+    .alert-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .alert-dismiss {
+      display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
+      font-size: .65rem; font-weight: 700; color: rgba(255,255,255,0.72);
+      margin-top: 8px; padding: 4px 12px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.16); border-radius: 6px;
+      background: rgba(255,255,255,0.05); transition: background .15s;
+    }
+    .alert-dismiss:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .alert-dismiss:active { transform: scale(.97); }
+    /* Arc Y Y3: Acknowledge ("Seen") distinct visual — the alert stays but its
+       CONTENT dims (icon/title/msg), keeping the badge + action buttons at full
+       contrast (so Unsee stays usable; parent-opacity would dim them too). */
+    .alert.seen { background: rgba(22,32,50,0.5); }
+    .alert.seen .alert-icon,
+    .alert.seen .alert-title,
+    .alert.seen .alert-msg { opacity: 0.5; }
+    .alert-seen-badge {
+      font-size: .5rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+      padding: .15rem .45rem; border-radius: 5px; flex-shrink: 0;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
 
     /* Empty / loading */
     .empty {
@@ -172,7 +196,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
-    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; min-height:134px; } /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
@@ -183,7 +207,11 @@
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
+    /* CLS (Arc L L1): reserve the command-center growers — verdict box (68→84 when sub wraps) + the
+       async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
+    /* #ah-verdict removed (Arc Y Y2 de-dup) */
+    #filters { min-height:144px; }
     .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
@@ -214,18 +242,19 @@
   </div>
 
   <!-- Main content -->
-  <div id="main-content" style="display:none;">
+  <!-- ships VISIBLE (skeleton; hive data loads after) — init hides it on the hive
+       gate. JS-revealing a display:none main-content was a CLS bomb (Arc L L1). -->
+  <div id="main-content">
 
     <!-- Plain-Read Summary (Layer D — UX Contract).
          Populated by renderAlertSummary() after _alerts is loaded.
          Rolls up: critical count, anomaly count, AMC brief status. -->
     <div id="ah-summary">
-      <div id="ah-verdict" class="verdict empty">
-        <span id="ah-verdict-icon" class="verdict-icon">·</span>
-        <div class="verdict-text"><span id="ah-verdict-label">Rolling up alert state...</span><small id="ah-verdict-sub">Checking risk scores, anomaly signals, and the daily brief.</small></div>
-      </div>
+      <!-- Arc Y Y2 de-dup: removed #ah-verdict roll-up box — its sub-line re-stated the exact
+           3 KPI-card numbers (high-severity / anomaly / AMC) and its tone logic mirrored the
+           cards; the "What to do next" action card below carries the single plain-language step. -->
       <div class="simple-row">
-        <div class="simple-card tag-grey" id="ah-card-critical" data-rag-tile="alert-hub:high_severity_alerts" data-rag-label="High-severity alerts">
+        <div class="simple-card tag-grey hero" id="ah-card-critical" data-rag-tile="alert-hub:high_severity_alerts" data-rag-label="High-severity alerts">
           <div class="sc-label">High-severity alerts</div>
           <div class="sc-hero" id="ah-critical-hero">—</div>
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
@@ -370,11 +399,14 @@
   const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
   if (!HIVE_ID) {
+    var _mc = document.getElementById('main-content');
+    if (_mc) _mc.style.display = 'none';
     document.getElementById('gate-card').style.display = 'block';
     return;
   }
 
-  document.getElementById('main-content').style.display = 'block';
+  // main-content already VISIBLE (no display:none) — paints once in final layout;
+  // no JS reveal here (that was the CLS bomb; Arc L L1).
   if (HIVE_NAME) {
     const pill = document.getElementById('hive-pill');
     pill.textContent = '🐝 ' + HIVE_NAME;
@@ -398,7 +430,16 @@
   let _amcBrief = null;
   let _amcChannel = null;
   let _alerts = [];
-  let _activeKind = 'all';
+  let _dismissals = {};         // Arc Y Y3: { alert_key: action } active dismissals (handled/snoozed = hidden)
+  let _seen = {};               // Arc Y Y3: { alert_key: true } acknowledged alerts (kept in feed, dimmed)
+  // Arc Y Y3 (Arc X A3 pattern): the active filter persists in the URL (?kind=)
+  // so a refresh, an in-app Back, or a shared deep-link restores the same view.
+  let _activeKind = (() => {
+    try {
+      const k = new URLSearchParams(location.search).get('kind');
+      return KINDS.some(x => x.id === k) ? k : 'all';
+    } catch (_) { return 'all'; }
+  })();
   let _alertDisplayCount = 30;  // List View Contract: client-side slice pagination
   let _refreshTimer = null;
   // Anomaly Engine 2.0 state lets — declared HERE (not next to the panel
@@ -521,6 +562,7 @@
     // fallback, and the APPROVAL workflow (approve/reject buttons + amc_briefings.status)
     // is untouched — the engine fuses the BRAIN, the surface keeps its workflow.
     (async function loadUnifiedAmcBrief(){
+      const e = escHtml;   // shorthand used by the slice renderers below (top_assets/pm_due maps) — was undeclared in this IIFE scope (ReferenceError)
       if (!summaryEl || !HIVE_ID || typeof renderActionBrief !== 'function') return;
       try {
         const { data } = await db.functions.invoke('analytics-orchestrator', {
@@ -529,7 +571,7 @@
         const ap = data && data.action_plan;
         if (ap) summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
           renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
-      } catch (_) { /* keep the stored amc_briefings.brief summary as fallback */ }
+      } catch (_) { /* empty-catch-allow: engine action-brief render failed → intentionally keep the stored amc_briefings.brief summary as the fallback */ }
     })();
 
     const setStat = (id, n) => {
@@ -687,7 +729,7 @@
         event: '*', schema: 'public', table: 'amc_briefings',
         filter: 'hive_id=eq.' + HIVE_ID,
       }, () => { loadAll(); })
-      .subscribe();
+      .subscribe(rtConn());
   }
 
   // Consolidated channel cleanup. Both amc and anomaly channels remove here so
@@ -900,7 +942,7 @@
         event: '*', schema: 'public', table: 'anomaly_signals',
         filter: 'hive_id=eq.' + HIVE_ID,
       }, _scheduleAnomalyReload)   // debounced; one load per 600ms burst
-      .subscribe();
+      .subscribe(rtConn());
     // Cleanup is folded into the consolidated beforeunload listener above
     // (the one near startAmcRealtime) so we don't leak listeners by adding
     // a new one on every subscribe.
@@ -996,6 +1038,7 @@
           : '';
         all.push({
           kind: 'risk',
+          dedupeKey: 'risk:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
           severity: r.risk_level,
           title: r.asset_name || 'Unknown asset',
           msg: `Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factors ? ' — ' + factors : ''}`,
@@ -1015,11 +1058,13 @@
         if (rp > 0 && qty <= rp) {
           all.push({
             kind: 'stock',
+            dedupeKey: 'stock:' + (i.part_name || i.id || 'unknown'),   // Arc Y Y3: stable dismissal key
             severity: qty <= 0 ? 'critical' : (qty <= rp / 2 ? 'high' : 'medium'),
             title: i.part_name || 'Unnamed part',
             msg: `${qty} on hand, reorder at ${rp}`,
             time: i.updated_at || new Date().toISOString(),
-            href: 'inventory.html',
+            // Arc X A1: deep-link to the NAMED part (inventory.html reads ?q= -> filters + scrolls).
+            href: 'inventory.html?q=' + encodeURIComponent(i.part_name || ''),
             actionLabel: 'Open Inventory',
           });
         }
@@ -1043,11 +1088,13 @@
           : 'PM overdue';
         all.push({
           kind: 'pm',
+          dedupeKey: 'pm:' + key,   // Arc Y Y3: stable dismissal key (pm_asset_id||asset_name)
           severity: (r.asset_criticality === 'critical') ? 'critical' : 'high',
           title: r.asset_name || 'Unnamed asset',
           msg: `${detail} (${r.asset_category || 'general'})`,
           time: r.last_completed_at || pmCutoff,
-          href: 'pm-scheduler.html',
+          // Arc X A1: deep-link to the NAMED asset's PM detail (pm-scheduler reads ?asset=).
+          href: 'pm-scheduler.html?asset=' + encodeURIComponent(r.asset_name || ''),
           actionLabel: 'Open PM Scheduler',
         });
       }
@@ -1058,6 +1105,7 @@
       for (const p of (patternRes.value.data || [])) {
         all.push({
           kind: 'pattern',
+          dedupeKey: 'pattern:' + (p.machine || '') + ':' + (p.rule_id || p.title || ''),   // Arc Y Y3
           severity: p.severity || 'medium',
           title: p.machine || 'Unknown machine',
           // v_alert_truth renames alert_title→title / alert_detail→detail
@@ -1076,6 +1124,7 @@
         const conf       = Math.round((Number(r.confidence) || 0) * 100);
         all.push({
           kind: 'staging',
+          dedupeKey: 'staging:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
           severity: (Number(r.risk_score) >= 0.85) ? 'critical' : 'high',
           title: r.asset_name || 'Unknown asset',
           msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence) — ${r.rationale || ''}`.slice(0, 200),
@@ -1134,7 +1183,32 @@
     // Sort newest first
     all.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
 
-    _alerts = all;
+    // ── Arc Y Y3: alert agency — hide alerts the hive has TRIAGED ──────────────
+    // A derived alert (pm/risk/stock/pattern/staging) carries a stable dedupeKey; a
+    // matching active alert_dismissals row removes it from the feed. 'handled' hides
+    // until the underlying signal re-fires (a new key); 'snoozed' hides until
+    // snooze_until passes; 'acknowledged' is kept (marked seen, not hidden).
+    _dismissals = {};
+    _seen = {};
+    try {
+      // canonical-allow: alert_dismissals is UI-interaction state (per-hive alert
+      // handled/snoozed/acknowledged dispositions), read directly to hide/show alerts.
+      // It is NOT a KPI/metric, so there is no v_*_truth view to route through.
+      const { data: dz } = await db.from('alert_dismissals')
+        .select('alert_key, action, snooze_until').eq('hive_id', HIVE_ID);
+      const nowMs = Date.now();
+      for (const d of (dz || [])) {
+        // 'acknowledged' (seen) is kept in the feed but dimmed — NOT a hide.
+        if (d.action === 'acknowledged') { _seen[d.alert_key] = true; continue; }
+        const live = d.action === 'handled'
+          || (d.action === 'snoozed' && d.snooze_until && new Date(d.snooze_until).getTime() > nowMs);
+        if (live) _dismissals[d.alert_key] = d.action;
+      }
+    } catch (e) { /* empty-catch-allow: dismissals are an enhancement — a fetch failure just shows all alerts */ }
+
+    _alerts = Object.keys(_dismissals).length
+      ? all.filter(a => !(a.dedupeKey && _dismissals[a.dedupeKey]))
+      : all;
     // Wrap the render path in try/finally so a runtime error in any of the
     // 3 renderers below does NOT leave the verdict label stuck at the initial
     // "Rolling up alert state..." text. Caught by the hardening loop on
@@ -1180,6 +1254,14 @@
       btn.addEventListener('click', () => {
         _activeKind = btn.getAttribute('data-kind');
         _alertDisplayCount = 30;  // reset slice on filter change
+        // Arc Y Y3 (Arc X A3 pattern): mirror the filter into the URL so a
+        // refresh / in-app Back / shared link restores this exact view.
+        try {
+          const u = new URL(location.href);
+          if (_activeKind === 'all') u.searchParams.delete('kind');
+          else u.searchParams.set('kind', _activeKind);
+          history.replaceState(null, '', u);
+        } catch (_) { /* empty-catch-allow: URL persist is best-effort */ }
         renderFilters();
         renderFeed();
       });
@@ -1187,6 +1269,67 @@
   }
 
   window.loadMoreAlerts = () => { _alertDisplayCount += 30; renderFeed(); };
+
+  // Arc Y Y3: mark a derived alert handled — OPTIMISTIC (remove + re-render now),
+  // then persist to alert_dismissals (hive-member RLS). On failure, re-fetch so the
+  // feed never lies. 'handled' hides until the underlying signal re-fires (new key).
+  async function dismissAlert(key, action = 'handled', snoozeDays = 0) {
+    if (!key || !HIVE_ID) return;
+    const prev = _alerts;
+    const snoozeUntil = (action === 'snoozed' && snoozeDays > 0)
+      ? new Date(Date.now() + snoozeDays * 86400000).toISOString() : null;
+    _dismissals[key] = action;
+    _alerts = _alerts.filter(a => a.dedupeKey !== key);   // handled + snoozed both leave the feed
+    renderFeed();
+    renderAlertSummary();   // keep the KPI cards' counts honest after a removal
+    try {
+      const { error } = await db.from('alert_dismissals')
+        .upsert({ hive_id: HIVE_ID, alert_key: key, action, actor: WORKER_NAME, snooze_until: snoozeUntil },
+                { onConflict: 'hive_id,alert_key' });
+      if (error) throw error;
+      writeAuditLog(action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', 'alert', key, key,
+                    snoozeUntil ? { snooze_until: snoozeUntil } : {});
+      showToast(action === 'snoozed' ? `Snoozed for ${snoozeDays} day${snoozeDays === 1 ? '' : 's'}` : 'Alert marked handled');
+    } catch (e) {
+      delete _dismissals[key];
+      _alerts = prev;                                   // roll back the optimistic removal
+      renderFeed(); renderAlertSummary();
+      showToast('Could not save, alert restored');
+    }
+  }
+  window.dismissAlert = dismissAlert;
+
+  // Arc Y Y3: Acknowledge ("Seen") — the distinct visual that makes this worth
+  // shipping (the reason it was deferred). Lighter than Handled: the alert STAYS
+  // in the feed but dims + gets a "Seen" badge, so a supervisor can clear visual
+  // noise during triage WITHOUT claiming the issue is resolved. Toggles: a second
+  // tap un-marks it. Persists as action='acknowledged' (kept, not hidden — see the
+  // load filter). Optimistic with rollback so the feed never lies.
+  async function acknowledgeAlert(key) {
+    if (!key || !HIVE_ID) return;
+    const wasSeen = !!_seen[key];
+    if (wasSeen) delete _seen[key]; else _seen[key] = true;
+    renderFeed();
+    try {
+      if (wasSeen) {
+        const { error } = await db.from('alert_dismissals')
+          .delete().eq('hive_id', HIVE_ID).eq('alert_key', key).eq('action', 'acknowledged');
+        if (error) throw error;
+      } else {
+        const { error } = await db.from('alert_dismissals')
+          .upsert({ hive_id: HIVE_ID, alert_key: key, action: 'acknowledged', actor: WORKER_NAME, snooze_until: null },
+                  { onConflict: 'hive_id,alert_key' });
+        if (error) throw error;
+        writeAuditLog('alert_acknowledged', 'alert', key, key, {});
+        showToast('Marked seen');
+      }
+    } catch (e) {
+      if (wasSeen) _seen[key] = true; else delete _seen[key];   // roll back the optimistic toggle
+      renderFeed();
+      showToast('Could not save, restored');
+    }
+  }
+  window.acknowledgeAlert = acknowledgeAlert;
 
   // Layer D Plain-Read summary — rolls up _alerts + _anomalySignals + AMC.
   // Called from renderFeed so it refreshes whenever the alert pipeline runs.
@@ -1265,32 +1408,9 @@
                   : "No AMC brief for today's shift";
     setCard('amc', amcHero, amcSub, amcTag, amcTone);
 
-    // Verdict — red if any critical alerts OR anomalies in attention; amber
-    // if AMC pending OR high-severity alerts > 0; green when clear.
-    let tone, label, sub;
-    if (critical > 3 || anomalyCount > 3) {
-      tone = 'attn'; label = 'Alert Hub needs immediate attention';
-      sub  = critical > 3 ? `${critical} high-severity alerts pile up — start with the top of the feed below.`
-                          : `${anomalyCount} multi-source anomalies firing — open the Anomaly Engine panel below.`;
-    } else if (critical > 0 || anomalyCount > 0 || amcStatus === 'pending') {
-      tone = 'watch'; label = 'A few things to triage';
-      const parts = [];
-      if (critical > 0)   parts.push(`${critical} high-severity alert${critical === 1 ? '' : 's'}`);
-      if (anomalyCount > 0) parts.push(`${anomalyCount} anomaly signal${anomalyCount === 1 ? '' : 's'}`);
-      if (amcStatus === 'pending') parts.push('AMC brief awaiting approval');
-      sub = parts.join(' · ') + '.';
-    } else if (total === 0 && amcStatus === 'none') {
-      tone = 'empty'; label = 'No alerts on this hive right now';
-      sub  = 'Either everything is genuinely calm, or the alert sources have not surfaced anything this shift.';
-    } else {
-      tone = 'healthy'; label = 'Alert Hub looks clear';
-      sub  = `${total} open alert${total === 1 ? '' : 's'}, none critical · ${anomalyCount === 0 ? 'no anomalies' : anomalyCount + ' anomalies (low priority)'}.`;
-    }
-    const vBox = document.getElementById('ah-verdict');
-    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
-    const vIcon = document.getElementById('ah-verdict-icon'); if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
-    const vLbl  = document.getElementById('ah-verdict-label'); if (vLbl) vLbl.textContent = label;
-    const vSub  = document.getElementById('ah-verdict-sub');   if (vSub) vSub.textContent = sub;
+    // Arc Y Y2 de-dup: the #ah-verdict roll-up box was removed (its sub-line re-stated the
+    // exact 3 KPI-card numbers + its tone mirrored the cards). The single plain-language
+    // next-step now lives ONLY in the "What to do next" action card below — no duplication.
 
     // Action — pick the single most-urgent next step.
     const actBox = document.getElementById('ah-action-text');
@@ -1336,21 +1456,68 @@
       const sev = a.severity || 'medium';
       const tagClass = ({ critical: 'tag-critical', high: 'tag-high', medium: 'tag-medium', info: 'tag-info' })[sev] || 'tag-medium';
       const icon = ({ risk: '🔴', pm: '⚠️', stock: '📦', pattern: '🧬', system: '⚙️' })[a.kind] || '•';
-      return `<div class="alert kind-${e(a.kind)}">
+      const isSeen = !!(a.dedupeKey && _seen[a.dedupeKey]);
+      return `<div class="alert kind-${e(a.kind)}${isSeen ? ' seen' : ''}">
         <div class="alert-icon">${e(icon)}</div>
         <div class="alert-body">
           <div class="alert-head">
             <span class="alert-tag ${e(tagClass)}">${e(sev)}</span>
             <span class="alert-title" title="${e(a.title)}">${e(a.title)}</span>
+            ${isSeen ? '<span class="alert-seen-badge">Seen</span>' : ''}
             <span class="alert-time">${e(fmtRelative(a.time))}</span>
           </div>
           <div class="alert-msg">${e(a.msg || '')}</div>
-          ${a.actionLabel && a.href !== '#'
-            ? `<a class="alert-action" href="${e(a.href)}">${e(a.actionLabel)} →</a>`
-            : ''}
+          <div class="alert-actions">
+            ${a.actionLabel && a.href !== '#'
+              ? `<a class="alert-action" href="${e(a.href)}">${e(a.actionLabel)} →</a>`
+              : ''}
+            ${a.dedupeKey
+              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? 'Mark this alert not seen' : 'Mark this alert as seen (keeps it, dims it)'}">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
+                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="Snooze this alert for 7 days">&#9203; Snooze 7d</button>
+                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="Mark this alert handled">&#10003; Handled</button>`
+              : ''}
+          </div>
         </div>
       </div>`;
     }).join('');
+
+    // Arc Y Y3: one delegated listener on the feed container (survives re-render) →
+    // "Handled" optimistically removes the alert + records the dismissal.
+    if (!renderFeed._dismissWired) {
+      renderFeed._dismissWired = true;
+      feed.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.alert-dismiss');
+        if (!btn) return;
+        const seenK = btn.getAttribute('data-seen-key');
+        if (seenK) { acknowledgeAlert(seenK); return; }
+        const sk = btn.getAttribute('data-snooze-key');
+        if (sk) { dismissAlert(sk, 'snoozed', 7); return; }
+        dismissAlert(btn.getAttribute('data-dismiss-key'), 'handled');
+      });
+    }
+
+    // Arc X A1: deep-link focus reader. The home "Today's One Thing" failure-signature
+    // nudge links here as alert-hub.html?focus=<machine>; scroll to + briefly highlight
+    // the matching alert so the named signal is not lost in the feed (Issue #2 class).
+    if (!renderFeed._focusDone) {
+      try {
+        const _focus = new URLSearchParams(window.location.search).get('focus');
+        if (_focus) {
+          renderFeed._focusDone = true;
+          const _norm = s => String(s || '').trim().toLowerCase();
+          const hit = Array.from(feed.querySelectorAll('.alert')).find(c => {
+            const t = c.querySelector('.alert-title');
+            return t && _norm(t.textContent).includes(_norm(_focus));
+          });
+          if (hit) {
+            hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            hit.style.outline = '2px solid #29B6D9';
+            hit.style.outlineOffset = '2px';
+            setTimeout(() => { hit.style.outline = ''; hit.style.outlineOffset = ''; }, 2600);
+          }
+        }
+      } catch (_) { /* empty-catch-allow: best-effort focus; feed still renders */ }
+    }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1383,5 +1550,8 @@
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

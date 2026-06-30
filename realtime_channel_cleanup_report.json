@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_channels": 19,
+    "pages_scanned": 31,
+    "total_channels": 23,
     "unsafe_pages": 0,
     "baseline": 0
   },
@@ -20,15 +20,15 @@
     },
     {
       "page": "logbook.html",
-      "channels": 0,
-      "removes": 0,
-      "has_unmount": false
+      "channels": 1,
+      "removes": 1,
+      "has_unmount": true
     },
     {
       "page": "inventory.html",
-      "channels": 0,
-      "removes": 0,
-      "has_unmount": false
+      "channels": 1,
+      "removes": 1,
+      "has_unmount": true
     },
     {
       "page": "pm-scheduler.html",
@@ -80,12 +80,18 @@
     },
     {
       "page": "dayplanner.html",
+      "channels": 1,
+      "removes": 1,
+      "has_unmount": true
+    },
+    {
+      "page": "engineering-design.html",
       "channels": 0,
       "removes": 0,
       "has_unmount": false
     },
     {
-      "page": "engineering-design.html",
+      "page": "engineering-design.js",
       "channels": 0,
       "removes": 0,
       "has_unmount": false
@@ -134,9 +140,9 @@
     },
     {
       "page": "predictive.html",
-      "channels": 0,
-      "removes": 0,
-      "has_unmount": false
+      "channels": 1,
+      "removes": 1,
+      "has_unmount": true
     },
     {
       "page": "ai-quality.html",

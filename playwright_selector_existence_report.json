@@ -1,7 +1,7 @@
 {
   "summary": {
-    "specs_scanned": 30,
-    "total_lookups": 141,
+    "specs_scanned": 31,
+    "total_lookups": 144,
     "total_drift": 2,
     "baseline": 2
   },
@@ -34,6 +34,13 @@
       "targets": [
         "assistant.html",
         "assistant.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "auth-identity-arc-i.spec.ts",
+      "targets": [
+        "index.html"
       ],
       "misses": []
     },

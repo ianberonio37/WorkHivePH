@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract: health_score_v1 (canonical_agent_contracts; consumers: predictive.html, asset-hub.html, analytics.html, shift-brain.html)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -36,6 +38,7 @@ const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "batch-risk-scoring");  // I6 observability
 
   try {
     const db = createClient(SUPABASE_URL, SERVICE_KEY);
@@ -264,7 +267,7 @@ async function scoreHive(
     try {
       const resp = await fetch(`${PYTHON_URL}/analytics`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-API-Key": Deno.env.get("PYTHON_API_KEY") ?? "" },
         signal:  AbortSignal.timeout(90000), // 90s — Render free tier cold start
         body:    JSON.stringify({
           phase: "predictive",

@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,7 +62,7 @@
       margin-bottom: 0.5rem;
     }
     .page-header h1 { font-size: 1.55rem; font-weight: 800; color: #fff; line-height: 1.2; }
-    .page-header p { font-size: 0.75rem; color: var(--wh-steel); margin-top: 0.25rem; }
+    .page-header p { font-size: 0.75rem; color: rgba(255,255,255,0.72); margin-top: 0.25rem; } /* D1 U5: --wh-steel <4.5:1 → WCAG 1.4.3 */
 
     /* ── Card ── */
     .card {
@@ -238,15 +238,15 @@
     .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .history-body { flex: 1; min-width: 0; }
     .history-type    { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.8); }
-    .history-meta    { font-size: 0.65rem; color: rgba(255,255,255,0.3); margin-top: 0.1rem; }
+    .history-meta    { font-size: 0.65rem; color: rgba(255,255,255,0.75); margin-top: 0.1rem; } /* D1 a11y: 0.3→0.75 WCAG 1.4.3 (raised card) */
     .history-summary { font-size: 0.68rem; color: var(--wh-steel); margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .resend-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600;
       padding: 0.35rem 0.625rem; border-radius: 0.5rem;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.45); cursor: pointer;
+      color: rgba(255,255,255,0.78); cursor: pointer; /* D1 a11y: 0.45→0.78 WCAG 1.4.3 */
       -webkit-tap-highlight-color: transparent; transition: all 0.15s;
-      white-space: nowrap; flex-shrink: 0; min-height: 32px;
+      white-space: nowrap; flex-shrink: 0; min-height: 44px; /* D1 U2: 32→44 gloved-field tap target */
     }
     .resend-btn:hover   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
     .resend-btn:active  { transform: scale(0.95); }
@@ -609,7 +609,7 @@
           type="email" class="wh-input" id="email-input"
           placeholder="someone@company.com" autocomplete="email"
         />
-        <div class="email-error" id="email-error"></div>
+        <div role="alert" aria-live="assertive" class="email-error" id="email-error"></div>
 
         <!-- Mic circle -->
         <div class="mic-wrap" id="mic-wrap">
@@ -713,7 +713,7 @@
             <button class="label-pill" data-label="Manager">Manager</button>
           </div>
         </div>
-        <div class="sheet-error" id="sheet-error"></div>
+        <div role="alert" aria-live="assertive" class="sheet-error" id="sheet-error"></div>
       </div>
       <div class="sheet-footer">
         <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem">Save Contact</button>
@@ -1162,7 +1162,8 @@
         .from('report_contacts')
         .select('id, name, email, label')
         .eq('hive_id', HIVE_ID)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .limit(500);
       if (error) {
         // Supabase failed — fall back to localStorage so contacts aren't lost
         try { _contacts = JSON.parse(localStorage.getItem(LS_CONTACTS) || '[]'); }
@@ -1219,6 +1220,15 @@
     }
 
     async function deleteContact(id) {
+      // E3 (Arc X recovery): deleting a saved recipient is destructive (removed from
+      // localStorage + server) with no undo -> confirm first.
+      if (typeof window.whConfirm === 'function') {
+        const _c = _contacts.find(c => c.id === id);
+        const ok = await window.whConfirm(
+          `Remove ${_c && _c.name ? _c.name : 'this contact'} from your report recipients?`,
+          { okLabel: 'Remove', cancelLabel: 'Keep' });
+        if (!ok) return;
+      }
       _contacts = _contacts.filter(c => c.id !== id);
       _selectedContacts.delete(id);
       renderContacts();

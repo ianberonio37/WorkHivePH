@@ -16,7 +16,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11: shared component CSS (loaded before inline <style> so any page override wins) -->
@@ -331,6 +331,21 @@
     .weibull-pattern-infant   { background: rgba(56,189,248,0.20);  color: #7dd3fc; }
     .weibull-pattern-random   { background: rgba(167,139,250,0.20); color: #c7b6fb; }
     .weibull-pattern-wearout  { background: rgba(247,162,27,0.20);  color: #ffc566; }
+
+    /* Arc Y Y4 — inline WORKED EXAMPLE: a novice reads the number, not the acronym.
+       Always-visible (not a hover tooltip — field phones have no hover); lives inside
+       the engineer-gated Reliability Workbench so it costs zero first-paint overwhelm. */
+    .rel-worked-example {
+      font-size: 0.7rem; line-height: 1.5; color: rgba(255,255,255,0.66);
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-left: 2px solid rgba(167,139,250,0.5); border-radius: 0.5rem;
+      padding: 0.55rem 0.7rem; margin: 0 0 0.7rem;
+    }
+    .rel-worked-example b { color: rgba(255,255,255,0.85); font-weight: 700; }
+    .rel-worked-example .rwe-tag {
+      display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.07em;
+      text-transform: uppercase; color: #c7b6fb; margin-right: 6px;
+    }
     .weibull-pattern-insufficient_data { background: rgba(255,255,255,0.06); color: var(--muted); }
 
     /* FMEA + RCM modals — share visual language with edge-modal */
@@ -364,47 +379,9 @@
     }
     #fmea-modal select option, #rcm-modal select option { background: var(--wh-navy); color: var(--wh-cloud); }
 
-    /* Edge editor modal */
-    #edge-modal {
-      position: fixed; inset: 0; z-index: 9100;
-      background: rgba(10,18,28,0.85); backdrop-filter: blur(8px);
-      display: none; align-items: center; justify-content: center;
-      padding: 1.5rem;
-    }
-    #edge-modal.open { display: flex; }
-    #edge-modal-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.97), rgba(22,32,50,0.99));
-      border: 1px solid var(--border);
-      border-radius: 1rem; padding: 1.5rem 1.25rem;
-      width: 100%; max-width: 420px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    }
-    #edge-modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; }
-    #edge-modal label {
-      display: block; font-size: 0.7rem; color: var(--muted);
-      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
-    }
-    #edge-modal select, #edge-modal input {
-      width: 100%; height: 42px; border-radius: 0.55rem;
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: var(--wh-cloud); padding: 0 0.7rem;
-      font-size: 16px; /* iOS auto-zoom rule */
-      font-family: inherit; margin-bottom: 0.85rem;
-    }
-    #edge-modal select option { background: var(--wh-navy); color: var(--wh-cloud); }
-    .edge-actions { display: flex; gap: 0.5rem; }
-    .edge-actions button {
-      flex: 1; height: 42px; border-radius: 0.55rem;
-      border: 1px solid var(--border); cursor: pointer;
-      font-size: 0.85rem; font-weight: 600; font-family: inherit;
-    }
-    .edge-actions .save {
-      background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
-      color: var(--navy-wh); border-color: transparent;
-    }
-    .edge-actions .cancel {
-      background: rgba(255,255,255,0.06); color: var(--wh-cloud);
-    }
+    /* Edge editor modal + .edge-actions CSS removed 2026-06-30: the "edges" feature was
+       intentionally CUT in Arc Y (fork#1, 2026-06-27 — see the openEdgeModal/asset_edges
+       removal comments in the script). These were dead rules — no #edge-modal markup remains. */
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
@@ -448,8 +425,10 @@
     <a href="hive.html">Go to Hive</a>
   </div>
 
-  <!-- Main page -->
-  <div id="page-wrap" class="page-wrap" style="display:none;">
+  <!-- Main page — ships VISIBLE with skeleton placeholders (no private data); the
+       hive gate hides it on failure. Reserving its layout at first paint avoids the
+       ~1.0 CLS of a display:none -> block reveal inside init() (Arc L L1). -->
+  <div id="page-wrap" class="page-wrap">
 
     <!-- Header -->
     <div class="page-header">
@@ -473,7 +452,7 @@
         <div class="verdict-text"><span id="ah-verdict-label">Loading asset fleet...</span><small id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small></div>
       </div>
       <div class="simple-row">
-        <div class="simple-card tag-grey" id="ah-card-total" data-rag-tile="asset-hub:total_assets" data-rag-label="Total assets">
+        <div class="simple-card hero tag-grey" id="ah-card-total" data-rag-tile="asset-hub:total_assets" data-rag-label="Total assets">
           <div class="sc-label">Total assets</div>
           <div class="sc-hero" id="ah-total-hero">0</div>
           <div class="sc-sub" id="ah-total-sub">Loading...</div>
@@ -527,7 +506,11 @@
       </div>
       <div id="asset-list" class="asset-list"></div>
       <div id="list-empty" class="empty empty-state" style="display:none;">
-        No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.
+        No approved assets in this hive yet. Add equipment and it surfaces here once approved.
+        <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+          <a href="pm-scheduler.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>
+          <a href="inventory.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;font-weight:600;text-decoration:none;">+ Add via Inventory</a>
+        </div>
       </div>
       <div id="asset-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
         <button onclick="loadMoreAssets()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
@@ -586,13 +569,7 @@
     data-rag-tile="asset-hub:last_failure"
     data-rag-label="Asset last failure">never</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Edges</div>
-          <div class="stat-value" id="stat-edges"
-    data-rag-tile="asset-hub:rcm_edges"
-    data-rag-label="Asset RCM edges">0</div>
-        </div>
-      </div>
+      </div><!-- Arc Y Y5: "Edges" stat removed (edges feature CUT per fork#1) -->
 
       <!-- Phase B.5: Risk panel — per-asset risk view that replaces the predictive.html jump -->
       <div class="section-card" id="risk-card" style="display:none;">
@@ -600,6 +577,10 @@
           <span>Risk Profile</span>
           <span id="risk-model-chip" style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
         </div>
+        <!-- Arc Y Y4 — ONE risk hierarchy: name this as THE single headline answer so a
+             novice doesn't try to reconcile it against the FMEA / Weibull / P-F numbers
+             in the Reliability Workbench (those are the engineering detail BEHIND this one). -->
+        <p style="font-size:.7rem; color:rgba(255,255,255,0.55); margin:2px 0 8px; line-height:1.45;">This is the asset's <b style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
         <p id="risk-source-chip" style="margin:4px 0 10px;"></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
@@ -639,6 +620,13 @@
         </div>
       </div>
 
+      <!-- Arc Y Y4 (fork#3 ADAPTIVE): workers default to the asset SUMMARY; the deep
+           Reliability Workbench (FMEA/Weibull/P-F — enterprise reliability engineering)
+           is one tap behind this toggle, so a technician isn't shown S/O/D·RPN·β/η cold.
+           The choice persists per device (wh_asset_view). -->
+      <button id="asset-view-toggle" type="button" class="add-edge-btn"
+              style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 14px; background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.3); color:#c7b6fb; font-size:.74rem; font-weight:700; cursor:pointer;"
+              aria-expanded="false" aria-controls="reliability-card">&#128295; Show Reliability Workbench (engineer view)</button>
       <!-- Phase R.2: Reliability Engineering Workbench (FMEA / RCM / Weibull / P-F) -->
       <div class="section-card" id="reliability-card" style="display:none; border-left:3px solid #a78bfa;">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -649,12 +637,13 @@
           </div>
         </div>
         <div class="reliability-tabs" role="tablist" style="display:flex; gap:4px; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.4rem;">
-          <button class="rel-tab active" data-tab="fmea"    role="tab">FMEA</button>
-          <button class="rel-tab"        data-tab="weibull" role="tab" title="Phase R.5 — Weibull MLE fit (lifelines)">Weibull</button>
-          <button class="rel-tab"        data-tab="pf"      role="tab" title="Phase R.6 — P-F interval calculator">P-F</button>
+          <button class="rel-tab active" data-tab="fmea"    role="tab" title="FMEA — Failure Modes & Effects Analysis: list the ways this asset can fail, then rate each by Severity x Occurrence x Detection = RPN (Risk Priority Number; higher = act first).">FMEA</button>
+          <button class="rel-tab"        data-tab="weibull" role="tab" title="Weibull — fits this asset's failure history to a wear curve. beta (shape) > 1 = wearing out with age; eta (scale) = characteristic life in days. Tells you IF and roughly WHEN it wears out.">Weibull</button>
+          <button class="rel-tab"        data-tab="pf"      role="tab" title="P-F interval — the warning window between the first detectable symptom (P) and functional failure (F). Sets how often to inspect so you catch it in time.">P-F</button>
         </div>
         <!-- FMEA panel -->
         <div id="rel-panel-fmea">
+          <p class="rel-worked-example"><span class="rwe-tag">Example</span>A pump seal leak rated <b>Severity 7</b> (hurts output) &times; <b>Occurrence 4</b> (a few times a year) &times; <b>Detection 5</b> (only caught on inspection) = <b>RPN 140</b>. A guard rattle at 2&times;6&times;3 = RPN 36. Fix the <b>140 first</b>: a higher RPN means act sooner.</p>
           <div id="fmea-list" style="display:flex; flex-direction:column; gap:5px;"></div>
           <div id="fmea-empty" class="empty-row" style="display:none; padding:0.85rem; text-align:center;">
             No FMEA failure modes registered yet. Tap below to add the first one, or use AI auto-populate (Phase R.3) to suggest from logbook history.
@@ -668,6 +657,7 @@
 
         <!-- Phase R.5: Weibull panel -->
         <div id="rel-panel-weibull" style="display:none;">
+          <p class="rel-worked-example"><span class="rwe-tag">Example</span><b>&beta; (shape) = 2.3</b> means this part wears out with age (&beta; above 1 = age-related); <b>&eta; (life) = 180 days</b> means about <b>63% have failed by ~180 run-days</b>. Read it as: "plan a replacement before ~180 days." (&beta; near 1 = random failures, age-based PM won't help; &beta; below 1 = early-life/infant failures, check install quality.)</p>
           <div id="weibull-summary" style="display:none; flex-direction:column; gap:10px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
               <div>
@@ -697,6 +687,7 @@
 
         <!-- Phase R.6: P-F interval panel -->
         <div id="rel-panel-pf" style="display:none;">
+          <p class="rel-worked-example"><span class="rwe-tag">Example</span>Vibration starts rising <b>14 days</b> before a bearing seizes, so the <b>P-F window = 14 days</b>. Inspect at <b>half the window = every 7 days</b> so at least one check always lands inside the warning period. <b>Guidance:</b> set the inspection interval to P-F &divide; 2; for safety-critical assets use P-F &divide; 3 (here, every ~5 days). Too long an interval and you miss the warning; too short wastes labour.</p>
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
             <label for="pf-parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
             <select id="pf-parameter" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
@@ -785,13 +776,8 @@
         <div id="timeline-list"></div>
       </div>
 
-      <div class="section-card">
-        <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Neighbors</span>
-          <button id="add-edge-btn" class="add-edge-btn" style="display:none;">+ Add edge</button>
-        </div>
-        <div id="neighbors-list"></div>
-      </div>
+      <!-- Arc Y Y5: "Neighbors / + Add edge" section removed — graph-edge UX (jargon
+           edge types, confusing to technicians) CUT per fork#1 (Ian, 2026-06-27). -->
 
       <div class="section-card" id="ext-card" style="display:none;">
         <div class="section-title">External systems</div>
@@ -826,28 +812,7 @@
 
   </div>
 
-  <!-- Edge editor modal (supervisor only) -->
-  <div id="edge-modal" role="dialog" aria-modal="true" aria-labelledby="edge-modal-title">
-    <div id="edge-modal-card">
-      <h2 id="edge-modal-title">Add an edge</h2>
-      <label for="edge-type">Relationship</label>
-      <select id="edge-type" data-select-placeholder-allow="graph edge type, parent_of is the most common edge">
-        <option value="parent_of">Parent of (this asset contains another)</option>
-        <option value="feeds">feeds (this asset feeds another)</option>
-        <option value="supplies">supplies (this asset supplies another)</option>
-        <option value="sister">sister (peer asset, same hive)</option>
-        <option value="redundant_with">Redundant with (failover pair)</option>
-        <option value="controls">controls</option>
-        <option value="monitors">monitors</option>
-      </select>
-      <label for="edge-target">Target asset</label>
-      <select id="edge-target"></select>
-      <div class="edge-actions">
-        <button class="cancel" type="button" id="edge-cancel">Cancel</button>
-        <button class="save"   type="button" id="edge-save">Add edge</button>
-      </div>
-    </div>
-  </div>
+  <!-- Arc Y Y5: edge editor modal removed (edges feature CUT per fork#1, 2026-06-27) -->
 
   <!-- Phase R.2: FMEA failure-mode modal -->
   <div id="fmea-modal" role="dialog" aria-modal="true" aria-labelledby="fmea-modal-title">
@@ -958,17 +923,19 @@
 
     // Cached state
     let _allNodes = [];
+    let _riskByAsset = {};   // C3 salience: asset_name(lc) -> {risk_level, risk_score} from v_risk_truth
     let _assetDisplayCount = 30;  // List View Contract: client-side slice pagination
     let _selectedNodeId = null;
     let _hubChannel = null;       // realtime channel for the active asset
     let _connTimeout = null;      // realtime connection timeout
 
-    function showToast(msg) {
+    function showToast(msg, ms) {
       const t = document.getElementById('toast');
       if (!t) return;
       t.textContent = msg;
       t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 2200);
+      // Optional longer duration for cross-surface receipts (Phase D1); default unchanged.
+      setTimeout(() => t.classList.add('hidden'), ms || 2200);
     }
 
     // ── AUDIT LOG ──
@@ -993,6 +960,19 @@
       if (v === 'high')     return 'crit-pill crit-high';
       if (v === 'low')      return 'crit-pill crit-low';
       return 'crit-pill crit-medium';
+    }
+
+    // C3 salience (Arc X): the LIVE reliability-risk band for a node, surfaced on its
+    // list card so the card answers "what needs me now" (operational state), not only
+    // "how important is this" (static criticality). Empty string if the model has no
+    // score for this asset yet (best-effort enrichment, never blocks the card).
+    function riskChip(n) {
+      const r = _riskByAsset[(n.tag || '').toLowerCase()] || _riskByAsset[(n.name || '').toLowerCase()];
+      if (!r || !r.risk_level) return '';
+      const lvl = String(r.risk_level).toLowerCase();
+      const col = { critical: '#ef4444', high: '#f97316', medium: '#facc15', low: '#4ade80' }[lvl] || '#9aa6b3';
+      const pct = r.risk_score != null ? ' ' + Math.round(Number(r.risk_score) * 100) + '%' : '';
+      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.18rem .5rem;border-radius:999px;background:${col}22;color:${col};border:1px solid ${col}66;white-space:nowrap;">${escHtml(lvl)} risk${pct}</span>`;
     }
 
     function fmtDate(s) {
@@ -1071,6 +1051,20 @@
       } else {
         _allNodes = data || [];
       }
+      // C3 salience (Arc X): surface each asset's LIVE reliability-risk band on its
+      // list card (not just static criticality) - the "what needs me now" signal a
+      // maintenance user scans for. One read of the canonical v_risk_truth, mapped by
+      // asset_name (matches a node's tag OR name). Best-effort: a missing map just
+      // falls back to the criticality-only card.
+      _riskByAsset = {};
+      try {
+        if (HIVE_ID && _allNodes.length) {
+          const { data: rk } = await db.from('v_risk_truth')
+            .select('asset_name, risk_level, risk_score')
+            .eq('hive_id', HIVE_ID);
+          (rk || []).forEach(r => { if (r.asset_name) _riskByAsset[String(r.asset_name).toLowerCase()] = r; });
+        }
+      } catch (_) { /* empty-catch-allow: risk chip is best-effort enrichment */ }
       renderList();
       // Plain-Read summary renders from _allNodes immediately; pending count
       // updates again after loadPendingAssets fires for supervisors.
@@ -1290,7 +1284,13 @@
         if (q) {
           empty.textContent = 'No assets match "' + (q.slice(0, 60)) + '".';
         } else {
-          empty.textContent = 'No approved assets in this hive yet. Add equipment via PM Scheduler or Inventory and they will surface here once approved.';
+          // B3 (Arc X): name the two documented pathways AND give a clickable CTA to each
+          // (static strings only - no user data - so innerHTML is safe here).
+          empty.innerHTML = 'No approved assets in this hive yet. Add equipment and it surfaces here once approved.'
+            + '<div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">'
+            + '<a href="pm-scheduler.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>'
+            + '<a href="inventory.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;font-weight:600;text-decoration:none;">+ Add via Inventory</a>'
+            + '</div>';
         }
         if (lmWrap) lmWrap.classList.add('hidden');
         return;
@@ -1309,7 +1309,10 @@
             <div class="asset-card-name">${e(n.name || '')}</div>
             <div class="asset-card-meta">${e(n.iso_class || n.level || '')}${n.location ? ' &middot; ' + e(n.location) : ''}</div>
           </div>
-          <span class="${critClass(n.criticality)}">${e(n.criticality || 'medium')}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;">
+            ${riskChip(n)}
+            <span class="${critClass(n.criticality)}" title="Criticality (how important this asset is)">${e(n.criticality || 'medium')}</span>
+          </div>
         </div>
       `).join('');
 
@@ -1351,21 +1354,10 @@
         loadDetailFmea(nodeId),
         loadDetailTelemetry(nodeId),
         loadDetailTimeline(nodeId),
-        loadDetailNeighbors(nodeId),
         loadDetailMarketplace(nodeId),
         loadDetailExternalIds(nodeId),
       ]);
-
-      // Wire supervisor-only Add Edge button
-      const addBtn = document.getElementById('add-edge-btn');
-      if (addBtn) {
-        if (HIVE_ROLE === 'supervisor') {
-          addBtn.style.display = 'inline-block';
-          addBtn.onclick = () => openEdgeModal(nodeId);
-        } else {
-          addBtn.style.display = 'none';
-        }
-      }
+      // Arc Y Y5: loadDetailNeighbors + Add-Edge wiring removed (edges feature CUT, fork#1).
 
       // Wire Add FMEA button (Phase R.2). Both workers and supervisors can
       // create rows; workers create pending, supervisors create approved.
@@ -1489,14 +1481,13 @@
       const lb = document.getElementById('stat-logbook');
       const pm = document.getElementById('stat-pm');
       const lf = document.getElementById('stat-last-failure');
-      const eg = document.getElementById('stat-edges');
+      // (stat-edges removed — the asset "edges" feature was cut in Arc Y Y5)
 
       const _node = _allNodes.find(n => n.id === nodeId);
       const _pmLinked = !!(_node && _node.pm_asset_id);
 
       const _lbv = data?.lifetime_logbook_entries ?? 0;
       const _pmv = data?.pm_completed_count ?? 0;
-      const _egv = data?.edge_count ?? 0;
       if (lb) lb.textContent = _lbv;
       // PM completed: distinguish "0 done" from "not linked to a PM program". A bare
       // 0 on an UNLINKED asset silently hides the missing asset->PM bridge (P9) — show
@@ -1514,12 +1505,10 @@
         }
       }
       if (lf) lf.textContent = data?.last_failure_at ? fmtRelative(data.last_failure_at) : 'never';
-      if (eg) eg.textContent = _egv;
       // Calm Dashboard Contract: dim zero counts on the asset-360 stat strip.
       if (window.hideZeroStat) {
         hideZeroStat(lb, _lbv);
         if (_pmLinked) hideZeroStat(pm, _pmv);  // never dim the "—" not-linked marker
-        hideZeroStat(eg, _egv);
       }
     }
 
@@ -1881,42 +1870,7 @@
       `).join('');
     }
 
-    async function loadDetailNeighbors(nodeId) {
-      const e = escHtml;
-      const el = document.getElementById('neighbors-list');
-      if (!el) return;
-      el.innerHTML = '<div class="tl-empty" style="color:var(--muted);">Loading neighbors...</div>';
-
-      const { data, error } = await db.from('asset_edges')
-        .select('id, edge_type, from_node_id, to_node_id, properties')
-        .eq('hive_id', HIVE_ID)
-        .or('from_node_id.eq.' + nodeId + ',to_node_id.eq.' + nodeId)
-        .limit(50);
-
-      if (error) {
-        console.warn('edges load:', error.message);
-        el.innerHTML = '<div class="tl-empty">Could not load neighbors.</div>';
-        return;
-      }
-
-      const edges = data || [];
-      if (!edges.length) {
-        el.innerHTML = '<div class="tl-empty">No relationships defined yet. Supervisors can connect parent equipment, sister machines, and feed lines via the Asset Brain editor (Phase 2b).</div>';
-        return;
-      }
-
-      el.innerHTML = edges.map(ed => {
-        const otherId = ed.from_node_id === nodeId ? ed.to_node_id : ed.from_node_id;
-        const other = _allNodes.find(n => n.id === otherId);
-        const direction = ed.from_node_id === nodeId ? '->' : '<-';
-        return `
-          <div class="tl-row">
-            <div class="tl-when">${e(ed.edge_type)} ${e(direction)}</div>
-            <div class="tl-summary">${other ? e(other.tag || other.name) : '(unknown asset)'}</div>
-          </div>
-        `;
-      }).join('');
-    }
+    // Arc Y Y5: loadDetailNeighbors() removed (edges feature CUT per fork#1, 2026-06-27).
 
     // ── Live Telemetry (Physical AI Wave B1) ──────────────────────────────────
     // Pulls last 30 days of sensor_readings for this asset from v_sensor_recent,
@@ -2074,10 +2028,33 @@
       return 'fmea-rpn-low';
     }
 
+    // Arc Y Y4 (fork#3 ADAPTIVE): the Reliability Workbench is gated by the per-device
+    // view mode. Workers default to the asset SUMMARY (workbench hidden); an engineer
+    // toggles it on and the choice persists. Data still LOADS while hidden so it's
+    // instant on reveal. _syncAssetView reflects the mode onto the card + the toggle.
+    function _syncAssetView() {
+      const card = document.getElementById('reliability-card');
+      const btn  = document.getElementById('asset-view-toggle');
+      const eng  = localStorage.getItem('wh_asset_view') === 'engineer';
+      if (card) card.style.display = eng ? 'block' : 'none';
+      if (btn) {
+        btn.setAttribute('aria-expanded', eng ? 'true' : 'false');
+        btn.innerHTML = eng
+          ? '\u{1F527} Reliability Workbench (engineer view) — tap to hide'
+          : '\u{1F527} Show Reliability Workbench (engineer view)';
+      }
+    }
+    document.addEventListener('click', (ev) => {
+      if (!ev.target.closest || !ev.target.closest('#asset-view-toggle')) return;
+      const eng = localStorage.getItem('wh_asset_view') === 'engineer';
+      localStorage.setItem('wh_asset_view', eng ? 'worker' : 'engineer');
+      _syncAssetView();
+    });
+
     async function loadDetailFmea(nodeId) {
       const card = document.getElementById('reliability-card');
       if (!card) return;
-      card.style.display = 'block';
+      _syncAssetView();   // respect worker/engineer mode instead of always showing
 
       // Workers see all rows in the hive (including pending) so they can
       // edit their own. v_fmea_truth filters approved-only; for the page
@@ -2108,7 +2085,12 @@
           .select('id, hive_id, fmea_mode_id, decision, task_text, interval_days, rationale, written_to_pm_scope_item_id, source, ai_confidence, approved_by, approved_at, created_at, updated_at')
           .eq('hive_id', HIVE_ID)
           .in('fmea_mode_id', modeIds)
-          .order('updated_at', { ascending: false });
+          .order('updated_at', { ascending: false })
+          // Arc L · L2: bounded-by-nature — modeIds comes from the prior .limit(50)
+          // rcm_fmea_modes read (one asset's modes), and the replace policy keeps ~one
+          // strategy row per mode, so this set is <=50. A .limit(500) is safe insurance
+          // (can't truncate a set that never reaches 500) and caps free-tier egress.
+          .limit(500);
         if (stratErr) {
           console.warn('rcm load:', stratErr.message);
         } else {
@@ -2296,7 +2278,12 @@
         showToast('Could not save FMEA: ' + error.message);
         return;
       }
-      showToast(autoApproved ? 'FMEA mode added (approved).' : 'FMEA mode added (pending supervisor approval).');
+      // Phase D1 (INTERACTIVE_LINEAGE_ROADMAP) cross-surface receipt — name the ripple.
+      // An APPROVED FMEA mode feeds the risk composite (top-RPN factor, weight 0.10) →
+      // v_risk_truth → Predictive + Alert Hub + Analytics. Pending modes don't score yet.
+      showToast(autoApproved
+        ? '✓ FMEA mode added (approved) → feeds this asset’s risk score (RPN factor) → Predictive · Alert Hub · Analytics.'
+        : 'FMEA mode added (pending approval) → will feed the asset risk score once a supervisor approves.', 6000);
       document.getElementById('fmea-modal')?.classList.remove('open');
       await loadDetailFmea(_selectedNodeId);
     }
@@ -2738,9 +2725,15 @@
             ? (data.diagnostic || 'Insufficient data for a defensible fit.')
             : 'Fit complete.';
         }
+        // Phase D1 (INTERACTIVE_LINEAGE_ROADMAP) cross-surface receipt — name the
+        // ripple. A real fit is read by batch-risk-scoring (v_weibull_truth, the
+        // wearout factor W_WEIBULL=0.15 — boosts assets with beta>1) → v_risk_truth
+        // → Predictive · Alert Hub · Analytics on the next recompute. Claim ONLY
+        // what fires: insufficient-data fits don't score, so no ripple is claimed.
         showToast(data && data.failure_pattern === 'insufficient_data'
           ? 'Not enough failures yet — log more breakdowns.'
-          : 'Weibull fit saved.');
+          : '✓ Weibull fit saved → feeds this asset’s risk score (wearout factor, β>1) on next recompute → Predictive · Alert Hub · Analytics.',
+          data && data.failure_pattern === 'insufficient_data' ? undefined : 6000);
         await loadLatestWeibull(nodeId);
       } catch (err) {
         showToast('Weibull fit failed: ' + (err && err.message ? err.message : 'network error'));
@@ -2756,11 +2749,13 @@
 
     async function _ensurePfTemplates() {
       if (_pfTemplatesByCategory) return _pfTemplatesByCategory;
-      // unbounded-query-allow: small reference catalog (~30 reading-type templates), full fetch needed for dropdown
+      // reference catalog (~30 reading-type templates), full fetch needed for the dropdown —
+      // Arc L · L2: a real .limit() row cap below keeps it formally bounded (free-tier egress safe even if it grows)
       const { data, error } = await db.from('equipment_reading_templates')
         .select('category, reading_key, label, unit, sort_order')
         .order('category', { ascending: true })
-        .order('sort_order', { ascending: true });
+        .order('sort_order', { ascending: true })
+        .limit(500);
       if (error) {
         console.warn('reading templates load:', error.message);
         _pfTemplatesByCategory = {};
@@ -3365,21 +3360,7 @@
         });
       }
 
-      // Edge changes for this asset (insert any side)
-      _hubChannel.on('postgres_changes', {
-        event: '*', schema: 'public', table: 'asset_edges',
-        filter: 'hive_id=eq.' + HIVE_ID,
-      }, (payload) => {
-        // Only re-render if the change touches this node
-        const oldRow = payload.old || {};
-        const newRow = payload.new || {};
-        const touched = [oldRow.from_node_id, oldRow.to_node_id, newRow.from_node_id, newRow.to_node_id]
-          .some(id => id === nodeId);
-        if (touched && _selectedNodeId === nodeId) {
-          loadDetailNeighbors(nodeId);
-          loadDetailStats(nodeId);
-        }
-      });
+      // Arc Y Y5: asset_edges realtime subscription removed (edges feature CUT, fork#1).
 
       // FMEA changes for this asset (Phase R.2). Hive-scoped at the wire,
       // asset_id matched client-side so cross-asset events are dropped.
@@ -3392,6 +3373,27 @@
         const touched = (newRow.asset_id === nodeId) || (oldRow.asset_id === nodeId);
         if (touched && _selectedNodeId === nodeId) {
           loadDetailFmea(nodeId);
+        }
+      });
+
+      // Risk score realtime (Phase D4 + D3.3 — INTERACTIVE_LINEAGE_ROADMAP). The nightly
+      // batch-risk-scoring job AND FMEA/Weibull edits (→ risk composite recompute) write
+      // asset_risk_scores (→ v_risk_truth). Without this the risk gauge silently shows a
+      // batch snapshot until reload; now "edit FMEA/Weibull here → THIS asset's risk score
+      // updates here" is visible live (Nielsen #1 visibility-of-status). Hive-scoped at the
+      // wire; matched to this asset by asset_name client-side (asset_risk_scores keys by
+      // asset_name). Table is published + REPLICA IDENTITY FULL (mig 20260629000000); the
+      // asset_risk_scores SELECT RLS (auth.uid()+hive membership) is the tenant boundary.
+      _hubChannel.on('postgres_changes', {
+        event: '*', schema: 'public', table: 'asset_risk_scores',
+        filter: 'hive_id=eq.' + HIVE_ID,
+      }, (payload) => {
+        const r = payload.new || payload.old || {};
+        const cands = [node.tag, node.name].filter(Boolean);
+        if (!cands.includes(r.asset_name)) return;
+        if (_selectedNodeId === nodeId) {
+          loadDetailRisk(nodeId);
+          if (typeof showToast === 'function') showToast('Risk score updated live', undefined);
         }
       });
 
@@ -3435,57 +3437,7 @@
     }
 
     // ── Edge editor (supervisor only) ─────────────────────────────────────────
-    function openEdgeModal(fromNodeId) {
-      const sel = document.getElementById('edge-target');
-      if (!sel) return;
-      // Populate target options: every other node in this hive.
-      const others = _allNodes.filter(n => n.id !== fromNodeId);
-      sel.innerHTML = others.map(n =>
-        `<option value="${escHtml(n.id)}">${escHtml(n.tag || n.name || 'Untitled')}</option>`
-      ).join('');
-
-      const modal = document.getElementById('edge-modal');
-      if (modal) modal.classList.add('open');
-
-      const cancel = document.getElementById('edge-cancel');
-      const save   = document.getElementById('edge-save');
-      const close  = () => modal && modal.classList.remove('open');
-
-      if (cancel) cancel.onclick = close;
-      if (save)   save.onclick = async () => {
-        const edgeType = document.getElementById('edge-type')?.value;
-        const toId     = sel.value;
-        if (!edgeType || !toId || toId === fromNodeId) {
-          showToast('Pick a different target asset.');
-          return;
-        }
-        save.disabled = true;
-        const { error } = await db.from('asset_edges').insert({
-          hive_id:      HIVE_ID,
-          from_node_id: fromNodeId,
-          to_node_id:   toId,
-          edge_type:    edgeType,
-        });
-        save.disabled = false;
-        if (error) {
-          showToast('Could not add edge: ' + error.message);
-          return;
-        }
-        showToast('Edge added.');
-        close();
-        // Realtime will re-render neighbors; trigger an immediate refresh too.
-        loadDetailNeighbors(fromNodeId);
-        loadDetailStats(fromNodeId);
-      };
-
-      // Escape closes
-      document.addEventListener('keydown', function onEsc(ev) {
-        if (ev.key === 'Escape') {
-          close();
-          document.removeEventListener('keydown', onEsc);
-        }
-      });
-    }
+    // Arc Y Y5: openEdgeModal() removed (edges feature CUT per fork#1, 2026-06-27).
 
     // ── Ask Asset Brain (Phase 3 GraphRAG edge function) ──────────────────────
     let _askInFlight = false;
@@ -3623,24 +3575,31 @@
       if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
         WORKER_NAME = await restoreIdentityFromSession(db);
       }
+      // CLS fix (Arc L L1): #page-wrap ships VISIBLE (skeleton placeholders only —
+      // 'Loading...'/0, no private data), so it paints once in its final layout at
+      // first paint and async data fills IN PLACE. We HIDE it only on a gate failure
+      // (the rare path). Revealing a display:none page-wrap inside init() left the
+      // body blank at first paint then popped the whole page in = ~1.0 CLS (measured).
+      const pageWrap = document.getElementById('page-wrap');
       if (!WORKER_NAME) {
+        if (pageWrap) pageWrap.style.display = 'none';
         window.location.href = 'index.html?signin=1';
         return;
       }
 
       // Hard hive gate per architect rule.
       if (!HIVE_ID) {
+        if (pageWrap) pageWrap.style.display = 'none';
         document.getElementById('hive-gate').style.display = 'flex';
         return;
       }
 
       const ok = await validateHiveMembership();
       if (!ok) {
+        if (pageWrap) pageWrap.style.display = 'none';
         document.getElementById('hive-gate').style.display = 'flex';
         return;
       }
-
-      document.getElementById('page-wrap').style.display = 'block';
 
       // Wire the Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
       // utils.js also auto-wires on load; this explicit call is a no-op second bind (guarded).
@@ -3738,6 +3697,7 @@
     });
   </script>
   <script src="companion-launcher.js"></script>
+  <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script>
   // ── Phase B.2: Voice handler registration for asset.lookup ───────────────
   // When a worker says "show me Pump 5" or "what is the status of P-101A",

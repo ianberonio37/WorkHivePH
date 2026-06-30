@@ -43,10 +43,40 @@ HUNTER_CURVE: list[dict] = [
     {"wsfu_max": 999,  "a": 2.50,  "b": 0.57},
 ]
 
-def _hunter_flow(wsfu: float) -> float:
-    """Peak probable flow (L/min) from total WSFU using Hunter's Curve."""
+# Hunter's curve has TWO branches (ASPE Data Book Vol.2 / IPC Table E103.3(3)): flush-TANK
+# and flush-VALVE (flushometer) systems — the latter peaks much higher at low WSFU. The
+# legacy power-law fit (HUNTER_CURVE) tracks the flush-TANK branch; a flush-VALVE system
+# sized on it is undersized ~47% at low WSFU. (Fixed 2026-06-23 Arc Q — independently
+# sourced + adversarially verified.) Points = (WSFU, peak L/min) from the published gpm
+# curve × 3.785; the 5-WSFU anchor ≈ one flushometer's 25 gpm demand.
+HUNTER_VALVE: list[tuple] = [
+    (5, 94.6), (10, 102.2), (20, 132.5), (50, 189.3), (100, 255.5),
+    (200, 340.7), (500, 541.3), (750, 670.0), (1000, 787.3),
+]
+
+
+def _interp(pts: list, x: float) -> float:
+    """Piecewise-linear interpolation over (x, y) points; clamps the low end, extrapolates
+    the last-segment slope past the high end."""
+    if x <= pts[0][0]:
+        return pts[0][1]
+    if x >= pts[-1][0]:
+        (x0, y0), (x1, y1) = pts[-2], pts[-1]
+        return y1 + (y1 - y0) / (x1 - x0) * (x - x1)
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if x0 <= x <= x1:
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    return pts[-1][1]
+
+
+def _hunter_flow(wsfu: float, has_flush_valve: bool = False) -> float:
+    """Peak probable flow (L/min) from total WSFU via Hunter's Curve. Flush-VALVE
+    (flushometer) systems use the dedicated HUNTER_VALVE curve (they peak far higher at
+    low WSFU); flush-tank systems use the power-law fit (which tracks the tank branch)."""
     if wsfu <= 0:
         return 0.0
+    if has_flush_valve:
+        return _interp(HUNTER_VALVE, wsfu)
     for seg in HUNTER_CURVE:
         if wsfu <= seg["wsfu_max"]:
             return seg["a"] * (wsfu ** seg["b"]) * 10   # scale to L/min
@@ -177,7 +207,10 @@ def calculate(inputs: dict) -> dict:
             })
 
     # ── Peak probable flow (Hunter's Curve) ──────────────────────────────────
-    peak_flow_lpm  = _hunter_flow(total_wsfu)
+    # Flush-VALVE (flushometer) systems peak far higher at low WSFU → use that branch.
+    has_flush_valve = any("flush valve" in str(r.get("fixture_type", "")).lower()
+                          for r in fixture_rows)
+    peak_flow_lpm  = _hunter_flow(total_wsfu, has_flush_valve)
     peak_flow_lps  = peak_flow_lpm / 60
     peak_flow_m3hr = peak_flow_lpm * 60 / 1000
 

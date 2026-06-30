@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
@@ -34,6 +34,7 @@
     /* Header */
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
+    #wh-source-chip { min-height: 27px; } /* CLS: reserve the source/window chip line (empty 0 → "reads from v_risk_truth" 27px) — it's the top-most grower, pushing the whole page down */
     .model-chip { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .25rem .7rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
     .model-chip.ml { background: rgba(167,139,250,0.12); color: var(--purple); border-color: rgba(167,139,250,0.3); }
 
@@ -111,7 +112,7 @@
     .loading { text-align: center; padding: 30px; color: var(--muted); font-size: .78rem; }
 
     /* Last updated */
-    .last-updated { font-size: .62rem; color: var(--muted); text-align: right; margin-bottom: 12px; }
+    .last-updated { font-size: .62rem; color: var(--muted); text-align: right; margin-bottom: 12px; min-height: 13px; } /* CLS: reserve one line (empty 0 → "Scores as of …" 13px) */
 
     @media (max-width: 480px) {
       .summary-row { grid-template-columns: repeat(2, 1fr); }
@@ -119,7 +120,7 @@
       .risk-table th:nth-child(4), .risk-table td:nth-child(4) { display: none; }
     }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; min-height:84px; box-sizing:border-box; } /* CLS: reserve settled 2-line verdict height (placeholder → real label/sub of varying length) */
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
@@ -132,7 +133,7 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px; }
-    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; min-height:146px; } /* CLS: reserve settled card height (placeholder text → real fills, grew 118→146) */
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
@@ -143,7 +144,7 @@
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:39px; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 39px) */
     .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #pr-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
@@ -402,7 +403,15 @@
       b.setAttribute('role', 'status');
       b.style.cssText = 'margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.28);color:#FDB94A;font-size:12px;line-height:1.5;';
       b.textContent = `Stair ${_maturityNote.currentStair} · ${_maturityNote.currentStairName} — these risk scores are computed from your real logged history (the engine scores only assets with enough fault data, it does not invent). Coverage and confidence grow as the hive matures: ${_maturityNote.blockerSummary || ''}`;
-      mainEl.insertBefore(b, mainEl.firstChild);
+      // Arc L · L1 CLS: anchor the late-arriving (conditional, DB-derived) maturity banner just
+      // above the detailed risk table it annotates, NOT prepended to <main>. Prepending pushed the
+      // entire above-fold page (verdict + KPI cards + action) down ~118px = CLS 0.15. It is conditional
+      // (immature hives only) so a fixed top reserve would leave mature hives an empty gap; placing it
+      // above #panel-ranking (below the fold) pushes only off-screen content → ~0 CLS, no gap, and the
+      // disclaimer still sits right with the per-asset scores it qualifies.
+      const _ranking = document.getElementById('panel-ranking');
+      if (_ranking && _ranking.parentNode) _ranking.parentNode.insertBefore(b, _ranking);
+      else mainEl.insertBefore(b, mainEl.firstChild);
     }
   }
 
@@ -413,6 +422,41 @@
 
   // ── Init ──────────────────────────────────────────────────────────────────────
   await Promise.allSettled([loadScores(), loadTrend()]);
+
+  // ── D3.3 (INTERACTIVE_LINEAGE_ROADMAP) — live risk-score propagation ──
+  // asset_risk_scores backs v_risk_truth. The nightly batch-risk-scoring job AND
+  // asset-hub FMEA edits (→ risk composite recompute) write here, so an open
+  // predictive page should refresh its ranking live — making Ian's "does editing
+  // asset-hub affect predictive?" a VISIBLE yes (Nielsen #1 visibility-of-status),
+  // not a once-a-day snapshot. asset_risk_scores is published + REPLICA IDENTITY
+  // FULL (mig 20260629000000); the channel name + filter are NOT the tenant
+  // boundary — the asset_risk_scores SELECT RLS (auth.uid() + hive membership) is
+  // (realtime-engineer skill, Arc J). rtConn() guards the silent-freeze; channel
+  // removed on beforeunload. Hive-mode only (realtime is a team concern).
+  let _riskRtChannel = null;
+  if (HIVE_ID) {
+    const markLive = () => {
+      const chip = document.getElementById('wh-source-chip');
+      if (chip && typeof renderSourceChip === 'function') {
+        chip.innerHTML = renderSourceChip({
+          freshness: '↻ Updated live just now',
+          source:    'v_risk_truth',
+          window:    'MTBF @ 365d annual decay (vs Analytics user-selectable window)',
+        });
+      }
+    };
+    const reloadRisk = (typeof debounce === 'function')
+      ? debounce(() => { loadScores().then(markLive).catch(e => console.warn('[predictive] live reload:', e.message)); }, 700)
+      : () => { loadScores().catch(() => {}); };
+    _riskRtChannel = db.channel('risk-feed:' + HIVE_ID)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'asset_risk_scores', filter: 'hive_id=eq.' + HIVE_ID },
+        () => reloadRisk())
+      .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    window.addEventListener('beforeunload', () => {
+      if (_riskRtChannel) { try { db.removeChannel(_riskRtChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup */ } }
+    });
+  }
   setupTabs();
 
   // ── Recompute-now (supervisor) — on-demand risk recompute (2026-06-08) ─────
@@ -781,5 +825,6 @@
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

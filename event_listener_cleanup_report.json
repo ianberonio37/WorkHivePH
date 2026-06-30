@@ -1,6 +1,6 @@
 {
   "summary": {
-    "pages_scanned": 30,
+    "pages_scanned": 31,
     "risky_pages": 0,
     "baseline": 0
   },
@@ -79,12 +79,18 @@
     },
     {
       "page": "dayplanner.html",
-      "add": 2,
+      "add": 3,
       "remove": 0,
       "risky": false
     },
     {
       "page": "engineering-design.html",
+      "add": 0,
+      "remove": 0,
+      "risky": false
+    },
+    {
+      "page": "engineering-design.js",
       "add": 8,
       "remove": 0,
       "risky": false
@@ -133,7 +139,7 @@
     },
     {
       "page": "predictive.html",
-      "add": 2,
+      "add": 3,
       "remove": 0,
       "risky": false
     },
@@ -158,7 +164,7 @@
     {
       "page": "asset-hub.html",
       "add": 11,
-      "remove": 3,
+      "remove": 2,
       "risky": false
     },
     {
@@ -169,7 +175,7 @@
     },
     {
       "page": "alert-hub.html",
-      "add": 8,
+      "add": 9,
       "remove": 0,
       "risky": false
     },

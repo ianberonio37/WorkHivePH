@@ -12,8 +12,8 @@
   <!-- capture: skill_exam_attempt_v1 (form) -->
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
@@ -335,7 +335,7 @@
 
 <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No skills logged yet — pick a worker to begin.</div>
+  <div id="empty-state" class="empty-state" hidden>No skills logged yet — skill badges build from logged work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
 
 
   <!-- Header -->
@@ -345,8 +345,8 @@
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
-      <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
-      <a role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
+      <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
+      <a role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
     </div>
     <p id="skillmatrix-source-chip" style="margin-top:3px;"></p>
   </header>
@@ -383,7 +383,7 @@
       <div class="verdict-text"><span id="sm-verdict-label">Computing skill progress...</span><small id="sm-verdict-sub">Counting disciplines on target, quizzes available, and total badges.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="sm-card-ontrack" data-rag-tile="skillmatrix:on_target" data-rag-label="On target workers">
+      <div class="simple-card hero tag-grey" id="sm-card-ontrack" data-rag-tile="skillmatrix:on_target" data-rag-label="On target workers">
         <div class="sc-label">On target</div>
         <div class="sc-hero" id="sm-ontrack-hero">0</div>
         <div class="sc-sub" id="sm-ontrack-sub">Loading...</div>
@@ -623,7 +623,7 @@ async function init() {
   try {
     [profileRes, badgesRes] = await Promise.all([
       db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
-      db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME),
+      db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME).limit(500),
     ]);
   } catch (err) {
     // E2 consistent states: a failed profile/badges fetch surfaces a toast
@@ -1410,5 +1410,6 @@ init();
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

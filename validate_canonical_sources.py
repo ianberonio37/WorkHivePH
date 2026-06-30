@@ -271,16 +271,27 @@ def _line_at(content, line_no):
 
 
 def _allowlist_reason(content, match_start):
-    """Return the documented reason if `canonical-allow:` is on the .from() line
-    or one of the 2 lines above. None otherwise."""
+    """Return the documented reason if `canonical-allow:` appears on the .from() line OR
+    anywhere in the contiguous (blank-line-delimited) comment/statement block immediately
+    above it. The block walk (was a fixed 2-line window) handles a VERBOSE multi-line
+    `// canonical-allow: ...` comment AND a multi-line `.from()` statement whose head sits
+    several lines above the matched call -- the marker still attaches to THIS call because a
+    blank line terminates the lookback (no leak across unrelated blocks). Bounded to 8 lines.
+    (Fixes the false-positive class where a real marker 3-4 lines up was missed -- the same
+    too-narrow-window bug as edge-import `_strip`.)"""
     ln = _line_no(content, match_start)
-    for probe in (ln, ln - 1, ln - 2):
-        if probe <= 0:
-            continue
+    probe, steps = ln, 0
+    while probe > 0 and steps < 8:
         line = _line_at(content, probe)
+        if probe != ln and line.strip() == "":
+            break  # blank line = block boundary; a marker must live within THIS block
+        if probe != ln and ".from(" in line:
+            break  # another DB call above = different statement; never claim its marker
         idx = line.find(CANONICAL_ALLOW_TOKEN)
         if idx >= 0:
             return line[idx + len(CANONICAL_ALLOW_TOKEN):].strip()
+        probe -= 1
+        steps += 1
     return None
 
 

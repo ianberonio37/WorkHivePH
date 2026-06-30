@@ -1,8 +1,14 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+// Arc R (A01/LLM10): verify_jwt=false + paid embedding API — bound external anon abuse.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // contract-allow: embedding infrastructure fn, not a brain output producer
 
@@ -29,6 +35,7 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  logRequestStart(req, "voice-embeddings");  // I6 observability
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -40,6 +47,28 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "Missing or invalid texts array" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Arc R (A01/LLM10): verify_jwt=false + a paid embedding API = quota-theft surface for an
+    // external anon caller. Bound by identity/IP (service_role + server-to-server callers with
+    // no forwarded IP fail open, so the voice-semantic-rag/ai-gateway paths are unaffected).
+    {
+      const _rlDb = createClient(Deno.env.get("SUPABASE_URL") || "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "");
+      const _id   = await resolveIdentity(_rlDb, req);
+      if (!_id.isServiceRole) {
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        if (_ip) {  // only bucket when there is a real client IP (external caller)
+          const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
+          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+        }
+      }
+    }
+    // Cap batch size + per-text length (bound provider cost per call).
+    if (texts.length > 64) {
+      return new Response(
+        JSON.stringify({ error: "too many texts (cap 64)" }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 

@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: produces parts staging plan; future Tier C: parts_staging_plan_v1
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -44,6 +46,19 @@ const MAX_PARTS_PER_REC = 5;       // cap recommendation breadth
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "parts-staging-recommender");  // I6 observability
+
+  // CRON-ONLY: this is a daily all-hives batch (no client hive_id). It must NOT be
+  // triggerable by a user — that is an unauthorized expensive all-hives compute
+  // (cost-abuse), the same class fixed for batch-risk-scoring. The pg_cron caller
+  // sends the service-role key as bearer; any user sends their own JWT.
+  const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  const isService = !!(bearer && SERVICE_KEY && bearer === SERVICE_KEY);
+  if (!isService) {
+    return new Response(JSON.stringify({ error: "Forbidden: cron-only batch" }), {
+      status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   try {
     const db = createClient(SUPABASE_URL, SERVICE_KEY);

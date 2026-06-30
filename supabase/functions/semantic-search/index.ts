@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
@@ -26,6 +28,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  logRequestStart(req, "semantic-search");  // I6 observability
 
   try {
     const { query, hive_id, sources, match_count } = await req.json();

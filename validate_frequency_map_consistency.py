@@ -42,6 +42,10 @@ Sentinel binding: name the L2 test 'test('frequency_map_consistency: ...')'.
 Self-test:  python validate_frequency_map_consistency.py --self-test
 """
 import re, json, sys, subprocess
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 from pathlib import Path
 
 from validator_utils import format_result  # noqa: E402

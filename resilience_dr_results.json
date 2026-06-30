@@ -1,0 +1,187 @@
+{
+  "scored_at": "2026-06-24T05:10:27+00:00",
+  "lenses": {
+    "F": {
+      "title": "Failure-tolerance",
+      "pct": 100.0,
+      "passed": 5,
+      "total": 5,
+      "floor": 90,
+      "cells": [
+        {
+          "key": "gateway_failsafe",
+          "validator": "game_day",
+          "sublayer": "S1",
+          "status": "PASS",
+          "note": "AI gateway fails safe (4xx not 5xx, auth holds, health recovers)",
+          "covered": true
+        },
+        {
+          "key": "dependency_timeout",
+          "validator": "validate_dependency_timeout",
+          "sublayer": "S1",
+          "status": "PASS",
+          "note": "data fetches bounded by a timeout + degraded UI (no infinite hang)",
+          "covered": true
+        },
+        {
+          "key": "ai_alldown_degrade",
+          "validator": "validate_ai_alldown_degrade",
+          "sublayer": "S1",
+          "status": "PASS",
+          "note": "AI all-providers-down returns a structured error, not bare '{}'",
+          "covered": true
+        },
+        {
+          "key": "external_circuit_breaker",
+          "validator": "validate_circuit_breaker",
+          "sublayer": "S1",
+          "status": "PASS",
+          "note": "external APIs (Stripe/Resend/CMMS) circuit-break like provider-health",
+          "covered": true
+        },
+        {
+          "key": "cdn_resilience",
+          "validator": "validate_cdn_resilience",
+          "sublayer": "S1",
+          "status": "PASS",
+          "note": "CDN-loaded libs degrade gracefully when the CDN is unreachable",
+          "covered": true
+        }
+      ]
+    },
+    "R": {
+      "title": "Recovery",
+      "pct": 100.0,
+      "passed": 4,
+      "total": 4,
+      "floor": 95,
+      "cells": [
+        {
+          "key": "schema_backup",
+          "validator": "verify_backups",
+          "sublayer": "S2",
+          "status": "PASS",
+          "note": "schema reproducible from migration lock + restore runbook present",
+          "covered": true
+        },
+        {
+          "key": "dr_claims_backed",
+          "validator": "validate_dr_claims",
+          "sublayer": "S2",
+          "status": "PASS",
+          "note": "every RTO/RPO claim has a backing implementation (no false-sense doc)",
+          "covered": true
+        },
+        {
+          "key": "data_backup_restore",
+          "validator": "validate_data_backup",
+          "sublayer": "S2",
+          "status": "PASS",
+          "note": "a logical data backup+restore path exists and is drilled",
+          "covered": true
+        },
+        {
+          "key": "dataloss_detection",
+          "validator": "validate_dataloss_detection",
+          "sublayer": "S5",
+          "status": "PASS",
+          "note": "rowcount/checksum monitor surfaces silent row-deletions in-window",
+          "covered": true
+        }
+      ]
+    },
+    "C": {
+      "title": "Consistency",
+      "pct": 100.0,
+      "passed": 5,
+      "total": 5,
+      "floor": 100,
+      "cells": [
+        {
+          "key": "idempotency_6layer",
+          "validator": "validate_idempotency",
+          "sublayer": "S3",
+          "status": "PASS",
+          "note": "6-layer webhook/upsert/external-API idempotency",
+          "covered": true
+        },
+        {
+          "key": "atomic_multistep",
+          "validator": "validate_atomic_writes",
+          "sublayer": "S3",
+          "status": "PASS",
+          "note": "multi-step writes use an atomic RPC/txn (no partial-write corruption)",
+          "covered": true
+        },
+        {
+          "key": "optimistic_lock",
+          "validator": "validate_optimistic_lock",
+          "sublayer": "S3",
+          "status": "PASS",
+          "note": "read-modify-write uses compare-and-set (no silent lost-update)",
+          "covered": true
+        },
+        {
+          "key": "dedup_constraints",
+          "validator": "validate_dedup_constraints",
+          "sublayer": "S3",
+          "status": "PASS",
+          "note": "dedup-prone writes have a UNIQUE constraint / onConflict",
+          "covered": true
+        },
+        {
+          "key": "optimistic_ui_rollback",
+          "validator": "validate_optimistic_ui",
+          "sublayer": "S3",
+          "status": "PASS",
+          "note": "optimistic UI rolls back on write failure (no phantom-saved row)",
+          "covered": true
+        }
+      ]
+    },
+    "D": {
+      "title": "Degradation",
+      "pct": 100.0,
+      "passed": 4,
+      "total": 4,
+      "floor": 85,
+      "cells": [
+        {
+          "key": "offline_write_queue",
+          "validator": "validate_offline_resilience",
+          "sublayer": "S4",
+          "status": "PASS",
+          "note": "write-heavy pages wire the offline-write queue (no lost field write)",
+          "covered": true
+        },
+        {
+          "key": "queue_retry_strategy",
+          "validator": "validate_offline_queue_retry",
+          "sublayer": "S4",
+          "status": "PASS",
+          "note": "the offline queue has retry/backoff/dead-letter (no stuck-forever item)",
+          "covered": true
+        },
+        {
+          "key": "precache_coverage",
+          "validator": "validate_precache_coverage",
+          "sublayer": "S4",
+          "status": "PASS",
+          "note": "critical pages precached in sw.js (no blank page offline)",
+          "covered": true
+        },
+        {
+          "key": "backend_degraded_mode",
+          "validator": "validate_degraded_mode",
+          "sublayer": "S4",
+          "status": "PASS",
+          "note": "backend-degradation detected -> read-only banner / cached-data fallback",
+          "covered": true
+        }
+      ]
+    }
+  },
+  "floors_ok": true,
+  "regressions": []
+}

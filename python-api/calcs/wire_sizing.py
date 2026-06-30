@@ -50,9 +50,14 @@ TEMP_CORRECTION: list[dict] = [
     {"max_c": 50, "factor": 0.75},
     {"max_c": 55, "factor": 0.67},
     {"max_c": 60, "factor": 0.58},
-    {"max_c": 70, "factor": 0.35},
+    {"max_c": 65, "factor": 0.47},   # 61-65 °C (was MISSING — fell through to the 70 °C row)
+    {"max_c": 70, "factor": 0.33},   # 66-70 °C (was 0.35 — too high; over-rated ampacity → undersized)
     {"max_c": 75, "factor": 0.00},   # conductor at limit
 ]
+# (Fixed 2026-06-23 Arc Q vs NEC/PEC Table 310.15(B)(2)(a), 75 °C conductor: the 61-65 °C
+#  bracket (0.47) was absent so a 61-65 °C ambient wrongly used the 70 °C factor, and 66-70 °C
+#  used 0.35 instead of the correct 0.33 — both OVER-rate derated ampacity = undersized
+#  conductor = overheating/fire risk. Independently sourced + adversarially verified.)
 
 # ─── Conduit fill correction - PEC 2017 Table 310.15(B)(3)(a) ─────────────────
 FILL_CORRECTION: list[dict] = [

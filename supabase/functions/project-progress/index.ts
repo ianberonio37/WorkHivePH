@@ -21,11 +21,14 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
 // contract-allow: project progress write
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
+import { resolveIdentity, resolveTenancy } from '../_shared/tenant-context.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -66,7 +69,7 @@ async function callPythonProject(payload: Record<string, unknown>): Promise<Reco
   }
   const res = await fetch(`${PYTHON_URL}/project/progress`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': Deno.env.get('PYTHON_API_KEY') ?? '' },
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(90000),  // 90s — Render cold start can take 50s+
   });
@@ -85,6 +88,7 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req) });
   }
+  logRequestStart(req, "project-progress");  // I6 observability
   if (req.method !== 'POST') {
     return errJson('Method not allowed', 405, req);
   }

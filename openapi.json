@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "WorkHive Edge API",
-    "version": "2026.06.16",
+    "version": "2026.06.21",
     "description": "Auto-generated from validate_edge_contracts.py (ALL_FUNCTIONS + REQUIRED_FIELDS). The contract source of truth is the validator; this spec is a machine-readable view. Regenerate with tools/gen_openapi.py."
   },
   "servers": [
@@ -2107,6 +2107,84 @@
         }
       }
     },
+    "/functions/v1/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Invoke the login edge function",
+        "tags": [
+          "login"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_": {
+                    "type": "object",
+                    "description": "no required fields"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success \u2014 canonical ok envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (cross-tenant / role)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/functions/v1/marketplace-checkout": {
       "post": {
         "operationId": "marketplace_checkout",
@@ -3682,6 +3760,84 @@
                 "required": [
                   "shift_window"
                 ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success \u2014 canonical ok envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (cross-tenant / role)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/functions/v1/supervisor-reset-password": {
+      "post": {
+        "operationId": "supervisor_reset_password",
+        "summary": "Invoke the supervisor-reset-password edge function",
+        "tags": [
+          "supervisor"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_": {
+                    "type": "object",
+                    "description": "no required fields"
+                  }
+                },
+                "required": []
               }
             }
           }

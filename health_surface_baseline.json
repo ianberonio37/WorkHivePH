@@ -1,5 +1,5 @@
 {
-  "without_health": 45,
+  "without_health": 47,
   "fns": [
     "ai-eval-runner",
     "ai-orchestrator",
@@ -17,6 +17,7 @@
     "fmea-populator",
     "intelligence-api",
     "intelligence-report",
+    "login",
     "marketplace-checkout",
     "marketplace-connect-onboard",
     "marketplace-connect-status",
@@ -35,6 +36,7 @@
     "send-report-email",
     "sensor-readings-ingest",
     "shift-planner-orchestrator",
+    "supervisor-reset-password",
     "trigger-ml-retrain",
     "tts-speak",
     "visual-defect-capture",

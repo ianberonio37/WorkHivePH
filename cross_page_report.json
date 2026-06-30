@@ -1,8 +1,8 @@
 {
   "validator": "cross_page",
   "total_checks": 7,
-  "passed": 7,
-  "skipped": 0,
+  "passed": 6,
+  "skipped": 1,
   "failed": 0,
   "canonical": {
     "logbook": {

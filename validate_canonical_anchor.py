@@ -116,6 +116,10 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     "ai_rate_limits", "ai_audit_log",
     "external_sync", "integration_configs",
     "report_contacts",
+    # UI-state / disposition tables (interaction state, NOT analytical KPI fuel):
+    # alert_dismissals records per-hive alert dispositions (handled/snoozed/
+    # acknowledged), read directly to hide/show alerts — never a canonical metric.
+    "alert_dismissals",
     # Catalog / definition tables
     "achievement_definitions", "equipment_reading_templates",
     # Memory / brain tooling

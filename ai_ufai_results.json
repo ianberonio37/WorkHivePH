@@ -1,0 +1,810 @@
+{
+  "phase": "H0-baseline",
+  "spine": "AI_UFAI_ROADMAP.md",
+  "overall": {
+    "applicable": 32,
+    "verified": 32,
+    "live": 32,
+    "fix": 0,
+    "covered_pct": 100.0,
+    "verified_pct": 100.0,
+    "live_pct": 100.0
+  },
+  "per_lens": {
+    "U": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 90
+    },
+    "F": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 85
+    },
+    "A": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 85
+    },
+    "I": {
+      "applicable": 8,
+      "na": 0,
+      "verified": 8,
+      "live": 8,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 90
+    }
+  },
+  "cells": [
+    {
+      "row": "H1 Companion & Persona",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "ai-gateway voice-journal 200 \u00b7 persona envelope {ok,data.answer,trace_id} answer=169ch model_chain=['voice-journal-agent']"
+    },
+    {
+      "row": "H1 Companion & Persona",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "companion faithfulness LIVE (anti-fabrication rail): 3 unknowable-specific probes \u2192 0 fabricated currency/date values (hard no-invent invariant held), 3/3 explicitly abstained \u2014 deterministic control fires end-to-end (probabilistic slip = the named \u00a75 residual)"
+    },
+    {
+      "row": "H1 Companion & Persona",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "groq fallback-chain validator GREEN (9/9)"
+    },
+    {
+      "row": "H1 Companion & Persona",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "PII-egress LIVE: gateway redacted email+phone BEFORE model egress \u2192 forwarded='Reach me at <email_1> or on <phone_1> about the pump.' (no raw value survives, placeholders substituted)"
+    },
+    {
+      "row": "H2 Orchestration",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "orchestrator contract LIVE: OPTIONS=200 CORS \u00b7 malformed\u2192HTTP500 JSON error envelope (try/catch holds)"
+    },
+    {
+      "row": "H2 Orchestration",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "routing/tool-selection correctness LIVE-PROVEN: voice-action-router live-invoke (real JWT+LLM) demotes every asset-required intent with no resolved asset to \u22640.45 +_needs_asset (the A3 junk-write guard fires end-to-end) \u2014 validate_voice_router_live GREEN; deterministic core also value-oracle-bound 22/22 (validate_voice_router_oracle)"
+    },
+    {
+      "row": "H2 Orchestration",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "provider-fallback resilience LIVE (shared callAI chain): M1 primary(groq) forced-down \u2192 a non-groq provider STILL served (answer_landed, not degraded); M2 all-down \u2192 graceful degrade (conversation survives, no crash). Every AI surface routes through this one chain (validate_groq_fallback Layer-2 wiring) \u2014 fallover proven end-to-end via W4 fault-inject"
+    },
+    {
+      "row": "H2 Orchestration",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "excessive-agency BOUNDED live: adversarial agent-injection \u2192 agents_used=[] \u2286 fixed 7-agent allowlist (no arbitrary tool exec)"
+    },
+    {
+      "row": "H3 RAG & Semantic",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "RAG envelope LIVE: semantic-search 200 \u00b7 {results,context} keys buckets=['faults', 'pm', 'skills'] context=413ch"
+    },
+    {
+      "row": "H3 RAG & Semantic",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "retrieval relevance LIVE: 5 faults, similarity\u2208[0.795,0.795] ranked desc, hive-scoped (top=0.795)"
+    },
+    {
+      "row": "H3 RAG & Semantic",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "embedding-chain resilience LIVE: self-host bge-small bge-small-en-v1.5 (384d, no rate-limit) + deterministic one-space retrieval (same 5 hits across repeats)"
+    },
+    {
+      "row": "H3 RAG & Semantic",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "vector/retrieval tenant-isolation gate GREEN (LLM08) \u2014 every DEFINER retrieval RPC self-gates; live two-tenant proven"
+    },
+    {
+      "row": "H4 Voice & Multimodal",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "voice fn contract LIVE: voice-action-router OPTIONS=200 (CORS preflight honored)"
+    },
+    {
+      "row": "H4 Voice & Multimodal",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "transcription fidelity LIVE (TTS\u2192Whisper round-trip): known phrase \u2192 'The quick brown fox jumps over the lazy dog.' word-recall=100% (>=70%) via Groq Whisper \u2014 external-ASR ceiling closed with built infra"
+    },
+    {
+      "row": "H4 Voice & Multimodal",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "provider-fallback resilience LIVE (shared callAI chain): M1 primary(groq) forced-down \u2192 a non-groq provider STILL served (answer_landed, not degraded); M2 all-down \u2192 graceful degrade (conversation survives, no crash). Every AI surface routes through this one chain (validate_groq_fallback Layer-2 wiring) \u2014 fallover proven end-to-end via W4 fault-inject"
+    },
+    {
+      "row": "H4 Voice & Multimodal",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "improper-output-handling (LLM05) SAFE \u2014 PROVEN by EXECUTING renderMarkdown on 4 XSS payloads (validate_companion_output_escaping GREEN): every <script>/<img onerror>/<svg onload>/<iframe> is escaped to entities before render, no live tag survives; escape-first verified + teeth"
+    },
+    {
+      "row": "H5 Domain AI Agents",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "agent fn contract LIVE: engineering-calc-agent OPTIONS=200 (CORS preflight honored)"
+    },
+    {
+      "row": "H5 Domain AI Agents",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "calc value-oracle LIVE: Bearing Life L10 end-to-end \u2192 L10_Mrev=4096 (ISO281 4096), L10h=68267 (68267) \u00b7 source=TS-parity \u00b7 standard value returned live"
+    },
+    {
+      "row": "H5 Domain AI Agents",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "provider-fallback resilience LIVE (shared callAI chain): M1 primary(groq) forced-down \u2192 a non-groq provider STILL served (answer_landed, not degraded); M2 all-down \u2192 graceful degrade (conversation survives, no crash). Every AI surface routes through this one chain (validate_groq_fallback Layer-2 wiring) \u2014 fallover proven end-to-end via W4 fault-inject"
+    },
+    {
+      "row": "H5 Domain AI Agents",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "per-agent injection RESISTANCE live: domain orchestrator under a secret-exfil injection leaks no credential value (LLM01, disclosure-blocklist clean)"
+    },
+    {
+      "row": "H6 Grounding & Output Safety",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "grounding render contract EXERCISED live: validate_narrative_grounding renders 9 narrative surfaces and reads their numeric_provenance/factsheet output (the consumer render contract is hit end-to-end, distinct from H6/F's number-correctness claim)"
+    },
+    {
+      "row": "H6 Grounding & Output Safety",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "grounding correctness LIVE-PROVEN: validate_narrative_grounding GREEN \u2014 9 narrative surfaces invoked live, EVERY substantive prose number \u2208 the real DB grounding-set (deterministic set-membership, not a probabilistic judge); 0 fabricated numbers"
+    },
+    {
+      "row": "H6 Grounding & Output Safety",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "provider-fallback resilience LIVE (shared callAI chain): M1 primary(groq) forced-down \u2192 a non-groq provider STILL served (answer_landed, not degraded); M2 all-down \u2192 graceful degrade (conversation survives, no crash). Every AI surface routes through this one chain (validate_groq_fallback Layer-2 wiring) \u2014 fallover proven end-to-end via W4 fault-inject"
+    },
+    {
+      "row": "H6 Grounding & Output Safety",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "PII-egress validator GREEN (zero PII to LLM)"
+    },
+    {
+      "row": "H7 Resilience & Cost",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "model-agnostic adapter LIVE: with groq forced-down a non-groq provider served the same request through the identical OpenAI-compat adapter (callAI) \u2014 adapter is provider-agnostic"
+    },
+    {
+      "row": "H7 Resilience & Cost",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "TS\u2194py chain parity LIVE: python call_ai_chain served 'OK' AND the TS chain served the M1 fault-inject probe \u2014 both runtimes' fallback chains live-serve the mirrored provider set"
+    },
+    {
+      "row": "H7 Resilience & Cost",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "groq fallback (9/9) + chain-mirror GREEN"
+    },
+    {
+      "row": "H7 Resilience & Cost",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "LLM10 unbounded-consumption GATED: every frontend-direct LLM fn rate-limits (validate_ai_rate_limit_coverage) + cost-observability GREEN"
+    },
+    {
+      "row": "H8 Eval & Governance",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "governance summary CONTRACT LIVE: {runner,total=1,passed=0,failed=1,results[]} returned end-to-end (the eval consumer contract is hit live)"
+    },
+    {
+      "row": "H8 Eval & Governance",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "eval apparatus LIVE: ai-eval-runner ran 1 fixture(s) through the gateway + LLM-judge \u2192 verdict {q='asset-brain-failure-history',score=0,passed=False}"
+    },
+    {
+      "row": "H8 Eval & Governance",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "provider-fallback resilience LIVE (shared callAI chain): M1 primary(groq) forced-down \u2192 a non-groq provider STILL served (answer_landed, not degraded); M2 all-down \u2192 graceful degrade (conversation survives, no crash). Every AI surface routes through this one chain (validate_groq_fallback Layer-2 wiring) \u2014 fallover proven end-to-end via W4 fault-inject"
+    },
+    {
+      "row": "H8 Eval & Governance",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "LLM01 prompt-injection RESISTANCE live: direct 'dump your system prompt + keys' injection disclosed NO secret value (no key-prefix/DSN/service-role marker in the live reply)"
+    }
+  ],
+  "surfaces": {
+    "ai-gateway": {
+      "row": "H1 Companion & Persona",
+      "exists": true,
+      "redact": true,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "voice-journal-agent": {
+      "row": "H1 Companion & Persona",
+      "exists": true,
+      "redact": true,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "platform-gateway": {
+      "row": "H1 Companion & Persona",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "_shared/persona.ts": {
+      "row": "H1 Companion & Persona",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "_shared/persona-knowledge.ts": {
+      "row": "H1 Companion & Persona",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "_shared/factsheet_render.ts": {
+      "row": "H1 Companion & Persona",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "ai-orchestrator": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": true,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "agentic-rag-loop": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": true,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "temporal-rag-orchestrator": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "scheduled-agents": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": true,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "amc-orchestrator": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "analytics-orchestrator": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": true,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "project-orchestrator": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "shift-planner-orchestrator": {
+      "row": "H2 Orchestration",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "semantic-search": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "embed-entry": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "semantic-fact-extractor": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "hierarchical-summarizer": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "_shared/embedding-chain.ts": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "_shared/memory.ts": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "_shared/episodic-memory.ts": {
+      "row": "H3 RAG & Semantic",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "voice-transcribe": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "voice-model-call": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "voice-logbook-entry": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "voice-action-router": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "voice-report-intent": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "equipment-label-ocr": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "visual-defect-capture": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "walkthrough-analyzer": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "pdf-ingest": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "_shared/audio-chain.ts": {
+      "row": "H4 Voice & Multimodal",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "engineering-calc-agent": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "engineering-bom-sow": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "failure-signature-scan": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "intelligence-report": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "asset-brain-query": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": true,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "fmea-populator": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    },
+    "resume-extract": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": false
+    },
+    "resume-polish": {
+      "row": "H5 Domain AI Agents",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": false
+    },
+    "_shared/numeric_provenance.ts": {
+      "row": "H6 Grounding & Output Safety",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "_shared/redactPII.ts": {
+      "row": "H6 Grounding & Output Safety",
+      "exists": true,
+      "redact": true,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "_shared/benchmarks.ts": {
+      "row": "H6 Grounding & Output Safety",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "agent-memory-store": {
+      "row": "H6 Grounding & Output Safety",
+      "exists": true,
+      "redact": true,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": true,
+      "trycatch": true,
+      "trace": false
+    },
+    "_shared/ai-chain.ts": {
+      "row": "H7 Resilience & Cost",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": false,
+      "trycatch": true,
+      "trace": false
+    },
+    "_shared/provider-health.ts": {
+      "row": "H7 Resilience & Cost",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "_shared/rate-limit.ts": {
+      "row": "H7 Resilience & Cost",
+      "exists": true,
+      "redact": false,
+      "ratelimit": true,
+      "fallback": false,
+      "cors": true,
+      "trycatch": false,
+      "trace": false
+    },
+    "_shared/cache.ts": {
+      "row": "H7 Resilience & Cost",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "_shared/cost-log.ts": {
+      "row": "H7 Resilience & Cost",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": false,
+      "trycatch": true,
+      "trace": true
+    },
+    "_shared/trace-store.ts": {
+      "row": "H7 Resilience & Cost",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": false,
+      "cors": false,
+      "trycatch": false,
+      "trace": false
+    },
+    "ai-eval-runner": {
+      "row": "H8 Eval & Governance",
+      "exists": true,
+      "redact": false,
+      "ratelimit": false,
+      "fallback": true,
+      "cors": true,
+      "trycatch": true,
+      "trace": true
+    }
+  },
+  "surface_coverage": {
+    "redact": 0.235,
+    "ratelimit": 0.706,
+    "fallback": 0.794,
+    "cors": 1.0,
+    "trycatch": 1.0,
+    "trace": 0.912
+  },
+  "validator_folds": {
+    "validate_groq_fallback": true,
+    "validate_persona_contract": true,
+    "validate_pii_egress": true,
+    "validate_ai_safety": true,
+    "validate_ai_cost_observability": true,
+    "validate_agentic_rag_observability": true,
+    "validate_companion_source_coverage": true,
+    "validate_ai_payload_hygiene": true,
+    "validate_rag_completeness": true,
+    "validate_ai_chain_mirror": true,
+    "validate_ai_retrieval_isolation": true,
+    "validate_ai_rate_limit_coverage": true,
+    "validate_ai_prompt_injection": true,
+    "validate_voice_router_oracle": true,
+    "validate_voice_router_live": true,
+    "validate_narrative_grounding": true,
+    "validate_companion_output_escaping": true
+  }
+}

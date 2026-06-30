@@ -1,0 +1,422 @@
+{
+  "generated_at": "2026-06-21T00:42:48.469503+00:00",
+  "generator": "tools/journey_vaxis.py",
+  "layers": [
+    {
+      "code": "F",
+      "name": "Frontend render / a11y"
+    },
+    {
+      "code": "A",
+      "name": "API envelope / status"
+    },
+    {
+      "code": "D",
+      "name": "DB row + value"
+    },
+    {
+      "code": "AU",
+      "name": "Auth / tenancy scoping"
+    },
+    {
+      "code": "C",
+      "name": "LLM grounding / cache"
+    },
+    {
+      "code": "CA",
+      "name": "Compute / aggregate"
+    },
+    {
+      "code": "RL",
+      "name": "Rate-limit fairness"
+    },
+    {
+      "code": "S",
+      "name": "Security / cross-hive iso"
+    },
+    {
+      "code": "L",
+      "name": "Logs / trace"
+    },
+    {
+      "code": "AV",
+      "name": "Availability / SLO"
+    },
+    {
+      "code": "LB",
+      "name": "Load / scale"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "J1",
+      "name": "Breakdown→Resolution",
+      "desc": "logbook → KPI → companion → realtime → report"
+    },
+    {
+      "id": "J2",
+      "name": "PM cycle",
+      "desc": "schedule → overdue/compliance → report"
+    },
+    {
+      "id": "J3",
+      "name": "Marketplace txn",
+      "desc": "list → publish → seller rollup (Stripe idempotency)"
+    },
+    {
+      "id": "J4",
+      "name": "Voice pipeline",
+      "desc": "capture → transcribe → embed → companion"
+    },
+    {
+      "id": "J5",
+      "name": "Cross-hive isolation",
+      "desc": "hive A write → hive B denied (security E2E)"
+    },
+    {
+      "id": "J6",
+      "name": "Resilience",
+      "desc": "offline / queue / sync + 429 rate-limit"
+    },
+    {
+      "id": "J7",
+      "name": "Scale",
+      "desc": "concurrent burst"
+    }
+  ],
+  "matrix": {
+    "J1": {
+      "D": {
+        "status": "proven",
+        "evidence": "logbook row persisted (status=Open)"
+      },
+      "CA": {
+        "status": "proven",
+        "evidence": "open-jobs 25→26 (+1) for own hive"
+      },
+      "AU": {
+        "status": "proven",
+        "evidence": "v_logbook_truth scoped to own hive shows the row (=1)"
+      },
+      "S": {
+        "status": "proven",
+        "evidence": "other hive cannot see the row (cross=0); its open-jobs unchanged (19→19)"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J1 (status=200) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "F": {
+        "status": "attributed",
+        "evidence": "rendered tile == DB canonical on hive.html (Playwright+postgres; vaxis_render_proofs.json[J1])"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /ai-gateway {} → HTTP 400 canonical envelope ({\"error\":\"Missing agent\"})"
+      },
+      "C": {
+        "status": "attributed",
+        "evidence": "Companion grounded answer proven (FAB≈0.5%/DEFL≈0% companion arc) [.last-companion-gate-pass, grounded_sweep_locks.json]"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /ai-gateway/health → HTTP 200 ok:True deps[supabase,groq,cerebras]"
+      },
+      "LB": {
+        "status": "proven",
+        "evidence": "live burst 200 req (8 concurrent) → 224 rps, p95 46ms (SLO<2000), err 0.00% (SLO<1%)"
+      }
+    },
+    "J2": {
+      "D": {
+        "status": "proven",
+        "evidence": "anchor_date moved (2026-03-31→2025-06-11)"
+      },
+      "CA": {
+        "status": "proven",
+        "evidence": "pm_overdue 23→24 (+1)"
+      },
+      "AU": {
+        "status": "proven",
+        "evidence": "scope item reads overdue scoped to own hive (=1)"
+      },
+      "S": {
+        "status": "proven",
+        "evidence": "item invisible to other hive (cross=0); its pm_overdue unchanged (30→30)"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J2 (status=200) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "F": {
+        "status": "attributed",
+        "evidence": "rendered tile == DB canonical on pm-scheduler.html (Playwright+postgres; vaxis_render_proofs.json[J2])"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /analytics-orchestrator {} → HTTP 400 canonical envelope ({\"error\":\"Missing required field: phase\"})"
+      },
+      "C": {
+        "status": "attributed",
+        "evidence": "Companion grounded answer proven (FAB≈0.5%/DEFL≈0% companion arc) [.last-companion-gate-pass, grounded_sweep_locks.json]"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /analytics-orchestrator/health → HTTP 200 ok:True deps[supabase,ai-chain]"
+      },
+      "LB": {
+        "status": "proven",
+        "evidence": "live burst 200 req (8 concurrent) → 224 rps, p95 46ms (SLO<2000), err 0.00% (SLO<1%)"
+      }
+    },
+    "J3": {
+      "D": {
+        "status": "proven",
+        "evidence": "published listing row exists (=1)"
+      },
+      "CA": {
+        "status": "proven",
+        "evidence": "active_listings_count 0→1 (+1, published rollup)"
+      },
+      "AU": {
+        "status": "proven",
+        "evidence": "seller visible scoped to own hive (=1)"
+      },
+      "S": {
+        "status": "proven",
+        "evidence": "seller invisible to other hive (cross=0)"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J3 (status=200) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "F": {
+        "status": "attributed",
+        "evidence": "rendered tile == DB canonical on marketplace.html (Playwright+postgres; vaxis_render_proofs.json[J3])"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /platform-gateway {} → HTTP 400 canonical envelope ({\"error\":\"Missing fn\"})"
+      },
+      "C": {
+        "status": "n/a",
+        "evidence": "the marketplace txn journey does not traverse the LLM grounding layer (companion's semantic registry excludes marketplace listings)"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /platform-gateway/health → HTTP 200 ok:True deps[supabase]"
+      },
+      "LB": {
+        "status": "proven",
+        "evidence": "live burst 200 req (8 concurrent) → 224 rps, p95 46ms (SLO<2000), err 0.00% (SLO<1%)"
+      }
+    },
+    "J4": {
+      "F": {
+        "status": "attributed",
+        "evidence": "rendered tile == DB canonical on voice-journal.html (Playwright+postgres; vaxis_render_proofs.json[J4])"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /voice-action-router {} → HTTP 400 canonical envelope ({\"error\":\"Missing required field: transcript\"})"
+      },
+      "D": {
+        "status": "proven",
+        "evidence": "voice transcript persisted (transcript==__VX__J4_63c2a9ec1…)"
+      },
+      "AU": {
+        "status": "proven",
+        "evidence": "entry visible scoped to its own auth_uid (=1)"
+      },
+      "C": {
+        "status": "attributed",
+        "evidence": "voice→bge-local embedding→companion grounding proven (companion arc ⑥) [.last-companion-gate-pass, grounded_sweep_locks.json]"
+      },
+      "CA": {
+        "status": "n/a",
+        "evidence": "voice is RAG-embedding input — it produces NO aggregated KPI truth-view metric; voice correctness lives in D (row persists) + S (auth_uid isolation) + C (grounding)"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "S": {
+        "status": "proven",
+        "evidence": "another user's auth_uid cannot see the entry (cross=0; Pillar-R IDOR isolation)"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J4 (status=200) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /voice-action-router/health → HTTP 200 ok:True deps[supabase,ai-chain]"
+      },
+      "LB": {
+        "status": "n/a",
+        "evidence": "voice pipeline is not a platform load-target — load_probe drives the gateway (J7's axis)"
+      }
+    },
+    "J5": {
+      "D": {
+        "status": "proven",
+        "evidence": "sensitive row exists in hive A (=1)"
+      },
+      "AU": {
+        "status": "proven",
+        "evidence": "own-hive scope sees the row (=1)"
+      },
+      "S": {
+        "status": "proven",
+        "evidence": "hive B cannot see hive A's row (cross=0); B total unchanged (1100→1100)"
+      },
+      "CA": {
+        "status": "proven",
+        "evidence": "hive B aggregate isolated from hive A's write (1100→1100)"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J5 (status=200) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /platform-gateway {} → HTTP 400 canonical envelope ({\"error\":\"Missing fn\"})"
+      },
+      "F": {
+        "status": "attributed",
+        "evidence": "rendered tile == DB canonical on hive.html (Playwright+postgres; vaxis_render_proofs.json[J5])"
+      },
+      "C": {
+        "status": "attributed",
+        "evidence": "Companion grounded answer proven (FAB≈0.5%/DEFL≈0% companion arc) [.last-companion-gate-pass, grounded_sweep_locks.json]"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /platform-gateway/health → HTTP 200 ok:True deps[supabase]"
+      },
+      "LB": {
+        "status": "proven",
+        "evidence": "live burst 200 req (8 concurrent) → 224 rps, p95 46ms (SLO<2000), err 0.00% (SLO<1%)"
+      }
+    },
+    "J6": {
+      "F": {
+        "status": "attributed",
+        "evidence": "rendered tile == DB canonical on status.html (Playwright+postgres; vaxis_render_proofs.json[J6])"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /ai-gateway {} → HTTP 400 canonical envelope ({\"error\":\"Missing agent\"})"
+      },
+      "D": {
+        "status": "attributed",
+        "evidence": "offline write-queue → IndexedDB enqueue/drain + sync replay (Tier-7 resilience) [offline-queue.js, tests/journey-offline.spec.ts]"
+      },
+      "AU": {
+        "status": "n/a",
+        "evidence": "resilience is cross-tenant recovery infra — not a per-hive scoping path"
+      },
+      "C": {
+        "status": "n/a",
+        "evidence": "resilience does not traverse the LLM grounding layer"
+      },
+      "CA": {
+        "status": "n/a",
+        "evidence": "resilience does not aggregate domain data (no KPI roll-up on this journey)"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "S": {
+        "status": "n/a",
+        "evidence": "cross-hive isolation is J5's axis, not the offline/429 recovery journey"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J6 (status=429, rate_limited) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /ai-gateway/health → HTTP 200 ok:True deps[supabase,groq,cerebras]"
+      },
+      "LB": {
+        "status": "n/a",
+        "evidence": "load/scale is J7's axis; J6 is offline-queue + 429 recovery"
+      }
+    },
+    "J7": {
+      "F": {
+        "status": "n/a",
+        "evidence": "concurrency/scale has no bespoke UI surface — there is no 'scale page' to render"
+      },
+      "A": {
+        "status": "proven",
+        "evidence": "POST /ai-gateway {} → HTTP 400 canonical envelope ({\"error\":\"Missing agent\"})"
+      },
+      "D": {
+        "status": "proven",
+        "evidence": "12 concurrent inserts → 12 rows landed (no lost writes)"
+      },
+      "AU": {
+        "status": "proven",
+        "evidence": "all 12 burst rows scoped to own hive (= 12)"
+      },
+      "C": {
+        "status": "n/a",
+        "evidence": "the scale journey does not traverse the LLM grounding layer"
+      },
+      "CA": {
+        "status": "proven",
+        "evidence": "truth-view aggregate over the burst = 12 (= 12)"
+      },
+      "RL": {
+        "status": "proven",
+        "evidence": "over-cap solo bucket → HTTP 429 scope=solo (token-free 429, pre-LLM); neighbor bucket untouched (7=7, per-identity isolation); deny path no-increment (victim=999)"
+      },
+      "S": {
+        "status": "proven",
+        "evidence": "burst invisible to other hive (cross=0); its total unchanged (1100→1100)"
+      },
+      "L": {
+        "status": "proven",
+        "evidence": "wh_traces carries journey/J7 (status=200) scoped to own hive (own=1); invisible to other hive (cross=0)"
+      },
+      "AV": {
+        "status": "proven",
+        "evidence": "GET /ai-gateway/health → HTTP 200 ok:True deps[supabase,groq,cerebras]"
+      },
+      "LB": {
+        "status": "proven",
+        "evidence": "live burst 200 req (8 concurrent) → 224 rps, p95 46ms (SLO<2000), err 0.00% (SLO<1%)"
+      }
+    }
+  },
+  "measured": {
+    "cells_total": 77,
+    "cells_applicable": 67,
+    "cells_proven": 56,
+    "cells_attributed": 11,
+    "cells_pending": 0,
+    "cells_na": 10,
+    "cells_failed": 0,
+    "V_strict_pct": 83.6,
+    "V_covered_pct": 100.0
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "_overall_pct": 66.7,
+  "axis_totals": {
+    "gateway": 8.5,
+    "gate": 11.0,
+    "prod_real": 6.5
+  },
+  "n_layers": 13,
+  "_note": "HONEST 3-axis depth (Gateway PEP / Gate ratchet / Prod-real). Stricter than the 13x6 matrix (100%) + measure_layer_depth coverage (84.3%) because it (a) requires a PREVENTION chokepoint not just detection, and (b) does NOT credit a local substitute as prod-real.",
+  "layers": [
+    {
+      "code": "A",
+      "name": "APIs & Backend Logic",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 1.0,
+      "composite_pct": 100.0,
+      "gateway_basis": "m: bypass=0 via gateway_coverage_report.json (measured)",
+      "gate_basis": "m: edge_contracts + envelope ratchets",
+      "prod_basis": "f: edge fns ARE the prod backend"
+    },
+    {
+      "code": "AU",
+      "name": "Auth & Permissions",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 1.0,
+      "composite_pct": 100.0,
+      "gateway_basis": "m: bypass=0 via gateway_tenancy_report.json (measured)",
+      "gate_basis": "m: rls-strict/rls-symmetry + tenancy ratchets",
+      "prod_basis": "f: RLS + identity run in prod"
+    },
+    {
+      "code": "S",
+      "name": "Security & RLS",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 1.0,
+      "composite_pct": 100.0,
+      "gateway_basis": "m: bypass=0 via policy_hive_binding_report.json (measured)",
+      "gate_basis": "m: 12 security validators + sast-scan ratchet",
+      "prod_basis": "f: RLS/redaction run in prod"
+    },
+    {
+      "code": "F",
+      "name": "Frontend",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 1.0,
+      "composite_pct": 100.0,
+      "gateway_basis": "m: bypass=0 via user_facing_kpi_canonical_report.json (measured)",
+      "gate_basis": "m: many F ratchets (xss, a11y, displayed-values, capture-roundtrip)",
+      "prod_basis": "f: the HTML/JS runs for real users"
+    },
+    {
+      "code": "D",
+      "name": "Database & Storage",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 1.0,
+      "composite_pct": 100.0,
+      "gateway_basis": "m: bypass=0 via canonical_sources_report.json (measured)",
+      "gate_basis": "m: migration-immutability + truth-view + lineage ratchets",
+      "prod_basis": "f: Postgres/Supabase is the prod store"
+    },
+    {
+      "code": "CI",
+      "name": "CI/CD & Version Control",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 0.5,
+      "composite_pct": 83.3,
+      "gateway_basis": "m: bypass=0 via auto_discovery_report.json (measured)",
+      "gate_basis": "m: forward-only baselines + migration-immutability-strict",
+      "prod_basis": "s: local runner proven; GitHub Actions runner is external (Ian's gate)"
+    },
+    {
+      "code": "RL",
+      "name": "Rate Limiting",
+      "gateway": 1.0,
+      "gate": 1.0,
+      "prod_real": 0.5,
+      "composite_pct": 83.3,
+      "gateway_basis": "m: bypass=0 via policy_hive_binding_report.json (measured)",
+      "gate_basis": "m: rate-limit-fairness/adoption ratchets",
+      "prod_basis": "s: live burst proven LOCAL (60x->429); prod-scale fairness is external"
+    },
+    {
+      "code": "CA",
+      "name": "Caching & CDN",
+      "gateway": 0.5,
+      "gate": 0.5,
+      "prod_real": 0.5,
+      "composite_pct": 50.0,
+      "gateway_basis": "a: cached() is a partial chokepoint, adoption < target (documented residual); no CDN-edge convergence",
+      "gate_basis": "a: cache-hit-rate ratchet present but adoption-incomplete",
+      "prod_basis": "s: app-cache prod-real; CDN-edge config is external"
+    },
+    {
+      "code": "L",
+      "name": "Error Tracking & Logs",
+      "gateway": 0.5,
+      "gate": 0.5,
+      "prod_real": 0.0,
+      "composite_pct": 33.3,
+      "gateway_basis": "m: bypass=16 via structured_log_adoption_report.json (measured-partial)",
+      "gate_basis": "a: structured-log-adoption ratchet but sampled",
+      "prod_basis": "f: PROD aggregation (Loki/Sentry) is external -- local ndjson only"
+    },
+    {
+      "code": "AV",
+      "name": "Availability & Recovery",
+      "gateway": 0.5,
+      "gate": 1.0,
+      "prod_real": 0.0,
+      "composite_pct": 50.0,
+      "gateway_basis": "m: bypass=47 via health_surface_discovery_report.json (measured-partial)",
+      "gate_basis": "m: game-day-readiness ratchet (game_day + verify_backups + RTO/RPO present)",
+      "prod_basis": "f: prod failover / multi-AZ / PITR drill are external/unbuilt"
+    },
+    {
+      "code": "H",
+      "name": "Hosting & Deployment",
+      "gateway": 0.0,
+      "gate": 1.0,
+      "prod_real": 0.0,
+      "composite_pct": 33.3,
+      "gateway_basis": "f: no deploy/rollout chokepoint locally enforceable; prod deploy is external",
+      "gate_basis": "m: migration-immutability + deploy-safety ratchet (local)",
+      "prod_basis": "f: prod hosting / blue-green / rollback are external (Ian's gate)"
+    },
+    {
+      "code": "C",
+      "name": "Cloud & Compute",
+      "gateway": 0.0,
+      "gate": 0.5,
+      "prod_real": 0.0,
+      "composite_pct": 16.7,
+      "gateway_basis": "f: no provisioning/autoscale chokepoint (prod-infra)",
+      "gate_basis": "a: health-surface-discovery + cold-start ratchets (partial)",
+      "prod_basis": "f: autoscale / provisioning / multi-AZ are external/unbuilt"
+    },
+    {
+      "code": "LB",
+      "name": "Load Balancing & Scaling",
+      "gateway": 0.0,
+      "gate": 0.5,
+      "prod_real": 0.0,
+      "composite_pct": 16.7,
+      "gateway_basis": "f: NO load-balancing chokepoint exists (prod-infra)",
+      "gate_basis": "s: load_probe + connection-pool ratchet are LOCAL SUBSTITUTES (the green tick that most overstated)",
+      "prod_basis": "f: real LB / horizontal autoscale are external/unbuilt"
+    }
+  ]
+}

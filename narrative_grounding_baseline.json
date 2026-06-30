@@ -1,0 +1,14 @@
+{
+  "_doc": "A7.1 narrative-grounding forward-only baseline \u2014 per-surface cap on the EXPECTED derived-aggregate residual (e.g. '43%'=sum of top-cause pcts). A run FAILs only if a surface EXCEEDS its cap (new fabrication). Caps lower on improvement, never auto-raise.",
+  "caps": {
+    "analytics": 0,
+    "analytics-report": 0,
+    "predictive": 0,
+    "shift-brain": 0,
+    "alert-hub": 1,
+    "report-sender": 0,
+    "ph-intelligence": 1,
+    "project-report": 0,
+    "asset-hub": 4
+  }
+}

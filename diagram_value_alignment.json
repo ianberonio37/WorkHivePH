@@ -1,0 +1,124 @@
+{
+  "tool": "tools/validate_diagram_value_alignment.py",
+  "subject": "engineering-design diagram dimension labels == calc results (A4 live tier)",
+  "cells_total": 17,
+  "cells_aligned": 17,
+  "detail": {
+    "Pump Sizing (TDH)": {
+      "svg_len": 71715,
+      "not_implemented": null,
+      "cells": {
+        "flow_m3hr": {
+          "value": 0.9,
+          "rendered_as": "0.90",
+          "ok": true
+        },
+        "TDH": {
+          "value": 25.0,
+          "rendered_as": "25.00",
+          "ok": true
+        },
+        "static_head": {
+          "value": 25.0,
+          "rendered_as": "25.00",
+          "ok": true
+        },
+        "recommended_kw": {
+          "value": 0.18,
+          "rendered_as": "0.18",
+          "ok": true
+        }
+      }
+    },
+    "Harmonic Distortion": {
+      "svg_len": 74051,
+      "not_implemented": null,
+      "cells": {
+        "THD_I_pct": {
+          "value": 28.88,
+          "rendered_as": "28.88",
+          "ok": true
+        },
+        "TDD_pct": {
+          "value": 23.1,
+          "rendered_as": "23.10",
+          "ok": true
+        },
+        "K_factor": {
+          "value": 4.13,
+          "rendered_as": "4.13",
+          "ok": true
+        },
+        "fundamental_current_A": {
+          "value": 200.0,
+          "rendered_as": "200.0",
+          "ok": true
+        }
+      }
+    },
+    "Transformer Sizing": {
+      "svg_len": 155237,
+      "not_implemented": null,
+      "cells": {
+        "rated_kva": {
+          "value": 1000,
+          "rendered_as": "1000",
+          "ok": true
+        },
+        "I1_full_load_A": {
+          "value": 41.84,
+          "rendered_as": "41.84",
+          "ok": true
+        },
+        "I2_full_load_A": {
+          "value": 1443.38,
+          "rendered_as": "1443.38",
+          "ok": true
+        },
+        "voltage_regulation_pct": {
+          "value": 3.45,
+          "rendered_as": "3.45",
+          "ok": true
+        },
+        "efficiency_fl_pct": {
+          "value": 98.64,
+          "rendered_as": "98.64",
+          "ok": true
+        },
+        "loading_pct": {
+          "value": 80.0,
+          "rendered_as": "80.0",
+          "ok": true
+        }
+      }
+    },
+    "AHU Sizing": {
+      "svg_len": 96725,
+      "not_implemented": null,
+      "cells": {
+        "T_mixed": {
+          "value": 26.0,
+          "rendered_as": "26.0",
+          "ok": true
+        }
+      }
+    },
+    "Duct Sizing": {
+      "svg_len": 111060,
+      "not_implemented": null,
+      "cells": {
+        "sections.0.circular.D_std_mm": {
+          "value": 450.0,
+          "rendered_as": "450",
+          "ok": true
+        },
+        "sections.0.circular.velocity_ms": {
+          "value": 5.93,
+          "rendered_as": "5.9",
+          "ok": true
+        }
+      }
+    }
+  },
+  "result": "PASS"
+}

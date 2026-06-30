@@ -4,7 +4,81 @@
 **Architectural foundation:** [COMPREHENSIVE_STUDY_FULLSTACK_GATE.md](COMPREHENSIVE_STUDY_FULLSTACK_GATE.md) is the architectural source of truth — the 13 × 6 full-stack × gate coverage matrix + 15 persistence mechanisms. This roadmap is the operational tracker; the study is the architecture. **Read the study at the start of every major session.**
 **Owner:** Ian + Claude
 **Created:** 2026-05-26
-**Last updated:** 2026-05-27 (seventh session — flywheel turn 7, "be proactive — close 6 more cells")
+**Last updated:** 2026-06-24 (Part 0 added — the UFAI Arc-Series phase map, current as of Arc R).
+_Parts 1–8 below are the earlier (2026-05-27) 13×6 Fullstack-Maturity grid — the architectural
+foundation, kept as the audit trail. **Part 0 is the live trajectory; read it first.**_
+
+---
+
+## Part 0 — CURRENT PHASE MAP (UFAI Arc Series) — read this first
+
+> The operating framework since June: deep per-unit **U·F·A·I** (Usability·Functionality·
+> Adaptability·Internal-control) sweeps, one tier/dimension per arc — **study → lock spine →
+> R0 (denominator + scorer + baseline) → find→fix→gate→verify→ratchet → teach → persist.**
+> Measured-% not vibes; adversarially verified; ratcheted so no arc regresses.
+
+### Phase A — DONE: the 11 swept arcs
+
+**Tiers (request/data path) — 7/7:**
+
+| Arc | Tier | Outcome | Spine doc |
+|---|---|---|---|
+| D | Frontend / DOM | 4 lenses 100% of active, ratcheted | `frontend_ufai_baseline.json` |
+| E | Edge + DB (the giant, 1199 cells) | 73.5% → 88.1% live | `BACKEND_UFAI_ROADMAP.md` |
+| F | Python compute API | 64.5% → **100%** live | `PYTHON_API_UFAI_ROADMAP.md` |
+| G | Data / DB | keystone DEFINER-IDOR fixed; 3 gates | `DATA_DB_UFAI_ROADMAP.md` |
+| H | AI / Companion | 62.5% → **100%** live | `project_arc_h_100pct_live` |
+| I | Auth / Identity / Session | I0→I-Accept; U/F/A/I 100% | `AUTH_IDENTITY_UFAI_ROADMAP.md` |
+| J | Realtime / events | keystone PII-stream leak fixed; →100% live | `REALTIME_UFAI_ROADMAP.md` |
+
+**Cross-cutting quality dimensions — 4/4:**
+
+| Arc | Dimension | Outcome | Spine doc |
+|---|---|---|---|
+| K | Live-page journeys + UX critic | all phases ≈100% local; 5 real bugs | `project_arc_k_live_page_journeys` |
+| L | Performance & Scale | S/E/R/B baselines rocketed | `PERFORMANCE_SCALE_ROADMAP.md` |
+| Q | Domain Correctness (value-at-the-glass) | 11 real bugs; hermetic + live oracles | `DOMAIN_CORRECTNESS_ROADMAP.md` |
+| **R** | **Security / Adversarial** | **20 findings; 4 lenses 100%; OWASP 7→10/10** | `SECURITY_ADVERSARIAL_ROADMAP.md` |
+| **S** | **Resilience / DR / Chaos** | **4 lenses F/R/C/D all 100% (from 20/25/20/0); 18 cells; 15 new gates; atomic inventory RPC + dedup UNIQUEs + offline-queue wired + global db-timeout + circuit-breakers + local data backup/restore drill + dataloss monitor + DR-claims gate** | `RESILIENCE_DR_ROADMAP.md` |
+
+**Infra / platform (foundation):** Fullstack-Maturity 13×6 grid (Parts 1–8 below) · SaaS Gateway (Pillar-I tenancy 34→0) · **Memory systems mature** (Memento SQLite-FTS5 cache live + MEMORY.md hygiene discipline). Two sibling memory roadmaps, both 2026-06-24: **builder memory** (Memento) — **`MEMORY_SYSTEM_ROADMAP.md`**, M-series **8/8 active items = 100% ✅** (M5 parked by measurement); and the **AI Companion's** product memory — **`COMPANION_MEMORY_ROADMAP.md`**, C-series 4★ spine **C1.1·C2.1·C3.1·C5.1 + C3.2-core all 100% ✅** (4 'Companion Memory' gates in `run_platform_checks`; next tier C2.3/C2.2/C1.2 dependency-blocked). Platform arcs T (Observability) / U (Accessibility) remain queued in Phase B.
+
+### Phase B — IN PROGRESS: Arc V — EFFORTLESS (UX interaction-cost) · T/U still queued
+
+**Active (Ian-chosen 2026-06-24): Arc V — EFFORTLESS** (`EFFORTLESS_UX_ROADMAP.md`). The un-swept
+*effortlessness* dimension: every prior arc proved a job is *completable* (Arc K 99% live) or a *technical
+axis* is right; NONE measured whether using the platform is *effortless* — few clicks, low cognitive load.
+Arc V is a **program of ~25 sub-arcs** — one per live feature page + a landing arc + **6 cross-page
+"family" arcs** (interconnected pages, since friction accumulates across hops) + the companion shell — all
+scored on **E·L·F·C** (Effort/Load/Flow/Clarity = NN/g Interaction Cost + Laws of UX) by a HYBRID harness:
+Playwright-MCP demanding-user *discovers* pain (UXAgent pattern) → `tools/effortless_sweep.mjs` Node harness
+*measures + ratchets* it. **V0 BUILDING:** harness (reuses Arc-K recipe, no drift) + `validate_arc_v_effort.py`
+gate (group 'Arc V' in `run_platform_checks` — total click-hops is a CEILING) done; whole-platform
+interaction-cost baseline banking. First FIX target: `engineering-design` (9→≤5 clicks).
+
+Still queued (each a buildable spine in `NEXT_ARC_STUDY_post_Q.md`):
+
+| Cand | Arc | Proves | Tooling ready |
+|---|---|---|---|
+| **T** | Observability / SLO | we can SEE + alert on failure (keeps prior arcs' fixes alive in prod) | Sentry + Grafana MCP wired |
+| **U** | Accessibility (WCAG 2.2 AA) | everyone can operate it (procurement + field-worker reality) | `axe-core` vendored, Playwright keyboard-walk |
+
+_(S — Resilience/DR — DONE 2026-06-24, `RESILIENCE_DR_ROADMAP.md`. R — Security — re-open flagged: the
+T/U scoping run found live P-lens 66.7% + an open RAG IDOR + a board exit-0-on-regression bug.)_
+
+### Phase C — STANDING (Ian-gated outward actions — your schedule, never a blocker)
+
+Ready locally; they wait on you (commit / deploy / external = your gate):
+
+1. **Commit** the local work (HEAD 31ccfea — Arc Q + Arc R + memory-hygiene all uncommitted).
+2. **Prod redeploy** — Arc R hardened edge fns (SSRF guard, open-proxy rate-limits, marketplace authz, webhook fail-closed) + Arc Q calc fixes (9 modules) to Railway/Supabase + prod `PYTHON_API_KEY`.
+3. **Marketplace fork** — the 5 vestigial Stripe fns: REMOVE (free-platform decision) vs keep-hardened.
+4. **ROBOFLOW key** — rotate + scrub from git history (untracked locally; live key burned until rotated).
+
+### Anti-drift rule
+This Part 0 is the board. Re-open it to see the whole trajectory; each arc's spine doc holds the detail; Memento (`🧠 N hits`) retrieves any past decision; `run_platform_checks` holds every prior arc's wins. **Update Part 0 at the end of each arc.**
+
+---
 
 This is the single source of truth for *where the platform is* across the full-stack
 production grid (13 layers) and the quality-gate grid (6 layers). Every item has a

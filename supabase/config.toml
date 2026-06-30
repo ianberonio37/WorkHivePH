@@ -1,5 +1,19 @@
 project_id = "workhive"
 
+# login is the PRE-AUTH brute-force-protected sign-in proxy (Arc I I7/A) — the caller has NO session yet,
+# so JWT verification must be OFF; it gates by the server-side login_attempts lockout instead.
+[functions.login]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/login/index.ts"
+
+# supervisor-reset-password (Arc I I3/I) — a supervisor resets a same-hive worker's password. Requires a
+# real supervisor SESSION, so verify_jwt stays ON (the fn additionally re-checks active-supervisor role).
+[functions.supervisor-reset-password]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/supervisor-reset-password/index.ts"
+
 [functions.ai-gateway]
 enabled = true
 verify_jwt = false

@@ -2,11 +2,19 @@
 # Pin versions for reproducible builds
 
 # Web framework
-fastapi==0.111.0
+# fastapi 0.138.0 pulls starlette 1.3.1, which clears 8 starlette CVEs (incl.
+# CVE-2024-47874 multipart DoS, CVE-2025-54121, + the 2026 advisories) that the
+# old 0.111.0 -> starlette 0.37.2 carried. starlette is pinned explicitly so a
+# re-resolve can't silently fall back to a vulnerable version. Verified against
+# main.py's FastAPI surface (CORS+regex, http middleware, Header-based Depends
+# auth gate, BaseModel->422, HTTPException) in an isolated venv: 8/8 (2026-06-20).
+fastapi==0.138.0
+starlette==1.3.1
 uvicorn[standard]==0.29.0
 
-# Input validation (used natively by FastAPI)
-pydantic==2.7.1
+# Input validation (used natively by FastAPI). Bumped 2.7.1 -> 2.13.4 alongside
+# fastapi 0.138 (both pydantic v2 — backward compatible; probe-verified).
+pydantic==2.13.4
 
 # ─── Engineering libraries (activated per phase) ─────────────────────────────
 
@@ -42,6 +50,15 @@ pandas==2.2.2
 
 # Stage 3 Analytics Engine — Phase 2 Diagnostic
 statsmodels==0.14.2
+
+# Predictive Maintenance — GBM failure-risk model (ml/trainer.py).
+# scikit-learn provides GradientBoostingClassifier/StandardScaler/Pipeline; joblib
+# persists the fitted pipeline to failure_predictor_v1.pkl. Both are hard imports
+# in ml/trainer.py (module-top `import joblib`, in-fn `from sklearn...`), so their
+# absence breaks /ml/train, /ml/predict AND /ml/status — the rules-fallback never
+# runs because the module fails to import. Pins are numpy-1.26.4 compatible.
+scikit-learn==1.5.2
+joblib==1.4.2
 
 # Project Manager — Phase 2 (CPM via DAG longest path, slack/float analysis)
 networkx==3.3

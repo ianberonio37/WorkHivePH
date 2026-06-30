@@ -1,0 +1,1787 @@
+{
+  "generated": "arc-k-k0",
+  "count": 209,
+  "rules": [
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Decorative avatar/social-proof signals (avatar row, +count chip below hero CTA) must NOT be sized as 44px tap targets since they are non-interactive visual signals; interactive elements should still meet platform touch minimums",
+      "metric": "min(boundingClientRect.width, height) of decorative .flex avatars / non-anchor circular badges",
+      "threshold": "decorative avatars stay below 44px AND carry no click handler/href; interactive controls remain tappable",
+      "detect": "JS: select hero avatar nodes (e.g. div.w-7.h-7.rounded-full not wrapped in <a>/<button>); assert they have no onclick/href and Math.min(w,h) < 44; flag any decorative signal mistakenly given an interactive role or 44px size",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "wh-input must use font-size 1rem (>=16px) so iOS does not zoom on focus",
+      "metric": "computed font-size of .wh-input and text/number/email/password inputs",
+      "threshold": ">= 16px (skill spec sets .wh-input font-size: 1rem)",
+      "detect": "JS: getComputedStyle(input).fontSize parsed to px >= 16 for every input.wh-input and editable field",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Text/background contrast must clear WCAG AA 4.5:1; the tinted-chip pattern (text + 0.15-0.18 bg in the SAME hue) fails AA for dark hues (red, deep purple, navy) — text must be brightened to a light tint of the hue",
+      "metric": "axe-core color-contrast ratio on text nodes, especially status chips (.ptype-*, period-pill) and button.danger",
+      "threshold": ">= 4.5:1 (AA normal text); dark-hue chips like .ptype-shutdown red #E15554-on-tint measured ~3.7-3.9:1 = FAIL",
+      "detect": "axe rule id 'color-contrast'; additionally JS-compute ratio on .ptype-shutdown, .danger/button.danger, active period/purple pills against composited bg",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Muted/ghosted look (empty states, hints, future-step labels) must come from text COLOR, never from container opacity<1 — wrapper opacity composites into descendant text alpha and breaks AA",
+      "metric": "computed opacity of empty-state/hint/stepper containers AND resulting effective text contrast of descendants",
+      "threshold": "container opacity == 1 (no opacity<1 on a wrapper holding text); e.g. .empty-state{opacity:0.4} dragged text to 2.2:1 = FAIL",
+      "detect": "JS: for .empty-state / hint / stepper wrappers, assert getComputedStyle(el).opacity === '1'; flag any text-bearing container with opacity < 1, then re-check descendant contrast via axe color-contrast",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Every interactive element inside a modal/bottom-sheet (and globally) must show a visible :focus-visible ring — 2px solid accent, offset 2px (WCAG 2.2 SC 2.4.13)",
+      "metric": "presence of a :focus-visible outline rule with non-zero width on interactive elements (buttons, inputs, custom toggles)",
+      "threshold": "outline >= 2px solid, offset 2px, color reads on navy (brand orange #F7A21B 100% for buttons / 70% for input borders); never 0/none, never white outline",
+      "detect": "JS: focus each interactive el, getComputedStyle(el,':focus-visible') or post-.focus() read outlineWidth>=2px && outlineStyle!=='none'; flag white outline color on dark bg; axe 'focus-visible'-adjacent check",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Bottom sheets / modals must carry role=\"dialog\" aria-modal=\"true\" plus aria-labelledby pointing at the sheet title id (Auto-Mineable rule designer_dialog_has_aria_modal_true)",
+      "metric": "presence of role=dialog + aria-modal=true + aria-labelledby on overlay elements (bottom-sheet / sheet-overlay / modal-overlay)",
+      "threshold": "all three attributes present; aria-labelledby resolves to an existing element id",
+      "detect": "DOM querySelector on '.bottom-sheet, .sheet-overlay, .modal-overlay, [class*=overlay]'; assert getAttribute('role')==='dialog' && aria-modal==='true' && document.getElementById(el.getAttribute('aria-labelledby')) exists",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Reaction/toggle-style buttons must expose aria-pressed=\"true|false\" and the visual .active class must follow the same value",
+      "metric": "aria-pressed attribute on toggle buttons (.toggle-btn and reaction toggles) and parity with .active class",
+      "threshold": "aria-pressed in {true,false} present AND (aria-pressed==='true') === el.classList.contains('active')",
+      "detect": "JS: for every .toggle-btn / aria-pressed toggle, assert attribute present and boolean parity with the active class",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Live-updating regions (connection chips, presence/conn bars, any region that changes without user action) must be ARIA live regions; standard toast role=alert aria-live=polite",
+      "metric": "presence of role=status aria-live=polite on auto-updating regions; role=alert aria-live=polite on toasts",
+      "threshold": "role+aria-live present on connection chips (wh-conn-chip), presence bars, status regions, and toast containers",
+      "detect": "DOM: assert .wh-conn-chip / presence bar / toast nodes have role in {status,alert} && aria-live==='polite'",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "CTA pulse-ring (and any decorative motion) must be disabled under prefers-reduced-motion",
+      "metric": "animation on .cta-pulse when prefers-reduced-motion: reduce is active",
+      "threshold": "animation == none / 'none' under reduced-motion media query",
+      "detect": "JS: emulate prefers-reduced-motion:reduce, getComputedStyle('.cta-pulse').animationName === 'none'; or assert a @media (prefers-reduced-motion: reduce){ .cta-pulse{animation:none} } rule exists",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Bottom-right corner must not stack competing fixed widgets that occlude a page primary-action FAB — no fixed element should leave another interactive fixed element with <44px tappable / mostly covered",
+      "metric": "overlap of fixed bottom-right elements (#wh-hub, .wh-conn-chip, .wh-feedback-fab, .wh-ai-widget, bottom nav, page FAB) via elementFromPoint at each widget's center",
+      "threshold": "document.elementFromPoint(centerX,centerY) of each interactive fixed widget returns that widget (not an occluder); visible/tappable region >= 44px (the pm-scheduler FAB left only an 8px sliver = FAIL)",
+      "detect": "JS: enumerate position:fixed bottom-right els; for each interactive one, call elementFromPoint at its center and at its rect corners; flag if hit element is a different fixed widget or tappable area < 44px",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Empty state must present a CTA — Today's One Thing empty state is a green 'all clear' card with a contextual next-step CTA based on role (action-first home pattern)",
+      "metric": "presence of a primary CTA (button/link) inside an empty-state / 'all clear' card",
+      "threshold": "empty-state card contains >=1 actionable element (a[href]/button); Today's One Thing always has exactly 1 primary CTA",
+      "detect": "JS: when a region renders an empty/'all clear' state, assert it querySelector('a[href], button') is non-null; flag empty states with zero CTA",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Today's One Thing action card has exactly ONE primary CTA (one .btn-primary), never two competing primary buttons",
+      "metric": "count of primary CTAs within the Today's One Thing / hero action card",
+      "threshold": "exactly 1 primary button per action card",
+      "detect": "JS: scope to the action card container; count .btn-primary (or visually-dominant buttons); assert === 1",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Landing hero must use one dominant CTA + one demoted text link — never two equal-weight buttons side by side",
+      "metric": "count of equal-weight buttons in the hero CTA cluster",
+      "threshold": "<=1 .btn-primary AND the secondary is a .cta-text-link (text link), not a second button of equal weight",
+      "detect": "JS: in the hero CTA row, count anchors/buttons styled as buttons (btn-primary/btn-secondary); flag if two button-styled CTAs share equal weight instead of one button + one .cta-text-link",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "btn-primary must use the canonical orange gradient #F7A21B -> #FDB94A (literal hex or var(--orange-wh)); the drift hex #e8920a is banned",
+      "metric": "background gradient stops on .btn-primary and absence of #e8920a anywhere",
+      "threshold": "linear-gradient contains #F7A21B and #FDB94A (or var(--orange-wh)); zero occurrences of #e8920a",
+      "detect": "JS: getComputedStyle('.btn-primary').backgroundImage matches the orange gradient; scan computed styles / stylesheet text for the banned token e8920a",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Input background must be the canonical navy rgba(22,32,50,0.6) (== var(--wh-navy) base), not rgba(0,0,0,0.25) which renders too dark, and card border-radius must be 1rem not 1.25rem",
+      "metric": "computed background of .wh-input / inputs and border-radius of cards",
+      "threshold": "input bg == rgba(22,32,50,0.6) (not rgba(0,0,0,...)); card border-radius == 1rem (16px), not 1.25rem",
+      "detect": "JS: getComputedStyle(input).backgroundColor approx rgba(22,32,50,.6); getComputedStyle('.simple-card / card').borderRadius === '16px'; flag rgba(0,0,0,0.25) inputs and 1.25rem cards",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Design tokens: shared components.css :root must define every canonical --wh-* value and real elements must resolve to brand values (e.g. .simple-card bg = rgb(22,32,50) = var(--wh-navy))",
+      "metric": "presence of --wh-* custom props on :root and computed brand color on a real card",
+      "threshold": ":root exposes --wh-orange/-blue/-navy(+dark/light), --wh-steel, --wh-cloud, --wh-space-*, --wh-radius*, --wh-font; .simple-card backgroundColor === rgb(22,32,50)",
+      "detect": "JS: getComputedStyle(document.documentElement).getPropertyValue('--wh-navy') non-empty; getComputedStyle('.simple-card').backgroundColor === 'rgb(22, 32, 50)'",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "Report tables: header styling must be on each <th>, not on <tr> (tr background/color does not render in doc-panel/report-panel context, making white header text invisible)",
+      "metric": "background/color declared on <tr> vs <th> within .doc-panel/.report-panel tables, and rendered header readability",
+      "threshold": "<th> carries the background+color; no header <tr> with inline background/color; header text contrast >= 4.5:1",
+      "detect": "JS: in report tables, flag any <tr> with non-transparent style.background/color and a child <th> lacking its own background; verify <th> rendered bg is dark and text visible (axe color-contrast on header cells)",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "floor",
+      "rule": "PDF/print report DOM must inject page-break protection: tr/td/th/p page-break-inside:avoid+break-inside:avoid, h2/h3 page-break-after:avoid, .result-highlight/.sig-block and the results grid CONTAINER page-break-inside:avoid",
+      "metric": "presence of injected page-break CSS rules on report elements before html2pdf render",
+      "threshold": "all listed selectors carry page-break-inside/break-inside:avoid (rows, p, result-highlight, sig-block, grid container) and h2/h3 carry page-break-after:avoid",
+      "detect": "JS: in print/PDF context, getComputedStyle(report tr/td/th/p).breakInside === 'avoid'; results grid wrapper breakInside === 'avoid'; h2/h3 breakAfter === 'avoid'",
+      "owner": "designer"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Every component state must exist and be reachable: default, hover, active, disabled, empty, loading, error — a design is incomplete if any state is missing (e.g. a list with no empty/loading/error rendering)",
+      "basis": "skill-rule (Responsibilities / How to Operate: 'Specify every state')",
+      "severity": 2,
+      "detect": "During the journey, drive each component into each state: load with no data (empty), during fetch (loading), on a failed action (error), disable conditions; flag any state that renders blank, broken, or identical to default"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Home is mission-control in a strict 3-layer order: Today's One Thing (action) -> Your Stack (context) -> Tools drawer (collapsed behind FAB). Putting tools above context is the 'feels overwhelming' failure mode",
+      "basis": "skill-rule (Home Stack Pattern, Phase H) / Nielsen-N (aesthetic & minimalist, match system to real world)",
+      "severity": 2,
+      "detect": "On home, verify DOM/visual order is action card first, ranked context cards second, full tool grid collapsed/last; flag if the tool grid appears above context or is expanded by default"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Today's One Thing must surface the single highest-priority action ranked across canonical signals (critical risk, PM overdue+critical, out-of-stock, oldest open job) and deep-link to where the action is done; ties demote the loser to a stack card",
+      "basis": "skill-rule (Home Stack Pattern) / Norman-7 (clear goal, mapping)",
+      "severity": 2,
+      "detect": "With seeded high-priority data, confirm the action card reflects the correct top signal and its CTA deep-links to the right surface; flag wrong/stale ranking or a dead-end CTA"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "First-time-worker onboarding is a 3-step ladder above the stack, dismissable, and hidden once all steps complete (wh_onboarding_dismissed)",
+      "basis": "skill-rule (Home Stack Pattern) / Nielsen-N (help & documentation, recognition over recall)",
+      "severity": 1,
+      "detect": "As a fresh worker (no wh_onboarding_dismissed), verify the 3-step ladder shows above the stack and dismisses/hides on completion; flag if it persists after completion or blocks the stack"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Role-filtered nav: wh_nav_mode derives from wh_hive_role on first load (worker->field subset, supervisor->supervisor, engineer->engineer) so a new worker doesn't see every tool; existing explicit choices are preserved",
+      "basis": "skill-rule (Home Stack Pattern) / Nielsen-N (match between system and real world; minimalist)",
+      "severity": 2,
+      "detect": "Sign in per role; confirm the tool drawer shows the role-appropriate subset on first load; flag a new worker seeing the full all-tools grid"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Consolidate sibling surfaces: 3+ pages serving one role over the same data (e.g. predictive/shift-brain/ph-intelligence all read v_risk_truth) should hide all but the parent from primary nav with deep-links inside; write-only editors belong as a button on their parent, not a top-level nav entry",
+      "basis": "skill-rule (When to consolidate sibling surfaces) / Nielsen-N (consistency, minimalist)",
+      "severity": 1,
+      "detect": "Scan primary nav for redundant siblings reading the same data and for write-only editor pages exposed as top-level nav; flag duplication that should be parent+deep-link"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "For categorical inputs with 3-8 known options, prefer pill toggle button groups over <select> dropdowns (faster to tap on mobile, immediately visible, lower cognitive load); selecting a toggle should auto-fill related numeric fields",
+      "basis": "skill-rule (Toggle Button Groups) / Nielsen-N (recognition over recall, flexibility & efficiency)",
+      "severity": 1,
+      "detect": "On forms, flag <select> dropdowns with 3-8 fixed options that should be toggle pills; verify selecting a toggle pre-populates dependent numeric fields"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Multi-stage tools (4+ input stages) use a step wizard with progressive disclosure: locked steps dimmed + pointer-events:none, active step orange-accented, step label updates ('Step 2 of 4 - ...'); mobile single column, desktop wizard-left/result-right",
+      "basis": "skill-rule (Step Wizard with Progressive Disclosure) / Nielsen-N (visibility of system status, user control)",
+      "severity": 1,
+      "detect": "On 4+ stage tools, verify steps unlock sequentially, locked steps are non-interactive, the active step is accented, and the step label reflects current position; flag all-steps-open-at-once or missing progress indicator"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Editable report fields must be visually signalled as editable on screen (orange dashed underline, focus = light yellow bg) with a tip banner above explaining editability ('Click any underlined field to edit before printing')",
+      "basis": "skill-rule (Editable Report Fields) / Nielsen-N (visibility of system status, affordance)",
+      "severity": 1,
+      "detect": "On report pages, confirm editable fields carry the dashed-underline affordance + focus treatment and a tip banner explains it; flag invisibly-editable fields with no signifier"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Auto-filled (locked-from-lookup) fields must be visually signalled (opacity 0.6, cursor not-allowed, sub-label 'Auto-filled from [standard] - select Custom to override') so the engineer doesn't think the field is broken; restore on Custom",
+      "basis": "skill-rule (Auto-fill Fields) / Norman-7 (signifiers, mapping; prevent perceived error)",
+      "severity": 1,
+      "detect": "Trigger an auto-fill; verify the field looks disabled with an explanatory sub-label and restores to editable when Custom is chosen; flag a silently-locked field with no explanation"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Multi-field domain forms must pair each field with a field tip card that explains the field in plain language, a default/rule-of-thumb when unsure, edge-case behavior, and units/ranges — not merely restating the label",
+      "basis": "skill-rule (Field Tip Cards) / Nielsen-N (help & documentation, error prevention)",
+      "severity": 1,
+      "detect": "Open the Guide/help panel; verify each domain input has a tip with plain-language meaning + default + units/range; flag tips that just restate the label ('Enter the pipe diameter')"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Philippine engineering result highlight boxes must show paired units (kW+TR, kW+kVA, L/s+m3/h, L+m3) in the 2x2 grid — never a single unit alone",
+      "basis": "skill-rule (Report Dual-Unit Display) / Nielsen-N (match between system and real world)",
+      "severity": 1,
+      "detect": "On engineering result boxes, verify each result shows both required units in adjacent cells; flag any kW/flow/volume value shown without its paired unit"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Primary CTA pulse-ring is for the hero CTA ONLY (motion on the periphery, not inside the button) — do not apply .cta-pulse to every btn-primary across the platform",
+      "basis": "skill-rule (CTA Pulse-Ring) / Nielsen-N (aesthetic & minimalist; avoid distraction)",
+      "severity": 0,
+      "detect": "Count animated .cta-pulse elements per page; flag if pulse animation is applied to non-hero buttons or many buttons at once"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Social proof (waitlist count + avatar row) should sit immediately below the hero CTA, not buried only at the bottom join section",
+      "basis": "skill-rule (Social Proof) / Nielsen-N (credibility / persuasion)",
+      "severity": 0,
+      "detect": "On the landing page, check whether a compact social-proof row appears near the hero CTA; flag if social proof exists only at the page bottom"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Provenance / trust / lineage UI must be authored in USER voice (the reader's mental model, e.g. 'Live - Based on your logbook & inventory'), never leaking internals (DB view names v_*_truth, RPC/edge-fn names, function identifiers, .md refs, raw SQL); humanize the visible label, keep the stored value/enum",
+      "basis": "skill-rule (Provenance UI must be in user voice, STREAMLINE E1) / Nielsen-N (match system to real world; speak the user's language) / WCAG-POUR (Understandable)",
+      "severity": 2,
+      "detect": "Read every KPI source-chip / provenance / lineage caption on the live page; flag any string exposing view names, function/RPC names, code identifiers, doc filenames, or raw SQL instead of plain-language source labels"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Tinted-status-chip color must preserve semantic identity while clearing AA: brighten the TEXT to a light tint of the hue (red #E15554->#F58A89, purple #a78bfa->#c4b5fd); do NOT darken the bg (kills the tint look) or desaturate to grey (loses the meaning)",
+      "basis": "skill-rule (tinted-chip dark-hue lesson, battery B3) / WCAG-POUR (Perceivable, contrast) / Nielsen-N (consistency, recognition)",
+      "severity": 2,
+      "detect": "For each failing dark-hue chip flagged by contrast, verify the remedy keeps the hue identity (still reads red/purple) rather than turning grey or losing the tint; flag fixes that destroy semantic color or the tint pattern"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "When designing/placing any new floating affordance (FAB, chip), it must declare WHERE in the bottom-right corner stack it sits and what it must clear; page actions should route into the nav-hub rather than spawning a competing FAB",
+      "basis": "skill-rule (bottom-right corner widget-priority gap) / Nielsen-N (consistency & standards) / Norman-7 (constraints, no interference)",
+      "severity": 2,
+      "detect": "On any page that adds a primary-action FAB, confirm it has a defined slot/gap in the corner order and does not collide with shared widgets (nav-hub, conn-chip, feedback FAB, AI widget, bottom nav); flag an ad-hoc FAB with no stacking budget"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Imported/auto-filled/AI-suggested data must give the user visible control: an editable checkbox row to uncheck before merge, a colored provenance chip per item (Skill Matrix / Logbook / Uploaded / AI suggested / You typed), and an Undo control — turning 'the AI changed my stuff' anxiety into trust",
+      "basis": "skill-rule (Resume/CV Builder lesson) / Nielsen-N (user control & freedom, visibility of system status) / Norman-7 (feedback, conceptual model)",
+      "severity": 2,
+      "detect": "On any auto-fill / upload / AI-suggestion flow, verify each incoming item is an editable, source-tagged, uncheckable row with an Undo affordance before it merges; flag silent merges with no provenance or undo"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Brand consistency: stay within the platform palette (orange/blue/navy/steel/cloud), Poppins type, and canonical radii (1rem cards / 0.75rem inputs / 999px pills) — don't introduce new colors or fonts without strong reason",
+      "basis": "skill-rule (Design System / How to Operate: stay within the brand) / Nielsen-N (consistency & standards)",
+      "severity": 1,
+      "detect": "Scan the live page for off-brand colors/fonts and non-canonical radii on cards/inputs/pills; flag ad-hoc hues, non-Poppins fonts, or drifted border-radii"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Mobile-first: every surface must be designed and usable at 375px first, then scale up to desktop (1280px) — no horizontal overflow, no clipped/unreachable controls at narrow width",
+      "basis": "skill-rule (How to Operate: Mobile first; Specify responsive behavior) / WCAG-POUR (Operable, reflow 1.4.10) / Nielsen-N (flexibility & efficiency)",
+      "severity": 2,
+      "detect": "Render at 375px and inspect for horizontal scroll, overlapping/occluded controls, or content that requires desktop width; flag layouts that break or hide actions on mobile"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Focus-ring color must read against the navy theme: brand orange #F7A21B (100% for buttons, 70% variant for input borders); never white outlines (they blur against the slate-on-navy gradient)",
+      "basis": "skill-rule (Bottom-Sheet visual focus-ring requirement) / WCAG-POUR (Perceivable, focus visibility) / Nielsen-N (visibility of system status)",
+      "severity": 1,
+      "detect": "Tab through interactive elements; visually confirm focus outline is brand-orange and clearly visible on the dark bg; flag white/low-contrast focus rings"
+    },
+    {
+      "skill": "designer",
+      "layer": "heuristic",
+      "rule": "Article/figure visuals are mobile-first and annotation-first: vertical flows beat horizontal (a 5-step horizontal row is unreadable at 390px), orange number badges carry scan order, keep simple for a plant-floor (non-stats-literate) audience, and every figure with external numbers carries a 'Source:' caption (figures obey the truth doctrine)",
+      "basis": "skill-rule (Brand figure spec for learn-article SVGs) / Nielsen-N (match real world, aesthetic & minimalist) / WCAG-POUR (Understandable)",
+      "severity": 1,
+      "detect": "On article/learn pages, check figures use vertical layout at mobile width, readable labels (>=9px effective), numbered scan order, and a Source caption when showing external numbers; flag dense horizontal charts or unsourced external-number figures"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Interactive/tap targets must be at least 44x44px (platform floor: 44px everywhere, no exceptions, including filter-chips and buttons rendered inside JS template literals).",
+      "metric": "min(boundingRect.width, boundingRect.height) of every interactive element (a, button, [role=button], [onclick], input[type=button/submit], .toggle-btn, .filter-chip, chips, FABs, nav-hub/companion controls)",
+      "threshold": ">= 44px on both width and height",
+      "detect": "JS: for each el matching 'a,button,[role=button],[onclick],input,select,textarea,.toggle-btn,.kw-chip,.seed-btn,.chip', r=el.getBoundingClientRect(); fail if Math.min(r.width,r.height) < 44. Cross-check with axe-core rule id 'target-size' (WCAG 2.5.8). Note: a 56px position:fixed FAB passes; re-measure the actual element before trusting axe 'incomplete'.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Tap-target fix must actually land at runtime: on Tailwind-utility pages min-h-[44px] can silently no-op in a compiled build; the measured height must still be >=44px (inline style or base button rule).",
+      "metric": "computed min-height / measured height of buttons after fix",
+      "threshold": ">= 44px measured (not just class present)",
+      "detect": "JS: getBoundingClientRect().height >= 44 AND getComputedStyle(el).minHeight resolves to >=44px; verify the class actually compiled (don't trust presence of min-h-[44px]).",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Form/modal text inputs must be at least 16px font-size so iOS Safari does not auto-zoom on focus.",
+      "metric": "computed font-size on input, textarea, select, [contenteditable], especially inside modals (Tailwind text-sm=14px is the usual culprit)",
+      "threshold": ">= 16px",
+      "detect": "JS: for each 'input,textarea,select,[contenteditable=\"true\"]', parseFloat(getComputedStyle(el).fontSize) >= 16. Scope a check to modal inputs (#modal input, #signin-modal input).",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Normal text must meet WCAG 1.4.3 AA contrast; the dark-theme muted/secondary-text floor is white-alpha 0.6 (page bg) and ~0.85 on raised --surface cards. rgba(255,255,255,<=0.4) (and 0.3/0.35/0.5) always fails.",
+      "metric": "color-contrast ratio of rendered text vs its actual background",
+      "threshold": ">= 4.5:1 for normal text (>= 3:1 large text >=18.66px bold / >=24px). White@0.6 ~= 6.8:1 passes; white@0.4 ~= 3.3-4:1 fails; raised cards need ~0.85.",
+      "detect": "axe-core rule id 'color-contrast' run with resultTypes:['violations'] ~2s after the page settles. Also static grep for color:rgba(255,255,255,0.[1-5]) in HTML and JS render templates (latent siblings in collapsed/empty states only render under specific data).",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Never mute a text block via opacity<1 on the element or any ancestor — CSS opacity multiplies into descendant text alpha, so a child color:0.6 inside a container opacity:0.4 composites to 0.24 effective and fails AA even though the node's own color looks fine.",
+      "metric": "product of opacity along the ancestor chain of any element wrapping readable text (steady-state, not :disabled/keyframes/decorative-svg)",
+      "threshold": "effective text alpha must still yield >= 4.5:1; container opacity should be 1 for text wrappers",
+      "detect": "Static grep -nE 'opacity:\\s*0?\\.[1-7]|opacity-[1-6]0' over *.html, then for each hit walk DOM ancestors: fail if any ancestor of a text node has computed opacity<1 (exempt :disabled, @keyframes/skeleton/pulse, decorative <svg>/glow blobs, *-test/backup/admin pages). When axe reports a ratio far worse than the element's own color implies, walk the ancestor chain for opacity.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "A page must have exactly one <h1> landmark in the LIVE DOM (not only in source / template strings). Gates/overlays/empty-states that innerHTML-replace a region wipe the page's <h1>, so the runtime h1 count can be 0 even when source greps pass.",
+      "metric": "document.querySelectorAll('h1').length after page/gate/empty-state settles",
+      "threshold": "=== 1 (must be >= 1)",
+      "detect": "JS after load + after any maturity-gate/empty-state renders: document.querySelectorAll('h1').length; axe rule id 'page-has-heading-one'. Beware titles rendered as <div/span class=\"page-title\"> = 0 real h1, and template-string h1s that never reach the live DOM.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Every form control needs a programmatic accessible name (a placeholder is NOT a label). Applies to JS-template-built <select> and to the .field/.wh-input visible-but-unassociated <label> pattern.",
+      "metric": "presence of accessible name: <label for> + matching id, OR aria-label, OR wrapping <label>, on every input/select/textarea",
+      "threshold": "100% of form controls have a non-empty accessible name",
+      "detect": "axe-core rule ids 'label' and 'select-name' (live run catches JS-template selects a static grep misses). JS: each control has computed accName != '' (htmlFor link, aria-label, or wrapping label). Derive input type from field key (email/tel/number) for correct mobile keyboard.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Toast/status containers must carry role=\"alert\" and aria-live=\"polite\" or they are silent to screen readers.",
+      "metric": "presence of role and aria-live on the toast/status region (#toast, undo toast, connection chip)",
+      "threshold": "role=\"alert\" AND aria-live=\"polite\" present (status regions: aria-live=\"polite\")",
+      "detect": "JS/axe: el#toast.getAttribute('role')==='alert' && getAttribute('aria-live')==='polite'. Reference impl: skillmatrix.html toast.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Filter UIs built as tabs/chips must declare role=\"tablist\" on the container and role=\"tab\"+aria-selected on each button; ARIA tabs must keep aria-selected in sync in the switch handler, not only in markup.",
+      "metric": "ARIA roles/state on filter containers (.section-tabs/.filter-row/.filter-tabs/.chip-row/.tab-row) and their buttons; aria-selected reflects the currently-active tab after switching",
+      "threshold": "container role=tablist; each tab role=tab + aria-controls; exactly one aria-selected=true matching the visually active tab; panels role=tabpanel + aria-labelledby",
+      "detect": "JS: container.getAttribute('role')==='tablist'; buttons have role='tab'; after a tab click, the [aria-selected=true] tab == the visually active tab. axe 'aria-required-children'/'aria-allowed-attr'.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "A modal/dialog must expose role=\"dialog\" + aria-modal=\"true\" + a non-empty accessible name (aria-label or aria-labelledby pointing to filled text), ESC-to-close, a Tab/Shift+Tab focus trap, and focus-restore to the opener.",
+      "metric": "dialog ARIA attributes + accessible name resolves non-empty in the CLOSED scan state + ESC handler + focus trap presence",
+      "threshold": "role=dialog AND aria-modal=true AND accName != '' (add static aria-label fallback so a JS-filled aria-labelledby isn't empty when closed)",
+      "detect": "axe rule id 'aria-dialog-name'. JS: dialog has role=dialog/aria-modal; computed accName non-empty even before JS fills the title; press ESC -> dialog closes; Tab from last focusable wraps to first; on close document.activeElement === opener.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Hidden interactive containers must be made inert (not only aria-hidden): toggling aria-hidden on a slide-away CTA/region leaves its <a>/<button> Tab-focusable (axe aria-hidden-focus, WCAG 4.1.2).",
+      "metric": "any focusable descendant of an aria-hidden / visually-hidden container that remains in the tab order",
+      "threshold": "0 focusable elements reachable inside an aria-hidden/off-screen container (container must have inert set)",
+      "detect": "axe rule id 'aria-hidden-focus'. JS: for each [aria-hidden=true] or display:none-but-tabbable container, assert no descendant a/button/input/[tabindex>=0] is focusable AND container.inert === true.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Clickable non-button elements (div/span with onclick) must be keyboard-operable: role=\"button\" + tabindex=\"0\" + a keydown handler (Enter/Space -> click) + a :focus-visible outline. A visible text label does NOT make a div keyboard-operable.",
+      "metric": "for every element with an onclick that is not a native button/a/input: presence of role=button, tabindex=0, keyboard activation, and a visible focus indicator",
+      "threshold": "all four present on every clickable non-button element",
+      "detect": "JS: querySelectorAll('[onclick]'):tagName not in (BUTTON,A,INPUT) -> must have role=button && tabindex=='0'; check a focusable :focus-visible rule exists (e.g. .x-clickable:focus-visible{outline...}). Maps to L3 battery clickAudit 'click:not-keyboard-operable'. WCAG 2.1.1 + 2.4.7.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "A focus-visible indicator must be present on interactive elements; pairing outline:none with no :focus state hides the cursor/ring (especially contenteditable fields).",
+      "metric": "presence of a visible :focus / :focus-visible style (outline, background, or border change) on focusable elements that set outline:none",
+      "threshold": "every element with outline:none has a non-default :focus/:focus-visible visual state",
+      "detect": "Inspect document.styleSheets for a :focus or :focus-visible rule paired with each outline:none rule; live: focus the element via keyboard and assert a computed style change (outline/background/border).",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "A page FAB / page-added fixed control must not be occluded by the stacked bottom-right widget column (nav-hub FAB z9998, connectivity chip z9998 bottom:5.5rem, feedback FAB, AI widget z9999, bottom-nav). Two action FABs in one corner is the single-FAB-hub anti-pattern.",
+      "metric": "at the visual center of any page .fab, the topmost element (elementFromPoint) is the FAB itself, and its usable (non-overlapped) tap area is still >=44px",
+      "threshold": "FAB is hit-testable (elementFromPoint == FAB) with >=44px usable area; not partially obscured",
+      "detect": "At 390px width: r=fab.getBoundingClientRect(); document.elementFromPoint(r.left+r.width/2, r.top+r.height/2) === fab (or a descendant). axe 'target-size' flags 'partially obscured'. Check bottom-right occupancy for >1 action FAB.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Multi-column data tables must not force document-width overflow at 360px; wide tables (>=5 columns / wide content) need a scroll-in-card wrapper (overflow-x:auto) so the table scrolls inside its card rather than pushing the page.",
+      "metric": "document horizontal overflow at narrow viewport",
+      "threshold": "document.documentElement.scrollWidth <= clientWidth at 360px (no horizontal page scroll)",
+      "detect": "browser_resize(360, h) then assert documentElement.scrollWidth <= documentElement.clientWidth (the U7 probe). Tables with >=5 columns must sit inside <div style=overflow-x:auto> or @media(max-width:600px){table{display:block;overflow-x:auto}}.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "A data list page must distinguish empty-state (no data) from no-results (filter matched nothing) and must show a loading state during fetch and an error state on failure — each with a dedicated anchor/affordance, not a blank panel or a stuck spinner.",
+      "metric": "presence of #empty-state, #no-results (for filterable lists), a loading skeleton/anchor, and an error/retry affordance",
+      "threshold": "empty-state present; no-results present when a search input exists; loading anchor present (or whListSkeleton call); error path present (whListError/role=alert + Retry)",
+      "detect": "JS/static: querySelector('#empty-state'), '#no-results', a '.skeleton/.wh-skeleton/[aria-busy]' or whListSkeleton( call, and a whListError(/role=alert error block. Retry control must be >=44px. List View Contract rule ids frontend_list_view_has_empty_state / _no_results_state.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "No element may remain stuck on a 'Loading…' / 'Computing…' placeholder after the page settles, even with zero console errors (missing CDN, uncalled renderer, empty/error branch that skips a placeholder, or unguarded HIVE_ID query).",
+      "metric": "count of residual 'Loading' / 'Computing' / spinner text in document.body.innerText after load settles (~7s)",
+      "threshold": "0 residual loading/computing placeholders after settle",
+      "detect": "After ~7s: (document.body.innerText.match(/Loading\\.\\.\\.|Computing/gi)||[]).length === 0. Combine with console-clean check (a non-zero count with 0 errors = stuck-placeholder render gap). Also assert @supabase/supabase-js CDN <script src> precedes utils.js and client-getter matches getDb.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Page fade-in animations on <body> must never leave the page permanently invisible: requires a prefers-reduced-motion override and a JS opacity safety timeout.",
+      "metric": "computed body opacity after load under reduced-motion and after the safety window",
+      "threshold": "body opacity === 1 after load (animation must not strand body at opacity:0); reduced-motion -> animation:none",
+      "detect": "JS: getComputedStyle(document.body).opacity === '1' after ~800-1000ms; verify @media(prefers-reduced-motion:reduce){body{animation:none}} exists in styleSheets and an inline 800ms guard sets opacity:1. Body animations must be opacity-only (never transform/filter/clip-path — those break position:fixed).",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "A count/total badge that labels a list it does not physically contain must equal the underlying list (annotate with data-count-of / data-sum-of so it is machine-checkable); the rendered integer must match the actual row count.",
+      "metric": "rendered count integer vs querySelectorAll(data-count-of within data-count-scope).length (or Σ of data-sum-col across rows for sums)",
+      "threshold": "rendered value === computed count/sum (within data-sum-tol for sums)",
+      "detect": "JS: for [data-count-of], parseInt(el.textContent) === document.querySelectorAll(el.dataset.countScope+' '+el.dataset.countOf).length. Litmus: any 'N entries / N open / N total' badge must come from a COUNT query, not array.length of a .limit()-ed fetch.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Negative 'days until / time remaining / countdown' values must render as 'overdue', never a literal minus sign.",
+      "metric": "any countdown/days-until value that is rendered with a leading '-' (minus)",
+      "threshold": "0 rendered negative-minus countdowns (negative -> 'Nd overdue')",
+      "detect": "Regex scan rendered text for /-\\d+\\s*(d|day|days|min|hr)/ in countdown/forecast/'days until' contexts; if a minus sign appears the formatter is buggy.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "Every page should declare a canonical <link rel=\"canonical\"> in <head> (SEO/equity; flagged missing on several pages).",
+      "metric": "presence of link[rel=canonical] in head",
+      "threshold": "exactly one link[rel=canonical] present",
+      "detect": "JS: document.querySelector('link[rel=\"canonical\"]') !== null.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "floor",
+      "rule": "article cards must not use role=\"listitem\" (invalid for <article>); use role=\"feed\" on the container instead.",
+      "metric": "invalid ARIA role nesting on card grids (article role=listitem)",
+      "threshold": "0 invalid role combinations",
+      "detect": "axe rule id 'aria-allowed-role' / 'aria-required-parent'. JS: no article[role=listitem]; card grid container uses role=feed with aria-label.",
+      "owner": "frontend"
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Empty states must be written for the WEAKEST starting point and offer every path forward (not assume pre-existing data); first-run guidance must key on actual user-entered CONTENT, not on identity fields the app pre-fills.",
+      "basis": "Nielsen-N (Help & documentation / Recognition) + skill-rule (novice-user robustness, resume empty-state)",
+      "severity": 2,
+      "detect": "On a fresh/empty account, check the empty state names the action AND presents all entry paths (auto-fill / upload / type). Verify guidance appears for a brand-new user (it must not be gated on a pre-filled name). A blank panel with no CTA = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "An empty/error branch must reset and repopulate EVERY placeholder the success branch would have set — including cards in sibling containers and renderers that are defined but never called — so no stale spinner survives.",
+      "basis": "Nielsen-N (Visibility of system status) + skill-rule (reset-every-placeholder / defined-but-uncalled renderer)",
+      "severity": 2,
+      "detect": "After triggering the empty/error path, scan for any element still showing its static Loading…/Computing… placeholder; confirm the success-path renderer is actually invoked, not just defined."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Hero numbers must show the actual value (a number or a clear status word like HEALTHY); direction labels (INCREASING/DECREASING/STABLE) belong in the sublabel with an arrow, never as the big number.",
+      "basis": "Norman-N (mapping / match between system and real world) + skill-rule (Hero Number)",
+      "severity": 1,
+      "detect": "On dashboards/KPI cards, read the largest/hero text per card; flag any whose hero is a bare direction word instead of a count/status. The trend/direction should be the smaller sublabel."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Maintenance KPI trend charts must keep 0 at the bottom (more=worse, less=better); never let an auto-inverted Y-axis make a falling failure/downtime/MTTR trend look like it is rising.",
+      "basis": "WCAG-POUR (Understandable) + Norman-N (good mapping) + skill-rule (Plotly Y-axis auto-invert)",
+      "severity": 2,
+      "detect": "For any decreasing time series, confirm the y-axis is not inverted (0 at bottom, max at top). A chart where an improving trend slopes upward = misleading."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Long flat lists (50+ rows) must be grouped by their natural parent entity with progressive disclosure: sort groups by urgency, auto-expand the highest-urgency (overdue) group, collapse the rest, and show count + worst-badge on each collapsed header.",
+      "basis": "Nielsen-N (Aesthetic & minimalist design / Recognition) + skill-rule (Long Flat Lists)",
+      "severity": 2,
+      "detect": "On any page rendering 50+ items, check it is grouped + collapsible, urgency-sorted, overdue group auto-expanded, and collapsed headers state count + worst status. A raw 50+ row table on mobile = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Every FK link / linked entity captured on a form must appear in the save/confirmation summary, so the user can see the link was not silently dropped (especially optional fields they filled).",
+      "basis": "Nielsen-N (Visibility of system status / Error prevention) + skill-rule (Confirmation Feedback for Linked Entities)",
+      "severity": 2,
+      "detect": "Complete a form that links an asset/inventory/order ref, submit, and confirm the summary/confirmation screen displays each captured link. A captured-but-unshown link = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "After revealing dynamically-shown content (calc result, BOM/SOW panel, opened sheet) on mobile, scroll it into view; content appearing below the fold reads as 'nothing happened'.",
+      "basis": "Nielsen-N (Visibility of system status) + Norman-N (feedback) + skill-rule (Dynamic Result Panels — Scroll Into View)",
+      "severity": 1,
+      "detect": "On a <768px viewport, trigger an action that reveals content below the fold; confirm the view scrolls to the new content. If the result stays off-screen with no scroll, flag it."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Never show a success toast / close a modal before the DB write is confirmed; on write failure the optimistic cache and UI must revert so the UI never claims success the DB didn't persist.",
+      "basis": "Nielsen-N (Error prevention / Visibility of status) + Norman-N (feedback truthfulness) + skill-rule (Local Cache Must Revert on DB Write Failure)",
+      "severity": 3,
+      "detect": "Force a write failure (offline / bad input) and confirm the UI shows an error (not a success toast), the modal stays open or reopens, and the optimistic change is rolled back. A success toast on a failed/lost write = blocker."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Destructive/irreversible actions a novice can fat-finger (e.g. row-remove ✕) must offer recovery (undo) — every destructive mutation path, no handler exempt.",
+      "basis": "Nielsen-N (User control & freedom — undo/redo) + skill-rule (every destructive mutation pushes undo)",
+      "severity": 2,
+      "detect": "Trigger each delete/remove affordance and confirm an Undo (or equivalent recovery) actually works for that specific action — a visible Undo button that no-ops on the most-used delete = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "A header that says 'Your X' (or any honest-stat label) must never read 0/stale when the user actually has rows; counts must reflect the user's own data in every view/role default.",
+      "basis": "Nielsen-N (Match between system & real world / Visibility) + skill-rule (honest header stats / Calm-Dashboard lie)",
+      "severity": 2,
+      "detect": "As each role (esp. supervisor default view), check 'Your …' header pills show the user's real counts, not 0. A label claiming personal ownership while showing 0 over populated data = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "A bare '0' and an 'N/A —' are different truths: when a tile's value depends on a link/join that may be absent, render an honest em-dash with a tooltip ('Not linked yet'), never a 0 that conflates 'none' with 'not applicable'.",
+      "basis": "Norman-N (match between system & real world) + WCAG-POUR (Understandable) + skill-rule (bare 0 vs N/A —)",
+      "severity": 1,
+      "detect": "For tiles backed by an optional link/join, verify an absent link renders '—' (with explanatory tooltip), not 0. A 0 where the relationship is simply not configured = misleading."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "For optional/compliance fields not supplied, render a clear grey 'Not provided — do X to enable' informational state (never blank, never NaN/0, never a FAIL) and still render the summary card placeholder so the grid doesn't break.",
+      "basis": "Nielsen-N (Help users recognize/recover / Aesthetic consistency) + skill-rule (Optional Compliance Fields 'Not Provided' pattern)",
+      "severity": 1,
+      "detect": "Leave an optional input empty and generate the report; confirm a grey 'Not provided' note that explains how to enable the check (not a fail color, not a missing card, not 'undefined')."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Multi-mode / multi-calc tools must show context-sensitive guidance/help that updates when the active mode changes; a static guide covering only one mode shows irrelevant or misleading content to users in another mode.",
+      "basis": "Nielsen-N (Help & documentation / Consistency) + skill-rule (Dynamic Tab Content GUIDES pattern)",
+      "severity": 1,
+      "detect": "Switch modes/calc types and confirm the guide/help tab content changes to match the active mode (formulas, field tips, standards). Stale help for the current mode = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Auto-filled-from-standards/lookup fields must be visibly distinguished (read-only + dimmed) so the user knows the value is derived and cannot silently overwrite a code-mandated value; a 'Custom' option lifts the lock.",
+      "basis": "Norman-N (constraints / signifiers) + Nielsen-N (Error prevention) + skill-rule (Auto-fill + Read-only pattern)",
+      "severity": 1,
+      "detect": "Pick a lookup-driven option and confirm the dependent numeric field becomes read-only and dimmed (opacity ~0.6); choose Custom and confirm it becomes editable at full opacity."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Input field labels should quantify the impact of a high-stakes choice (e.g. orientation/insulation toggles that change the result by >2x) so users understand the consequence before choosing.",
+      "basis": "Nielsen-N (Help users / Visibility) + skill-rule (New Input Field Hint — Quantify the Impact)",
+      "severity": 0,
+      "detect": "For toggles whose options change a computed result by >2x, check the label hint states the magnitude of difference. Absence is a polish gap, not a break."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Mode-irrelevant input sections must be hidden (display:none) when not applicable, and toggle buttons that control field visibility must actually update visibility (call the visibility helper, not just set the value) so dependent fields appear/disappear correctly.",
+      "basis": "Nielsen-N (Aesthetic & minimalist / Match to task) + skill-rule (Mode-Dependent Section Visibility / Toggle-Controlled Field Visibility)",
+      "severity": 1,
+      "detect": "Switch each mode/toggle and confirm dependent field groups show/hide correctly and the default hidden state matches the default-active toggle. A toggle that sets a value but never reveals its dependent field = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Categorical inputs with 3-8 options should use toggle button groups (and browsable value lists a chip/tab picker) rather than a native <select>, for faster mobile+desktop selection; already-used options are filtered out of pickers.",
+      "basis": "Norman-N (affordance / efficiency) + Nielsen-N (Flexibility & efficiency of use) + skill-rule (Toggle Button Groups / Replace Native Select With Chip Picker)",
+      "severity": 0,
+      "detect": "Review categorical inputs: 3-8 fixed options behind a tiny native select (vs a toggle group), or a browsable list trapped in a select, is a usability/polish improvement candidate."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Field-confirmation flows that need extra input should use a thumb-reachable bottom sheet (max-height 80vh, scrollable, backdrop-tap = cancel), not a new screen or a top modal, keeping context visible behind it.",
+      "basis": "skill-rule (Bottom Sheet Pattern for Field Confirmation) + Nielsen-N (Match to task / context retention)",
+      "severity": 0,
+      "detect": "For in-flow additional-input steps on mobile, check it presents as a bottom sheet (thumb zone, context visible) with Cancel + backdrop-dismiss; a full navigation away or a centered desktop-style modal on mobile is a downgrade."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Editable report fields (contenteditable) must signal editability: visible affordance (dashed underline), text cursor on hover, a focus state, and a one-line tip ('Click any underlined field to edit'); print/PDF strips the dashes.",
+      "basis": "Norman-N (signifiers / discoverability) + Nielsen-N (Visibility) + skill-rule (Editable Report / contenteditable Focus Feedback)",
+      "severity": 1,
+      "detect": "On editable reports, confirm fields look editable (dashed border), show a text cursor and a focus highlight, and a tip banner explains the affordance; an invisible editable field = discoverability fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Physics/formula result steps in engineering reports must show the full derivation (formula name+standard, symbolic formula, each variable with value/unit, substituted intermediate, bold final), not just the final number, so a reviewer can verify it.",
+      "basis": "WCAG-POUR (Understandable) + domain skill-rule (Physics Formula Steps — Show the Work) + Maintenance/engineering review standards",
+      "severity": 2,
+      "detect": "In a generated engineering report, check each physics step shows the worked derivation, not only an answer; a single computed number with no shown work fails PRC/client-review standards."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Em dashes must not appear in AI-prompt template strings or rendered AI documents (they double-encode to 'â€\"' garble on Windows/UTF-8 misread); user-facing AI output must be free of encoding garble.",
+      "basis": "WCAG-POUR (Perceivable/Understandable) + skill-rule (No Em Dashes in AI Prompt Template Strings)",
+      "severity": 1,
+      "detect": "Scan rendered AI BOM/SOW/narrative text for the fingerprint 'â€' or stray em-dash garble; presence indicates a double-encoded em dash from a prompt template."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "AI narrative objects ({objective, assumptions, recommendations}) must be rendered as separate labeled sections, never passed whole to a template/escHtml (which renders the literal '[object Object]' to the user).",
+      "basis": "skill-rule (Narrative Object — Always Render Fields Separately) + Nielsen-N (error prevention in output)",
+      "severity": 2,
+      "detect": "Scan rendered report/AI panels for the literal text '[object Object]' or a single unlabeled narrative blob; each of objective/assumptions/recommendations should appear in its own labeled block."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "A compliance/status result card must reflect the true PASS/FAIL state (the boolean gate must match the exact sentinel the backend returns) — a card that always shows the FAIL/REVIEW color on valid passing input is a silent correctness lie.",
+      "basis": "Nielsen-N (Match between system & real world / Visibility of true status) + skill-rule (Result String Sentinel)",
+      "severity": 2,
+      "detect": "Run a calc/check with valid passing inputs and confirm the result card actually turns to the PASS state/color; a card stuck on FAIL/REVIEW despite valid input = fail."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Deep links must land the user on the OPENED detail/applied-filter, not merely a loaded page; input-handoff deep links (e.g. ?q=) must prefill+focus only and never auto-submit an AI call or write (zero-click action risk).",
+      "basis": "Nielsen-N (User control & freedom / Match) + WCAG-POUR + skill-rule (deep-link reader patterns) + security",
+      "severity": 2,
+      "detect": "Follow each emitted deep-link param and confirm the destination opens the intended detail/filters correctly (not a default page); confirm ?q=-style links prefill and focus but do NOT auto-fire an AI request or write."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Connection/online-offline and live-status indicators must be visible and truthful (offline banner with pending count for field workers; realtime boards reflect INSERT/UPDATE/DELETE so status changes and deletions are not invisible until reload).",
+      "basis": "Nielsen-N (Visibility of system status) + skill-rule (IndexedDB Offline Queue / Realtime Subscribe to All Three Events)",
+      "severity": 2,
+      "detect": "Go offline and submit: confirm a visible offline banner + pending badge + 'saved offline' message; on a live board, change a record's status and delete one elsewhere and confirm the board updates without a manual reload."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Toggle/visual state must stay in sync with underlying state after resets (form.reset() does not fire change events): a custom pill/toggle/status indicator must be manually re-synced so it never shows a 'frozen' selection that ignores clicks.",
+      "basis": "Norman-N (system state visibility / feedback) + skill-rule (form.reset() — Always Follow With Visual State Reset)",
+      "severity": 1,
+      "detect": "Reset/clear a form with custom toggles and confirm the visual toggles match the reset state; then click the apparently-active option and confirm it responds (a toggle that looks active but does nothing on click = fail)."
+    },
+    {
+      "skill": "frontend",
+      "layer": "heuristic",
+      "rule": "Cross-card / cross-page numbers about the same set must agree; denominators/totals must derive from the canonical source, not hardcoded — two numbers on one screen about the same set disagreeing signals a hardcode or wrong filter.",
+      "basis": "Nielsen-N (Consistency & standards / Match to real world) + skill-rule (Derive denominators from canonical source / cross-surface KPI parity)",
+      "severity": 2,
+      "detect": "On a page/loop, compare numbers that describe the same set (e.g. '3 of 5' vs '×6 disciplines', overdue count vs row count, header total vs board total); any disagreement = a correctness defect to flag."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "All tap targets >= 44x44px (no exceptions, including JS-template-literal buttons, icon-only buttons, summary toggles, chips, pills, tabs, FABs)",
+      "metric": "min(boundingClientRect.width, boundingClientRect.height) on every interactive element",
+      "threshold": ">= 44px (both width and height)",
+      "detect": "Enumerate live DOM els matching a,button,[role=button],[role=tab],input[type=button],.chip,.pill,.filter-chip,.btn-icon,.fab,summary; for each visible (el.checkVisibility()) read getBoundingClientRect(); assert width>=44 && height>=44. Measure the COMPUTED rect, not the class. A small control inside a >=44 row hitbox (li/tr/.row) passes. Measure at confirmed CSS 375/390 width (account for devicePixelRatio: confirm window.innerWidth==target after resize, else resize to target*dpr).",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Text-entry inputs must have font-size >= 16px (iOS Safari auto-zoom threshold is exactly 16px/1rem)",
+      "metric": "getComputedStyle(el).fontSize on text-entry fields only (input[type=text|email|number|search|tel|url|password|date], typeless input, textarea, select)",
+      "threshold": ">= 16px (1rem)",
+      "detect": "Enumerate input/textarea/select from the LIVE DOM AFTER every panel/dialog/draft is rendered (runtime-injected fields bypass .wh-input baseline); filter to text-entry types (exclude radio/checkbox/range/color/file/button - they never zoom); read computed font-size; assert >=16. Catches Tailwind text-sm/text-xs (14px/12px) and inline style='font-size:0.875rem' overriding the .wh-input 1rem base.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Color contrast must meet WCAG (high contrast important for bright/outdoor plant-floor use)",
+      "metric": "axe-core color-contrast rule",
+      "threshold": ">= 4.5:1 (normal text) per axe color-contrast",
+      "detect": "Run axe-core; check rule id 'color-contrast' has zero violations.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "No horizontal scroll on any page at 375/390px",
+      "metric": "document.documentElement.scrollWidth - clientWidth",
+      "threshold": "=== 0 (no horizontal overflow)",
+      "detect": "At confirmed CSS 375/390 width (verify window.innerWidth==target after resize, account for dpr), assert document.documentElement.scrollWidth - document.documentElement.clientWidth === 0. Watch for inline grid-template-columns with fixed px columns and fixed-width pill rows of 4+ items.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Toggle buttons / pill option selectors must be >= 44px tall on mobile",
+      "metric": "getComputedStyle(el).height (computed) on .toggle-btn / pill option selectors at 375px viewport",
+      "threshold": ">= 44px height",
+      "detect": "At 375px viewport measure computed height of any .toggle-btn / pill-style option selector; padding:0.5rem alone yields ~40px (fails). Assert >=44.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Visual checkbox/check-box indicator must be glove-visible even when the row is the hitbox",
+      "metric": "boundingClientRect of the visual .check-box indicator element",
+      "threshold": "visual indicator >= 32x32px; hitbox (row) >= 44x44px",
+      "detect": "For checklist-style items, measure both the visual indicator box (.check-box: must be >=32x32) and the wrapping tappable row (.check-item: must be >=44x44 effective hitbox).",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "viewport meta must include viewport-fit=cover (else env(safe-area-inset-*) returns 0)",
+      "metric": "viewport meta content attribute",
+      "threshold": "must contain 'viewport-fit=cover'",
+      "detect": "Read document.querySelector('meta[name=viewport]').content; assert it includes 'viewport-fit=cover'. Check each page individually (viewport tags are not shared).",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Floating AI widget / mobile bottom-fixed elements must clear env(safe-area-inset-bottom)",
+      "metric": "CSS bottom value of #wh-ai-widget (and sticky bottom bars) in the mobile media query",
+      "threshold": "bottom must use max(16px, env(safe-area-inset-bottom)); not a bare fixed bottom:16px",
+      "detect": "Inspect computed/declared bottom of #wh-ai-widget and any position:fixed bottom:0 sticky CTA bar at <=480px; assert it resolves to max(16px, env(safe-area-inset-bottom)) (requires viewport-fit=cover). Bare bottom:16px overlaps the iPhone home indicator.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "manifest.json must exist and be linked for PWA installability",
+      "metric": "presence of <link rel=manifest> and a fetchable manifest with name, icons (192 & 512), start_url, display:standalone",
+      "threshold": "manifest present + required keys present; icons include 192x192 and 512x512 with purpose 'any maskable'",
+      "detect": "Assert document.querySelector('link[rel=manifest]') exists; fetch it and assert name, start_url, display==='standalone', icons sizes 192x192 and 512x512.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "A focusable focus ring (:focus-visible) must replace any zeroed outline",
+      "metric": "presence of a :focus-visible outline rule when a control rule sets outline:none",
+      "threshold": "if outline:none is declared, a matching :focus-visible {outline:2px solid ...} rule must exist",
+      "detect": "Scan <style> blocks (NOT full file text) for outline:none on interactive controls; assert a corresponding select:focus-visible/button:focus-visible {outline:...} rule exists. Battery flags 'focus-miss' otherwise.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Page must have a real <header> banner landmark (a div.page-header is not a landmark)",
+      "metric": "presence of a <header> element",
+      "threshold": "exactly one <header> banner landmark element present",
+      "detect": "Assert document.querySelector('header') matches the HTML element (not a class containing 'header'). div.page-header does NOT satisfy U6.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Page must have a <main> landmark",
+      "metric": "presence of <main> element",
+      "threshold": "<main> present (build new pages with <main class=page>)",
+      "detect": "Assert document.querySelector('main') exists.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Toast container must have ARIA so mobile screen readers (VoiceOver/TalkBack) announce it",
+      "metric": "role and aria-live attributes on toast container",
+      "threshold": "role='alert' AND aria-live='polite'",
+      "detect": "Assert toast container (#toast) has role='alert' and aria-live='polite'. Missing = save/error/approval confirmations are silent for VoiceOver/TalkBack users.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "No more than ~10 simultaneous infinite CSS animations on mobile (iOS WebKit GPU-memory tab kill)",
+      "metric": "count of concurrently-running infinite CSS animations at mobile width",
+      "threshold": "< 10 concurrent infinite animations on mobile",
+      "detect": "At <=767px enumerate elements with getComputedStyle.animationIterationCount==='infinite' that are decorative (exclude whitelisted functional: .spinner/.skeleton/shimmer/.typing-dot/spin/blink/pulse/mic-pulse/dot-pulse/.live/#refresh-icon); assert count < 10. Particle/beam generators must be guarded by if(window.innerWidth<768)return.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Decorative infinite animations must have a @media(max-width:767px){animation:none} kill",
+      "metric": "presence of a mobile animation:none kill rule for each decorative infinite animation",
+      "threshold": "every decorative infinite animation has a max-width:767px animation:none rule (with !important if a later inline <style> re-declares it)",
+      "detect": "Static regex (mobile_decorative_anim_has_mobile_kill): trigger on animation:<decorative>...infinite; require @media(max-width:767px){...animation:none}. Also detect animation_cascade_order: a selector killed in a media query but re-declared with infinite animation in a LATER style block (needs !important).",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "will-change:filter must be overridden to will-change:auto on mobile (most expensive mobile GPU property)",
+      "metric": "presence of will-change:auto override at max-width:767px for any will-change:filter declaration",
+      "threshold": "every will-change:filter has a max-width:767px will-change:auto override",
+      "detect": "Extract <style> blocks only (not full file - avoids false positives on HTML text); if will-change:filter present, assert a @media(max-width:767px){will-change:auto} override exists.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Pages using html2pdf must inject page-break-inside:avoid on <p> (and tr/td/th and div content blocks)",
+      "metric": "presence of #report-panel p {page-break-inside:avoid} when html2pdf() is used",
+      "threshold": "page-break-inside:avoid rule present on p (plus tr,td,th,h2/h3 break-after,.result-highlight,.sig-block, and classed div blocks)",
+      "detect": "Static (mobile_pdf_pagebreak_covers_p): if html2pdf( appears, assert /#report-panel\\s+p\\s*\\{[^}]*page-break-inside\\s*:\\s*avoid/. Inline-styled divs need a class to be targetable.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "html2pdf pagebreak config must NOT use avoid-all (causes blank first page) and pagebreak option must be present",
+      "metric": "html2pdf().set pagebreak mode value",
+      "threshold": "pagebreak: {mode:['css']} only; never includes 'avoid-all'; pagebreak option must exist",
+      "detect": "Search every PDF-generation function for 'avoid-all' (must be absent) and confirm a pagebreak option is present in html2pdf().set({...}) (missing pagebreak silently ignores all CSS page-break rules).",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Results card layouts in PDF reports must be HTML <table>, not display:grid (grid page-break unreliable in html2pdf)",
+      "metric": "element type used for multi-card results layout in a PDF-downloadable report",
+      "threshold": "must be <table> with page-break-inside:avoid on it; not a display:grid container",
+      "detect": "In report templates that download as PDF, assert no display:grid container is used for result cards; require <table> with page-break-inside:avoid;break-inside:avoid.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "Dynamically injected tables / fixed-px grids must be wrapped in an overflow-scroll container",
+      "metric": "presence of .table-wrap (overflow-x:auto) around every injected <table> or inline grid-template-columns with fixed px",
+      "threshold": "every dynamic <table> / fixed-px grid wrapped in overflow-x:auto container",
+      "detect": "Find <table> or style='grid-template-columns:...px...' produced via innerHTML; assert each is inside a .table-wrap (overflow-x:auto;-webkit-overflow-scrolling:touch) and the wrapper CSS exists in the page <style> block.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "White report panels must have a @media(max-width:640px) padding override",
+      "metric": "presence of a max-width:640px padding override on #report-panel",
+      "threshold": "report panel padding reduced (e.g. 1rem) at <=640px",
+      "detect": "Assert any white report panel has a @media(max-width:640px){padding:1rem...} override; 2.5rem padding at 375px leaves only ~295px content width and overflows 3+ column tables.",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "No bottom-right page FAB occluded by the global shell stack (conn-chip / nav-hub / feedback)",
+      "metric": "document.elementFromPoint(FAB center) and remaining unobstructed clickable area",
+      "threshold": "FAB center returns the FAB itself; not occluded into a thin strip (e.g. 52x8) by shell overlays",
+      "detect": "At 390px, for any page .fab/#fab-post call document.elementFromPoint(centerX,centerY) and confirm it is the FAB, not #wh-conn-chip/#wh-hub. axe target-size can flag a >=44 FAB as 'partially obscured'. Resolution: move page FABs bottom-left on mobile (@media(max-width:767px){left:24px;right:auto}).",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "floor",
+      "rule": "PWA service worker CACHE_NAME must be bumped when any SHELL_FILE changes (stale-cache check)",
+      "metric": "git commit timestamp of any SHELL_FILE vs sw.js (sw_cache_staleness)",
+      "threshold": "no SHELL_FILE committed more recently than sw.js",
+      "detect": "validate_pwa.py sw_cache_staleness compares git timestamps of SHELL_FILES vs sw.js; FAIL means CACHE_NAME must be bumped. (Build-time check, not in-page.)",
+      "owner": "mobile-maestro"
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "No hover-only interactions - everything must work with touch (hover states do nothing on touch)",
+      "basis": "skill-rule (WCAG-POUR Operable)",
+      "severity": 2,
+      "detect": "During the journey, identify any function/affordance that only reveals or activates on hover (tooltips, menus, controls). Flag if there is no touch-equivalent (tap/long-press)."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Touch feedback (:active state) on all interactive elements",
+      "basis": "skill-rule (Norman-feedback / Nielsen-1 visibility of system status)",
+      "severity": 1,
+      "detect": "Tap buttons/rows/icon-buttons; observe whether there is immediate visual touch feedback (opacity/scale change). Absence of any :active feedback = flag."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Primary actions must be thumb-reachable at the bottom of the screen (thumb zone first)",
+      "basis": "skill-rule (Norman-affordance / mobile ergonomics)",
+      "severity": 2,
+      "detect": "Identify each page's primary action; judge whether it sits in the bottom thumb zone vs stranded at the top/corner. Field workers (often gloved) need one-thumb reach."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "No content under the iOS safe area (notch top, home indicator bottom)",
+      "basis": "skill-rule (WCAG-POUR / platform)",
+      "severity": 2,
+      "detect": "At a notched-device profile, check whether any interactive/important content is clipped under the top notch or bottom home-indicator gesture bar."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Modals must be scrollable if taller than the viewport",
+      "basis": "skill-rule (Nielsen-3 user control / WCAG-POUR)",
+      "severity": 2,
+      "detect": "Open each modal/dialog at 375px; if content exceeds viewport height, confirm it scrolls (overflow-y auto) and all actions remain reachable. Flag if content/buttons are cut off and unreachable."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "App works offline or shows a clear offline message; data-entry forms queue offline with visible status",
+      "basis": "skill-rule (Nielsen-1 visibility of status / Nielsen-9 error recovery)",
+      "severity": 2,
+      "detect": "Go offline during a journey: expect a visible #offline-banner with 'N pending' badge, 'Pending sync' indicator on queued entries, and an on-reconnect 'X entries synced' toast. Absence on a data-entry page = flag."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Use a bottom sheet (not full-screen modal / alert dialog / new page) for field confirmation flows needing 2-3 extra fields",
+      "basis": "skill-rule (Norman-mapping / Nielsen-4 consistency with native patterns)",
+      "severity": 1,
+      "detect": "When an action needs extra input before completing (e.g. 'mark PM done' -> findings/action), judge whether it uses a thumb-reachable bottom sheet vs a disorienting full-screen modal, alert/confirm dialog, or a navigation to a new page."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Clear panel content synchronously before an await when the user changes the panel context (no stale data on slow mobile)",
+      "basis": "skill-rule (Nielsen-1 visibility of system status)",
+      "severity": 2,
+      "detect": "Select a new asset/tab on a slow connection; if the previous selection's data lingers visibly for seconds during the in-flight fetch (looks like a bug), flag. Panel should clear/empty immediately, then show loading."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Replace native <select> with an inline custom chip/tab picker when it renders >~5 browsable options",
+      "basis": "skill-rule (Nielsen-2 match between system & real world / Norman-affordance)",
+      "severity": 1,
+      "detect": "For each <select> populated from a JS array/DB with >~5 options (or options with secondary metadata, or other fields depending on the choice), judge whether a browsable picker (chips in a bottom sheet) would serve better than the native full-screen iOS spinner."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Pill/tab rows with 4+ items must wrap (flex-wrap) to a 2-per-row grid, not overflow off-screen",
+      "basis": "skill-rule (Nielsen-6 recognition / discoverability)",
+      "severity": 2,
+      "detect": "At 375px inspect any pill/discipline/category row with 4+ items; if the last pill is clipped off-screen with no scroll indicator the user can't discover it -> flag (should flex-wrap with min-width calc(50%-gap))."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Dynamically revealed panels/results must scroll into view on mobile",
+      "basis": "skill-rule (Nielsen-1 visibility of system status)",
+      "severity": 2,
+      "detect": "Trigger a dynamic reveal (calc result, BOM/SOW panel, logbook entry after submit, modal confirmation) at <768px; if the revealed content lands below the fold and the page does not scrollIntoView, the user thinks the action failed -> flag."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Tappable <div onclick> (cards, calendar slots, list rows) must be keyboard/switch/screen-reader operable",
+      "basis": "WCAG-POUR Operable (keyboard) / skill-rule",
+      "severity": 2,
+      "detect": "For each tappable div with onclick, confirm role='button' + tabindex='0' + Enter/Space keydown handler + a :focus-visible ring. A tappable div invisible to keyboard/switch/TalkBack = flag (L2 interaction audit passes them; only journey catches it)."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "PWA install button must always be visible (never hidden behind beforeinstallprompt) with platform-specific tap handling",
+      "basis": "skill-rule (Nielsen-1 visibility / Norman-discoverability)",
+      "severity": 1,
+      "detect": "Confirm an install affordance is shown to first-time visitors (not gated on beforeinstallprompt). On tap it should handle Android/Chrome (deferred prompt), iOS Safari (Share->Add to Home Screen steps), iOS Chrome (open in Safari warning), desktop Chrome (address-bar icon hint). Hide only after confirmed install."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "iOS: never use webkitSpeechRecognition (truthy but aborts immediately); fall back to MediaRecorder + server transcription",
+      "basis": "skill-rule (platform behavior / Nielsen-9 error recovery)",
+      "severity": 2,
+      "detect": "On a voice/speech feature under an iOS UA, confirm code excludes iOS before using SpeechRecognition/webkitSpeechRecognition and falls through to MediaRecorder+server (Groq Whisper). A bare window.SpeechRecognition||window.webkitSpeechRecognition check on iOS = broken feature."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Label PDF-export buttons 'Download / View PDF' or 'Save PDF' (iOS opens a viewer, does not save)",
+      "basis": "skill-rule (Nielsen-2 match real world / set correct expectations)",
+      "severity": 0,
+      "detect": "Inspect PDF-export button label; if it implies a guaranteed file save (misleads iOS users where Safari opens the built-in viewer), suggest 'Download / View PDF' or 'Save PDF'."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Empty/result states must give the user a way forward (query-first team views show an empty prompt, not an endless spinner)",
+      "basis": "Nielsen-1 visibility of system status / skill query-first UX",
+      "severity": 1,
+      "detect": "On team/multi-user views, switching tabs should show an empty prompt with explicit filters + a Search button (query-first), not a 1-5s freeze or a spinner with no guidance. Flag tab-switch-loads-everything patterns."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Sticky bottom CTA bar must clear the nav-hub FAB zone and is mobile-only",
+      "basis": "skill-rule (spatial layout / Norman-affordance)",
+      "severity": 1,
+      "detect": "If a page has a full-width sticky bottom CTA bar, confirm padding-right:84px so the button text isn't hidden behind the nav-hub FAB, that it is md:hidden (desktop never sees it), and aria-hidden toggles with visibility. Two action FABs sharing the bottom-right corner = Single-FAB-Hub anti-pattern."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Two action FABs must not share the bottom-right corner with the global shell stack (Single-FAB-Hub anti-pattern)",
+      "basis": "skill-rule / Norman (avoid crowding the primary-action zone)",
+      "severity": 2,
+      "detect": "Audit bottom-right occupancy at 390px (nav-hub FAB, conn-chip, feedback FAB, ai-widget, bottom-nav). Flag if a page adds its own fixed action FAB into that already-crowded corner."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "Buttons must be glove-operable and text glove/sunlight-legible (industrial field-worker context)",
+      "basis": "skill-rule (audience-specific usability / WCAG-POUR)",
+      "severity": 1,
+      "detect": "Judge whether tap targets are large enough for gloved hands and text is large/high-contrast enough for noisy, bright outdoor use; cramped controls or thin low-contrast text in primary flows = flag."
+    },
+    {
+      "skill": "mobile-maestro",
+      "layer": "heuristic",
+      "rule": "<summary> disclosure toggles are tap targets and must be comfortably tappable",
+      "basis": "skill-rule (Operable / tap-target affordance)",
+      "severity": 1,
+      "detect": "For full-width collapsible <summary> elements (engineering panels, founder section headers), confirm they read/behave as a >=44px tappable control (min-height:44px; flex; align-items:center). Default ~34-42px = flag."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Every interactive element (button, link, [onclick], [role=button], input[type=button|submit]) must be at least 44x44px on mobile — including buttons rendered inside JS template literals and rows that wrap a small control.",
+      "metric": "min(getBoundingClientRect().width, getBoundingClientRect().height) of each interactive element",
+      "threshold": ">= 44px",
+      "detect": "Enumerate `button, a, [onclick], [role=button], summary, input[type=button], input[type=submit]` and read getBoundingClientRect(); flag any where min(width,height) < 44. For hidden/hive-gated els use getComputedStyle().minHeight (rect is 0 for display:none). Note: a small control inside a too-short custom row (e.g. `.oh-job-row` 36px) fails — size the ROW or the control. Battery parent-hitbox exemption only covers li/tr/.row/[role=listitem]/label.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Tap-target failures are frequently OCCLUSION, not the control's own size — a 56px FAB overlapping it, or the global shell over it.",
+      "metric": "document.elementFromPoint(cx,cy) at the control's center returns the control itself (not an overlay/FAB)",
+      "threshold": "elementFromPoint must equal the control or its descendant",
+      "detect": "For each interactive el compute center (rect.left+width/2, rect.top+height/2) and call document.elementFromPoint; if it returns a different element (e.g. `#wh-hub-fab`, page shell) the control is occluded.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Bottom-right nav FAB (56px, 24px from right edge = 80px occlusion zone) must not overlap a page's primary submit/save button or a full-width sticky bottom CTA bar; sticky `position:fixed;bottom:0` bars require padding-right:84px.",
+      "metric": "Horizontal overlap between FAB bounding box and any primary action button / sticky bottom bar at 375px",
+      "threshold": "0px overlap; sticky bar container padding-right >= 84px",
+      "detect": "At 375px with FAB visible, get FAB rect and each `position:fixed;bottom:0` bar + submit button rect; flag if rects intersect, or if getComputedStyle(bar).paddingRight < 84px.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Text-entry inputs (input, textarea, select with .wh-input or any text-entry type) must be >=16px font-size to avoid iOS Safari auto-zoom on focus. Excludes checkboxes (they don't trigger zoom).",
+      "metric": "getComputedStyle(field).fontSize on every input/textarea/select, measured from the LIVE DOM after each dialog/draft/category renders",
+      "threshold": ">= 16px",
+      "detect": "For each `input:not([type=checkbox]):not([type=radio]), textarea, select` read getComputedStyle().fontSize and flag < 16px. Must run on runtime/innerHTML-built fields too (static scan misses inline `0.8rem`/`text-sm`/`text-xs`); trigger each conditional section/category first.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Text must meet WCAG 2.2 AA color contrast — account for ancestor opacity compositing (a parent opacity:0.4 multiplies child text alpha down).",
+      "metric": "axe-core color-contrast composited fgColor vs bgColor ratio",
+      "threshold": ">= 4.5:1 (normal text); >= 3:1 (large text)",
+      "detect": "Run `axe.run(node,{runOnly:['color-contrast']})`; on a persistent fail read the real fgColor and walk getComputedStyle(ancestor).opacity up the chain. Empty/zero-data states host the faintest ghosted text (rgba(255,255,255,0.3/0.35/0.4), text-white/25) — render the empty state and re-run axe.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Every non-native interactive primitive (custom div/span clickable) must show a visible focus ring; native button/a/input get a UA ring for free and are exempt.",
+      "metric": "getComputedStyle(el).outlineStyle when focused (or presence of a :focus/:focus-visible rule for non-native)",
+      "threshold": "outlineStyle != 'none' (i.e. 'auto' or a real style) when focused",
+      "detect": "Focus the element and read getComputedStyle(el).outlineStyle; flag non-native primitives whose focused outline is 'none' and that declare no :focus rule. Do NOT flag native button/a/input.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "A clickable's accessible name does not prove keyboard operability — a `<div onclick>` with text but no tabindex is mouse-only (WCAG 2.1.1).",
+      "metric": "el.tabIndex / native-interactive status for elements carrying their own onclick",
+      "threshold": "tabIndex >= 0 OR native interactive OR contentEditable",
+      "detect": "For an element with its OWN onclick attr that is not native interactive and not tabindex>=0/contentEditable, flag `click:not-keyboard-operable`.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Icon-only / non-text clickables must carry an accessible name (aria-label or equivalent).",
+      "metric": "accessible name of each button/[role=button]/clickable",
+      "threshold": "accessible name length > 0",
+      "detect": "For each interactive el with no visible text content, check for aria-label / aria-labelledby / title; flag icon-only buttons with none as Major (clickAudit accessible-name check).",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Every form field must have a programmatic label — label[for], aria-label, aria-labelledby, or a wrapping <label>. A visible <label>X</label> with NO for and an input with NO id is NOT associated. A placeholder is never a label.",
+      "metric": "presence of a programmatic label association per input/select/textarea",
+      "threshold": "exactly one resolvable programmatic label; 0 unassociated fields",
+      "detect": "For each input/select/textarea check: label[for=id] exists, OR aria-label/aria-labelledby set, OR an ancestor <label> wraps it. Flag the `.field>label`+`.wh-input` no-for/no-id pattern. Placeholder presence does NOT satisfy this.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Inputs must use the correct input type (email/tel/number) so mobile shows the right keyboard and native validation runs; identity fields should set autocomplete.",
+      "metric": "type attribute vs inferred field purpose; autocomplete on name/email/phone",
+      "threshold": "email field type=email, phone type=tel, etc.; autocomplete present on name/email/phone",
+      "detect": "Infer expected type from the field key/name; flag e.g. an email field rendered as type=text. Check autocomplete attr is present on name/email/phone fields.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "No horizontal scroll / layout overflow on mobile.",
+      "metric": "document.documentElement.scrollWidth - clientWidth",
+      "threshold": "=== 0 (page); <= 2 for a fixed-width render surface like #resume-paper",
+      "detect": "Read documentElement.scrollWidth - clientWidth (expect 0). For a fixed-width render container assert el.scrollWidth - el.clientWidth <= 2 — stress with one long unbroken 270-char token (URL/email).",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Any rendered report/data table with 5 or more columns must be wrapped in an overflow-x:auto container so it does not overflow the 375px viewport.",
+      "metric": "column count of each report <table> and overflow-x of its wrapper",
+      "threshold": ">=5 columns requires a wrapping element with overflow-x:auto",
+      "detect": "For each table with >=5 `th`/first-row cells, check the parent has getComputedStyle().overflowX === 'auto' (or 'scroll').",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Measure mobile at a TRUE CSS viewport — read innerWidth and devicePixelRatio first, because dpr != 1 makes setViewportSize lie (390 at dpr 0.8 -> innerWidth 487).",
+      "metric": "window.innerWidth and window.devicePixelRatio at the intended mobile width",
+      "threshold": "innerWidth resolves to the intended CSS px (e.g. 390); test at 375px and 1280px",
+      "detect": "Read window.innerWidth + window.devicePixelRatio before measuring; to hit 390 CSS px at dpr 0.8 set the window to 390*0.8=312, then re-confirm innerWidth.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "No garbage values rendered in value tiles (NaN cascade, undefined, [object Object], a null with a unit).",
+      "metric": "text content of pure-value tiles (correctness pillar T0)",
+      "threshold": "0 occurrences of NaN / undefined / [object Object] / null+unit",
+      "detect": "Scan value tiles for /NaN|undefined|\\[object Object\\]/ and a bare null adjacent to a unit; battery referee() T0 fires Major on these.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Percentage value tiles must be in range (pure-value tiles only, not prose like '120% of target').",
+      "metric": "numeric % of pure-value tiles",
+      "threshold": "0% <= value <= 100% (out-of-range -> Major for <0, Minor for >100)",
+      "detect": "Parse pure-value `%` tiles; flag negative as Major and >100 as Minor (skip prose-containing tiles).",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "No stuck loader — a spinner/skeleton still visible after load (and after data settles) is an unresolved fetch; every report renderer must end with showReport() so the spinner clears.",
+      "metric": "visibility of any loading spinner/skeleton/'Loading…' placeholder after content settle",
+      "threshold": "0 visible loaders post-load",
+      "detect": "After awaiting supabase ready + a settle tick, query spinner/skeleton/text 'Loading…' nodes and check offsetParent!==null; a still-visible loader = Major.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Toast / status message container must announce to screen readers.",
+      "metric": "role + aria-live on the toast container; role on status regions",
+      "threshold": "toast: role='alert' aria-live='polite'; status regions: role='status' aria-live='polite'",
+      "detect": "Select the toast container (e.g. #toast / #toast-msg) and assert role==='alert' && aria-live==='polite'. Status regions need role='status' aria-live='polite'.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Toggle / pill / selectable buttons must expose pressed state, and an .active/[aria-selected] variant must look visibly different from its base.",
+      "metric": "aria-pressed presence on toggles; computed-style delta between active and base variant",
+      "threshold": "toggles have aria-pressed; active variant's computed style != base (not identical)",
+      "detect": "For toggle buttons check aria-pressed attr exists. For .active/[aria-selected] variants compare key computed styles (bg/border/color) to the base class; identical = invisible-selection Major (statesAudit).",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Every page must declare a <main> landmark, viewport-fit=cover, and a manifest link (new-page surface contract).",
+      "metric": "presence of <main>, meta viewport viewport-fit=cover, link rel=manifest",
+      "threshold": "all three present",
+      "detect": "document.querySelector('main') !== null; viewport meta content includes 'viewport-fit=cover'; link[rel=manifest] present. (A page built with <div class=page> fails.)",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "A count badge must equal the rows it labels and a total must equal the sum of its rows (annotated correctness, T1).",
+      "metric": "count badge value vs matched row count; total vs Σ of annotated column",
+      "threshold": "badge == count(rows); total == Σ rows (within tolerance)",
+      "detect": "Where `[data-count-of=sel]` / `[data-sum-of=rowSel][data-sum-col=i]` annotations exist, compare the displayed number to document.querySelectorAll(sel).length / the column sum.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "A KPI tile that doubles as a filter must, when tapped, render exactly the count it advertised; a filter must never GROW its row count; tabs must change panel content.",
+      "metric": "visible row count after tapping a KPI-filter vs the KPI value; row count before/after a filter; panel content signature before/after a tab",
+      "threshold": "tappedKPI value == visible rows; filtered rows <= pre-filter rows; each tab changes the panel signature",
+      "detect": "act(tap KPI) then count `> .card`/list rows (visible only if it hides rather than re-renders); flag mismatch. A tab that does not change panel content = dead-tab Major (T2 behavior).",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Every inline onclick handler must reference a defined function (a dead button that throws on click) and no clickable should dead-end.",
+      "metric": "typeof window[fn] for each inline onclick='fn()'; href value for anchors",
+      "threshold": "typeof === 'function'; no href='#'/''/javascript:void with no handler",
+      "detect": "Parse each inline onclick, assert typeof window[fnName]==='function'. Flag a[href='#'|''|javascript:void(0)] with no click handler as a dead link.",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "floor",
+      "rule": "Supabase-using pages must have the Supabase CDN <script> in <head> (its absence silently crashes all JS); a referenced object 404/PGRST205 in console is a real defect.",
+      "metric": "count of supabase-js script tags; console for 404/PGRST205 on rest/rpc",
+      "threshold": ">=1 supabase-js script when supabase.createClient is used; 0 object-missing console errors",
+      "detect": "Check for the supabase-js CDN tag; monitor console/network for 404 or PGRST205 on /rest/v1/ or .rpc() calls (a referenced table/RPC missing in this environment).",
+      "owner": "qa-tester"
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Empty / first-time / no-data state must be handled gracefully (helpful guidance, not a blank or broken screen) — and is ROLE-gated, so it only renders for a user/hive with no data.",
+      "basis": "Nielsen-N (Help users; aesthetic minimalist); skill-rule (data state is a test dimension)",
+      "severity": 2,
+      "detect": "Sign in as a worker/hive with no rows (or force #empty-state/#no-results visible) and judge: is there a clear next action, or a blank/broken/ghosted screen? Also check empty-state text isn't an illegible faint color."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Loading / slow-connection state must be handled — show a skeleton/spinner that resolves, never a perpetual 'Loading…' or stuck shimmer.",
+      "basis": "Nielsen-N (Visibility of system status)",
+      "severity": 2,
+      "detect": "Throttle/observe initial load; confirm a loading affordance appears and is replaced by content, with no tile stuck on shimmer or 'Loading…'."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Error state must be handled — Supabase down / failed fetch / offline leaves a calm message, never a stuck spinner or uncaught rejection. AI/network buttons must be tested offline: assert BOTH the fallback result AND that the messaging is reassuring (not a raw 'rate limited'/'check connection' error).",
+      "basis": "Nielsen-N (Error recovery, help users recognize errors); skill-rule (test the throw/timeout path)",
+      "severity": 2,
+      "detect": "Override window.fetch to reject/abort for the one endpoint (or go offline); confirm no infinite spinner, no uncaught rejection, and the toast/message reads /offline/ rather than a raw error. Cover both timeout (returns null) and network-error (throws)."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "The displayed VALUE must be correct, not just present — it must read the canonical v_*_truth source (not a raw table/local re-derivation), use the correct formula, agree across surfaces, and match the DB row, scoped correctly to the role (worker=own hive, supervisor=aggregate, solo=solo).",
+      "basis": "skill-rule (WHAT axis: correctness/parity/provenance); WCAG-POUR (Understandable)",
+      "severity": 3,
+      "detect": "For each KPI read the live network filter, recompute from raw v_*_truth, and compare. Same population across two surfaces -> assert equality; different granularity -> direction-only. A clean ~integer ratio between displayed and recomputed = a hidden scope filter (e.g. worker_name)."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Same-NAMED is not same-DERIVATION — a cross-page number 'drift' (e.g. Overdue 2 vs 3) is VERIFY-FIRST, not auto-Major: read each tile's sub-text + data-rag-label + backing view; if they count different units the fix is RELABEL/differentiate, never 'fix the math'.",
+      "basis": "skill-rule (parity trap); Norman-N (mapping/consistency)",
+      "severity": 1,
+      "detect": "On a journey number mismatch, compare the two tiles' data-rag-label and sub-text and the backing RPC/view; only flag if they truly count the same unit. Otherwise raise a relabel/differentiate critic candidate."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "A control landing 'correctly' has three more axes beyond no-error: WHERE (right modal/page/filter direction), WHEN (effect arrives, no stuck/reverting state), and WHO (right outcome per role — supervisor=full, worker on a supervisor-only control gets a helpful 'ask your supervisor' not a raw error, solo is guided not stranded).",
+      "basis": "Nielsen-N (Match system & real world; user control); skill-rule (Arrange-Act-Assert role matrix)",
+      "severity": 2,
+      "detect": "Click each safe control and assert the RIGHT modal/page appeared (by id/title), the list changed in the right direction, the effect arrived within a timeout, and re-run per identity (solo/worker/supervisor) to confirm the landing is correct for that role."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Redundancy / IA: a job-to-be-done served by >1 page, a control reachable >=3 ways, or a KPI/logic computed in >1 place is a redundancy DEFECT — collapse to one shared source so it can't drift (drift in a re-derived KPI is what lets WHAT-bugs survive).",
+      "basis": "skill-rule (editor-with-a-map / function inventory); UX laws (Hick, Tesler, Jakob)",
+      "severity": 2,
+      "detect": "Build a function inventory (action/KPI/capture x which pages expose it); flag jobs on >1 page, controls reachable >=3 ways, KPIs computed in >1 place. Surface as a critic candidate for human disposition — never auto-collapse UI."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "A 'scan X' affordance without a matching 'generate/print X' affordance is a half-loop IA defect — the user is asked to scan a code the app never lets them create.",
+      "basis": "skill-rule (half-features); Norman-N (closing the loop)",
+      "severity": 2,
+      "detect": "For any scan/decode feature, check the repo/page for a corresponding generate/print affordance; absence is a Major IA finding (build the generator)."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Every modal / bottom sheet gets the full a11y battery: role='dialog', aria-modal='true', an accessible name, ESC closes it, focus is trapped (Tab from last wraps to first, Shift+Tab from first to last), and on close focus returns to the opener. Hand-rolled modals drift from the helper's bar.",
+      "basis": "WCAG-POUR (Operable: keyboard, focus order); Nielsen-N (user control & freedom)",
+      "severity": 2,
+      "detect": "For each modal assert role/aria-modal/accessible-name; press ESC and confirm close; Tab through to verify focus stays inside and wraps; confirm focus returns to the triggering element on close."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "A destructive/remove action must be UNDOABLE, and an X/close that collected input must save state the same as the primary action — silent state loss on X looks like a bug.",
+      "basis": "Nielsen-N (User control & freedom / undo); skill-rule (recovery is first-class for a novice audience)",
+      "severity": 2,
+      "detect": "Remove an item then click Undo and assert the value returns; type in a modal, dismiss via X, reopen and assert the input survived (matches the Done/Save behavior)."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "A 'what's blocking' / checklist must list only UNMET criteria — a satisfied requirement shown as a blocker (e.g. '30 of 5 templates registered') is wrong.",
+      "basis": "Nielsen-N (Match system & real world; minimalist)",
+      "severity": 1,
+      "detect": "Read the blocker/empty-state string and confirm every listed item is genuinely unmet; flag any satisfied criterion still shown."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "A count pill ('N entries / N open / N total') must use a COUNT query, not array.length of a paged/.limit() fetch — otherwise it understates the truth and contradicts other surfaces.",
+      "basis": "skill-rule (count-badge over a limited window); Nielsen-N (visibility of true status)",
+      "severity": 2,
+      "detect": "For a user whose data exceeds the page cap, compare the pill to an exact count; if it equals the cap (e.g. 200) while the DB has more, it's array.length of a paged fetch."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "A deep-link tile ('9 PM overdue — open PM Scheduler') must match the destination's granularity/count on click-through; a source/destination mismatch (items vs assets) is a contradiction the user sees.",
+      "basis": "Nielsen-N (Consistency & standards); skill-rule (cross-surface granularity)",
+      "severity": 2,
+      "detect": "Read the source tile count and the destination page's count for the same scope; assert they agree at the same granularity (or differentiate the labels)."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "AI/extracted/auto-filled data must pass an editable accept/edit/reject checklist with provenance labels and undo before it lands — nothing applied silently. Test empty extraction, hostile/huge response, all-unchecked confirm.",
+      "basis": "Nielsen-N (User control; visibility); skill-rule (AI output must be curated)",
+      "severity": 2,
+      "detect": "Drive an AI-fill feature and confirm there is an accept/edit/reject step, source/provenance labels, and undo; exercise empty, oversized, and all-unchecked cases."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Sign-out then sign-in must restore user-owned state (hive membership, role, preferences) from the DB — the user should land where they were, not at an empty/create-or-join screen.",
+      "basis": "skill-rule (localStorage state recovery); Nielsen-N (consistency, error prevention)",
+      "severity": 2,
+      "detect": "Sign out, sign back in, visit every page and confirm the user is not dropped to an empty/create state and role/hive are intact."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Per-role landing must be coherent: a worker hitting a supervisor-only control gets a helpful denial (not the action, not a raw error, not a dead-end); a solo/no-hive user is guided to the hive gate, not stranded; a control must not land everyone in the same place regardless of permission.",
+      "basis": "skill-rule (role-crossed Assert); Nielsen-N (help users; error recovery)",
+      "severity": 2,
+      "detect": "Re-run each interaction as solo/worker/supervisor and judge whether the outcome is appropriate and recoverable for that identity; a denial that dead-ends or a permission-blind landing is a finding."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Empty-states and faint variants are where illegible 'ghosted' text lives — judge readability of muted/disabled/secondary text against real backgrounds, not just primary body copy.",
+      "basis": "WCAG-POUR (Perceivable); Designer/skill-rule (muted-text class is systemic)",
+      "severity": 1,
+      "detect": "Render empty/zero states and disabled/secondary text and judge legibility; flag rgba-white low-alpha or opacity-reduced containers (often a whole class, not one node)."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "Core Web Vitals (LCP/INP/CLS) judgments are informational in a live MCP walk and must NOT be filed as confirmed defects — late fetch+eval boot mis-captures CLS/LCP; real CWV needs an observer installed before navigation (a spec, not the live walk).",
+      "basis": "skill-rule (live-boot CWV is late-capture); Performance/WCAG-POUR",
+      "severity": 0,
+      "detect": "If reading CWV via late-injected battery, log LCP<=2.5s / INP<=200ms / CLS<=0.1 as informational only; defer the verdict to an addInitScript-based perf spec."
+    },
+    {
+      "skill": "qa-tester",
+      "layer": "heuristic",
+      "rule": "When reading 'what page/heading is this', filter by visibility (offsetParent!==null) — querySelector('h1,h2') returns hidden gate headings (#hive-gate 'needs a hive') and can fake a 'gated out' verdict.",
+      "basis": "skill-rule (hidden-heading false read); measurement hygiene",
+      "severity": 0,
+      "detect": "When identifying page state, only consider elements with offsetParent!==null or a non-none computed display; confirm the real wrapper (page-wrap vs hive-gate) is visible before concluding."
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "LCP (Largest Contentful Paint) must be at most 2500ms ('good' gate)",
+      "metric": "LCP",
+      "threshold": "<= 2500ms",
+      "detect": "web-vitals API via buffered PerformanceObserver measured at navigation start: new PerformanceObserver(list=>...).observe({type:'largest-contentful-paint', buffered:true}); take the last LCP entry's startTime. MUST start capture at nav-start (page.addInitScript before goto, or web-vitals lib in <head>) — late-boot/mid-session injection overcounts LCP and is informational only.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "INP (Interaction to Next Paint) must be at most 200ms ('good' gate); requires a real interaction to register",
+      "metric": "INP",
+      "threshold": "<= 200ms",
+      "detect": "web-vitals API: INP needs a real interaction — drive one click, then re-read (PerformanceObserver type 'event'/'first-input' or the web-vitals onINP callback). __UFAI.cwv() in ufai_battery.js does this. Without an interaction INP is unmeasured.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "CLS (Cumulative Layout Shift) must be at most 0.1 ('good' gate)",
+      "metric": "CLS",
+      "threshold": "<= 0.1",
+      "detect": "web-vitals API via buffered PerformanceObserver started at navigation start: observe({type:'layout-shift', buffered:true}), sum value of entries where !hadRecentInput. MUST instrument at nav-start (addInitScript/in-head web-vitals) — late-boot capture attributes post-load shifts (lazy lists, late cards) to CLS and overcounts (e.g. false 0.596). Layout-shift 'sources' are NOT retained after settle, so culprit-node listing requires nav-start instrumentation. Known driver: async data pop-in (KPI tiles + alert banner) with no reserved space (index dashboard measured 0.077-0.116).",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Async-rendered content slots (KPI tile grid, alert banner) must reserve space (min-height / skeleton) so the page does not reflow on data arrival",
+      "metric": "reserved-space-for-async-slots",
+      "threshold": "tile grid + alert slot have non-zero min-height/skeleton placeholder before data returns (so CLS contribution from pop-in ~0)",
+      "detect": "Inspect DOM before async data resolves: query the KPI tile grid container and signature-alert banner slot; assert computed min-height > 0 OR a skeleton placeholder element is present. Corroborate with a CLS delta measured across the data-load window being near zero.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Loading states/skeletons must be shown immediately while data fetches (no blank slot before first render)",
+      "metric": "loading-skeleton-present-during-fetch",
+      "threshold": "a loading state element is in the DOM/visible at first paint while async data is pending (board panels show a skeleton immediately)",
+      "detect": "At page load before data resolves, check each data-driven panel for a visible loading/skeleton element (e.g. [class*='skeleton'], [aria-busy='true'], spinner). Flag panels that render empty/blank with no placeholder while a fetch is in flight.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Images must have explicit width and height attributes to prevent layout shift",
+      "metric": "img-explicit-dimensions",
+      "threshold": "every <img> has both width and height attributes (or CSS aspect-ratio) set",
+      "detect": "DOM: [...document.querySelectorAll('img')].filter(i => !i.getAttribute('width') || !i.getAttribute('height')) — any match is a CLS-risk finding. (axe rule overlap: none direct; this is a DOM attribute check.)",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "No render-blocking CDN/script tags in <head> without defer (except Tailwind, which is a documented known risk)",
+      "metric": "render-blocking-head-scripts",
+      "threshold": "0 synchronous <script src> in <head> lacking defer/async, EXCEPT cdn.tailwindcss.com (documented exception — needs DOM scan before first paint)",
+      "detect": "DOM: [...document.head.querySelectorAll('script[src]')].filter(s => !s.defer && !s.async && !s.src.includes('tailwindcss')) — any match is render-blocking. Supabase JS specifically must NOT be in <head> (must load at end of <body>).",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Supabase JS CDN script must be loaded at end of <body>, not in <head>",
+      "metric": "supabase-js-load-position",
+      "threshold": "the @supabase/supabase-js <script src> appears in <body> (near end), not in <head>",
+      "detect": "DOM: check whether script[src*='@supabase/supabase-js'] is a descendant of document.head (fail) vs document.body (pass). Canonical reference: logbook.html loads it at bottom of body.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Floating AI widget script must be deferred / loaded last so it does not block page render",
+      "metric": "ai-widget-script-load-order",
+      "threshold": "floating-ai.js is the last <script> (loaded after supabase-js at end of body) and/or deferred — must not block initial render",
+      "detect": "DOM: locate script[src*='floating-ai']; assert it is among the last scripts in <body> and not in <head>. Corroborate it is not the LCP-blocking resource via resource timing.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "On mobile viewport, count of concurrent infinite CSS animations must be under 10 (GPU memory crash budget)",
+      "metric": "concurrent-infinite-css-animations-mobile",
+      "threshold": "< 10 simultaneous infinite CSS animations when innerWidth < 768",
+      "detect": "Resize to mobile (e.g. 375px). Count elements with a running infinite animation: [...document.querySelectorAll('*')].filter(el => { const s=getComputedStyle(el); return s.animationName!=='none' && s.animationIterationCount==='infinite'; }).length — flag if >= 10.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Any element with will-change: filter must have a mobile override to will-change: auto (crash risk on mobile)",
+      "metric": "will-change-filter-mobile-override",
+      "threshold": "0 elements with computed will-change containing 'filter' on a mobile viewport (<=767px)",
+      "detect": "Resize to <=767px width, then DOM: [...document.querySelectorAll('*')].filter(el => getComputedStyle(el).willChange.includes('filter')) — any match means the @media(max-width:767px){ will-change:auto } override is missing. Example offender class: .logo-glow-img.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Particle/beam decorative generators must be gated off on mobile (not created when innerWidth < 768)",
+      "metric": "particle-beam-system-gated-on-mobile",
+      "threshold": "0 dynamically generated particle/beam decorative elements present at mobile width (<768px)",
+      "detect": "Load at mobile width (<768px) and count beam/particle decorative nodes (e.g. [class*='beam'], [class*='particle']) — should be 0 because creation is gated by `if (window.innerWidth < 768) return;`.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Animated elements must animate only transform/opacity (GPU-composited); transform/scale/rotate animations need will-change: transform",
+      "metric": "animation-composited-properties",
+      "threshold": "keyframe-animated properties are limited to transform and opacity (GPU-composited); non-composited animated properties (top/left/width/height/margin) are findings; transform-animated heavy elements have will-change: transform",
+      "detect": "Parse document.styleSheets @keyframes rules; flag any keyframe that animates layout/paint properties other than transform/opacity (and filter, which needs its own will-change:filter). Cross-check animated elements for the matching will-change value via getComputedStyle.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Filter animations (drop-shadow/blur/brightness/contrast) require will-change: filter on the animated element",
+      "metric": "filter-animation-will-change",
+      "threshold": "every element whose @keyframes animates a `filter` property has computed will-change containing 'filter'",
+      "detect": "Find @keyframes blocks containing a `filter:` property; for each element using such an animation, assert getComputedStyle(el).willChange includes 'filter'. (On mobile this flips to the will-change:auto override rule above.)",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Body opacity:0 -> 1 page-enter animation must have an 800ms JS safety guard to avoid a permanently blank page on slow/failed CDN",
+      "metric": "body-opacity-guard-present",
+      "threshold": "if body has a page-enter animation starting at opacity:0, a setTimeout (~800ms) fallback restores opacity:1; and body opacity reaches 1 within ~800ms of load",
+      "detect": "Detect body { animation: page-enter } / starting opacity 0 in CSS; then assert getComputedStyle(document.body).opacity === '1' shortly after load (e.g. by 1s) even under throttled/blocked CDN. A body stuck at opacity 0 past ~800ms is a Blocker finding.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "A prefers-reduced-motion media query must disable the body page-enter animation",
+      "metric": "reduced-motion-disables-body-animation",
+      "threshold": "@media (prefers-reduced-motion: reduce) { body { animation: none } } is present",
+      "detect": "Emulate prefers-reduced-motion: reduce (Playwright emulateMedia), reload, then assert getComputedStyle(document.body).animationName === 'none'. Also scan stylesheets for a prefers-reduced-motion rule targeting body animation.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "List/feed queries must not use select('*') and must enforce .limit (bounded fetch); detail single-row queries may use select('*')",
+      "metric": "list-query-narrow-select-and-limit",
+      "threshold": "every /rest/v1/ list-style request has explicit columns (select=col,col not select=*) AND a limit (default <=50, feed pages <=30/20); no unbounded list fetch",
+      "detect": "Capture network via page.on('request') filtered to /rest/v1/; parse the URL query: flag requests with select=* (URL-decoded select=%2A) that are list reads, and flag list reads lacking a limit= param (and not single-row id=eq./.single). Bound: list <=50, team feed page <=30, community feed fetch 50/display 20.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Heavy-page REST fan-out should collapse to few calls (one RPC per heavy board), not 10+ separate dashboard queries",
+      "metric": "rest-call-fan-out-per-page-load",
+      "threshold": "a single authenticated board load fires a small number of /rest/v1/ calls (index home target collapsed 14 -> 3 via one get_hive_dashboard RPC); 10+ dashboard fan-out calls is a finding",
+      "detect": "Live capture: park on about:blank, clear captured array, then fresh authenticated load; count requests where url includes /rest/v1/. Flag pages firing a large fan-out (e.g. >10) of separate aggregate/count queries that an RPC could collapse.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Realtime subscriptions must include a hive_id (or worker_name) filter, not subscribe to the whole table",
+      "metric": "realtime-subscription-scoped-filter",
+      "threshold": "every .channel(...).on('postgres_changes', {...}) config includes a filter on hive_id (or worker_name); 0 broad table-wide subscriptions",
+      "detect": "Inspect realtime config in client JS / network: the postgres_changes binding must carry filter: `hive_id=eq.<id>`. A subscription with no filter is a finding. Live: check WebSocket subscribe frames for an absent filter clause.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "No realtime connection leak: per file/page, .subscribe() count must not exceed teardown (.removeChannel/.unsubscribe) count",
+      "metric": "realtime-subscribe-vs-teardown-balance",
+      "threshold": "subscribes <= teardowns per surface (leak-risk surfaces frozen at 0); comfortable channel ceiling 500, hard 1000",
+      "detect": "On a page, count opened channels vs torn-down channels over a navigate-away/unmount cycle (e.g. instrument supabase.getChannels().length before/after teardown, or count .subscribe vs .removeChannel calls). subscribes > teardowns = leak finding.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "No N+1 query pattern (a loop firing one query per item instead of a single .in() batch)",
+      "metric": "n-plus-1-query-pattern",
+      "threshold": "0 sequences of N near-identical /rest/v1/ requests differing only by a single id (use .in() instead)",
+      "detect": "Live capture /rest/v1/ requests; cluster by path+columns and flag bursts of >~3 requests to the same table differing only by one filter value (id=eq.X) fired close together — the N+1 signature.",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Parallel async init / board loads must use Promise.all / Promise.allSettled, not sequential awaits or bare back-to-back calls to the same service",
+      "metric": "parallel-vs-sequential-init-calls",
+      "threshold": "independent init data loads run concurrently (single batch of near-simultaneous requests), not staggered serial round-trips",
+      "detect": "Live capture request start timestamps on load; if independent same-service (Supabase) loaders fire in a serial staircase (each starting only after the prior completes) rather than near-simultaneously, that is a sequential-init finding (sequential ~400ms vs parallel ~200ms).",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "floor",
+      "rule": "Filter/search/sort and modal-open actions must not re-query the DB (read in-memory cache); no per-keystroke or per-tap round-trip",
+      "metric": "no-refetch-on-filter-or-modal-open",
+      "threshold": "0 /rest/v1/ requests fired on filter/search keystroke or on opening an already-loaded list item's modal (cache-first; single-row fetch only as fallback)",
+      "detect": "Live: after initial list load, type in a search box / change a filter and open an item modal while capturing /rest/v1/ — any new list-fetch request on keystroke or on modal-open-of-cached-item is a finding (allowed: a single-row id=eq./.single fallback when item not in cache).",
+      "owner": "performance"
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Pages must perform acceptably under mobile network conditions (assume 4G or worse, high latency 200-400ms plant-floor WiFi) — perceived load and interactions should not feel laggy for a field worker on weak signal",
+      "basis": "skill-rule (How to Operate: mobile network conditions; target users field workers on mobile/weak signal)",
+      "severity": 2,
+      "detect": "Throttle to 4G/slow + ~200-400ms latency in the journey; observe whether the primary task content appears and becomes interactive promptly, or whether the worker stares at blank/spinner. Judge perceived performance against the field-worker-on-weak-signal persona."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Prioritise user-facing impact: fix what the field worker feels first (the slowest user-perceptible bottleneck on the critical task path), not micro-optimisations",
+      "basis": "skill-rule (How to Operate: prioritise user-facing impact; measure before fixing)",
+      "severity": 1,
+      "detect": "During the journey, identify the single most user-perceptible slow moment on the primary task path (e.g. board taking seconds to show data, frozen tap) and judge whether it dominates the experience; rank findings by felt impact."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Perceived performance must be supported by optimistic UI / immediate feedback — an action should give instant visible response rather than appearing frozen during the network round-trip",
+      "basis": "skill-rule (improve perceived performance: loading skeletons, optimistic UI, lazy loading) + Nielsen-1 visibility of system status",
+      "severity": 2,
+      "detect": "Trigger a save/submit/tap and watch: does the UI immediately acknowledge (spinner, disabled button, optimistic insert) or does it sit unresponsive until the server replies? A multi-hundred-ms dead zone with no feedback is a finding."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Team/multi-user views (team feed, supervisor dashboard) must be query-first — do not auto-load an unbounded multi-user dataset on tab switch; show an empty prompt and require an explicit Search with filters + page limit",
+      "basis": "skill-rule (Query-First UX — Don't Auto-Load Large Team Datasets)",
+      "severity": 2,
+      "detect": "Switch to a Team/all-members view: if it immediately fetches everyone's records (large unbounded fetch, page freeze) instead of showing 'Set filters, then tap Search' and waiting for an explicit bounded query, flag it. Personal/My views may auto-load (bounded)."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Heavy/aggregate pages should open fast via cache-first or compute-on-first-view snapshots; data freshness must be enforced (TTL or business-day boundary) and cache-miss fallback must be silent (no error/empty state)",
+      "basis": "skill-rule (Cache-First Pattern with TTL; Compute-on-first-view snapshots)",
+      "severity": 1,
+      "detect": "Open a heavy analytics/dashboard page twice: second open should be near-instant (hydrated from snapshot/cache, ~0 compute calls); first open of the day pays compute. Check a freshness indicator ('Updated X min ago') and that a cache miss silently falls back to live data, never an error or blank."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Heavy client libraries (PDF.js, mammoth.js, SheetJS, html2pdf) must be lazy-loaded on first real use, not on initial page load; client-side image compression before vision-model upload",
+      "basis": "skill-rule (Resume/CV Builder lazy-load lesson)",
+      "severity": 1,
+      "detect": "On initial page load, confirm large optional libs are NOT requested; trigger the feature (upload a file / export PDF) and confirm the lib loads then. Flag any heavy lib fetched eagerly at load. Check images are downscaled (~max 1400px) before upload."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Animations must respect a CSS-animation budget and avoid GPU overload — do not ship dozens of concurrent infinite/decorative animations that risk a mobile WebKit memory-kill (looks like a crash: 'A problem repeatedly occurred')",
+      "basis": "skill-rule (CSS Animation Overload — GPU Memory Crash on Mobile) + Norman-aesthetic restraint",
+      "severity": 3,
+      "detect": "On a real/throttled mobile context, observe whether the page becomes unstable, reloads, or the tab is killed under animation load; judge decorative-animation density against the ~10 concurrent budget. A reproducible mobile crash from animations is a Blocker."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Render-blocking CDN dependency (Tailwind/Supabase in head) is a known blank-page risk on slow connections and should be documented/mitigated; long term Tailwind should be compiled locally",
+      "basis": "skill-rule (Render-Blocking CDN Scripts in <head>)",
+      "severity": 2,
+      "detect": "Under a slow/blocked-CDN simulation, watch for a blank white page for 1-5s before content appears. Judge whether the page has a usable mitigation (opacity guard fires) versus a long unguarded blank screen."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Visibility of system status: loading must be communicated immediately (skeletons/loading states) so the user is never staring at an unexplained blank region while data fetches",
+      "basis": "Nielsen-1 visibility of system status + skill-rule (loading states shown immediately)",
+      "severity": 1,
+      "detect": "On each data-driven panel during load, judge whether the user sees a clear loading affordance (skeleton/spinner/'Loading…') rather than empty space or a sudden pop-in; absence of status during a perceptible fetch is a finding."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Layout stability: content must not visibly jump/reflow as async data arrives (KPI tiles, alert banners, lazy lists pushing content) — reserve space for late-rendering content",
+      "basis": "WCAG-POUR (stable/predictable) + skill-rule (async data pop-in is the CLS driver)",
+      "severity": 2,
+      "detect": "Watch the page during the first few seconds of load: judge whether tiles/banners/cards pop in and shove existing content down (a user about to tap mis-taps a moved target). Visible jank on data arrival is a finding even if the numeric CLS edge-case passes."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Board resilience: one failed data panel must not blank the whole board — failing loaders should degrade gracefully (Promise.allSettled, per-panel empty/error state) so the rest renders",
+      "basis": "skill-rule (allSettled over all; per-panel error handling) + Nielsen-9 error recovery",
+      "severity": 2,
+      "detect": "Simulate or observe one panel's data source failing (e.g. a hive missing PM tables): judge whether the rest of the board still renders normally with that panel showing its own empty/error state, versus the entire board failing/blank."
+    },
+    {
+      "skill": "performance",
+      "layer": "heuristic",
+      "rule": "Editing a record must not feel laggy from redundant round-trips — opening/saving a modal should use the cached entry, not re-fetch the list/row, to avoid user-visible save lag and edit/save race conditions",
+      "basis": "skill-rule (Cache the entry being edited; openModal must use cache) + Nielsen-7 efficiency",
+      "severity": 1,
+      "detect": "Open an item modal and save an edit while observing responsiveness; judge whether tapping a card or saving introduces a perceptible delay consistent with a full list re-fetch, and whether rapid edit-then-save behaves consistently (no stale bleed)."
+    }
+  ]
+}

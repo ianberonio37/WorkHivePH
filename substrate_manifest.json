@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-16T07:01:06.115347+00:00",
+  "generated_at": "2026-06-30T06:22:31.149879+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -316,22 +316,38 @@
           "reason": "`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
         }
       ],
-      "issues": []
+      "issues": [
+        {
+          "check": "missing_script",
+          "skip": false,
+          "reason": "Registry entry id='interactive-lineage' references `validate_interactive_lineage.py` which does not exist on disk. The guardian will fail to launch. Either restore the file or remove the registry entry."
+        },
+        {
+          "check": "missing_script",
+          "skip": false,
+          "reason": "Registry entry id='causal-cascade-coverage' references `validate_causal_cascade_coverage.py` which does not exist on disk. The guardian will fail to launch. Either restore the file or remove the registry entry."
+        },
+        {
+          "check": "missing_script",
+          "skip": false,
+          "reason": "Registry entry id='reactivity-wiring' references `validate_reactivity_wiring.py` which does not exist on disk. The guardian will fail to launch. Either restore the file or remove the registry entry."
+        }
+      ]
     },
     {
       "label": "Canonical drift",
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 195,
+        "files_scanned": 201,
         "kpi_rendering_pages": 80,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
-        "tier_b_pages": 0,
-        "total_canonical_reads": 286,
-        "total_drift_reads": 0,
-        "total_gap_reads": 54,
-        "total_allowed_reads": 157
+        "tier_b_pages": 4,
+        "total_canonical_reads": 291,
+        "total_drift_reads": 4,
+        "total_gap_reads": 0,
+        "total_allowed_reads": 205
       }
     },
     {
@@ -339,9 +355,9 @@
       "file": "auto_discovery_report.json",
       "present": true,
       "summary": {
-        "pass": 2,
+        "pass": 3,
         "warn": 0,
-        "fail": 1
+        "fail": 0
       }
     },
     {

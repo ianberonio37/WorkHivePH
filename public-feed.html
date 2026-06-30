@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -57,6 +57,7 @@
       background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3);
       color: var(--wh-orange); font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
       border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+      min-height: 44px; display: inline-flex; align-items: center; justify-content: center; /* D1 U2 */
       text-decoration: none; display: inline-block;
     }
     .header-btn:hover { background: rgba(247,162,27,0.22); }
@@ -68,7 +69,7 @@
       text-align: center; margin-bottom: 2rem;
     }
     .page-intro h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.5rem; }
-    .page-intro p { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin: 0; }
+    .page-intro p { font-size: 0.82rem; color: rgba(255,255,255,0.7); margin: 0; } /* D1 a11y: 0.4→0.7 WCAG 1.4.3 */
 
     /* Post cards */
     .post-card {
@@ -85,16 +86,16 @@
     .post-meta {
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
     }
-    .post-author { font-size: 0.8rem; font-weight: 700; }
+    .post-author { font-size: 0.8rem; font-weight: 700; color: #F4F6FA; } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
     .cat-badge {
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .cat-general      { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
-    .cat-safety       { background: rgba(239,68,68,0.15); color: #f87171; }
-    .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue); }
-    .cat-announcement { background: rgba(168,85,247,0.12); color: #c084fc; }
-    .post-time { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-left: auto; }
+    .cat-general      { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
+    .cat-safety       { background: rgba(239,68,68,0.15); color: #fca5a5; } /* D1 U5: #f87171<4.5:1 on tinted bg → WCAG 1.4.3 */
+    .cat-technical    { background: rgba(41,182,217,0.12); color: #7dd3ec; } /* D1 U5: --wh-blue<4.5:1 small badge → WCAG 1.4.3 */
+    .cat-announcement { background: rgba(168,85,247,0.12); color: #d8b4fe; } /* D1 U5: #c084fc<4.5:1 → WCAG 1.4.3 */
+    .post-time { font-size: 0.7rem; color: rgba(255,255,255,0.66); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
     .post-content {
       font-size: 0.85rem; line-height: 1.55; color: rgba(255,255,255,0.82);
@@ -114,7 +115,7 @@
     .load-more-btn {
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.7); border-radius: 0.625rem; padding: 0.6rem 1.5rem;
-      font-size: 0.8rem; cursor: pointer; transition: background 0.15s;
+      font-size: 0.8rem; cursor: pointer; transition: background 0.15s; min-height: 44px; /* D1 U2 */
     }
     .load-more-btn:hover { background: rgba(255,255,255,0.1); }
     .load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }

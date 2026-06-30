@@ -1,0 +1,44 @@
+{
+  "tool": "tools/validate_export_value_contract.py",
+  "subject": "each CSV-export column read resolves to a real source table/view field",
+  "exports": 2,
+  "fields_total": 17,
+  "fields_resolved": 17,
+  "resolved_pct": 100.0,
+  "drift_cells": [],
+  "new_drift": [],
+  "detail": {
+    "logbook": {
+      "page": "logbook.html",
+      "source": "logbook",
+      "fields": [
+        "date",
+        "machine",
+        "category",
+        "maintenance_type",
+        "problem",
+        "root_cause",
+        "action",
+        "knowledge",
+        "downtime_hours",
+        "status"
+      ],
+      "drift": []
+    },
+    "audit-log": {
+      "page": "audit-log.html",
+      "source": "hive_audit_log",
+      "fields": [
+        "created_at",
+        "actor",
+        "action",
+        "target_type",
+        "target_id",
+        "target_name",
+        "meta"
+      ],
+      "drift": []
+    }
+  },
+  "result": "PASS"
+}

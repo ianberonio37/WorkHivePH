@@ -1,0 +1,510 @@
+{
+  "_doc": "Read-verified + adversarially-confirmed element-id -> data source binds, and UI-chrome exclusions, for Phase B.2 of the interactive-lineage roadmap. Produced by the lineage-anchor-resolve workflow + a deterministic grep backstop (element-id AND claimed source must literally appear in the page). Consumed by tools/resolve_display_anchors.py, classify_display_ladder.py, build_display_provenance.py.",
+  "totals": {
+    "binds": 64,
+    "chrome": 42,
+    "rejected": 0,
+    "phantom_excluded": 1
+  },
+  "binds": {
+    "achievements.html|ac-card-level": {
+      "reads": "v_worker_achievements_truth",
+      "reads_kind": "view",
+      "what": "Total-level card: sum of current_level across all 12 achievement domains for the signed-in worker (max 1,200).",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "achievements.html|hero-tier-label": {
+      "reads": "v_worker_achievements_truth",
+      "reads_kind": "view",
+      "what": "Hero tier badge label: worker's tier (e.g. 'Senior Technician') derived from their top achievement level.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "achievements.html|ac-verdict-label": {
+      "reads": "v_worker_achievements_truth",
+      "reads_kind": "view",
+      "what": "Plain-Read verdict headline interpreting weekly XP / active-domain pace (e.g. 'NN XP this week \u2014 solid pace', 'No achievements yet').",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "alert-hub.html|anomaly-engine-count": {
+      "reads": "v_anomaly_truth",
+      "reads_kind": "view",
+      "what": "Top-5 Anomaly Engine signal-count badge (e.g. '5 signals'); the count is the size of the fused-anomaly list, not an aggregate",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "alert-hub.html|amc-stat-assets": {
+      "reads": "amc_briefings",
+      "reads_kind": "table",
+      "what": "AMC daily-brief 'High Risk' stat tile \u2014 count of high-risk assets in today's brief",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "alert-hub.html|amc-stat-crew": {
+      "reads": "amc_briefings",
+      "reads_kind": "table",
+      "what": "AMC daily-brief 'Crew' stat tile \u2014 count of crew alerts in today's brief",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "alert-hub.html|amc-stat-parts": {
+      "reads": "amc_briefings",
+      "reads_kind": "table",
+      "what": "AMC daily-brief 'Parts' stat tile \u2014 count of parts at risk / to stage in today's brief",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "alert-hub.html|amc-stat-pms": {
+      "reads": "amc_briefings",
+      "reads_kind": "table",
+      "what": "AMC daily-brief 'PMs Due' stat tile \u2014 count of PMs due in today's brief",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "analytics.html|an-verdict-label": {
+      "reads": "analytics-orchestrator",
+      "reads_kind": "edge_fn",
+      "what": "Plain-read reliability verdict ('need action' / 'climbing' / 'healthy' / 'not enough data') derived from OEE, worst-MTBF and PM-compliance.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "asset-hub.html|ah-card-total": {
+      "reads": "asset_nodes",
+      "reads_kind": "table",
+      "what": "Hero count of approved assets registered in this hive.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "asset-hub.html|detail-level": {
+      "reads": "asset_nodes",
+      "reads_kind": "table",
+      "what": "Asset hierarchy level (e.g. equipment) shown in the asset detail header.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "asset-hub.html|pf-pf-days": {
+      "reads": "v_pf_truth",
+      "reads_kind": "view",
+      "what": "P-F interval (days from potential-failure detection to functional failure) for the selected condition parameter.",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "asset-hub.html|risk-days": {
+      "reads": "v_risk_truth",
+      "reads_kind": "view",
+      "what": "Predicted days until failure for the asset (from the risk model).",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "asset-hub.html|risk-score-num": {
+      "reads": "v_risk_truth",
+      "reads_kind": "view",
+      "what": "Reliability-risk score shown as a percentage in the asset risk card.",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "asset-hub.html|ah-verdict-label": {
+      "reads": "asset_nodes",
+      "reads_kind": "table",
+      "what": "Composed status verdict sentence (e.g. 'N assets tracked, M marked critical' / 'N submissions awaiting approval') for the asset fleet.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "asset-hub.html|pending-assets-count": {
+      "reads": "asset_nodes",
+      "reads_kind": "table",
+      "what": "Count of pending (and rejected) asset submissions in the supervisor approval queue.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "community.html|mod-count": {
+      "reads": "v_community_posts_truth",
+      "reads_kind": "view",
+      "what": "Mod-queue badge count = number of flagged posts",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "community.html|presence-bar": {
+      "reads": "hive-community-presence (Supabase Realtime presence)",
+      "reads_kind": "realtime",
+      "what": "Live roster of teammates currently online",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "community.html|profile-xp": {
+      "reads": "community_xp",
+      "reads_kind": "table",
+      "what": "Current user's total community XP",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "dayplanner.html|dp-verdict-label": {
+      "reads": "schedule_items",
+      "reads_kind": "table",
+      "what": "Plain-Read verdict headline for the day plan (e.g. 'Day plan looks manageable', 'N items overdue', 'No plan yet').",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "dayplanner.html|sidebar-count-bar": {
+      "reads": "v_logbook_truth",
+      "reads_kind": "view",
+      "what": "Capacity bar whose width visualizes the count of open logbook items in the sidebar.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "dayplanner.html|sidebar-count-label": {
+      "reads": "v_logbook_truth",
+      "reads_kind": "view",
+      "what": "Text label '{N} open item(s) from Logbook' in the sidebar header.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "founder-console.html|ring-pct-num": {
+      "reads": "platform_health.json",
+      "reads_kind": "computed",
+      "what": "Validator pass percentage shown as the big number inside the health ring (e.g. \"87%\").",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "founder-console.html|ring-pct-label": {
+      "reads": "platform_health.json",
+      "reads_kind": "computed",
+      "what": "Health-ring status label ('All clear' / 'Attention' / 'Action needed') derived from the validator pass %.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "hive.html|adoption-risk-score": {
+      "reads": "get_adoption_risk_current",
+      "reads_kind": "rpc",
+      "what": "Numeric adoption-risk score (0-100) for the hive, or '--' when no snapshot exists.",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "hive.html|presence-bar": {
+      "reads": "presenceChannel.presenceState",
+      "reads_kind": "computed",
+      "what": "Live chips of workers currently online in the hive (Supabase Realtime presence).",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "hive.html|ss-verdict-label": {
+      "reads": "v_logbook_truth + v_pm_scope_items_truth + v_inventory_items_truth + get_adoption_risk_current",
+      "reads_kind": "composite",
+      "what": "Supervisor verdict headline summarizing hive health across logbook, PM scope, inventory and adoption risk",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "hive.html|welcome-log-count": {
+      "reads": "v_logbook_truth",
+      "reads_kind": "view",
+      "what": "Count of all logbook entries by the current worker (welcome screen).",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "hive.html|welcome-parts-count": {
+      "reads": "v_logbook_truth",
+      "reads_kind": "view",
+      "what": "Count of CLOSED logbook entries by the current worker (welcome screen).",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "integrations.html|it-verdict-label": {
+      "reads": "integration_configs",
+      "reads_kind": "table",
+      "what": "Headline integrations verdict label (e.g. 'N integrations stale', 'N CMMS integrations healthy', 'No integrations configured yet')",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "integrations.html|preview-count-label": {
+      "reads": "client-parsed import file rows",
+      "reads_kind": "computed",
+      "what": "Count of valid rows to import from the selected file",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "inventory.html|stat-total": {
+      "reads": "v_inventory_items_truth",
+      "reads_kind": "view",
+      "what": "Total parts count pill \u2014 shows items.length, the number of inventory items in the current scope.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "inventory.html|inv-count-label": {
+      "reads": "v_inventory_items_truth",
+      "reads_kind": "view",
+      "what": "Pagination label 'Showing N of M parts' \u2014 visible.length / filtered.length of inventory items.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "inventory.html|inv-verdict-label": {
+      "reads": "v_inventory_items_truth",
+      "reads_kind": "view",
+      "what": "Plain-Read stock-health verdict headline (e.g. 'Stock is healthy', 'N parts out of stock') classifying inventory state.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "logbook.html|quality-pct-value": {
+      "reads": "good/total units (production-output form inputs)",
+      "reads_kind": "computed",
+      "what": "OEE quality % = good/total x 100 (capped 100)",
+      "rung": "diagnostic",
+      "standard": "SMRP OEE quality"
+    },
+    "logbook.html|logbook-count-label": {
+      "reads": "logbook",
+      "reads_kind": "table",
+      "what": "Count caption 'Showing N of M entries' for the logbook feed",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "logbook.html|machine-count": {
+      "reads": "logbook",
+      "reads_kind": "table",
+      "what": "Distinct machine count in the header stat pills (worker's own entries)",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "logbook.html|offline-queue-count": {
+      "reads": "IndexedDB offline write-queue (getPendingEntries)",
+      "reads_kind": "client_state",
+      "what": "Count of entries queued offline awaiting sync",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "logbook.html|open-count": {
+      "reads": "logbook",
+      "reads_kind": "table",
+      "what": "Open-entries count in the header stat pills (head COUNT query)",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "logbook.html|open-jobs-count": {
+      "reads": "logbook",
+      "reads_kind": "table",
+      "what": "Open-jobs badge ('N open job(s)') on the open-jobs panel",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "logbook.html|pm-tasks-count": {
+      "reads": "v_pm_scope_items_truth",
+      "reads_kind": "view",
+      "what": "Inline PM-tasks header count ('N need(s) attention' / 'All tasks on track')",
+      "rung": "diagnostic",
+      "standard": "PM scheduling \u2014 overdue/due-soon canonical signals"
+    },
+    "logbook.html|total-count": {
+      "reads": "logbook",
+      "reads_kind": "table",
+      "what": "Total-entries count in the header stat pills (head COUNT query)",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "marketplace-seller.html|ps-earned": {
+      "reads": "v_marketplace_orders_truth",
+      "reads_kind": "view",
+      "what": "Seller's total PHP earned: sum of (price * 0.95, i.e. net of 5% platform fee) over orders with status 'released'.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "marketplace.html|mk-card-total": {
+      "reads": "v_marketplace_listings_truth",
+      "reads_kind": "view",
+      "what": "Total count of published listings in the active section after filters, shown as the hero number on the 'total' summary card.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "marketplace.html|quality-bar": {
+      "reads": "computeListingQuality",
+      "reads_kind": "computed",
+      "what": "Width (and color) of the listing-quality progress bar in the Post form, driven by a 0-100 quality score computed live from the form fields.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "marketplace.html|quality-score-num": {
+      "reads": "computeListingQuality",
+      "reads_kind": "computed",
+      "what": "Numeric listing-quality score shown as 'NN / 100' beside the quality bar in the Post form.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "marketplace.html|mk-verdict-label": {
+      "reads": "v_marketplace_listings_truth",
+      "reads_kind": "view",
+      "what": "Plain-read verdict headline summarizing the listing population, e.g. 'N listings \u00b7 M of them yours' / 'N {section} listings live'.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "ph-intelligence.html|ph-verdict-label": {
+      "reads": "ph_intelligence_reports",
+      "reads_kind": "table",
+      "what": "Verdict headline for the latest regional PH intelligence report (e.g. 'No regional data yet', 'Report is thin or aging', '5-plant report, 12d old').",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "platform-health.html|health-num": {
+      "reads": "platform_health.json",
+      "reads_kind": "computed",
+      "what": "Composite platform health score (0-100) shown as the big number in the header ring.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "platform-health.html|health-label": {
+      "reads": "platform_health.json",
+      "reads_kind": "computed",
+      "what": "Health band label (Healthy / Review / Action) derived from the composite score.",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "platform-health.html|streak-num": {
+      "reads": "wh_guard_hist (localStorage validator run history)",
+      "reads_kind": "client_state",
+      "what": "Consecutive clean validator runs (0 FAIL, 0 regressions)",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "pm-scheduler.html|pm-count-label": {
+      "reads": "pm_assets",
+      "reads_kind": "table",
+      "what": "Shows 'Showing N of M assets' \u2014 the count of visible vs. filtered PM assets.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "pm-scheduler.html|pm-verdict-label": {
+      "reads": "get_pm_compliance_smrp",
+      "reads_kind": "rpc",
+      "what": "Plain-read verdict headline (e.g. 'PM compliance is healthy (88%)', 'PM compliance is in the red') driven by SMRP 2.1.1 compliance %, overdue count, and total.",
+      "rung": "diagnostic",
+      "standard": "SMRP 2.1.1"
+    },
+    "predictive.html|pr-verdict-label": {
+      "reads": "v_risk_truth",
+      "reads_kind": "view",
+      "what": "Plain-Read verdict headline (e.g. 'Fleet risk is high' / 'Fleet is healthy')",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "predictive.html|trend-label": {
+      "reads": "analytics-orchestrator",
+      "reads_kind": "edge_fn",
+      "what": "MTBF/failure-trend caption text under the weekly failure bars",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "project-manager.html|pm-verdict-label": {
+      "reads": "projects",
+      "reads_kind": "table",
+      "what": "Plain-read project-health verdict headline (e.g. '3 active projects, none overdue' / 'N projects past end date')",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "shift-brain.html|risk-count": {
+      "reads": "shift_plans",
+      "reads_kind": "table",
+      "what": "Count of top-risk assets flagged for this shift window.",
+      "rung": "predictive",
+      "standard": ""
+    },
+    "shift-brain.html|pms-count": {
+      "reads": "shift_plans",
+      "reads_kind": "table",
+      "what": "Count of preventive-maintenance tasks due in this shift window.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "shift-brain.html|carry-count": {
+      "reads": "shift_plans",
+      "reads_kind": "table",
+      "what": "Count of open carry-forward items from the prior shift.",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "shift-brain.html|parts-count": {
+      "reads": "shift_plans",
+      "reads_kind": "table",
+      "what": "Count of low-stock parts to pre-stage for this shift.",
+      "rung": "prescriptive",
+      "standard": ""
+    },
+    "shift-brain.html|sb-verdict-label": {
+      "reads": "shift_plans",
+      "reads_kind": "table",
+      "what": "Overall shift-readiness verdict (e.g. 'Heavy shift - prioritize hot assets and carry-forward').",
+      "rung": "prescriptive",
+      "standard": ""
+    },
+    "skillmatrix.html|result-score": {
+      "reads": "client-side exam grading (answers vs answer key)",
+      "reads_kind": "computed",
+      "what": "Exam result score (X / 10) after submitting a quiz",
+      "rung": "descriptive",
+      "standard": ""
+    },
+    "skillmatrix.html|sm-verdict-label": {
+      "reads": "v_skill_badges_truth + skill_profiles",
+      "reads_kind": "composite",
+      "what": "Skill-matrix verdict headline summarizing discipline progress vs targets",
+      "rung": "diagnostic",
+      "standard": ""
+    },
+    "voice-journal.html|entry-count": {
+      "reads": "voice_journal_entries",
+      "reads_kind": "table",
+      "what": "Shows the count of journal entries currently displayed (e.g. '12 entries'), reflecting the active language filter + search.",
+      "rung": "descriptive",
+      "standard": ""
+    }
+  },
+  "chrome": [
+    "alert-hub.html|ah-verdict-label",
+    "analytics.html|recompute-risk-label",
+    "analytics.html|refresh-label",
+    "analytics.html|role-bar",
+    "analytics.html|status-bar",
+    "assistant.html|back-label",
+    "community.html|conn-label",
+    "community.html|hive-name-label",
+    "community.html|post-char-count",
+    "community.html|report-char-count",
+    "dayplanner.html|period-label",
+    "engineering-design.html|step-label",
+    "founder-console.html|stat-aicost-trend",
+    "founder-console.html|stat-dau-trend",
+    "founder-console.html|stat-hives-trend",
+    "founder-console.html|stat-validators-trend",
+    "hive.html|code-strip-value",
+    "hive.html|code-value",
+    "hive.html|conn-label",
+    "index.html|popup-stage-label",
+    "integrations.html|drop-label",
+    "integrations.html|progress-label",
+    "logbook.html|asset-picker-label",
+    "logbook.html|extras-toggle-label",
+    "logbook.html|view-toggle-bar",
+    "marketplace-seller.html|pstat-earned",
+    "marketplace.html|compare-bar",
+    "marketplace.html|compare-count",
+    "marketplace.html|rfq-count",
+    "platform-health.html|action-bar",
+    "platform-health.html|health-score",
+    "platform-health.html|sticky-bar",
+    "pm-scheduler.html|filter-bar",
+    "pm-scheduler.html|rev-count",
+    "pm-scheduler.html|sheet-save-label",
+    "predictive.html|panel-trend",
+    "project-manager.html|wiz-item-count",
+    "report-sender.html|chips-count",
+    "report-sender.html|mic-label",
+    "report-sender.html|rs-verdict-label",
+    "skillmatrix.html|exam-prog-label",
+    "voice-journal.html|tts-toggle-label"
+  ],
+  "_phantom": [
+    {
+      "key": "alert-hub.html|ah-verdict-label",
+      "note": "Confirmed: this id does not exist in the DOM or JS. First-pass classification (kind=unknown, no source, no render site) is correct. The plain-language next-step now lives only in the 'What to do next' action card (ah-action-text)."
+    }
+  ],
+  "_rejected": []
+}

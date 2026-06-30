@@ -415,17 +415,21 @@ async function retrieverStage(
   if (hiveId && route !== "cold_archive") {
     try {
       // Parallel narrow counts — kept tight so the lane is bounded.
-      const [assetsAll, assetsCritical, pmDue, invOOS, invLow] = await Promise.all([
+      // pms_overdue: Arc Y Y2 fork#2 — canonical PM-overdue = DISTINCT pm_asset_id with a
+      // frequency-aware overdue scope item (v_pm_scope_items_truth.is_overdue), NOT the retired
+      // flat-30-day v_pm_compliance_truth.is_due (over-counted 26 vs true 4). Matches the tiles.
+      const [assetsAll, assetsCritical, pmOverdueRows, invOOS, invLow] = await Promise.all([
         db.from("v_asset_truth").select("asset_id", { count: "exact", head: true }).eq("hive_id", hiveId),
         db.from("v_asset_truth").select("asset_id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("criticality", "critical"),
-        db.from("v_pm_compliance_truth").select("pm_asset_id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("is_due", true),
+        db.from("v_pm_scope_items_truth").select("pm_asset_id").eq("hive_id", hiveId).eq("is_overdue", true).limit(2000),
         db.from("v_inventory_items_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId).eq("qty_on_hand", 0),
         db.from("v_inventory_items_truth").select("id", { count: "exact", head: true }).eq("hive_id", hiveId).gt("qty_on_hand", 0).lte("qty_on_hand", 5),
       ]);
+      const pmsOverdue = new Set((pmOverdueRows.data || []).map((r: { pm_asset_id?: string }) => r.pm_asset_id)).size;
       const stats = {
         total_assets:    assetsAll.count ?? null,
         critical_assets: assetsCritical.count ?? null,
-        pms_overdue:     pmDue.count ?? null,
+        pms_overdue:     pmsOverdue,
         parts_out_of_stock: invOOS.count ?? null,
         parts_low_stock:    invLow.count ?? null,
       };
@@ -437,7 +441,7 @@ async function retrieverStage(
           id:         `stats#fleet_${hiveId.slice(0, 8)}`,
           source:     "fleet_aggregates",
           source_id:  hiveId,
-          text:       `[fleet stats for hive ${hiveId.slice(0, 8)}] ${fleetText}. Sourced from v_asset_truth + v_pm_compliance_truth + v_inventory_items_truth.`,
+          text:       `[fleet stats for hive ${hiveId.slice(0, 8)}] ${fleetText}. Sourced from v_asset_truth + v_pm_scope_items_truth + v_inventory_items_truth.`,
           metadata:   { stats },
           similarity: 0.80,
         });

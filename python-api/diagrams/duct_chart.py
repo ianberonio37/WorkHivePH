@@ -63,17 +63,23 @@ def generate(inputs: dict, results: dict) -> str:
     project    = str(inputs.get("project_name", "Duct System"))
     fr_design  = float(inputs.get("friction_rate", inputs.get("friction_rate_pam", 1.0)))
 
-    # Multi-segment data from calc engine results.segments[]
-    segments = results.get("segments") or []
+    # Multi-segment data from the calc engine. The duct calc returns results.sections[]
+    # where each section carries flow_m3hr + a `circular` block {D_std_mm, velocity_ms}
+    # (it sizes both circular & rectangular; the equal-friction chart plots the circular Ø).
+    # (Legacy `segments[]` / flow_lps / dim / vel_check shape kept as a fallback so any
+    #  older caller still renders.) Reading the wrong key here silently fell back to a
+    #  hardcoded 300mm/5.0 default — the diagram showed a fake size, not the calc's.
+    segments = results.get("sections") or results.get("segments") or []
     seg_points = []
     for seg in segments:
         try:
-            Q_lps  = float(seg.get("flow_lps", 0))
-            Q_m3hr = Q_lps * 3.6
-            d_mm   = _parse_dim_to_mm(seg.get("dim", ""))
-            v_ms   = float(seg.get("velocity_ms", 0))
-            name   = str(seg.get("name", ""))
-            check  = str(seg.get("vel_check", "OK"))
+            Q_m3hr = float(seg.get("flow_m3hr", float(seg.get("flow_lps", 0)) * 3.6))
+            circ   = seg.get("circular") if isinstance(seg.get("circular"), dict) else {}
+            d_mm   = float(circ.get("D_std_mm",
+                            circ.get("diameter_mm", _parse_dim_to_mm(seg.get("dim", "")))))
+            v_ms   = float(circ.get("velocity_ms", seg.get("velocity_ms", 0)))
+            name   = str(seg.get("label", seg.get("name", "")))
+            check  = "OK" if seg.get("velocity_ok", True) else str(seg.get("velocity_note", "HIGH"))
             if Q_m3hr > 0 and d_mm > 0:
                 seg_points.append({
                     "Q_m3hr": Q_m3hr, "d_mm": d_mm, "v_ms": v_ms,

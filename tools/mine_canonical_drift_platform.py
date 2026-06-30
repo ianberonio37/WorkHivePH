@@ -129,6 +129,39 @@ LEGITIMATE_RAW: dict[str, str] = {
     "voice_journal_entries":         "personal log",
     "community_xp":                  "single-purpose XP tally",
     "canonical_sources":             "the registry itself",
+    # ── data-gateway triage 2026-06-17 (§14.6 G1): single-surface detail / personal /
+    # control-plane tables with NO canonical view and NO cross-surface KPI aggregate
+    # (tier_a=0, drift=0 confirmed — none render a divergent value on 2+ surfaces).
+    # Each is row-detail, not a metric; verified single-surface in canonical_drift_platform.
+    "marketplace_saved_searches":    "personal saved-search list (one user, marketplace.html only); not a KPI",
+    "marketplace_watchlist":         "personal watchlist (one user, marketplace.html only); not a KPI",
+    "achievement_xp_log":            "personal XP EVENT log (the TOTAL is v_worker_achievements_truth); detail, not a metric",
+    "parts_staged_reservations":     "inventory reservation rows; single dashboard read, like parts_staging_recommendations",
+    "rcm_strategies":                "RCM strategy detail on asset-hub 360; single-surface, no cross-surface aggregate",
+    "shift_plans":                   "shift-brain planner rows; single-surface schedule detail, not a metric",
+    "platform_feedback_votes":       "feedback up-vote detail; single-surface, not a cross-surface KPI",
+    "cmms_audit_log":                "CMMS integration audit log; needs full row context (like hive_audit_log), founder/admin surface",
+    "pdf_jobs":                      "PDF render job-queue state; control-plane infra, not a user-facing value",
+    "canonical_agent_contracts":     "AI agent contract registry; internal config (like canonical_sources), not a metric",
+    # ── multi-surface triage 2026-06-17 (§14.6 G1): each read by 2 surfaces but NEITHER
+    # renders a divergent cross-surface VALUE — owner-page detail + an edge-fn consumer,
+    # or shared config / admin detail / personal profile. Verified case-by-case (e.g.
+    # marketplace_reviews' rating KPI is the STORED rating_avg column, not recomputed from
+    # these review rows; skill_profiles is the worker's OWN primary_skill, same value on
+    # resume + skillmatrix). tier_a=0/drift=0 globally confirms no "two pages two numbers".
+    "asset_edges":                   "asset relationship-graph rows; asset-hub render + edge-fn traversal, not a metric",
+    "engineering_calcs":             "saved calc input/result rows; engineering-design owner + bom-sow edge consumer (value-correctness gated by validate_calc_formula_accuracy 58/58), not a cross-surface KPI",
+    "equipment_reading_templates":   "shared reading-capture CONFIG templates (asset-hub + logbook read the same config), not a computed value",
+    "integration_configs":           "CMMS integration config; plant-connections owner + cmms-sync edge consumer, not a metric",
+    "marketplace_disputes":          "dispute detail records on 2 admin surfaces (founder-console + marketplace-admin); row detail, not an aggregate",
+    "marketplace_reviews":           "review detail LIST (the rating KPI is the stored rating_avg column, not recomputed from these rows)",
+    "ph_intelligence_reports":       "PH benchmark report rows; ph-intelligence owner + intelligence-api edge consumer, not a per-hive KPI",
+    "platform_feedback":             "product-feedback records; founder-console + index detail, not a metric",
+    "project_change_orders":         "change-order detail; project-manager owner + project-orchestrator edge consumer, not a cross-surface aggregate",
+    "project_links":                 "project external-link rows; project-report owner + edge consumer, not a metric",
+    "project_roles":                 "project role assignments; project-manager owner + edge consumer, not a metric",
+    "rcm_fmea_modes":                "FMEA failure-mode detail rows; asset-hub render + edge consumer, not a cross-surface KPI",
+    "skill_profiles":                "the worker's OWN skill profile (primary_skill/targets); skillmatrix owner + resume read of the SAME personal value, not a divergent aggregate",
 }
 
 # Pages whose role is the CANONICAL CRUD OWNER for a table — they write the
@@ -341,13 +374,27 @@ def _scan_file(path: Path, layer: str) -> dict:
         verb = m.group("verb").lower()
         line_no = _line_no(scan_text, m.start())
 
+        # Skip placeholder/example table names matched from DOCUMENTATION prose
+        # (a guide page describing `.from('X').select('a, b, c')`, e.g.
+        # platform-health.html's validator descriptions). A real table name is
+        # never a single char or a known placeholder token -- these are not reads.
+        if len(tbl) <= 1 or tbl in ("tbl", "table", "tablename", "yourtable", "mytable", "x"):
+            continue
+
         # Writes always legitimately target the underlying.
         if verb in ("insert", "update", "upsert", "delete"):
             continue
 
-        # If the table itself IS a canonical view, score it as canonical.
+        # If the table itself IS a canonical TRUTH view, score it as canonical.
         if tbl.startswith("v_") and tbl.endswith("_truth"):
             canonical.append({"table": tbl, "line": line_no, "verb": verb})
+            continue
+
+        # ANY other v_* view read is still a GOVERNED read path (a view, not a raw
+        # table) -- not the raw-table bypass the data-gateway guards against. The
+        # value already converges in the view definition; reading it is not drift.
+        if tbl.startswith("v_"):
+            allowed.append({"table": tbl, "line": line_no, "reason": "governed view read (v_* view, not a raw-table bypass)"})
             continue
 
         # Inline allow. Use RAW (not scan_text) because the marker lives in

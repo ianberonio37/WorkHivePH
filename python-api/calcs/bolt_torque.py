@@ -29,7 +29,7 @@ BOLT_DATA: dict[str, tuple[float, float]] = {
 SP_MAP: dict[str, float] = {
     "4.6":  225.0,
     "4.8":  310.0,
-    "8.8":  600.0,   # ≥M16; 580 MPa for M5–M14
+    "8.8":  600.0,   # d > 16 mm; 580 MPa for d ≤ 16 mm (incl. M16) — see below
     "10.9": 830.0,
     "12.9": 970.0,
 }
@@ -55,8 +55,14 @@ def calculate(inputs: dict) -> dict:
     d_mm, At_mm2 = BOLT_DATA.get(bolt_size, (16, 157.0))
     Sp_MPa = SP_MAP.get(bolt_grade, 600.0)
 
-    # ISO 898-1: Grade 8.8 Sp = 580 MPa for M5–M14
-    if bolt_grade == "8.8" and d_mm <= 14:
+    # ISO 898-1:2013 Table 3: Grade 8.8 has two sub-classes — Sp = 580 MPa for
+    # nominal diameter d <= 16 mm (incl. M16); Sp = 600 MPa only for d > 16 mm.
+    # (Fixed 2026-06-23 Arc Q: threshold was d <= 14, wrongly giving M16 the higher
+    # 600 MPa = a non-conservative proof strength that overstates bolt capacity and
+    # the allowable preload/torque. The value validator's oracle had blessed the wrong
+    # 600 because it was derived FROM this table rather than independently from
+    # ISO 898-1 — a change-detector, the same class as the fire_sprinkler density bug.)
+    if bolt_grade == "8.8" and d_mm <= 16:
         Sp_MPa = 580.0
 
     # Proof load and preload

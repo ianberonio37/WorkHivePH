@@ -1,6 +1,6 @@
 {
   "summary": {
-    "pages_scanned": 30,
+    "pages_scanned": 31,
     "total_issues": 0,
     "baseline": 0
   },
@@ -59,6 +59,10 @@
     },
     {
       "page": "engineering-design.html",
+      "issues": []
+    },
+    {
+      "page": "engineering-design.js",
       "issues": []
     },
     {

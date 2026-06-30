@@ -179,6 +179,19 @@ def check_migration_grant_coverage(migrations):
         migrations, re.IGNORECASE
     ))
     for table in sorted(rls_tables):
+        # Evidence-based carve-out (Arc I, 2026-06-21): a table that EXPLICITLY revokes
+        # from anon/authenticated is DELIBERATELY service-role-only (service_role has
+        # BYPASSRLS) — e.g. login_attempts, the brute-force counter, which is touched
+        # only via SECURITY DEFINER RPCs. Demanding "GRANT ... TO anon,authenticated"
+        # here is inverted-wrong: it would EXPOSE the locked table to clients (a security
+        # regression). Honour the lock — classify by what the migration proves, not by
+        # the bare "RLS-on ⇒ needs GRANT" heuristic (feedback_classify_by_evidence_not_heuristic).
+        if re.search(
+            rf'REVOKE\s+ALL\s+(?:PRIVILEGES\s+)?ON\s+(?:TABLE\s+)?(?:public\.)?{re.escape(table)}\b'
+            rf'[^;]*\bFROM\b[^;]*\b(?:anon|authenticated)\b',
+            migrations, re.IGNORECASE
+        ):
+            continue
         if not re.search(
             rf'GRANT\s+[^;]+ON\s+(?:public\.)?{re.escape(table)}\b',
             migrations, re.IGNORECASE

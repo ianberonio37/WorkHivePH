@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Offline — WorkHive</title>
+  <!--
+    Arc S D-lens (D-003): the service-worker offline fallback. When a page that is
+    NOT in the precached shell is opened with no network, sw.js serves THIS page
+    instead of a dead white screen. It is fully self-contained (no CDN, no JS
+    framework, inline styles) so it always renders offline. It points the worker at
+    the surfaces that ARE cached and work offline (logbook the chief one).
+  -->
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1115; color: #e7e9ee; padding: 24px;
+      padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+    }
+    .card { max-width: 440px; width: 100%; text-align: center; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; display: inline-block; margin-right: 8px; vertical-align: middle; animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+    h1 { font-size: 1.3rem; margin: 16px 0 8px; }
+    p { color: #9aa0ac; line-height: 1.5; margin: 0 0 20px; }
+    .links { display: grid; gap: 10px; }
+    a.surface {
+      display: block; padding: 14px 16px; min-height: 44px; border-radius: 12px;
+      background: #1a1d24; color: #e7e9ee; text-decoration: none; border: 1px solid #2a2e38;
+      font-weight: 600; transition: background .15s;
+    }
+    a.surface:hover, a.surface:focus-visible { background: #232733; outline: 2px solid #f59e0b; outline-offset: 2px; }
+    button.retry {
+      margin-top: 18px; padding: 12px 20px; min-height: 44px; border-radius: 10px; cursor: pointer;
+      background: #f59e0b; color: #1a1205; border: 0; font-weight: 700; font-size: .95rem;
+    }
+    .hint { font-size: .8rem; color: #6b7280; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div><span class="dot" aria-hidden="true"></span><strong>You're offline</strong></div>
+    <h1>This page isn't available offline yet</h1>
+    <p>Your connection dropped. Anything you've already saved is safe — writes you make on cached pages queue and sync automatically when you're back online.</p>
+    <nav class="links" aria-label="Pages that work offline">
+      <a class="surface" href="/logbook.html">Open Logbook (works offline)</a>
+      <a class="surface" href="/inventory.html">Open Inventory</a>
+      <a class="surface" href="/pm-scheduler.html">Open PM Scheduler</a>
+      <a class="surface" href="/asset-hub.html">Open Asset Hub</a>
+    </nav>
+    <button class="retry" type="button" onclick="location.reload()">Try again</button>
+    <p class="hint" id="net-hint">Waiting for a connection…</p>
+  </main>
+  <script>
+    // Auto-reload the moment the device reports it's back online.
+    window.addEventListener('online', () => location.reload());
+    const hint = document.getElementById('net-hint');
+    if (navigator.onLine && hint) hint.textContent = 'Connection looks back — tap "Try again".';
+  </script>
+</body>
+</html>

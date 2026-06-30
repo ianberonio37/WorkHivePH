@@ -183,7 +183,7 @@ def check_definer_search_path() -> tuple[list[dict], list[dict]]:
             if not re.search(r"\bSECURITY\s+DEFINER\b", text, re.IGNORECASE):
                 continue
             has_path = bool(re.search(
-                r"\bSET\s+search_path\s*=", text, re.IGNORECASE,
+                r"\bSET\s+search_path\s*(?:=|TO\b)", text, re.IGNORECASE,
             ))
             if has_path:
                 continue
@@ -286,7 +286,7 @@ def check_matrix() -> tuple[list[dict], list[dict]]:
             text = f["full_text"]
             if re.search(r"\bSECURITY\s+DEFINER\b", text, re.IGNORECASE):
                 has_path = bool(re.search(
-                    r"\bSET\s+search_path\s*=", text, re.IGNORECASE,
+                    r"\bSET\s+search_path\s*(?:=|TO\b)", text, re.IGNORECASE,
                 ))
                 counts["definer_with_path" if has_path else "definer_no_path"] += 1
             elif re.search(r"\bSECURITY\s+INVOKER\b", text, re.IGNORECASE):
@@ -309,7 +309,7 @@ def check_aggregate() -> tuple[list[dict], list[dict]]:
             text = f["full_text"]
             if re.search(r"\bSECURITY\s+DEFINER\b", text, re.IGNORECASE):
                 has_path = bool(re.search(
-                    r"\bSET\s+search_path\s*=", text, re.IGNORECASE,
+                    r"\bSET\s+search_path\s*(?:=|TO\b)", text, re.IGNORECASE,
                 ))
                 agg["definer_with_path" if has_path else "definer_no_path"] += 1
             elif re.search(r"\bSECURITY\s+INVOKER\b", text, re.IGNORECASE):

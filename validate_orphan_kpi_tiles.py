@@ -70,7 +70,7 @@ PAGES = [
     "pm-scheduler.html", "analytics.html", "analytics-report.html",
     "skillmatrix.html", "community.html", "public-feed.html",
     "marketplace.html", "marketplace-seller.html", "dayplanner.html",
-    "engineering-design.html", "assistant.html", "report-sender.html",
+    "engineering-design.html", "engineering-design.js", "assistant.html", "report-sender.html",
     "platform-health.html", "project-manager.html", "integrations.html",
     "ph-intelligence.html", "project-report.html", "predictive.html",
     "ai-quality.html", "plant-connections.html", "achievements.html",

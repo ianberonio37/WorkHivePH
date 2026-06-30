@@ -2,18 +2,18 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-06-16T06:58:23Z",
-    "seam_count": 128,
+    "generated_at": "2026-06-30T07:03:45Z",
+    "seam_count": 143,
     "by_kind": {
       "saas\u2192ai": 14,
       "ai\u2192ai": 1,
       "ai\u2192tenant": 83,
-      "ai\u2192quota": 30
+      "ai\u2192quota": 45
     },
     "ai_fn_count": 33,
     "contracts": {
       "covered": 0,
-      "uncovered": 128
+      "uncovered": 143
     }
   },
   "ai_fns": [
@@ -58,7 +58,7 @@
       "caller": "ai-eval-runner",
       "callee": "ai-gateway",
       "file": "supabase/functions/ai-eval-runner/index.ts",
-      "line": 242,
+      "line": 284,
       "evidence": "const gwUrl = `${SUPABASE_URL}/functions/v1/ai-gateway`;",
       "contract_test": null
     },
@@ -80,6 +80,16 @@
       "file": "supabase/functions/ai-eval-runner/index.ts",
       "line": 0,
       "evidence": "imports cost-log helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/ai-eval-runner\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "ai-eval-runner",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/ai-eval-runner/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
       "contract_test": null
     },
     {
@@ -113,6 +123,16 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/ai-orchestrator\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "ai-orchestrator",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/ai-orchestrator/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192quota/amc-orchestrator\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "amc-orchestrator",
@@ -120,6 +140,16 @@
       "file": "supabase/functions/amc-orchestrator/index.ts",
       "line": 0,
       "evidence": "imports cost-log helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/amc-orchestrator\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "amc-orchestrator",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/amc-orchestrator/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
       "contract_test": null
     },
     {
@@ -173,6 +203,16 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/engineering-bom-sow\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "engineering-bom-sow",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/engineering-bom-sow/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192quota/engineering-calc-agent\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "engineering-calc-agent",
@@ -183,6 +223,26 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/engineering-calc-agent\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "engineering-calc-agent",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/engineering-calc-agent/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/equipment-label-ocr\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "equipment-label-ocr",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/equipment-label-ocr/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192quota/failure-signature-scan\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "failure-signature-scan",
@@ -190,6 +250,16 @@
       "file": "supabase/functions/failure-signature-scan/index.ts",
       "line": 0,
       "evidence": "imports cost-log helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/failure-signature-scan\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "failure-signature-scan",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/failure-signature-scan/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
       "contract_test": null
     },
     {
@@ -213,6 +283,16 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/hierarchical-summarizer\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "hierarchical-summarizer",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/hierarchical-summarizer/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192quota/intelligence-report\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "intelligence-report",
@@ -220,6 +300,16 @@
       "file": "supabase/functions/intelligence-report/index.ts",
       "line": 0,
       "evidence": "imports cost-log helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/intelligence-report\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "intelligence-report",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/intelligence-report/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
       "contract_test": null
     },
     {
@@ -253,6 +343,16 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/scheduled-agents\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "scheduled-agents",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/scheduled-agents/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192quota/semantic-fact-extractor\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "semantic-fact-extractor",
@@ -260,6 +360,16 @@
       "file": "supabase/functions/semantic-fact-extractor/index.ts",
       "line": 0,
       "evidence": "imports cost-log helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/semantic-fact-extractor\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "semantic-fact-extractor",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/semantic-fact-extractor/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
       "contract_test": null
     },
     {
@@ -313,6 +423,16 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/voice-embeddings\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "voice-embeddings",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/voice-embeddings/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192quota/voice-journal-agent\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "voice-journal-agent",
@@ -320,6 +440,16 @@
       "file": "supabase/functions/voice-journal-agent/index.ts",
       "line": 0,
       "evidence": "imports cost-log helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/voice-journal-agent\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "voice-journal-agent",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/voice-journal-agent/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
       "contract_test": null
     },
     {
@@ -363,12 +493,32 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/voice-semantic-rag\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "voice-semantic-rag",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/voice-semantic-rag/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/walkthrough-analyzer\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "walkthrough-analyzer",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/walkthrough-analyzer/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": null
+    },
+    {
       "id": "ai\u2192tenant/agentic-rag-loop\u2192agentic_rag_traces",
       "kind": "ai\u2192tenant",
       "caller": "agentic-rag-loop",
       "callee": "agentic_rag_traces",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 789,
+      "line": 793,
       "evidence": "const { data, error } = await db.from(\"agentic_rag_traces\").insert({",
       "contract_test": null
     },
@@ -378,7 +528,7 @@
       "caller": "agentic-rag-loop",
       "callee": "canonical_period_summaries",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 1042,
+      "line": 1046,
       "evidence": "let q = db.from(\"canonical_period_summaries\")",
       "contract_test": null
     },
@@ -388,7 +538,7 @@
       "caller": "agentic-rag-loop",
       "callee": "canonical_sources",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 474,
+      "line": 478,
       "evidence": "const { data: defs } = await db.from(\"canonical_sources\")",
       "contract_test": null
     },
@@ -398,7 +548,7 @@
       "caller": "agentic-rag-loop",
       "callee": "v_asset_truth",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 419,
+      "line": 422,
       "evidence": "db.from(\"v_asset_truth\").select(\"asset_id\", { count: \"exact\", head: true }).eq(\"hive_id\", hiveId),",
       "contract_test": null
     },
@@ -408,7 +558,7 @@
       "caller": "agentic-rag-loop",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 422,
+      "line": 425,
       "evidence": "db.from(\"v_inventory_items_truth\").select(\"id\", { count: \"exact\", head: true }).eq(\"hive_id\", hiveId).eq(\"qty_on_hand\", 0),",
       "contract_test": null
     },
@@ -418,18 +568,18 @@
       "caller": "agentic-rag-loop",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 530,
+      "line": 534,
       "evidence": "let q = db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
     {
-      "id": "ai\u2192tenant/agentic-rag-loop\u2192v_pm_compliance_truth",
+      "id": "ai\u2192tenant/agentic-rag-loop\u2192v_pm_scope_items_truth",
       "kind": "ai\u2192tenant",
       "caller": "agentic-rag-loop",
-      "callee": "v_pm_compliance_truth",
+      "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 421,
-      "evidence": "db.from(\"v_pm_compliance_truth\").select(\"pm_asset_id\", { count: \"exact\", head: true }).eq(\"hive_id\", hiveId).eq(\"is_due\", true),",
+      "line": 424,
+      "evidence": "db.from(\"v_pm_scope_items_truth\").select(\"pm_asset_id\").eq(\"hive_id\", hiveId).eq(\"is_overdue\", true).limit(2000),",
       "contract_test": null
     },
     {
@@ -438,7 +588,7 @@
       "caller": "agentic-rag-loop",
       "callee": "voice_journal_entries",
       "file": "supabase/functions/agentic-rag-loop/index.ts",
-      "line": 505,
+      "line": 509,
       "evidence": ".from(\"voice_journal_entries\")",
       "contract_test": null
     },
@@ -528,7 +678,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 156,
+      "line": 160,
       "evidence": "const query = db.from(\"v_inventory_items_truth\")",
       "contract_test": null
     },
@@ -538,7 +688,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 41,
+      "line": 45,
       "evidence": "const query = db.from(\"v_logbook_truth\")    // canonical: logbook_truth",
       "contract_test": null
     },
@@ -548,7 +698,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 86,
+      "line": 90,
       "evidence": "const { data } = await db.from(\"v_pm_scope_items_truth\")",
       "contract_test": null
     },
@@ -558,7 +708,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_worker_assignment_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 224,
+      "line": 228,
       "evidence": "const capQ = db.from(\"v_worker_assignment_truth\")  // canonical: worker_assignment_truth",
       "contract_test": null
     },
@@ -568,7 +718,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_worker_skill_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 216,
+      "line": 220,
       "evidence": "const skillsQ = db.from(\"v_worker_skill_truth\")  // canonical: worker_skill_truth",
       "contract_test": null
     },
@@ -578,7 +728,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_worker_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 548,
+      "line": 557,
       "evidence": "const { data: _mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -588,7 +738,7 @@
       "caller": "amc-orchestrator",
       "callee": "v_amc_truth",
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "line": 540,
+      "line": 544,
       "evidence": "const { data: existing } = await db.from(\"v_amc_truth\")",
       "contract_test": null
     },
@@ -598,7 +748,7 @@
       "caller": "amc-orchestrator",
       "callee": "v_hives_truth",
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "line": 679,
+      "line": 688,
       "evidence": "const { data: one, error: oneErr } = await db.from(\"v_hives_truth\")",
       "contract_test": null
     },
@@ -608,7 +758,7 @@
       "caller": "amc-orchestrator",
       "callee": "v_pm_compliance_truth",
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "line": 203,
+      "line": 207,
       "evidence": "const { data } = await db.from(\"v_pm_compliance_truth\")",
       "contract_test": null
     },
@@ -618,7 +768,7 @@
       "caller": "amc-orchestrator",
       "callee": "v_risk_truth",
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "line": 178,
+      "line": 182,
       "evidence": "const { data } = await db.from(\"v_risk_truth\")",
       "contract_test": null
     },
@@ -628,7 +778,7 @@
       "caller": "amc-orchestrator",
       "callee": "v_worker_skill_truth",
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "line": 271,
+      "line": 275,
       "evidence": "const { data: pool } = await db.from(\"v_worker_skill_truth\")",
       "contract_test": null
     },
@@ -728,7 +878,7 @@
       "caller": "asset-brain-query",
       "callee": "v_fmea_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 318,
+      "line": 304,
       "evidence": "db.from(\"v_fmea_truth\")",
       "contract_test": null
     },
@@ -738,7 +888,7 @@
       "caller": "asset-brain-query",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 196,
+      "line": 182,
       "evidence": "db.from(\"v_logbook_truth\")    // canonical: logbook_truth",
       "contract_test": null
     },
@@ -748,7 +898,7 @@
       "caller": "asset-brain-query",
       "callee": "v_pf_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 329,
+      "line": 315,
       "evidence": "db.from(\"v_pf_truth\")",
       "contract_test": null
     },
@@ -758,7 +908,7 @@
       "caller": "asset-brain-query",
       "callee": "v_rcm_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 322,
+      "line": 308,
       "evidence": "db.from(\"v_rcm_truth\")",
       "contract_test": null
     },
@@ -768,7 +918,7 @@
       "caller": "asset-brain-query",
       "callee": "v_risk_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 285,
+      "line": 271,
       "evidence": "const { data: byId } = await db.from(\"v_risk_truth\")",
       "contract_test": null
     },
@@ -778,7 +928,7 @@
       "caller": "asset-brain-query",
       "callee": "v_weibull_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 325,
+      "line": 311,
       "evidence": "db.from(\"v_weibull_truth\")",
       "contract_test": null
     },
@@ -788,7 +938,7 @@
       "caller": "asset-brain-query",
       "callee": "v_worker_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 537,
+      "line": 523,
       "evidence": "const { data: _mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -798,7 +948,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_asset_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 195,
+      "line": 199,
       "evidence": "db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -808,7 +958,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_fmea_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 207,
+      "line": 211,
       "evidence": "db.from(\"v_fmea_truth\")",
       "contract_test": null
     },
@@ -818,7 +968,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_hives_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 86,
+      "line": 90,
       "evidence": ".from(\"v_hives_truth\").select(\"id, name\").eq(\"id\", reqHiveId).maybeSingle();",
       "contract_test": null
     },
@@ -828,7 +978,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 190,
+      "line": 194,
       "evidence": "db.from(\"v_inventory_items_truth\")     // canonical",
       "contract_test": null
     },
@@ -838,7 +988,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_inventory_transactions_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 184,
+      "line": 188,
       "evidence": "db.from(\"v_inventory_transactions_truth\")",
       "contract_test": null
     },
@@ -848,7 +998,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 171,
+      "line": 175,
       "evidence": "db.from(\"v_logbook_truth\")     // canonical: logbook_truth",
       "contract_test": null
     },
@@ -858,7 +1008,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_pm_compliance_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 177,
+      "line": 181,
       "evidence": "db.from(\"v_pm_compliance_truth\")",
       "contract_test": null
     },
@@ -868,7 +1018,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 235,
+      "line": 239,
       "evidence": "? db.from(\"v_pm_scope_items_truth\")     // canonical",
       "contract_test": null
     },
@@ -878,7 +1028,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_weibull_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 201,
+      "line": 205,
       "evidence": "db.from(\"v_weibull_truth\")",
       "contract_test": null
     },
@@ -888,7 +1038,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_worker_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 68,
+      "line": 72,
       "evidence": "const { data: mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -908,7 +1058,7 @@
       "caller": "equipment-label-ocr",
       "callee": "v_asset_truth",
       "file": "supabase/functions/equipment-label-ocr/index.ts",
-      "line": 185,
+      "line": 193,
       "evidence": "let q = client.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -918,7 +1068,7 @@
       "caller": "failure-signature-scan",
       "callee": "v_hives_truth",
       "file": "supabase/functions/failure-signature-scan/index.ts",
-      "line": 314,
+      "line": 323,
       "evidence": ".from(\"v_hives_truth\")",
       "contract_test": null
     },
@@ -928,7 +1078,7 @@
       "caller": "failure-signature-scan",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/failure-signature-scan/index.ts",
-      "line": 197,
+      "line": 201,
       "evidence": ".from(\"v_logbook_truth\")",
       "contract_test": null
     },
@@ -938,7 +1088,7 @@
       "caller": "fmea-populator",
       "callee": "v_asset_truth",
       "file": "supabase/functions/fmea-populator/index.ts",
-      "line": 117,
+      "line": 119,
       "evidence": "const { data } = await db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -948,7 +1098,7 @@
       "caller": "fmea-populator",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/fmea-populator/index.ts",
-      "line": 284,
+      "line": 287,
       "evidence": "const { data: rows, error: logErr } = await db.from(\"v_logbook_truth\")  // canonical",
       "contract_test": null
     },
@@ -958,7 +1108,7 @@
       "caller": "hierarchical-summarizer",
       "callee": "canonical_period_summaries",
       "file": "supabase/functions/hierarchical-summarizer/index.ts",
-      "line": 321,
+      "line": 329,
       "evidence": "const { error: upErr } = await db.from(\"canonical_period_summaries\").upsert({",
       "contract_test": null
     },
@@ -968,18 +1118,18 @@
       "caller": "hierarchical-summarizer",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/hierarchical-summarizer/index.ts",
-      "line": 285,
+      "line": 293,
       "evidence": "let q = db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
     {
-      "id": "ai\u2192tenant/hierarchical-summarizer\u2192v_pm_compliance_truth",
+      "id": "ai\u2192tenant/hierarchical-summarizer\u2192v_pm_scope_items_truth",
       "kind": "ai\u2192tenant",
       "caller": "hierarchical-summarizer",
-      "callee": "v_pm_compliance_truth",
+      "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/hierarchical-summarizer/index.ts",
-      "line": 207,
-      "evidence": ".from(\"v_pm_compliance_truth\")",
+      "line": 215,
+      "evidence": ".from(\"v_pm_scope_items_truth\")",
       "contract_test": null
     },
     {
@@ -988,7 +1138,7 @@
       "caller": "intelligence-report",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/intelligence-report/index.ts",
-      "line": 111,
+      "line": 115,
       "evidence": "const { data: lowStock } = await db.from(\"v_inventory_items_truth\")",
       "contract_test": null
     },
@@ -998,7 +1148,7 @@
       "caller": "intelligence-report",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/intelligence-report/index.ts",
-      "line": 65,
+      "line": 69,
       "evidence": "const { data: activeHives } = await db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
@@ -1008,7 +1158,7 @@
       "caller": "project-orchestrator",
       "callee": "v_project_items_truth",
       "file": "supabase/functions/project-orchestrator/index.ts",
-      "line": 83,
+      "line": 84,
       "evidence": "db.from('v_project_items_truth').select('id, title, status, pct_complete, estimated_hours, actual_hours, planned_end, owner_name, notes')",
       "contract_test": null
     },
@@ -1018,7 +1168,7 @@
       "caller": "project-orchestrator",
       "callee": "v_project_progress_truth",
       "file": "supabase/functions/project-orchestrator/index.ts",
-      "line": 85,
+      "line": 86,
       "evidence": "db.from('v_project_progress_truth').select('log_date, reported_by, pct_complete, hours_worked, notes, blockers')",
       "contract_test": null
     },
@@ -1028,7 +1178,7 @@
       "caller": "project-orchestrator",
       "callee": "v_project_truth",
       "file": "supabase/functions/project-orchestrator/index.ts",
-      "line": 82,
+      "line": 83,
       "evidence": "db.from('v_project_truth').select('*, id:project_id, end_date:target_end_date').eq('project_id', project_id).eq('hive_id', hive_id).maybeSin",
       "contract_test": null
     },
@@ -1038,7 +1188,7 @@
       "caller": "scheduled-agents",
       "callee": "v_hives_truth",
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "line": 354,
+      "line": 393,
       "evidence": ".from(\"v_hives_truth\").select(\"id, name\").eq(\"id\", hive_id).single();",
       "contract_test": null
     },
@@ -1048,18 +1198,18 @@
       "caller": "scheduled-agents",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "line": 94,
+      "line": 119,
       "evidence": "const { data } = await db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
     {
-      "id": "ai\u2192tenant/scheduled-agents\u2192v_pm_compliance_truth",
+      "id": "ai\u2192tenant/scheduled-agents\u2192v_pm_scope_items_truth",
       "kind": "ai\u2192tenant",
       "caller": "scheduled-agents",
-      "callee": "v_pm_compliance_truth",
+      "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "line": 53,
-      "evidence": "const { data: assetsRaw } = await db.from(\"v_pm_compliance_truth\")",
+      "line": 62,
+      "evidence": "const { data: rows } = await db.from(\"v_pm_scope_items_truth\")",
       "contract_test": null
     },
     {
@@ -1068,7 +1218,7 @@
       "caller": "scheduled-agents",
       "callee": "v_project_progress_truth",
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "line": 285,
+      "line": 310,
       "evidence": "const { data: logs } = await db.from(\"v_project_progress_truth\")",
       "contract_test": null
     },
@@ -1078,7 +1228,7 @@
       "caller": "scheduled-agents",
       "callee": "v_project_truth",
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "line": 205,
+      "line": 230,
       "evidence": "const { data: activeProjects } = await db.from(\"v_project_truth\")",
       "contract_test": null
     },
@@ -1088,7 +1238,7 @@
       "caller": "semantic-fact-extractor",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/semantic-fact-extractor/index.ts",
-      "line": 173,
+      "line": 179,
       "evidence": "let q = db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
@@ -1098,7 +1248,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_hives_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 220,
+      "line": 222,
       "evidence": "const { data: hiveRow } = await db.from(\"v_hives_truth\")",
       "contract_test": null
     },
@@ -1108,7 +1258,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 151,
+      "line": 153,
       "evidence": "const { data } = await db.from(\"v_inventory_items_truth\")",
       "contract_test": null
     },
@@ -1118,7 +1268,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 137,
+      "line": 139,
       "evidence": "const { data } = await db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
@@ -1128,7 +1278,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 113,
+      "line": 115,
       "evidence": "const { data } = await db.from(\"v_pm_scope_items_truth\")",
       "contract_test": null
     },
@@ -1138,7 +1288,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_risk_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 92,
+      "line": 94,
       "evidence": "const { data } = await db.from(\"v_risk_truth\")",
       "contract_test": null
     },
@@ -1148,7 +1298,7 @@
       "caller": "temporal-rag-orchestrator",
       "callee": "canonical_period_summaries",
       "file": "supabase/functions/temporal-rag-orchestrator/index.ts",
-      "line": 155,
+      "line": 156,
       "evidence": "let q = db.from(\"canonical_period_summaries\")",
       "contract_test": null
     },
@@ -1158,7 +1308,7 @@
       "caller": "visual-defect-capture",
       "callee": "v_asset_truth",
       "file": "supabase/functions/visual-defect-capture/index.ts",
-      "line": 193,
+      "line": 196,
       "evidence": "const { data } = await db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -1168,7 +1318,7 @@
       "caller": "voice-action-router",
       "callee": "v_asset_truth",
       "file": "supabase/functions/voice-action-router/index.ts",
-      "line": 226,
+      "line": 219,
       "evidence": "const { data } = await db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -1178,7 +1328,7 @@
       "caller": "voice-logbook-entry",
       "callee": "v_worker_truth",
       "file": "supabase/functions/voice-logbook-entry/index.ts",
-      "line": 90,
+      "line": 92,
       "evidence": ".from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -1188,7 +1338,7 @@
       "caller": "voice-semantic-rag",
       "callee": "voice_journal_entries",
       "file": "supabase/functions/voice-semantic-rag/index.ts",
-      "line": 126,
+      "line": 136,
       "evidence": ".from(\"voice_journal_entries\")",
       "contract_test": null
     },
@@ -1198,7 +1348,7 @@
       "caller": "analytics-report.html",
       "callee": "analytics-orchestrator",
       "file": "analytics-report.html",
-      "line": 598,
+      "line": 604,
       "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
       "contract_test": null
     },
@@ -1208,7 +1358,7 @@
       "caller": "analytics.html",
       "callee": "analytics-orchestrator",
       "file": "analytics.html",
-      "line": 797,
+      "line": 802,
       "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
       "contract_test": null
     },
@@ -1228,7 +1378,7 @@
       "caller": "logbook.html",
       "callee": "embed-entry",
       "file": "logbook.html",
-      "line": 1823,
+      "line": 1915,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1238,7 +1388,7 @@
       "caller": "pm-scheduler.html",
       "callee": "embed-entry",
       "file": "pm-scheduler.html",
-      "line": 1874,
+      "line": 2005,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1248,7 +1398,7 @@
       "caller": "report-sender.html",
       "callee": "scheduled-agents",
       "file": "report-sender.html",
-      "line": 1629,
+      "line": 1639,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
       "contract_test": null
     },
@@ -1258,7 +1408,7 @@
       "caller": "report-sender.html",
       "callee": "voice-report-intent",
       "file": "report-sender.html",
-      "line": 1505,
+      "line": 1515,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
       "contract_test": null
     },

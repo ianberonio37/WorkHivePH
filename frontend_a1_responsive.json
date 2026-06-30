@@ -1,0 +1,932 @@
+{
+  "generated": "2026-06-18T21:59:32.744Z",
+  "breakpoints": [
+    360,
+    768,
+    1280,
+    1920
+  ],
+  "tolerance": 4,
+  "pass": 34,
+  "total": 34,
+  "results": [
+    {
+      "page": "index.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "engineering-design.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "logbook.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "inventory.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "pm-scheduler.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "voice-journal.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "dayplanner.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "asset-hub.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "alert-hub.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "analytics.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "analytics-report.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "shift-brain.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "predictive.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "ai-quality.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "ph-intelligence.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "project-manager.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "project-report.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "skillmatrix.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "achievements.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "audit-log.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "assistant.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "hive.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "community.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "public-feed.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "marketplace.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "marketplace-seller.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "marketplace-admin.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "integrations.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "plant-connections.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "report-sender.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "status.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "founder-console.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "llm-observability.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "bp": {
+        "360": {
+          "sw": 360,
+          "cw": 360,
+          "over": 0
+        },
+        "768": {
+          "sw": 768,
+          "cw": 768,
+          "over": 0
+        },
+        "1280": {
+          "sw": 1280,
+          "cw": 1280,
+          "over": 0
+        },
+        "1920": {
+          "sw": 1920,
+          "cw": 1920,
+          "over": 0
+        }
+      },
+      "pass": true,
+      "overflowAt": []
+    }
+  ]
+}

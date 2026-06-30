@@ -1,0 +1,24 @@
+{
+  "_doc": "§13 H-axis triage v2 — evidence-based. Heuristic un-assertable/passthrough split RETRACTED.",
+  "transform_chains": {
+    "load_bearing_total": 71,
+    "verified": 71,
+    "to_prove": 0,
+    "value_verified_pct": 100.0,
+    "chain_segments": 14
+  },
+  "calc_transform_fields": 265,
+  "calc_coverage": {
+    "status": "value-floor (un-stubbed 2026-06-17)",
+    "calc_types_value_verified": 8,
+    "calc_types_total": 33,
+    "pct": 24.2,
+    "standard_anchored_oracles": 18,
+    "validator": "validate_calc_formula_accuracy.py",
+    "remaining_gap": "full per-calc-type + per-field verification of 265 engineering-design fields"
+  },
+  "assertable_value_unverified_fields": 196,
+  "needs_terminus_evidence_fields": 0,
+  "to_prove_chains": [],
+  "note": "capture fields are proven CONSUMED (capture auditor), NOT value-correct. No path is claimed passthrough/structural without DB-column-terminus evidence."
+}

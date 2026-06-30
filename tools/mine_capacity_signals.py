@@ -1,3 +1,5 @@
+# audit-scope-allow: capacity/connection signals are mined from ROOT-level feature pages (where the
+# realtime subscriptions + unbounded reads live); learn/ subdirs are static SEO content — root *.html is the intended scope.
 """
 Capacity / Connection-Signal Substrate Miner (Maturity Phase 1, 2026-06-16).
 ============================================================================

@@ -59,7 +59,8 @@ def main() -> int:
     # Pass 1: collect every fn covered by a later `ALTER FUNCTION ... SET search_path`
     altered = set()
     alter_re = re.compile(
-        r'ALTER\s+FUNCTION\s+(?:"?[\w]+"?\.)?"?([\w]+)"?\s*(?:\([^)]*\))?\s+SET\s+search_path\s*=',
+        # accept both `SET search_path = …` and `SET search_path TO …` (both are valid PG syntax)
+        r'ALTER\s+FUNCTION\s+(?:"?[\w]+"?\.)?"?([\w]+)"?\s*(?:\([^)]*\))?\s+SET\s+search_path\s*(?:=|\s+TO\b)',
         re.IGNORECASE,
     )
     for mig in sorted(mig_dir.glob("*.sql")):
@@ -75,8 +76,8 @@ def main() -> int:
             if not re.search(r"SECURITY\s+DEFINER", header, re.IGNORECASE):
                 continue
             total_definer += 1
-            # Inline SET search_path = ... in the function header
-            if re.search(r"SET\s+search_path\s*=", header, re.IGNORECASE):
+            # Inline SET search_path = ... OR ... TO ... in the function header (both valid PG syntax)
+            if re.search(r"SET\s+search_path\s*(?:=|\s+TO\b)", header, re.IGNORECASE):
                 continue
             # Covered by a later ALTER FUNCTION ... SET search_path
             if _fn_base_name(sig) in altered:

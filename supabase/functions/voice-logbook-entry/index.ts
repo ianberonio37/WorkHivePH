@@ -14,6 +14,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: voice -> logbook entry write
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
@@ -100,6 +102,7 @@ async function deriveWorkerFromJWT(
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  logRequestStart(req, "voice-logbook-entry");  // I6 observability
 
   try {
     const { transcript, hive_id, worker_name } = await req.json();

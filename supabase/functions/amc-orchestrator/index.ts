@@ -50,6 +50,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: produces AMC briefing; future Tier C: amc_brief_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
@@ -62,6 +64,7 @@ import { buildPersonaBlock, clampPersona } from "../_shared/persona.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive brief path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -644,6 +647,7 @@ async function buildBriefForHive(
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "amc-orchestrator");  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -667,6 +671,10 @@ serve(async (req) => {
             { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
+        // Arc L free-tier B-hardening: per-hive AI cap so a member cannot spam this
+        // generative orchestrator and drain the hive's free-tier LLM budget.
+        const _rl = await checkAIRateLimit(db, targetHive);
+        if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
       }
     }
 

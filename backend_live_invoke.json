@@ -1,0 +1,367 @@
+{
+  "hive": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7",
+  "probes": {
+    "project-progress": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "cold-archive-query": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "benchmark-compute": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "failure-signature-scan": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "analytics-orchestrator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "pf-calculator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "weibull-fitter": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "intelligence-api": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "export-hive-data": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "agent-memory-store": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "sensor-readings-ingest": {
+      "foreign_code": 401,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "data-fabric-normalizer": {
+      "foreign_code": 401,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "ai-orchestrator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "agentic-rag-loop": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "temporal-rag-orchestrator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "voice-action-router": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "voice-report-intent": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "voice-journal-agent": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "semantic-search": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "semantic-fact-extractor": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "hierarchical-summarizer": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "asset-brain-query": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "fmea-populator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "engineering-bom-sow": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "embed-entry": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "voice-embeddings": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "ai-gateway": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "platform-gateway": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "voice-logbook-entry": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "voice-model-call": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "platform-scraper": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "batch-risk-scoring": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "parts-staging-recommender": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "trigger-ml-retrain": {
+      "foreign_code": 400,
+      "i2_blocked": false,
+      "happy_mode": "service",
+      "f1_ok": false,
+      "happy_code": 400
+    },
+    "scheduled-agents": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "cmms-sync": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "cmms-push-completion": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "ai-eval-runner": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "service",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "project-orchestrator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "shift-planner-orchestrator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "amc-orchestrator": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "voice-semantic-rag": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 200,
+      "i4_ok": true
+    },
+    "engineering-calc-agent": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "intelligence-report": {
+      "foreign_code": 429,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": false,
+      "happy_code": 429
+    },
+    "resume-extract": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200,
+      "overlong_code": 502,
+      "i4_ok": true
+    },
+    "resume-polish": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    },
+    "visual-defect-capture": {
+      "foreign_code": 403,
+      "i2_blocked": true,
+      "happy_mode": "user",
+      "f1_ok": false,
+      "happy_code": 502
+    },
+    "walkthrough-analyzer": {
+      "foreign_code": 200,
+      "i2_blocked": false,
+      "happy_mode": "user",
+      "f1_ok": true,
+      "happy_code": 200
+    }
+  }
+}

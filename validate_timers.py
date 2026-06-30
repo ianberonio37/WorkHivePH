@@ -264,6 +264,11 @@ def check_pages_in_scope():
         fname = os.path.basename(path)
         if fname in live_set:
             continue
+        # engineering-design.js is the extracted bundle of engineering-design.html; its
+        # setInterval IS scanned via the page-bundle pairing in validator_utils.read_file,
+        # so flagging it standalone here is a false positive.
+        if fname == "engineering-design.js":
+            continue
         if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
                                      "parts-tracker", "symbol-gallery", "architecture"]):
             continue

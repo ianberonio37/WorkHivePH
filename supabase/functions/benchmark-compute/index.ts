@@ -11,6 +11,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
@@ -194,7 +196,7 @@ async function computeNetwork(db: SupabaseClient, now: Date) {
 
     networkRows.push({
       equipment_category: cat,
-      industry:           null, // future: group by hive industry
+      industry:           "",   // '' (not null) — keyed by the composite UNIQUE (cat, industry)
       avg_mtbf_days:      Math.round(avg * 10) / 10,
       p25_mtbf_days:      sorted[p25idx] ?? null,
       p75_mtbf_days:      sorted[p75idx] ?? null,
@@ -205,8 +207,16 @@ async function computeNetwork(db: SupabaseClient, now: Date) {
   }
 
   if (networkRows.length) {
-    await db.from("network_benchmarks")
-      .upsert(networkRows, { onConflict: "equipment_category,COALESCE(industry, '')" });
+    // on_conflict targets the plain composite UNIQUE (equipment_category, industry).
+    // The previous expression-index target ("...,COALESCE(industry,'')") made
+    // PostgREST throw `column "COALESCE" does not exist` — and the error was never
+    // checked, so the whole network table silently never populated. Check it now.
+    const { error } = await db.from("network_benchmarks")
+      .upsert(networkRows, { onConflict: "equipment_category,industry" });
+    if (error) {
+      log.error(null, "network_benchmarks upsert failed", { err: error.message, rows: networkRows.length });
+      throw new Error(`network_benchmarks upsert failed: ${error.message}`);
+    }
   }
 }
 
@@ -217,6 +227,7 @@ async function computeNetwork(db: SupabaseClient, now: Date) {
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  logRequestStart(req, "benchmark-compute");  // I6 observability
 
   try {
     const db  = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

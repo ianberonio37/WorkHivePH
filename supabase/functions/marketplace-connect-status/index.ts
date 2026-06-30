@@ -19,6 +19,8 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// Arc R (A01 BOLA): a caller may only check/onboard THEIR OWN seller account.
+import { resolveIdentity } from '../_shared/tenant-context.ts';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -65,11 +67,27 @@ serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
+  /* ── Arc R (A01 BOLA): the old code took worker_name from the body with NO JWT, so any
+     anon caller could read ANY seller's live Stripe status (charges/payouts/requirements)
+     and flip their kyb_verified (denial-of-revenue). Bind worker_name to the verified
+     caller; service_role keeps the body value (trusted automation). */
+  let effectiveWorker = worker_name;
+  const _id = await resolveIdentity(db, req);
+  if (!_id.isServiceRole) {
+    if (!_id.authUid) return errJson('Sign-in required', 401, req);
+    // canonical-allow: caller identity/authz read (own profile by auth_uid -> 403 if none);
+    // v_worker_truth is over hive_members, not the auth-identity source, so it cannot serve this.
+    const { data: _wp } = await db.from('worker_profiles')
+      .select('display_name').eq('auth_uid', _id.authUid).maybeSingle();
+    if (!_wp?.display_name) return errJson('No profile for caller', 403, req);
+    effectiveWorker = _wp.display_name;
+  }
+
   /* ── Look up seller (canonical: marketplace_sellers_truth) ──────────── */
   const { data: seller, error: sellerErr } = await db
     .from('v_marketplace_sellers_truth')
     .select('stripe_account_id, kyb_verified, tier')
-    .eq('worker_name', worker_name)
+    .eq('worker_name', effectiveWorker)
     .maybeSingle();
 
   if (sellerErr) {
@@ -114,7 +132,7 @@ serve(async (req: Request) => {
         kyb_verified_at: new Date().toISOString(),
         updated_at:      new Date().toISOString(),
       })
-      .eq('worker_name', worker_name);
+      .eq('worker_name', effectiveWorker);
 
     if (updateErr) {
       log.error(null, 'KYB update error:', { detail: updateErr.message });
@@ -128,7 +146,7 @@ serve(async (req: Request) => {
     await db
       .from('marketplace_sellers')
       .update({ kyb_verified: false, kyb_verified_at: null, updated_at: new Date().toISOString() })
-      .eq('worker_name', worker_name);
+      .eq('worker_name', effectiveWorker);
     log.info(null, `KYB revoked for seller: ${worker_name} (charges no longer enabled)`);
   }
 

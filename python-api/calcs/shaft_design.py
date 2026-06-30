@@ -272,11 +272,28 @@ def calculate(inputs: dict) -> dict:
     key_h_mm = round(d_used / 6, 1)
     # Shear stress in key: τ_key = T / (A_shear × r_shaft)
     # A_shear = key_w × key_length; use key_length = 1.5×d as default
-    key_len_mm = inputs.get("key_length_mm", 1.5 * d_used)
+    key_len_mm = float(inputs.get("key_length_mm", 1.5 * d_used))
     A_key_mm2  = key_w_mm * key_len_mm
     tau_key    = (abs(T_Nm) * 1000) / (A_key_mm2 * (d_used / 2)) if A_key_mm2 > 0 else 0
     Ssy        = 0.577 * mat["Sy_MPa"]   # distortion energy shear yield
     n_key      = Ssy / tau_key if tau_key > 0 else 999
+
+    # ── Angle of twist (ASME B106.1M rigidity criterion) ─────────────────────
+    # θ' = T / (G·J)  [rad/m];  J = π d⁴/32 (solid shaft).  G = 80 GPa (standard steel
+    # shear modulus) — matches the TS calcShaftDesign reference so Python ≡ TS, no drift.
+    # Often GOVERNS power-transmission shafts (limit ~1 deg/m); the BOM agent upsizes to it.
+    G_Pa       = 80e9
+    d_m_used   = d_used / 1000.0
+    J_m4_used  = math.pi * d_m_used**4 / 32
+    twist_rad_per_m = abs(T_Nm) / (G_Pa * J_m4_used) if (G_Pa * J_m4_used) > 0 else 0.0
+    twist_deg_per_m = math.degrees(twist_rad_per_m)
+    TWIST_LIMIT_DEG_M = 1.0
+    twist_ok   = 0.0 < twist_deg_per_m <= TWIST_LIMIT_DEG_M
+    # diameter to satisfy the limit: θ_lim = 32 T / (G π d⁴) → d = (32 T / (G π θ_lim))^¼
+    theta_lim_rad = math.radians(TWIST_LIMIT_DEG_M)
+    d_twist_req_m = (32 * abs(T_Nm) / (G_Pa * math.pi * theta_lim_rad)) ** 0.25 if (T_Nm and theta_lim_rad) else 0.0
+    d_twist_required_mm = d_twist_req_m * 1000
+    d_twist_std_mm = next((s for s in STD_DIAMETERS_MM if s >= d_twist_required_mm), STD_DIAMETERS_MM[-1])
 
     return {
         # Loads
@@ -314,9 +331,16 @@ def calculate(inputs: dict) -> dict:
         # Key
         "key_width_mm":      key_w_mm,
         "key_height_mm":     key_h_mm,
+        "key_length_mm":     round(key_len_mm, 1),
         "tau_key_MPa":       round(tau_key, 2),
         "n_key":             round(n_key, 2),
         "key_ok":            n_key >= 1.5,
+
+        # Angle of twist (ASME B106.1M rigidity)
+        "twist_deg_per_m":     round(twist_deg_per_m, 3),
+        "twist_ok":            twist_ok,
+        "d_twist_required_mm": round(d_twist_required_mm, 2),
+        "d_twist_std_mm":      d_twist_std_mm,
 
         # Metadata
         "inputs_used": {

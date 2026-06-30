@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -248,6 +248,10 @@
     }
     .fab:hover { background: var(--wh-orange-dark); transform: scale(1.05); }
     .fab:active { transform: scale(0.95); }
+    /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: move page FABs bottom-LEFT on
+       mobile, away from the global bottom-right widget stack that caused the axe
+       target-size proximity flag at 390px). Desktop keeps bottom-right. */
+    @media (max-width: 767px) { .fab { left: 1.25rem; right: auto; } }
 
     /* Slide up animation for wizard */
     @keyframes slideUp {
@@ -358,7 +362,7 @@
 
     <!-- Summary stat row — repurposed into Plain-Read .simple-card layout. -->
     <div class="simple-row mb-5">
-      <div class="simple-card tag-grey" id="pm-card-overdue" data-rag-tile="pm-scheduler:overdue" data-rag-label="Overdue PMs">
+      <div class="simple-card hero tag-grey" id="pm-card-overdue" data-rag-tile="pm-scheduler:overdue" data-rag-label="Overdue PMs">
         <div class="sc-label">Overdue</div>
         <div class="sc-hero" id="stat-overdue">0</div>
         <div class="sc-sub" id="pm-overdue-sub">Past due date</div>
@@ -407,10 +411,11 @@
       <button class="filter-chip" data-filter="ontrack">On Track</button>
     </div>
 
-    <!-- Category filter -->
-    <select id="cat-filter" aria-label="Filter assets by category" class="wh-input mb-4" style="padding:0.625rem 1rem;">
-      <option value="">All Categories</option>
-    </select>
+    <!-- Category filter — searchable typeahead (Arc V L-lens: 20+ categories in a flat <select> is a
+         Miller/Hick overload; a datalist combobox lets the user TYPE to narrow = low decision cost). -->
+    <input id="cat-filter" list="cat-filter-options" type="text" aria-label="Filter assets by category"
+           class="wh-input mb-4" style="padding:0.625rem 1rem;" placeholder="All Categories" autocomplete="off" />
+    <datalist id="cat-filter-options"></datalist>
 
     <!-- Asset list -->
     <div id="asset-list" class="flex flex-col gap-3"></div>
@@ -729,7 +734,7 @@
       </select>
     </div>
 
-    <p id="pm-edit-error" class="text-xs text-red-400 mb-3 hidden"></p>
+    <p role="alert" aria-live="assertive" id="pm-edit-error" class="text-xs text-red-400 mb-3 hidden"></p>
 
     <div class="flex gap-2">
       <button onclick="saveEditPMAsset()" id="pm-edit-save-btn" class="btn-primary flex-1">Save Changes</button>
@@ -1133,6 +1138,18 @@ async function init() {
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
   await validateHiveMembership();
+  // Arc S D-lens (D-001/D-006): wire the SHARED offline-write queue (was loaded but
+  // never instantiated). A completion logged during a brownout queues to IndexedDB
+  // and drains on reconnect; the dedup UNIQUE index makes a reconnect re-insert benign.
+  if (window.whCreateQueue) {
+    window._whPmQueue = window.whCreateQueue({
+      db: 'wh_pm_offline', table: 'pm_completions',
+      identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      postSync: () => { try { renderDashboard(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
+    });
+    window.whRegisterQueue('pm', window._whPmQueue);
+    window._whPmQueue.startAutoSync(db);
+  }
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
   if (HIVE_ID && HIVE_NAME) {
@@ -1155,7 +1172,80 @@ async function init() {
     });
   }
   await loadData();
+
+  // Arc X A3 (list-state persistence): restore the dashboard's filter state from the
+  // URL (?filter=, ?cat=) BEFORE the first render, so it survives a reload / back-nav
+  // from a detail. Mirrors inventory's ?q= pattern. (Skipped when a ?asset= deep-link
+  // is opening a detail - the filter still restores underneath for when they go Back.)
+  try {
+    const _pq = new URLSearchParams(window.location.search);
+    const _pf = _pq.get('filter');
+    if (_pf) {
+      const _chip = document.querySelector('.filter-chip[data-filter="' + _pf + '"]');
+      if (_chip) { document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); _chip.classList.add('active'); }
+    }
+    const _pc = _pq.get('cat');
+    if (_pc) { const _cf = document.getElementById('cat-filter'); if (_cf) _cf.value = _pc; }
+  } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
+
   renderDashboard();
+
+  // Arc X A1: deep-link reader. A home strip / risk alert / hive card that names a
+  // specific overdue PM asset now links here as pm-scheduler.html?asset=<asset_name>
+  // (also accepts ?tag=<tag_id> / ?asset_id=<id>). Open that asset's PM detail
+  // directly so the user lands on the NAMED record + its schedule action, instead
+  // of re-finding it in the 30-item list (the Issue #2 Donaldson Pulse-Jet defect).
+  try {
+    const _q = new URLSearchParams(window.location.search);
+    const _byId = _q.get('asset_id') || _q.get('pm_id');
+    const _byTag = _q.get('tag');
+    const _byName = _q.get('asset');
+    if (_byId || _byTag || _byName) {
+      const _norm = s => String(s || '').trim().toLowerCase();
+      const _match = assets.find(a =>
+        (_byId && a.id === _byId) ||
+        (_byTag && _norm(a.tag_id) === _norm(_byTag)) ||
+        (_byName && _norm(a.asset_name) === _norm(_byName))
+      ) || (_byName ? assets.find(a => _norm(a.asset_name).includes(_norm(_byName))) : null);
+      if (_match) {
+        openDetail(_match.id);
+        // Arc X A2 (carry intent): the home/alert copy says "schedule the technician" /
+        // "PM due" - an ACTION, not just "look at this asset". Land with the matching
+        // action FOCUSED: scroll-to + focus the first actionable (not-yet-done) task
+        // button so the user acts in one tap instead of re-scanning the detail. The
+        // optional ?action= verb is honored (any value -> focus the action); absent it,
+        // a deep-linked detail still surfaces its action (the intent is unambiguous here).
+        setTimeout(() => {
+          try {
+            // The matching action is a PM task control (mark-done) - prefer the first
+            // OVERDUE/not-yet-done task, else the first task control; never the Edit/Delete
+            // asset buttons (wrong intent for "schedule the PM"). If no task control exists,
+            // just bring the tasks region into view.
+            const _act = document.querySelector('#screen-detail .complete-btn:not(.done)')
+                      || document.querySelector('#screen-detail .complete-btn');
+            const _scrollTo = _act || document.getElementById('det-tasks');
+            if (_scrollTo) _scrollTo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (_act) _act.focus({ preventScroll: true });
+          } catch (_) { /* empty-catch-allow: best-effort focus */ }
+        }, 60);
+      }
+    }
+  } catch (_) { /* empty-catch-allow: best-effort deep-link; dashboard still renders */ }
+
+  // Arc X A3: mirror the dashboard filter state into the URL so it survives reload +
+  // back-nav (the restore block above reads it on load). replaceState keeps history flat;
+  // clear the ?asset=/?action= deep-link params once the user drives the dashboard filters.
+  function _pmSyncUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const f = (document.querySelector('.filter-chip.active') || {}).dataset?.filter || 'all';
+      const c = (document.getElementById('cat-filter').value || '').trim();
+      if (f && f !== 'all') url.searchParams.set('filter', f); else url.searchParams.delete('filter');
+      if (c) url.searchParams.set('cat', c); else url.searchParams.delete('cat');
+      url.searchParams.delete('asset'); url.searchParams.delete('action');
+      history.replaceState(null, '', url);
+    } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+  }
 
   // Filter chips
   document.getElementById('filter-bar').addEventListener('click', e => {
@@ -1165,10 +1255,11 @@ async function init() {
     chip.classList.add('active');
     _pmDisplayCount = 10;
     renderDashboard();
+    _pmSyncUrl();
   });
 
-  // Category filter
-  document.getElementById('cat-filter').addEventListener('change', () => { _pmDisplayCount = 10; renderDashboard(); });
+  // Category filter — datalist combobox: react to typed input AND option selection (input + change)
+  ['input', 'change'].forEach(ev => document.getElementById('cat-filter').addEventListener(ev, () => { _pmDisplayCount = 10; renderDashboard(); _pmSyncUrl(); }));
 
   // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
   if (typeof wireDetailToggle === 'function') wireDetailToggle();
@@ -1185,9 +1276,9 @@ async function loadData() {
 
   // Load assets first: pm_scope_items has no worker_name, must join via asset_id
   const assetsRes = await (HIVE_ID
-    ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID)
-    : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME)
-  ).order('created_at', { ascending: true });
+    ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: true }).limit(500)
+    : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME).order('created_at', { ascending: true }).limit(500)
+  ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
 
   if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast('Could not load PM assets. Check your connection.'); return; }
   assets = assetsRes.data || [];
@@ -1206,9 +1297,10 @@ async function loadData() {
   // not just the latest one the view exposes. canonical-allow: history list
   let scopeQ = db.from('v_pm_scope_items_truth')
     .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at')
-    .in('asset_id', assetIds).order('created_at', { ascending: true });
+    .in('asset_id', assetIds).order('created_at', { ascending: true }).limit(500);
   // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
-  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false });
+  // L2: newest-first cap bounds completion-history egress; 2000 is generous for a hive's recent history (keyset "load older" is the scale fix if ever needed)
+  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }).limit(2000);
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
   const [itemsRes, compRes] = await Promise.all([scopeQ, compsQ]);
 
@@ -1225,13 +1317,11 @@ async function loadData() {
     if (!smrpErr && smrp && smrp.overall_pct != null) pmSmrpCompliance = smrp.overall_pct;
   }
 
-  // Populate category filter
-  const cats = [...new Set(assets.map(a => a.category))].sort();
-  const sel  = document.getElementById('cat-filter');
-  const prev = sel.value;
-  sel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<option value="">All Categories</option>' +
-    cats.map(c => `<option value="${c}">${c}</option>`).join('');
-  if (prev) sel.value = prev;
+  // Populate category filter — datalist options for the searchable combobox (the <input> keeps its
+  // own value across re-populate, so no prev/restore needed; escHtml the data-derived category values).
+  const cats = [...new Set(assets.map(a => a.category))].filter(Boolean).sort();
+  const dl   = document.getElementById('cat-filter-options');
+  if (dl) dl.innerHTML = cats.map(c => `<option value="${escHtml(c)}"></option>`).join('');
 }
 
 async function subscribeRealtime() {
@@ -1249,7 +1339,7 @@ async function subscribeRealtime() {
         renderDetail(currentAsset);
       }
     })
-    .subscribe();
+    .subscribe(rtConn());
 }
 
 // ─────────────────────────────────────
@@ -1386,7 +1476,10 @@ function renderDashboard() {
   loading.classList.add('hidden');
 
   const activeFilter = document.querySelector('.filter-chip.active')?.dataset.filter || 'all';
-  const catFilter    = document.getElementById('cat-filter').value;
+  // datalist combobox: only apply the filter on an EXACT category match — partial/typed-but-incomplete
+  // text shows ALL (so mid-typing never blanks the list); empty input = All Categories.
+  const catRaw       = (document.getElementById('cat-filter').value || '').trim();
+  const catFilter    = new Set(assets.map(a => a.category)).has(catRaw) ? catRaw : '';
 
   // Build enriched assets
   const enriched = assets.map(asset => {
@@ -1459,7 +1552,7 @@ function renderDashboard() {
           ${overdueItems > 0 ? `<span class="text-xs font-semibold text-red-400">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
         </div>
 
-        <p class="text-xs text-white/60 mb-2 truncate">${nextDueLabel}</p>
+        <p class="text-xs text-white/60 mb-2 truncate">${escHtml(nextDueLabel)}</p>
 
         <div class="progress-bar">
           <div class="progress-fill" style="
@@ -1750,7 +1843,13 @@ async function submitCompletion() {
   const now      = new Date().toISOString();
 
   // 1. Save pm_completion
+  // Arc S D-001: a stable client id lets an offline completion queue + reconcile
+  // (the pm_completions_dedup_uidx makes a reconnect re-insert benign).
+  const compId = (window.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : ('pmc-' + Date.now().toString() + Math.random().toString(36).slice(2));
   const compPayload = {
+    id:            compId,
     asset_id:      currentAsset.id,
     scope_item_id: _sheetScopeItemId,
     hive_id:       HIVE_ID || null,
@@ -1761,10 +1860,37 @@ async function submitCompletion() {
     completed_at:  now,
   };
 
+  // Arc S D-001: offline -> queue the completion (the source-of-truth record) so a
+  // brownout never loses the worker's PM. It drains on reconnect; the optional
+  // logbook mirror is skipped offline (best-effort, re-creatable). The completion
+  // shows immediately from the local payload.
+  if (!navigator.onLine && window._whPmQueue) {
+    await window._whPmQueue.enqueue({ id: compId, op: 'insert', payload: compPayload });
+    completions.unshift({ ...compPayload });
+    showToast('Saved offline — will sync when you reconnect.');
+    closeSheet();
+    renderDetail(currentAsset);
+    renderDashboard();
+    saveBtn.disabled = false;
+    saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
+    return;
+  }
+
   const { data: compData, error: compErr } = await db
     .from('pm_completions').insert(compPayload).select().single();
 
   if (compErr) {
+    // Arc S C-lens (gap-C-005): a double-tap / retried completion now hits the
+    // pm_completions_dedup_uidx UNIQUE guard -> 23505. The FIRST submit already
+    // saved it, so this is benign (exactly-once), not a failure — tell the
+    // worker it's recorded instead of a scary "Failed to save".
+    if (compErr.code === '23505') {
+      showToast('Already recorded for this task today.');
+      closeSheet();
+      saveBtn.disabled = false;
+      saveLabel.textContent = logAlso ? 'Save + Log in Logbook' : 'Save Completion';
+      return;
+    }
     console.error('pm_completion insert:', compErr.message);
     showToast('Failed to save. Please try again.');
     saveBtn.disabled = false;
@@ -1815,12 +1941,15 @@ async function submitCompletion() {
     const { error: logErr } = await db.from('logbook').insert(logPayload);
     if (logErr) {
       console.warn('logbook insert failed (PM still saved):', logErr.message);
-      showToast('PM saved. Logbook entry failed: check connection.');
+      // PM still wrote pm_completions → compliance recomputes; only the logbook echo failed.
+      showToast('PM saved → PM compliance updated (Hive + Analytics). Logbook entry failed: check connection.', 6000);
     } else {
-      showToast('PM saved and logged in Logbook.');
+      // Phase D1 cross-surface receipt — name the ripple (pm_completions → SMRP compliance).
+      showToast('✓ PM done → PM compliance recomputed (Hive + Analytics SMRP) · logged in Logbook.', 6000);
     }
   } else {
-    showToast('PM task marked as done.');
+    // Phase D1 cross-surface receipt.
+    showToast('✓ PM done → PM compliance recomputed on Hive + Analytics (SMRP).', 5000);
   }
 
   // Embed PM health snapshot in background
@@ -1848,14 +1977,16 @@ async function _autoLinkPmToProject(compData, asset) {
     .select('project_id')
     .eq('hive_id', HIVE_ID)
     .eq('link_type', 'asset')
-    .eq('link_id', asset.id);
+    .eq('link_id', asset.id)
+    .limit(500);
   if (!assetLinks?.length) return;
   const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
   // canonical-allow: project_links join already constrained the id set; targeted fetch
   const { data: projs } = await db.from('projects')
     .select('id, project_code, status')
     .in('id', projectIds)
-    .in('status', ['planning', 'active']);
+    .in('status', ['planning', 'active'])
+    .limit(500);
   if (!projs?.length) return;
   const linkRows = projs.map(p => ({
     project_id: p.id, hive_id: HIVE_ID,
@@ -1903,12 +2034,12 @@ async function loadRegisteredAssets() {
 
   // canonical-allow: asset wizard picker uses legacy-aliased col shape (asset_id:tag, type:iso_class) for the existing _assets[] consumers; v_asset_truth uses canonical names
   const queries = [
-    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('worker_name', WORKER_NAME).is('hive_id', null),
+    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('worker_name', WORKER_NAME).is('hive_id', null).limit(500),
   ];
   if (HIVE_ID) {
     queries.push(
       // canonical-allow: same picker shape requirement as solo branch above
-      db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved')
+      db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500)
     );
   }
 
@@ -2424,12 +2555,13 @@ function goBack() {
 // ─────────────────────────────────────
 
 let toastTimer = null;
-function showToast(msg) {
+function showToast(msg, ms) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  // Optional longer duration for cross-surface receipts (Phase D1); default unchanged.
+  toastTimer = setTimeout(() => t.classList.remove('show'), ms || 3000);
 }
 
 window.addEventListener('beforeunload', () => {
@@ -2510,6 +2642,8 @@ if (window.whModalA11y) {
 -->
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
 
 <!-- ── ADD TASK BOTTOM SHEET ── -->
 <div id="add-task-sheet" class="sheet-overlay" role="dialog" aria-modal="true" aria-label="Add PM task" onclick="addTaskBackdropClick(event)">

@@ -26,23 +26,21 @@ TDD_LIMITS: list[tuple[float, float]] = [
     (float('inf'), 20.0),
 ]
 
-# IEEE 519-2022 Table 3 — Individual harmonic current limits (% of IL) at ISC/IL < 20
-# {order_range: limit_%}; scale by ISC/IL tier
-INDIVIDUAL_LIMITS_TIER1: dict[str, float] = {
-    "3-11":   4.0,
-    "11-17":  2.0,
-    "17-23":  1.5,
-    "23-35":  0.6,
-    ">35":    0.3,
-}
-
-# Multiplication factors for higher ISC/IL tiers (relative to tier 1)
-INDIVIDUAL_SCALE: list[tuple[float, float]] = [
-    (20,   1.0),
-    (50,   2.0),
-    (100,  3.0),
-    (1000, 3.5),
-    (float('inf'), 5.0),
+# IEEE 519-2014/2022 Table 2 — Maximum individual ODD-harmonic current distortion
+# (% of IL) at the PCC for systems rated 120 V–69 kV. CRITICAL: each ISC/IL tier has
+# DIFFERENT per-band limits — they are NOT a uniform multiple of the <20 row.
+# (Fixed 2026-06-23 Arc Q: the engine previously took the <20 row × a single factor
+# ×1/2/3/3.5/5, which OVERSTATED every higher-tier limit by 14–43% = too permissive,
+# so a non-compliant design could be reported COMPLIANT. Re-anchored to the verbatim
+# Table 2 matrix — same change-detector class as the fire_sprinkler density bug.)
+# Bands: 3<=h<11, 11<=h<17, 17<=h<23, 23<=h<35, 35<=h<=50.
+INDIVIDUAL_LIMITS: list[tuple[float, dict[str, float]]] = [
+    # ISC/IL <        3-11    11-17   17-23   23-35   >35
+    (20,           {"3-11": 4.0,  "11-17": 2.0, "17-23": 1.5, "23-35": 0.6, ">35": 0.3}),
+    (50,           {"3-11": 7.0,  "11-17": 3.5, "17-23": 2.5, "23-35": 1.0, ">35": 0.5}),
+    (100,          {"3-11": 10.0, "11-17": 4.5, "17-23": 4.0, "23-35": 1.5, ">35": 0.7}),
+    (1000,         {"3-11": 12.0, "11-17": 5.5, "17-23": 5.0, "23-35": 2.0, ">35": 1.0}),
+    (float('inf'), {"3-11": 15.0, "11-17": 7.0, "17-23": 6.0, "23-35": 2.5, ">35": 1.4}),
 ]
 
 
@@ -54,21 +52,17 @@ def _tdd_limit(isc_il: float) -> float:
 
 
 def _individual_limit_pct(order: int, isc_il: float, il_a: float) -> float:
-    """Maximum individual harmonic current (A) as % of IL."""
-    # Base limit (% of IL) from tier 1
-    if   order < 11: base = 4.0
-    elif order < 17: base = 2.0
-    elif order < 23: base = 1.5
-    elif order < 35: base = 0.6
-    else:            base = 0.3
-
-    # Scale factor
-    scale = 1.0
-    for ratio, s in INDIVIDUAL_SCALE:
+    """Maximum individual harmonic current as % of IL — IEEE 519 Table 2 (full matrix,
+    looked up by (ISC/IL tier, harmonic band); NOT a uniform scale of the <20 row)."""
+    if   order < 11: band = "3-11"
+    elif order < 17: band = "11-17"
+    elif order < 23: band = "17-23"
+    elif order < 35: band = "23-35"
+    else:            band = ">35"
+    for ratio, row in INDIVIDUAL_LIMITS:
         if isc_il < ratio:
-            scale = s
-            break
-    return base * scale  # % of IL
+            return row[band]
+    return INDIVIDUAL_LIMITS[-1][1][band]
 
 
 # formula: harmonic_distortion_ieee_519_2022

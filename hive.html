@@ -17,7 +17,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -35,6 +35,56 @@
   <style>
     * { font-family: 'Poppins', sans-serif; }
     body { background-color: var(--wh-navy); min-height: 100vh; }
+
+    /* ── Arc L · L1 CLS reservations (page-scoped, measured) ───────────────
+       Every above-the-fold container that is empty→filled or placeholder→real
+       by an async DB render GROWS at settle and pushes the content below it
+       down = layout shift. Reserving each container's MEASURED settled height
+       here (cls_reserve_probe h0→h1 deltas) holds the layout from first paint
+       so nothing shifts. ONLY min-height reservations — no colour/font/layout
+       changes. The shared command-center primitives (.simple-card 154px,
+       .action-card .ac-text 60px) are already reserved in components.css. */
+
+    /* Supervisor health rollup — un-hides + fills (verdict + 3 stat cards +
+       action + details). Measured settled height 618px. Reserve it so the
+       un-hide jump and internal fill don't push the whole board down. */
+    #supervisor-summary:not(.hidden) { min-height: 618px; }
+    /* The verdict box starts .empty (one line "Computing…") then fills to the
+       two-line label+sub — reserve the settled two-line height. */
+    #supervisor-summary #ss-verdict { min-height: 64px; }
+    /* The un-hide itself (display:none → block, 0→618px at ~t=1.2s) is the
+       dominant shift: when it appears it shoves the stats grid, board chip and
+       maturity card DOWN. Pre-reserve the slot at first paint so the reveal
+       fills reserved space instead of pushing siblings. Kept in-flow but
+       collapsed-empty (min-height holds the box; children are display:none-fed
+       so nothing is visible until populated). This is the supervisor board —
+       the role is known synchronously at parse (HIVE_ROLE, line ~1081) and the
+       panel always shows for supervisors, so the reserve is never wasted. */
+    #supervisor-summary.hidden { display: block; min-height: 618px; visibility: hidden; }
+    #supervisor-summary.hidden * { visibility: hidden; }
+    /* The 3-card engagement row (#ss-cards / .simple-row) fills 0→318px as the
+       stat cards resolve; reserve its settled height. */
+    #supervisor-summary #ss-cards { min-height: 318px; }
+
+    /* Maturity Stairway — visible at first paint with placeholder text
+       (#stair-blocker "Computing…", dim values "--", empty source chip) that
+       all fill in. Reserve the card's MEASURED settled height (226px). */
+    #maturity-stairway-card { min-height: 226px; }
+    /* The blocker line goes 1→2 lines and the source chip 0→1 line when they
+       resolve; reserve their settled single-block heights (measured 34/27). */
+    #stair-blocker { min-height: 34px; }
+    #stair-source-chip { min-height: 27px; }
+
+    /* Board KPI source chip — an empty <p> that fills with a multi-line
+       "reads from …" chip on initBoard(). MEASURED settled height 54px
+       (wraps to two lines at the 390px board width). */
+    #board-source-chip { min-height: 54px; }
+
+    /* Reliability Coach panel — collapsed at paint (body display:none); only
+       its toggle button is visible. Reserve the toggle's height so the panel
+       slot is stable when the page settles. */
+    #reliability-coach-panel { min-height: 68px; }
+    /* ── end Arc L · L1 CLS reservations ─────────────────────────────────── */
 
     .aurora-bg {
       position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
@@ -336,7 +386,7 @@
         <p class="text-xs text-white/60 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
         <label for="hive-name-input" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Hive Name</label>
         <input id="hive-name-input" type="text" placeholder="e.g. Electrical Team A" maxlength="40" class="wh-input mb-2" autocomplete="off" />
-        <p id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
+        <p role="alert" aria-live="assertive" id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
         <button id="btn-submit-create" class="btn-primary mt-2">Create Hive</button>
       </div>
     </div>
@@ -369,7 +419,7 @@
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
           style="font-size:1.5rem; letter-spacing:0.35em;" />
-        <p id="join-error" class="text-xs text-red-400 mb-3 hidden"></p>
+        <p role="alert" aria-live="assertive" id="join-error" class="text-xs text-red-400 mb-3 hidden"></p>
         <button id="btn-submit-join" class="btn-primary mt-2">Join Hive</button>
       </div>
     </div>
@@ -413,7 +463,7 @@
         <div>
           <div class="flex items-center gap-2 mb-1">
             <span class="conn-dot reconnecting" id="conn-dot"></span>
-            <span id="conn-label" class="text-xs text-white/60 font-semibold">Connecting...</span>
+            <span id="conn-label" class="text-xs text-white font-semibold">Connecting...</span>
           </div>
           <h1 class="text-2xl font-black text-white" id="board-hive-name">Hive Board</h1>
           <div id="hive-role-tag" class="mt-1 hidden">
@@ -469,11 +519,29 @@
 
       <!-- Presence bar -->
       <div class="mb-4">
-        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">On Shift Now</p>
+        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">On Shift Now</p>
+        <!-- Y6 silent-loop: a green dot was an unexplained status. State the basis inline (not a hover tooltip — field phones have no hover). -->
+        <p class="text-[10.5px] text-white/45 mb-2">Green dot = a teammate has WorkHive open right now (live). Updates as people open or close the app.</p>
         <div id="presence-bar" class="flex gap-2 overflow-x-auto pb-1">
           <span class="presence-chip" style="color:rgba(255,255,255,0.6); font-style:italic;">Connecting...</span>
         </div>
       </div>
+
+      <!-- Arc Y Y2/Y6 — conditional disclosure + close the capture->use loop:
+           the intent modal CAPTURES the hive's focus but it was never shown back.
+           This chip renders ONLY when intent IS set (renderHiveFocus), states the
+           focus in plain language, and lets the supervisor tap to change it. Hidden
+           until set, so it adds nothing to first paint for a fresh hive. -->
+      <button id="hive-focus-chip" type="button" class="hidden"
+        aria-label="Your hive's focus — tap to change"
+        style="width:100%; text-align:left; display:flex; align-items:center; gap:10px; padding:10px 14px; margin-bottom:14px; background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.22); border-radius:12px; color:inherit; font-family:inherit; cursor:pointer; min-height:44px;">
+        <span aria-hidden="true" style="font-size:1.05rem; line-height:1;">&#127919;</span>
+        <span style="flex:1; min-width:0;">
+          <span style="display:block; font-size:0.58rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.5);">Your hive's focus</span>
+          <span id="hive-focus-label" style="display:block; font-size:0.84rem; font-weight:700; color:rgba(255,255,255,0.9); line-height:1.35;">&#8212;</span>
+        </span>
+        <span aria-hidden="true" style="font-size:0.66rem; font-weight:700; color:#F7A21B; white-space:nowrap;">Change &#8250;</span>
+      </button>
 
       <!-- ─────────────────────────────────────────────────────────────────
            Supervisor Plain-Read Summary (Layer D of UX Contract).
@@ -489,7 +557,7 @@
           <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
         </div>
         <div class="simple-row" id="ss-cards">
-          <div class="simple-card tag-grey" id="ss-card-stair" title="WorkHive Stair Model — 5-dimension composite (Reliability / Operations / Safety / People / Cost)" data-rag-tile="hive:maturity_stair" data-rag-label="Hive maturity stair">
+          <div class="simple-card hero tag-grey" id="ss-card-stair" title="WorkHive Stair Model — 5-dimension composite (Reliability / Operations / Safety / People / Cost)" data-rag-tile="hive:maturity_stair" data-rag-label="Hive maturity stair">
             <div class="sc-label">Maturity stair · WorkHive Stair Model</div>
             <div class="sc-hero" id="ss-stair-hero">&#8212;</div>
             <div class="sc-sub" id="ss-stair-sub">Loading...</div>
@@ -800,6 +868,10 @@
         </button>
         <div id="coach-body" class="wh-card p-4 mt-2" style="display:none;">
           <p class="text-[11px] text-white/60 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
+          <!-- Y6 silent-loop: a blank input left "what can I even ask?" invisible.
+               Surface 3 tap-to-fill examples so the user sees what the coach answers. -->
+          <p class="text-[10px] text-white/45 mb-1.5 uppercase tracking-wider font-semibold">Try asking</p>
+          <div id="coach-examples" class="flex flex-wrap gap-1.5 mb-3"></div>
           <!-- Source chip — anchors the coach's actions to the edge fn
                + data slices it reads, so the supervisor can audit the
                recommendations. Populated by askCoach() on each invocation. -->
@@ -1209,7 +1281,7 @@ function buildPMCard(record, isNew) {
         </div>
         <p class="text-sm font-semibold text-white/90 truncate">${assetName}</p>
         <p class="text-xs text-white/60 truncate mt-0.5">${itemText}</p>
-        <a href="pm-scheduler.html" class="text-[11px] font-semibold mt-1" style="color:#F7A21B;min-height:44px;display:inline-flex;align-items:center;">View in PM Scheduler →</a>
+        <a href="pm-scheduler.html?asset=${encodeURIComponent(record.asset_name || '')}" class="text-[11px] font-semibold mt-1" style="color:#F7A21B;min-height:44px;display:inline-flex;align-items:center;">View in PM Scheduler →</a>
       </div>
     </div>
   </div>`;
@@ -1264,7 +1336,8 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .from('v_worker_truth')
       .select('hive_id, role')
       .eq('worker_name', WORKER_NAME)
-      .neq('hive_status', 'kicked');
+      .neq('hive_status', 'kicked')
+      .limit(500);  // L2: one worker's memberships are bounded-by-nature (<= dozens of hives); insurance cap, never truncates
 
     if (recErr) {
       // Query failed (network/server issue): show onboard with a helpful hint
@@ -1284,7 +1357,8 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     const { data: hives } = await db
       .from('v_hives_truth')
       .select('id, name, created_by')
-      .in('id', hiveIds);
+      .in('id', hiveIds)
+      .limit(500);  // L2: hiveIds comes from the bounded membership query above -> bounded-by-nature; insurance cap
 
     if (!hives || !hives.length) {
       showView('onboard');
@@ -1350,7 +1424,8 @@ async function submitCreate() {
   }
 
   const { error: mErr } = await db.from('hive_members').upsert({
-    hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor', status: 'active'
+    hive_id: hive.id, worker_name: WORKER_NAME, role: 'supervisor', status: 'active',
+    auth_uid: _authUid  // page guards !_authUid -> signin (line ~1232), so this is always the caller's uid  // link the creator's auth identity (matches the join flow at the insert below)
   }, { onConflict: 'hive_id,worker_name' });
   if (mErr) {
     console.error('hive_members upsert:', mErr.message);
@@ -1404,10 +1479,10 @@ async function submitJoin() {
   const btn = document.getElementById('btn-submit-join');
   btn.textContent = 'Joining...'; btn.disabled = true;
 
-  const { data: hive, error } = await db.from('v_hives_truth')
-    .select('id, name, created_by')
-    .eq('invite_code', codeVal)
-    .single();
+  // Join-by-code: a non-member looking up a hive to join. hives is now member-scoped (RLS), so use the
+  // SECURITY DEFINER RPC that resolves an EXACT invite_code without exposing/enumerating other hives.
+  const { data: hiveRows, error } = await db.rpc('find_hive_by_code', { p_code: codeVal });
+  const hive = Array.isArray(hiveRows) ? hiveRows[0] : null;
 
   if (error || !hive) {
     btn.textContent = 'Join Hive'; btn.disabled = false;
@@ -1444,7 +1519,7 @@ async function submitJoin() {
     }
     const { error: joinErr } = await db.from('hive_members').insert({
       hive_id: hive.id, worker_name: WORKER_NAME, role: 'worker', status: 'active',
-      auth_uid: _authUid || null  // C3: link auth identity at join time
+      auth_uid: _authUid  // page guards !_authUid -> signin (line ~1232), so this is always the caller's uid  // C3: link auth identity at join time
     });
     if (joinErr) {
       btn.textContent = 'Join Hive'; btn.disabled = false;
@@ -1480,7 +1555,7 @@ async function submitJoin() {
   if (!existingRow) {
     writeAuditLog('member_joined', 'hive_members', null, WORKER_NAME, {
       role: 'worker',
-      auth_uid: _authUid || null
+      auth_uid: _authUid  // page guards !_authUid -> signin (line ~1232), so this is always the caller's uid
     });
   }
 
@@ -2063,7 +2138,8 @@ async function loadSupervisorSummary() {
     const { data: invRows } = await db.from('v_inventory_items_truth')
       .select('qty_on_hand, is_low_stock, is_out_of_stock')
       .eq('hive_id', HIVE_ID)
-      .eq('status', 'approved');
+      .eq('status', 'approved')
+      .limit(500);  // L2: hive parts catalog (distinct SKUs stocked) is bounded-by-nature, not an append-forever log; reads flag cols -> can't be head:true; insurance cap
     (invRows || []).forEach(i => {
       if (i.is_low_stock === true) lowStock++;
       if (i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0) outOfStock++;
@@ -2224,6 +2300,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const body = document.getElementById('coach-body');
     const icon = document.getElementById('coach-toggle-icon');
     if (!btn || !body) return;
+
+    // Y6 silent-loop: surface tap-to-fill example prompts so a first-time
+    // supervisor sees WHAT the coach can answer (no blank-input dead end).
+    // Static, author-controlled strings → safe to inject; the input value is
+    // set via .value (never innerHTML).
+    const examplesWrap = document.getElementById('coach-examples');
+    if (examplesWrap && !examplesWrap.children.length) {
+      const COACH_EXAMPLES = [
+        'Why are we having so many pump failures?',
+        'What should I prioritize this week?',
+        'Which assets are most likely to fail next?',
+      ];
+      examplesWrap.innerHTML = COACH_EXAMPLES.map(q =>
+        `<button type="button" class="coach-example-chip" style="font-size:11px; line-height:1.2; color:#c4b5fd; background:rgba(167,139,250,0.10); border:1px solid rgba(167,139,250,0.3); border-radius:999px; padding:7px 12px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(q)}</button>`
+      ).join('');
+      examplesWrap.querySelectorAll('.coach-example-chip').forEach((chip, i) => {
+        chip.addEventListener('click', () => {
+          const input = document.getElementById('coach-input');
+          if (!input) return;
+          input.value = COACH_EXAMPLES[i];
+          input.focus();
+        });
+      });
+    }
+
     btn.addEventListener('click', () => {
       const open = body.style.display === 'none' || body.style.display === '';
       body.style.display = open ? 'block' : 'none';
@@ -2287,7 +2388,8 @@ async function loadKnowledgePipeline() {
   try {
     const { data } = await db.from('v_knowledge_freshness_truth')
       .select('kind, total_rows, embedded_rows, pending_rows, last_embedded_at, days_since_last_embed, embedded_pct')
-      .eq('hive_id', HIVE_ID);
+      .eq('hive_id', HIVE_ID)
+      .limit(500);  // L2: freshness rollup is exactly 3 kinds (fault/skill/pm) per hive -> bounded-by-nature; insurance cap
     rows = data || [];
   } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
@@ -2374,14 +2476,59 @@ async function maybeShowIntentCapture() {
   } catch (_) { return; }
 
   const isEmpty = !intent || (typeof intent === 'object' && Object.keys(intent).length === 0);
-  if (!isEmpty) return;
+  // Conditional disclosure: if the hive's focus is ALREADY set, don't prompt —
+  // instead show it back via the focus chip (closes the capture->use loop).
+  if (!isEmpty) { renderHiveFocus(intent); return; }
 
+  _openIntentModal();
+}
+
+// Plain-language labels for the captured intent goal (mirror the modal radios,
+// minus the em-dash per the platform copy rule).
+const INTENT_GOAL_LABELS = {
+  predictive:   'Predictive maintenance: stop failures before they happen',
+  downtime:     'Reduce downtime: get production running faster',
+  training:     'Train workers: skill matrix + knowledge capture',
+  compliance:   'Compliance: PSME / DOLE / ISO 14224 evidence',
+  cmms_replace: 'Replace our spreadsheets / CMMS',
+  other:        'A custom focus for this hive',
+};
+
+// Y2/Y6 — render the hive's set focus back to the supervisor (conditional
+// disclosure: the chip only appears when intent IS set) + tap to change.
+function renderHiveFocus(intent) {
+  if (HIVE_ROLE !== 'supervisor') return;
+  const chip  = document.getElementById('hive-focus-chip');
+  const label = document.getElementById('hive-focus-label');
+  if (!chip || !label) return;
+  const goal = intent && intent.primary_goal;
+  label.textContent = INTENT_GOAL_LABELS[goal] || INTENT_GOAL_LABELS.other;
+  // Store the CURRENT goal on the element so the click handler (wired once)
+  // always pre-selects the latest goal, not the one captured at first render.
+  chip.dataset.goal = goal || 'other';
+  chip.classList.remove('hidden');
+  chip.style.display = 'flex';
+  if (!chip._wired) {
+    // Tap to change re-opens the capture modal, pre-selecting the current goal.
+    chip.addEventListener('click', () => _openIntentModal(chip.dataset.goal));
+    chip._wired = true;
+  }
+}
+
+// Shows the intent-capture modal and wires its Save / Later buttons (idempotent).
+// `preset` pre-selects the current goal when re-opened from the focus chip.
+function _openIntentModal(preset) {
+  const sessionKey = 'wh_intent_dismissed_' + HIVE_ID;
   const modal = document.getElementById('intent-capture');
   if (!modal) return;
   // Reset both class and inline display so the modal actually shows even if
   // a prior close set display:none. Inline style beats the class everywhere.
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
+  if (preset) {
+    const r = document.querySelector('input[name="intent-primary"][value="' + preset + '"]');
+    if (r) r.checked = true;
+  }
 
   const save = document.getElementById('intent-save');
   const skip = document.getElementById('intent-skip');
@@ -2415,7 +2562,8 @@ async function maybeShowIntentCapture() {
       // way to actually close the modal. Walkthrough 2026-05-13.
       modal.style.display = 'none';
       modal.classList.add('hidden');
-      showToast('Thanks — we will tune your hive accordingly.');
+      renderHiveFocus(payload); // close the loop: show the just-set focus back
+      showToast('Thanks, we will tune your hive accordingly.');
     });
     save._wired = true;
   }
@@ -2442,11 +2590,13 @@ async function loadMembers() {
         .select('worker_name, role, status')
         .eq('hive_id', HIVE_ID)
         .neq('status', 'kicked')
-        .order('joined_at'),
+        .order('joined_at')
+        .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list
       db.from('v_logbook_truth')
         .select('worker_name')
         .eq('hive_id', HIVE_ID)
         .eq('status', 'Open')
+        .limit(2000)  // limit-as-count-allow: feeds per-worker open-WO tallies via forEach, NOT a .length KPI; stat-members is sourced from the separate hive_members read. L2 insurance cap (open WOs bounded-by-nature)
     ]);
     if (membersRes.error) { console.error('loadMembers:', membersRes.error.message); showToast('Could not load members. Check your connection.'); }
     membersData  = membersRes.data  || [];
@@ -2471,6 +2621,7 @@ async function loadMembers() {
     const isMe    = m.worker_name === WORKER_NAME;
     const isSup   = m.role === 'supervisor';
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
+    const canReset = HIVE_ROLE === 'supervisor' && !isMe && !isSup;  // supervisor resets a WORKER's password (Arc I I3/I)
     const openJobs = openByWorker[m.worker_name] || 0;
     const workloadColor = openJobs >= 5 ? '#f87171' : openJobs >= 3 ? '#F7A21B' : '#4ade80';
     const workloadBadge = openJobs > 0
@@ -2483,9 +2634,34 @@ async function loadMembers() {
         ${isSup ? '<span class="supervisor-tag" style="font-size:0.55rem; padding:1px 6px; margin-top:2px; display:inline-flex;">Supervisor</span>' : ''}
       </div>
       ${workloadBadge}
+      ${canReset ? `<button onclick="resetMemberPassword('${escHtml(m.worker_name)}')" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.4);">Reset PW</button>` : ''}
       ${canKick ? `<button onclick="kickMember('${escHtml(m.worker_name)}')" class="btn-danger" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:44px;">Remove</button>` : ''}
     </div>`;
   }).join('');
+}
+
+// Arc I I3/I — supervisor-assisted password recovery. A worker with no reachable email gets reset in
+// person: the supervisor triggers it, the server (supervisor-reset-password edge fn) verifies the
+// supervisor + worker membership, sets a temp password via the admin API, and returns it ONCE to show.
+async function resetMemberPassword(workerName) {
+  if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+  if (!(await window.whConfirm(`Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in.`, { okLabel: 'Reset password', cancelLabel: 'Cancel' }))) return;
+  try {
+    const { data, error } = await db.functions.invoke('supervisor-reset-password', {
+      body: { hive_id: HIVE_ID, target_worker_name: workerName }
+    });
+    if (error || !data?.temp_password) {
+      showToast('Could not reset password: ' + (data?.message || error?.message || 'unknown error')); return;
+    }
+    // Show the temp password ONCE (the server never stores it in plaintext); supervisor copies + hands over.
+    await window.whConfirm(
+      `Temporary password for ${escHtml(workerName)}:\n\n${escHtml(data.temp_password)}\n\nGive this to ${escHtml(workerName)} now — it won't be shown again. Ask them to change it after signing in.`,
+      { okLabel: 'Done', cancelLabel: '' }
+    );
+    loadAuditLog();  // the reset is audit-logged server-side; refresh the action log
+  } catch (e) {
+    showToast('Could not reset password: ' + (e?.message || 'network error'));
+  }
 }
 
 async function kickMember(workerName) {
@@ -2881,8 +3057,8 @@ function setConn(state) {
   const label = document.getElementById('conn-label');
   dot.className = 'conn-dot ' + state;
   if (state === 'live')         { label.textContent = 'Live';            label.style.color = '#4ade80'; }
-  else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#f59e0b'; }
-  else                          { label.textContent = 'Offline';         label.style.color = '#ef4444'; }
+  else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#fcd34d'; } /* D1 a11y: #f59e0b (~2.9:1) → #fcd34d ≥4.5:1 */
+  else                          { label.textContent = 'Offline';         label.style.color = '#f87171'; } /* D1 a11y: #ef4444 → #f87171 ≥4.5:1 */
 }
 
 // ── STOCK ALERT (current worker's own inventory) ──
@@ -2894,7 +3070,8 @@ async function checkStockAlert() {
     const res = await db.from('v_inventory_items_truth')
       .select('part_name, qty_on_hand, min_qty')
       .eq('worker_name', WORKER_NAME)
-      .eq('status', 'approved');
+      .eq('status', 'approved')
+      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap
     inv = res.data;
   }
   if (!inv || !inv.length) return;
@@ -2979,7 +3156,8 @@ async function buildNotifications() {
     const res = await db.from('v_inventory_items_truth')
       .select('part_name, qty_on_hand, min_qty')
       .eq('worker_name', WORKER_NAME)
-      .eq('status', 'approved');
+      .eq('status', 'approved')
+      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap
     inv = res.data;
   }
   (inv || []).forEach(i => {
@@ -3000,11 +3178,11 @@ async function buildNotifications() {
       .select('machine, date, created_at')
       .eq('worker_name', WORKER_NAME)
       .eq('status', 'Open')
-      .lt('created_at', cutoff);
-    if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
-    const res = await woQuery
+      .lt('created_at', cutoff)
       .order('created_at', { ascending: false })
-      .limit(5);
+      .limit(5); // L2: order+limit on the base chain (server applies them by query-param) so this read is row-bounded; the conditional .or() below is just an extra filter
+    if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    const res = await woQuery;
     oldWOs = res.data;
   }
   if (oldWOs && oldWOs.length) {
@@ -3035,11 +3213,13 @@ async function loadPMHealth() {
     const [itemsRes, compsRes] = await Promise.all([
       db.from('v_pm_scope_items_truth')
         .select('scope_item_id, pm_asset_id, asset_name, is_overdue, is_due_soon')
-        .eq('hive_id', HIVE_ID),
+        .eq('hive_id', HIVE_ID)
+        .limit(500),  // L2: PM scope items = assets x scope rows, bounded config per hive (not append-forever); insurance cap
       db.from('pm_completions')
         .select('scope_item_id, completed_at, worker_name')
         .eq('hive_id', HIVE_ID).eq('status', 'done')
-        .order('completed_at', { ascending: false }),
+        .order('completed_at', { ascending: false })
+        .limit(2000),  // L2: newest-first cap on completion-history egress; generous for a hive's recent PM history
     ]);
     pmItems = itemsRes.data || [];
     pmComps = compsRes.data || [];
@@ -3111,7 +3291,8 @@ async function checkTeamStockAlert() {
       .select('worker_name, part_name, qty_on_hand, min_qty')
       .eq('hive_id', HIVE_ID)
       .eq('status', 'approved')
-      .in('worker_name', others);
+      .in('worker_name', others)
+      .limit(500);  // L2: team parts catalog scoped to the bounded member list -> bounded-by-nature; insurance cap
     inv = res.data;
   }
   if (!inv || !inv.length) return;
@@ -3172,8 +3353,8 @@ async function loadApprovalQueue() {
     _pendingParts  = _board.pending_parts  || [];
   } else {
     const [assetsRes, partsRes] = await Promise.all([
-      db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending'),
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending')
+      db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500),  // L2: pending-approval queue is transient (items leave 'pending' on approve/reject) -> bounded-by-nature; insurance cap
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500)  // L2: pending-approval queue is transient -> bounded-by-nature; insurance cap
     ]);
     _pendingAssets = assetsRes.data || [];
     _pendingParts  = partsRes.data  || [];
@@ -3391,6 +3572,9 @@ async function loadAuditLog() {
   const ACTION_ICON = {
     // Membership lifecycle
     member_joined:         { icon: '+',  color: '#29B6D9', label: 'Joined' },
+    alert_handled:         { icon: '✓',  color: '#4ade80', label: 'Marked alert handled' },  // Arc Y Y3 alert agency
+    alert_snoozed:         { icon: '⏳', color: '#F7A21B', label: 'Snoozed alert' },          // Arc Y Y3 alert agency
+    alert_acknowledged:    { icon: '👁', color: '#94a3b8', label: 'Marked alert seen' },      // Arc Y Y3 alert agency
     member_left:           { icon: '↩',  color: '#94a3b8', label: 'Left hive' },
     kick_member:           { icon: '⊘',  color: '#f87171', label: 'Removed member' },
     new_device:            { icon: '⚠',  color: '#F7A21B', label: 'New device' },
@@ -3869,7 +4053,7 @@ async function loadTeamPulse() {
     stockSrc = _board.team_inventory;
   } else {
     const stockRes = await db.from('v_inventory_items_truth').select('qty_on_hand, min_qty')
-      .eq('hive_id', HIVE_ID).eq('status', 'approved');
+      .eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500);  // L2: hive approved parts catalog is bounded-by-nature; insurance cap
     stockSrc = stockRes.data || [];
   }
   const stockIssues = (stockSrc || []).filter(i =>
@@ -4185,5 +4369,6 @@ window.addEventListener('beforeunload', () => {
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

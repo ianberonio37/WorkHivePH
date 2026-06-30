@@ -187,8 +187,6 @@ const ALL_PROVIDERS: EmbeddingProvider[] = [
 // so an outage doesn't 500 the request, but a non-primary answer is logged
 // LOUDLY because it may not match the corpus space. Keep ingest + query in
 // lock-step: re-embed a corpus AND flip its pin together.
-const EMBEDDING_PRIMARY = (Deno.env.get("EMBEDDING_PRIMARY") || "voyage").toLowerCase();
-
 // The local edge runtime is NOT launched with functions/.env, so vars added there aren't
 // in Deno.env without a full `supabase start`. Default the self-host bge server URL when
 // running locally (SUPABASE_URL host = kong/localhost/127); prod sets BGE_EMBED_URL
@@ -196,6 +194,16 @@ const EMBEDDING_PRIMARY = (Deno.env.get("EMBEDDING_PRIMARY") || "voyage").toLowe
 // override's code default.
 const _IS_LOCAL_EMBED = /(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
 const BGE_EMBED_URL = Deno.env.get("BGE_EMBED_URL") || (_IS_LOCAL_EMBED ? "http://host.docker.internal:8901/embed" : "");
+
+// LOCKSTEP (2026-06-21): the LOCAL corpora are re-embedded with the self-host bge-small model
+// (fault_knowledge → reembed_fault_knowledge.py; persona_knowledge already bge-local), and the
+// free-tier APIs (voyage 3 RPM) rate-limit on a burst → a non-primary fallback answers in a
+// DIFFERENT space and retrieval silently returns nothing. So LOCALLY the primary defaults to the
+// quota-free bge-local server (same space as the re-embedded corpus). PROD is unchanged: it has no
+// _IS_LOCAL_EMBED, so the default stays 'voyage' (or whatever EMBEDDING_PRIMARY is set to), matching
+// the Voyage-embedded prod corpus. Per the doctrine above: re-embed a corpus AND flip its pin together.
+const EMBEDDING_PRIMARY = (Deno.env.get("EMBEDDING_PRIMARY")
+  || (_IS_LOCAL_EMBED && BGE_EMBED_URL ? "bge-local" : "voyage")).toLowerCase();
 
 function orderedProviders(primary: string): EmbeddingProvider[] {
   const head = ALL_PROVIDERS.filter((p) => p.name === primary);

@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>WorkHive — LLM Observability</title>
   <meta name="description" content="Per-task model routing, cache hit rate, provider fallback rate, and per-hive token budget burn for the WorkHive LLM chain.">
+  <link rel="manifest" href="manifest.json" /><!-- PWA-installable, consistent with agentic-rag-observability (A6) -->
   <script>
     // Founder-only page (Phase 4 critic, 2026-06-10: platform-wide ai_cost_log
     // observability with ZERO product links in = internal dev tool, not a product
@@ -66,8 +67,10 @@
     th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; background: var(--bg2); }
     tr:hover td { background: rgba(56, 189, 248, 0.05); }
     .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
-    select, button { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none; cursor: pointer; }
+    select, button { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 16px; min-height: 44px; outline: none; cursor: pointer; }
     button:hover { border-color: var(--accent); }
+    /* U2: outline:none above strips the focus ring (focus-miss) — restore a visible keyboard indicator. font-size:16px + min-height:44px = no iOS auto-zoom + gloved-field tap target. */
+    select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--accent); }
     .meter { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
     .meter > div { height: 100%; background: var(--accent); }
@@ -76,6 +79,14 @@
     .pill.cache { background: rgba(52,211,153,0.15); color: var(--pass); }
     .pill.live  { background: rgba(56,189,248,0.15); color: var(--accent); }
     .pill.fall  { background: rgba(251,191,36,0.15); color: var(--warn); }
+    /* D1 U7 + D3 A1: at 360px the 28px side padding + wide per-task/per-hive tables (long ids)
+       pushed scrollWidth past the viewport (387>360). Trim padding + let tables scroll within the
+       page on narrow screens; desktop layout is unchanged. */
+    @media (max-width: 600px) {
+      header { padding: 16px 14px 12px; }
+      main { padding: 16px 14px; }
+      table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    }
   </style>
 </head>
 <body>
@@ -85,7 +96,7 @@
   </header>
   <main>
     <div class="controls">
-      <select id="window">
+      <select id="window" aria-label="Time window">
         <option value="1">Last 1 hour</option>
         <option value="6">Last 6 hours</option>
         <option value="24" selected>Last 24 hours</option>
@@ -102,7 +113,7 @@
       <div class="card" id="kpi-fallback"><h3>Fallback rate</h3><div class="big">—</div><div class="delta">non-primary provider</div></div>
       <div class="card" id="kpi-tokens"><h3>Tokens used</h3><div class="big">—</div><div class="delta">in + out (estimated)</div></div>
       <div class="card" id="kpi-latency"><h3>p50 latency</h3><div class="big">—</div><div class="delta">ms (LLM-served only)</div></div>
-      <div class="card" id="kpi-error"><h3>Error rate</h3><div class="big">—</div><div class="delta">fallback or schema fail</div></div>
+      <div role="alert" aria-live="assertive" class="card" id="kpi-error"><h3>Error rate</h3><div class="big">—</div><div class="delta">fallback or schema fail</div></div>
     </div>
 
     <!-- Per-task routing -->
@@ -250,5 +261,7 @@
   load();
 })();
 </script>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). Read-only obs dashboard — load/error status announced here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

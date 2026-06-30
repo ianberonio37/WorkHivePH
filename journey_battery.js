@@ -35,9 +35,10 @@
  * DERIVATION — confirm both steps mean the SAME metric before calling it a bug.
  * ==========================================================================*/
 () => {
-  const V = '0.2.0';
+  const V = '0.3.0';
   if (window.__JOURNEY && window.__JOURNEY._v === V) return { already: true, _v: V };
   const KEY = '__journey_steps_v1';
+  const TKEY = '__journey_trace_v1';   // §13 differential nerve-probe (in-page read side)
 
   const norm = (s) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
   const round = (n, d = 2) => (n == null ? null : Math.round(n * 10 ** d) / 10 ** d);
@@ -176,6 +177,55 @@
     return { step: steps.length, label, a, b, ok };
   }
 
-  window.__JOURNEY = { _v: V, reset, step, act, assertEqual, verdict, _load: load };
-  return { installed: true, _v: V, hint: 'reset() → step(label,{kpi:sel}) | act(label,fn) | assertEqual(label,kpiSel,{count:rowSel}) → verdict({tol})' };
+  // ── §13 __JOURNEY_TRACE — the in-page read side of the differential nerve-probe.
+  // Pairs with tools/journey_trace.py (DB termini): this reads the DOM termini
+  // (KPI tiles) so a seeded input's value can be asserted where it RENDERS, not
+  // just where it lands in the DB. Same-NAMED ≠ same-DERIVATION (doctrine): we
+  // assert a tile moved to the EXPECTED delta/value, never mere name-equality.
+  //   consumers = { name: cssSelector }  ;  expected = { name: {delta:N}|{abs:N}|N }
+  const readTiles = (consumers = {}) => {
+    const out = {};
+    for (const [name, spec] of Object.entries(consumers)) {
+      if (typeof spec === 'number') { out[name] = spec; continue; }
+      let el = null; try { el = document.querySelector(spec); } catch (_) { /* bad sel */ }
+      out[name] = el ? numOrText(el.textContent) : null;
+    }
+    return out;
+  };
+  function traceBaseline(consumers = {}) {
+    const base = { ts: Date.now(), url: location.pathname.split('/').pop() || location.pathname, consumers, readings: readTiles(consumers) };
+    try { sessionStorage.setItem(TKEY, JSON.stringify(base)); } catch (_) { /* quota */ }
+    return { ok: true, baseline: base.readings, consumers };
+  }
+  function traceReread(consumers) {
+    let base = {}; try { base = JSON.parse(sessionStorage.getItem(TKEY) || '{}'); } catch (_) { /* */ }
+    const cons = consumers || base.consumers || {};
+    return { baseline: base.readings || {}, after: readTiles(cons) };
+  }
+  function traceVerdict(expected = {}, opts = {}) {
+    const tol = opts.tol == null ? 0.05 : opts.tol;
+    let base = {}; try { base = JSON.parse(sessionStorage.getItem(TKEY) || '{}'); } catch (_) { /* */ }
+    const after = readTiles(base.consumers || {});
+    const termini = [], defects = [];
+    for (const [name, exp] of Object.entries(expected)) {
+      const b = (base.readings || {})[name];
+      const a = after[name];
+      let target = null, kind = 'abs';
+      if (exp && exp.delta != null) { target = (typeof b === 'number' ? b : 0) + exp.delta; kind = 'delta'; }
+      else if (exp && exp.abs != null) { target = exp.abs; }
+      else if (typeof exp === 'number') { target = exp; }
+      const ok = (typeof a === 'number' && typeof target === 'number') ? Math.abs(a - target) <= tol : a === target;
+      termini.push({ name, baseline: b, measured: a, expected: target, kind, ok });
+      if (!ok) defects.push({
+        pillar: 'C', check: 'journey-nerve-value', severity: 'Major', name,
+        measured: a, expected: target, baseline: b,
+        fixHint: 'the rendered terminus did not reflect the seeded input with the correct value — a dead or wrong nerve (verify same-derivation first)',
+      });
+    }
+    return { battery: 'JOURNEY_TRACE v' + V, termini, defects, ok: defects.length === 0, major: defects.length };
+  }
+
+  window.__JOURNEY = { _v: V, reset, step, act, assertEqual, verdict, _load: load, traceBaseline, traceReread, traceVerdict };
+  window.__JOURNEY_TRACE = { _v: V, baseline: traceBaseline, reread: traceReread, verdict: traceVerdict };
+  return { installed: true, _v: V, hint: 'reset() → step(label,{kpi:sel}) | act | assertEqual → verdict({tol}) ‖ __JOURNEY_TRACE.baseline({name:sel}) → (seed) → .verdict({name:{delta:N}})' };
 }

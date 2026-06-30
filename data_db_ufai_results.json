@@ -1,0 +1,285 @@
+{
+  "phase": "G0-baseline",
+  "spine": "DATA_DB_UFAI_ROADMAP.md",
+  "overall": {
+    "applicable": 23,
+    "verified": 23,
+    "live": 23,
+    "fix": 0,
+    "covered_pct": 100.0,
+    "verified_pct": 100.0,
+    "live_pct": 100.0
+  },
+  "per_lens": {
+    "U": {
+      "applicable": 5,
+      "na": 1,
+      "verified": 5,
+      "live": 5,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 90
+    },
+    "F": {
+      "applicable": 6,
+      "na": 0,
+      "verified": 6,
+      "live": 6,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 85
+    },
+    "A": {
+      "applicable": 6,
+      "na": 0,
+      "verified": 6,
+      "live": 6,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 85
+    },
+    "I": {
+      "applicable": 6,
+      "na": 0,
+      "verified": 6,
+      "live": 6,
+      "fix": 0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 95
+    }
+  },
+  "cells": [
+    {
+      "row": "G1 Tables & constraints",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "148 tables introspected (pg_class)"
+    },
+    {
+      "row": "G1 Tables & constraints",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "FK type-integrity: 0 hive_id FK non-uuid"
+    },
+    {
+      "row": "G1 Tables & constraints",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "schema additive (validate_idempotency)"
+    },
+    {
+      "row": "G1 Tables & constraints",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "124/148 RLS-enabled; 24 non-RLS tables (G1 triage = NEXT)"
+    },
+    {
+      "row": "G2 RLS policies",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "policy naming consistent (pg_policies)"
+    },
+    {
+      "row": "G2 RLS policies",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "per-table two-tenant isolation proven live (validate_rls_tenant_isolation + no-permissive-bypass ratchet @0)"
+    },
+    {
+      "row": "G2 RLS policies",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "GRANT coverage (validate_idempotency)"
+    },
+    {
+      "row": "G2 RLS policies",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "257 policies \u00b7 0 orphan-RLS \u00b7 0 legacy-open bypass (validator)"
+    },
+    {
+      "row": "G3 DEFINER / RPC",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "236 RPC signatures \u00b7 return-shape contract GREEN (0 opaque record)"
+    },
+    {
+      "row": "G3 DEFINER / RPC",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "function-security validator (return/owner checks)"
+    },
+    {
+      "row": "G3 DEFINER / RPC",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "RPC additive \u2014 CREATE OR REPLACE FUNCTION is re-runnable (validate_idempotency GREEN: migration suite re-pushes cleanly)"
+    },
+    {
+      "row": "G3 DEFINER / RPC",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "DEFINER tenant-gate validator GREEN + 0 missing search_path"
+    },
+    {
+      "row": "G4 Views / truth",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "38 v_*_truth views = consumer read-API"
+    },
+    {
+      "row": "G4 Views / truth",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "truth-view consumer-column lineage validator"
+    },
+    {
+      "row": "G4 Views / truth",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "view additive \u2014 CREATE OR REPLACE VIEW + ALTER SET security_invoker are re-runnable (validate_idempotency GREEN)"
+    },
+    {
+      "row": "G4 Views / truth",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "read-path isolation LIVE: all 47 public views security_invoker (0 bypass base RLS) \u2014 validate_view_security_invoker GREEN + two-tenant proven (hive-A sees own alerts only, not 20 cross-hive)"
+    },
+    {
+      "row": "G5 Migrations",
+      "lens": "U",
+      "status": "live",
+      "tier": "live",
+      "evidence": "migration naming + ordering contract RUNTIME-CHECKED: validate_migration_order GREEN (every migration matches the ^14-digit-timestamp_ convention, monotonic + unique, no gaps) \u2014 the operator-facing migration contract is verified at runtime, not just documented"
+    },
+    {
+      "row": "G5 Migrations",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "\u00a713 column-terminus LIVE-verified vs information_schema (verify_column_terminus GREEN: 0 terminus gaps; 42/46 payload keys = a real column of their written table \u2014 data lands where claimed; 4 transform-mapped round-trip residual)"
+    },
+    {
+      "row": "G5 Migrations",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "idempotency validator (re-run + GRANT + backfill)"
+    },
+    {
+      "row": "G5 Migrations",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "migration GRANT coverage (validate_idempotency)"
+    },
+    {
+      "row": "G6 FORCE-RLS / definer-bypass",
+      "lens": "U",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no consumer contract surface for the bypass-control dimension"
+    },
+    {
+      "row": "G6 FORCE-RLS / definer-bypass",
+      "lens": "F",
+      "status": "live",
+      "tier": "live",
+      "evidence": "per-DEFINER self-gate verified live two-tenant (acknowledge_alert/compute_anomaly_signals)"
+    },
+    {
+      "row": "G6 FORCE-RLS / definer-bypass",
+      "lens": "A",
+      "status": "live",
+      "tier": "live",
+      "evidence": "definer-bypass gate is migration-additive + ratcheted (validate_idempotency GREEN: gate migrations re-runnable)"
+    },
+    {
+      "row": "G6 FORCE-RLS / definer-bypass",
+      "lens": "I",
+      "status": "live",
+      "tier": "live",
+      "evidence": "DEFINER tenant-gate validator GREEN: every user-callable DEFINER hive-mutator self-gates (FORCE-RLS=0/148)"
+    }
+  ],
+  "per_object": {
+    "classes": {
+      "tables": {
+        "total": 148,
+        "covered": 148,
+        "gaps": []
+      },
+      "policies": {
+        "total": 250,
+        "covered": 250,
+        "gaps": []
+      },
+      "views": {
+        "total": 38,
+        "covered": 38,
+        "gaps": []
+      },
+      "definer": {
+        "total": 60,
+        "covered": 60,
+        "gaps": [],
+        "gated": 8,
+        "exempt": 11,
+        "no_mutation": 41
+      }
+    },
+    "total": 496,
+    "covered": 496,
+    "gaps": 0,
+    "covered_pct": 100.0
+  },
+  "db_introspection": {
+    "tables": 148,
+    "rls_enabled": 124,
+    "rls_orphan": 0,
+    "policies": 257,
+    "fk_type_mismatch": 0,
+    "truth_views": 38,
+    "definer": 60,
+    "definer_no_sp": 0,
+    "rpcs": 236,
+    "force_rls": 0,
+    "definer_total": 60,
+    "non_rls_hive": 4,
+    "legacy_bypass_hive": 0,
+    "truth_views_invoker": 38,
+    "views_total": 47,
+    "views_leaking": 0
+  },
+  "validator_folds": {
+    "validate_definer_tenant_gate": true,
+    "validate_idempotency": true,
+    "validate_function_security": true,
+    "validate_truth_view_consumer_columns": true,
+    "validate_rls_no_permissive_bypass": true,
+    "validate_rpc_return_shape": true,
+    "validate_view_security_invoker": true,
+    "verify_column_terminus": true,
+    "validate_migration_order": true
+  }
+}

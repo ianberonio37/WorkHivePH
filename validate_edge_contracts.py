@@ -34,6 +34,8 @@ from validator_utils import read_file, format_result
 FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
 ALL_FUNCTIONS = [
+    "login",                       # Arc I I7/A — pre-auth brute-force login proxy
+    "supervisor-reset-password",   # Arc I I3/I — supervisor-assisted password reset
     "resume-extract",
     "resume-polish",
     "ai-gateway",
@@ -189,9 +191,14 @@ def check_error_contract(func_names):
         content, path = read_function(name)
         if content is None:
             continue
-        if not re.search(r'JSON\.stringify\s*\(\s*\{\s*error\s*:', content):
+        # Accept the literal `JSON.stringify({ error: ... })` AND the common helper form
+        # `json(code, { error: "..." })` (a `const json = (c,b)=>new Response(JSON.stringify(b)…)`
+        # wrapper — used by e.g. login/index.ts). Both ship a `{ error: <string> }` body; the
+        # earlier literal-only regex false-failed helper-based fns.
+        if not (re.search(r'JSON\.stringify\s*\(\s*\{\s*error\s*:', content)
+                or re.search(r'\{\s*error\s*:\s*["\']', content)):
             issues.append({"check": "error_contract", "func": name,
-                           "reason": (f"{name}/index.ts has no JSON.stringify({{ error: ... }}) "
+                           "reason": (f"{name}/index.ts has no {{ error: ... }} JSON "
                                       f"error response — callers cannot detect failures")})
     return issues
 

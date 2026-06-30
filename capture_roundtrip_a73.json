@@ -1,0 +1,35 @@
+{
+  "_doc": "A7.3 — resume + dayplanner capture value-correctness, the two surfaces N/A'd for P-fully. Run 2026-06-17 via the proven local-Playwright round-trip (real page save-fn -> real edge DB read-back) + static code evidence (toDBRow map / saveCloud payload). LOCAL, sentinels cleaned.",
+  "method": "static contract (read the page's actual persist code) + LIVE round-trip (drive the page's OWN save fn against the local edge DB, read the row back, assert each value faithful, delete sentinel).",
+  "surfaces": {
+    "dayplanner": {
+      "persist_path": "saveScheduleItem() builds `payload = {title, date, startTime:$('m-start').value, endTime:$('m-end').value, category:$('m-category').value, notes:$('m-notes').value, ...}` -> syncItemToSupabase(payload) -> toDBRow(item) -> db.from('schedule_items').upsert(row)",
+      "terminus_table": "schedule_items",
+      "row_mapper": "toDBRow (dayplanner.html:533) renames JS-keys -> DB columns: startTime->start_time, endTime->end_time; title/date/category/notes passthrough",
+      "fields": [
+        {"field": "m-title", "js_key": "title", "column": "schedule_items.title", "transform": "GUARD (.trim())", "static_bucket_was": "UNRESOLVED", "live_value": "A73-RT-<ts>", "verdict": "FAITHFUL"},
+        {"field": "m-date", "js_key": "date", "column": "schedule_items.date", "transform": "PASSTHROUGH", "static_bucket_was": "UNRESOLVED", "live_value": "2026-06-30", "verdict": "FAITHFUL"},
+        {"field": "m-start", "js_key": "startTime", "column": "schedule_items.start_time", "transform": "RENAME (value-preserving)", "static_bucket_was": "PERSISTED? (col=startTime,table=None)", "live_value": "09:15", "verdict": "FAITHFUL"},
+        {"field": "m-end", "js_key": "endTime", "column": "schedule_items.end_time", "transform": "RENAME (value-preserving)", "static_bucket_was": "PERSISTED? (col=endTime,table=None)", "live_value": "10:45", "verdict": "FAITHFUL"},
+        {"field": "m-category", "js_key": "category", "column": "schedule_items.category", "transform": "PASSTHROUGH", "static_bucket_was": "PERSISTED?", "live_value": "PM", "verdict": "FAITHFUL"},
+        {"field": "m-notes", "js_key": "notes", "column": "schedule_items.notes", "transform": "PASSTHROUGH", "static_bucket_was": "PERSISTED?", "live_value": "A73 notes A73-RT-<ts>", "verdict": "FAITHFUL"}
+      ],
+      "measured": "6/6 capture fields value-correct (4 passthrough + 1 guard + 2 pure-rename); 0 value-affecting transforms -> 0 value-risk. Live-proven hive-scoped (worker_name='Leandro Marquez', schedule_items)."
+    },
+    "resume": {
+      "persist_path": "saveCloud() payload = {auth_uid, worker_name, hive_id, title: resume.meta.title, doc: resume, template: resume.meta.template} -> db.from('resume_documents').insert/update (resume.html:638-665)",
+      "terminus_table": "resume_documents",
+      "capture_model": "AI-mediated: the 6 mined static form fields (cl-text, file-any, file-photo, jd-input, promote-dedupe, rm-current-title) are TRANSIENT_UI inputs to the AI-extract / JD-tailor / cover-letter / dedupe / filter UI -- correctly NOT persisted by design. The REAL captured value is the whole `resume` JSON-Resume object, edited via the basics/section inputs (onInput -> resume.basics[f]=el.value), persisted faithfully as doc (JSONB).",
+      "fields_transient": ["cl-text", "file-any", "file-photo", "jd-input", "promote-dedupe", "rm-current-title"],
+      "real_capture": [
+        {"value": "resume (whole JSON-Resume object)", "column": "resume_documents.doc (jsonb)", "transform": "STRUCT (faithful object persist)", "live_value": "resume.basics.name = 'A73 Resume RT <ts>'", "verdict": "FAITHFUL (doc->basics->>name == sentinel)"},
+        {"value": "resume.meta.title", "column": "resume_documents.title", "transform": "PASSTHROUGH (|| 'My Resume')", "verdict": "FAITHFUL"},
+        {"value": "resume.meta.template", "column": "resume_documents.template", "transform": "PASSTHROUGH (|| 'ats-plain')", "verdict": "FAITHFUL"}
+      ],
+      "measured": "Real capture (resume object -> doc jsonb + title + template) value-correct, owner-scoped (auth_uid + hive_id). The 6 static form fields are correctly-NOT-persisted (TRANSIENT_UI / AI-input) by design -- not a gap, not faked into a verified count."
+    }
+  },
+  "honest_verdict": "Both surfaces' capture value-correctness is now RUN (no longer N/A). dayplanner = 6/6 fields faithful through meeting->toDBRow->schedule_items. resume = whole-object doc + title + template faithful into resume_documents; its form fields are transient-by-design. No value-affecting transform on either surface -> contract-verified + live-confirmed, no value-risk residue.",
+  "local_only": true,
+  "sentinels_cleaned": true
+}

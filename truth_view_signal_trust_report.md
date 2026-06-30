@@ -9,7 +9,7 @@ differently (one trusts it; one re-gates on another field).
 - View/column pairs scanned: **319**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **221**
+- Files scanned: **231**
 
 ## Smell legend
 
@@ -28,10 +28,10 @@ re-deriving what the canonical view should expose:
 |---|---|---|---|
 | `v_pm_scope_items_truth` | `anchor_date` | `logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct` | nodata_fallback |
 | `v_pm_scope_items_truth` | `asset_id` | `logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/batch-risk-scoring/index.ts` → `direct`<br>`supabase/functions/trigger-ml-retrain/index.ts` → `direct` | nodata_fallback |
-| `v_pm_scope_items_truth` | `days_until_due` | `alert-hub.html` → `direct`<br>`logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/ai-orchestrator/index.ts` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct` | nodata_fallback |
+| `v_pm_scope_items_truth` | `days_until_due` | `alert-hub.html` → `direct`<br>`logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/ai-orchestrator/index.ts` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/scheduled-agents/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct` | nodata_fallback |
 | `v_pm_scope_items_truth` | `frequency` | `hive.html` → `direct`<br>`logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/batch-risk-scoring/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct`<br>`supabase/functions/trigger-ml-retrain/index.ts` → `direct` | nodata_fallback |
-| `v_pm_scope_items_truth` | `is_due_soon` | `hive.html` → `direct`<br>`logbook.html` → `mapped_enum` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/ai-orchestrator/index.ts` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct` | nodata_fallback |
-| `v_pm_scope_items_truth` | `is_overdue` | `alert-hub.html` → `direct`<br>`hive.html` → `direct`<br>`index.html` → `direct`<br>`logbook.html` → `mapped_enum` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/ai-orchestrator/index.ts` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct` | nodata_fallback |
+| `v_pm_scope_items_truth` | `is_due_soon` | `hive.html` → `direct`<br>`logbook.html` → `mapped_enum` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/ai-orchestrator/index.ts` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/scheduled-agents/index.ts` → `direct` | nodata_fallback |
+| `v_pm_scope_items_truth` | `is_overdue` | `alert-hub.html` → `direct`<br>`hive.html` → `direct`<br>`index.html` → `direct`<br>`logbook.html` → `mapped_enum` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/ai-orchestrator/index.ts` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/scheduled-agents/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct` | nodata_fallback |
 | `v_pm_scope_items_truth` | `item_text` | `hive.html` → `direct`<br>`logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/batch-risk-scoring/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct`<br>`supabase/functions/trigger-ml-retrain/index.ts` → `direct` | nodata_fallback |
 | `v_pm_scope_items_truth` | `next_due_date` | `alert-hub.html` → `direct`<br>`logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/analytics-orchestrator/index.ts` → `direct`<br>`supabase/functions/shift-planner-orchestrator/index.ts` → `direct` | nodata_fallback |
 | `v_pm_scope_items_truth` | `scope_item_id` | `hive.html` → `direct`<br>`logbook.html` → `direct` 🚩nodata_fallback<br>`pm-scheduler.html` → `direct`<br>`supabase/functions/platform-scraper/index.ts` → `direct` | nodata_fallback |
@@ -138,7 +138,7 @@ re-deriving what the canonical view should expose:
 | `v_hives_truth` | `created_by` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `hive_members` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `intent` | ✅ OK | 1 | direct |
-| `v_hives_truth` | `name` | ✅ OK | 7 | direct |
+| `v_hives_truth` | `name` | ✅ OK | 8 | direct |
 | `v_hives_truth` | `preferred_persona` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `bin_location` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `category` | ✅ OK | 1 | direct |
@@ -201,7 +201,7 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_listings_truth` | `category` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `completed_sales` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `condition` | ✅ OK | 5 | direct, mapped_enum |
-| `v_marketplace_listings_truth` | `description` | ✅ OK | 2 | direct |
+| `v_marketplace_listings_truth` | `description` | ✅ OK | 3 | direct |
 | `v_marketplace_listings_truth` | `image_url` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `location` | ✅ OK | 5 | direct, mapped_enum |
 | `v_marketplace_listings_truth` | `price` | ✅ OK | 6 | direct |
@@ -246,33 +246,33 @@ re-deriving what the canonical view should expose:
 | `v_pf_truth` | `parameter` | ✅ OK | 2 | direct |
 | `v_pf_truth` | `pf_days` | ✅ OK | 2 | direct |
 | `v_pf_truth` | `recommended_interval_days` | ✅ OK | 2 | direct |
-| `v_pm_compliance_truth` | `asset_name` | ✅ OK | 11 | direct |
-| `v_pm_compliance_truth` | `category` | ✅ OK | 10 | direct |
+| `v_pm_compliance_truth` | `asset_name` | ✅ OK | 10 | direct |
+| `v_pm_compliance_truth` | `category` | ✅ OK | 9 | direct |
 | `v_pm_compliance_truth` | `completions_30d` | ✅ OK | 1 | direct |
 | `v_pm_compliance_truth` | `criticality` | ✅ OK | 4 | direct |
 | `v_pm_compliance_truth` | `days_since_last_completion` | ✅ OK | 2 | direct |
-| `v_pm_compliance_truth` | `is_due` | ✅ OK | 2 | direct |
-| `v_pm_compliance_truth` | `last_anchor_date` | ✅ OK | 2 | direct |
-| `v_pm_compliance_truth` | `pm_asset_id` | ✅ OK | 8 | direct |
+| `v_pm_compliance_truth` | `is_due` | ✅ OK | 1 | direct |
+| `v_pm_compliance_truth` | `last_anchor_date` | ✅ OK | 1 | direct |
+| `v_pm_compliance_truth` | `pm_asset_id` | ✅ OK | 6 | direct |
 | `v_pm_compliance_truth` | `tag_id` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `anchor_date` | ⚠️ REVIEW | 2 | direct |
-| `v_pm_scope_items_truth` | `asset_category` | ✅ OK | 3 | direct |
-| `v_pm_scope_items_truth` | `asset_criticality` | ✅ OK | 3 | direct |
+| `v_pm_scope_items_truth` | `asset_category` | ✅ OK | 4 | direct |
+| `v_pm_scope_items_truth` | `asset_criticality` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `asset_id` | ⚠️ REVIEW | 5 | direct |
 | `v_pm_scope_items_truth` | `asset_location` | ✅ OK | 1 | direct |
-| `v_pm_scope_items_truth` | `asset_name` | ✅ OK | 5 | direct |
+| `v_pm_scope_items_truth` | `asset_name` | ✅ OK | 6 | direct |
 | `v_pm_scope_items_truth` | `asset_tag` | ✅ OK | 2 | direct |
-| `v_pm_scope_items_truth` | `days_until_due` | ⚠️ REVIEW | 6 | direct |
+| `v_pm_scope_items_truth` | `days_until_due` | ⚠️ REVIEW | 7 | direct |
 | `v_pm_scope_items_truth` | `frequency` | ⚠️ REVIEW | 7 | direct |
 | `v_pm_scope_items_truth` | `frequency_days` | ✅ OK | 2 | direct |
 | `v_pm_scope_items_truth` | `is_custom` | ✅ OK | 1 | direct |
-| `v_pm_scope_items_truth` | `is_due_soon` | ⚠️ REVIEW | 5 | direct, mapped_enum |
-| `v_pm_scope_items_truth` | `is_overdue` | ⚠️ REVIEW | 8 | direct, mapped_enum |
+| `v_pm_scope_items_truth` | `is_due_soon` | ⚠️ REVIEW | 6 | direct, mapped_enum |
+| `v_pm_scope_items_truth` | `is_overdue` | ⚠️ REVIEW | 9 | direct, mapped_enum |
 | `v_pm_scope_items_truth` | `item_text` | ⚠️ REVIEW | 7 | direct |
 | `v_pm_scope_items_truth` | `last_completed_at` | ✅ OK | 4 | direct |
 | `v_pm_scope_items_truth` | `last_completed_by` | ✅ OK | 1 | direct |
 | `v_pm_scope_items_truth` | `next_due_date` | ⚠️ REVIEW | 5 | direct |
-| `v_pm_scope_items_truth` | `pm_asset_id` | ✅ OK | 5 | direct |
+| `v_pm_scope_items_truth` | `pm_asset_id` | ✅ OK | 8 | direct |
 | `v_pm_scope_items_truth` | `scope_item_id` | ⚠️ REVIEW | 4 | direct |
 | `v_project_items_truth` | `actual_hours` | ✅ OK | 2 | direct |
 | `v_project_items_truth` | `estimated_hours` | ✅ OK | 3 | direct |
@@ -355,7 +355,7 @@ re-deriving what the canonical view should expose:
 | `v_worker_skill_truth` | `primary_skill` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `role` | ✅ OK | 2 | direct |
 | `v_worker_skill_truth` | `worker_name` | ✅ OK | 3 | direct |
-| `v_worker_truth` | `hive_status` | ✅ OK | 7 | direct |
+| `v_worker_truth` | `hive_status` | ✅ OK | 8 | direct |
 | `v_worker_truth` | `preferred_persona` | ✅ OK | 2 | direct |
-| `v_worker_truth` | `role` | ✅ OK | 6 | direct |
-| `v_worker_truth` | `worker_name` | ✅ OK | 11 | direct |
+| `v_worker_truth` | `role` | ✅ OK | 8 | direct |
+| `v_worker_truth` | `worker_name` | ✅ OK | 12 | direct |

@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
 <style>
   :root {
@@ -258,8 +258,8 @@ function getPhase(it) {
 async function loadAndRender(projectId) {
   const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
     db.from('v_project_truth').select('*, id:project_id, end_date:target_end_date').eq('project_id', projectId).maybeSingle(),
-    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order'),
-    db.from('project_links').select('*').eq('project_id', projectId).order('created_at'),
+    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order').limit(500),
+    db.from('project_links').select('*').eq('project_id', projectId).order('created_at').limit(500),
     db.from('v_project_progress_truth').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).limit(60),
   ]);
   if (projRes.error || !projRes.data) {
@@ -530,5 +530,7 @@ function saveAsPdf() {
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

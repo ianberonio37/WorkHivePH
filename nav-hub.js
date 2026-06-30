@@ -12,6 +12,18 @@
 (function () {
   'use strict';
 
+  // ─── Arc Y · Y1: Lazy-load the Wayfinding chrome (in-app Back + breadcrumb +
+  // scroll-restore + deep-link highlight) so every page gets "where am I / how do
+  // I get back" without per-page wiring. Closes the back:N on ~30 pages + fixes
+  // asset-hub's hard-coded back in-place (finding F3). See wayfinding.js.
+  if (!document.querySelector('script[data-wh-wayfind]')) {
+    const wf = document.createElement('script');
+    wf.src = 'wayfinding.js';
+    wf.async = true;
+    wf.setAttribute('data-wh-wayfind', '1');
+    document.head.appendChild(wf);
+  }
+
   // ─── Phase E.3c: Lazy-load Global Search overlay so Cmd+K works everywhere
   // nav-hub.js loads on every page, so attaching the search-overlay loader here
   // makes the keyboard shortcut available platform-wide without per-page wiring.

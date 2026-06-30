@@ -1,0 +1,72 @@
+{
+  "_doc": "§13.13 — derived-artifact discovery (the correctness-arc denominator). FIRM cells (specific-signature, evidence-grade) are the denominator; narrative is a CANDIDATE bucket needing per-page A2 evidence (loose match ≠ proof — the evidence-not-heuristic rule).",
+  "pages_scanned": 27,
+  "pages_with_artifacts": 9,
+  "artifact_cells_total": 14,
+  "artifact_cells_ai_generated": 3,
+  "narrative_candidate_pages": [
+    "achievements",
+    "ai-quality",
+    "alert-hub",
+    "analytics",
+    "analytics-report",
+    "asset-hub",
+    "assistant",
+    "dayplanner",
+    "engineering-design",
+    "hive",
+    "integrations",
+    "inventory",
+    "marketplace",
+    "ph-intelligence",
+    "plant-connections",
+    "pm-scheduler",
+    "predictive",
+    "project-manager",
+    "project-report",
+    "resume",
+    "skillmatrix"
+  ],
+  "narrative_candidate_count": 21,
+  "by_type": {
+    "ai_doc": 3,
+    "pdf": 6,
+    "diagram": 1,
+    "csv": 3,
+    "guide": 1
+  },
+  "by_page": {
+    "analytics-report": [
+      "pdf"
+    ],
+    "asset-hub": [
+      "pdf"
+    ],
+    "audit-log": [
+      "csv"
+    ],
+    "engineering-design": [
+      "ai_doc",
+      "pdf",
+      "diagram",
+      "csv",
+      "guide"
+    ],
+    "hive": [
+      "pdf"
+    ],
+    "logbook": [
+      "csv"
+    ],
+    "project-report": [
+      "pdf"
+    ],
+    "report-sender": [
+      "ai_doc"
+    ],
+    "resume": [
+      "ai_doc",
+      "pdf"
+    ]
+  }
+}

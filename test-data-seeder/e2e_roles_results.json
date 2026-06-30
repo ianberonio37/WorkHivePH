@@ -1,6 +1,2143 @@
 {
-  "timestamp": "2026-06-06T22:23:48.893313",
+  "timestamp": "2026-06-19T19:34:29.687640",
   "pages": {
+    "logbook": {
+      "page": "logbook",
+      "total_pass": 6,
+      "total_fail": 0,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "logbook",
+          "role": "solo",
+          "element": "view_team_tab",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "logbook",
+          "role": "worker",
+          "element": "view_team_tab",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "logbook",
+          "role": "supervisor",
+          "element": "view_team_tab",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "logbook",
+          "role": "solo",
+          "element": "view_mine_tab",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "logbook",
+          "role": "worker",
+          "element": "view_mine_tab",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "logbook",
+          "role": "supervisor",
+          "element": "view_mine_tab",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "logbook",
+          "role": "solo",
+          "element": "search_input",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "logbook",
+          "role": "worker",
+          "element": "search_input",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "logbook",
+          "role": "supervisor",
+          "element": "search_input",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [
+          "view_mine_tab",
+          "view_team_tab"
+        ],
+        "shared": [
+          "view_mine_tab",
+          "view_team_tab",
+          "search_input"
+        ],
+        "supervisor": {
+          "view_team_tab": true,
+          "view_mine_tab": true,
+          "search_input": true
+        },
+        "worker": {
+          "view_team_tab": true,
+          "view_mine_tab": true,
+          "search_input": true
+        },
+        "solo": {
+          "view_team_tab": false,
+          "view_mine_tab": false,
+          "search_input": true
+        }
+      },
+      "gate_results": {
+        "solo": true,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "inventory": {
+      "page": "inventory",
+      "total_pass": 6,
+      "total_fail": 0,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "inventory",
+          "role": "solo",
+          "element": "add_part_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "inventory",
+          "role": "worker",
+          "element": "add_part_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "inventory",
+          "role": "supervisor",
+          "element": "add_part_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "inventory",
+          "role": "solo",
+          "element": "restock_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "inventory",
+          "role": "worker",
+          "element": "restock_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "inventory",
+          "role": "supervisor",
+          "element": "restock_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "inventory",
+          "role": "solo",
+          "element": "use_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "inventory",
+          "role": "worker",
+          "element": "use_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "inventory",
+          "role": "supervisor",
+          "element": "use_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "restock_btn",
+          "use_btn",
+          "add_part_btn"
+        ],
+        "supervisor": {
+          "add_part_btn": true,
+          "restock_btn": true,
+          "use_btn": true
+        },
+        "worker": {
+          "add_part_btn": true,
+          "restock_btn": true,
+          "use_btn": true
+        },
+        "solo": {
+          "add_part_btn": true,
+          "restock_btn": true,
+          "use_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "pm-scheduler": {
+      "page": "pm-scheduler",
+      "total_pass": 4,
+      "total_fail": 0,
+      "total_info": 5,
+      "results": [
+        {
+          "page": "pm-scheduler",
+          "role": "solo",
+          "element": "filter_all_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "worker",
+          "element": "filter_all_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "supervisor",
+          "element": "filter_all_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "solo",
+          "element": "filter_overdue_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "worker",
+          "element": "filter_overdue_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "supervisor",
+          "element": "filter_overdue_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "solo",
+          "element": "filter_due_soon_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "worker",
+          "element": "filter_due_soon_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "pm-scheduler",
+          "role": "supervisor",
+          "element": "filter_due_soon_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "filter_overdue_btn",
+          "filter_due_soon_btn",
+          "filter_all_btn"
+        ],
+        "supervisor": {
+          "filter_all_btn": true,
+          "filter_overdue_btn": true,
+          "filter_due_soon_btn": true
+        },
+        "worker": {
+          "filter_all_btn": true,
+          "filter_overdue_btn": true,
+          "filter_due_soon_btn": true
+        },
+        "solo": {
+          "filter_all_btn": true,
+          "filter_overdue_btn": true,
+          "filter_due_soon_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "hive": {
+      "page": "hive",
+      "total_pass": 2,
+      "total_fail": 0,
+      "total_info": 4,
+      "results": [
+        {
+          "page": "hive",
+          "role": "solo",
+          "element": "leave_hive_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "hive",
+          "role": "worker",
+          "element": "leave_hive_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "hive",
+          "role": "supervisor",
+          "element": "leave_hive_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "hive",
+          "role": "solo",
+          "element": "show_invite_code_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "hive",
+          "role": "worker",
+          "element": "show_invite_code_btn",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "hive",
+          "role": "supervisor",
+          "element": "show_invite_code_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [
+          "show_invite_code_btn"
+        ],
+        "worker_and_above": [],
+        "shared": [
+          "leave_hive_btn"
+        ],
+        "supervisor": {
+          "leave_hive_btn": true,
+          "show_invite_code_btn": true
+        },
+        "worker": {
+          "leave_hive_btn": true,
+          "show_invite_code_btn": false
+        },
+        "solo": {
+          "leave_hive_btn": true,
+          "show_invite_code_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "community": {
+      "page": "community",
+      "total_pass": 3,
+      "total_fail": 0,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "community",
+          "role": "solo",
+          "element": "create_post_input",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "community",
+          "role": "worker",
+          "element": "create_post_input",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "community",
+          "role": "supervisor",
+          "element": "create_post_input",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "community",
+          "role": "solo",
+          "element": "post_submit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "community",
+          "role": "worker",
+          "element": "post_submit_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "community",
+          "role": "supervisor",
+          "element": "post_submit_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "community",
+          "role": "solo",
+          "element": "mod_queue_tab",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "community",
+          "role": "worker",
+          "element": "mod_queue_tab",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "community",
+          "role": "supervisor",
+          "element": "mod_queue_tab",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [
+          "mod_queue_tab"
+        ],
+        "worker_and_above": [
+          "post_submit_btn"
+        ],
+        "shared": [
+          "post_submit_btn"
+        ],
+        "supervisor": {
+          "create_post_input": false,
+          "post_submit_btn": true,
+          "mod_queue_tab": true
+        },
+        "worker": {
+          "create_post_input": false,
+          "post_submit_btn": true,
+          "mod_queue_tab": false
+        },
+        "solo": {
+          "create_post_input": false,
+          "post_submit_btn": false,
+          "mod_queue_tab": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "marketplace": {
+      "page": "marketplace",
+      "total_pass": 2,
+      "total_fail": 0,
+      "total_info": 4,
+      "results": [
+        {
+          "page": "marketplace",
+          "role": "solo",
+          "element": "search_input",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace",
+          "role": "worker",
+          "element": "search_input",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace",
+          "role": "supervisor",
+          "element": "search_input",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace",
+          "role": "solo",
+          "element": "browse_tab",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace",
+          "role": "worker",
+          "element": "browse_tab",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace",
+          "role": "supervisor",
+          "element": "browse_tab",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "search_input"
+        ],
+        "supervisor": {
+          "search_input": true,
+          "browse_tab": false
+        },
+        "worker": {
+          "search_input": true,
+          "browse_tab": false
+        },
+        "solo": {
+          "search_input": true,
+          "browse_tab": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "project-manager": {
+      "page": "project-manager",
+      "total_pass": 2,
+      "total_fail": 0,
+      "total_info": 1,
+      "results": [
+        {
+          "page": "project-manager",
+          "role": "solo",
+          "element": "new_project_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "project-manager",
+          "role": "worker",
+          "element": "new_project_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "project-manager",
+          "role": "supervisor",
+          "element": "new_project_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "new_project_btn"
+        ],
+        "supervisor": {
+          "new_project_btn": true
+        },
+        "worker": {
+          "new_project_btn": true
+        },
+        "solo": {
+          "new_project_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": true,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "analytics": {
+      "page": "analytics",
+      "total_pass": 1,
+      "total_fail": 3,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "analytics",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "analytics",
+          "role": "solo",
+          "element": "kpi_cards",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "analytics",
+          "role": "worker",
+          "element": "kpi_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "analytics",
+          "role": "supervisor",
+          "element": "kpi_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "analytics",
+          "role": "solo",
+          "element": "period_selector",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics",
+          "role": "worker",
+          "element": "period_selector",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics",
+          "role": "supervisor",
+          "element": "period_selector",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics",
+          "role": "solo",
+          "element": "export_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics",
+          "role": "worker",
+          "element": "export_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics",
+          "role": "supervisor",
+          "element": "export_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "kpi_cards": false,
+          "period_selector": false,
+          "export_btn": false
+        },
+        "worker": {
+          "kpi_cards": false,
+          "period_selector": false,
+          "export_btn": false
+        },
+        "solo": {
+          "kpi_cards": false,
+          "period_selector": false,
+          "export_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "analytics-report": {
+      "page": "analytics-report",
+      "total_pass": 1,
+      "total_fail": 3,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "analytics-report",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "analytics-report",
+          "role": "solo",
+          "element": "report_sections",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "analytics-report",
+          "role": "worker",
+          "element": "report_sections",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "analytics-report",
+          "role": "supervisor",
+          "element": "report_sections",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "analytics-report",
+          "role": "solo",
+          "element": "generate_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics-report",
+          "role": "worker",
+          "element": "generate_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "analytics-report",
+          "role": "supervisor",
+          "element": "generate_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "generate_btn"
+        ],
+        "supervisor": {
+          "report_sections": false,
+          "generate_btn": true
+        },
+        "worker": {
+          "report_sections": false,
+          "generate_btn": true
+        },
+        "solo": {
+          "report_sections": false,
+          "generate_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "shift-brain": {
+      "page": "shift-brain",
+      "total_pass": 4,
+      "total_fail": 2,
+      "total_info": 1,
+      "results": [
+        {
+          "page": "shift-brain",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "shift-brain",
+          "role": "solo",
+          "element": "handover_entries",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "shift-brain",
+          "role": "worker",
+          "element": "handover_entries",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "shift-brain",
+          "role": "supervisor",
+          "element": "handover_entries",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "shift-brain",
+          "role": "solo",
+          "element": "submit_handover_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "shift-brain",
+          "role": "worker",
+          "element": "submit_handover_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "shift-brain",
+          "role": "supervisor",
+          "element": "submit_handover_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [
+          "handover_entries"
+        ],
+        "shared": [
+          "handover_entries"
+        ],
+        "supervisor": {
+          "handover_entries": true,
+          "submit_handover_btn": false
+        },
+        "worker": {
+          "handover_entries": true,
+          "submit_handover_btn": false
+        },
+        "solo": {
+          "handover_entries": false,
+          "submit_handover_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": true,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "asset-hub": {
+      "page": "asset-hub",
+      "total_pass": 4,
+      "total_fail": 0,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "asset-hub",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "asset-hub",
+          "role": "solo",
+          "element": "asset_list",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "asset-hub",
+          "role": "worker",
+          "element": "asset_list",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "asset-hub",
+          "role": "supervisor",
+          "element": "asset_list",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "asset-hub",
+          "role": "solo",
+          "element": "edit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "asset-hub",
+          "role": "worker",
+          "element": "edit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "asset-hub",
+          "role": "supervisor",
+          "element": "edit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "asset-hub",
+          "role": "solo",
+          "element": "risk_edit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "asset-hub",
+          "role": "worker",
+          "element": "risk_edit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "asset-hub",
+          "role": "supervisor",
+          "element": "risk_edit_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [
+          "asset_list"
+        ],
+        "shared": [
+          "asset_list"
+        ],
+        "supervisor": {
+          "asset_list": true,
+          "edit_btn": false,
+          "risk_edit_btn": false
+        },
+        "worker": {
+          "asset_list": true,
+          "edit_btn": false,
+          "risk_edit_btn": false
+        },
+        "solo": {
+          "asset_list": false,
+          "edit_btn": false,
+          "risk_edit_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": true,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "alert-hub": {
+      "page": "alert-hub",
+      "total_pass": 3,
+      "total_fail": 4,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "alert-hub",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "alert-hub",
+          "role": "solo",
+          "element": "alert_list",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "alert-hub",
+          "role": "worker",
+          "element": "alert_list",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "alert-hub",
+          "role": "supervisor",
+          "element": "alert_list",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "alert-hub",
+          "role": "solo",
+          "element": "acknowledge_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "alert-hub",
+          "role": "worker",
+          "element": "acknowledge_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "alert-hub",
+          "role": "supervisor",
+          "element": "acknowledge_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "alert-hub",
+          "role": "solo",
+          "element": "resolve_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "alert-hub",
+          "role": "worker",
+          "element": "resolve_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "alert-hub",
+          "role": "supervisor",
+          "element": "resolve_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "alert-hub",
+          "role": "solo",
+          "element": "severity_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "alert-hub",
+          "role": "worker",
+          "element": "severity_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "alert-hub",
+          "role": "supervisor",
+          "element": "severity_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [
+          "alert_list"
+        ],
+        "shared": [
+          "alert_list"
+        ],
+        "supervisor": {
+          "alert_list": true,
+          "acknowledge_btn": false,
+          "resolve_btn": false,
+          "severity_filter": false
+        },
+        "worker": {
+          "alert_list": true,
+          "acknowledge_btn": false,
+          "resolve_btn": false,
+          "severity_filter": false
+        },
+        "solo": {
+          "alert_list": false,
+          "acknowledge_btn": false,
+          "resolve_btn": false,
+          "severity_filter": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "predictive": {
+      "page": "predictive",
+      "total_pass": 1,
+      "total_fail": 4,
+      "total_info": 2,
+      "results": [
+        {
+          "page": "predictive",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "predictive",
+          "role": "solo",
+          "element": "prediction_cards",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "predictive",
+          "role": "worker",
+          "element": "prediction_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "predictive",
+          "role": "supervisor",
+          "element": "prediction_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "predictive",
+          "role": "solo",
+          "element": "score_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "predictive",
+          "role": "worker",
+          "element": "score_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "predictive",
+          "role": "supervisor",
+          "element": "score_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "prediction_cards": false,
+          "score_btn": false
+        },
+        "worker": {
+          "prediction_cards": false,
+          "score_btn": false
+        },
+        "solo": {
+          "prediction_cards": false,
+          "score_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "ai-quality": {
+      "page": "ai-quality",
+      "total_pass": 2,
+      "total_fail": 3,
+      "total_info": 2,
+      "results": [
+        {
+          "page": "ai-quality",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "ai-quality",
+          "role": "solo",
+          "element": "quality_metrics",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "ai-quality",
+          "role": "worker",
+          "element": "quality_metrics",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "ai-quality",
+          "role": "supervisor",
+          "element": "quality_metrics",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "ai-quality",
+          "role": "solo",
+          "element": "evaluate_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "ai-quality",
+          "role": "worker",
+          "element": "evaluate_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "ai-quality",
+          "role": "supervisor",
+          "element": "evaluate_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "quality_metrics": false,
+          "evaluate_btn": false
+        },
+        "worker": {
+          "quality_metrics": false,
+          "evaluate_btn": false
+        },
+        "solo": {
+          "quality_metrics": false,
+          "evaluate_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "skillmatrix": {
+      "page": "skillmatrix",
+      "total_pass": 2,
+      "total_fail": 3,
+      "total_info": 2,
+      "results": [
+        {
+          "page": "skillmatrix",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "skillmatrix",
+          "role": "solo",
+          "element": "skill_rows",
+          "expected": false,
+          "actual": true,
+          "result": "FAIL"
+        },
+        {
+          "page": "skillmatrix",
+          "role": "worker",
+          "element": "skill_rows",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "skillmatrix",
+          "role": "supervisor",
+          "element": "skill_rows",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "skillmatrix",
+          "role": "solo",
+          "element": "update_target_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "skillmatrix",
+          "role": "worker",
+          "element": "update_target_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "skillmatrix",
+          "role": "supervisor",
+          "element": "update_target_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "skill_rows"
+        ],
+        "supervisor": {
+          "skill_rows": true,
+          "update_target_btn": false
+        },
+        "worker": {
+          "skill_rows": true,
+          "update_target_btn": false
+        },
+        "solo": {
+          "skill_rows": true,
+          "update_target_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "report-sender": {
+      "page": "report-sender",
+      "total_pass": 3,
+      "total_fail": 2,
+      "total_info": 5,
+      "results": [
+        {
+          "page": "report-sender",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "report-sender",
+          "role": "solo",
+          "element": "report_template",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "report-sender",
+          "role": "worker",
+          "element": "report_template",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "report-sender",
+          "role": "supervisor",
+          "element": "report_template",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "report-sender",
+          "role": "solo",
+          "element": "send_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "report-sender",
+          "role": "worker",
+          "element": "send_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "report-sender",
+          "role": "supervisor",
+          "element": "send_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "report-sender",
+          "role": "solo",
+          "element": "recipients_input",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "report-sender",
+          "role": "worker",
+          "element": "recipients_input",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "report-sender",
+          "role": "supervisor",
+          "element": "recipients_input",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "send_btn"
+        ],
+        "supervisor": {
+          "report_template": false,
+          "send_btn": true,
+          "recipients_input": false
+        },
+        "worker": {
+          "report_template": false,
+          "send_btn": true,
+          "recipients_input": false
+        },
+        "solo": {
+          "report_template": false,
+          "send_btn": true,
+          "recipients_input": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "plant-connections": {
+      "page": "plant-connections",
+      "total_pass": 3,
+      "total_fail": 1,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "plant-connections",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "plant-connections",
+          "role": "solo",
+          "element": "plant_list",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "plant-connections",
+          "role": "worker",
+          "element": "plant_list",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "plant-connections",
+          "role": "supervisor",
+          "element": "plant_list",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "plant-connections",
+          "role": "solo",
+          "element": "edit_config_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "plant-connections",
+          "role": "worker",
+          "element": "edit_config_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "plant-connections",
+          "role": "supervisor",
+          "element": "edit_config_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "plant-connections",
+          "role": "solo",
+          "element": "add_plant_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "plant-connections",
+          "role": "worker",
+          "element": "add_plant_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "plant-connections",
+          "role": "supervisor",
+          "element": "add_plant_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "plant_list": false,
+          "edit_config_btn": false,
+          "add_plant_btn": false
+        },
+        "worker": {
+          "plant_list": false,
+          "edit_config_btn": false,
+          "add_plant_btn": false
+        },
+        "solo": {
+          "plant_list": false,
+          "edit_config_btn": false,
+          "add_plant_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "audit-log": {
+      "page": "audit-log",
+      "total_pass": 3,
+      "total_fail": 1,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "audit-log",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "audit-log",
+          "role": "solo",
+          "element": "audit_entries",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "audit-log",
+          "role": "worker",
+          "element": "audit_entries",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "audit-log",
+          "role": "supervisor",
+          "element": "audit_entries",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "audit-log",
+          "role": "solo",
+          "element": "action_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "audit-log",
+          "role": "worker",
+          "element": "action_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "audit-log",
+          "role": "supervisor",
+          "element": "action_filter",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [
+          "action_filter",
+          "audit_entries"
+        ],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "audit_entries": true,
+          "action_filter": true
+        },
+        "worker": {
+          "audit_entries": false,
+          "action_filter": false
+        },
+        "solo": {
+          "audit_entries": false,
+          "action_filter": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "platform-health": {
+      "page": "platform-health",
+      "total_pass": 2,
+      "total_fail": 2,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "platform-health",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "platform-health",
+          "role": "solo",
+          "element": "health_cards",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "platform-health",
+          "role": "worker",
+          "element": "health_cards",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "platform-health",
+          "role": "supervisor",
+          "element": "health_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "platform-health",
+          "role": "solo",
+          "element": "refresh_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "platform-health",
+          "role": "worker",
+          "element": "refresh_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "platform-health",
+          "role": "supervisor",
+          "element": "refresh_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "health_cards": false,
+          "refresh_btn": false
+        },
+        "worker": {
+          "health_cards": false,
+          "refresh_btn": false
+        },
+        "solo": {
+          "health_cards": false,
+          "refresh_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "achievements": {
+      "page": "achievements",
+      "total_pass": 2,
+      "total_fail": 3,
+      "total_info": 2,
+      "results": [
+        {
+          "page": "achievements",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "achievements",
+          "role": "solo",
+          "element": "badge_cards",
+          "expected": false,
+          "actual": true,
+          "result": "FAIL"
+        },
+        {
+          "page": "achievements",
+          "role": "worker",
+          "element": "badge_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "achievements",
+          "role": "supervisor",
+          "element": "badge_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "achievements",
+          "role": "solo",
+          "element": "award_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "achievements",
+          "role": "worker",
+          "element": "award_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "achievements",
+          "role": "supervisor",
+          "element": "award_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "badge_cards"
+        ],
+        "supervisor": {
+          "badge_cards": true,
+          "award_btn": false
+        },
+        "worker": {
+          "badge_cards": true,
+          "award_btn": false
+        },
+        "solo": {
+          "badge_cards": true,
+          "award_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "voice-journal": {
+      "page": "voice-journal",
+      "total_pass": 2,
+      "total_fail": 4,
+      "total_info": 1,
+      "results": [
+        {
+          "page": "voice-journal",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "voice-journal",
+          "role": "solo",
+          "element": "voice_logs",
+          "expected": false,
+          "actual": true,
+          "result": "FAIL"
+        },
+        {
+          "page": "voice-journal",
+          "role": "worker",
+          "element": "voice_logs",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "voice-journal",
+          "role": "supervisor",
+          "element": "voice_logs",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "voice-journal",
+          "role": "solo",
+          "element": "record_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "voice-journal",
+          "role": "worker",
+          "element": "record_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "voice-journal",
+          "role": "supervisor",
+          "element": "record_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "voice_logs"
+        ],
+        "supervisor": {
+          "voice_logs": true,
+          "record_btn": false
+        },
+        "worker": {
+          "voice_logs": true,
+          "record_btn": false
+        },
+        "solo": {
+          "voice_logs": true,
+          "record_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "integrations": {
+      "page": "integrations",
+      "total_pass": 4,
+      "total_fail": 1,
+      "total_info": 2,
+      "results": [
+        {
+          "page": "integrations",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "integrations",
+          "role": "solo",
+          "element": "integration_cards",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "integrations",
+          "role": "worker",
+          "element": "integration_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "integrations",
+          "role": "supervisor",
+          "element": "integration_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "integrations",
+          "role": "solo",
+          "element": "configure_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "integrations",
+          "role": "worker",
+          "element": "configure_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "integrations",
+          "role": "supervisor",
+          "element": "configure_btn",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [
+          "integration_cards"
+        ],
+        "shared": [
+          "integration_cards"
+        ],
+        "supervisor": {
+          "integration_cards": true,
+          "configure_btn": false
+        },
+        "worker": {
+          "integration_cards": true,
+          "configure_btn": false
+        },
+        "solo": {
+          "integration_cards": false,
+          "configure_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": true,
+        "worker": false,
+        "supervisor": false
+      }
+    },
     "index": {
       "page": "index",
       "total_pass": 3,
@@ -60,8 +2197,8 @@
         "supervisor_only": [],
         "worker_and_above": [],
         "shared": [
-          "signin_modal_trigger",
-          "hero_section"
+          "hero_section",
+          "signin_modal_trigger"
         ],
         "supervisor": {
           "signin_modal_trigger": true,
@@ -81,11 +2218,883 @@
         "worker": false,
         "supervisor": false
       }
+    },
+    "public-feed": {
+      "page": "public-feed",
+      "total_pass": 3,
+      "total_fail": 0,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "public-feed",
+          "role": "solo",
+          "element": "post_feed",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "public-feed",
+          "role": "worker",
+          "element": "post_feed",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "public-feed",
+          "role": "supervisor",
+          "element": "post_feed",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "public-feed",
+          "role": "solo",
+          "element": "search_input",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "public-feed",
+          "role": "worker",
+          "element": "search_input",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "public-feed",
+          "role": "supervisor",
+          "element": "search_input",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "search_input",
+          "post_feed"
+        ],
+        "supervisor": {
+          "post_feed": true,
+          "search_input": true
+        },
+        "worker": {
+          "post_feed": true,
+          "search_input": true
+        },
+        "solo": {
+          "post_feed": true,
+          "search_input": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "assistant": {
+      "page": "assistant",
+      "total_pass": 1,
+      "total_fail": 3,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "assistant",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "assistant",
+          "role": "solo",
+          "element": "chat_input",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "assistant",
+          "role": "worker",
+          "element": "chat_input",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "assistant",
+          "role": "supervisor",
+          "element": "chat_input",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "assistant",
+          "role": "solo",
+          "element": "send_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "assistant",
+          "role": "worker",
+          "element": "send_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "assistant",
+          "role": "supervisor",
+          "element": "send_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "chat_input": false,
+          "send_btn": false
+        },
+        "worker": {
+          "chat_input": false,
+          "send_btn": false
+        },
+        "solo": {
+          "chat_input": false,
+          "send_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "ph-intelligence": {
+      "page": "ph-intelligence",
+      "total_pass": 1,
+      "total_fail": 3,
+      "total_info": 0,
+      "results": [
+        {
+          "page": "ph-intelligence",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "ph-intelligence",
+          "role": "solo",
+          "element": "insight_cards",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "ph-intelligence",
+          "role": "worker",
+          "element": "insight_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "ph-intelligence",
+          "role": "supervisor",
+          "element": "insight_cards",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "insight_cards": false
+        },
+        "worker": {
+          "insight_cards": false
+        },
+        "solo": {
+          "insight_cards": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "marketplace-admin": {
+      "page": "marketplace-admin",
+      "total_pass": 3,
+      "total_fail": 2,
+      "total_info": 5,
+      "results": [
+        {
+          "page": "marketplace-admin",
+          "role": "solo",
+          "element": "access_gated",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "solo",
+          "element": "listing_queue",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "worker",
+          "element": "listing_queue",
+          "expected": false,
+          "actual": false,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "supervisor",
+          "element": "listing_queue",
+          "expected": true,
+          "actual": false,
+          "result": "FAIL"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "solo",
+          "element": "approve_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "worker",
+          "element": "approve_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "supervisor",
+          "element": "approve_btn",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "solo",
+          "element": "reject_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "worker",
+          "element": "reject_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-admin",
+          "role": "supervisor",
+          "element": "reject_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [
+          "approve_btn",
+          "reject_btn"
+        ],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "listing_queue": false,
+          "approve_btn": true,
+          "reject_btn": true
+        },
+        "worker": {
+          "listing_queue": false,
+          "approve_btn": false,
+          "reject_btn": false
+        },
+        "solo": {
+          "listing_queue": false,
+          "approve_btn": true,
+          "reject_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "dayplanner": {
+      "page": "dayplanner",
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "dayplanner",
+          "role": "solo",
+          "element": "schedule_entries",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "dayplanner",
+          "role": "worker",
+          "element": "schedule_entries",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "dayplanner",
+          "role": "supervisor",
+          "element": "schedule_entries",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "dayplanner",
+          "role": "solo",
+          "element": "add_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "dayplanner",
+          "role": "worker",
+          "element": "add_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "dayplanner",
+          "role": "supervisor",
+          "element": "add_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "schedule_entries": false,
+          "add_btn": false
+        },
+        "worker": {
+          "schedule_entries": false,
+          "add_btn": false
+        },
+        "solo": {
+          "schedule_entries": false,
+          "add_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "engineering-design": {
+      "page": "engineering-design",
+      "total_pass": 3,
+      "total_fail": 0,
+      "total_info": 0,
+      "results": [
+        {
+          "page": "engineering-design",
+          "role": "solo",
+          "element": "calc_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "engineering-design",
+          "role": "worker",
+          "element": "calc_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "engineering-design",
+          "role": "supervisor",
+          "element": "calc_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "calc_cards"
+        ],
+        "supervisor": {
+          "calc_cards": true
+        },
+        "worker": {
+          "calc_cards": true
+        },
+        "solo": {
+          "calc_cards": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "project-report": {
+      "page": "project-report",
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "project-report",
+          "role": "solo",
+          "element": "report_sections",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "project-report",
+          "role": "worker",
+          "element": "report_sections",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "project-report",
+          "role": "supervisor",
+          "element": "report_sections",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "project-report",
+          "role": "solo",
+          "element": "generate_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "project-report",
+          "role": "worker",
+          "element": "generate_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "project-report",
+          "role": "supervisor",
+          "element": "generate_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [],
+        "supervisor": {
+          "report_sections": false,
+          "generate_btn": false
+        },
+        "worker": {
+          "report_sections": false,
+          "generate_btn": false
+        },
+        "solo": {
+          "report_sections": false,
+          "generate_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "marketplace-seller": {
+      "page": "marketplace-seller",
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "marketplace-seller",
+          "role": "solo",
+          "element": "product_list",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller",
+          "role": "worker",
+          "element": "product_list",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller",
+          "role": "supervisor",
+          "element": "product_list",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller",
+          "role": "solo",
+          "element": "add_product_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller",
+          "role": "worker",
+          "element": "add_product_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller",
+          "role": "supervisor",
+          "element": "add_product_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "add_product_btn"
+        ],
+        "supervisor": {
+          "product_list": false,
+          "add_product_btn": true
+        },
+        "worker": {
+          "product_list": false,
+          "add_product_btn": true
+        },
+        "solo": {
+          "product_list": false,
+          "add_product_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "marketplace-seller-profile": {
+      "page": "marketplace-seller-profile",
+      "total_pass": 3,
+      "total_fail": 0,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "marketplace-seller-profile",
+          "role": "solo",
+          "element": "profile_content",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace-seller-profile",
+          "role": "worker",
+          "element": "profile_content",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace-seller-profile",
+          "role": "supervisor",
+          "element": "profile_content",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "marketplace-seller-profile",
+          "role": "solo",
+          "element": "edit_profile_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller-profile",
+          "role": "worker",
+          "element": "edit_profile_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "marketplace-seller-profile",
+          "role": "supervisor",
+          "element": "edit_profile_btn",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "profile_content"
+        ],
+        "supervisor": {
+          "profile_content": true,
+          "edit_profile_btn": false
+        },
+        "worker": {
+          "profile_content": true,
+          "edit_profile_btn": false
+        },
+        "solo": {
+          "profile_content": true,
+          "edit_profile_btn": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "symbol-gallery": {
+      "page": "symbol-gallery",
+      "total_pass": 3,
+      "total_fail": 0,
+      "total_info": 3,
+      "results": [
+        {
+          "page": "symbol-gallery",
+          "role": "solo",
+          "element": "symbol_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "symbol-gallery",
+          "role": "worker",
+          "element": "symbol_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "symbol-gallery",
+          "role": "supervisor",
+          "element": "symbol_cards",
+          "expected": true,
+          "actual": true,
+          "result": "PASS"
+        },
+        {
+          "page": "symbol-gallery",
+          "role": "solo",
+          "element": "standard_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "symbol-gallery",
+          "role": "worker",
+          "element": "standard_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        },
+        {
+          "page": "symbol-gallery",
+          "role": "supervisor",
+          "element": "standard_filter",
+          "expected": null,
+          "actual": false,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "symbol_cards"
+        ],
+        "supervisor": {
+          "symbol_cards": true,
+          "standard_filter": false
+        },
+        "worker": {
+          "symbol_cards": true,
+          "standard_filter": false
+        },
+        "solo": {
+          "symbol_cards": true,
+          "standard_filter": false
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
+    },
+    "founder-console": {
+      "page": "founder-console",
+      "total_pass": 0,
+      "total_fail": 0,
+      "total_info": 6,
+      "results": [
+        {
+          "page": "founder-console",
+          "role": "solo",
+          "element": "console_panels",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "founder-console",
+          "role": "worker",
+          "element": "console_panels",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "founder-console",
+          "role": "supervisor",
+          "element": "console_panels",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "founder-console",
+          "role": "solo",
+          "element": "refresh_all_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "founder-console",
+          "role": "worker",
+          "element": "refresh_all_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        },
+        {
+          "page": "founder-console",
+          "role": "supervisor",
+          "element": "refresh_all_btn",
+          "expected": null,
+          "actual": true,
+          "result": "INFO"
+        }
+      ],
+      "diff": {
+        "supervisor_only": [],
+        "worker_and_above": [],
+        "shared": [
+          "console_panels",
+          "refresh_all_btn"
+        ],
+        "supervisor": {
+          "console_panels": true,
+          "refresh_all_btn": true
+        },
+        "worker": {
+          "console_panels": true,
+          "refresh_all_btn": true
+        },
+        "solo": {
+          "console_panels": true,
+          "refresh_all_btn": true
+        }
+      },
+      "gate_results": {
+        "solo": false,
+        "worker": false,
+        "supervisor": false
+      }
     }
   },
-  "total_pass": 7,
-  "total_fail": 0,
-  "total_info": 3,
+  "total_pass": 86,
+  "total_fail": 44,
+  "total_info": 120,
   "canonical_dimensions": [
     [
       "PASS",

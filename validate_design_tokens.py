@@ -97,7 +97,11 @@ def scan_drift_and_rawhex():
 
     files = sorted(list(ROOT.glob("*.html"))) + [COMPONENTS]
     for f in files:
-        if f.name in EXCLUDE or f.name.endswith(("-test.html", ".backup.html")):
+        # Skip non-user-facing files: explicit excludes, test harnesses, and ANY
+        # backup variant (index.backup.html, index.backup2.html, *_backup.html, ...).
+        # A backup is not a live page, so its inline hexes must not inflate the
+        # migration count (the prior `.backup.html` suffix missed `.backup2.html`).
+        if f.name in EXCLUDE or f.name.endswith("-test.html") or "backup" in f.name.lower():
             continue
         try:
             raw = f.read_text(encoding="utf-8", errors="replace")

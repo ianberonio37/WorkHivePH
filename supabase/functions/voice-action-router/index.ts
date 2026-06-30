@@ -47,6 +47,15 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // JSON plus a `narration` field in the persona's voice.
 // See WORKHIVE_PERSONA_CONTRACT.md.
 import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
+// Deterministic routing core (Arc H H2 oracle). The kind allowlist, confidence
+// clamp, slot-fill guard, and asset disambiguation live in _shared so the exact
+// code the value-oracle (tests/voice-router-determinism.spec.ts) exercises is
+// the code that runs in production — one source, zero drift.
+import {
+  sanitiseIntents, pickPrimaryCandidate,
+  ASSET_REQUIRED_KINDS, SLOT_FILL_CEILING,
+  type VoiceIntent, type AssetCandidate,
+} from "../_shared/voice-router-core.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -66,14 +75,10 @@ const RATE_LIMIT_PER_HOUR  = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50
 const MAX_TOKENS_OUT       = 800;
 const ASSET_CANDIDATE_CAP  = 5;
 
-const VALID_KINDS = new Set([
-  "logbook.create",
-  "inventory.deduct",
-  "pm.complete",
-  "asset.lookup",
-  "query.ask",
-  "unknown",
-]);
+// VALID_KINDS, ASSET_REQUIRED_KINDS, SLOT_FILL_CEILING, sanitiseIntents,
+// pickPrimaryCandidate, and the AssetCandidate/VoiceIntent types now live in
+// ../_shared/voice-router-core.ts (imported above) — the deterministic routing
+// core, value-oracle-tested by tests/voice-router-determinism.spec.ts.
 
 const ROUTER_SYSTEM = `You are the WorkHive Voice Action Router for a Philippine industrial maintenance platform.
 A worker spoke a sentence. Identify the action(s) and extract entities. Respond ONLY with JSON, no markdown.
@@ -137,19 +142,7 @@ Rules:
 6. If the sentence is unclear, return one intent of kind "unknown" with confidence 0.0 and the original transcript in params.question.`;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-interface AssetCandidate {
-  asset_id: string;
-  tag:      string;
-  name:     string;
-  hive_id:  string;
-}
-
-interface VoiceIntent {
-  kind:        string;
-  confidence:  number;
-  params:      Record<string, unknown>;
-}
+// AssetCandidate and VoiceIntent are imported from _shared/voice-router-core.ts.
 
 interface RouterResponse {
   transcript:        string;
@@ -232,81 +225,11 @@ async function resolveAssetCandidates(
   return (data || []) as AssetCandidate[];
 }
 
-function pickPrimaryCandidate(
-  candidates: AssetCandidate[],
-  contextAssetId: string | null,
-  mentioned: string[],
-): { primary?: AssetCandidate; ambiguous: boolean } {
-  if (!candidates.length) return { ambiguous: false };
-
-  // 1. Page context wins if its asset_id appears in candidates.
-  if (contextAssetId) {
-    const ctx = candidates.find(c => c.asset_id === contextAssetId);
-    if (ctx) return { primary: ctx, ambiguous: false };
-  }
-
-  // 2. Exact case-insensitive tag match wins next.
-  for (const m of mentioned) {
-    const lower = m.toLowerCase();
-    const exact = candidates.find(
-      c => (c.tag || "").toLowerCase() === lower || (c.name || "").toLowerCase() === lower,
-    );
-    if (exact) return { primary: exact, ambiguous: false };
-  }
-
-  // 3. Single candidate wins by default.
-  if (candidates.length === 1) return { primary: candidates[0], ambiguous: false };
-
-  // 4. Multiple candidates and no clear winner: ambiguous, page asks user.
-  return { primary: candidates[0], ambiguous: true };
-}
-
-// ─── Validate / sanitise the AI's parsed JSON ────────────────────────────────
-
-// Slot-fill guard (WAT, 2026-06-12): a write/lookup intent that names NO asset
-// cannot be executed — a live A3 probe found "log a failure" (no machine) routed
-// to a confident logbook.create @0.8 with machine=null, which would write a junk
-// logbook entry against no asset. The router prompt already asks the LLM to be
-// conservative, but it does not reliably demote a param-less write. So we enforce
-// it deterministically here (WAT: the gate is code, not the model's confidence):
-// for kinds whose REQUIRED slot is the asset, a missing/blank machine demotes
-// confidence below the 0.5 confirmation floor so the page slot-fills ("which
-// asset?") instead of silently writing. inventory.deduct is intentionally NOT in
-// this set — its required slot is the part, not the machine (e.g. "pulled two
-// seals from stock"), so guarding it on machine would break valid deductions.
-const ASSET_REQUIRED_KINDS = new Set(["logbook.create", "pm.complete", "asset.lookup"]);
-const SLOT_FILL_CEILING = 0.45; // just under the 0.5 confirmation floor
-
-function sanitiseIntents(parsed: unknown): { intents: VoiceIntent[]; mentioned: string[] } {
-  const obj = (parsed && typeof parsed === "object") ? parsed as Record<string, unknown> : {};
-  const rawIntents = Array.isArray(obj.intents) ? obj.intents : [];
-  const intents: VoiceIntent[] = [];
-
-  for (const r of rawIntents) {
-    const ri = (r && typeof r === "object") ? r as Record<string, unknown> : {};
-    const kind = String(ri.kind || "unknown");
-    if (!VALID_KINDS.has(kind)) continue;
-    const conf = typeof ri.confidence === "number" ? ri.confidence : 0;
-    const params = (ri.params && typeof ri.params === "object")
-      ? ri.params as Record<string, unknown>
-      : {};
-    let confidence = Math.max(0, Math.min(1, conf));
-    // Slot-fill demotion: asset-required intent with no machine -> below floor.
-    const machine = params.machine;
-    const hasAsset = typeof machine === "string" && machine.trim().length > 0;
-    if (ASSET_REQUIRED_KINDS.has(kind) && !hasAsset) {
-      confidence = Math.min(confidence, SLOT_FILL_CEILING);
-      params._needs_asset = true; // hint for the page to ask "which asset?"
-    }
-    intents.push({ kind, confidence, params });
-  }
-
-  const mentioned = Array.isArray(obj.mentioned_assets)
-    ? obj.mentioned_assets.filter((m: unknown) => typeof m === "string" && m.trim().length)
-    : [];
-
-  return { intents, mentioned: Array.from(new Set(mentioned as string[])) };
-}
+// sanitiseIntents() and pickPrimaryCandidate() — the deterministic routing core
+// (kind allowlist, confidence clamp, slot-fill guard, asset disambiguation) —
+// are imported from ../_shared/voice-router-core.ts and value-oracle-tested by
+// tests/voice-router-determinism.spec.ts (Arc H H2). ASSET_REQUIRED_KINDS and
+// SLOT_FILL_CEILING (used by the handler below) are imported from there too.
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 

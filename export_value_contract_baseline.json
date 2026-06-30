@@ -1,0 +1,4 @@
+{
+  "_doc": "A7.2 export-value drift baseline \u2014 forward-only; a CSV column read that resolves to no source field exports BLANK. New drift FAILs; fixed cells ratchet down.",
+  "drift": {}
+}

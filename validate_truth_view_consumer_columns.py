@@ -28,6 +28,10 @@ Output:     truth_view_consumer_columns_report.json
 Sentinel binding: name the L2 test "test('truth_view_consumer_columns: ...')".
 """
 import re, json, sys, os, glob, subprocess
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 from pathlib import Path
 
 from validator_utils import format_result  # noqa: E402

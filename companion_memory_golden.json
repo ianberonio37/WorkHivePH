@@ -311,6 +311,556 @@
           "vibration"
         ]
       ]
+    },
+    {
+      "id": "MEM-EX-04-coupling-pn",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": [
+        "For drive motor MEM-X20, the correct flexible coupling part number is CPL-6620. Please keep that on record for next time."
+      ],
+      "recall_question": "what is the flexible coupling part number for drive motor MEM-X20?",
+      "recall_all": [
+        [
+          "CPL-6620",
+          "6620"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
+    },
+    {
+      "id": "MEM-EX-05-solenoid-torque",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": [
+        "Note for the future: the mounting-bolt torque spec for the solenoid valve on press MEM-X22 is 95 Nm."
+      ],
+      "recall_question": "what torque spec did I give you for the solenoid valve mounting bolts on press MEM-X22?",
+      "recall_all": [
+        [
+          "95 nm",
+          "95"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
+    },
+    {
+      "id": "MEM-EX-06-fault-code",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": [
+        "When chiller MEM-X24 throws its low-refrigerant alarm, the diagnostic fault code on the panel is FLT-4408. Remember that."
+      ],
+      "recall_question": "which diagnostic fault code shows on the panel for chiller MEM-X24's low-refrigerant alarm?",
+      "recall_all": [
+        [
+          "FLT-4408",
+          "4408"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
+    },
+    {
+      "id": "MEM-MS-04-impeller-pn-qty",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "For pump MEM-S30 the correct replacement impeller part number is PMP-5520.",
+        "And we keep three of those PMP-5520 impellers in the MEM-S30 spares bin."
+      ],
+      "recall_question": "for pump MEM-S30, what is the impeller part number and how many do we stock?",
+      "recall_all": [
+        [
+          "PMP-5520",
+          "5520"
+        ],
+        [
+          "three",
+          "3"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
+    },
+    {
+      "id": "MEM-MS-05-bearing-temp-grease",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "The drive-end bearing on motor MEM-S31 was running at 78 C on the last check.",
+        "Also note motor MEM-S31 uses grease type SYN-220 for that bearing."
+      ],
+      "recall_question": "summarise the two things I told you about motor MEM-S31's bearing.",
+      "recall_all": [
+        [
+          "78 c",
+          "78c",
+          "78"
+        ],
+        [
+          "SYN-220",
+          "syn-220",
+          "grease"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
+    },
+    {
+      "id": "MEM-MS-06-faultcode-oilcap",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "Gearbox MEM-S32 threw fault code F19 during the trial run.",
+        "For reference, gearbox MEM-S32 holds 9 liters of oil at a full fill."
+      ],
+      "recall_question": "based on what I told you about gearbox MEM-S32, what fault code did it throw and what is its oil capacity?",
+      "recall_all": [
+        [
+          "F19",
+          "f19"
+        ],
+        [
+          "9 liters",
+          "9 litres",
+          "9 l"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
+    },
+    {
+      "id": "MEM-TMP-04-latest-vibration",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "Two weeks ago the vibration reading on motor MEM-T40 drive-end bearing was 3.1 mm/s.",
+        "I re-measured motor MEM-T40 drive-end bearing today and it has climbed to 6.8 mm/s."
+      ],
+      "recall_question": "what is the MOST RECENT vibration reading I logged for motor MEM-T40?",
+      "recall_all": [
+        [
+          "6.8 mm/s",
+          "6.8mm/s",
+          "6.8"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3"
+    },
+    {
+      "id": "MEM-TMP-05-current-shim",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "When I first aligned the coupling on pump MEM-T42 I used a 0.5 mm shim under the back foot.",
+        "After the recheck I swapped that out and pump MEM-T42 now runs on a 0.8 mm shim instead."
+      ],
+      "recall_question": "what shim thickness is pump MEM-T42 CURRENTLY set up with on the back foot?",
+      "recall_all": [
+        [
+          "0.8 mm",
+          "0.8mm",
+          "0.8"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3"
+    },
+    {
+      "id": "MEM-TMP-06-latest-fault-code",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "Earlier this week chiller MEM-T45 faulted out on code E12 for low refrigerant pressure.",
+        "It tripped again just now and chiller MEM-T45 threw a different code this time, F207."
+      ],
+      "recall_question": "what was the LATEST fault code chiller MEM-T45 threw on its most recent trip?",
+      "recall_all": [
+        [
+          "F207",
+          "f-207",
+          "207"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3"
+    },
+    {
+      "id": "MEM-UP-03-torque-corrected",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "The head-bolt torque spec for pump MEM-U50 is 90 Nm.",
+        "Correction: the head-bolt torque spec for pump MEM-U50 is actually 162 Nm, not the 90 I said before."
+      ],
+      "recall_question": "what is the CURRENT head-bolt torque spec for pump MEM-U50?",
+      "recall_all": [
+        [
+          "162 nm",
+          "162"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4"
+    },
+    {
+      "id": "MEM-UP-04-bearing-part-corrected",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "The replacement bearing for motor MEM-U51 is part BRG-3308.",
+        "Update that: the correct replacement bearing for motor MEM-U51 is part BRG-6209, scrap the old BRG-3308 number."
+      ],
+      "recall_question": "which bearing part number should I order now for motor MEM-U51?",
+      "recall_all": [
+        [
+          "brg-6209",
+          "6209"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4"
+    },
+    {
+      "id": "MEM-UP-05-vibration-alarm-corrected",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "Set the vibration alarm threshold for fan MEM-U52 to 5.0 mm/s.",
+        "Correction: the vibration alarm threshold for fan MEM-U52 should now be 6.8 mm/s, not the old 5.0."
+      ],
+      "recall_question": "what is the CURRENT vibration alarm threshold for fan MEM-U52?",
+      "recall_all": [
+        [
+          "6.8 mm/s",
+          "6.8"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4"
+    },
+    {
+      "id": "MEM-NEG-05-never-told-bearing",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "what bearing part number did I tell you to fit on conveyor MEM-ZZ95?",
+      "expected_behavior": "abstain",
+      "note": "No unit ever mentions conveyor MEM-ZZ95. The companion must say it has no record / I was never told, not invent a bearing part number.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-NEG-06-no-vibration-history",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "remind me the vibration reading I logged earlier on motor MEM-ZZ96.",
+      "expected_behavior": "abstain",
+      "note": "Nothing about motor MEM-ZZ96 was ever said. Must abstain rather than fabricate a vibration figure.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-NEG-07-no-reorder-point",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "what reorder point did we set for filter cartridge MEM-ZZ97?",
+      "expected_behavior": "abstain",
+      "note": "MEM-ZZ97 is an unmentioned distractor near the real reorder-point facts. Must NOT cross-wire any planted reorder point onto MEM-ZZ97; must abstain.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-NEG-08-did-i-ever-say-vendor",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "did I ever give you the vendor code for gearbox MEM-ZZ98? if so, what was it?",
+      "expected_behavior": "abstain",
+      "note": "A yes/no recall probe about an unmentioned topic (gearbox MEM-ZZ98). Correct answer: no, you have not told me. Fabricating a vendor code fails.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-EX-07-relay-pn",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": [
+        "For control panel MEM-X60, the correct replacement overload relay part number is RLY-6710. Please keep that on record for next time."
+      ],
+      "recall_question": "what is the replacement overload relay part number for control panel MEM-X60?",
+      "recall_all": [
+        [
+          "RLY-6710",
+          "6710"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
+    },
+    {
+      "id": "MEM-EX-08-gland-torque",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": [
+        "Note for the future: the gland-nut torque spec for the packing on pump MEM-X62 is 118 Nm."
+      ],
+      "recall_question": "what torque spec did I give you for the gland nut on pump MEM-X62?",
+      "recall_all": [
+        [
+          "118 nm",
+          "118"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
+    },
+    {
+      "id": "MEM-EX-09-gasket-pn",
+      "ability": "extraction",
+      "category": "memory_extraction",
+      "setup": [
+        "For heat exchanger MEM-X64, the correct head gasket part number is GSK-9340. Remember that for next time."
+      ],
+      "recall_question": "what is the head gasket part number for heat exchanger MEM-X64?",
+      "recall_all": [
+        [
+          "GSK-9340",
+          "9340"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C1"
+    },
+    {
+      "id": "MEM-MS-07-breather-oilgrade",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "For gearbox MEM-S70 the correct breather filter part number is BRF-7012.",
+        "Also note gearbox MEM-S70 takes ISO-VG-460 gear oil at its next change."
+      ],
+      "recall_question": "based on what I told you about gearbox MEM-S70, what is the breather filter part number and which oil grade does it take?",
+      "recall_all": [
+        [
+          "BRF-7012",
+          "7012"
+        ],
+        [
+          "ISO-VG-460",
+          "iso vg 460",
+          "vg-460",
+          "460"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
+    },
+    {
+      "id": "MEM-MS-08-coupling-qty",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "For pump MEM-S72 the correct replacement gear coupling part number is CPG-3340.",
+        "And we keep five of those CPG-3340 couplings in the MEM-S72 spares bin."
+      ],
+      "recall_question": "for pump MEM-S72, what is the gear coupling part number and how many do we stock?",
+      "recall_all": [
+        [
+          "CPG-3340",
+          "3340"
+        ],
+        [
+          "five",
+          "5"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
+    },
+    {
+      "id": "MEM-MS-09-faultcode-charge",
+      "ability": "multi_session",
+      "category": "memory_multi_session",
+      "setup": [
+        "Chiller MEM-S74 threw fault code CHL-209 during the commissioning run.",
+        "For reference, chiller MEM-S74 holds a refrigerant charge of 12 kg when fully topped up."
+      ],
+      "recall_question": "based on what I told you about chiller MEM-S74, what fault code did it throw and what is its refrigerant charge?",
+      "recall_all": [
+        [
+          "CHL-209",
+          "209"
+        ],
+        [
+          "12 kg",
+          "12kg",
+          "12 kilograms",
+          "12"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C2"
+    },
+    {
+      "id": "MEM-TMP-07-latest-vibration",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "A month ago the vibration reading on motor MEM-T80 drive-end bearing was 3.4 mm/s.",
+        "I re-measured motor MEM-T80 drive-end bearing this morning and it has now climbed to 7.2 mm/s."
+      ],
+      "recall_question": "what is the MOST RECENT vibration reading I logged for motor MEM-T80?",
+      "recall_all": [
+        [
+          "7.2 mm/s",
+          "7.2mm/s",
+          "7.2"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3",
+      "note": "Temporal: same entity (MEM-T80 drive-end bearing), early reading 3.4 mm/s then later 7.2 mm/s. Recall the LATER value only. Single group; synonyms 7.2 mm/s / 7.2mm/s / 7.2 are all forms a free-tier LLM echoes; bare '7.2' is not a substring of the earlier '3.4' so it cannot false-pass off the old reading. 7.2 mm/s is globally unique (existing vibration nonces: 4.2, 6.8, 3.1, 5.0)."
+    },
+    {
+      "id": "MEM-TMP-08-latest-fault-code",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "Last shift chiller MEM-T82 faulted out on code G44 for a high condenser-pressure trip.",
+        "It tripped again a few minutes ago and chiller MEM-T82 threw a different code this time, H309."
+      ],
+      "recall_question": "what was the LATEST fault code chiller MEM-T82 threw on its most recent trip?",
+      "recall_all": [
+        [
+          "H309",
+          "h-309",
+          "309"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3",
+      "note": "Temporal: same entity (chiller MEM-T82), earlier code G44 then later code H309. Recall the LATER code. Single group; H309 / h-309 / 309 are forms a free-tier LLM echoes. Bare '309' is NOT a substring of the earlier code 'G44' (chosen so it cannot false-pass off the old value), and the entity codes G44/H309 are globally unique vs existing fault-code nonces E12, F19, F207."
+    },
+    {
+      "id": "MEM-TMP-09-current-shim",
+      "ability": "temporal",
+      "category": "memory_temporal",
+      "setup": [
+        "When I first aligned the coupling on pump MEM-T84 I shimmed the inboard foot with a 0.3 mm shim.",
+        "After the hot alignment recheck I swapped it and pump MEM-T84 now runs on a 1.1 mm shim under that foot instead."
+      ],
+      "recall_question": "what shim thickness is pump MEM-T84 CURRENTLY set up with on the inboard foot?",
+      "recall_all": [
+        [
+          "1.1 mm",
+          "1.1mm",
+          "1.1"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C3",
+      "note": "Temporal: same entity (pump MEM-T84 inboard-foot shim), early 0.3 mm then later 1.1 mm. Recall the CURRENT/later value. Single group; 1.1 mm / 1.1mm / 1.1 are forms a free-tier LLM echoes. Bare '1.1' is NOT a substring of the earlier '0.3' so it cannot false-pass off the old shim, and 1.1 mm is globally unique vs existing shim nonces 0.5 mm / 0.8 mm."
+    },
+    {
+      "id": "MEM-UP-06-npsh-torque-corrected",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "The coupling-bolt torque spec for pump MEM-U90 is 75 Nm.",
+        "Correction: the coupling-bolt torque spec for pump MEM-U90 is actually 118 Nm, not the 75 I gave you before."
+      ],
+      "recall_question": "what is the CURRENT coupling-bolt torque spec for pump MEM-U90?",
+      "recall_all": [
+        [
+          "118 nm",
+          "118"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4",
+      "note": "knowledge_update: old 75 Nm superseded by new 118 Nm; recall must surface ONLY the corrected new value. Single group (118 nm / bare 118); no cross-group collision possible. Nonce entity MEM-U90, value 118 Nm both globally unique."
+    },
+    {
+      "id": "MEM-UP-07-lube-grade-corrected",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "The gearbox MEM-U92 takes lubricant grade ISO VG 220.",
+        "Update that: gearbox MEM-U92 should now use lubricant grade ISO VG 320, scrap the old VG 220."
+      ],
+      "recall_question": "which lubricant grade should I use now for gearbox MEM-U92?",
+      "recall_all": [
+        [
+          "iso vg 320",
+          "vg 320",
+          "320"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4",
+      "note": "knowledge_update: old ISO VG 220 superseded by new ISO VG 320; recall only the new grade. All three synonyms (iso vg 320 / vg 320 / bare 320) live in ONE group so the bare 320 cannot trip the between-group substring rule. Nonce entity MEM-U92, value VG 320 both globally unique."
+    },
+    {
+      "id": "MEM-UP-08-belt-part-corrected",
+      "ability": "knowledge_update",
+      "category": "memory_knowledge_update",
+      "setup": [
+        "The drive belt for compressor MEM-U95 is part BLT-2210.",
+        "Correction: the correct drive belt for compressor MEM-U95 is part BLT-4417, the old BLT-2210 number was wrong."
+      ],
+      "recall_question": "which drive belt part number should I order now for compressor MEM-U95?",
+      "recall_all": [
+        [
+          "blt-4417",
+          "4417"
+        ]
+      ],
+      "expected_behavior": "recall",
+      "probe_type": "C4",
+      "note": "knowledge_update: old BLT-2210 superseded by new BLT-4417; recall only the corrected part number. Single group (blt-4417 / bare 4417); 4417 is not a substring of any other group token (only one group exists). Nonce entity MEM-U95, value BLT-4417 both globally unique."
+    },
+    {
+      "id": "MEM-NEG-09-never-told-coupling",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "what coupling part number did I tell you to fit on drive motor MEM-QQ01?",
+      "expected_behavior": "abstain",
+      "note": "No unit ever mentions drive motor MEM-QQ01. This is an unmentioned distractor sitting near the real coupling-part fact (MEM-X20 -> CPL-6620). The companion must say it has no such record / I was never told, NOT invent a coupling part number or cross-wire CPL-6620 onto MEM-QQ01.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-NEG-10-no-torque-history",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "remind me the head-bolt torque value we agreed on earlier for pump MEM-QQ02.",
+      "expected_behavior": "abstain",
+      "note": "Nothing about pump MEM-QQ02 was ever said. It is a distractor near the real torque facts (MEM-P2 215 Nm, MEM-U50 162 Nm). Must abstain rather than fabricate or cross-wire a torque figure onto MEM-QQ02.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-NEG-11-no-fault-code-history",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "what diagnostic fault code did I report earlier for chiller MEM-QQ03?",
+      "expected_behavior": "abstain",
+      "note": "No unit ever mentions chiller MEM-QQ03. It is an unmentioned distractor near the real fault-code facts (MEM-X24 FLT-4408, MEM-T45 F207, MEM-S32 F19). Must abstain, not fabricate or cross-wire a fault code onto MEM-QQ03.",
+      "probe_type": "C5"
+    },
+    {
+      "id": "MEM-NEG-12-did-i-ever-say-grease",
+      "ability": "abstention",
+      "category": "memory_negative",
+      "setup": [],
+      "recall_question": "did I ever tell you the grease type we use on bearing MEM-QQ04? if so, what was it?",
+      "expected_behavior": "abstain",
+      "note": "A yes/no recall probe about an unmentioned topic (bearing MEM-QQ04), near the real grease fact (MEM-S31 SYN-220). Correct answer: no, you have not told me. Fabricating a grease type or cross-wiring SYN-220 onto MEM-QQ04 fails.",
+      "probe_type": "C5"
     }
   ]
 }

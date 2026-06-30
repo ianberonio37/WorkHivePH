@@ -1,0 +1,2356 @@
+{
+  "_doc": "§13 column-terminus map for the 196 assertable capture fields. EVIDENCE-BASED static analysis. PERSISTED = lands in table.column (value-VERIFIABLE, not yet verified); AI_EDGE/TRANSIENT_UI = correctly not a DB write; NO_TERMINUS = captured-but-dropped (investigate). Value-correctness is a SEPARATE live round-trip.",
+  "total_fields": 196,
+  "buckets": {
+    "TRANSIENT_UI": 75,
+    "UNRESOLVED": 7,
+    "PERSISTED": 46,
+    "PERSISTED?": 59,
+    "AI_EDGE": 9
+  },
+  "value_verifiable_count": 105,
+  "no_terminus_gaps": [],
+  "fields": [
+    {
+      "surface": "asset-hub",
+      "field": "ask-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L3485: read ask-input",
+        "L3460: filter @Δ25 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "asset-search",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1308: read asset-search",
+        "L1308: search @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "edge-target",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "no getElementById/querySelector read found in page"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "edge-type",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "no getElementById/querySelector read found in page"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-cause",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "rcm_fmea_modes",
+      "column": "cause_text",
+      "evidence": [
+        "L2302: column 'cause_text' := fmea-cause",
+        "L2313: rcm_fmea_modes.insert()"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-consequence",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "rcm_fmea_modes",
+      "column": "consequence_class",
+      "evidence": [
+        "L2303: column 'consequence_class' := fmea-consequence",
+        "L2313: rcm_fmea_modes.insert()"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-detection",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_fmea_modes",
+      "column": null,
+      "evidence": [
+        "L2282: read fmea-detection",
+        "L2313: rcm_fmea_modes.insert() @Δ31 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-effect",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "rcm_fmea_modes",
+      "column": "effect_text",
+      "evidence": [
+        "L2301: column 'effect_text' := fmea-effect",
+        "L2313: rcm_fmea_modes.insert()"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-failure-mode",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_fmea_modes",
+      "column": null,
+      "evidence": [
+        "L2275: read fmea-failure-mode",
+        "L2313: rcm_fmea_modes.insert() @Δ38 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-function",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_fmea_modes",
+      "column": null,
+      "evidence": [
+        "L2274: read fmea-function",
+        "L2313: rcm_fmea_modes.insert() @Δ39 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-occurrence",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_fmea_modes",
+      "column": null,
+      "evidence": [
+        "L2281: read fmea-occurrence",
+        "L2313: rcm_fmea_modes.insert() @Δ32 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-severity",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_fmea_modes",
+      "column": null,
+      "evidence": [
+        "L2280: read fmea-severity",
+        "L2313: rcm_fmea_modes.insert() @Δ33 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "pf-direction",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:pf-calculator",
+      "column": null,
+      "evidence": [
+        "L2904: read pf-direction",
+        "L2920: .functions.invoke('pf-calculator' @Δ16"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "pf-f-threshold",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:pf-calculator",
+      "column": null,
+      "evidence": [
+        "L2903: read pf-f-threshold",
+        "L2920: .functions.invoke('pf-calculator' @Δ17"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "pf-p-threshold",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:pf-calculator",
+      "column": null,
+      "evidence": [
+        "L2902: read pf-p-threshold",
+        "L2920: .functions.invoke('pf-calculator' @Δ18"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "pf-parameter",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:pf-calculator",
+      "column": null,
+      "evidence": [
+        "L2812: read pf-parameter",
+        "L2920: .functions.invoke('pf-calculator' @Δ19"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "pf-safety-critical",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:pf-calculator",
+      "column": null,
+      "evidence": [
+        "L2905: read pf-safety-critical",
+        "L2920: .functions.invoke('pf-calculator' @Δ15"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-decision",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_strategies",
+      "column": null,
+      "evidence": [
+        "L2388: read rcm-decision",
+        "L2488: rcm_strategies.insert() @Δ51 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-interval",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_strategies",
+      "column": null,
+      "evidence": [
+        "L2390: read rcm-interval",
+        "L2488: rcm_strategies.insert() @Δ46 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-interval-custom",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_strategies",
+      "column": null,
+      "evidence": [
+        "L2391: read rcm-interval-custom",
+        "L2488: rcm_strategies.insert() @Δ45 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-rationale",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_strategies",
+      "column": null,
+      "evidence": [
+        "L2392: read rcm-rationale",
+        "L2488: rcm_strategies.insert() @Δ47 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-task",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "rcm_strategies",
+      "column": null,
+      "evidence": [
+        "L2389: read rcm-task",
+        "L2488: rcm_strategies.insert() @Δ48 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "post-category",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1448: read post-category",
+        "L1500: addEventListener('input @Δ20 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "post-content",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1446: read post-content",
+        "L1500: addEventListener('input @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "post-public",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1449: read post-public",
+        "L1500: addEventListener('input @Δ19 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "reply-content",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1646: read reply-content",
+        "L1652: filter @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "report-details",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1968: read report-details",
+        "L1985: addEventListener('input @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "report-reason",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1967: read report-reason",
+        "L1985: addEventListener('input @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "community",
+      "field": "search-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L692: read search-input",
+        "L692: search @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "dayplanner",
+      "field": "m-category",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": null,
+      "column": "category",
+      "evidence": [
+        "L1448: column 'category' := m-category (payload key; table live-confirm)"
+      ]
+    },
+    {
+      "surface": "dayplanner",
+      "field": "m-date",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1392: read m-date; no persist/edge/filter within window"
+      ]
+    },
+    {
+      "surface": "dayplanner",
+      "field": "m-end",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": null,
+      "column": "endTime",
+      "evidence": [
+        "L1447: column 'endTime' := m-end (payload key; table live-confirm)"
+      ]
+    },
+    {
+      "surface": "dayplanner",
+      "field": "m-notes",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": null,
+      "column": "notes",
+      "evidence": [
+        "L1449: column 'notes' := m-notes (payload key; table live-confirm)"
+      ]
+    },
+    {
+      "surface": "dayplanner",
+      "field": "m-start",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": null,
+      "column": "startTime",
+      "evidence": [
+        "L1446: column 'startTime' := m-start (payload key; table live-confirm)"
+      ]
+    },
+    {
+      "surface": "dayplanner",
+      "field": "m-title",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1391: read m-title; no persist/edge/filter within window"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "api-key-label",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "api_keys",
+      "column": null,
+      "evidence": [
+        "L1699: read api-key-label",
+        "L1710: api_keys.insert() @Δ11 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "file-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L409: read file-input",
+        "L830: querySelectorAll @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-freq",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "integration_configs",
+      "column": null,
+      "evidence": [
+        "L1624: read sc-freq",
+        "L1629: integration_configs.update() @Δ5 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-label",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "integration_configs",
+      "column": null,
+      "evidence": [
+        "L1620: read sc-label",
+        "L1632: integration_configs.insert() @Δ4 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-token",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "integration_configs",
+      "column": null,
+      "evidence": [
+        "L1623: read sc-token",
+        "L1629: integration_configs.update() @Δ6 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-type",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "integration_configs",
+      "column": null,
+      "evidence": [
+        "L1621: read sc-type",
+        "L1629: integration_configs.update() @Δ8 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-url",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "integration_configs",
+      "column": null,
+      "evidence": [
+        "L1622: read sc-url",
+        "L1632: integration_configs.insert() @Δ5 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-category",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "inventory_items",
+      "column": "category",
+      "evidence": [
+        "L1171: column 'category' := f-category",
+        "L1259: inventory_items.upsert()"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-location",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "inventory_items",
+      "column": "bin_location",
+      "evidence": [
+        "L1175: column 'bin_location' := f-location",
+        "L1259: inventory_items.upsert()"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-min-qty",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1092: read f-min-qty",
+        "L1117: filter @Δ10 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-notes",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "inventory_items",
+      "column": "notes",
+      "evidence": [
+        "L1183: column 'notes' := f-notes",
+        "L1259: inventory_items.upsert()"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-part-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1104: read f-part-name",
+        "L1117: filter @Δ13 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-part-number",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1103: read f-part-number",
+        "L1117: filter @Δ14 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-photo-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1040: read f-photo-input",
+        "L1026: querySelectorAll @Δ14 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-qty",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1091: read f-qty",
+        "L1117: filter @Δ11 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-unit",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "inventory_items",
+      "column": "unit",
+      "evidence": [
+        "L1172: column 'unit' := f-unit",
+        "L1259: inventory_items.upsert()"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "filter-category",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L862: read filter-category",
+        "L862: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "filter-status",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L864: read filter-status",
+        "L864: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "restock-note",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "inventory_items",
+      "column": null,
+      "evidence": [
+        "L1354: read restock-note",
+        "L1259: inventory_items.upsert() @Δ95 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "restock-qty",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "inventory_items",
+      "column": null,
+      "evidence": [
+        "L1353: read restock-qty",
+        "L1259: inventory_items.upsert() @Δ94 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "use-job-ref",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "inventory_items",
+      "column": null,
+      "evidence": [
+        "L1295: read use-job-ref",
+        "L1259: inventory_items.upsert() @Δ36 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "use-qty",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "inventory_items",
+      "column": null,
+      "evidence": [
+        "L1294: read use-qty",
+        "L1259: inventory_items.upsert() @Δ35 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-asset-id",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2121: read a-asset-id",
+        "L2131: querySelectorAll @Δ7 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-criticality",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "no getElementById/querySelector read found in page"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-location",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "asset_nodes",
+      "column": "location",
+      "evidence": [
+        "L2163: column 'location' := a-location",
+        "L2181: asset_nodes.upsert()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-manufacturer",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2126: read a-manufacturer",
+        "L2131: querySelectorAll @Δ5 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-model",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2127: read a-model",
+        "L2131: querySelectorAll @Δ4 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-name",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "asset_nodes",
+      "column": "name",
+      "evidence": [
+        "L2161: column 'name' := a-name",
+        "L2181: asset_nodes.upsert()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-scan-input",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:equipment-label-ocr",
+      "column": null,
+      "evidence": [
+        "L3051: read a-scan-input",
+        "L3068: .functions.invoke('equipment-label-ocr' @Δ17"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-serial-no",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2128: read a-serial-no",
+        "L2131: querySelectorAll @Δ3 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "a-type",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "asset_nodes",
+      "column": "type",
+      "evidence": [
+        "L2162: column 'type' := a-type",
+        "L2181: asset_nodes.upsert()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "asset-picker-search",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2615: read asset-picker-search",
+        "L2615: search @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "edit-asset-asset-id",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2232: read edit-asset-asset-id",
+        "L2218: filter @Δ14 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "edit-asset-criticality",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2236: read edit-asset-criticality",
+        "L2218: filter @Δ18 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "edit-asset-id",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2231: read edit-asset-id",
+        "L2218: filter @Δ13 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "edit-asset-location",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2235: read edit-asset-location",
+        "L2218: filter @Δ17 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "edit-asset-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2233: read edit-asset-name",
+        "L2218: filter @Δ15 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "edit-asset-type",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2234: read edit-asset-type",
+        "L2218: filter @Δ16 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-action",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "action",
+      "evidence": [
+        "L3588: column 'action' := f-action",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-consequence",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "failure_consequence",
+      "evidence": [
+        "L3692: column 'failure_consequence' := f-consequence",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-downtime",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "downtime",
+      "evidence": [
+        "L5332: column 'downtime' := f-downtime",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-good-units",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2917: read f-good-units",
+        "L3514: render @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-knowledge",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "knowledge",
+      "evidence": [
+        "L3589: column 'knowledge' := f-knowledge",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-machine",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2664: read f-machine",
+        "L5344: search @Δ2 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-maint-type",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "maintenance_type",
+      "evidence": [
+        "L3584: column 'maintenance_type' := f-maint-type",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-photo",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:voice-logbook-entry",
+      "column": null,
+      "evidence": [
+        "L4296: read f-photo",
+        "L4372: .functions.invoke('voice-logbook-entry' @Δ41"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-problem",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "problem",
+      "evidence": [
+        "L3586: column 'problem' := f-problem",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-root-cause",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "logbook",
+      "column": "root_cause",
+      "evidence": [
+        "L3587: column 'root_cause' := f-root-cause",
+        "L3620: logbook.update()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-status",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "no getElementById/querySelector read found in page"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-total-units",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2918: read f-total-units",
+        "L3514: render @Δ5 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-wo-assigned-to",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L3704: read f-wo-assigned-to",
+        "L4120: querySelectorAll @Δ18 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-wo-state",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L3703: read f-wo-state",
+        "L4120: querySelectorAll @Δ19 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "filter-date-from",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1570: read filter-date-from",
+        "L1570: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "filter-date-to",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1571: read filter-date-to",
+        "L1571: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "filter-worker",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1569: read filter-worker",
+        "L1569: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "ideal_cycle_time_seconds",
+      "bucket": "UNRESOLVED",
+      "confidence": "low",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "no getElementById/querySelector read found in page"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "parts-picker-search",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L5165: read parts-picker-search",
+        "L5165: search @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "tasklist-ack-check",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "pm_completions",
+      "column": "tasklist_acknowledged",
+      "evidence": [
+        "L3695: column 'tasklist_acknowledged' := tasklist-ack-check",
+        "L4131: pm_completions.insert()"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "tasklist-modal-note",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L4985: read tasklist-modal-note",
+        "L5025: querySelectorAll @Δ14 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "vdc-file-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L4478: read vdc-file-input",
+        "L4470: render @Δ8 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-description",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_disputes",
+      "column": null,
+      "evidence": [
+        "L2759: read dispute-description",
+        "L2790: marketplace_disputes.insert() @Δ10 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-listing-id",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_disputes",
+      "column": null,
+      "evidence": [
+        "L2756: read dispute-listing-id",
+        "L2790: marketplace_disputes.insert() @Δ13 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-order-id",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_disputes",
+      "column": null,
+      "evidence": [
+        "L2755: read dispute-order-id",
+        "L2790: marketplace_disputes.insert() @Δ14 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-reason",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_disputes",
+      "column": null,
+      "evidence": [
+        "L2758: read dispute-reason",
+        "L2790: marketplace_disputes.insert() @Δ11 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-seller-name",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_disputes",
+      "column": null,
+      "evidence": [
+        "L2757: read dispute-seller-name",
+        "L2790: marketplace_disputes.insert() @Δ12 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-contact",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_inquiries",
+      "column": null,
+      "evidence": [
+        "L2533: read inq-contact",
+        "L2542: marketplace_inquiries.insert() @Δ9 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-listing-id",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_inquiries",
+      "column": null,
+      "evidence": [
+        "L2215: read inq-listing-id",
+        "L2542: marketplace_inquiries.insert() @Δ11 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-message",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_inquiries",
+      "column": null,
+      "evidence": [
+        "L2217: read inq-message",
+        "L2542: marketplace_inquiries.insert() @Δ8 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-name",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_inquiries",
+      "column": null,
+      "evidence": [
+        "L2216: read inq-name",
+        "L2542: marketplace_inquiries.insert() @Δ10 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-condition",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2471: read post-condition",
+        "L2485: marketplace_listings.insert() @Δ14 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-contact",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2404: read post-contact",
+        "L2485: marketplace_listings.insert() @Δ9 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-desc",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2401: read post-desc",
+        "L2485: marketplace_listings.insert() @Δ13 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-image-file",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2340: read post-image-file",
+        "L2485: marketplace_listings.insert() @Δ103 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-image-url",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2346: read post-image-url",
+        "L2485: marketplace_listings.insert() @Δ8 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-location",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2403: read post-location",
+        "L2485: marketplace_listings.insert() @Δ10 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-price",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2402: read post-price",
+        "L2485: marketplace_listings.insert() @Δ12 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-section",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2398: read post-section",
+        "L2510: querySelectorAll @Δ1 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-title",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_listings",
+      "column": null,
+      "evidence": [
+        "L2399: read post-title",
+        "L2485: marketplace_listings.insert() @Δ16 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "price-max",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1512: read price-max",
+        "L3104: addEventListener('input @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "price-min",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1511: read price-min",
+        "L3103: addEventListener('input @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "review-comment",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_reviews",
+      "column": null,
+      "evidence": [
+        "L2830: read review-comment",
+        "L2877: marketplace_reviews.insert() @Δ10 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "review-listing-id",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2832: read review-listing-id",
+        "L2842: querySelectorAll @Δ10 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "review-order-id",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2831: read review-order-id",
+        "L2842: querySelectorAll @Δ11 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "review-rating",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "marketplace_reviews",
+      "column": null,
+      "evidence": [
+        "L2829: read review-rating",
+        "L2877: marketplace_reviews.insert() @Δ11 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "rfq-contact",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1332: read rfq-contact",
+        "L1338: filter @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "rfq-message",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1311: read rfq-message",
+        "L1338: filter @Δ5 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "rfq-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1310: read rfq-name",
+        "L1304: filter @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "save-search-email",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1469: read save-search-email",
+        "L1469: search @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "save-search-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1396: read save-search-name",
+        "L1396: search @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "add-task-freq",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2389: read add-task-freq",
+        "L2476: filter @Δ5 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "add-task-text",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2388: read add-task-text",
+        "L2476: filter @Δ6 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "cat-filter",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1188: read cat-filter",
+        "L1188: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "custom-item-freq",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2188: read custom-item-freq",
+        "L2173: querySelectorAll @Δ15 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "custom-item-text",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2187: read custom-item-text",
+        "L2173: querySelectorAll @Δ14 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-criticality",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1762: read pm-edit-criticality",
+        "L1880: pm_completions.insert() @Δ103 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-location",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1761: read pm-edit-location",
+        "L1880: pm_completions.insert() @Δ104 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-name",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1759: read pm-edit-name",
+        "L1880: pm_completions.insert() @Δ106 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-tag",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1760: read pm-edit-tag",
+        "L1880: pm_completions.insert() @Δ105 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "sheet-action",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1720: read sheet-action",
+        "L1880: pm_completions.insert() @Δ39 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "sheet-findings",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1719: read sheet-findings",
+        "L1880: pm_completions.insert() @Δ40 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "sheet-log-toggle",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "pm_completions",
+      "column": null,
+      "evidence": [
+        "L1732: read sheet-log-toggle",
+        "L1880: pm_completions.insert() @Δ38 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "w-anchor",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2161: read w-anchor",
+        "L2162: querySelectorAll @Δ1 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "w-category",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2112: read w-category",
+        "L2162: querySelectorAll @Δ2 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "w-location",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2108: read w-location",
+        "L2162: querySelectorAll @Δ3 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "w-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2106: read w-name",
+        "L2162: querySelectorAll @Δ5 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "w-tag",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2107: read w-tag",
+        "L2162: querySelectorAll @Δ4 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "ai-intent-text",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:project-orchestrator",
+      "column": null,
+      "evidence": [
+        "L1698: read ai-intent-text",
+        "L1710: .functions.invoke('project-orchestrator' @Δ5"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-cost",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_change_orders",
+      "column": "cost_impact_php",
+      "evidence": [
+        "L2530: column 'cost_impact_php' := co-cost",
+        "L2526: project_change_orders.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-days",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_change_orders",
+      "column": "schedule_impact_days",
+      "evidence": [
+        "L2531: column 'schedule_impact_days' := co-days",
+        "L2526: project_change_orders.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-reason",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_change_orders",
+      "column": "reason",
+      "evidence": [
+        "L2529: column 'reason' := co-reason",
+        "L2526: project_change_orders.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-scope",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_change_orders",
+      "column": null,
+      "evidence": [
+        "L2521: read co-scope",
+        "L2526: project_change_orders.insert() @Δ5 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-title",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_change_orders",
+      "column": null,
+      "evidence": [
+        "L2520: read co-title",
+        "L2526: project_change_orders.insert() @Δ6 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-budget",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "budget_php",
+      "evidence": [
+        "L1783: column 'budget_php' := f-budget",
+        "L1810: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-desc",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "description",
+      "evidence": [
+        "L1784: column 'description' := f-desc",
+        "L1810: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-end",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "end_date",
+      "evidence": [
+        "L1782: column 'end_date' := f-end",
+        "L1810: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-name",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "projects",
+      "column": null,
+      "evidence": [
+        "L1757: read f-name",
+        "L1810: projects.insert() @Δ36 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-owner",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "owner_name",
+      "evidence": [
+        "L1780: column 'owner_name' := f-owner",
+        "L1810: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-priority",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "priority",
+      "evidence": [
+        "L1779: column 'priority' := f-priority",
+        "L1810: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-start",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "start_date",
+      "evidence": [
+        "L1781: column 'start_date' := f-start",
+        "L1810: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-type",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "projects",
+      "column": null,
+      "evidence": [
+        "L1758: read f-type",
+        "L1810: projects.insert() @Δ34 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "filter-owner",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L966: read filter-owner",
+        "L966: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "filter-search",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1268: read filter-search",
+        "L1268: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "filter-type",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1266: read filter-type",
+        "L1266: filter @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "l-picker",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_links",
+      "column": null,
+      "evidence": [
+        "L2233: read l-picker",
+        "L2259: project_links.insert() @Δ4 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "l-text",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_links",
+      "column": null,
+      "evidence": [
+        "L2251: read l-text",
+        "L2259: project_links.insert() @Δ6 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "l-type",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_links",
+      "column": null,
+      "evidence": [
+        "L2220: read l-type",
+        "L2259: project_links.insert() @Δ11 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "lessons-text",
+      "bucket": "AI_EDGE",
+      "confidence": "medium",
+      "table": "edge:project-orchestrator",
+      "column": null,
+      "evidence": [
+        "L2664: read lessons-text",
+        "L2658: .functions.invoke('project-orchestrator' @Δ6"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-blockers",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_progress_logs",
+      "column": "blockers",
+      "evidence": [
+        "L2310: column 'blockers' := p-blockers",
+        "L2312: project_progress_logs.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-date",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_progress_logs",
+      "column": "log_date",
+      "evidence": [
+        "L2306: column 'log_date' := p-date",
+        "L2312: project_progress_logs.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-hours",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_progress_logs",
+      "column": "hours_worked",
+      "evidence": [
+        "L2308: column 'hours_worked' := p-hours",
+        "L2312: project_progress_logs.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-notes",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_progress_logs",
+      "column": "notes",
+      "evidence": [
+        "L2309: column 'notes' := p-notes",
+        "L2312: project_progress_logs.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-pct",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_progress_logs",
+      "column": "pct_complete",
+      "evidence": [
+        "L2307: column 'pct_complete' := p-pct",
+        "L2312: project_progress_logs.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "r-notes",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_roles",
+      "column": "notes",
+      "evidence": [
+        "L2452: column 'notes' := r-notes",
+        "L2448: project_roles.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "r-role",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_roles",
+      "column": null,
+      "evidence": [
+        "L2439: read r-role",
+        "L2448: project_roles.insert() @Δ2 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "r-worker",
+      "bucket": "PERSISTED?",
+      "confidence": "medium",
+      "table": "project_roles",
+      "column": null,
+      "evidence": [
+        "L2436: read r-worker",
+        "L2448: project_roles.insert() @Δ3 (column indirected — live-confirm)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-est",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "estimated_hours",
+      "evidence": [
+        "L2122: column 'estimated_hours' := s-est",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-notes",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "notes",
+      "evidence": [
+        "L2148: column 'notes' := s-notes",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-owner",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "owner_name",
+      "evidence": [
+        "L2118: column 'owner_name' := s-owner",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-pend",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "planned_end",
+      "evidence": [
+        "L2121: column 'planned_end' := s-pend",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-phase",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "notes",
+      "evidence": [
+        "L2124: column 'notes' := s-phase",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-preds",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2108: read s-preds",
+        "L2107: .includes( @Δ1 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-pstart",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "planned_start",
+      "evidence": [
+        "L2120: column 'planned_start' := s-pstart",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-status",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2078: read s-status",
+        "L2107: .includes( @Δ7 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-title",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L2093: read s-title",
+        "L2107: .includes( @Δ5 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-wbs",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "project_items",
+      "column": "wbs_code",
+      "evidence": [
+        "L2117: column 'wbs_code' := s-wbs",
+        "L2141: project_items.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-budget",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "budget_php",
+      "evidence": [
+        "L1640: column 'budget_php' := wiz-budget",
+        "L1643: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-desc",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "description",
+      "evidence": [
+        "L1641: column 'description' := wiz-desc",
+        "L1643: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-end",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "end_date",
+      "evidence": [
+        "L1639: column 'end_date' := wiz-end",
+        "L1643: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1516: read wiz-name",
+        "L1618: filter @Δ1 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-owner",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "owner_name",
+      "evidence": [
+        "L1637: column 'owner_name' := wiz-owner",
+        "L1643: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-priority",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "priority",
+      "evidence": [
+        "L1636: column 'priority' := wiz-priority",
+        "L1643: projects.insert()"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-start",
+      "bucket": "PERSISTED",
+      "confidence": "high",
+      "table": "projects",
+      "column": "start_date",
+      "evidence": [
+        "L1638: column 'start_date' := wiz-start",
+        "L1643: projects.insert()"
+      ]
+    },
+    {
+      "surface": "report-sender",
+      "field": "contact-email",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1249: read contact-email",
+        "L1251: querySelectorAll @Δ2 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "report-sender",
+      "field": "contact-name",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1248: read contact-name",
+        "L1251: querySelectorAll @Δ3 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "report-sender",
+      "field": "email-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L925: read email-input",
+        "L1878: addEventListener('input @Δ0 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "resume",
+      "field": "cl-text",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1551: read cl-text",
+        "L1528: filter @Δ23 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "resume",
+      "field": "file-any",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L452: read file-any",
+        "L1884: querySelectorAll @Δ2 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "resume",
+      "field": "file-photo",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1885: read file-photo",
+        "L1884: querySelectorAll @Δ1 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "resume",
+      "field": "jd-input",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1274: read jd-input",
+        "L1528: filter @Δ2 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "resume",
+      "field": "promote-dedupe",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L1901: read promote-dedupe",
+        "L1884: querySelectorAll @Δ17 (filter/render context)"
+      ]
+    },
+    {
+      "surface": "resume",
+      "field": "rm-current-title",
+      "bucket": "TRANSIENT_UI",
+      "confidence": "medium",
+      "table": null,
+      "column": null,
+      "evidence": [
+        "L754: read rm-current-title",
+        "L1874: addEventListener('input @Δ0 (filter/render context)"
+      ]
+    }
+  ]
+}

@@ -252,6 +252,7 @@ def calc_pm_due_calendar(
                 status = f"Due {next_due.strftime('%Y-%m-%d')}"
 
         calendar.append({
+            "asset_id":    asset_id,
             "asset_name":  asset_name,
             "task":        item_text[:80],
             "frequency":   freq,
@@ -266,12 +267,20 @@ def calc_pm_due_calendar(
     overdue  = [c for c in calendar if c["risk"] == "OVERDUE"]
     due_soon = [c for c in calendar if c["risk"] == "DUE SOON"]
 
+    # Arc Y Y2 fork#2: PM-overdue canonical granularity is ASSETS ("how many machines
+    # need me"), not scope items. overdue_count stays for the per-task calendar detail;
+    # overdue_asset_count is the canonical headline (DISTINCT asset with >=1 overdue item),
+    # matching the tiles + pm-scheduler #stat-overdue. Dedupe on asset_id (fallback name).
+    def _assets(rows):
+        return len({(c.get("asset_id") or c.get("asset_name")) for c in rows})
     return {
-        "calendar":      calendar,
-        "overdue_count": len(overdue),
-        "due_soon_count":len(due_soon),
-        "total_tasks":   len(calendar),
-        "standard":      "Deterministic — last completion + frequency interval",
+        "calendar":            calendar,
+        "overdue_count":       len(overdue),
+        "overdue_asset_count": _assets(overdue),
+        "due_soon_count":      len(due_soon),
+        "due_soon_asset_count":_assets(due_soon),
+        "total_tasks":         len(calendar),
+        "standard":            "Deterministic — last completion + frequency interval",
     }
 
 

@@ -167,6 +167,45 @@ def _overall_U(h_i: float, h_o: float,
 
 
 # formula: heat_exchanger
+def _f_correction(T_hi: float, T_ho: float, T_ci: float, T_co: float) -> tuple[float, bool]:
+    """LMTD correction factor F for a 1 shell-pass / 2 tube-pass exchanger, from the
+    Bowman/TEMA closed form. F is a FUNCTION of temperature-effectiveness P and capacity-
+    ratio R — NOT a per-shell constant. Returns (F, feasible); feasible=False when the
+    configuration is past a temperature cross (log argument <= 0) = un-buildable as 1-2.
+    P = (t2-t1)/(T1-t1), R = (T1-T2)/(t2-t1); shell-side = hot, tube-side = cold.
+    (Fixed 2026-06-23 Arc Q: the engine hard-coded F per shell (E=0.95...), overstating
+    corrected LMTD ~10% and UNDERSIZING required area, and could silently approve an
+    infeasible exchanger whose true F is below the TEMA 0.75 design floor. Independently
+    sourced (Bowman 1940) + adversarially verified.)"""
+    dt_cold = T_co - T_ci
+    dt_span = T_hi - T_ci
+    if dt_cold == 0 or dt_span == 0:
+        return 1.0, True                       # one side isothermal → no correction
+    P = dt_cold / dt_span
+    R = (T_hi - T_ho) / dt_cold
+    if P <= 0 or P >= 1:
+        return 1.0, True
+    try:
+        if abs(R - 1.0) < 1e-6:
+            num = math.sqrt(2.0) * P / (1.0 - P)
+            arg = (2.0 - P * (2.0 - math.sqrt(2.0))) / (2.0 - P * (2.0 + math.sqrt(2.0)))
+            if arg <= 0:
+                return 0.5, False
+            F = num / math.log(arg)
+        else:
+            s = math.sqrt(R * R + 1.0)
+            if (1.0 - P * R) <= 0:
+                return 0.5, False
+            arg = (2.0 - P * (R + 1.0 - s)) / (2.0 - P * (R + 1.0 + s))
+            if arg <= 0:
+                return 0.5, False
+            F = (s * math.log((1.0 - P) / (1.0 - P * R))) / ((R - 1.0) * math.log(arg))
+    except (ValueError, ZeroDivisionError):
+        return 0.5, False
+    F = min(max(F, 0.0), 1.0)
+    return F, (F >= 0.75)
+
+
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcHeatExchanger() keys."""
     # ── Process conditions ────────────────────────────────────────────────────
@@ -217,7 +256,10 @@ def calculate(inputs: dict) -> dict:
 
     # ── LMTD ──────────────────────────────────────────────────────────────────
     lmtd_val  = _lmtd(T_hi, T_ho, T_ci, T_co, config)
-    F_factor  = TEMA_SHELLS.get(shell_type, TEMA_SHELLS["E (single pass)"])["F_correction"]
+    # F is computed from P,R (Bowman 1-2), not read from a per-shell constant. The old
+    # TEMA_SHELLS["F_correction"] is kept only as a coarse fallback label, never the design F.
+    F_factor, f_feasible = _f_correction(T_hi, T_ho, T_ci, T_co)
+    F_factor  = round(F_factor, 3)
     lmtd_corr = lmtd_val * F_factor
 
     # ── NTU-ε method ──────────────────────────────────────────────────────────
@@ -287,7 +329,9 @@ def calculate(inputs: dict) -> dict:
     # ── Compliance notes ──────────────────────────────────────────────────────
     code_notes = [
         f"Duty: {round(Q_duty,1)} kW | LMTD: {round(lmtd_val,2)} K → "
-        f"corrected {round(lmtd_corr,2)} K (F={F_factor}, {shell_type}).",
+        f"corrected {round(lmtd_corr,2)} K (F={F_factor} computed from P,R, {shell_type})."
+        + ("" if f_feasible else " ⚠ F < 0.75 — below the TEMA design floor; "
+           "add shell passes or use multiple shells in series (a single 1-2 shell is unsuitable)."),
         f"U_design = {round(U_design,1)} W/m²·K (fouling Rd_i={Rd_i}, Rd_o={Rd_o} m²K/W).",
         f"U_clean  = {round(U_clean,1)} W/m²·K.",
         f"A_required = {round(A_req_m2,2)} m² → recommended standard size {A_std_m2} m².",
@@ -309,6 +353,7 @@ def calculate(inputs: dict) -> dict:
         # LMTD
         "lmtd_K":                round(lmtd_val, 3),
         "F_correction":          F_factor,
+        "F_feasible":            f_feasible,   # False → F<0.75, configuration past TEMA design floor
         "lmtd_corrected_K":      round(lmtd_corr, 3),
 
         # NTU-ε

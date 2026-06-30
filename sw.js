@@ -3,7 +3,11 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v152';  // bump 2026-06-14: STREAMLINE E2 + E4 ROLLOUTS. E2: utils.js now SELF-INJECTS the .wh-skeleton/.wh-list-error CSS (id="wh-list-states-css") so whListSkeleton()/whListError() render on ANY page that loads utils.js, not just the 11 with components.css (16 list pages wired). E4 (design-token consolidation): NEW /tokens.css = the SINGLE brand-palette source (precached above); components.css now @imports it (its :root keeps only -rgb/spacing/radius/type) and ~22 non-components.css pages <link> tokens.css in <head> (render-blocking, no FOUC); the temporary utils.js token injection was REMOVED. raw brand-hex → var(--wh-*) migrated in <style> across 33 pages (1452→916). Value-preserving (token === hex). tokens.css + components.css + utils.js + all these HTML pages are SHELL_FILES — without this bump PWA users keep stale CSS/JS/markup (or 404 on tokens.css = no brand colors). Re-prime cache.
+const CACHE_NAME  = 'workhive-shell-v157';  // bump 2026-06-25 (Arc W W1 elevation + W3 hero + W5 icons): components.css + utils.js (both SHELL_FILEs). components.css: --wh-shadow-*/--wh-elev-*/--wh-z-* tokens + global card/panel/overlay box-shadow + :active/:focus-visible + .simple-card.hero. utils.js: wh-elevation :where() injection (depth on non-components.css pages) + window.whIcon + an emoji->inline-SVG replacer (one icon system platform-wide). Without this bump PWA users keep the stale flat/coplanar CSS + emoji glyphs. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v156';  // bump 2026-06-24 (Arc S D-lens D-003): precache /offline-fallback.html + SW navigation fallback so a non-precached page opened offline shows a branded "you're offline" shell instead of a blank tab. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v155';  // bump 2026-06-21: SHELL_FILEs changed since v154 — voice-handler.js (in-flight) + index.html (login fetch now fetchWithTimeout-bounded + auth-copy em-dash scrub). Without this bump PWA users keep the stale cached login JS/markup. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v153';  // bump 2026-06-17: re-prime after SHELL_FILE changes committed since v152 (voice-handler.js + alert-hub.html escHtml-scope fix) — without this, PWA users keep the stale cached JS/markup.
+// const CACHE_NAME  = 'workhive-shell-v152';  // bump 2026-06-14: STREAMLINE E2 + E4 ROLLOUTS. E2: utils.js now SELF-INJECTS the .wh-skeleton/.wh-list-error CSS (id="wh-list-states-css") so whListSkeleton()/whListError() render on ANY page that loads utils.js, not just the 11 with components.css (16 list pages wired). E4 (design-token consolidation): NEW /tokens.css = the SINGLE brand-palette source (precached above); components.css now @imports it (its :root keeps only -rgb/spacing/radius/type) and ~22 non-components.css pages <link> tokens.css in <head> (render-blocking, no FOUC); the temporary utils.js token injection was REMOVED. raw brand-hex → var(--wh-*) migrated in <style> across 33 pages (1452→916). Value-preserving (token === hex). tokens.css + components.css + utils.js + all these HTML pages are SHELL_FILES — without this bump PWA users keep stale CSS/JS/markup (or 404 on tokens.css = no brand colors). Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v151';  // bump 2026-06-14: STREAMLINE E2 consistent states — components.css gains .wh-skeleton shimmer + .wh-list-error/retry; utils.js gains whListSkeleton/whListError; inventory.html wires a skeleton-on-load + inline error+retry. Both components.css + utils.js are SHELL_FILES — without this bump PWA users keep stale CSS/JS and never get the loading/error states. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v150';  // bump 2026-06-14: STREAMLINE S10+S11 — NEW /components.css (shared .simple-card/.sc-*/.action-card/.details-toggle CSS, was inline-duplicated on ~15 pages) + ~17 shell pages edited (S10 shared wireDetailToggle replaces the per-page toggle IIFE; S11 verbatim pages now <link> components.css with the inline block removed). Without this bump PWA users keep stale cached pages + never fetch the new shared CSS. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v149';  // bump 2026-06-10: DRIFT-49 closure + deep-link fixes re-prime — SHELL_FILES changed: voice-handler.js (digest helpers rewritten: .execute()/.group_by() removed, adoption→risk_tier, asset selects to real columns), pm-scheduler.html, shift-brain.html, hive.html (deep-walk fixes), asset-hub.html (?tag= deep-link reader). Without this bump PWA users keep the stale cached voice digest that silently returns ''. Re-prime cache.
@@ -63,6 +67,7 @@ const SHELL_FILES = [
   '/nav-hub.js',
   '/button-lock.js',
   '/offline-banner.js',
+  '/offline-fallback.html',   // Arc S D-003: SW navigation fallback shell for offline non-precached pages
   '/brand_assets/workhive-logo-transparent.png',
   // Phase 2 resilience helpers (shared across worker-critical surfaces)
   '/offline-queue.js',
@@ -119,6 +124,13 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => {
+      // Arc S D-lens (D-003): offline AND not precached. For a page navigation, serve
+      // the branded offline shell instead of a blank tab; for sub-resources, a 503.
+      if (e.request.mode === 'navigate') {
+        return caches.match('/offline-fallback.html').then(f => f || new Response('', { status: 503 }));
+      }
+      return new Response('', { status: 503 });
+    }))
   );
 });

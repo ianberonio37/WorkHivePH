@@ -121,6 +121,34 @@
         "applicationSubCategory": "Industrial Maintenance Software",
         "operatingSystem": "Web",
         "description": "Free industrial intelligence tools for every worker, from field to management: logbook, PM checklist, inventory management, skill matrix, and AI work assistant.",
+        "featureList": [
+          "Digital Maintenance Logbook",
+          "Spare-Parts Inventory",
+          "Maintenance Day Planner",
+          "Hive Live Board",
+          "PM Scheduler",
+          "Community",
+          "Analytics Report",
+          "Analytics Engine",
+          "AI Quality + ROI",
+          "AI Work Assistant",
+          "Philippine Industrial Intelligence Report",
+          "Asset Hub",
+          "Alert Hub",
+          "Audit Log",
+          "Voice Journal",
+          "Shift Brain",
+          "Engineering Design Calculator",
+          "Project Manager",
+          "Project Report",
+          "Skill Matrix",
+          "Resume / CV Builder",
+          "Marketplace",
+          "CMMS Integration",
+          "Predictive Maintenance",
+          "Achievements",
+          "Shift Handover Report"
+        ],
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -269,7 +297,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -956,12 +984,13 @@
         Install WorkHive
       </button>
       <div class="relative user-menu-wrapper">
-        <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5">Sign In</a>
+        <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5">Sign In</button>
         <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
           <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
             <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors">Sign out</button>
+            <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors">Deactivate account</button>
           </div>
         </div>
       </div>
@@ -971,12 +1000,13 @@
     <!-- Mobile Sign In (always visible on mobile) -->
     <div class="md:hidden flex items-center gap-2">
       <div class="relative user-menu-wrapper-mobile">
-        <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4">Sign In</a>
+        <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4">Sign In</button>
         <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
           <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
             <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors">Sign out</button>
+            <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors">Deactivate account</button>
           </div>
         </div>
       </div>
@@ -1006,7 +1036,7 @@
         </svg>
         Install WorkHive
       </button>
-      <a href="#" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center">Sign In</a>
+      <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center">Sign In</button>
       <a href="#join" class="btn-primary text-sm text-center">Join WorkHive</a>
     </div>
   </div>
@@ -1035,6 +1065,15 @@
     /* Primary action buttons (max 2 above the fold) */
     #ops-home .oh-action { display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.85rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:48px; }
     #ops-home .oh-action:hover { opacity:.85; }
+    /* Mobile tap-target floor (WCAG 2.5.5 / Arc K K1): the greeting-header chips ship
+       compact (padding:6px → ~31px) for desktop; bump them to a ≥44px touch area on phones
+       — same mobile-scoped pattern as the GROUNDED_SWEEP header-control fix. min-height is
+       used (not padding) so it overrides the inline shorthand without !important. */
+    @media (max-width:600px) {
+      #oh-hive-btn, #oh-persona-toggle, #ops-home .oh-signout {
+        min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center;
+      }
+    }
     /* Secondary tools grid (inside More) */
     #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:10px; text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
@@ -1087,7 +1126,10 @@
     <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;"></div>
 
     <!-- Two primary actions chosen by role; everything else lives in More. -->
-    <div id="oh-actions" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
+    <!-- min-height reserves the 1 row of 2 .oh-action buttons (min-height:48px each)
+         that JS injects, so the empty->filled fill doesn't push #oh-more/sign-out
+         down = CLS (Arc L L1, measured: removed the 0.054+0.041 index shift). -->
+    <div id="oh-actions" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; min-height:48px;"></div>
 
     <!-- Everything else collapsed behind one disclosure. -->
     <details class="oh-more" id="oh-more">
@@ -1194,6 +1236,7 @@
         <h1 class="text-4xl sm:text-6xl lg:text-[4.2rem] font-black leading-[1.05] tracking-[-0.03em] mb-6">
           Access Your
           <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Memory</span>
+          <span class="block text-2xl sm:text-3xl lg:text-4xl text-white/85 font-bold tracking-normal mt-3">Free Industrial Tools for Every Filipino Worker</span>
         </h1>
 
         <!-- Clear-as-day positioning sentence: tools above the fold for humans + AEO -->
@@ -1213,16 +1256,18 @@
           </a>
         </div>
 
-        <!-- Try-a-tool-now row: zero-friction conversion path. Visitors play with a real tool before signing up. -->
+        <!-- Free-tools row: the platform is free to use, but C4 removed account-less guest
+             access — so these open the (free) SIGN-UP modal rather than bouncing a cold
+             visitor to a gated tool page. The promise stays truthful: free to use, sign up to start. -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
-          <span class="text-white/60 font-medium uppercase tracking-wider">Or try free:</span>
-          <a href="/logbook.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
+          <span class="text-white/60 font-medium uppercase tracking-wider">Free to use — sign up to start:</span>
+          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
           <span class="text-white/15">·</span>
-          <a href="/pm-scheduler.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
+          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
           <span class="text-white/15">·</span>
-          <a href="/engineering-design.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Eng. Calculators</a>
+          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Eng. Calculators</a>
           <span class="text-white/15">·</span>
-          <a href="/assistant.html" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">AI Assistant</a>
+          <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">AI Assistant</a>
         </div>
 
         <!-- Trust chip row: 3 short proof points. DTI = authority, Free = pricing clincher, PDPA = data trust. -->
@@ -1392,6 +1437,57 @@
   <!-- bottom fade -->
   <div class="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
        style="background: linear-gradient(to bottom, transparent, #162032);"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SEO/AEO/GEO P2.5 — CRAWLABLE TOOL CATALOG MIRROR
+     The "See All Tools" popup (stageData) renders its catalog via innerHTML on
+     click — invisible to AI crawlers (no JS) and Googlebot (never fires the click).
+     This sr-only section is the crawlable mirror: real <a href> + the rich
+     description per tool, so every tool page has a crawlable inbound link and the
+     catalog copy is extractable by answer/generative engines. The popup stays the
+     visible UX (progressive enhancement). Auto-rendered from index.html's own
+     stageData by tools/render_public_surface.py and guarded by surface_render_drift
+     + landing_extractability — do NOT hand-edit between the markers.
+═══════════════════════════════════════════════ -->
+<section aria-label="All WorkHive tools" class="sr-only">
+  <h2>All WorkHive tools (free for every Filipino industrial worker)</h2>
+  <ul>
+    <!--CATALOG:tool_catalog_mirror-->
+      <li><a href="/hive.html">Hive Live Board — Join or create a team. Hive is the unit of multi-tenancy: every worker, asset, and entry is scoped to one hive. Live activity feed + presence + role assignment.</a></li>
+      <li><a href="/logbook.html">Digital Maintenance Logbook — Replace paper logs. Machine, problem, root cause, action, downtime, parts, photos, sign-off. Offline queue + edit-in-place + voice fill + photo-defect AI draft.</a></li>
+      <li><a href="/pm-scheduler.html">PM Scheduler — Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.</a></li>
+      <li><a href="/inventory.html">Spare-Parts Inventory — Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.</a></li>
+      <li><a href="/dayplanner.html">Maintenance Day Planner — DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.</a></li>
+      <li><a href="/voice-journal.html">Voice Journal — Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.</a></li>
+      <li><a href="/resume.html">Resume / CV Builder — Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.</a></li>
+      <li><a href="/assistant.html">AI Work Assistant — Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.</a></li>
+      <li><a href="/skillmatrix.html">Skill Matrix — Discipline-by-level matrix across 5 industrial disciplines. Timed assessments with cooldown logic. Badges gate PM eligibility and project task assignment.</a></li>
+      <li><a href="/report-sender.html">Report Sender — Shift handover + end-of-day digest. a-f structure with LOTO detection regex. Multi-channel email + print-ready PDF.</a></li>
+      <li><a href="/alert-hub.html">Alert Hub — One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.</a></li>
+      <li><a href="/asset-hub.html">Asset Hub — Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset's own history. QR/barcode scan.</a></li>
+      <li><a href="/logbook.html">Visual Defect Capture — Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.</a></li>
+      <li><a href="/community.html">Community — Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.</a></li>
+      <li><a href="/public-feed.html">Public Feed — Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.</a></li>
+      <li><a href="/achievements.html">Achievements — 12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.</a></li>
+      <li><a href="/analytics.html">Analytics Engine — MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.</a></li>
+      <li><a href="/analytics-report.html">Analytics Report — Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.</a></li>
+      <li><a href="/predictive.html">Predictive Maintenance — Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.</a></li>
+      <li><a href="/ph-intelligence.html">Philippine Industrial Intelligence Report — Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.</a></li>
+      <li><a href="/shift-brain.html">Shift Brain — Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.</a></li>
+      <li><a href="/asset-hub.html">Reliability Workbench — Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.</a></li>
+      <li><a href="/asset-hub.html">Live Telemetry — MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.</a></li>
+      <li><a href="/inventory.html">Parts Staging — Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.</a></li>
+      <li><a href="/audit-log.html">Audit Log — Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.</a></li>
+      <li><a href="/engineering-design.html">Engineering Design Calculator — 51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing &amp; fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.</a></li>
+      <li><a href="/project-manager.html">Project Manager — Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.</a></li>
+      <li><a href="/project-report.html">Project Report — Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.</a></li>
+      <li><a href="/integrations.html">CMMS Integration — SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
+      <li><a href="/marketplace.html">Marketplace — Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Stripe escrow gated pending registration.</a></li>
+      <li><a href="/marketplace-seller.html">Marketplace Seller — Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
+      <li><a href="/ai-quality.html">AI Quality + ROI — WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings — gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
+    <!--/CATALOG:tool_catalog_mirror-->
+  </ul>
 </section>
 
 <!-- ═══════════════════════════════════════════════
@@ -1874,7 +1970,7 @@
         Practical writing for the Philippine plant floor
       </h2>
       <p class="text-white/55 leading-relaxed font-light">
-        24 in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+        <!--CATALOG:guide_count-->38<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
       </p>
     </div>
 
@@ -1902,7 +1998,7 @@
 
     <div class="text-center">
       <a href="/learn/" class="inline-flex items-center gap-2 text-orange-wh hover:text-orange-light transition-colors font-semibold">
-        See all 38 guides
+        See all <!--CATALOG:guide_count-->38<!--/CATALOG:guide_count--> guides
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </a>
     </div>
@@ -1985,6 +2081,7 @@
           type="email"
           name="email"
           placeholder="Enter your work email"
+          aria-label="Work email"
           required
           autocomplete="email"
           class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
@@ -2051,11 +2148,11 @@
       <div>
         <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Tools (Free)</p>
         <ul class="space-y-3">
-          <li><a href="/logbook.html"            class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Maintenance Logbook</a></li>
+          <li><a href="/logbook.html"            class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Digital Maintenance Logbook</a></li>
           <li><a href="/pm-scheduler.html"       class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">PM Scheduler</a></li>
           <li><a href="/inventory.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Spare-Parts Inventory</a></li>
           <li><a href="/skillmatrix.html"        class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Skill Matrix</a></li>
-          <li><a href="/engineering-design.html" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Calculators</a></li>
+          <li><a href="/engineering-design.html" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Design Calculator</a></li>
           <li><a href="/assistant.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">AI Work Assistant</a></li>
           <li><a href="/learn/"                  class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (38 free guides)</a></li>
         </ul>
@@ -2296,13 +2393,13 @@
       tabClass: 'active-blue',
       tools: [
         { name: 'Hive Live Board',     desc: 'Join or create a team. Hive is the unit of multi-tenancy: every worker, asset, and entry is scoped to one hive. Live activity feed + presence + role assignment.',                                                  link: 'hive.html',          icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
-        { name: 'Digital Logbook',     desc: 'Replace paper logs. Machine, problem, root cause, action, downtime, parts, photos, sign-off. Offline queue + edit-in-place + voice fill + photo-defect AI draft.',                                            link: 'logbook.html',       icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'Digital Maintenance Logbook',     desc: 'Replace paper logs. Machine, problem, root cause, action, downtime, parts, photos, sign-off. Offline queue + edit-in-place + voice fill + photo-defect AI draft.',                                            link: 'logbook.html',       icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         { name: 'PM Scheduler',        desc: 'Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.',                                                          link: 'pm-scheduler.html',  icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-        { name: 'Inventory Monitor',   desc: 'Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, qty_after running balance.',                                                                          link: 'inventory.html',     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-        { name: 'Day Planner',         desc: 'DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.',                                                                                              link: 'dayplanner.html',    icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+        { name: 'Spare-Parts Inventory',   desc: 'Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.',                                                                          link: 'inventory.html',     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+        { name: 'Maintenance Day Planner',         desc: 'DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.',                                                                                              link: 'dayplanner.html',    icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
         { name: 'Voice Journal',       desc: 'Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.',                                            link: 'voice-journal.html', icon: 'M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8' },
         { name: 'Resume / CV Builder', desc: 'Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.', link: 'resume.html',        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-        { name: 'AI Assistant',        desc: 'Floating helper on every page. Knows your hive, your role, your context. Routes through ai-gateway with memory + PII redaction. Available across all 4 stages.',                                              link: 'assistant.html',     icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
+        { name: 'AI Work Assistant',        desc: 'Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.',                                              link: 'assistant.html',     icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
       ]
     },
     2: {
@@ -2318,7 +2415,7 @@
         { name: 'Alert Hub',               desc: 'One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.',                          link: 'alert-hub.html',       icon: 'M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0' },
         { name: 'Asset Hub',               desc: 'Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset\'s own history. QR/barcode scan.',     link: 'asset-hub.html',       icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12' },
         { name: 'Visual Defect Capture',   desc: 'Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.',                                            link: 'logbook.html',         icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9zM15 13a3 3 0 11-6 0 3 3 0 016 0z' },
-        { name: 'Community Board',         desc: 'Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.',                                                                  link: 'community.html',       icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+        { name: 'Community',         desc: 'Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.',                                                                  link: 'community.html',       icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
         { name: 'Public Feed',             desc: 'Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.',                                                                       link: 'public-feed.html',     icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064' },
         { name: 'Achievements',            desc: '12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.',                                                                   link: 'achievements.html',    icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
       ]
@@ -2332,9 +2429,9 @@
       tabClass: 'active-purple',
       tools: [
         { name: 'Analytics Engine',        desc: 'MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.',                                                          link: 'analytics.html',           icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-        { name: 'Analytics Report PDF',    desc: 'Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.',                                                                       link: 'analytics-report.html',    icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'Analytics Report',    desc: 'Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.',                                                                       link: 'analytics-report.html',    icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         { name: 'Predictive Maintenance',  desc: 'Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.',                link: 'predictive.html',          icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
-        { name: 'PH Intelligence',         desc: 'Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.',                              link: 'ph-intelligence.html',     icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
+        { name: 'Philippine Industrial Intelligence Report',         desc: 'Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.',                              link: 'ph-intelligence.html',     icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
         { name: 'Shift Brain',             desc: 'Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.',                link: 'shift-brain.html',         icon: 'M12 6V4m0 16v-2M6 12H4m16 0h-2M7.05 7.05L5.64 5.64m12.72 12.72l-1.41-1.41M16.95 7.05l1.41-1.41M5.64 18.36l1.41-1.41 M12 12m-4 0a4 4 0 108 0 4 4 0 10-8 0' },
         { name: 'Reliability Workbench',   desc: 'Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.',                                  link: 'asset-hub.html',           icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
         { name: 'Live Telemetry',          desc: 'MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.',                       link: 'asset-hub.html',           icon: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0' },
@@ -2352,8 +2449,8 @@
       tools: [
         { name: 'Engineering Design Calculator', desc: '51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.',                  link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
         { name: 'Project Manager',             desc: 'Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.',                          link: 'project-manager.html',    icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-        { name: 'Project Report PDF',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-        { name: 'CMMS Integrations',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
+        { name: 'Project Report',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'CMMS Integration',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
         { name: 'Marketplace',                 desc: 'Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Stripe escrow gated pending registration.',                              link: 'marketplace.html',        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
         { name: 'Marketplace Seller',          desc: 'Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.',                                                         link: 'marketplace-seller.html', icon: 'M3 9l1-4h16l1 4M3 9h18M3 9v11a1 1 0 001 1h4v-7h4v7h8a1 1 0 001-1V9' },
       ]
@@ -2518,11 +2615,11 @@
          onsubmit returns false because submitSignIn() handles the POST via JS. -->
     <form id="panel-signin" role="tabpanel" aria-labelledby="tab-signin" onsubmit="event.preventDefault(); submitSignIn(); return false;">
       <div class="space-y-3 mb-3">
-        <input id="si-username" type="text" placeholder="Username" autocomplete="username"
+        <input id="si-username" type="text" placeholder="Username" autocomplete="username" aria-label="Username"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
         <div style="position:relative;">
-          <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
+          <input id="si-password" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
@@ -2531,10 +2628,14 @@
           </button>
         </div>
       </div>
-      <p id="si-error" class="text-xs text-red-400 mb-3 hidden"></p>
+      <p role="alert" aria-live="assertive" id="si-error" class="text-xs text-red-400 mb-3 hidden"></p>
       <button type="submit" id="si-btn" onclick="submitSignIn()"
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:#F7A21B; color:#162032;">Sign In</button>
+      <!-- Arc I I3/I — password recovery: email reset (real-email users) + supervisor-assisted (no-email workers) -->
+      <p style="margin-top:10px; text-align:center;">
+        <button type="button" onclick="forgotPassword(event)" style="display:inline; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;">Forgot your password?</button>
+      </p>
 
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
@@ -2552,14 +2653,14 @@
     <form id="panel-signup" class="hidden" role="tabpanel" aria-labelledby="tab-signup" onsubmit="event.preventDefault(); submitSignUp(); return false;">
       <div class="space-y-3 mb-3">
         <div>
-          <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username"
+          <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username" aria-label="Username"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);"
             oninput="checkUsernameDebounced()" />
           <p id="su-username-status" class="text-xs mt-1 hidden"></p>
         </div>
         <div style="position:relative;">
-          <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"
+          <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" aria-label="Password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
@@ -2568,7 +2669,7 @@
           </button>
         </div>
         <div style="position:relative;">
-          <input id="su-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"
+          <input id="su-confirm" type="password" placeholder="Repeat password" autocomplete="new-password" aria-label="Repeat password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-confirm',this)" aria-pressed="false"
@@ -2576,11 +2677,15 @@
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
         </div>
-        <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname"
+        <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname" aria-label="Display name (shown to teammates)"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
       </div>
-      <p id="su-error" class="text-xs text-red-400 mb-3 hidden"></p>
+      <!-- Arc I I7/I — signup bot-protection (Cloudflare Turnstile). CONFIGURE-TO-ENABLE: inert until
+           window.WH_TURNSTILE_SITEKEY is set AND Turnstile is enabled in Supabase Auth > Bot Protection
+           (dashboard = the provider half). With no sitekey, this div stays empty and signup is unchanged. -->
+      <div id="su-turnstile" class="mb-3"></div>
+      <p role="alert" aria-live="assertive" id="su-error" class="text-xs text-red-400 mb-3 hidden"></p>
       <button type="submit" id="su-btn" onclick="submitSignUp()"
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:#F7A21B; color:#162032;">Create Account</button>
@@ -2624,6 +2729,45 @@
     return username.toLowerCase().replace(/[^a-z0-9_]/g, '') + _AUTH_DOMAIN;
   }
 
+  // Arc I I3/I — email-reset fallback (works for users with a REAL email; field technicians whose
+  // identity is a synthetic username@auth.workhiveph.com have no inbox → the supervisor-assisted reset
+  // in the hive members panel is their path, which this message points them to). Enumeration-safe:
+  // the confirmation never reveals whether an account exists.
+  async function forgotPassword(ev) {
+    if (ev) ev.preventDefault();
+    const email = await window.whPrompt(
+      'Enter the email on your account for a reset link. No email on file (most field workers)? Ask your hive supervisor to reset your password for you.',
+      { inputLabel: 'Account email', okLabel: 'Send reset link' });
+    if (!email || !email.trim()) return;
+    try {
+      const { error } = await _getDb().auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: location.origin + location.pathname
+      });
+      await window.whConfirm(error
+        ? 'Could not send the reset link right now. Please try again, or ask your supervisor to reset your password.'
+        : 'If that email is on file, a password-reset link is on its way. Workers without an email should ask their hive supervisor to reset their password.',
+        { okLabel: 'OK', cancelLabel: '' });
+    } catch (_e) {
+      await window.whConfirm('Could not send the reset link. Ask your hive supervisor to reset your password.', { okLabel: 'OK', cancelLabel: '' });
+    }
+  }
+  window.forgotPassword = forgotPassword;
+
+  // When the user follows a recovery link, Supabase fires PASSWORD_RECOVERY — prompt for a new password.
+  try {
+    _getDb().auth.onAuthStateChange(async (event) => {
+      if (event !== 'PASSWORD_RECOVERY') return;
+      const np = await window.whPrompt('Set a new password (at least 8 characters):',
+        { inputLabel: 'New password', inputType: 'password', okLabel: 'Update password' });
+      if (!np || np.length < 8) {
+        await window.whConfirm('Password must be at least 8 characters. Reopen the reset link to try again.', { okLabel: 'OK', cancelLabel: '' });
+        return;
+      }
+      const { error } = await _getDb().auth.updateUser({ password: np });
+      await window.whConfirm(error ? ('Could not update password: ' + error.message) : 'Password updated. You can now sign in with it.', { okLabel: 'OK', cancelLabel: '' });
+    });
+  } catch (_e) { /* empty-catch-allow: recovery listener is best-effort */ }
+
   // ── Tab switching ──────────────────────────────────────────────────────────
   function switchAuthTab(tab) {
     // Unlock display_name if switching away from upgrade flow
@@ -2644,6 +2788,7 @@
     });
     const firstInput = { signin: 'si-username', signup: 'su-username', guest: 'guest-input' }[tab];
     if (firstInput) setTimeout(() => document.getElementById(firstInput)?.focus(), 50);
+    if (tab === 'signup') mountTurnstile();  // Arc I I7/I: render the bot-protection widget (no-op if unconfigured)
   }
 
   // ── Open / Close ───────────────────────────────────────────────────────────
@@ -2656,6 +2801,18 @@
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
     switchAuthTab('signin');
+  }
+
+  // Free-platform CTA: the tools are free to USE but need a (free) account (C4 removed
+  // account-less guest access). Open the modal straight to the SIGN-UP tab so the landing's
+  // "Free to use — sign up to start" tool links resolve truthfully instead of dead-bouncing.
+  function openSignUp(e) {
+    if (e) e.preventDefault();
+    const name = localStorage.getItem('wh_last_worker') || '';
+    if (name) { toggleUserMenu(e); return; }   // already signed in → user menu, not signup
+    _signinOpener = (e && e.currentTarget) || document.activeElement;
+    document.getElementById('signin-modal').classList.remove('hidden');
+    switchAuthTab('signup');
   }
 
   function closeSignIn() {
@@ -2694,6 +2851,51 @@
     }
   }
 
+  // ── Arc X X0 (Issue #1 fix): resolve the signed-in user's ACTIVE HIVE ─────────
+  // The real front-door login NEVER populated the hive context — only the WorkHive
+  // Tester did — so a front-door user landed in "solo mode" on the WRONG/empty
+  // dashboard, and a second user signing in on the same browser inherited the first
+  // user's hive (a cross-tenant leak). This mirrors hive.html's recoverHiveMembership()
+  // canonical resolution, reusing the SAME v_worker_truth / v_hives_truth views.
+  // It ALWAYS clears the hive keys first, so identity B never inherits identity A's
+  // hive, then sets them only from B's own membership truth (solo mode if none).
+  async function resolveActiveHiveContext(db, displayName) {
+    // Clear up front: never inherit the previous identity's tenant context.
+    ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code']
+      .forEach(k => localStorage.removeItem(k));
+    if (!displayName) return null;
+    try {
+      // Canonical: v_worker_truth wraps hive_members; RLS scopes to the auth session.
+      const { data: memberships, error: recErr } = await db
+        .from('v_worker_truth')
+        .select('hive_id, role')
+        .eq('worker_name', displayName)
+        .neq('hive_status', 'kicked')
+        .limit(500);  // one worker's memberships are bounded-by-nature; insurance cap
+      // On error or no membership: stay cleared = solo mode (honest-empty, not wrong-tenant).
+      if (recErr || !memberships || !memberships.length) return null;
+
+      const hiveIds = memberships.map(m => m.hive_id);
+      const { data: hives } = await db
+        .from('v_hives_truth')
+        .select('id, name')
+        .in('id', hiveIds)
+        .limit(500);
+      if (!hives || !hives.length) return null;
+
+      const first = hives[0];
+      const m = memberships.find(x => x.hive_id === first.id);
+      const role = m ? m.role : 'worker';
+      localStorage.setItem('wh_active_hive_id', first.id);
+      localStorage.setItem('wh_hive_id',         first.id);
+      localStorage.setItem('wh_hive_name',       first.name);
+      localStorage.setItem('wh_hive_role',       role);
+      return { id: first.id, name: first.name, role };
+    } catch (_e) {
+      return null;  // fail to solo mode rather than leak the prior tenant
+    }
+  }
+
   // ── Sign In ────────────────────────────────────────────────────────────────
   async function submitSignIn() {
     const username = document.getElementById('si-username').value.trim();
@@ -2710,11 +2912,35 @@
     btn.textContent = 'Signing in…'; btn.disabled = true;
 
     const db = _getDb();
-    const { data, error } = await db.auth.signInWithPassword({
-      email: _syntheticEmail(username), password
-    });
-
-    btn.textContent = 'Sign In'; btn.disabled = false;
+    // Arc I I7/A — route sign-in through the server-side brute-force-protected `login` proxy, NOT
+    // signInWithPassword directly (a client-side lockout is bypassable). The proxy gates by a real
+    // failed-attempt counter (locks after 5 tries / 15 min) BEFORE the credentials reach GoTrue, then
+    // returns the real session which we install via setSession. Falls back to a clear error on lockout.
+    let data, error;
+    try {
+      // fetchWithTimeout (utils.js) bounds the login round-trip so a hung proxy/GoTrue does
+      // not strand the user on "Signing in"; the AbortError lands in the catch below.
+      const _resp = await fetchWithTimeout(`${_AUTH_URL}/functions/v1/login`, {
+        method: 'POST',
+        headers: { 'apikey': _AUTH_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: _syntheticEmail(username), password })
+      }, 15000);
+      const _r = await _resp.json().catch(() => ({}));
+      btn.textContent = 'Sign In'; btn.disabled = false;
+      if (_resp.status === 423) {
+        errEl.textContent = _r.message || 'Too many failed attempts. Please try again later.';
+        errEl.classList.remove('hidden'); return;
+      }
+      if (!_resp.ok || !_r.access_token) {
+        errEl.textContent = _r.message || 'Wrong username or password.';
+        errEl.classList.remove('hidden'); return;
+      }
+      ({ data, error } = await db.auth.setSession({ access_token: _r.access_token, refresh_token: _r.refresh_token }));
+    } catch (_e) {
+      btn.textContent = 'Sign In'; btn.disabled = false;
+      errEl.textContent = 'Sign-in failed. Check your connection and try again.';
+      errEl.classList.remove('hidden'); return;
+    }
 
     if (error) {
       errEl.textContent = error.message.includes('Invalid login') ? 'Wrong username or password.' : error.message;
@@ -2727,6 +2953,10 @@
 
     const displayName = profile?.display_name || username;
     localStorage.setItem('wh_last_worker', displayName);
+    // Arc X X0 (Issue #1): resolve the user's REAL hive from membership truth before
+    // rendering the dashboard, so the front door shows the correct hive (not the
+    // solo-mode fallback) and never inherits the previous user's tenant.
+    await resolveActiveHiveContext(db, displayName);
     closeSignIn();
     updateNavbarName(displayName);
     // Flip from marketing wrap to personal dashboard. The DOMContentLoaded
@@ -2772,18 +3002,22 @@
 
     const db = _getDb();
 
-    // Username uniqueness check
-    const { data: existing } = await db.from('worker_profiles')
-      .select('id').eq('username', username).maybeSingle();
-    if (existing) {
+    // Username uniqueness check — via SECURITY DEFINER RPC (worker_profiles is personal/RLS-scoped now,
+    // so a direct cross-user read returns nothing; the RPC checks existence without exposing any PII).
+    const { data: usernameFree } = await db.rpc('check_username_available', { p_username: username });
+    if (usernameFree === false) {
       errEl.textContent = 'Username already taken: try a different one.';
       errEl.classList.remove('hidden');
       btn.textContent = 'Create Account'; btn.disabled = false; return;
     }
 
-    // Create Supabase Auth user
+    // Create Supabase Auth user. Arc I I7/I: attach the Turnstile token ONLY when a widget is
+    // mounted (sitekey configured) — GoTrue rejects a captchaToken when captcha is disabled, so an
+    // unconfigured signup must send none.
+    const captchaToken = _turnstileToken();
     const { data, error } = await db.auth.signUp({
-      email: _syntheticEmail(username), password
+      email: _syntheticEmail(username), password,
+      ...(captchaToken ? { options: { captchaToken } } : {})
     });
 
     if (error) {
@@ -2808,6 +3042,10 @@
 
     localStorage.setItem('wh_last_worker', displayName);
     updateNavbarName(displayName);
+    // Arc X X0 (Issue #1): resolve any existing hive membership (a returning worker
+    // claiming their records may already belong to a hive) before rendering the
+    // dashboard; a brand-new account with no membership stays in solo mode.
+    await resolveActiveHiveContext(db, displayName);
     // Mirror the signin success transition: flip from marketing wrap to
     // personal dashboard. The DOMContentLoaded handler already fired before
     // signup so we do it manually here.
@@ -2862,12 +3100,44 @@
         statusEl.className = 'text-xs mt-1 text-red-400';
         statusEl.classList.remove('hidden'); return;
       }
-      const { data } = await _getDb().from('worker_profiles')
-        .select('id').eq('username', username).maybeSingle();
-      statusEl.textContent = data ? '✗ Username taken' : '✓ Available';
-      statusEl.className   = `text-xs mt-1 ${data ? 'text-red-400' : 'text-green-400'}`;
+      const { data: usernameFree } = await _getDb().rpc('check_username_available', { p_username: username });
+      const taken = usernameFree === false;
+      statusEl.textContent = taken ? '✗ Username taken' : '✓ Available';
+      statusEl.className   = `text-xs mt-1 ${taken ? 'text-red-400' : 'text-green-400'}`;
       statusEl.classList.remove('hidden');
     }, 400);
+  }
+
+  // ── Arc I I7/I: signup bot-protection (Cloudflare Turnstile) — configure-to-enable ──────────
+  // Inert until window.WH_TURNSTILE_SITEKEY is set AND Turnstile is enabled in the Supabase Auth
+  // dashboard (Auth > Bot Protection). With no sitekey, mountTurnstile() is a no-op and
+  // _turnstileToken() returns null, so signUp() runs exactly as before (no captchaToken sent —
+  // GoTrue rejects a token when captcha is disabled, so we only send one when a widget exists).
+  let _turnstileWidgetId = null;
+  function mountTurnstile() {
+    const sitekey = window.WH_TURNSTILE_SITEKEY;
+    const box = document.getElementById('su-turnstile');
+    if (!sitekey || !box || _turnstileWidgetId !== null) return;
+    const render = () => {
+      if (!window.turnstile) return;
+      _turnstileWidgetId = window.turnstile.render(box, { sitekey, theme: 'dark' });
+    };
+    if (window.turnstile) { render(); return; }
+    if (!document.getElementById('cf-turnstile-script')) {
+      const s = document.createElement('script');
+      s.id = 'cf-turnstile-script';
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      s.async = true; s.defer = true; s.onload = render;
+      document.head.appendChild(s);
+    }
+  }
+  function _turnstileToken() {
+    try {
+      if (window.turnstile && _turnstileWidgetId !== null) {
+        return window.turnstile.getResponse(_turnstileWidgetId) || null;
+      }
+    } catch (_) { /* empty-catch-allow: best-effort token read */ }
+    return null;
   }
 
   // ── Navbar helpers ─────────────────────────────────────────────────────────
@@ -2897,6 +3167,27 @@
     document.querySelectorAll('.signin-btn').forEach(el => el.textContent = 'Sign In');
     _getDb().auth.signOut(); // best effort, fire-and-forget after clearing local state
   }
+
+  // ── Deactivate Account (Arc I I8/I — GDPR/PDPA soft-deactivate + anonymize) ──────────────────
+  // Calls the self-scoped deactivate_my_account() RPC: anonymizes the caller's PII (display name +
+  // email) and revokes hive access, while PRESERVING operational records for the team. Irreversible,
+  // so it is confirm-gated; on success we sign out.
+  async function deactivateAccount() {
+    const ok = window.confirm(
+      'Deactivate your account?\n\n' +
+      'Your name and email will be permanently anonymized and you will lose access to all hives. ' +
+      'Your past maintenance records stay with the team (anonymized). This cannot be undone.');
+    if (!ok) return;
+    try {
+      const { error } = await _getDb().rpc('deactivate_my_account');
+      if (error) { window.alert('Could not deactivate: ' + error.message); return; }
+    } catch (err) {
+      window.alert('Could not deactivate: ' + (err && err.message ? err.message : err)); return;
+    }
+    await signOut();
+    window.alert('Your account has been deactivated and your personal data anonymized.');
+  }
+  window.deactivateAccount = deactivateAccount;
 
   // ── Persona Contract Phase 5: companion picker (Hezekiah <-> Zaniah) ────
   // The toggle on the home greeting flips between the two personas in one
@@ -3068,8 +3359,15 @@
     // a returning user on a fresh device (cleared localStorage) sees ops-home
     // instead of the marketing page. Falls back to localStorage if the session
     // restore returns nothing.
-    const _showOpsHome = (name) => {
+    const _showOpsHome = async (name) => {
       if (!name) return;
+      // Arc X X0 (Issue #1): if the hive context isn't resolved yet (new device /
+      // clean-slate localStorage / guest restore / a returning user from before this
+      // fix), resolve it from membership truth BEFORE the dashboard reads HIVE_ID —
+      // otherwise the home renders solo-mode on the wrong/empty view.
+      if (!localStorage.getItem('wh_active_hive_id') && !localStorage.getItem('wh_hive_id')) {
+        try { await resolveActiveHiveContext(_getDb(), name); } catch (_) { /* empty-catch-allow: fall through to solo mode */ }
+      }
       document.getElementById('mkt-wrap').style.display = 'none';
       document.getElementById('ops-home').style.display = 'block';
       _initDashboard(name);
@@ -3366,7 +3664,7 @@
     if (HIVE_ID && HIVE_NAME) {
       const hiveBtn = document.getElementById('oh-hive-btn');
       if (hiveBtn) {
-        hiveBtn.style.display = 'block';
+        hiveBtn.style.display = 'inline-flex'; // inline-flex so the mobile min-height:44 tap-target centers (Arc K K1)
         hiveBtn.textContent = `🐝 ${HIVE_NAME}`;
       }
     }
@@ -3759,7 +4057,9 @@
           headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.title || 'failure signature detected'}`,
           detail: 'A historical failure pattern just matched. Review before the shift ends.',
           cta: 'Open Alert Hub',
-          href: 'alert-hub.html',
+          // Arc X A1: deep-link to the NAMED machine's alert (alert-hub reads ?focus= ->
+          // scrolls to + highlights it) instead of dropping the user in the full feed.
+          href: 'alert-hub.html?focus=' + encodeURIComponent(sigAlert.machine || ''),
         });
       }
 
@@ -3795,7 +4095,10 @@
             headline: `${critPM.asset_name || critPM.asset_tag || 'Asset'}: PM due`,
             detail: 'Schedule the technician before the next shift.',
             cta: 'Open PM Scheduler',
-            href: 'pm-scheduler.html',
+            // Arc X A1 (the Issue #2 seed): deep-link to THIS asset's PM detail so the
+            // hero hands off the named record + schedule action, not a 30-item list.
+            // A2 (carry intent): &action=schedule -> pm-scheduler lands with the action focused.
+            href: 'pm-scheduler.html?asset=' + encodeURIComponent(critPM.asset_name || critPM.asset_tag || '') + '&action=schedule',
           });
         }
       }
@@ -3835,7 +4138,8 @@
           headline: `${oldest.machine || 'Job'}: ${oldest.category || 'Unspecified'}`,
           detail: 'Close it or update the status.',
           cta: 'Open Logbook',
-          href: 'logbook.html',
+          // Arc X A1: deep-link to THIS job's logbook entry (opens it directly).
+          href: oldest.id ? ('logbook.html?id=' + encodeURIComponent(oldest.id)) : 'logbook.html',
         });
       }
 
@@ -3981,13 +4285,18 @@
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = jobs.map(j => {
           const ts = j.created_at || j.date;
           const cat = j.category || j.maintenance_type || '';
+          // Arc X A1: deep-link the arrow to THIS job's logbook entry (logbook.html
+          // reads ?id= -> opens the entry modal). Falls back to the bare list if the
+          // row carries no id, so there is never a worse-than-before state.
+          const _jid = j.id || j.entry_id || '';
+          const _jhref = _jid ? ('logbook.html?id=' + encodeURIComponent(_jid)) : 'logbook.html';
           return `<div class="oh-job-row">
             <div style="flex:1; min-width:0;">
               <div style="font-size:.82rem; font-weight:700; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(j.machine || 'Unknown machine')}</div>
               <div style="font-size:.65rem; color:rgba(255,255,255,.6); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
             </div>
             <span class="oh-badge oh-badge-open">Open</span>
-            <a href="logbook.html" aria-label="View in logbook" style="font-size:.65rem; color:rgba(255,255,255,.6); text-decoration:none; flex-shrink:0; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; margin:-10px -8px -10px 0;">→</a>
+            <a href="${escHtml(_jhref)}" aria-label="View in logbook" style="font-size:.65rem; color:rgba(255,255,255,.6); text-decoration:none; flex-shrink:0; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; margin:-10px -8px -10px 0;">→</a>
           </div>`;
         }).join('');
       }

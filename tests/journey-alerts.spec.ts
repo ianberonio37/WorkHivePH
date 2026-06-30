@@ -232,4 +232,99 @@ test.describe('alert-hub.html — user journey', () => {
     const expanded = await btn.getAttribute('aria-expanded');
     expect(expanded, 'toggle should flip aria-expanded to true').toBe('true');
   });
+
+  // ── Arc Y Y3: filter persists in the URL (Arc X A3 pattern) ──────────────
+  test('Y3 filter persists in the URL and restores on reload', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForAlertVerdictSettled(whPage);
+    await whPage.waitForTimeout(1500);
+
+    // Click the first non-'all' kind chip and read its kind back.
+    const kind = await whPage.evaluate(() => {
+      const chips = Array.from(document.querySelectorAll('#filters .chip')) as HTMLElement[];
+      const t = chips.find(c => { const k = c.getAttribute('data-kind'); return k && k !== 'all'; });
+      if (!t) return null;
+      t.click();
+      return t.getAttribute('data-kind');
+    });
+    if (!kind) { test.skip(true, 'no non-all filter chip rendered in this fixture'); return; }
+
+    await whPage.waitForTimeout(400);
+    expect(whPage.url(), 'clicking a filter chip should mirror it into the URL').toContain(`kind=${kind}`);
+
+    // Reload — the active filter must be restored FROM the URL (not reset to all).
+    await whPage.reload({ waitUntil: 'domcontentloaded' });
+    await waitForAlertVerdictSettled(whPage);
+    // Poll until the filter chips have rendered AND an active chip is set — robust
+    // under concurrent load (a fixed timeout flaked when the feed render lagged).
+    await whPage.waitForFunction((k) => {
+      const a = document.querySelector('#filters .chip.active');
+      return !!a && a.getAttribute('data-kind') === k;
+    }, kind, { timeout: 12000 }).catch(() => {});
+    const active = await whPage.evaluate(() => {
+      const a = document.querySelector('#filters .chip.active');
+      return a ? a.getAttribute('data-kind') : null;
+    });
+    expect(active, 'reload should restore the active filter from the URL').toBe(kind);
+  });
+
+  // ── Arc Y Y3: Acknowledge ("Seen") — distinct dim visual, reversible toggle ──
+  test('Y3 acknowledge (Seen) dims the card, shows a badge, and toggles back', async ({ whPage, testMarker }) => {
+    test.slow();
+    const db = adminClient();
+    await whPage.goto(PAGE);
+    await waitForAlertVerdictSettled(whPage);
+
+    // Resolve the page's ACTUAL active hive + worker, then seed a low-stock part
+    // so a derived 'stock' alert (dedupeKey = stock:<part_name>) reliably renders
+    // a Seen button — making this lock deterministic, not data-dependent.
+    const ctx = await whPage.evaluate(() => ({
+      hiveId: localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id'),
+      worker: localStorage.getItem('wh_last_worker') || 'Pablo Aguilar',
+    }));
+    const partName = `LOWSTOCK-${testMarker}`;
+    const dedupeKey = `stock:${partName}`;
+    let seeded = false;
+    if (ctx.hiveId) {
+      const { error } = await db.from('inventory_items').insert({
+        id: `test-lowstock-${testMarker}`, hive_id: ctx.hiveId, worker_name: ctx.worker,
+        part_number: `PN-${testMarker}`, part_name: partName,
+        qty_on_hand: 0, min_qty: 5, status: 'approved',
+      });
+      seeded = !error;
+      if (error) console.log('[journey-alerts] low-stock seed failed:', error.message);
+    }
+    if (!seeded) { test.skip(true, 'could not seed a low-stock part for the Seen toggle'); return; }
+
+    try {
+      await whPage.reload({ waitUntil: 'domcontentloaded' });
+      await waitForAlertVerdictSettled(whPage);
+      await whPage.waitForTimeout(2500);
+
+      const card = whPage.locator(`.alert:has(.alert-dismiss[data-seen-key="${dedupeKey}"])`).first();
+      await expect(card, 'seeded low-stock part should render a derived stock alert').toHaveCount(1, { timeout: 8000 });
+
+      // Mark Seen: card dims (kept in feed), gets a Seen badge, button flips to Unsee.
+      await card.locator('.alert-dismiss[data-seen-key]').click();
+      await whPage.waitForTimeout(1200);
+      await expect(card).toHaveClass(/seen/);
+      await expect(card.locator('.alert-seen-badge')).toBeVisible();
+      const lbl = await card.locator('.alert-dismiss[data-seen-key]').textContent();
+      expect((lbl || '').toLowerCase(), 'Seen button should flip to Unsee').toContain('unsee');
+
+      // DB confirms the acknowledged row exists while Seen is active.
+      const { data: ackRow } = await db.from('alert_dismissals')
+        .select('action').eq('hive_id', ctx.hiveId).eq('alert_key', dedupeKey).maybeSingle();
+      expect(ackRow?.action, 'acknowledged row should be persisted').toBe('acknowledged');
+
+      // Toggle back: dim removed (and the acknowledged row is deleted).
+      await card.locator('.alert-dismiss[data-seen-key]').click();
+      await whPage.waitForTimeout(1200);
+      await expect(card).not.toHaveClass(/seen/);
+    } finally {
+      // Guarantee a clean DB even if an assertion threw mid-test.
+      await db.from('alert_dismissals').delete().eq('alert_key', dedupeKey).eq('action', 'acknowledged');
+      await db.from('inventory_items').delete().eq('id', `test-lowstock-${testMarker}`);
+    }
+  });
 });

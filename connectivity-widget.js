@@ -52,6 +52,37 @@
   window.whBandwidthClass = bandwidthClass;
   window.whIsSlowLink     = isSlowLink;
 
+  // ── Backend health (Arc S D-004) ────────────────────────────────────────────
+  // navigator.onLine only knows the DEVICE link, not whether Supabase is reachable.
+  // A brownout where the device is "online" but the backend is 5xx/unreachable would
+  // otherwise read as "Online" while every read/write silently fails. We ping a
+  // public health endpoint (throttled to ~25s, 3.5s timeout) and expose a degraded
+  // state so the chip + any page can react (read-only banner, "writes will queue").
+  let _backendOk = true, _lastPing = 0;
+  async function pingBackend() {
+    const url = window.WH_SUPABASE_URL;
+    if (!url) return true;                 // can't probe -> never false-degrade
+    if (!navigator.onLine) { _backendOk = false; return false; }
+    const now = Date.now();
+    if (now - _lastPing < 25000) return _backendOk;   // throttle
+    _lastPing = now;
+    try {
+      // Use the canonical timeout helper (utils.js global) so a hung server can't
+      // strand the probe; fall back to a plain fetch only if it isn't loaded yet.
+      const fwt = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : ((u, o) => fetch(u, o));
+      const r = await fwt(url.replace(/\/$/, '') + '/auth/v1/health', {}, 3500);
+      _backendOk = !!(r && r.ok);
+    } catch (_) { _backendOk = false; }   // timeout / network = backend unreachable
+    return _backendOk;
+  }
+  // Pages read this to render a read-only / "writes will queue" banner when degraded.
+  window.whConnectivityState = function () {
+    return { online: navigator.onLine, slow: isSlowLink(),
+             backendOk: _backendOk, degraded: navigator.onLine && !_backendOk };
+  };
+
   const STYLE = `
     .wh-conn-chip {
       position: fixed;
@@ -88,6 +119,9 @@
     .wh-conn-chip[data-state="offline"] .wh-conn-dot { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.6); }
     .wh-conn-chip[data-state="slow"] { background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.5); color: #fde68a; }
     .wh-conn-chip[data-state="slow"] .wh-conn-dot { background: #F7A21B; box-shadow: 0 0 6px rgba(247,162,27,0.6); }
+    /* Arc S D-004: backend-degraded (device online but Supabase unreachable/5xx) */
+    .wh-conn-chip[data-state="degraded"] { background: rgba(248,113,113,0.18); border-color: rgba(248,113,113,0.55); color: #fecaca; }
+    .wh-conn-chip[data-state="degraded"] .wh-conn-dot { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.6); }
     .wh-conn-badge {
       display: inline-block;
       min-width: 18px;
@@ -225,9 +259,14 @@
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
+    const backendOk = online ? await pingBackend() : false;
     if (!online) {
       chip.setAttribute('data-state', 'offline');
       dotLbl.textContent = 'Offline';
+    } else if (!backendOk) {
+      // Arc S D-004: device online but Supabase unreachable — distinct from offline.
+      chip.setAttribute('data-state', 'degraded');
+      dotLbl.textContent = 'Backend down';
     } else if (isSlowLink()) {
       chip.setAttribute('data-state', 'slow');
       dotLbl.textContent = 'Slow';
@@ -243,7 +282,9 @@
       badge.style.display = 'none';
     }
 
-    if (statusEl) statusEl.textContent = online ? (isSlowLink() ? 'Online (slow link)' : 'Online') : 'Offline';
+    if (statusEl) statusEl.textContent = !online ? 'Offline'
+      : !backendOk ? 'Online, but backend unavailable'
+      : isSlowLink() ? 'Online (slow link)' : 'Online';
     if (netEl)    netEl.textContent    = net === 'unknown' ? 'unknown (browser does not report)' : net.toUpperCase();
     if (qEl)      qEl.textContent      = String(depth);
   }

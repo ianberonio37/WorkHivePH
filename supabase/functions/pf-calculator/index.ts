@@ -38,6 +38,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: deterministic P-F interval calc; not a brain output
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -89,6 +91,7 @@ async function fetchAsset(db: SupabaseClient, hiveId: string, assetId: string) {
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "pf-calculator");  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -232,7 +235,7 @@ serve(async (req) => {
     try {
       const pyRes = await fetch(`${PYTHON_URL}/reliability/pf-interval`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-API-Key": Deno.env.get("PYTHON_API_KEY") ?? "" },
         body:    JSON.stringify({
           readings,
           p_threshold,

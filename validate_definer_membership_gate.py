@@ -56,7 +56,17 @@ REPORT_PATH = "definer_membership_gate_report.json"
 # even if it looks exposed-and-ungated. Use ONLY for functions that are
 # provably not a cross-hive vector (e.g. hive_id is not a tenant filter, or
 # the fn intentionally serves cross-hive/public data). Each needs a reason.
-ALLOWLIST: dict[str, str] = {}
+ALLOWLIST: dict[str, str] = {
+    # The gate PRIMITIVE itself (Arc H). Takes a hive_id and returns a BOOLEAN of
+    # whether the CALLER (auth.uid(), via user_hive_ids()) may access it. It leaks
+    # no cross-tenant data — it IS the membership check the other DEFINER fns call.
+    # Self-scoped by user_hive_ids() (auth.uid()-derived), so it can't be abused to
+    # read another tenant's rows. anon/authenticated EXECUTE is required (callers
+    # gate on its boolean). Verified body: `... p_hive_id in (select user_hive_ids())`.
+    "user_can_access_hive":
+        "gate primitive: returns a bool about the CALLER's own membership "
+        "(self-scoped via user_hive_ids()=auth.uid()); leaks no hive data.",
+}
 
 DOLLAR = re.compile(r"\$(\w*)\$")
 CREATE = re.compile(
@@ -165,10 +175,22 @@ def analyze():
         # "hive" fails inside "p_hive_id" -- use a plain substring).
         if "hive_id" not in args.lower():
             continue
-        has_gate = bool(
+        # A function is gated if EITHER:
+        #  (a) the original inline pattern — references hive_members AND auth.uid()/role()
+        #      (the get_hive_dashboard idiom), OR
+        #  (b) it calls the canonical membership helper user_can_access_hive(p_hive_id)
+        #      (the Arc H idiom: `if not public.user_can_access_hive(p_hive_id) then return`
+        #      or `... AND public.user_can_access_hive(p_hive_id)` in a WHERE). The helper is
+        #      auth.uid()-scoped (via user_hive_ids()), so it IS a real membership gate. Before
+        #      this branch the validator false-FAILed every helper-gated DEFINER fn (Arc H added
+        #      5: semantic_search_kb/kg_facts, fetch_active_alerts, get_*_current) — the same
+        #      "marker too narrow" class as the rate-limit/trace scan false-negatives.
+        inline_gate = bool(
             re.search(r"\bhive_members\b", body, re.IGNORECASE)
             and re.search(r"auth\.(uid|role)\s*\(\)", body, re.IGNORECASE)
         )
+        helper_gate = bool(re.search(r"user_can_access_hive\s*\(", body, re.IGNORECASE))
+        has_gate = inline_gate or helper_gate
         roles = granted.get(name, {"public"})
         exposed = bool(roles & EXPOSED_ROLES)
         safe = has_gate or (not exposed)

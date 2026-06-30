@@ -17,6 +17,8 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
+// Arc R (A01 BOLA): a caller may only onboard THEIR OWN seller account.
+import { resolveIdentity } from '../_shared/tenant-context.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -77,7 +79,8 @@ serve(async (req: Request) => {
     return errJson('Invalid JSON body', 400, req);
   }
 
-  const { worker_name, return_url, refresh_url } = body;
+  const { return_url, refresh_url } = body;
+  let worker_name = body.worker_name;
   if (!worker_name || !return_url || !refresh_url) {
     return errJson('worker_name, return_url and refresh_url are required', 400, req);
   }
@@ -87,6 +90,23 @@ serve(async (req: Request) => {
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
+
+  /* ── Arc R (A01 BOLA): the old code took worker_name from the body with NO JWT, so an
+     anon caller could mint a Stripe onboarding link for a VICTIM's Connect account, or
+     pre-seed a seller row under a victim's name. Bind worker_name to the verified caller
+     (all downstream uses — lookup, idempotency key, upsert — then use the verified value).
+     NOTE: these Stripe fns are vestigial on the free platform (PAYMENTS_ENABLED=false); this
+     is interim defense-in-depth, not activation. */
+  const _id = await resolveIdentity(db, req);
+  if (!_id.isServiceRole) {
+    if (!_id.authUid) return errJson('Sign-in required', 401, req);
+    // canonical-allow: caller identity/authz read (own profile by auth_uid -> 403 if none);
+    // v_worker_truth is over hive_members, not the auth-identity source, so it cannot serve this.
+    const { data: _wp } = await db.from('worker_profiles')
+      .select('display_name').eq('auth_uid', _id.authUid).maybeSingle();
+    if (!_wp?.display_name) return errJson('No profile for caller', 403, req);
+    worker_name = _wp.display_name;
+  }
 
   /* ── Look up existing seller profile (canonical: marketplace_sellers_truth) ── */
   const { data: seller } = await db

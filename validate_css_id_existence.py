@@ -95,6 +95,14 @@ def _ids_in_body(body: str) -> set:
 
 def _check_page(path: Path) -> list:
     body = path.read_text(encoding="utf-8", errors="replace")
+    # Page-bundle pairing (Arc L / L1): engineering-design.html keeps its <style> #id
+    # selectors, but the JS that creates those ids dynamically (e.g. `el.id='_svg_rb'`)
+    # was extracted to engineering-design.js — re-attach it (wrapped as a script block so
+    # _ids_in_body harvests its id literals) or every dynamic-id selector reads as orphan.
+    if path.name == "engineering-design.html":
+        _bundle = path.parent / "engineering-design.js"
+        if _bundle.exists():
+            body += f"\n<script>\n{_bundle.read_text(encoding='utf-8', errors='replace')}\n</script>\n"
     if "css-id-allow" in body:
         return []
     declared_ids = _ids_in_body(body)

@@ -1,0 +1,12 @@
+{
+  "_doc": "Forward-only baseline for the interactive-lineage axis (Phases A-C).",
+  "baseline": {
+    "dead_end_fields": 5,
+    "cascade_fields": 38,
+    "anchors_resolved": 65,
+    "redundancy_pending_review": 0,
+    "ladder_grounded": 65,
+    "ladder_ungrounded_high_rung": 0,
+    "provenance_trustworthy": 64
+  }
+}

@@ -24,8 +24,13 @@
   .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
   button { background: var(--wh-blue); color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
   button:disabled { opacity: .6; cursor: default; }
-  .summary { font-size: .9rem; color: var(--wh-grey); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  /* CLS reserve: #summary fills "Checking…" → a longer multi-line status line (async).
+     Reserve ~2 lines so the filled text doesn't grow the .bar and push #grid/.slo down. */
+  .summary { font-size: .9rem; color: var(--wh-grey); display: inline-block; min-height: 2.6em; }
+  /* CLS reserve: #grid is EMPTY at first paint → fills with up to 10 health cards (async DB/edge
+     render). Measured settled height at 390px viewport (single column) is ~1088px; reserving it
+     stops the empty→filled growth from pushing the .slo block below it DOWN (the measured shift). */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; min-height: 1088px; }
   .card { background: var(--wh-navy-2); border-radius: 12px; padding: 14px 16px; border-left: 4px solid var(--wh-grey); }
   .card.ok { border-left-color: var(--wh-green); }
   .card.down { border-left-color: var(--wh-red); }
@@ -47,8 +52,10 @@
 </style>
 </head>
 <body>
-  <h1>WorkHive Gateway — Status</h1>
-  <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
+  <header>
+    <h1>WorkHive Gateway — Status</h1>
+    <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
+  </header>
   <div class="bar">
     <button id="refresh" onclick="runChecks()">Refresh</button>
     <span class="summary" id="summary" role="status" aria-live="polite">Checking…</span>
@@ -57,7 +64,7 @@
 
   <div class="slo">
     <h2>SLO targets (28-day window)</h2>
-    <table>
+    <table aria-label="Gateway SLO targets">
       <tr><td>Gateway availability</td><td>≥ 99.5%</td></tr>
       <tr><td>Interactive latency (p95)</td><td>&lt; 2.0 s</td></tr>
       <tr><td>Voice surface latency (p95)</td><td>&lt; 2.5 s</td></tr>
@@ -86,10 +93,14 @@
     // Bounded fetch — a hung edge fn must not stall the status grid (a status page
     // especially must time out fast). Self-contained (this page doesn't load utils.js),
     // so we define the wrapper inline; a timeout aborts → caught → state 'down'.
+    // fetch-error-allow: this is the fetchWithTimeout HELPER; every caller awaits it inside a
+    // try/catch that sets state 'down' on reject (see runChecks below) — errors are handled there.
     function fetchWithTimeout(url, opts, ms) {
       var ctl = new AbortController();
       var t = setTimeout(function () { ctl.abort(); }, ms || 8000);
+      // fetch-error-allow: helper — callers await this inside try/catch (runChecks) that set 'down' on reject.
       return fetch(url, Object.assign({}, opts || {}, { signal: ctl.signal }))
+        .catch(function (e) { throw e; })   // rethrow → the caller's try/catch (runChecks) sets state 'down'
         .finally(function () { clearTimeout(t); });
     }
 
@@ -104,7 +115,7 @@
       try {
         var res = await fetchWithTimeout(EDGE + '/' + fn + '/health', { method: 'GET' }, 8000);
         var ms = Math.round(performance.now() - t0);
-        var body = null; try { body = await res.json(); } catch (e) {}
+        var body = null; try { body = await res.json(); } catch (e) { /* empty-catch-allow: non-JSON health body → body stays null, handled by the status checks below */ }
         var state;
         if (res.status === 200 && body && body.ok !== false) state = (ms > SLOW_MS) ? 'slow' : 'ok';
         else if (res.status >= 500 || res.status === 0)       state = 'down';

@@ -14,7 +14,7 @@
   <link rel="canonical" href="https://workhiveph.com/community.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -236,6 +236,10 @@
     }
     #fab-post:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(247,162,27,0.55); }
     #fab-post:active { transform: scale(0.95); }
+    /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: move page FABs bottom-LEFT on
+       mobile, away from the global bottom-right widget stack nav-hub/conn-chip/feedback
+       that caused the axe target-size proximity flag at 390px). Desktop keeps bottom-right. */
+    @media (max-width: 767px) { #fab-post { left: 24px; right: auto; } }
 
     /* ── Empty state ── */
     .empty-state { text-align: center; padding: 3rem 1rem; }
@@ -249,8 +253,13 @@
 
     /* ── Desktop layout ── */
     @media (min-width: 768px) {
-      .layout-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
       #fab-post { bottom: 32px; right: 32px; }
+    }
+    /* D3 A1 (responsive 360→1920): the 1fr + rigid-320px sidebar can't coexist below
+       ~1024px — at 768px the main column hits its min-content floor and the grid
+       overflowed 38px. Keep the 2-column layout for ≥1024px; tablet/mobile stacks. */
+    @media (min-width: 1024px) {
+      .layout-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
     }
 
     /* ── Mention highlighting + autocomplete ── */
@@ -296,6 +305,23 @@
       outline: 2px solid rgba(247,162,27,0.7);
       outline-offset: 0;
     }
+
+    /* ── Arc L · CLS reservation (passive layout-shift fix) ──────────────────
+       These elements above the feed are EMPTY at first paint and fill via async
+       JS/DB render, so they GROW and push the whole layout-grid + feed DOWN.
+       Reserve each one's MEASURED settled height (390px viewport) so first paint
+       already matches the final layout. Reservation-only — no visual change. */
+    /* source chip: empty <p> -> fills with a "reads from X" 2-line source chip.
+       Measured settled height 40px (sits at the very top, pushes everything). */
+    #community-source-chip { min-height: 40px; }
+    /* presence bar: empty <div> -> fills with online-member chips (1 row).
+       Measured settled height 37px (one chip row = 33px chip + scrollbar pad). */
+    #presence-bar { min-height: 37px; }
+    /* feed body: #feed-skeleton (3x90px placeholders) -> replaced by #feed-list.
+       Reserve a first-screen floor on the panel so the skeleton->list swap does
+       not collapse-then-grow and shove the (mobile-stacked) sidebar around.
+       ~3 posts of first-screen content; the skeleton already reserves ~294px. */
+    #panel-feed { min-height: 300px; }
   </style>
 </head>
 <body>
@@ -344,6 +370,9 @@
     </div>
 
     <!-- Presence bar -->
+    <!-- Y6 silent-loop: the green-dot bar had no label or basis. Name it + state what "online" means, inline (field phones have no hover). -->
+    <p style="font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.55); margin:0 0 2px;">Online now</p>
+    <p style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
     <div id="presence-bar" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:1.25rem; scrollbar-width:none;"></div>
 
     <!-- Layout grid (feed + sidebar on desktop) -->
@@ -655,6 +684,19 @@
         notes:     ['Your hive’s posts · public posts are visible across hives', 'Updates live as posts change'],
       });
     }
+    // Arc X A3: restore the feed's category + search from the URL BEFORE the first
+    // load, so a reload / thread-open-and-back keeps the user's filtered view.
+    try {
+      const _cq = new URLSearchParams(location.search);
+      const _q = _cq.get('q');
+      if (_q) { const _si = document.getElementById('search-input'); if (_si) _si.value = _q; }
+      const _cat = _cq.get('cat');
+      if (_cat) {
+        activeFilter = _cat;
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === _cat));
+      }
+    } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
+
     await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers()]);
 
     // Deep-link: open the thread for ?post=<uuid> after the feed is rendered
@@ -844,7 +886,7 @@
       db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
-        .order('created_at', { ascending: false }),
+        .order('created_at', { ascending: false }).limit(500),
       _fetchPage(),
     ]);
 
@@ -876,8 +918,9 @@
   }
 
   async function loadReplyCounts(postIds) {
+    // canonical-allow: community_replies is forum thread detail (reply counts for the hive's posts) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
     const { data } = await db.from('community_replies')
-      .select('post_id').eq('hive_id', HIVE_ID).in('post_id', postIds);
+      .select('post_id').eq('hive_id', HIVE_ID).in('post_id', postIds).limit(500);
     replyCountMap = {};
     if (data) data.forEach(r => {
       replyCountMap[r.post_id] = (replyCountMap[r.post_id] || 0) + 1;
@@ -1054,10 +1097,11 @@
   // while every query stays explicitly hive-scoped.
   async function loadReactions(postIds, hiveIds = [HIVE_ID]) {
     if (!postIds.length) return;
+    // canonical-allow: community_reactions is forum thread detail (per-post emoji reactions) — single-surface community data, not a cross-surface KPI/aggregate (the XP aggregate lives in community_xp via DB triggers), so no v_*_truth wrapper applies.
     const { data } = await db.from('community_reactions')
       .select('post_id, emoji, worker_name')
       .in('hive_id', hiveIds)
-      .in('post_id', postIds);
+      .in('post_id', postIds).limit(500);
     if (!data) return;
 
     // Initialise reactionMap entries for requested posts
@@ -1117,16 +1161,30 @@
   }
 
   // ── Filter & search ───────────────────────────────────────────────────────────
+  // Arc X A3 (list-state persistence): mirror the feed's category + search into the
+  // URL (?cat=/?q=) so they survive a reload AND a thread open/close (openThread/
+  // closeThread now PRESERVE these params instead of wiping the whole query string).
+  function _commSyncUrl() {
+    try {
+      const url = new URL(location.href);
+      const q = (document.getElementById('search-input').value || '').trim();
+      q ? url.searchParams.set('q', q) : url.searchParams.delete('q');
+      (activeFilter && activeFilter !== 'all') ? url.searchParams.set('cat', activeFilter) : url.searchParams.delete('cat');
+      history.replaceState(null, '', url);
+    } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+  }
+
   function setFilter(cat) {
     activeFilter = cat;
     document.querySelectorAll('.filter-chip').forEach(c => {
       c.classList.toggle('active', c.dataset.cat === cat);
     });
     loadPosts(); // resets cursor and refetches from DB
+    _commSyncUrl();
   }
 
   const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('input', debounce(() => loadPosts(), 400));
+  searchInput.addEventListener('input', debounce(() => { loadPosts(); _commSyncUrl(); }, 400));
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   function switchTab(tab) {
@@ -1590,11 +1648,14 @@
     if (_focusTrapCleanup) _focusTrapCleanup();
     _focusTrapCleanup = trapFocus(document.getElementById('thread-sheet'));
 
-    // Reflect in URL so the thread is shareable and bookmarkable
+    // Reflect in URL so the thread is shareable and bookmarkable. Arc X A3: PRESERVE
+    // the q/cat filter params (set only `post`) instead of replacing the whole query
+    // string — so closing the thread returns to the same filtered feed.
     try {
-      const next = location.pathname + '?post=' + encodeURIComponent(postId);
-      if (location.search !== '?post=' + encodeURIComponent(postId)) {
-        history.replaceState(null, '', next);
+      const url = new URL(location.href);
+      if (url.searchParams.get('post') !== postId) {
+        url.searchParams.set('post', postId);
+        history.replaceState(null, '', url);
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
@@ -1608,9 +1669,11 @@
     if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
     activeThreadId = null;
     replyingToPostId = null;
-    // Drop the ?post= param from the URL so reload doesn't auto-reopen
+    // Drop ONLY the ?post= param (Arc X A3: keep the q/cat filters) so reload doesn't
+    // auto-reopen the thread but the filtered feed the user was on is preserved.
     try {
-      if (location.search) history.replaceState(null, '', location.pathname);
+      const url = new URL(location.href);
+      if (url.searchParams.has('post')) { url.searchParams.delete('post'); history.replaceState(null, '', url); }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
 
@@ -1631,6 +1694,7 @@
   });
 
   async function loadReplies(postId) {
+    // canonical-allow: community_replies is forum thread detail (the replies under one post) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
     const { data, error } = await db.from('community_replies')
       .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: true }).limit(200);
@@ -1714,7 +1778,10 @@
     const state   = presenceChannel.presenceState();
     const members = Object.values(state).flat();
     const bar     = document.getElementById('presence-bar');
-    if (members.length === 0) { bar.innerHTML = ''; return; }
+    if (members.length === 0) {
+      bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.45);font-style:italic;">No teammates online right now</span>';
+      return;
+    }
     bar.innerHTML = members.map(m => {
       const initials = m.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       return `<div class="presence-chip">
@@ -1975,7 +2042,7 @@
   async function loadHiveMembers() {
     const { data } = await db.from('v_worker_truth')
       .select('worker_name, role')
-      .eq('hive_id', HIVE_ID).neq('hive_status', 'kicked');
+      .eq('hive_id', HIVE_ID).neq('hive_status', 'kicked').limit(500);
     _hiveMembers = (data || []).filter(m => m.worker_name && m.worker_name !== WORKER_NAME);
   }
 
@@ -2185,5 +2252,6 @@
 
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

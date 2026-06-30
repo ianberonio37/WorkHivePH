@@ -122,8 +122,8 @@
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
-          <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
-          <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
+          <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
+          <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
         </div>
       </div>
       <span class="role-pill">Supervisor only</span>
@@ -333,8 +333,8 @@
 
     function renderSimpleCards(s) {
       const { cmms, sensors, api, comp } = computeCardStates(s);
-      const row = (label, c) => `
-        <div class="simple-card tag-${c.tone}">
+      const row = (label, c, isHero) => `
+        <div class="simple-card tag-${c.tone}${isHero ? ' hero' : ''}">
           <div class="sc-label">${escHtml(label)}</div>
           <div class="sc-hero">${escHtml(c.hero)}</div>
           <div class="sc-sub">${escHtml(c.sub)}</div>
@@ -343,7 +343,7 @@
       `;
       return `
         <div class="simple-row">
-          ${row('CMMS sync', cmms)}
+          ${row('CMMS sync', cmms, true)}
           ${row('Sensor feed', sensors)}
           ${row('API health (7d)', api)}
           ${row('Compliance', comp)}
@@ -411,7 +411,8 @@
         const { data } = await db.from('integration_configs')
           .select('id, system_type, label, endpoint_url, auth_method, sync_freq, last_sync_at, enabled')
           .eq('hive_id', HIVE_ID)
-          .order('last_sync_at', { ascending: false, nullsFirst: false });
+          .order('last_sync_at', { ascending: false, nullsFirst: false })
+          .limit(500); // L2: hive-scoped CMMS-connector config (≤ handful per hive, bounded-by-nature); cap = egress insurance, can't truncate a set that never nears 500.
         return data || [];
       } catch (_) { return []; }
     }
@@ -431,10 +432,12 @@
 
     async function loadSensorTopics() {
       try {
+        // canonical-allow: sensor_topic_map is this admin page's IoT topic→parameter config registry (single-surface, hive-scoped config), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
         const { data } = await db.from('sensor_topic_map')
           .select('id, topic_pattern, parameter, unit, asset_id')
           .eq('hive_id', HIVE_ID)
-          .order('topic_pattern');
+          .order('topic_pattern')
+          .limit(500); // L2: hive-scoped MQTT-topic→asset resolver config (supervisor-maintained, bounded by physical sensor count, not time/events); cap = egress insurance, sensor_readings holds the time-series, not this.
         return data || [];
       } catch (_) { return []; }
     }
@@ -442,6 +445,7 @@
     async function loadGatewayAudit() {
       try {
         const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+        // canonical-allow: gateway_audit_log is this admin page's own request-audit panel (single-surface, hive-scoped observability list, last 7d), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
         const { data } = await db.from('gateway_audit_log')
           .select('id, route, method, status_code, latency_ms, created_at, worker_name')
           .eq('hive_id', HIVE_ID)
@@ -454,6 +458,7 @@
 
     async function loadRetentionConfig() {
       try {
+        // canonical-allow: hive_retention_config is this admin page's own single-row PDPA retention-policy config (single-surface, hive-scoped), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
         const { data } = await db.from('hive_retention_config')
           .select('soft_delete_retention_days, audit_retention_days, ai_telemetry_retention_days, updated_at, updated_by')
           .eq('hive_id', HIVE_ID)
@@ -464,6 +469,7 @@
 
     async function loadSsoConfig() {
       try {
+        // canonical-allow: sso_configs is this admin page's own single-row SSO/IdP config (single-surface, hive-scoped), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
         const { data } = await db.from('sso_configs')
           .select('provider, status, idp_entity_id, enforced, activated_at, notes')
           .eq('hive_id', HIVE_ID)
@@ -685,5 +691,7 @@
     el.style.opacity = (live.length > 0) ? '1' : '0.55';
   };
 </script>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

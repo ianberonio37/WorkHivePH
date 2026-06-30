@@ -45,14 +45,19 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: enriches asset_nodes register flow; no new artifact table
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
+// Arc R (A10): body.image_url is caller-controlled — SSRF-guard the fetch.
+import { safeFetch } from "../_shared/ssrf-guard.ts";
 // Pillar I (Gateway Spine): verify hive membership before the service-role read.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 const AZURE_ENDPOINT = Deno.env.get("AZURE_DOC_INTELLIGENCE_ENDPOINT") || "";
 const AZURE_KEY      = Deno.env.get("AZURE_DOC_INTELLIGENCE_KEY")      || "";
@@ -165,8 +170,10 @@ function decodeDataUrl(dataUrl: string): { bytes: Uint8Array; contentType: strin
 }
 
 async function fetchPublicUrl(url: string): Promise<{ bytes: Uint8Array; contentType: string }> {
-  if (!/^https:\/\//i.test(url)) throw new Error("image URL must be https");
-  const r = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+  // Arc R (A10): safeFetch enforces https + blocks private/loopback/metadata/internal
+  // targets and DNS-rebinding (replaces the old https-only regex, which let an
+  // attacker fetch https://169.254.169.254/ or https://127.0.0.1/ — blind SSRF).
+  const r = await safeFetch(url, { signal: AbortSignal.timeout(15_000) });
   if (!r.ok) throw new Error(`image fetch ${r.status}`);
   const contentType = (r.headers.get("Content-Type") || "image/jpeg").toLowerCase().split(";")[0].trim();
   if (!ALLOWED_MIME.has(contentType)) throw new Error(`unsupported image MIME: ${contentType}`);
@@ -213,6 +220,7 @@ async function matchAssetNodes(
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  logRequestStart(req, "equipment-label-ocr");  // I6 observability
 
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "method_not_allowed" }), {
@@ -241,6 +249,18 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: "bad_json" }), {
       status: 400, headers: { ...cors, "Content-Type": "application/json" },
     });
+  }
+
+  // LLM10 unbounded-consumption: vision OCR is expensive and called directly from logbook.html.
+  // Bound by identity-or-IP (solo bucket); the trusted service_role path is exempt.
+  {
+    const _rlDb = createClient(Deno.env.get("SUPABASE_URL") || "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "");
+    const _id   = await resolveIdentity(_rlDb, req);
+    if (!_id.isServiceRole) {
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
+      if (!_rl.allowed) return soloRateLimitedResponse(cors);
+    }
   }
 
   let bytes: Uint8Array;

@@ -36,12 +36,32 @@ _THIRD_PARTY = {
 }
 
 
+# Page-bundle pairing (Arc L / L1, 2026-06-22). A page whose big inline <script> was
+# extracted to an external bundle (for a doc-parse-weight win) is still ONE logical page:
+# its queries, renders, element ids, escaper usage, handlers and identity chain live in
+# the bundle. To keep every content-scanning validator behaving EXACTLY as before the
+# split (the extraction was byte-lossless), read_file transparently re-attaches the bundle
+# when reading the shell — reconstructing the original page content. Perf miners use their
+# own reader and still measure the real (shrunk) doc weight, so this is for code-quality
+# scanning only, never for weight measurement.
+_PAGE_BUNDLES = {"engineering-design.html": "engineering-design.js"}
+
+
 def read_file(path):
     try:
         with open(path, encoding="utf-8") as f:
-            return f.read()
+            content = f.read()
     except FileNotFoundError:
         return None
+    bundle = _PAGE_BUNDLES.get(os.path.basename(str(path)))
+    if bundle:
+        sib = os.path.join(os.path.dirname(str(path)) or ".", bundle)
+        try:
+            with open(sib, encoding="utf-8") as bf:
+                content += f"\n<!-- page-bundle:{bundle} (re-attached for whole-page scanning) -->\n<script>\n{bf.read()}\n</script>\n"
+        except FileNotFoundError:
+            pass
+    return content
 
 
 def compile_check(path):

@@ -1,0 +1,1014 @@
+{
+  "_meta": {
+    "doc": "Arc C / C0 render-tier DENOMINATOR. N = (feature page \u00d7 data-rag-tile cell). Each tile = a canonical value the page renders, page-author-declared via data-rag-tile. credited=true means a \u00a713 V-axis or asset-hub proof already asserted render==source for that exact tile-id (not re-proven in Arc C). value cells get a single sc-hero number; panel cells are detail/list/chart surfaces proven by a richer assertion (asset-hub:detail_panel == v_risk_truth is the template). source_query '<TODO C1>' = the per-page C1 spec to fill.",
+    "generator": "tools/mine_render_surfaces.py",
+    "credit_inputs": [
+      "vaxis_render_proofs.json (J1-J6, T_*)",
+      "asset-hub session proof"
+    ]
+  },
+  "totals": {
+    "pages_with_tiles": 17,
+    "N_total_cells": 83,
+    "N_value_cells": 47,
+    "N_panel_cells": 36,
+    "credited_cells": 13,
+    "value_cells_credited": 12,
+    "value_cells_uncredited": 35,
+    "credited_pct": 15.7,
+    "value_credited_pct": 25.5
+  },
+  "non_tile_proven_pages": {
+    "voice-journal.html": "J4 (voice-journal.html)",
+    "hive.html": "J5 (hive.html)",
+    "status.html": "J6 (status.html)",
+    "ai-quality.html": "T_ai_quality (ai-quality.html)",
+    "project-report.html": "T_project_report \u2014 wbs/owner/status == v_project_truth (PM print-flow)",
+    "engineering-design.html": "Arc B \u2014 53 calc types render==validated-Python (browser_calc_sweep B1)"
+  },
+  "pages": {
+    "achievements.html": {
+      "in_nav_registry": false,
+      "n_tiles": 7,
+      "n_value": 3,
+      "n_panel": 4,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "achievements:xp_this_week",
+          "label": "XP this week",
+          "container_id": "ac-card-week",
+          "sc_hero_id": "ac-week-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "achievements:active_domains",
+          "label": "Active domains",
+          "container_id": "ac-card-active",
+          "sc_hero_id": "ac-active-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "achievements:total_level",
+          "label": "Total level",
+          "container_id": "ac-card-level",
+          "sc_hero_id": "ac-level-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "achievements:detail_panel",
+          "label": "Achievements detail",
+          "container_id": "ac-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "achievements:composite_score",
+          "label": "Composite skill score",
+          "container_id": "stat-composite",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "achievements:active_domains_stat",
+          "label": "Active domains stat",
+          "container_id": "stat-active",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "achievements:top_domain",
+          "label": "Top skill domain",
+          "container_id": "stat-top",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "alert-hub.html": {
+      "in_nav_registry": true,
+      "n_tiles": 8,
+      "n_value": 3,
+      "n_panel": 5,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "alert-hub:high_severity_alerts",
+          "label": "High-severity alerts",
+          "container_id": "ah-card-critical",
+          "sc_hero_id": "ah-critical-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:anomaly_signals",
+          "label": "Anomaly signals",
+          "container_id": "ah-card-anomaly",
+          "sc_hero_id": "ah-anomaly-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:amc_daily_brief",
+          "label": "AMC daily brief",
+          "container_id": "ah-card-amc",
+          "sc_hero_id": "ah-amc-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:detail_panel",
+          "label": "Alert detail breakdown",
+          "container_id": "ah-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:amc_assets",
+          "label": "AMC assets checked",
+          "container_id": "amc-stat-assets",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:amc_pms",
+          "label": "AMC PMs flagged",
+          "container_id": "amc-stat-pms",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:amc_parts",
+          "label": "AMC parts at risk",
+          "container_id": "amc-stat-parts",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "alert-hub:amc_crew",
+          "label": "AMC crew alerts",
+          "container_id": "amc-stat-crew",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "analytics.html": {
+      "in_nav_registry": true,
+      "n_tiles": 5,
+      "n_value": 3,
+      "n_panel": 2,
+      "n_credited": 1,
+      "tiles": [
+        {
+          "tile_id": "analytics:oee",
+          "label": "OEE (avg, partial)",
+          "container_id": "an-card-oee",
+          "sc_hero_id": "an-oee-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "analytics:mtbf",
+          "label": "Worst MTBF (partial)",
+          "container_id": "an-card-mtbf",
+          "sc_hero_id": "an-mtbf-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "analytics:pm_compliance",
+          "label": "PM compliance (30d approx)",
+          "container_id": "an-card-pm",
+          "sc_hero_id": "an-pm-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "T_analytics (analytics.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "analytics:detail_panel",
+          "label": "Analytics detail breakdown",
+          "container_id": "an-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "analytics:results_panel",
+          "label": "Per-machine analytics results",
+          "container_id": "results-panel",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "asset-hub.html": {
+      "in_nav_registry": true,
+      "n_tiles": 8,
+      "n_value": 3,
+      "n_panel": 5,
+      "n_credited": 2,
+      "tiles": [
+        {
+          "tile_id": "asset-hub:total_assets",
+          "label": "Total assets",
+          "container_id": "ah-card-total",
+          "sc_hero_id": "ah-total-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "asset-hub:critical_assets",
+          "label": "Critical assets",
+          "container_id": "ah-card-critical",
+          "sc_hero_id": "ah-critical-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "Arc-B/session (card band == asset_nodes.criticality, 30/30)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "asset-hub:pending_approval",
+          "label": "Pending assets",
+          "container_id": "ah-card-pending",
+          "sc_hero_id": "ah-pending-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "asset-hub:detail_panel",
+          "label": "Asset detail breakdown",
+          "container_id": "ah-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": true,
+          "credit_source": "Arc-B/session (detail risk == v_risk_truth, AC-003 faithful)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "asset-hub:logbook_count",
+          "label": "Asset logbook entries",
+          "container_id": "stat-logbook",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "asset-hub:pm_count",
+          "label": "Asset PM completions",
+          "container_id": "stat-pm",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "asset-hub:last_failure",
+          "label": "Asset last failure",
+          "container_id": "stat-last-failure",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "asset-hub:rcm_edges",
+          "label": "Asset RCM edges",
+          "container_id": "stat-edges",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "dayplanner.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "dayplanner:today_count",
+          "label": "Tasks today",
+          "container_id": "dp-card-today",
+          "sc_hero_id": "dp-today-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "dayplanner:week_count",
+          "label": "Tasks this week",
+          "container_id": "dp-card-week",
+          "sc_hero_id": "dp-week-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "dayplanner:overdue_count",
+          "label": "Overdue tasks",
+          "container_id": "dp-card-overdue",
+          "sc_hero_id": "dp-overdue-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "dayplanner:detail_panel",
+          "label": "Day planner detail",
+          "container_id": "dp-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "hive.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 1,
+      "tiles": [
+        {
+          "tile_id": "hive:maturity_stair",
+          "label": "Hive maturity stair",
+          "container_id": "ss-card-stair",
+          "sc_hero_id": "ss-stair-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "hive:adoption_health",
+          "label": "Adoption health",
+          "container_id": "ss-card-adoption",
+          "sc_hero_id": "ss-adoption-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "hive:open_issues",
+          "label": "Open issues",
+          "container_id": "ss-card-issues",
+          "sc_hero_id": "ss-issues-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "J1 (hive.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "hive:detail_panel",
+          "label": "Hive supervisor detail",
+          "container_id": "supervisor-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "index.html": {
+      "in_nav_registry": true,
+      "n_tiles": 1,
+      "n_value": 0,
+      "n_panel": 1,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "index:hive_activity",
+          "label": "Hive Activity Today",
+          "container_id": null,
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "integrations.html": {
+      "in_nav_registry": true,
+      "n_tiles": 6,
+      "n_value": 3,
+      "n_panel": 3,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "integrations:active",
+          "label": "Active integrations",
+          "container_id": "it-card-active",
+          "sc_hero_id": "it-active-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "integrations:stale",
+          "label": "Stale syncs",
+          "container_id": "it-card-stale",
+          "sc_hero_id": "it-stale-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "integrations:disabled",
+          "label": "Disabled integrations",
+          "container_id": "it-card-disabled",
+          "sc_hero_id": "it-disabled-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "integrations:detail_panel",
+          "label": "Integrations detail",
+          "container_id": "it-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "integrations:api_config",
+          "label": "API configuration",
+          "container_id": "tab-api-content",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "integrations:sync_log",
+          "label": "Sync log",
+          "container_id": "tab-sync-content",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "inventory.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "inventory:out_of_stock",
+          "label": "Out of stock",
+          "container_id": "inv-card-out",
+          "sc_hero_id": "inv-out-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "inventory:low_stock",
+          "label": "Low stock",
+          "container_id": "inv-card-low",
+          "sc_hero_id": "inv-low-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "inventory:pending_approval",
+          "label": "Pending parts",
+          "container_id": "inv-card-pending",
+          "sc_hero_id": "inv-pending-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "inventory:detail_panel",
+          "label": "Inventory detail breakdown",
+          "container_id": "inv-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "marketplace.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 2,
+      "n_panel": 2,
+      "n_credited": 1,
+      "tiles": [
+        {
+          "tile_id": "marketplace:listings_in_view",
+          "label": "Listings in view",
+          "container_id": "mk-card-total",
+          "sc_hero_id": "mk-total-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "J3 (marketplace.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "marketplace:my_listings",
+          "label": "My listings",
+          "container_id": "mk-card-mine",
+          "sc_hero_id": "mk-mine-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "marketplace:detail_panel",
+          "label": "Marketplace detail",
+          "container_id": "mk-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "marketplace:listing_grid",
+          "label": "Marketplace listing grid",
+          "container_id": "listing-grid",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "ph-intelligence.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "ph-intelligence:plants_in_network",
+          "label": "Plants in network",
+          "container_id": "ph-card-plants",
+          "sc_hero_id": "ph-plants-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "ph-intelligence:top_failure_cause",
+          "label": "Top failure cause",
+          "container_id": "ph-card-cause",
+          "sc_hero_id": "ph-cause-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "ph-intelligence:report_freshness",
+          "label": "Report freshness",
+          "container_id": "ph-card-fresh",
+          "sc_hero_id": "ph-fresh-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "ph-intelligence:detail_panel",
+          "label": "PH Intelligence detail",
+          "container_id": "ph-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "pm-scheduler.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 3,
+      "tiles": [
+        {
+          "tile_id": "pm-scheduler:overdue",
+          "label": "Overdue PMs",
+          "container_id": "pm-card-overdue",
+          "sc_hero_id": "stat-overdue",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "J2 (pm-scheduler.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "pm-scheduler:due_soon",
+          "label": "Due soon (14d)",
+          "container_id": "pm-card-duesoon",
+          "sc_hero_id": "stat-duesoon",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "J2 (pm-scheduler.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "pm-scheduler:on_track",
+          "label": "On track",
+          "container_id": "pm-card-ontrack",
+          "sc_hero_id": "stat-ontrack",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "J2 (pm-scheduler.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "pm-scheduler:detail_panel",
+          "label": "PM detail breakdown",
+          "container_id": "pm-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "predictive.html": {
+      "in_nav_registry": false,
+      "n_tiles": 7,
+      "n_value": 3,
+      "n_panel": 4,
+      "n_credited": 2,
+      "tiles": [
+        {
+          "tile_id": "predictive:hot_assets",
+          "label": "Hot assets",
+          "container_id": "pr-card-hot",
+          "sc_hero_id": "pr-hot-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "T_predictive (predictive.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "predictive:healthy_assets",
+          "label": "Healthy assets",
+          "container_id": "pr-card-healthy",
+          "sc_hero_id": "pr-healthy-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "T_predictive (predictive.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "predictive:earliest_forecast",
+          "label": "Earliest forecast failure",
+          "container_id": "pr-card-soonest",
+          "sc_hero_id": "pr-soonest-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "predictive:detail_panel",
+          "label": "Predictive detail breakdown",
+          "container_id": "pr-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "predictive:risk_ranking",
+          "label": "Risk ranking table",
+          "container_id": "panel-ranking",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "predictive:risk_heatmap",
+          "label": "Risk heatmap",
+          "container_id": "panel-heatmap",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "predictive:mtbf_trend",
+          "label": "MTBF trend panel",
+          "container_id": "panel-trend",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "project-manager.html": {
+      "in_nav_registry": true,
+      "n_tiles": 5,
+      "n_value": 3,
+      "n_panel": 2,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "project-manager:project_list",
+          "label": "Project list view",
+          "container_id": "list-view",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "project-manager:active_projects",
+          "label": "Active projects",
+          "container_id": "pm-card-active",
+          "sc_hero_id": "pm-active-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "project-manager:past_end_date",
+          "label": "Past end date",
+          "container_id": "pm-card-overdue",
+          "sc_hero_id": "pm-overdue-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "project-manager:on_hold_planning",
+          "label": "On hold or planning",
+          "container_id": "pm-card-blocked",
+          "sc_hero_id": "pm-blocked-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "project-manager:project_cards",
+          "label": "Project card grid",
+          "container_id": "card-grid",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "report-sender.html": {
+      "in_nav_registry": false,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "report-sender:reports_selected",
+          "label": "Reports selected",
+          "container_id": "rs-card-reports",
+          "sc_hero_id": "rs-reports-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "report-sender:recipients",
+          "label": "Recipients",
+          "container_id": "rs-card-recipients",
+          "sc_hero_id": "rs-recipients-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "report-sender:saved_contacts",
+          "label": "Saved contacts",
+          "container_id": "rs-card-contacts",
+          "sc_hero_id": "rs-contacts-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "report-sender:detail_panel",
+          "label": "Report sender detail",
+          "container_id": "rs-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "shift-brain.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 3,
+      "tiles": [
+        {
+          "tile_id": "shift-brain:top_risk_this_shift",
+          "label": "Top risk this shift",
+          "container_id": "sb-card-risk",
+          "sc_hero_id": "sb-risk-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "T_shift_brain (shift-brain.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "shift-brain:pms_due",
+          "label": "PMs due",
+          "container_id": "sb-card-pms",
+          "sc_hero_id": "sb-pms-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "T_shift_brain (shift-brain.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "shift-brain:carry_forward",
+          "label": "Carry-forward",
+          "container_id": "sb-card-carry",
+          "sc_hero_id": "sb-carry-hero",
+          "cell_type": "value",
+          "credited": true,
+          "credit_source": "T_shift_brain (shift-brain.html)",
+          "source_query": "credited"
+        },
+        {
+          "tile_id": "shift-brain:detail_panel",
+          "label": "Shift brain detail",
+          "container_id": "sb-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    },
+    "skillmatrix.html": {
+      "in_nav_registry": true,
+      "n_tiles": 4,
+      "n_value": 3,
+      "n_panel": 1,
+      "n_credited": 0,
+      "tiles": [
+        {
+          "tile_id": "skillmatrix:on_target",
+          "label": "On target workers",
+          "container_id": "sm-card-ontrack",
+          "sc_hero_id": "sm-ontrack-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "skillmatrix:quizzes_available",
+          "label": "Quizzes available",
+          "container_id": "sm-card-quizzes",
+          "sc_hero_id": "sm-quizzes-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "skillmatrix:total_badges",
+          "label": "Total badges earned",
+          "container_id": "sm-card-badges",
+          "sc_hero_id": "sm-badges-hero",
+          "cell_type": "value",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        },
+        {
+          "tile_id": "skillmatrix:detail_panel",
+          "label": "Skill matrix detail",
+          "container_id": "sm-summary-details",
+          "sc_hero_id": null,
+          "cell_type": "panel",
+          "credited": false,
+          "credit_source": null,
+          "source_query": "<TODO C1>"
+        }
+      ]
+    }
+  }
+}

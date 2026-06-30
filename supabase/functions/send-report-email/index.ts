@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 // capability: report_email_dispatch
 
 // contract-allow: email sender
@@ -7,6 +9,13 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership before emailing a hive's report.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// Arc R (A01/spam): bound the no-hive_id (solo) email path by identity/IP.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+// Arc S F-lens (F-010): reuse the AI provider-health circuit-breaker for the
+// external Resend dependency so a sustained outage stops hammering it (escalating
+// cooldown) and fails fast with a clear "temporarily unavailable" instead of a
+// per-call 502 on every attempt.
+import { isSlotBlocked, recordSlotFailure, recordSlotSuccess } from "../_shared/provider-health.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -95,6 +104,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  logRequestStart(req, "send-report-email");  // I6 observability
 
   try {
     const { hive_id, recipient_email, reports, sent_at } = await req.json();
@@ -140,6 +150,23 @@ serve(async (req) => {
             { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
+      }
+    } else {
+      // Arc R (A01/spam): no hive_id = solo send. The old code skipped BOTH membership
+      // and rate-limit, leaving an unauthenticated branded-email relay (phishing/spam) —
+      // anyone could POST {recipient_email, reports} and send mail from the WorkHive domain.
+      // Require a real identity (a solo worker still has a session) + a solo rate-limit.
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        if (!authUid) {
+          return new Response(
+            JSON.stringify({ error: "Authentication required to send email", code: "unauthorized" }),
+            { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip));
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
       }
     }
 
@@ -195,6 +222,18 @@ serve(async (req) => {
     const hourBucket = new Date(sent_at || Date.now()).toISOString().slice(0, 13); // YYYY-MM-DDTHH
     const recipientSlug = recipient_email.trim().toLowerCase().replace(/[^a-z0-9._@-]/g, "_");
     const emailIdemKey = `report-${hive_id || "anon"}-${recipientSlug}-${reportTypesKey}-${hourBucket}`;
+    // Arc S F-lens (F-010): circuit-breaker — if Resend has been failing, fail fast
+    // with a clear "temporarily unavailable" instead of attempting + 502-ing again.
+    if (isSlotBlocked("resend")) {
+      await db.from("automation_log").insert({
+        job_name: "send_report_email", hive_id, status: "deferred",
+        detail: "Resend circuit-breaker open (recent failures) — not attempted",
+      });
+      return new Response(
+        JSON.stringify({ error: "Email service temporarily unavailable — please try again shortly." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       signal: AbortSignal.timeout(30000),
@@ -214,6 +253,10 @@ serve(async (req) => {
     const emailData = await emailRes.json();
 
     if (!emailRes.ok) {
+      // Arc S F-lens (F-010): record the failure so the breaker escalates its cooldown
+      // (honor Retry-After when Resend supplies it on a 429/503).
+      const _ra = Number(emailRes.headers.get("retry-after"));
+      recordSlotFailure("resend", Number.isFinite(_ra) && _ra > 0 ? _ra * 1000 : undefined);
       await db.from("automation_log").insert({
         job_name: "send_report_email",
         hive_id,
@@ -226,6 +269,7 @@ serve(async (req) => {
       );
     }
 
+    recordSlotSuccess("resend"); // Arc S F-lens (F-010): a good send resets the breaker
     await db.from("automation_log").insert({
       job_name: "send_report_email",
       hive_id,

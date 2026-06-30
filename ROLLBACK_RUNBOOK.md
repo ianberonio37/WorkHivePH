@@ -139,6 +139,41 @@ done
 
 ---
 
+## 5b. Restore from a logical dump (Arc S — when PITR is unavailable / expired)
+
+**Use when** the PITR window (7 days) has expired, PITR is unavailable (region/account issue), or you
+need a single-table restore without rolling the whole DB back. The logical dump is the
+operator-controlled backup that complements managed PITR (RTO_RPO_DECLARATION.md).
+
+### Take a dump (also run on a schedule in prod)
+```bash
+python tools/data_backup.py --backup     # -> backups/wh_data_<ts>.sql + manifest.json (per-table row counts)
+```
+
+### Prove a dump restores (the drill — run it; don't trust an untested backup)
+```bash
+python tools/data_backup.py --drill      # dumps a critical table, restores it into a scratch schema,
+                                          # asserts restored rowcount == source, reports elapsed (RTO), cleans up
+```
+
+### Restore from a dump file (recovery)
+1. **Identify the dump** in `backups/` and its `manifest.json` (the row counts you expect back).
+2. **Restore into the live DB** (data-only — the schema must already exist from migrations):
+   ```bash
+   docker exec -i supabase_db_workhive psql -U postgres -d postgres -v ON_ERROR_STOP=1 < backups/wh_data_<ts>.sql
+   ```
+   For a SINGLE table, extract its `COPY public.<table> ... \.` block from the dump and restore just that block.
+3. **Idempotency:** the dump is `--data-only`; if rows still exist, `TRUNCATE public.<table>` first (or restore
+   into a scratch schema and `INSERT ... ON CONFLICT DO NOTHING` the gaps) to avoid PK collisions.
+4. **Verify row counts** against the manifest, then run `validate_schema.py` + `python tools/dataloss_monitor.py`.
+
+### Catch a silent loss early (so PITR/dump can still recover it)
+```bash
+python tools/dataloss_monitor.py --snapshot   # schedule this; the next run alerts on a >20% drop per critical table
+```
+
+---
+
 ## 6. Edge fn version pinning (operational)
 
 Supabase doesn't currently expose versioned aliases via CLI. The closest we have:

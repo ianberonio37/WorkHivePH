@@ -58,6 +58,7 @@ HIVE_FILTER_OK = {
     "calc_knowledge":  "Engineering calc knowledge is platform-wide, not hive-scoped",
     "industry_standards_chunks":  "Industry standards (ISO/ASHRAE/NFPA) are platform-wide reference corpus, mirrors kb_chunks pattern but not hive-scoped",
     "platform_knowledge_graph_facts":  "Platform-wide KG facts (2026-05-19), hive-agnostic by design — mirrors industry_standards / kb_chunks pattern. Powers semantic_search_platform_kg_facts RPC.",
+    "persona_knowledge":  "Global persona RAG corpus (companion W10-W13) — NO hive_id column by design; match_persona_knowledge searches the shared corpus, so it correctly does not (cannot) filter by hive_id. Same class as calc_knowledge / industry_standards.",
 }
 
 # Tables exempt from L3 RLS check.
@@ -68,6 +69,8 @@ RLS_OK = {
     "pm_knowledge":       "DEFERRED — RAG knowledge table, RLS migration tracked in PRODUCTION_FIXES",
     "bom_knowledge":      "DEFERRED — RAG knowledge table, RLS migration tracked in PRODUCTION_FIXES",
     "project_knowledge":  "DEFERRED — RAG knowledge table, RLS migration tracked in PRODUCTION_FIXES",
+    "persona_knowledge":  "Global persona RAG corpus (companion W10-W13) — NO tenant column (cannot leak cross-tenant); read edge-only via service_role (ai-gateway / persona-knowledge.ts). Same class as the other RAG knowledge tables above.",
+    "embedding_cache":    "Global embedding cache keyed by text hash — NO tenant column (cannot leak cross-tenant); read/write edge-only via service_role (embedding-chain.ts). Not user data.",
 }
 
 VECTOR_COL_RE = re.compile(

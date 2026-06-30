@@ -1,0 +1,82 @@
+{
+  "engine": "A (Playwright-MCP demanding-user persona) — hypotheses only, grounded vs Engine B",
+  "ran": "2026-06-24",
+  "findings": [
+    {
+      "page": "engineering-design.html",
+      "family": "V6 Build & Project",
+      "persona": "P3 power engineer (speed-seeker)",
+      "goal": "reach my usual calc fast",
+      "measured": {
+        "disciplines": 6,
+        "calc_types_total": 56,
+        "calc_counts": { "HVAC": 11, "Mechanical": 4, "Electrical": 14, "Plumbing": 10, "Fire": 5, "MachineDesign": 12 },
+        "has_search_in_picker": true,
+        "has_recents": true,
+        "has_suggested_defaults": false,
+        "visible_interactive": 42
+      },
+      "verdict": "HYPOTHESIS REFUTED — the static audit claimed eng-design had 'no search, no recents, 9-click decision paralysis'. The live page ALREADY ships an in-picker search AND a recents section. Engine B agrees: eng-design did not crack the top-12 heaviest pages by measured click-hops. So eng-design is NOT the worst offender.",
+      "residual_friction": [
+        "no 'suggested/smart-default' calc (minor; search+recents largely cover it)",
+        "Electrical lists 14 options at once (Hick) — but search mitigates"
+      ],
+      "wished_for": ["a 'suggested for this hive' row (smart default) — LOW priority given search+recents exist"],
+      "severity": 1,
+      "action": "DE-PRIORITIZE V6.1 as the first FIX. Re-target the first FIX to the MEASURED worst offender."
+    },
+    {
+      "page": "logbook.html",
+      "family": "V2 Field Execution",
+      "persona": "P1 Marielle (impatient field technician, mobile 390px, gloves, ~30s)",
+      "goal": "log a breakdown fault on AC-001 (bearing running hot)",
+      "ran": "2026-06-25",
+      "observed_path": ["Select or search asset", "type 'AC-001'", "pick result (auto-advance to step 2)", "Maintenance Type=Breakdown", "Symptom", "What did you do? ->", "Action", "Save Entry"],
+      "first_impression": "STRONG. Log-a-Repair card immediately visible; two fastest paths up top (Speak-to-fill, Photo capture = <=2 taps to start, exactly her need); manual fallback below. Asset picker is search-first (type 'AC-001' -> 30 assets narrow to 1 instantly), not a paralysis dropdown. Smart 'Overload — common for this machine' root-cause chip pre-empts a 13-item dropdown. Voice input on Symptom + Action (gloves-friendly).",
+      "dead_ends": [],
+      "confusion_points": [
+        "REQUIRED-FIELD DRIP: completed all 3 steps, hit Save, bounced with 'Please select a discipline / category' — Discipline/Category (step 2) is required (validated at Save) but NOT marked required, while 'Machine / Equipment required' right above it IS marked. Fixed category, hit Save AGAIN, bounced a SECOND time: 'Please select what was the impact (required for Breakdown entries)' — Impact is required-for-Breakdown but lives inside the 'Hide extra details' drawer (framed OPTIONAL) and its built-in 'required for Breakdown' badge (#consequence-required-badge) is NEVER shown (dead code: type-change handler opens the drawer but never .remove('hidden') on the badge). Two surprise bounces, drip-fed one at a time, only at the final Save click — on the platform's single most common field action.",
+        "Symptom/What-was-wrong is also required (validated at Save) but unmarked."
+      ],
+      "recoverable_ok": "YES — on each bounce the error toast is SPECIFIC (names the field), the field flashes red + scrolls into view, and ALL prior input is preserved across back-navigation (verified: maintenance-type + symptom + action all intact after going back to step 2). So Clarity 'recoverable' passes; the issue is purely required-field SIGNPOSTING + late drip-validation.",
+      "secondary_functional": "Post-save, embed-entry edge fn returned 401 Unauthorized (console) — the logbook row WROTE successfully (count 300->301, 'Entry saved' toast) but its semantic-search embedding silently failed with no user signal. Functional/RAG gap (Arc-H-adjacent), invisible to the persona; logged for data-engineer/ai-engineer follow-up.",
+      "wished_for": [
+        "mark Discipline/Category + Symptom required (label-badge parity with Machine)",
+        "actually SHOW the existing 'required for Breakdown' impact badge when type=Breakdown",
+        "validate category + symptom at the step-2->3 advance (catch on the step the field lives on, not a bounce-back two steps later)"
+      ],
+      "abandon_point": "would-abandon risk at the SECOND bounce — an impatient field tech who fixed one 'required' surprise and immediately hit another (for a field framed 'extra details') is exactly who gives up and reverts to paper.",
+      "severity": 2,
+      "verdict": "HYPOTHESIS (sev 2). Core flow is genuinely effortless (search-first picker, smart chips, voice, <=2-tap fast paths, input preserved). The one real friction is the required-field DRIP at Save. FIX = signpost required fields + show the impact badge + validate at the field's own step. Then re-walk to confirm no surprise bounce; codify a deterministic Engine-B check (every Save-blocking field is signposted required OR validated at its step). [SHIPPED + VERIFIED 2026-06-25: 4 edits to logbook.html; validate_logbook check_required_field_signposting 24/24 teeth-proven; Arc K 6/6 LIVE no-regress; V2.1 50%->100%.]"
+    },
+    {
+      "scope": "CROSS-CUTTING (NOT an Arc-V effortless finding) — flagged for Arc-H / DevOps / data-engineer",
+      "ran": "2026-06-25",
+      "finding": "Local Supabase edge functions return 401 Unauthorized to the browser client — observed TWICE: (1) `embed-entry` after a logbook save (entry WROTE, count 300->301, but its semantic-search embedding never generated); (2) `semantic-search` during a companion chat (the companion still answered correctly in 5.5s from base knowledge + page context, but its answer was NOT RAG-grounded against the hive's actual records).",
+      "persona_visible": false,
+      "impact": "Silent AI-quality degradation: logbook entries aren't vectorized for semantic search, and companion answers fall back to ungrounded base knowledge. No user-facing error (toast says 'Entry saved', companion replies normally). Two surfaces confirm it's systemic, not a one-off.",
+      "likely_root": "Local-env auth config mismatch — the edge fns likely have verify_jwt enabled (or expect a service-role key) while the browser passes a user/anon JWT, OR a SUPABASE_KEY/anon-key retirement gap. Same 401 shape on both fns points to one shared cause.",
+      "next": "Arc-H/DevOps: check the verify_jwt config + Authorization header for embed-entry + semantic-search on the local edge (127.0.0.1:54321); reseed/re-key if anon-key retired. Consider an Engine-B gate asserting these fns return 2xx for an authed browser call so the silent degradation can't recur.",
+      "severity": 2
+    },
+    {
+      "page": "assistant.html + companion launcher + connectivity-widget (V.Shell)",
+      "family": "V.Shell — The Companion (universal surface)",
+      "persona": "any (rides every page)",
+      "goal": "invoke the companion from any page and get a contextual answer",
+      "ran": "2026-06-25",
+      "first_impression": "EFFORTLESS. 1-tap 'Open companion' floating launcher on EVERY page; context-aware (each dialog shows 'Context: <current page>'); chat input 'Ask anything…' + send reachable; assistant.html opens on a Setup step but it's PRE-FILLED from the session (Leandro Marquez + role) so it's a 1-tap 'Start Chat', not re-entry. connectivity 'Online' chip present on the shell.",
+      "live_check": "Sent 'In one sentence, what does MTBF mean?' on assistant.html -> LIVE correct answer in 5.5s ('MTBF stands for Mean Time Between Failures... average time a repairable system operates between inherent failures'), with 👍/👎 feedback + honest AI disclaimer ('AI-generated... verify... advisory only').",
+      "dead_ends": [],
+      "confusion_points": [],
+      "secondary_functional": "semantic-search edge fn 401 during the chat (see the cross-cutting finding above) — RAG grounding silently degraded, persona-invisible.",
+      "severity": 1,
+      "verdict": "EFFORTLESS — V.Shell 0% -> 100%. Universal companion is 1-tap, context-aware, live, with honest disclaimers. The edge-401 is a separate AI/edge-axis backend issue, not a V floor failure."
+    }
+  ],
+  "course_correction": {
+    "was": "V6.1 engineering-design (9 clicks) as flagship first FIX — based on a static audit now refuted by Engine A.",
+    "now": "First FIX = V2.1 logbook (measured worst: 30 click-hops over 6 JTBDs, 14 slow actions) — a daily-core field-worker page; highest frequency x cost = highest payoff. Engine-A walk of logbook (authed) is the next discovery slice.",
+    "principle": "classify by VERIFIED measured evidence, not a heuristic/name (feedback_classify_by_evidence_not_heuristic). Both engines agree eng-design is not the hotspot."
+  }
+}

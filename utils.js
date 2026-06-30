@@ -6,6 +6,274 @@
 // ─────────────────────────────────────────────
 
 // ─────────────────────────────────────────────
+// a11y floor — global keyboard focus ring (WCAG 2.4.11 / SC 2.4.7 focus-visible)
+// ─────────────────────────────────────────────
+// utils.js loads on every page before page scripts, so injecting one :focus-visible
+// rule here gives every interactive control a visible keyboard focus indicator
+// platform-wide (clears the Arc-K deterministic focus-visible floor without editing
+// 40+ pages individually). Scoped to :focus-visible so mouse clicks show no outline;
+// !important defeats any stray `outline:none`. Idempotent (id-guarded).
+(function whInjectFocusRing() {
+  try {
+    if (typeof document === 'undefined' || document.getElementById('wh-a11y-focus')) return;
+    var css = 'a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,' +
+      'textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible,[role="button"]:focus-visible,' +
+      '[role="link"]:focus-visible,[role="tab"]:focus-visible,[contenteditable="true"]:focus-visible{' +
+      'outline:2px solid #F7A21B !important;outline-offset:2px !important;border-radius:3px;}';
+    var st = document.createElement('style');
+    st.id = 'wh-a11y-focus';
+    st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+  } catch (_) { /* empty-catch-allow: a11y focus-ring injection is best-effort styling */ }
+})();
+
+// ── Arc W · W1 — GLOBAL ELEVATION (depth lens), platform-wide ───────────────────
+// The platform read flat/coplanar (R1: depth_floor=789, ~0 box-shadow across 800+
+// card-like els). components.css carries the canonical elevation rules but is only
+// <link>ed on 12 pages; this injection (same dual-delivery pattern as the E2 skeleton
+// CSS + the focus-ring above) reaches the OTHER ~16 pages so EVERY page gets layered
+// depth. Selectors are wrapped in :where() = ZERO specificity, so this is a pure
+// DEFAULT: any page rule that styles a card's box-shadow (e.g. analytics' translucent
+// cards, a status-glow .feed-card) ALWAYS wins regardless of DOM order — we lift only
+// the currently-flat surfaces, never override intentional styling. box-shadow +
+// transform are layout-neutral (no CLS / tap-target / animation-budget cost).
+// Idempotent (id-guarded); shadow tokens defined here too since non-components.css
+// pages don't get its :root (tokens.css only supplies the navy ladder).
+(function whInjectElevation() {
+  try {
+    if (typeof document === 'undefined' || document.getElementById('wh-elevation')) return;
+    var css =
+      ':root{--wh-shadow-1:0 1px 2px rgba(0,0,0,0.20),0 2px 6px rgba(0,0,0,0.16);' +
+      '--wh-shadow-3:0 12px 32px rgba(0,0,0,0.34),0 4px 12px rgba(0,0,0,0.22);}' +
+      // card/panel/tile/widget roles -> soft float (matches the Arc W probe's card roles)
+      ':where(.simple-card,.action-card,.card,[class*="-card"],.panel,[class*="-panel"],' +
+      '.tile,[class*="-tile"],.widget,[class*="-widget"],.wh-card){box-shadow:var(--wh-shadow-1);}' +
+      // overlays/modals/sheets float highest
+      ':where(.modal,.modal-content,.modal-overlay,.sheet-overlay,[role="dialog"]){box-shadow:var(--wh-shadow-3);}' +
+      // surface-tint lift for the shared KPI card where the page hasn't themed it itself
+      ':where(.simple-card){background:var(--wh-navy-mid);}' +
+      // M/S press-feedback for gloved field workers (mobile-maestro rule #5)
+      ':where(button,.btn,a.btn,[role="button"]):active{transform:scale(0.98);}' +
+      // H lens (W3) — ONE hero KPI tile per dashboard dominates. NOT :where: a `hero` modifier the
+      // page author opted into MUST win over the page's `.sc-hero` (0,1,0); 0,2,1 beats it.
+      '.simple-card.hero .sc-hero{font-size:clamp(2rem,5.5vw,2.4rem);line-height:1.1;}';
+    var st = document.createElement('style');
+    st.id = 'wh-elevation';
+    st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+  } catch (_) { /* empty-catch-allow: elevation-shadow CSS injection is best-effort styling */ }
+})();
+
+// ─────────────────────────────────────────────
+// Arc W · W5 — ONE icon system (inline-SVG), platform-wide emoji → SVG
+// ─────────────────────────────────────────────
+// Ian's call (2026-06-25): standardize the platform's icon glyphs to ONE inline-SVG system
+// (the roadmap I-lens target), replacing the scattered emoji. Lucide-style 24×24 paths (MIT),
+// stroke=currentColor so a mono icon inherits its text color; status dots carry their own fill.
+// Exposed as window.whIcon(name,{label,cls}) for new markup, AND auto-applied: a guarded text-node
+// walk swaps known emoji → <svg.wh-i>. SAFETY: runs on `load` (after page scripts have read any
+// textContent during render); skips input/textarea/select/script/style/code/pre/svg/[contenteditable]
+// + [data-no-iconify]; marks processed; a MutationObserver re-runs on injected subtrees (so JS-built
+// lists convert too) with a guard against re-processing our own SVGs. Idempotent (id-guarded CSS).
+(function whIconSystem() {
+  if (typeof document === 'undefined') return;
+  var NS = 'http://www.w3.org/2000/svg';
+  // name -> { d: inner SVG markup, fill?: status color (filled, no stroke) }
+  var ICONS = {
+    check:        { d: '<path d="M20 6 9 17l-5-5"/>' },
+    x:            { d: '<path d="M18 6 6 18M6 6l12 12"/>' },
+    warning:      { d: '<path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4"/><path d="M12 17h.01"/>' },
+    star:         { d: '<path d="M11.5 2.3a.5.5 0 0 1 1 0l2.3 4.7a2 2 0 0 0 1.6 1.1l5.1.8a.5.5 0 0 1 .3.9l-3.7 3.6a2 2 0 0 0-.6 1.9l.9 5.1a.5.5 0 0 1-.8.6l-4.6-2.4a2 2 0 0 0-2 0L6.4 21a.5.5 0 0 1-.8-.6l.9-5.1a2 2 0 0 0-.6-1.9L2.2 9.8a.5.5 0 0 1 .3-.9l5.1-.8a2 2 0 0 0 1.6-1.1z"/>', sfill: 1 },
+    wrench:       { d: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>' },
+    'thumbs-up':  { d: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88z"/>' },
+    'thumbs-down':{ d: '<path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88z"/>' },
+    clipboard:    { d: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>' },
+    bot:          { d: '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/>' },
+    package:      { d: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>' },
+    zap:          { d: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>' },
+    chart:        { d: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/>' },
+    sparkles:     { d: '<path d="M9.94 14.5 12 21l2.06-6.5L20 12l-5.94-2.5L12 3l-2.06 6.5L4 12z"/>' },
+    file:         { d: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5M8 13h8M8 17h8"/>' },
+    search:       { d: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>' },
+    calendar:     { d: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>' },
+    gear:         { d: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
+    save:         { d: '<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7M7 3v4a1 1 0 0 0 1 1h7"/>' },
+    eye:          { d: '<path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/>' },
+    flame:        { d: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.71-3.9 1-5.5C9.5 5 11 6 12 6c1.5-1.5 2-3 2-3 2 2 4 4.5 4 8a6 6 0 0 1-12 0c0-1.5.5-2.5 1.5-3.5"/>' },
+    pencil:       { d: '<path d="M21.17 6.83 17.17 2.83a2 2 0 0 0-2.83 0L3 14.17V21h6.83L21.17 9.66a2 2 0 0 0 0-2.83z"/>' },
+    stop:         { d: '<path d="M2.59 7.91 7.9 2.6a2 2 0 0 1 1.42-.59h5.36a2 2 0 0 1 1.42.59l5.31 5.31a2 2 0 0 1 .59 1.42v5.36a2 2 0 0 1-.59 1.42l-5.31 5.31a2 2 0 0 1-1.42.59H9.32a2 2 0 0 1-1.42-.59L2.6 16.1a2 2 0 0 1-.59-1.42V9.32a2 2 0 0 1 .58-1.41z"/>' },
+    lock:         { d: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' },
+    factory:      { d: '<path d="M12 16h.01M16 16h.01M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8l-7 4V8l-7 4V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/>' },
+    globe:        { d: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>' },
+    crystal:      { d: '<circle cx="12" cy="10" r="7"/><path d="M7 21h10M9 17l-1 4M15 17l1 4"/>' },
+    bee:          { d: '<path d="M12 8a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0v-3a4 4 0 0 1 4-4z"/><path d="M8 11h8M8 14h8M9 5 7 3M15 5l2-2"/>' },
+    'arrow-down': { d: '<path d="M12 5v14M19 12l-7 7-7-7"/>' },
+    'arrow-up':   { d: '<path d="M12 19V5M5 12l7-7 7 7"/>' },
+    dot:          { d: '<circle cx="12" cy="12" r="9"/>', sfill: 1 },
+    shield:       { d: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>' },
+    target:       { d: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' },
+    user:         { d: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>' },
+    chat:         { d: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/>' },
+    refresh:      { d: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>' },
+    mail:         { d: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>' },
+    bulb:         { d: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>' },
+    clock:        { d: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>' },
+    camera:       { d: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>' },
+    trash:        { d: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' },
+    plus:         { d: '<path d="M5 12h14M12 5v14"/>' },
+    compass:      { d: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/>' },
+    droplet:      { d: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C8 11.1 7 13 7 15a7 7 0 0 0 7 7z"/>' },
+    award:        { d: '<circle cx="12" cy="8" r="6"/><path d="M15.5 12.5 17 22l-5-3-5 3 1.5-9.5"/>' },
+    megaphone:    { d: '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>' },
+    help:         { d: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>' },
+    heart:        { d: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>', sfill: 1 },
+    bug:          { d: '<path d="m8 2 1.88 1.88M14.12 3.88 16 2M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6M12 20v-9M6.53 9C4.6 8.8 3 7.1 3 5M6 13H2M3 21c0-2.1 1.7-3.9 3.8-4M20.97 5c0 2.1-1.6 3.8-3.5 4M22 13h-4M17.2 17c2.1.1 3.8 1.9 3.8 4"/>' },
+    back:         { d: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"/>' },
+    thermometer:  { d: '<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/>' },
+    battery:      { d: '<rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><path d="M22 11v2"/>' },
+    wind:         { d: '<path d="M12.8 19.6A2 2 0 1 0 14 16H2"/><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"/><path d="M9.8 4.4A2 2 0 1 1 11 8H2"/>' },
+    plug:         { d: '<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8z"/>' },
+  };
+  // emoji glyph -> icon name (or {name, fill} for colored status dots).
+  var MAP = {
+    '✓': 'check', '✔': 'check', '✅': 'check',
+    '✗': 'x', '✕': 'x', '✖': 'x', '❌': 'x', '❎': 'x',
+    '⚠': 'warning', '❗': 'warning', '❕': 'warning', '⁉': 'warning',
+    '⭐': 'star', '★': 'star', '☆': 'star',
+    '🔧': 'wrench', '🛠': 'wrench',
+    '👍': 'thumbs-up', '👎': 'thumbs-down',
+    '📋': 'clipboard', '📝': 'pencil', '✏': 'pencil', '✎': 'pencil', '✒': 'pencil',
+    '🤖': 'bot', '📦': 'package',
+    '⚡': 'zap', '📊': 'chart', '📈': 'chart', '📉': 'chart',
+    '✨': 'sparkles', '📄': 'file', '📃': 'file', '📁': 'file',
+    '🔍': 'search', '🔎': 'search',
+    '📅': 'calendar', '📆': 'calendar', '🗓': 'calendar',
+    '⚙': 'gear', '🔧️': 'wrench',
+    '💾': 'save', '👁': 'eye', '👀': 'eye',
+    '🔥': 'flame', '🛑': 'stop', '🔒': 'lock', '🔓': 'lock',
+    '🏭': 'factory', '🌐': 'globe', '🔮': 'crystal', '🐝': 'bee',
+    '⬇': 'arrow-down', '⬆': 'arrow-up',
+    '📐': 'gear', '📏': 'gear',
+    // long-tail (full coverage so every page reaches emoji=0 → one icon system)
+    '🛡': 'shield', '🎯': 'target', '👤': 'user', '👷': 'user', '🧑': 'user',
+    '💬': 'chat', '🗣': 'chat', '🔄': 'refresh', '🔁': 'refresh', '🔃': 'refresh',
+    '✉': 'mail', '📧': 'mail', '📥': 'mail', '📤': 'mail', '📢': 'megaphone',
+    '💡': 'bulb', '🕐': 'clock', '🕒': 'clock', '⏰': 'clock', '⏱': 'clock',
+    '📷': 'camera', '📸': 'camera', '🗑': 'trash', '➕': 'plus', '🧭': 'compass',
+    '🚰': 'droplet', '💧': 'droplet', '🏆': 'award', '🥇': 'award', '🥈': 'award',
+    '🥉': 'award', '🎖': 'award', '🎉': 'sparkles', '❄': 'sparkles', '🚨': 'warning',
+    '⛔': 'stop', '🧠': 'bot', '🌏': 'globe', '🌍': 'globe', '🧬': 'gear',
+    '🧰': 'wrench', '🔩': 'wrench', '🏗': 'factory', '📂': 'file', '📚': 'file',
+    '📖': 'file', '🖨': 'file', '📎': 'file', '✍': 'pencil', '👋': 'thumbs-up',
+    '💪': 'thumbs-up', '👀': 'eye',
+    // engineering-design domain glyphs (HVAC / electrical disciplines) + weather
+    '🌡': 'thermometer', '🔋': 'battery', '🔌': 'plug', '💨': 'wind', '🌬': 'wind',
+    '🌫': 'wind', '♻': 'refresh', '🌧': 'droplet', '🌦': 'droplet', '🧊': 'sparkles',
+    '🪙': 'dot', '🪣': 'droplet', '🪨': 'dot', '🌀': 'refresh', '🔆': 'bulb', '☀': 'bulb',
+    '❓': 'help', '❔': 'help', '🐞': 'bug', '🐛': 'bug', '🌊': 'droplet',
+    '↩': 'back', '↪': 'back', '⤴': 'back', '⤵': 'back',
+    '💛': 'heart', '💚': 'heart', '💙': 'heart', '❤': 'heart', '🧡': 'heart',
+    '💜': 'heart', '🤍': 'heart', '🖤': 'heart', '💗': 'heart', '💖': 'heart',
+    '\u{1FAD9}': 'package', '\u{1FA99}': 'dot', '\u{1F6E2}': 'droplet', '\u{1F525}': 'flame',
+    // colored status dots
+    '🔴': { n: 'dot', f: '#ef4444' }, '🟡': { n: 'dot', f: '#eab308' },
+    '🟢': { n: 'dot', f: '#22c55e' }, '🔵': { n: 'dot', f: '#3b82f6' },
+    '🟠': { n: 'dot', f: '#f97316' }, '⚫': { n: 'dot', f: '#6b7280' }, '⚪': { n: 'dot', f: '#d1d5db' },
+  };
+  function svgMarkup(name, opts) {
+    var ic = ICONS[name]; if (!ic) return null;
+    opts = opts || {};
+    var fill = opts.fill || (ic.sfill ? 'currentColor' : 'none');
+    var stroke = (ic.sfill || opts.fill) ? 'none' : 'currentColor';
+    var label = opts.label || name;
+    return '<svg class="wh-i' + (opts.cls ? ' ' + opts.cls : '') + '" viewBox="0 0 24 24" fill="' + fill + '" stroke="' + stroke +
+      '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="' + label + '">' + ic.d + '</svg>';
+  }
+  window.whIcon = function (name, opts) { return svgMarkup(name, opts) || ''; };
+
+  // build a single regex of all mapped glyphs (+ optional VS16). Longest keys first so a
+  // surrogate-pair-with-VS16 wins over the bare pair.
+  var keys = Object.keys(MAP).sort(function (a, b) { return b.length - a.length; });
+  var esc = function (s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+  var RE;
+  try { RE = new RegExp('(?:' + keys.map(esc).join('|') + ')\\uFE0F?', 'gu'); }
+  catch (e) { try { RE = new RegExp('(?:' + keys.map(esc).join('|') + ')\\uFE0F?', 'g'); } catch (e2) { return; } }
+  var SKIP = { INPUT: 1, TEXTAREA: 1, SELECT: 1, SCRIPT: 1, STYLE: 1, CODE: 1, PRE: 1, SVG: 1, NOSCRIPT: 1 };
+  function skip(el) {
+    for (var n = el; n; n = n.parentElement) {
+      if (!n.tagName) continue;
+      if (SKIP[n.tagName.toUpperCase()]) return true;
+      if (n.isContentEditable) return true;
+      if (n.hasAttribute && (n.hasAttribute('data-no-iconify') || n.classList.contains('wh-i'))) return true;
+    }
+    return false;
+  }
+  function spanFor(glyph) {
+    var m = MAP[glyph.replace(/️$/, '')] || MAP[glyph];
+    var name = (typeof m === 'string') ? m : (m && m.n);
+    var fill = (m && m.f) || null;
+    var html = svgMarkup(name, { fill: fill, label: name });
+    if (!html) return null;
+    var span = document.createElement('span');
+    span.className = 'wh-i-wrap'; span.setAttribute('aria-hidden', 'false');
+    span.innerHTML = html;
+    return span.firstChild;
+  }
+  function walk(root) {
+    if (!root || skip(root.nodeType === 1 ? root : root.parentElement || document.body)) return;
+    var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (t) {
+        if (!t.nodeValue || !RE.test(t.nodeValue)) return NodeFilter.FILTER_REJECT;
+        RE.lastIndex = 0;
+        return skip(t.parentElement) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var hits = [], t;
+    while ((t = tw.nextNode())) hits.push(t);
+    for (var i = 0; i < hits.length; i++) {
+      var node = hits[i], text = node.nodeValue, frag = document.createDocumentFragment(), last = 0, m2; RE.lastIndex = 0;
+      while ((m2 = RE.exec(text))) {
+        if (m2.index > last) frag.appendChild(document.createTextNode(text.slice(last, m2.index)));
+        var svg = spanFor(m2[0]);
+        if (svg) frag.appendChild(svg); else frag.appendChild(document.createTextNode(m2[0]));
+        last = m2.index + m2[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    }
+  }
+  function run() { try { walk(document.body); } catch (e) { /* empty-catch-allow: best-effort icon injection; a walk failure must never break the page */ } }
+  // convert JS-injected subtrees (lists/cards built after load), guarded against our own SVGs.
+  var mo = null;
+  try {
+    mo = new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var added = muts[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var nd = added[j];
+          if (nd.nodeType === 1 && !(nd.classList && nd.classList.contains('wh-i')) && nd.tagName !== 'svg') walk(nd);
+          else if (nd.nodeType === 3) walk(nd.parentElement || document.body);
+        }
+      }
+    });
+  } catch (e) { /* empty-catch-allow: MutationObserver is an optional UI enhancement */ }
+  function start() {
+    setTimeout(run, 0);                                   // initial pass once the static DOM is parsed
+    if (mo) try { mo.observe(document.body, { childList: true, subtree: true }); } catch (e) { /* empty-catch-allow: observe is best-effort UI enhancement */ }
+  }
+  // run on DOMContentLoaded (+setTimeout so it follows page-init handlers that read textContent),
+  // NOT `load` — `load` waits on all images and can land after first interaction / a probe window.
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+  // sizing/baseline CSS for inline icons (id-guarded).
+  if (!document.getElementById('wh-icon-css')) {
+    var st = document.createElement('style'); st.id = 'wh-icon-css';
+    st.textContent = '.wh-i{display:inline-block;width:1em;height:1em;vertical-align:-0.125em;flex:none}';
+    (document.head || document.documentElement).appendChild(st);
+  }
+})();
+
+// ─────────────────────────────────────────────
 // getDb() — shared Supabase client singleton
 // ─────────────────────────────────────────────
 // Calling `supabase.createClient()` more than once per page (or once per
@@ -24,7 +292,35 @@ window.getDb = function(url, key) {
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     throw new Error('getDb() called before @supabase/supabase-js loaded');
   }
-  window._whSupabaseClient = window.supabase.createClient(url, key);
+  // Arc S F-lens (F-002/F-008): bound EVERY PostgREST/Auth/Storage request with a
+  // timeout so a dead or slow backend FAILS FAST (caller gets an error -> degraded
+  // UI) instead of hanging the tab forever on an open socket. One install here
+  // covers all db.from()/db.rpc()/db.auth/db.storage calls platform-wide, so no
+  // page reinvents it. Generous default (45s) leaves legit slow ops (2G upload,
+  // big RPC) room to finish; tune via window.WH_DB_TIMEOUT_MS. A caller that
+  // supplies its own AbortSignal keeps full control (we don't double-wrap).
+  const TIMEOUT_MS = window.WH_DB_TIMEOUT_MS || 45000;
+  const _timeoutFetch = (input, init) => {
+    // Supabase client transport-fetch wrapper (not a data fetch): transport/abort errors
+    // propagate into every query's {data, error}, handled by each caller — a .catch here
+    // would swallow the error the client must surface. Hence fetch-error-allow on each.
+    init = init || {};
+    if (init.signal) return fetch(input, init); // fetch-error-allow: transport wrapper (see above)
+    const ctrl = new AbortController();
+    const t = setTimeout(() => {
+      try { ctrl.abort(new DOMException('WH_DB_TIMEOUT', 'TimeoutError')); }
+      catch (_) { ctrl.abort(); } // older engines: abort() takes no reason
+    }, TIMEOUT_MS);
+    // fetch-error-allow: transport wrapper — error surfaces via the client's {data, error}
+    return fetch(input, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(t));
+  };
+  window._whSupabaseClient = window.supabase.createClient(url, key, {
+    global: { fetch: _timeoutFetch },
+  });
+  // Arc S D-lens (D-004): expose the project URL so the connectivity widget can
+  // health-ping the backend (every page reaches the backend through getDb, so this
+  // is the one reliable place to publish it).
+  window.WH_SUPABASE_URL = url;
   return window._whSupabaseClient;
 };
 
@@ -178,8 +474,12 @@ function renderSourceChip(opts) {
     if (notes[i]) parts.push(escHtml(String(notes[i])));
   }
 
+  // Arc L · L1 CLS: padding (not margin) for the top gap — a top-margin on this <p> collapses
+  // through the empty source-chip slot + the shared <main>/.page scaffold, translating the whole
+  // page down ~12px at first data-render (proven on predictive.html). padding never collapses;
+  // with no background the 3px gap is visually identical.
   return '<p class="wh-source-chip" '
-    + 'style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:3px 0 0;line-height:1.35;">'
+    + 'style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
 }
@@ -229,6 +529,8 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '.wh-skeleton-row{height:44px;border-radius:10px;background:linear-gradient(100deg,rgba(255,255,255,0.04) 30%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 70%);background-size:200% 100%;animation:wh-shimmer 1.3s ease-in-out infinite}' +
     '@keyframes wh-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}' +
     '@media (prefers-reduced-motion:reduce){.wh-skeleton-row{animation:none}}' +
+    /* D1 U2: shared brief row-links (risk/pm-due/parts) were 39px tall (padding:8px) — bump to a 44px gloved-field tap target everywhere these render */
+    '.wh-risk-row,.wh-pmdue-row,.wh-parts-row{min-height:44px;box-sizing:border-box}' +
     '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.72);line-height:1.5}' +
     '.wh-list-error .wh-list-error-icon{font-size:1.4rem}' +
     '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#F4F6FA;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
@@ -354,7 +656,10 @@ function renderPmDueStrip(rows, opts) {
     if (over) { badge = 'critical'; status = (d != null) ? ('Overdue by ' + d + 'd') : 'Overdue'; }
     else      { badge = 'high';     status = (d != null) ? ('Due in ' + d + 'd')     : 'Due soon'; }
     var crit = r.criticality || r.asset_criticality || '';
-    var href = 'pm-scheduler.html';
+    // Arc X A1: deep-link to the NAMED PM asset (pm-scheduler.html reads ?asset= ->
+    // opens that asset's PM detail + schedule action), so the strip hands off the
+    // record instead of dumping the user on the full overdue list (Issue #2).
+    var href = 'pm-scheduler.html?asset=' + encodeURIComponent(name);
     return '<a href="' + e(href) + '" class="wh-pmdue-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     '<span class="oh-badge oh-badge-' + e(badge) + '">' + (over ? 'OVERDUE' : 'DUE') + '</span>'
@@ -410,7 +715,10 @@ function renderPartsStrip(rows, opts) {
     var label = out ? 'OUT' : 'LOW';
     var name = r.part_name || 'part';
     var meta = 'on hand ' + qty + ' / min ' + mn;
-    return '<a href="inventory.html" class="wh-parts-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
+    // Arc X A1: deep-link to the NAMED part (inventory.html reads ?q= -> filters +
+    // scrolls to it), so the strip hands off the record instead of a bare list.
+    var href = 'inventory.html?q=' + encodeURIComponent(r.part_name || '');
+    return '<a href="' + e(href) + '" class="wh-parts-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     '<span class="oh-badge oh-badge-' + e(badge) + '">' + label + '</span>'
       +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
@@ -1243,6 +1551,35 @@ function logPageView(db, extraProps) {
 }
 
 // ─────────────────────────────────────────────
+// rtConn — realtime subscribe() connection-state guard (Arc J / realtime-engineer skill)
+// ─────────────────────────────────────────────
+// Supabase Realtime's subscribe() callback may NEVER fire (no SUBSCRIBED, no
+// CHANNEL_ERROR, no TIMED_OUT) when the WebSocket silently fails to establish —
+// common on weak plant-floor WiFi and corporate networks. Without a timeout the
+// connection-state UI hangs at "Connecting…" forever. This factory returns a
+// status callback for `channel.subscribe(rtConn(onState))` that:
+//   • fires onState('offline') after `ms` if SUBSCRIBED never arrives,
+//   • fires onState('live') on SUBSCRIBED, onState('offline') on error/timeout/close,
+//   • is idempotent (settles once; clears its own timer).
+// `onState` is optional — bare `rtConn()` just guards the silent freeze. For
+// data-feed channels the page already rendered its initial DB query, so 'offline'
+// simply means "live updates paused", not "no data".
+function rtConn(onState, ms) {
+  const cb = (typeof onState === 'function') ? onState : function () {};
+  let settled = false;
+  const timer = setTimeout(function () {
+    if (!settled) { settled = true; cb('offline'); }
+  }, ms || 8000);
+  return function (status) {
+    if (status === 'SUBSCRIBED') {
+      settled = true; clearTimeout(timer); cb('live');
+    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+      settled = true; clearTimeout(timer); cb('offline');
+    }
+  };
+}
+
+// ─────────────────────────────────────────────
 // isPlatformAdmin — gate util for founder-console.html (Phase 0)
 // ─────────────────────────────────────────────
 // Reuses marketplace_platform_admins so admin grants are a single source of
@@ -1405,3 +1742,89 @@ async function loadWorkerTiers(db, workerNames) {
   ].join('');
   document.head.appendChild(s);
 }());
+
+// ── whCompressImage — Arc L scale-out (2026-06-23): client-side image compression ──
+// At a million users, raw ~0.35-3 MB phone photos are tens of TB of object storage and
+// egress. Resizing to a sane max dimension + re-encoding to WebP cuts that ~5-10x while
+// keeping a defect photo (rust/leak/crack/burn) perfectly legible — 1600px is plenty.
+// Robust: a File OR a dataURL in; ALWAYS returns a dataURL; on ANY failure (unsupported
+// codec, decode error, or a result that isn't smaller) it returns the ORIGINAL unharmed.
+//   const small = await whCompressImage(fileOrDataUrl, { maxDim: 1600, quality: 0.82 });
+function _whFileToDataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+async function whCompressImage(input, opts) {
+  opts = opts || {};
+  const maxDim  = opts.maxDim  || 1600;
+  const quality = opts.quality || 0.82;
+  const mime    = opts.type    || 'image/webp';
+  const origP   = (typeof input === 'string') ? Promise.resolve(input) : _whFileToDataUrl(input);
+  try {
+    const srcUrl = (typeof input === 'string') ? input : URL.createObjectURL(input);
+    const img = await new Promise((res, rej) => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = rej;
+      im.src = srcUrl;
+    });
+    if (typeof input !== 'string') { try { URL.revokeObjectURL(srcUrl); } catch (_e) { /* empty-catch-allow: best-effort object-URL cleanup */ } }
+    const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+    if (!w || !h) return await origP;
+    const scale = Math.min(1, maxDim / Math.max(w, h));   // never upscale
+    const cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = cw; canvas.height = ch;
+    canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+    let out = canvas.toDataURL(mime, quality);
+    if (out.indexOf('data:' + mime) !== 0) out = canvas.toDataURL('image/jpeg', quality);  // WebP unsupported -> JPEG
+    const orig = await origP;
+    return (out && out.length < orig.length) ? out : orig;   // never regress size
+  } catch (_e) {
+    return await origP;   // decode/codec failure -> original, never break the upload
+  }
+}
+if (typeof window !== 'undefined') { window.whCompressImage = whCompressImage; }
+
+// ── whPoll — Arc L scale-out (2026-06-23): visibility-aware polling fallback ──
+// The 1M realtime decision (Ian: "reduce + poll-fallback, no new infra"): Supabase
+// Realtime caps ~10K concurrent channels, so at 20K peak-concurrent users a per-user
+// WebSocket subscription is a hard wall. For NON-safety-critical surfaces, replace the
+// `.channel().subscribe()` with this: it re-runs the page's load fn on an interval,
+// PAUSES while the tab is hidden (no wasted reads/egress on background tabs — the key
+// to it scaling), runs once immediately, and returns a handle with .stop().
+//   const h = whPoll(loadAlertsPanel, 20000);   // refresh every 20s while visible
+//   // later / on teardown: h.stop();
+function whPoll(loadFn, intervalMs, opts) {
+  opts = opts || {};
+  const ms = Math.max(5000, intervalMs || 30000);   // floor 5s — never hammer
+  let timer = null, stopped = false, inFlight = false;
+  async function tick() {
+    if (stopped || inFlight) return;
+    if (typeof document !== 'undefined' && document.hidden) return;  // skip while backgrounded
+    inFlight = true;
+    try { await loadFn(); } catch (_e) { /* empty-catch-allow: a transient load error must not kill the loop */ }
+    finally { inFlight = false; }
+  }
+  function start() {
+    if (timer) return;
+    timer = setInterval(tick, ms);
+  }
+  function onVis() { if (!document.hidden) tick(); }   // refresh immediately on tab refocus
+  if (opts.immediate !== false) tick();                // run once now (matches realtime's initial state)
+  start();
+  if (typeof document !== 'undefined') document.addEventListener('visibilitychange', onVis);
+  return {
+    stop() {
+      stopped = true;
+      if (timer) { clearInterval(timer); timer = null; }
+      if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVis);
+    },
+    refresh: tick,
+  };
+}
+if (typeof window !== 'undefined') { window.whPoll = whPoll; }

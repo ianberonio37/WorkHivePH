@@ -1,0 +1,1094 @@
+{
+  "Frontend": {
+    "coverage_pct": 94.4,
+    "score": 8.5,
+    "total": 9,
+    "covered": 8,
+    "partial": 1,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "Render-value truth (rendered number == source)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "displayed-values",
+          "source-chip-truth",
+          "diagram_value_alignment",
+          "narrative_grounding"
+        ]
+      },
+      {
+        "sub": "XSS-safe rendering (escHtml coverage)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "xss",
+          "innerhtml-eschtml"
+        ]
+      },
+      {
+        "sub": "Accessibility (aria / labels / headings / contrast)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "accessibility",
+          "aria-label-coverage",
+          "heading-hierarchy",
+          "icon-button-label",
+          "table-accessible-name"
+        ]
+      },
+      {
+        "sub": "Responsive / mobile (touch, safe-area, viewport)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "mobile",
+          "viewport-user-scalable"
+        ]
+      },
+      {
+        "sub": "Empty / loading / error states",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "loading-state",
+          "feedback-widget"
+        ]
+      },
+      {
+        "sub": "Render budget / Core Web Vitals",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "CWV is L2-spec only; live-boot capture unreliable",
+        "evidence": [
+          "render-budget",
+          "bundle-bloat"
+        ]
+      },
+      {
+        "sub": "State management discipline (module scope, listener cleanup)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "module-scope-state",
+          "event-listener-cleanup",
+          "timer-cleanup"
+        ]
+      },
+      {
+        "sub": "Design-system tokens / brand consistency",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "design-tokens"
+        ]
+      },
+      {
+        "sub": "Capture round-trip (input value -> DB faithfully)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "capture-contracts",
+          "tool:verify_capture_roundtrip.py"
+        ]
+      }
+    ]
+  },
+  "APIs & Backend Logic": {
+    "coverage_pct": 100.0,
+    "score": 9.0,
+    "total": 9,
+    "covered": 9,
+    "partial": 0,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "Request/response envelope contract",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "edge-contracts",
+          "envelope-conformance",
+          "envelope-return-shape",
+          "edge-response-contract"
+        ]
+      },
+      {
+        "sub": "Input validation / guards",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "input-guards",
+          "json-parse-safety",
+          "response_format_validation"
+        ]
+      },
+      {
+        "sub": "Idempotency (safe retries)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "idempotency",
+          "optimistic-concurrency"
+        ]
+      },
+      {
+        "sub": "Error status + body contract",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "edge-status-body",
+          "edge-response-content-type",
+          "edge-body-size-guard"
+        ]
+      },
+      {
+        "sub": "Gateway pipeline (one front door)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "gateway-routing",
+          "gateway-coverage",
+          "gateway-audit"
+        ]
+      },
+      {
+        "sub": "Routing coverage (no bypass)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "gateway-coverage",
+          "edge-caller-contract",
+          "edge-function-invoke"
+        ]
+      },
+      {
+        "sub": "OpenAPI / contract sync",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "openapi-sync"
+        ]
+      },
+      {
+        "sub": "CORS / preflight correctness",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "cors-wildcard",
+          "edge-options-preflight"
+        ]
+      },
+      {
+        "sub": "Dependency pinning (reproducible imports)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "edge-unpinned-imports",
+          "reproducible-build-pin"
+        ]
+      }
+    ]
+  },
+  "Database & Storage": {
+    "coverage_pct": 94.4,
+    "score": 8.5,
+    "total": 9,
+    "covered": 8,
+    "partial": 1,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "Canonical truth layer (one definition per value)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "truth-view-contract",
+          "truth-view-consumer-columns",
+          "kpi-source-registry",
+          "canonical-registry"
+        ]
+      },
+      {
+        "sub": "Migration immutability + ordering",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "migration-immutability",
+          "migration-order",
+          "migration-immutability-strict"
+        ]
+      },
+      {
+        "sub": "Schema drift / coverage",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "schema-drift",
+          "schema-coverage",
+          "phantom-columns",
+          "query-column-existence"
+        ]
+      },
+      {
+        "sub": "Referential integrity (FK / on-delete)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "fk-on-delete",
+          "soft-delete"
+        ]
+      },
+      {
+        "sub": "Data lineage (input -> consumer graph)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "tool:mine_lineage_map.py",
+          "tool:journey_trace.py"
+        ]
+      },
+      {
+        "sub": "Retention / archival",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "data-retention",
+          "cold-archive",
+          "cold-archive-wiring"
+        ]
+      },
+      {
+        "sub": "Indexing / query performance",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "index-coverage",
+          "jsonb-index",
+          "unbounded-query"
+        ]
+      },
+      {
+        "sub": "JSONB / semi-structured integrity",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "jsonb-drift",
+          "vector-schema",
+          "pgvector-consistency"
+        ]
+      },
+      {
+        "sub": "Backup / restore verification",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "verify_backups is a local structural check; prod PITR is external",
+        "evidence": [
+          "tool:verify_backups.py"
+        ]
+      }
+    ]
+  },
+  "Auth & Permissions": {
+    "coverage_pct": 93.8,
+    "score": 7.5,
+    "total": 8,
+    "covered": 7,
+    "partial": 1,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "Identity resolution (server-derived, not client)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "gateway-tenancy",
+          "auth-boundary"
+        ]
+      },
+      {
+        "sub": "Tenancy resolution (hive scoping)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "gateway-tenancy",
+          "tenant-boundary"
+        ]
+      },
+      {
+        "sub": "RBAC roles consistency",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "role-string-consistency",
+          "admin-gates"
+        ]
+      },
+      {
+        "sub": "RLS policies (strict + symmetric)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "rls-strict",
+          "rls-symmetry",
+          "rls-open-policy",
+          "rls-readiness"
+        ]
+      },
+      {
+        "sub": "IDOR / policy binding (per-tenant key)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "policy-hive-binding",
+          "definer-membership-gate"
+        ]
+      },
+      {
+        "sub": "Auth migration readiness",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "auth-migration-readiness"
+        ]
+      },
+      {
+        "sub": "SSO / SAML (enterprise)",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "readiness check only; live SSO is enterprise-gated",
+        "evidence": [
+          "sso-readiness"
+        ]
+      },
+      {
+        "sub": "Service-role exposure guard",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "service-role-exposure",
+          "security-definer-search-path"
+        ]
+      }
+    ]
+  },
+  "Hosting & Deployment": {
+    "coverage_pct": 75.0,
+    "score": 6.0,
+    "total": 8,
+    "covered": 6,
+    "partial": 0,
+    "absent": 2,
+    "rows": [
+      {
+        "sub": "Deploy safety gate",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "deploy-safety",
+          "ci-gate-sentinel"
+        ]
+      },
+      {
+        "sub": "Migration immutability at deploy",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "migration-immutability-strict"
+        ]
+      },
+      {
+        "sub": "Env / config completeness",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "env-variable-existence",
+          "env-secret-coverage",
+          "edge-config"
+        ]
+      },
+      {
+        "sub": "Secrets management (no hardcode)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "hardcoded-secrets"
+        ]
+      },
+      {
+        "sub": "Reproducible build (pinned)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "reproducible-build-pin"
+        ]
+      },
+      {
+        "sub": "Deploy-signal mining",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "mine-deploy-signals"
+        ]
+      },
+      {
+        "sub": "Blue-green / rollback",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "prod rollout strategy is external (Ian's prod gate)",
+        "evidence": []
+      },
+      {
+        "sub": "CDN / static hosting config",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "prod CDN/hosting config is external",
+        "evidence": []
+      }
+    ]
+  },
+  "Cloud & Compute": {
+    "coverage_pct": 64.3,
+    "score": 4.5,
+    "total": 7,
+    "covered": 4,
+    "partial": 1,
+    "absent": 2,
+    "rows": [
+      {
+        "sub": "Runtime health endpoints",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "health-endpoint",
+          "health-surface-discovery"
+        ]
+      },
+      {
+        "sub": "Cold-start / warm-path optimisation",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "cold-start-memoization"
+        ]
+      },
+      {
+        "sub": "Capacity signal mining",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "mine-capacity-signals"
+        ]
+      },
+      {
+        "sub": "Edge runtime config",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "edge-config"
+        ]
+      },
+      {
+        "sub": "Autoscaling policy",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "autoscale is prod-infra, external",
+        "evidence": []
+      },
+      {
+        "sub": "Provisioning / IaC",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "provisioning/IaC is external",
+        "evidence": []
+      },
+      {
+        "sub": "Compute cost observability",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "AI compute cost tracked; general compute cost is prod-billing",
+        "evidence": [
+          "ai-cost-observability"
+        ]
+      }
+    ]
+  },
+  "CI/CD & Version Control": {
+    "coverage_pct": 92.9,
+    "score": 6.5,
+    "total": 7,
+    "covered": 6,
+    "partial": 1,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "Change chokepoint (every change gated)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "auto-discovery",
+          "gate-observability"
+        ]
+      },
+      {
+        "sub": "Validator self-coverage",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "validator-self-coverage",
+          "validator-freshness",
+          "tester-coverage"
+        ]
+      },
+      {
+        "sub": "Immutability of shipped artifacts",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "migration-immutability-strict"
+        ]
+      },
+      {
+        "sub": "Pattern-mining (new code auto-classified)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "edge-pattern-mining",
+          "html-pattern-mining",
+          "seeder-pattern-mining",
+          "validator-pattern-mining"
+        ]
+      },
+      {
+        "sub": "Baseline / regression ratchets",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "sentinel-baseline",
+          "tool:platform_baseline.json"
+        ]
+      },
+      {
+        "sub": "CI gate runner",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "ci_gate runs locally; GitHub Actions runner is external",
+        "evidence": [
+          "ci-gate-sentinel",
+          "tool:ci_gate.py"
+        ]
+      },
+      {
+        "sub": "Reproducible build pin",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "reproducible-build-pin"
+        ]
+      }
+    ]
+  },
+  "Security & RLS": {
+    "coverage_pct": 100.0,
+    "score": 9.0,
+    "total": 9,
+    "covered": 9,
+    "partial": 0,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "XSS / output encoding",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "xss",
+          "innerhtml-eschtml"
+        ]
+      },
+      {
+        "sub": "Injection (SQL/LIKE/JSON)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "like-escape",
+          "json-parse-safety",
+          "kpi-count-query-safety"
+        ]
+      },
+      {
+        "sub": "Secrets hygiene",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "hardcoded-secrets",
+          "env-secret-coverage"
+        ]
+      },
+      {
+        "sub": "PII egress control",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "pii-egress"
+        ]
+      },
+      {
+        "sub": "SAST scanning",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "sast-scan"
+        ]
+      },
+      {
+        "sub": "CORS / origin policy",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "cors-wildcard"
+        ]
+      },
+      {
+        "sub": "Service-role / privilege escalation",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "service-role-exposure",
+          "security-definer-search-path",
+          "provider-bypass"
+        ]
+      },
+      {
+        "sub": "Audit trail / tamper evidence",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "audit-trail-coverage",
+          "audit-log-coverage",
+          "audit-scanner-scope"
+        ]
+      },
+      {
+        "sub": "Auth boundary (cross-ref Auth layer)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "auth-boundary",
+          "policy-hive-binding"
+        ]
+      }
+    ]
+  },
+  "Rate Limiting": {
+    "coverage_pct": 83.3,
+    "score": 5.0,
+    "total": 6,
+    "covered": 4,
+    "partial": 2,
+    "absent": 0,
+    "rows": [
+      {
+        "sub": "Per-tenant rate-limit binding",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "policy-hive-binding"
+        ]
+      },
+      {
+        "sub": "Fairness (no cross-tenant drain)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "rate-limit-fairness"
+        ]
+      },
+      {
+        "sub": "Adoption across endpoints",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "rate-limit-adoption"
+        ]
+      },
+      {
+        "sub": "Rate-limit signal mining",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "mine-rate-limit-signals"
+        ]
+      },
+      {
+        "sub": "429 + Retry-After contract",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "429 contract asserted statically; live burst is V-strict/local",
+        "evidence": [
+          "edge-status-body"
+        ]
+      },
+      {
+        "sub": "Per-route quota",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "per-route quota in ai-gateway only; not all routes",
+        "evidence": [
+          "rate-limit-adoption"
+        ]
+      }
+    ]
+  },
+  "Caching & CDN": {
+    "coverage_pct": 78.6,
+    "score": 5.5,
+    "total": 7,
+    "covered": 5,
+    "partial": 1,
+    "absent": 1,
+    "rows": [
+      {
+        "sub": "Application cache (LLM / compute)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "llm-cache-adoption",
+          "cache-hit-rate"
+        ]
+      },
+      {
+        "sub": "Cache invalidation correctness",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "cache-invalidation"
+        ]
+      },
+      {
+        "sub": "Hit-rate observability",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "cache-hit-rate"
+        ]
+      },
+      {
+        "sub": "Cache-signal mining",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "mine-cache-signals",
+          "mine-cache-name-drift"
+        ]
+      },
+      {
+        "sub": "Offline / service-worker cache",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "offline-resilience",
+          "sw-offline",
+          "service-worker-shell",
+          "pwa"
+        ]
+      },
+      {
+        "sub": "CDN edge caching",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "prod CDN edge config is external",
+        "evidence": []
+      },
+      {
+        "sub": "Cache adoption breadth",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "cache adoption ratchet < target (documented residual)",
+        "evidence": [
+          "llm-cache-adoption"
+        ]
+      }
+    ]
+  },
+  "Load Balancing & Scaling": {
+    "coverage_pct": 58.3,
+    "score": 3.5,
+    "total": 6,
+    "covered": 3,
+    "partial": 1,
+    "absent": 2,
+    "rows": [
+      {
+        "sub": "Connection-pool saturation guard",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "connection-pool-saturation",
+          "connection-surface-discovery"
+        ]
+      },
+      {
+        "sub": "Capacity planning",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "mine-capacity-signals"
+        ]
+      },
+      {
+        "sub": "Load resilience (degraded-mode)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "load-resilience"
+        ]
+      },
+      {
+        "sub": "Load test (concurrent burst)",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "k6 harness points at local edge; prod load tier needs k6 install/prod",
+        "evidence": [
+          "tool:load_test.k6.js"
+        ]
+      },
+      {
+        "sub": "Horizontal scaling policy",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "horizontal scale is prod-infra, external",
+        "evidence": []
+      },
+      {
+        "sub": "Load balancer config",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "LB config is prod-infra, external",
+        "evidence": []
+      }
+    ]
+  },
+  "Error Tracking & Logs": {
+    "coverage_pct": 78.6,
+    "score": 5.5,
+    "total": 7,
+    "covered": 5,
+    "partial": 1,
+    "absent": 1,
+    "rows": [
+      {
+        "sub": "Structured logging adoption",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "structured-log-adoption"
+        ]
+      },
+      {
+        "sub": "Log correlation (trace id)",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "log-correlation"
+        ]
+      },
+      {
+        "sub": "Trace store / SLI rollup",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "tool:trace-store.ts",
+          "observability",
+          "adoption-observability"
+        ]
+      },
+      {
+        "sub": "Log-surface discovery",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "log-surface-discovery"
+        ]
+      },
+      {
+        "sub": "Console-log drift guard",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "console-log-drift"
+        ]
+      },
+      {
+        "sub": "Prod aggregation (Loki/Sentry)",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "prod log aggregation backend is external",
+        "evidence": []
+      },
+      {
+        "sub": "Error budget / alerting",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "alerting present; formal error-budget burn is prod-SLO",
+        "evidence": [
+          "pattern-alerts",
+          "proactive-alerts"
+        ]
+      }
+    ]
+  },
+  "Availability & Recovery": {
+    "coverage_pct": 64.3,
+    "score": 4.5,
+    "total": 7,
+    "covered": 4,
+    "partial": 1,
+    "absent": 2,
+    "rows": [
+      {
+        "sub": "Health endpoints",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "health-endpoint",
+          "health-surface-discovery"
+        ]
+      },
+      {
+        "sub": "SLO definition",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "art:GATEWAY_SLO.md"
+        ]
+      },
+      {
+        "sub": "Game-day readiness",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "game-day-readiness",
+          "tool:game_day.py"
+        ]
+      },
+      {
+        "sub": "Backup verification",
+        "status": "PARTIAL",
+        "points": 0.5,
+        "why": "structural backup check local; prod PITR external",
+        "evidence": [
+          "tool:verify_backups.py"
+        ]
+      },
+      {
+        "sub": "Degraded-mode / offline resilience",
+        "status": "COVERED",
+        "points": 1.0,
+        "why": "",
+        "evidence": [
+          "offline-resilience",
+          "load-resilience"
+        ]
+      },
+      {
+        "sub": "Failover / multi-region",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "failover/multi-region is prod-infra, external",
+        "evidence": []
+      },
+      {
+        "sub": "PITR / restore drill",
+        "status": "ABSENT",
+        "points": 0.0,
+        "why": "point-in-time-restore drill is external",
+        "evidence": []
+      }
+    ]
+  },
+  "_overall": {
+    "coverage_pct": 84.3,
+    "score": 83.5,
+    "total": 99,
+    "_note": "COVERAGE (presence-of-mechanism) = UPPER BOUND on true-scope depth, NOT depth itself. ABSENT cells are the measured backlog."
+  }
+}

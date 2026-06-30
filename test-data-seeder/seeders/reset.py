@@ -28,6 +28,8 @@ RESET_TABLES = [
     "companion_handoff",           # T146/T150/T154 cross-worker messages
     # Founder Console analytics (Phase 0) - append-only, no FKs
     "analytics_events",
+    "ai_reply_feedback",           # per-reply feedback (hive/worker-scoped data, PK id) — clear on reset
+    "analytics_snapshots",         # computed analytics snapshots (hive-scoped, PK id) — clear on reset
     # Platform feedback (2026-05-19) - votes references feedback, so child first
     "platform_feedback_votes",
     "platform_feedback",
@@ -105,10 +107,12 @@ RESET_TABLES = [
     # Logs + cache + audit
     "automation_log",
     "hive_audit_log",
+    "login_attempts",  # Arc I I7/A — server-side brute-force lockout counter (reset between test runs)
     "hive_analytics_cache",
     "agent_memory",
     "dialog_state",
     "anomaly_alerts",
+    "alert_dismissals",  # per-hive UI dismissal state (mig 20260627000000); leaf, PK id — clear between test runs
     "kb_documents",
     "kb_chunks",
     "industry_standards_chunks",

@@ -17,19 +17,24 @@ Calculates:
 
 import math
 
-# ─── ASHRAE 90.1-2019 Table 6.8.1 - Chiller minimum efficiency ───────────────
-# Format: (capacity_limit_kW, min_COP_full_load, min_IPLV)
-# Water-Cooled (centrifugal / screw)
+# ─── ASHRAE 90.1-2019 Table 6.8.1-3, Path A - Chiller minimum efficiency ─────
+# Format: (capacity_limit_kW, min_COP_full_load, min_IPLV). Tier breaks: 150 TR=527 kW,
+# 300 TR=1055 kW, 400 TR=1407 kW. COP = 3.5168/(kW/ton) = EER/3.412.
+# (Fixed 2026-06-23 Arc Q: the prior values traced to 90.1-2010 and were 5-25% too LOW —
+#  esp. air IPLV 3.05-3.35 vs 2019's 4.02-4.10 — so an under-efficient chiller could be
+#  reported COMPLIANT. Updated to 90.1-2019 Table 6.8.1-3 Path A; independently sourced +
+#  adversarially verified from two authoritative references.)
+# Water-Cooled (centrifugal)
 ASHRAE_90_1_WATER: list[dict] = [
-    {"max_kW":  527, "min_COP": 5.50, "min_IPLV": 6.29,  "type": "< 150 TR centrifugal"},
-    {"max_kW": 1055, "min_COP": 5.55, "min_IPLV": 6.29,  "type": "150–299 TR centrifugal"},
-    {"max_kW": 9999, "min_COP": 5.90, "min_IPLV": 6.63,  "type": ">= 300 TR centrifugal"},
+    {"max_kW":  527, "min_COP": 5.77, "min_IPLV": 6.39,  "type": "< 150 TR centrifugal"},
+    {"max_kW": 1055, "min_COP": 5.77, "min_IPLV": 6.39,  "type": "150–<300 TR centrifugal"},
+    {"max_kW": 1407, "min_COP": 6.28, "min_IPLV": 6.76,  "type": "300–<400 TR centrifugal"},
+    {"max_kW": 9999, "min_COP": 6.28, "min_IPLV": 7.03,  "type": ">= 400 TR centrifugal"},
 ]
-# Air-Cooled (scroll / screw)
+# Air-Cooled (≥ 9 kW capacity, electrically operated) — single 150 TR break
 ASHRAE_90_1_AIR: list[dict] = [
-    {"max_kW":  70,  "min_COP": 2.80, "min_IPLV": 3.05,  "type": "< 20 TR air-cooled"},
-    {"max_kW": 223,  "min_COP": 2.90, "min_IPLV": 3.20,  "type": "20–63 TR air-cooled"},
-    {"max_kW": 9999, "min_COP": 3.00, "min_IPLV": 3.35,  "type": ">= 63 TR air-cooled"},
+    {"max_kW":  527, "min_COP": 2.96, "min_IPLV": 4.02,  "type": "< 150 TR air-cooled"},
+    {"max_kW": 9999, "min_COP": 2.96, "min_IPLV": 4.10,  "type": ">= 150 TR air-cooled"},
 ]
 
 # ─── IPLV weighting factors - AHRI 550/590 ────────────────────────────────────

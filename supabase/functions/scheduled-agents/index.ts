@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: cron-triggered writes
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
@@ -25,6 +27,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the on-demand path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
   return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });
@@ -44,44 +47,65 @@ async function saveReport(db: SupabaseClient, hiveId: string, reportType: string
 
 // ── REPORT: PM Overdue ────────────────────────────────────────────────────────
 
-const PM_OVERDUE_SYSTEM = `You are a PM health analyst. Analyze asset PM data and produce a daily overdue report.
-Identify assets with no PM in 30+ days as overdue, 15-29 days as at-risk.
-Respond only in JSON: { "overdue_count": number, "at_risk_count": number, "overdue_assets": [{"asset_name","days_since_pm","risk":"CRITICAL|HIGH"}], "summary": "one sentence for supervisor" }`;
+// Arc Y Y2 fork#2 (WAT split): overdue/at-risk are DETERMINISTIC math from the
+// canonical FREQUENCY-AWARE view (v_pm_scope_items_truth, distinct pm_asset_id rolled up),
+// NOT a flat-30-day rule the LLM re-derives. The model only writes the one-sentence summary
+// from the already-computed numbers — it never classifies. (Prior path: flat "30+ days" in
+// the prompt, over-counting long-frequency PMs and contradicting the tiles.)
+const PM_OVERDUE_SYSTEM = `You are a PM health analyst writing a daily report for a supervisor.
+You are GIVEN the already-computed overdue and at-risk counts and the asset list — do NOT
+re-classify or change the numbers. Write a single supervisor-facing sentence.
+Respond only in JSON: { "summary": "one sentence for the supervisor" }`;
 
 async function runPMOverdue(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
-  // Canonical: pm_compliance_truth (drop-in; pm_asset_id column remapped to id
-  // for downstream compatibility with the pm_completions join).
-  const { data: assetsRaw } = await db.from("v_pm_compliance_truth")
-    .select("pm_asset_id, asset_name, category")
-    .eq("hive_id", hiveId);
-  const assets = (assetsRaw || []).map(a => ({
-    id: a.pm_asset_id, asset_name: a.asset_name, category: a.category,
-  }));
-  if (!assets.length) return "No assets found.";
+  // Canonical PM-overdue: frequency-aware scope items rolled up to DISTINCT assets.
+  const { data: rows } = await db.from("v_pm_scope_items_truth")
+    .select("pm_asset_id, asset_name, asset_category, asset_criticality, days_until_due, is_overdue, is_due_soon")
+    .eq("hive_id", hiveId)
+    .limit(4000);
+  if (!rows || !rows.length) return "No PM assets found.";
 
-  const assetIds = assets.map(a => a.id);
-  // canonical-allow: per-completion rows: pm_completions (base); the rollup view
-  // has no asset_id/completed_at. assetIds are pm_assets ids (= pm_completions.asset_id). (PROJ-DRIFT triage)
-  const { data: completions } = await db.from("pm_completions")
-    .select("asset_id, completed_at")
-    .in("asset_id", assetIds)
-    .order("completed_at", { ascending: false });
+  // Roll scope items up to one entry per asset: overdue if ANY item is_overdue; at-risk if
+  // ANY item is_due_soon and the asset is not already overdue. Track the worst days_until_due.
+  type AssetAgg = { asset_name: string; category: string; criticality: string; overdue: boolean; dueSoon: boolean; worstDays: number };
+  const byAsset: Record<string, AssetAgg> = {};
+  for (const r of rows) {
+    const k = r.pm_asset_id as string;
+    const a = byAsset[k] || (byAsset[k] = { asset_name: r.asset_name, category: r.asset_category, criticality: r.asset_criticality, overdue: false, dueSoon: false, worstDays: 9999 });
+    if (r.is_overdue) a.overdue = true;
+    if (r.is_due_soon) a.dueSoon = true;
+    if (typeof r.days_until_due === "number" && r.days_until_due < a.worstDays) a.worstDays = r.days_until_due;
+  }
+  const assets = Object.values(byAsset);
+  const overdueAssets = assets.filter(a => a.overdue)
+    .sort((x, y) => x.worstDays - y.worstDays)
+    .map(a => ({ asset_name: a.asset_name, days_since_pm: a.worstDays < 0 ? -a.worstDays : 0, risk: a.criticality === "critical" ? "CRITICAL" : "HIGH" }));
+  const atRiskCount = assets.filter(a => !a.overdue && a.dueSoon).length;
 
-  const lastDone: Record<string, string> = {};
-  (completions || []).forEach(c => { if (!lastDone[c.asset_id]) lastDone[c.asset_id] = c.completed_at; });
+  const result = {
+    overdue_count: overdueAssets.length,
+    at_risk_count: atRiskCount,
+    overdue_assets: overdueAssets,
+    summary: "",
+  };
 
-  const now = Date.now();
-  const summary = assets.map(a => {
-    const last = lastDone[a.id];
-    const days = last ? Math.floor((now - new Date(last).getTime()) / 86400000) : 999;
-    return `${a.asset_name}|${a.category}|${last ? `${days} days ago` : "never"}`;
-  }).join("\n");
-
+  // LLM writes ONLY the summary sentence from the deterministic numbers (WAT split).
   const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
-  const raw = await callGroq(`Assets (name|category|last_pm):\n${summary}${ctx}`, PM_OVERDUE_SYSTEM);
-  const result = JSON.parse(raw);
-  await saveReport(db, hiveId, "pm_overdue", result, result.summary || "PM overdue check complete.");
-  return result.summary || "PM check done.";
+  const topList = overdueAssets.slice(0, 10).map(a => `${a.asset_name} (${a.days_since_pm}d overdue, ${a.risk})`).join("; ") || "none";
+  try {
+    const raw = await callGroq(
+      `Overdue assets: ${result.overdue_count}. At-risk (due soon): ${result.at_risk_count}. Top overdue: ${topList}.${ctx}`,
+      PM_OVERDUE_SYSTEM);
+    result.summary = (JSON.parse(raw).summary || "").trim();
+  } catch (_e) { /* fall through to a deterministic summary below */ }
+  if (!result.summary) {
+    result.summary = result.overdue_count === 0
+      ? `No assets are overdue on PM${result.at_risk_count ? `; ${result.at_risk_count} due soon` : ""}.`
+      : `${result.overdue_count} asset${result.overdue_count === 1 ? "" : "s"} overdue on PM${result.at_risk_count ? `, ${result.at_risk_count} due soon` : ""} — start with the most critical.`;
+  }
+
+  await saveReport(db, hiveId, "pm_overdue", result, result.summary);
+  return result.summary;
 }
 
 // ── REPORT: Failure Digest ────────────────────────────────────────────────────
@@ -311,11 +335,16 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  logRequestStart(req, "scheduled-agents");  // I6 observability
 
   try {
     // hive_id is optional — when provided, runs for that hive only (on-demand from Report Sender).
     // When omitted, runs for all hives (cron path — unchanged behaviour).
-    const { report_type, hive_id, voice_context } = await req.json();
+    const { report_type, hive_id, voice_context: _vc } = await req.json();
+    // Arc R (LLM10): cap user voice_context before it is concatenated into the 6 report
+    // prompts (the narrative is stored to ai_reports + shown to supervisors). Matches the
+    // codebase's 500-char cap (project-orchestrator transcript).
+    const voice_context = typeof _vc === "string" ? _vc.slice(0, 500) : _vc;
 
     if (!report_type) {
       return new Response(
@@ -345,7 +374,16 @@ serve(async (req) => {
       }
     }
 
-    // TODO Phase 3: add per-hive AI rate limit check here before running reports.
+    // LLM10 unbounded-consumption: rate-limit the on-demand (Report Sender) path — it runs multi-agent
+    // LLM reports for a client hive_id. The cron path (service_role bearer, no hive_id) is exempt: it's a
+    // trusted periodic job. Keyed on the verified hive (membership already checked above).
+    if (hive_id) {
+      const { isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        const _rl = await checkAIRateLimit(db, hive_id);
+        if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
+      }
+    }
 
     let hives: { id: string; name: string }[];
 

@@ -988,8 +988,8 @@
     </div>
   </aside>
 
-  <!-- Coverage Map Panel -->
-  <div id="coveragePanel" style="display:none;width:320px;min-width:260px;border-left:1px solid rgba(255,255,255,0.07);overflow-y:auto;flex-shrink:0;">
+  <!-- Coverage Map Panel (overlay drawer — doesn't crowd the layout) -->
+  <div id="coveragePanel" style="display:none;position:fixed;top:0;right:0;bottom:0;width:340px;z-index:60;background:#0e1622;border-left:1px solid rgba(255,255,255,0.12);overflow-y:auto;box-shadow:-14px 0 44px rgba(0,0,0,0.55);">
     <div style="padding:.6rem .85rem .45rem;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;">
       <span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--steel)">Feature Coverage</span>
       <button class="btn-ghost" style="font-size:.62rem;padding:.15rem .45rem" onclick="toggleCoverage()">Hide</button>
@@ -1001,8 +1001,20 @@
   <div class="detail" id="detailPanel">
     <div class="welcome" id="welcomeState">
       <div class="welcome-icon">🎬</div>
-      <div class="welcome-title">Select an idea to get started</div>
-      <div class="welcome-sub">Click any card on the left to view details and generate a production-ready script</div>
+      <div class="welcome-title">Pick an idea on the left, or generate new ones</div>
+      <div class="welcome-sub">Then take it through the pipeline:</div>
+      <div style="display:flex;align-items:center;gap:.45rem;margin-top:1.1rem;flex-wrap:wrap;justify-content:center;font-size:.74rem;color:var(--steel)">
+        <span style="border:1px solid var(--border);border-radius:999px;padding:.25rem .7rem">💡 Idea</span>
+        <span>→</span>
+        <span style="border:1px solid var(--border);border-radius:999px;padding:.25rem .7rem">📝 Script</span>
+        <span>→</span>
+        <span style="border:1px solid var(--orange);color:var(--orange);border-radius:999px;padding:.25rem .7rem;font-weight:700">⚡ Flagship video</span>
+        <span>→</span>
+        <span style="border:1px solid var(--border);border-radius:999px;padding:.25rem .7rem">⬇ Download + 8-platform pack</span>
+      </div>
+      <div class="welcome-sub" style="margin-top:1.2rem;max-width:430px">
+        <strong style="color:var(--orange)">New: ⚡ Produce Flagship</strong> renders a modern 9:16 / 1:1 / 16:9 video — product-as-hero, mute-first kinetic captions, music, and a quality score — straight from any idea.
+      </div>
     </div>
   </div>
 </div>
@@ -1151,7 +1163,7 @@
         '<span class="badge b-muted">' + esc(idea.duration) + '</span>' +
         '<span class="badge b-muted">' + esc(idea.created_at) + '</span>' +
         (idea.source_article
-          ? '<a class="badge b-source" href="/workhive/learn/' + esc(idea.source_article) + '/" target="_blank" ' +
+          ? '<a class="badge b-source" href="https://workhiveph.com/learn/' + esc(idea.source_article) + '/" target="_blank" ' +
             'title="This idea is anchored in this learn article (provenance chain)">📄 from: ' + esc(idea.source_article) + '</a>'
           : '') +
       '</div>' +
@@ -2025,12 +2037,19 @@
 
     return (
       '<div class="auto-produce" id="autoProduce-' + ideaId + '">' +
+        '<div class="ap-flagship" id="apFlag-' + ideaId + '" style="border:1px solid var(--orange);border-radius:12px;padding:0.85rem 1rem;margin-bottom:1rem;background:rgba(247,162,27,0.07)">' +
+          '<div class="auto-produce-title">⚡ Produce Flagship Video <span style="font-size:0.62rem;background:var(--orange);color:#11192a;padding:1px 6px;border-radius:6px;vertical-align:middle;font-weight:700">NEW</span></div>' +
+          '<div class="auto-produce-sub">The modern render: product-as-hero, spring motion, mute-first kinetic captions, native 9:16 + 1:1 + 16:9, music + creative quality gate. No stock footage, no robotic TTS. (A few minutes per aspect.)</div>' +
+          '<button class="btn-autoproduce" id="apfBtn-' + ideaId + '" style="margin-top:0.65rem" onclick="produceFlagship(\'' + ideaId + '\')">⚡ Produce Flagship</button>' +
+          '<div class="ap-progress" id="apfProgress-' + ideaId + '" style="margin-top:0.7rem"></div>' +
+          '<div class="ap-message" id="apfMessage-' + ideaId + '"></div>' +
+        '</div>' +
         '<div class="auto-produce-header">' +
           '<div>' +
-            '<div class="auto-produce-title">🎬 Auto-Produce Full Video</div>' +
+            '<div class="auto-produce-title">🎬 Legacy assembler <span style="font-size:0.62rem;opacity:0.6">(stock + TTS)</span></div>' +
             '<div class="auto-produce-sub">' +
-              'One click runs the full chain: script → narration → UI recording → scene clips → music → assemble. ' +
-              'Stages skip cleanly if assets already exist (e.g. you recorded manually).' +
+              'The older chain: script → narration (TTS) → UI recording → scene clips → music → assemble. ' +
+              'Superseded by the flagship render above; kept for the manual/screen-record workflow.' +
             '</div>' +
           '</div>' +
           '<div class="auto-produce-controls">' +
@@ -2088,6 +2107,88 @@
       btn.disabled = false;
       btn.textContent = 'Auto-Produce';
     }
+  }
+
+  // ── Flagship produce (the MODERN pipeline) ────────────────────────────────
+  async function produceFlagship(ideaId) {
+    const btn  = document.getElementById('apfBtn-' + ideaId);
+    const msg  = document.getElementById('apfMessage-' + ideaId);
+    const prog = document.getElementById('apfProgress-' + ideaId);
+    btn.disabled = true; btn.textContent = 'Producing flagship...';
+    msg.className = 'ap-message'; msg.textContent = 'Starting flagship (a few minutes per aspect)...';
+    prog.innerHTML = '';
+    try {
+      const r = await fetch('/api/ideas/' + ideaId + '/produce-flagship', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aspects: ['9x16', '1x1', '16x9'] }),
+      });
+      const data = await r.json();
+      if (!data.success) throw new Error(data.error || 'Failed to start');
+      pollFlagshipJob(ideaId, data.job_id);
+    } catch (err) {
+      msg.className = 'ap-message error'; msg.textContent = 'Failed to start: ' + err.message;
+      btn.disabled = false; btn.textContent = '⚡ Produce Flagship';
+    }
+  }
+
+  async function pollFlagshipJob(ideaId, jobId) {
+    const btn  = document.getElementById('apfBtn-' + ideaId);
+    const msg  = document.getElementById('apfMessage-' + ideaId);
+    const prog = document.getElementById('apfProgress-' + ideaId);
+    const startT = Date.now();
+    let fails = 0; const MAXF = 20;
+    const tick = async () => {
+      try {
+        const r = await fetch('/api/produce-jobs/' + jobId, { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const data = await r.json();
+        if (!data.success) throw new Error(data.error);
+        fails = 0;
+        const stages = data.stages || [];
+        const cur = data.stage; const curIdx = stages.indexOf(cur);
+        prog.innerHTML = stages.map((s, i) => {
+          let cls = 'ap-step';
+          if (data.status === 'error' && s === cur)              cls = 'ap-step error';
+          else if (data.status === 'complete')                   cls = 'ap-step done';
+          else if (i < curIdx)                                   cls = 'ap-step done';
+          else if (i === curIdx && data.status === 'running')    cls = 'ap-step active';
+          const label = String(s).replace('render_', '').replace('_', ' ');
+          return '<div class="' + cls + '"><span class="ap-icon">' + (i + 1) + '</span><span class="ap-name">' + esc(label) + '</span></div>';
+        }).join('');
+        const elapsed = Math.round((Date.now() - startT) / 1000);
+        msg.className = 'ap-message'; msg.textContent = (data.message || '') + ' · ' + elapsed + 's';
+        if (data.status === 'complete') {
+          const res = data.result || {}; const dls = res.downloads || {}; const sc = res.score;
+          const links = Object.keys(dls).map(a =>
+            '<a href="' + esc(dls[a]) + '?download=1" style="color:var(--green);text-decoration:underline">' + esc(a) + ' MP4</a>'
+          ).join(' &middot; ');
+          const scoreTxt = sc ? ' &middot; gate <strong>' + esc(sc.verdict) + ' ' + esc(String(sc.score)) + '</strong>' : '';
+          msg.className = 'ap-message done';
+          msg.innerHTML = '✓ Flagship ready' + scoreTxt + ' &middot; ' + links;
+          const primary = res.primary || dls['9x16'] || dls[Object.keys(dls)[0]];
+          if (primary) prog.innerHTML += '<video src="' + esc(primary) + '" controls playsinline ' +
+            'style="margin-top:0.7rem;max-height:420px;border-radius:14px;display:block;box-shadow:0 12px 30px rgba(0,0,0,.4)"></video>';
+          btn.disabled = false; btn.textContent = '⚡ Produce Flagship Again';
+          return;
+        }
+        if (data.status === 'error') {
+          msg.className = 'ap-message error'; msg.textContent = data.message || data.error || 'Flagship failed';
+          btn.disabled = false; btn.textContent = 'Retry Flagship';
+          return;
+        }
+        setTimeout(tick, 1500);
+      } catch (err) {
+        fails += 1;
+        if (fails >= MAXF) {
+          msg.className = 'ap-message error';
+          msg.textContent = 'Lost connection (' + err.message + '). The render may still be running on the server.';
+          btn.disabled = false; btn.textContent = 'Retry Flagship';
+          return;
+        }
+        setTimeout(tick, 2000);
+      }
+    };
+    tick();
   }
 
   async function pollPipelineJob(ideaId, jobId) {

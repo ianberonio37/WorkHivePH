@@ -70,6 +70,11 @@ ALWAYS_PRESENT_TABLES = {
     # Supabase canonical extensions
     "vault.secrets", "vault",
     "schema_migrations",   # supabase migration history
+    # Bare SCHEMA identifiers — never a real table. The ref-regex backtracks and
+    # mis-captures the schema name as the "table" from dynamic DDL like
+    # `execute format('alter table public.%I ...', t)` (the %I placeholder defeats
+    # the schema-prefix branch). Treat a captured schema-name as already-present.
+    "public", "auth", "storage", "extensions", "pg_catalog", "graphql",
 }
 
 CREATE_TABLE_RE = re.compile(

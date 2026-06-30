@@ -15,6 +15,9 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // P1 roadmap 2026-05-26: adoption of shared /health helper.
 import { handleHealth } from "../_shared/health.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // ─── HVAC Lookup Tables (Philippine Tropical Climate) ───────────────────────
 
@@ -2185,13 +2188,14 @@ function calcBoltTorque(inputs: Record<string, number | string>): Record<string,
     'M30': [30, 561.0],
   };
 
-  // Proof strength (Sp) in MPa per grade: ISO 898-1:2013
-  // Grade 8.8: 580 MPa for M10/M12 (Table 3, ≤16mm thread); 600 MPa for M16 and above (Table 4)
-  // Grade 4.8: 310 MPa (ISO 898-1 under investigation; commonly cited: verify against ISO 898-1:2013 Table 4)
+  // Proof strength (Sp) in MPa per grade: ISO 898-1:2013 Table 3
+  // Grade 8.8 has two sub-classes: Sp = 580 MPa for d ≤ 16 mm (incl. M16);
+  //   Sp = 600 MPa only for d > 16 mm. (overridden below)
+  // Grade 4.8: Rm,nom = 420 MPa, Sp = 310 MPa (ISO 898-1:2013 Table 3 — verified).
   const SP_MAP: Record<string, number> = {
     '4.6':  225,
-    '4.8':  310,   // ⚠️ UNVERIFIED: confirm against ISO 898-1:2013 Table 4
-    '8.8':  600,   // size-dependent; overridden below for M10/M12
+    '4.8':  310,
+    '8.8':  600,   // d > 16 mm; overridden to 580 below for d ≤ 16 mm (incl. M16)
     '10.9': 830,
     '12.9': 970,
   };
@@ -2205,8 +2209,11 @@ function calcBoltTorque(inputs: Record<string, number | string>): Record<string,
 
   const [d_mm, At_mm2] = BOLT_DATA[bolt_size] ?? [16, 157];
   let Sp_MPa = SP_MAP[bolt_grade] ?? 600;
-  // ISO 898-1:2013: Grade 8.8 Sp = 580 MPa for M5–M14; 600 MPa for M16 and above
-  if (bolt_grade === '8.8' && d_mm <= 14) Sp_MPa = 580;
+  // ISO 898-1:2013 Table 3: Grade 8.8 Sp = 580 MPa for d ≤ 16 mm (incl. M16);
+  // 600 MPa only for d > 16 mm. (Fixed 2026-06-23 Arc Q: threshold was d ≤ 14,
+  // wrongly giving M16 the higher 600 MPa = non-conservative; must match the
+  // python engine calcs/bolt_torque.py and the validator oracle.)
+  if (bolt_grade === '8.8' && d_mm <= 16) Sp_MPa = 580;
 
   // Proof load & preload
   const Fp_kN  = round2((At_mm2 * Sp_MPa) / 1000);
@@ -5412,15 +5419,26 @@ function calcHarmonicDistortion(inputs: Record<string, unknown>): Record<string,
   const iscIl = (Isc > 0 && IL > 0) ? Isc / IL : 20;
   // IEEE 519-2022 Table 2 TDD limits by ISC/IL
   const tddLimit = iscIl < 20 ? 5 : iscIl < 50 ? 8 : iscIl < 100 ? 12 : iscIl < 1000 ? 15 : 20;
-  // Individual harmonic scale factor per ISC/IL tier
-  const indvScale = iscIl < 20 ? 1.0 : iscIl < 50 ? 2.0 : iscIl < 100 ? 3.0 : iscIl < 1000 ? 3.5 : 5.0;
+  // IEEE 519-2014/2022 Table 2 individual ODD-harmonic limits (% of IL) — full matrix,
+  // NOT a uniform scale of the <20 row (fixed 2026-06-23 Arc Q: the ×1/2/3/3.5/5 scale
+  // overstated every higher tier by 14–43% = too permissive. Must match the python engine.)
+  // Tier rows by ISC/IL: <20, 20–50, 50–100, 100–1000, >1000.
+  const tierIdx = iscIl < 20 ? 0 : iscIl < 50 ? 1 : iscIl < 100 ? 2 : iscIl < 1000 ? 3 : 4;
+  const INDV_519: number[][] = [
+    // 3-11  11-17  17-23  23-35  >35
+    [ 4.0,  2.0,   1.5,   0.6,   0.3 ],
+    [ 7.0,  3.5,   2.5,   1.0,   0.5 ],
+    [ 10.0, 4.5,   4.0,   1.5,   0.7 ],
+    [ 12.0, 5.5,   5.0,   2.0,   1.0 ],
+    [ 15.0, 7.0,   6.0,   2.5,   1.4 ],
+  ];
 
   let sumSq = 0;
   const harmonicTable = harmonics.map(h => {
     const Ih  = I1 * h.current_pct / 100;
     sumSq += Ih * Ih;
-    const basePct = h.order < 11 ? 4.0 : h.order < 17 ? 2.0 : h.order < 23 ? 1.5 : h.order < 35 ? 0.6 : 0.3;
-    const limPct  = basePct * indvScale;
+    const bandIdx = h.order < 11 ? 0 : h.order < 17 ? 1 : h.order < 23 ? 2 : h.order < 35 ? 3 : 4;
+    const limPct  = INDV_519[tierIdx][bandIdx];
     const limA    = IL * limPct / 100;
     return { order: h.order, current_pct: h.current_pct, current_A: r2(Ih), limit_pct_of_IL: r2(limPct), limit_A: r2(limA), pass: Ih <= limA };
   });
@@ -5467,7 +5485,12 @@ function calcCleanAgentSuppression(inputs: Record<string, unknown>): Record<stri
   const S        = agent.s1 + agent.s2 * tempC;
   const altFactor= Math.pow(1 - 2.2558e-5 * alt, 5.2559);
   const Vadj     = vol * altFactor;
-  const W        = (Vadj / S) * (cDesign / (100 - cDesign));
+  // NFPA 2001: halocarbons use C/(100−C) (§5.3); inert gases (Inergen/CO2) DISPLACE air →
+  // 2.303·log10[100/(100−C)] (§5.4). (Fixed 2026-06-23 Arc Q — was C/(100−C) for all agents,
+  // overstating inert-gas quantity ~22%. Must match python calcs/clean_agent_suppression.py.)
+  const W        = agent.type === 'inert_gas'
+    ? (Vadj / S) * 2.303 * Math.log10(100 / (100 - cDesign))
+    : (Vadj / S) * (cDesign / (100 - cDesign));
   const Wdesign  = W * sf;
 
   const STD_CYL = [16, 32, 50, 80, 100, 150, 200];
@@ -5986,6 +6009,17 @@ serve(async (req) => {
       );
     }
 
+    // LLM10 unbounded-consumption: this is a user-direct compute (python-api) + Groq narrative call
+    // from engineering-design.html. No hive context — bound by identity-or-IP (solo bucket). The
+    // trusted service_role path (none today, but future-proof) is exempt.
+    const _rlDb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const _id   = await resolveIdentity(_rlDb, req);
+    if (!_id.isServiceRole) {
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
+    }
+
     // ─── Python API proxy (Phase 0+) ─────────────────────────────────────────
     // Try the Python microservice first. If it handles the calc_type it returns
     // { results: {...} }. If not yet implemented it returns { not_implemented: true }
@@ -5996,7 +6030,7 @@ serve(async (req) => {
       try {
         const pyRes = await fetch(`${PYTHON_API_URL}/calculate`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-API-Key": Deno.env.get("PYTHON_API_KEY") ?? "" },
           body: JSON.stringify({ calc_type, inputs }),
           signal: AbortSignal.timeout(60000), // 60s: covers Render free-tier cold-start (~50s)
         });

@@ -1,0 +1,139 @@
+{
+  "tool": "tools/validate_narrative_grounding.py",
+  "subject": "page AI-prose cites only true platform numbers (no fabricated metric) \u2014 live",
+  "surfaces_total": 9,
+  "surfaces_grounded": 5,
+  "surfaces_skipped": 0,
+  "baseline_caps": {
+    "analytics": 0,
+    "analytics-report": 0,
+    "predictive": 0,
+    "shift-brain": 0,
+    "alert-hub": 1,
+    "report-sender": 0,
+    "ph-intelligence": 1,
+    "project-report": 0,
+    "asset-hub": 4
+  },
+  "detail": {
+    "analytics": {
+      "page": "analytics",
+      "edge_fn": "analytics-orchestrator",
+      "http": 200,
+      "grounding_numbers": 779,
+      "prose_strings": 140,
+      "substantive_nums_checked": 24,
+      "cited_grounded": 23,
+      "fabricated": [
+        "1700"
+      ],
+      "baseline_cap": 0,
+      "new_drift": true
+    },
+    "analytics-report": {
+      "page": "analytics-report",
+      "edge_fn": "analytics-orchestrator",
+      "http": 200,
+      "grounding_numbers": 779,
+      "prose_strings": 149,
+      "substantive_nums_checked": 30,
+      "cited_grounded": 29,
+      "fabricated": [
+        "1700"
+      ],
+      "baseline_cap": 0,
+      "new_drift": true
+    },
+    "predictive": {
+      "page": "predictive",
+      "edge_fn": "analytics-orchestrator",
+      "http": 200,
+      "grounding_numbers": 567,
+      "prose_strings": 85,
+      "substantive_nums_checked": 15,
+      "cited_grounded": 14,
+      "fabricated": [
+        "1700"
+      ],
+      "baseline_cap": 0,
+      "new_drift": true
+    },
+    "shift-brain": {
+      "page": "shift-brain",
+      "edge_fn": "analytics-orchestrator",
+      "http": 200,
+      "grounding_numbers": 7,
+      "prose_strings": 11,
+      "substantive_nums_checked": 0,
+      "cited_grounded": 0,
+      "fabricated": [],
+      "baseline_cap": 0,
+      "new_drift": false
+    },
+    "alert-hub": {
+      "page": "alert-hub",
+      "edge_fn": "analytics-orchestrator",
+      "http": 200,
+      "grounding_numbers": 24,
+      "prose_strings": 29,
+      "substantive_nums_checked": 0,
+      "cited_grounded": 0,
+      "fabricated": [],
+      "baseline_cap": 1,
+      "new_drift": false
+    },
+    "project-report": {
+      "page": "project-report",
+      "edge_fn": "project-orchestrator",
+      "http": 200,
+      "grounding_numbers": 4,
+      "prose_strings": 8,
+      "substantive_nums_checked": 2,
+      "cited_grounded": 2,
+      "fabricated": [],
+      "baseline_cap": 0,
+      "new_drift": false
+    },
+    "report-sender": {
+      "page": "report-sender",
+      "edge_fn": "scheduled-agents",
+      "http": 200,
+      "grounding_numbers": 5,
+      "prose_strings": 1,
+      "substantive_nums_checked": 1,
+      "cited_grounded": 1,
+      "fabricated": [],
+      "baseline_cap": 0,
+      "new_drift": false
+    },
+    "ph-intelligence": {
+      "page": "ph-intelligence",
+      "edge_fn": "__DB__",
+      "http": 200,
+      "grounding_numbers": 37,
+      "prose_strings": 1,
+      "substantive_nums_checked": 11,
+      "cited_grounded": 11,
+      "fabricated": [],
+      "baseline_cap": 1,
+      "new_drift": false
+    },
+    "asset-hub": {
+      "page": "asset-hub",
+      "edge_fn": "asset-brain-query",
+      "http": 200,
+      "grounding_numbers": 18,
+      "prose_strings": 2,
+      "substantive_nums_checked": 7,
+      "cited_grounded": 4,
+      "fabricated": [
+        "200",
+        "78",
+        "200"
+      ],
+      "baseline_cap": 4,
+      "new_drift": false
+    }
+  },
+  "result": "FAIL"
+}

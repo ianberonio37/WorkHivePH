@@ -37,6 +37,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: PDPA right-to-access export; structured payload, not a brain output
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -93,6 +95,7 @@ async function checkSupervisor(
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "export-hive-data");  // I6 observability
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({ error: "POST only" }),

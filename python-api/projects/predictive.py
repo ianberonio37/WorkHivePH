@@ -113,6 +113,11 @@ def _monte_carlo_schedule(items: list[dict], n_runs: int = 1000) -> dict:
     except ImportError:
         return {"available": False, "reason": "numpy not installed"}
 
+    # Deterministic, reproducible forecast: a fixed seed pins the triangular sampling so the
+    # same project yields the same P50/P80/P95 every call (auditable risk number, not a moving
+    # target). The distribution is unchanged — only the RNG sequence is fixed (PMI repeatability).
+    np.random.seed(20260621)
+
     by_id = {it.get("id"): it for it in items if it.get("id")}
     if not by_id:
         return {"available": False, "reason": "No items with ids"}

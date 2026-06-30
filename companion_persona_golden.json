@@ -346,6 +346,529 @@
         "this is hezekiah"
       ],
       "expected_behavior": "voice"
+    },
+    {
+      "id": "PR-HEZ-REG-04",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Before I open up Motor M-12, ano dapat unang gawin ko para safe â€” papatayin ko lang ba sa local switch?",
+      "markers_all": [
+        [
+          "loto",
+          "lockout",
+          "isolate",
+          "ppe",
+          "verify zero",
+          "tag out",
+          "tagout",
+          "de-energize",
+          "padlock",
+          "secure"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-HEZ-REG-05",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Motor M-12 megger test came back low, parang nag-degrade na yung insulation â€” ilan dapat ang reading?",
+      "markers_all": [
+        [
+          "megger",
+          "insulation",
+          "megohm",
+          "1 megohm",
+          "polarization",
+          "pi ratio",
+          "moisture",
+          "windings",
+          "winding",
+          "loto",
+          "red line"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-HEZ-REG-06",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Coupling on Pump P-410 keeps eating couplings, parang hindi straight ang alignment â€” paano ko itsetsek?",
+      "markers_all": [
+        [
+          "alignment",
+          "dial indicator",
+          "laser",
+          "shim",
+          "soft foot",
+          "runout",
+          "tolerance",
+          "coupling",
+          "misalignment",
+          "mils",
+          "loto"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-HEZ-REG-07",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Pump P-410 mechanical seal is dripping na, tutulo na yung flush, palitan ko na ba o kaya pang i-adjust?",
+      "markers_all": [
+        [
+          "seal",
+          "mechanical seal",
+          "gasket",
+          "flush",
+          "leak",
+          "seal faces",
+          "o-ring",
+          "loto",
+          "replace",
+          "housing"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-HEZ-REG-08",
+      "persona": "hezekiah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Conveyor drive threw trip code F07 kanina, ano ibig sabihin niyan at safe pa bang i-reset ko?",
+      "markers_all": [
+        [
+          "trip code",
+          "fault code",
+          "overload",
+          "reset",
+          "loto",
+          "failure mode",
+          "log it",
+          "logbook",
+          "ir gun",
+          "ir-gun",
+          "vibration"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-ZAN-REG-04-backlog-growth",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Our work order backlog keeps growing every week, hindi namin maabutan. Where should we focus?",
+      "markers_all": [
+        [
+          "backlog",
+          "planned-vs-reactive",
+          "planned vs reactive",
+          "reactive",
+          "trend",
+          "pattern",
+          "root-cause",
+          "root cause",
+          "recurring",
+          "recurrence",
+          "supervisor",
+          "review",
+          "weekly",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-ZAN-REG-05-oee-trend",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Line 2 OEE has been sliding the last three months. Anong dapat naming tingnan?",
+      "markers_all": [
+        [
+          "oee",
+          "trend",
+          "pattern",
+          "downtime",
+          "root-cause",
+          "root cause",
+          "deep-dive",
+          "deep dive",
+          "recurring",
+          "recurrence",
+          "supervisor",
+          "review",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-ZAN-REG-06-recurring-fault",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "The same conveyor fault keeps coming back, paulit-ulit na. Is this worth escalating?",
+      "markers_all": [
+        [
+          "recurrence",
+          "recurring",
+          "pattern",
+          "root-cause",
+          "root cause",
+          "trend",
+          "mtbf",
+          "deep-dive",
+          "deep dive",
+          "supervisor",
+          "review",
+          "escalat",
+          "case"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-ZAN-REG-07-downtime-cost",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Management is asking which machine is costing us the most downtime this quarter.",
+      "markers_all": [
+        [
+          "downtime",
+          "cost",
+          "trend",
+          "pattern",
+          "mtbf",
+          "replacement",
+          "watch line",
+          "deep-dive",
+          "deep dive",
+          "supervisor",
+          "review",
+          "case",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-ZAN-REG-08-reactive-ratio",
+      "persona": "zaniah",
+      "ability": "register",
+      "category": "persona_register",
+      "utterance": "Feeling ko puro firefighting na lang kami, parang too much reactive maintenance. Tama ba?",
+      "markers_all": [
+        [
+          "planned-vs-reactive",
+          "planned vs reactive",
+          "reactive",
+          "backlog",
+          "trend",
+          "pattern",
+          "root-cause",
+          "root cause",
+          "recurring",
+          "recurrence",
+          "supervisor",
+          "review",
+          "weekly",
+          "escalat"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D2"
+    },
+    {
+      "id": "PR-HEZ-BRG-02",
+      "persona": "hezekiah",
+      "ability": "bridge",
+      "category": "persona_bridge",
+      "utterance": "P-203's been failing on me every few weeks now. Is this turning into a recurring thing, and should I flag the MTBF trend to my supervisor before next quarter's budget?",
+      "markers_all": [
+        [
+          "zaniah",
+          "recurrence",
+          "recurring",
+          "mtbf",
+          "trend",
+          "pattern",
+          "supervisor",
+          "escalat",
+          "her lane"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D3"
+    },
+    {
+      "id": "PR-HEZ-BRG-03",
+      "persona": "hezekiah",
+      "ability": "bridge",
+      "category": "persona_bridge",
+      "utterance": "Forget the wrench work for a sec â€” given how much downtime this line keeps eating, should we just plan to replace the whole asset and clear the backlog instead of repairing it again?",
+      "markers_all": [
+        [
+          "zaniah",
+          "downtime",
+          "backlog",
+          "replacement",
+          "planned-vs-reactive",
+          "root-cause",
+          "deep-dive",
+          "strategic",
+          "her lane"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D3"
+    },
+    {
+      "id": "PR-ZAN-BRG-02",
+      "persona": "zaniah",
+      "ability": "bridge",
+      "category": "persona_bridge",
+      "utterance": "Skip the trend talk â€” I'm at the pump right now. What's the exact torque in Nm and the cross-pattern sequence for re-seating the P-203 baseplate bolts?",
+      "markers_all": [
+        [
+          "hezekiah",
+          "torque",
+          "nm",
+          "cross-pattern",
+          "loto",
+          "sop",
+          "specifics",
+          "his lane"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D3"
+    },
+    {
+      "id": "PR-ZAN-BRG-03",
+      "persona": "zaniah",
+      "ability": "bridge",
+      "category": "persona_bridge",
+      "utterance": "Never mind the recurrence patterns â€” out on the floor right now, how do I regrease the P-203 motor bearing safely, what lube grade, and do I need LOTO first?",
+      "markers_all": [
+        [
+          "hezekiah",
+          "bearing",
+          "regrease",
+          "lube",
+          "loto",
+          "ppe",
+          "sop",
+          "his lane"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D3"
+    },
+    {
+      "id": "PR-HEZ-ID-03",
+      "persona": "hezekiah",
+      "ability": "identity",
+      "category": "persona_identity",
+      "utterance": "Wait, before I trust your torque numbers â€” are you a real engineer or some bot? Sino ka ba?",
+      "markers_all": [
+        [
+          "hezekiah"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D1"
+    },
+    {
+      "id": "PR-ZAN-ID-03",
+      "persona": "zaniah",
+      "ability": "identity",
+      "category": "persona_identity",
+      "utterance": "Sandali lang, before you start analyzing my downtime trends â€” tao ka ba o AI? What's your name?",
+      "markers_all": [
+        [
+          "zaniah"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D1"
+    },
+    {
+      "id": "PR-HEZ-EMP-01",
+      "persona": "hezekiah",
+      "ability": "empathy_under_emotion",
+      "category": "persona_empathy",
+      "utterance": "Grabe, third callout tonight and the bearing's screaming again, pagod na pagod na ako, I can barely think straight.",
+      "markers_all": [
+        [
+          "i hear you",
+          "i get it",
+          "that sounds",
+          "sounds tough",
+          "sounds rough",
+          "mahirap",
+          "kaya mo",
+          "one at a time",
+          "take a breath",
+          "deep breath",
+          "breathe",
+          "naks",
+          "grabe",
+          "hang in there",
+          "understandable",
+          "rough",
+          "stressful",
+          "feel you",
+          "hindi madali",
+          "that is a lot",
+          "overwhelm"
+        ]
+      ],
+      "anti_markers": [
+        "i'm zaniah",
+        "i am zaniah",
+        "this is zaniah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D5"
+    },
+    {
+      "id": "PR-ZAN-EMP-02",
+      "persona": "zaniah",
+      "ability": "empathy_under_emotion",
+      "category": "persona_empathy",
+      "utterance": "Sobrang dami ng backlog, the recurring breakdowns keep piling up and I feel like I'm drowning, hindi ko na alam saan magsisimula.",
+      "markers_all": [
+        [
+          "i hear you",
+          "i get it",
+          "that sounds",
+          "sounds tough",
+          "sounds rough",
+          "mahirap",
+          "kaya mo",
+          "one at a time",
+          "take a breath",
+          "deep breath",
+          "breathe",
+          "naks",
+          "grabe",
+          "hang in there",
+          "understandable",
+          "rough",
+          "stressful",
+          "feel you",
+          "hindi madali",
+          "that is a lot",
+          "pace yourself",
+          "overwhelm"
+        ]
+      ],
+      "anti_markers": [
+        "i'm hezekiah",
+        "i am hezekiah",
+        "this is hezekiah"
+      ],
+      "expected_behavior": "voice",
+      "probe_type": "D5"
     }
   ]
 }

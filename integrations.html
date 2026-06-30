@@ -12,11 +12,11 @@
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- PapaParse for CSV parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" integrity="sha384-D/t0ZMqQW31H3az8ktEiNb39wyKnS82iFY52QPACM+IjKW3jDUhyIgh2PApRqJZs" crossorigin="anonymous"></script>
   <!-- SheetJS for Excel (.xlsx) parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -150,6 +150,18 @@
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
+    /* Arc L · CLS reserve (page-scoped, measured h0→h1) — the above-the-fold
+       command-center primitives are empty/placeholder at first paint and fill from
+       the live integration_configs fetch; reserving each MEASURED settled height
+       stops the empty→filled GROW that pushed the wizard down (CLS 0.658→<0.1).
+       NOTE: shared reserves (.simple-card 154px, .ac-text 60px) live in components.css;
+       these are the PAGE-SPECIFIC growers that exceed/aren't covered by those. */
+    #it-verdict { min-height: 84px; box-sizing: border-box; }            /* "Loading integrations…" placeholder → filled verdict (measured h1 84px) */
+    #it-verdict .verdict-text { min-height: 54px; }                      /* lock the centered label+sub block (measured h1 54px) so a font-swap line-wrap delta can't re-center & shift it */
+    #it-action-text { min-height: 80px; }                                /* "Computing recommendation…" → 3-line recommendation (measured h1 79px; shared .ac-text reserves only 60px) */
+    #it-active-sub, #it-stale-sub, #it-disabled-sub { min-height: 47px; }/* "Loading…" 1-line → up to 3-line sub (measured worst h1 47px) — keeps every .simple-card stable at its 154px reserve */
+    #it-active-hero, #it-stale-hero, #it-disabled-hero { min-height: 28px; }/* lock the KPI hero number (measured h1 28px) so a font-swap metric change can't reflow the card-internal stack */
+    #integrations-source-chip { min-height: 30px; }                      /* empty <p> → multi-line renderSourceChip() "Based on your …" chip under the header */
     #it-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #it-summary-details.open { display:block; }
   </style>
@@ -169,7 +181,7 @@
     <div class="verdict-text"><span id="it-verdict-label">Loading integrations...</span><small id="it-verdict-sub">Counting active CMMS connections, imports, and API keys.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="it-card-active" data-rag-tile="integrations:active" data-rag-label="Active integrations">
+    <div class="simple-card hero tag-grey" id="it-card-active" data-rag-tile="integrations:active" data-rag-label="Active integrations">
       <div class="sc-label">Active integrations</div>
       <div class="sc-hero" id="it-active-hero">0</div>
       <div class="sc-sub" id="it-active-sub">Loading...</div>
@@ -276,8 +288,8 @@
          (both connect external systems, same supervisor audience). One nav entry; this
          tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
     <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 6px; flex-wrap:wrap;">
-      <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
-      <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:7px 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
+      <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
+      <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
     </div>
     <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
     <p id="integrations-source-chip" style="margin-top:3px;"></p>
@@ -688,7 +700,7 @@
     // when the user clicks Live Sync).
     if (HIVE_ID) {
       try {
-        const { data } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID);
+        const { data } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);
         renderIntegrationsSummary(data || []);
       } catch (_) { renderIntegrationsSummary([]); }
     } else {
@@ -1122,12 +1134,17 @@
       const { data: existing } = await db.from('v_external_sync_truth')
         .select('external_id')
         .eq('hive_id', HIVE_ID).eq('entity_type', 'work_order')
-        .in('external_id', allExtIds.slice(0, 1000));
+        .in('external_id', allExtIds.slice(0, 1000))
+        .limit(1000); // L2: bounded by the ≤1000-id IN-list above; explicit row cap so egress can't exceed it
       const alreadySynced = new Set((existing || []).map(r => r.external_id));
 
       const logRows = validRows
         .filter(r => !alreadySynced.has(r.external_id))
         .map(r => ({
+          // logbook.id is text NOT NULL with NO default (the add-entry wizard generates it
+          // client-side) — the CMMS importer must do the same or every insert is rejected and
+          // imported work orders never reach logbook/analytics (Arc K K6/IN1 caught this).
+          id:               crypto.randomUUID(),
           worker_name:      WORKER_NAME,
           date:             r.created_at || now,
           machine:          r.machine,
@@ -1562,7 +1579,7 @@
       });
     }
     const { data } = await db.from('integration_configs')
-      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false });
+      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(500);
     // Plain-Read summary (Layer D) — runs even when there are no configs.
     renderIntegrationsSummary(data || []);
     const list = document.getElementById('sync-active-list');
@@ -1659,7 +1676,7 @@
     if (error) { showToast('Sync error: ' + error.message); return; }
     const r = data?.results?.[0];
     if (r?.error) showToast('Sync failed: ' + r.error);
-    else showToast('Synced ' + (r?.synced || 0) + ' records successfully.');
+    else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.');
     loadSyncConfigs();
   }
 
@@ -1708,7 +1725,7 @@
 
   async function loadApiKeys() {
     if (!HIVE_ID) return;
-    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false });
+    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false }).limit(500);
     const list = document.getElementById('api-keys-list');
     if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(k => {
@@ -1899,6 +1916,7 @@
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </main>
 </body>
 </html>

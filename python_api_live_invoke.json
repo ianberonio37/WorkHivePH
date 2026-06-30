@@ -1,0 +1,47 @@
+{
+  "/calculate": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'results': {'panels_per_string': 9, 'strings_parallel': 2, 'total_panels': 18, 'array_kWp': 7.2, 'array_Wp': 7200.0, 'array_area_m2': 34.6, 'roof_area_required"
+  },
+  "/project/progress": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'rollup': {'pct_complete': 0, 'items_total': 2, 'items_done': 0, 'items_blocked': 0, 'hours_estimated': 40, 'hours_actual': 0, 'days_elapsed': 0, 'days_total':"
+  },
+  "/reliability/pf-interval": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'pf_days': None, 'recommended_interval_days': None, 'basis': 'P-F/2'}"
+  },
+  "/reliability/weibull": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'beta': 1.7711828113987167, 'eta_days': 43.445369778883546, 'failure_pattern': 'wearout'}"
+  },
+  "/analytics": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'phase': 'descriptive', 'standard': 'ISO 14224:2016, SMRP Metrics, ISO 22400-2', 'period_days': 30}"
+  },
+  "/ml/predict": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'risk_score': 0.5, 'risk_level': 'medium', 'model_version': 'rules-v1'}"
+  },
+  "/diagram": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'svg': '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\\n  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11"
+  },
+  "/tts/speak": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'cache_key': '2af88cb0968cdbe1675cf533ecbb7d1af27d3b25656d445b579ae289caba5212', 'voice': 'en-PH-RosaNeural', 'persona': 'zaniah'}"
+  },
+  "/sensors/zscore": {
+    "code": 200,
+    "has_key": true,
+    "sample": "{'n': 8, 'mean': 10.0, 'std': 0.7559289460184544}"
+  }
+}

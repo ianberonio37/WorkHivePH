@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: deterministic BOM/SOW generation; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
@@ -7,6 +9,9 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // ─── BOM unit sanitizer ───────────────────────────────────────────────────────
 // LLMs sometimes put descriptive text in the `unit` field.
@@ -50,8 +55,12 @@ async function hvacBomSowAgent(
   const area     = inputs.floor_area    || "N/A";
   const totalKW  = results.recommended_kW  ?? results.q_design_kw ?? "N/A";
   const totalTR  = results.recommended_TR  ?? results.q_design_tr ?? "N/A";
-  const nUnits   = results.recommended_units ?? Math.ceil(Number(totalKW) / 2.5);
-  const unitKW   = results.ac_size_kw  ?? 2.5;
+  // Unit packaging is DERIVED, not a calc output: split the grounded recommended_kW
+  // into standard 2.5 kW split units. (Don't read results.recommended_units/ac_size_kw —
+  // the HVAC Cooling Load calc doesn't emit them; reading phantom keys = grounding drift
+  // that degrades the BOM to fallback assumptions instead of the grounded capacity.)
+  const unitKW   = 2.5; // standard split-unit nominal capacity (packaging assumption)
+  const nUnits   = Math.ceil(Number(totalKW) / unitKW);
   const voltage  = inputs.voltage || "230V/1Ph/60Hz";
   const pipingM  = Number(nUnits) * 5;
   const wiringM  = Number(nUnits) * 7;
@@ -1664,11 +1673,11 @@ async function solarPVBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
 
   const project       = inputs.project_name     || "Solar PV Project";
-  const systemType    = results.system_type     || inputs.system_type     || "Grid-Tied";
+  const systemType    = inputs.system_type      || "Grid-Tied";   // input-only (calc emits no system_type)
   const location      = results.location        || inputs.location        || "Metro Manila";
   const pshHr         = results.psh_hr          ?? inputs.psh_hr          ?? 4.5;
   const panelQty      = results.panel_qty       ?? "N/A";
-  const panelWp       = inputs.panel_wp         ?? results.panel_wp       ?? 450;
+  const panelWp       = inputs.panel_wp         ?? 450;   // input-only (calc emits array_Wp, not per-panel)
   const actualKWp     = results.actual_array_kwp ?? "N/A";
   const panelsPerStr  = results.panels_per_string ?? "N/A";
   const numStrings    = results.num_strings     ?? "N/A";
@@ -1679,7 +1688,7 @@ async function solarPVBomSowAgent(
   const isOffGrid     = String(systemType).includes("Off-Grid") || String(systemType).includes("Hybrid");
   const battKWh       = results.battery_kwh     ?? 0;
   const battAh        = results.battery_ah      ?? 0;
-  const battV         = inputs.battery_voltage  ?? results.battery_voltage ?? 48;
+  const battV         = inputs.battery_voltage  ?? 48;   // input-only (calc emits battery_ah/kwh, not voltage)
 
   const prompt = `You are a senior electrical engineer in the Philippines preparing a Bill of Materials and Scope of Works for a Solar PV System.
 
@@ -2097,8 +2106,8 @@ async function generatorSizingBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
 
   const project        = inputs.project_name    || "Generator Project";
-  const application    = results.application    || inputs.application    || "Standby (ESP)";
-  const phaseConfig    = results.phase_config   || inputs.phase_config   || "3-Phase";
+  const application    = inputs.application    || "Standby (ESP)";   // input-only (calc emits no application)
+  const phaseConfig    = inputs.phase_config   || "3-Phase";         // input-only (calc emits no phase_config)
   const runningKVA     = results.running_kva    ?? "N/A";
   const runningKW      = results.running_kw     ?? "N/A";
   const designKVA      = results.design_kva     ?? "N/A";
@@ -2248,30 +2257,43 @@ async function firePumpBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
 
   const project        = inputs.project_name      || "Fire Pump System Project";
-  const requiredFlow   = inputs.required_flow     ?? results.flow_lpm    ?? "N/A";
+  // The fire-pump calc emits recommended_/rated_/system_ flow keys (not bare flow_lpm).
+  const requiredFlow   = inputs.required_flow
+                          ?? results.recommended_flow_lpm ?? results.rated_flow_lpm
+                          ?? results.system_flow_lpm ?? results.flow_lpm ?? "N/A";
   const requiredPressBar = Number(inputs.required_pressure ?? 0);
   const requiredPressKPa = (requiredPressBar * 100).toFixed(0);
   const elevation      = inputs.elevation         ?? 0;
   const suctionType    = inputs.suction_type      || "Flooded Suction";
   const suctionHead    = inputs.suction_head      ?? 1.5;
-  const pipeDia        = results.pipe_dia_mm      ?? inputs.pipe_diameter ?? "N/A";
+  const pipeDia        = results.pipe_dia ?? results.pipe_dia_mm ?? inputs.pipe_diameter ?? "N/A";
   const pipeMat        = inputs.pipe_material     || "Steel";
   const driveType      = inputs.drive_type        || "Electric Motor";
   const pumpEff        = inputs.pump_efficiency   ?? 70;
   const motorEff       = inputs.motor_efficiency  ?? 90;
 
-  const TDH            = results.TDH              ?? "N/A";
-  const flowLpm        = results.flow_lpm         ?? requiredFlow;
-  const hydraulicKw    = results.hydraulic_kw     ?? "N/A";
-  const brakeKw        = results.brake_kw         ?? "N/A";
-  const motorKw        = results.motor_kw         ?? "N/A";
-  const motorHp        = results.motor_hp         ?? "N/A";
-  const recommendedHp  = results.recommended_hp   ?? "N/A";
-  const recommendedKw  = results.recommended_kw   ?? "N/A";
-  const pipeVelocity   = results.pipe_velocity    ?? "N/A";
-  const npshAvail      = results.npsh_available   ?? "N/A";
-  const staticHead     = results.static_head      ?? elevation;
-  const frictionHead   = results.friction_head    ?? "N/A";
+  // Align to the fire-pump calc's actual output keys (it returns rated_pressure_*,
+  // recommended_*/selected_*/P_nfpa_* — NOT bare TDH/flow_lpm/motor_hp). Reading the
+  // old keys made every CALCULATION RESULT line render "N/A" — an ungrounded BOM.
+  const TDH            = results.TDH ?? results.tdh_m
+                          ?? (results.rated_pressure_bar != null
+                                ? Number((Number(results.rated_pressure_bar) * 10.197).toFixed(1))
+                                : "N/A");
+  const flowLpm        = results.recommended_flow_lpm ?? results.rated_flow_lpm
+                          ?? results.system_flow_lpm ?? results.flow_lpm ?? requiredFlow;
+  const hydraulicKw    = results.hydraulic_kw     ?? results.P_shaft_kW ?? "N/A";
+  const brakeKw        = results.brake_kw         ?? results.P_shaft_kW
+                          ?? results.motor_kw_calculated ?? "N/A";
+  const motorKw        = results.motor_kw         ?? results.recommended_motor_kW
+                          ?? results.selected_kW ?? results.motor_kw_design ?? "N/A";
+  const motorHp        = results.motor_hp         ?? results.P_motor_HP ?? results.selected_HP ?? "N/A";
+  const recommendedHp  = results.recommended_hp   ?? results.selected_HP ?? results.P_nfpa_HP ?? "N/A";
+  const recommendedKw  = results.recommended_kw   ?? results.recommended_motor_kW
+                          ?? results.selected_kW ?? results.P_nfpa_kW ?? "N/A";
+  const pipeVelocity   = results.velocity ?? results.pipe_velocity ?? "N/A";
+  const npshAvail      = results.npsha_m ?? results.npsh_available ?? "N/A";
+  const staticHead     = results.elev_m ?? results.static_head ?? results.static_lift_m ?? elevation;
+  const frictionHead   = results.H_friction_m ?? results.friction_head ?? "N/A";
 
   // NFPA 20 motor rating: 115% for electric, 120% for diesel
   const isDiesel       = String(driveType).toLowerCase().includes("diesel");
@@ -2838,7 +2860,7 @@ async function chillerAirCooledBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
 
   const project         = inputs.project_name    || "Chiller Plant Project";
-  const nUnits          = Number(inputs.n_units  ?? results.n_units ?? 1);
+  const nUnits          = Number(inputs.n_units  ?? 1);   // input-only (calc echoes it in inputs_used, not top-level)
   const nominalTR       = Number(results.nominal_TR_each ?? 50);
   const nominalKW       = Number(results.nominal_kW_each ?? nominalTR * 3.517);
   const totalTR         = Number(results.nominal_total_TR ?? nominalTR * nUnits);
@@ -2970,8 +2992,11 @@ async function ahuBomSowAgent(
   const fanPowerWlps = Number(results.fan_power_W_lps || 0);
   const fanCheck     = String(results.fan_power_check || 'PASS');
   const qoaCMH       = Number(results.Q_oa_CMH || 0);
-  const totalFanKVA  = Number(results.total_fan_kVA || 0);
-  const totalFanA    = Number(results.total_fan_A_400V || 0);
+  // Total fan electrical load for supply/breaker sizing — the AHU calc has no kVA/current
+  // key, so derive from its fan_hp_total: HP→kW (×0.746), ÷ PF 0.85 (typical TEFC motor), 3φ 400 V.
+  const totalFanKW   = fanHP_total * 0.746;
+  const totalFanKVA  = totalFanKW > 0 ? Number((totalFanKW / 0.85).toFixed(1)) : 0;
+  const totalFanA    = totalFanKVA > 0 ? Number((totalFanKVA * 1000 / (Math.sqrt(3) * 400)).toFixed(1)) : 0;
   const isFanFail    = fanCheck.startsWith('FAIL');
   // CHW pipe size estimate: velocity = 1.5 m/s → D = sqrt(4Q/π/v) in mm
   const chwPipeMm    = chwLps > 0 ? Math.ceil(Math.sqrt((4 * chwLps / 1000) / (Math.PI * 1.5)) * 1000 / 25) * 25 : 50;
@@ -3072,8 +3097,8 @@ async function chillerWaterCooledBomSowAgent(
 ): Promise<{ bom_items: unknown[]; sow_sections: unknown[] }> {
 
   const project        = inputs.project_name   || "Water-Cooled Chiller Plant Project";
-  const chillerType    = String(inputs.chiller_type  || results.chiller_type || "Centrifugal");
-  const nUnits         = Number(inputs.n_units  ?? results.n_units ?? 2);
+  const chillerType    = String(inputs.chiller_type  || "Centrifugal");   // input-only (echoed in inputs_used)
+  const nUnits         = Number(inputs.n_units  ?? 2);                     // input-only (echoed in inputs_used)
   const nominalTR      = Number(results.nominal_TR_each  ?? 100);
   const nominalKW      = Number(results.nominal_kW_each  ?? nominalTR * 3.517);
   const totalTR        = Number(results.nominal_total_TR ?? nominalTR * nUnits);
@@ -3351,7 +3376,8 @@ async function boilerBomSowAgent(
 
   // Steam-only fields
   const steamDemand   = results.steam_demand_kg_hr  ?? inputs.steam_demand   ?? "N/A";
-  const designPressure= results.design_pressure_barg ?? inputs.design_pressure ?? "N/A";
+  // gauge (barg) — calc emits steam_pressure_barg; steam_pressure_bara is ABSOLUTE (≈ +1.01 bar), do NOT use it as barg
+  const designPressure= results.steam_pressure_barg ?? inputs.steam_pressure_barg ?? inputs.design_pressure ?? "N/A";
   const satTemp       = results.t_sat_c ?? "N/A";
   const blowdownPct   = results.blowdown_pct  ?? "N/A";
   const blowdownKghr  = results.blowdown_kg_hr ?? "N/A";
@@ -3359,11 +3385,11 @@ async function boilerBomSowAgent(
   const tdsMax        = inputs.tds_max        ?? 3500;
   const tdsMakeup     = inputs.tds_makeup     ?? 200;
 
-  // Hot water fields
-  const supplyTemp    = inputs.supply_temp    ?? results.system_pressure_barg ?? "N/A";
-  const returnTemp    = inputs.return_temp    ?? "N/A";
+  // Hot water fields (calc emits supply_temp_c / return_temp_c / delta_t_c / system_pressure_barg)
+  const supplyTemp    = results.supply_temp_c ?? inputs.supply_temp_c ?? inputs.supply_temp ?? "N/A";
+  const returnTemp    = results.return_temp_c ?? inputs.return_temp_c ?? inputs.return_temp ?? "N/A";
   const deltaT        = results.delta_t_c     ?? "N/A";
-  const hwPressure    = results.system_pressure_barg ?? "N/A";
+  const hwPressure    = results.system_pressure_barg ?? inputs.system_pressure_barg ?? "N/A";
   const flowLhr       = inputs.flow_rate_lhr  ?? "N/A";
 
   // Fuel storage qty (rough: 8 hours at full load + 20% reserve)
@@ -3955,7 +3981,7 @@ async function bearingLifeBomSowAgent(
   const requiredLifeH = Number(inputs.required_life_h || 25000);
   const reliabilityPct = Number(inputs.reliability_pct || 90);
   const lifeCheck     = String(results.life_check || '');
-  const adequate      = results.bearing_adequate ?? !lifeCheck.toUpperCase().includes('FAIL');
+  const adequate      = !lifeCheck.toUpperCase().includes('FAIL');   // life_check is the calc's verdict field
   const lifeStatus    = adequate ? 'PASS' : 'FAIL';
 
   // ASCII-only directive: Groq output strips Unicode (degree, multiplication, sub/superscript).
@@ -4751,6 +4777,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  logRequestStart(req, "engineering-bom-sow");  // I6 observability
 
   try {
     const body = await req.json();
@@ -4770,6 +4797,16 @@ serve(async (req) => {
         JSON.stringify({ error: "Missing required fields: discipline, calc_type, calc_results" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // LLM10 unbounded-consumption: BOM/SOW is a Groq generation called directly from engineering-design.html.
+    // No hive context — bound by identity-or-IP (solo bucket); the trusted service_role path is exempt.
+    const _rlDb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const _id   = await resolveIdentity(_rlDb, req);
+    if (!_id.isServiceRole) {
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
     }
 
     let result: { bom_items: unknown[]; sow_sections: unknown[] };

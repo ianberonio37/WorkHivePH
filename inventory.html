@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Inventory Monitor: WorkHive</title>
+  <title>Spare-Parts Inventory: WorkHive</title>
   <!-- capture: inventory_add_part_v1 (form + upload) — anchors the add-part form + photo upload to canonical_capture_contracts → inventory_items table -->
   <meta name="description" content="Track spare parts stock levels, link parts to assets, and get alerted before critical spares run out. WorkHive Inventory Monitor." />
   <meta property="og:title" content="Inventory Monitor: WorkHive" />
@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -234,7 +234,7 @@
     <div class="mb-6">
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Inventory Monitor</h1>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Spare-Parts Inventory</h1>
           <p class="text-sm text-white/45 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
           <p id="inventory-source-chip" style="margin-top:3px;"></p>
         </div>
@@ -314,17 +314,20 @@
           </svg>
           <input aria-label="Search part name, number, or linked asset..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search part name, number, or linked asset..." />
         </div>
-        <select id="filter-category" aria-label="Filter parts by category" class="wh-input sm:w-44">
-          <option value="">All categories</option>
-          <option value="Bearing">Bearing</option>
-          <option value="Seal">Seal</option>
-          <option value="Belt">Belt</option>
-          <option value="Filter">Filter</option>
-          <option value="Electrical">Electrical</option>
-          <option value="Fastener">Fastener</option>
-          <option value="Lubricant">Lubricant</option>
-          <option value="Other">Other</option>
-        </select>
+        <!-- Arc V L-lens: 8 part categories in a flat <select> (>7 = Miller). A datalist combobox is
+             strictly >= a select (shows all 8 on focus AND lets the user type to narrow) → clears the
+             Miller overload without losing the pick-from-list affordance. -->
+        <input id="filter-category" list="filter-category-options" type="text" aria-label="Filter parts by category" class="wh-input sm:w-44" placeholder="All categories" autocomplete="off" />
+        <datalist id="filter-category-options">
+          <option value="Bearing"></option>
+          <option value="Seal"></option>
+          <option value="Belt"></option>
+          <option value="Filter"></option>
+          <option value="Electrical"></option>
+          <option value="Fastener"></option>
+          <option value="Lubricant"></option>
+          <option value="Other"></option>
+        </datalist>
         <select id="filter-status" aria-label="Filter parts by stock level" class="wh-input sm:w-40">
           <option value="">All stock</option>
           <option value="out">Out of stock</option>
@@ -386,7 +389,11 @@
           <div>
             <label for="f-part-number" class="wh-label">Part Number <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
             <div style="display:flex; gap:8px; align-items:stretch;">
-              <input id="f-part-number" type="text" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" style="flex:1;" />
+              <input id="f-part-number" type="text" list="existing-part-numbers" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" style="flex:1;" />
+              <!-- C1 (Arc X recall->recognition): suggest existing part numbers so the
+                   user recognizes a code / catches a duplicate early, not recall it cold.
+                   Populated from current inventory in renderParts(). -->
+              <datalist id="existing-part-numbers"></datalist>
               <!-- Phase E.3d: Scan barcode / QR to auto-fill Part Number -->
               <button type="button" id="inv-scan-btn" aria-label="Scan part barcode with camera"
                       style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:0.75rem; cursor:pointer;">
@@ -473,7 +480,7 @@
             </button>
           </div>
         </div>
-        <div id="part-form-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
+        <div role="alert" aria-live="assertive" id="part-form-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
              style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
         <div class="flex gap-2 pt-1">
           <button id="part-submit-btn" class="btn-primary flex-1">Save Part</button>
@@ -501,7 +508,7 @@
           <label for="use-job-ref" class="wh-label">Job Reference <span class="text-white/60 font-normal normal-case">(optional: for audit trail)</span></label>
           <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" />
         </div>
-        <div id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
+        <div role="alert" aria-live="assertive" id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
              style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
         <div class="flex gap-2">
           <button id="use-submit-btn" class="btn-primary flex-1">Confirm Use</button>
@@ -842,8 +849,18 @@ function renderInventorySummary(items, lowCount, outCount) {
 
 function renderParts() {
   const items   = loadInventory();
+  // C1 (Arc X recall->recognition): keep the Add-Part "Part Number" datalist in
+  // sync with current inventory so the user recognizes an existing code / catches
+  // a duplicate early, instead of recalling the SKU cold (mirrors the category picker).
+  const pnDatalist = document.getElementById('existing-part-numbers');
+  if (pnDatalist) {
+    pnDatalist.innerHTML = [...new Set(items.map(i => i.part_number).filter(Boolean))]
+      .map(pn => `<option value="${escHtml(pn)}"></option>`).join('');
+  }
   const query   = document.getElementById('search-input').value.trim().toLowerCase();
-  const catF    = document.getElementById('filter-category').value;
+  // datalist combobox: only filter on an EXACT category match (partial/typed text → '' = show all)
+  const catRaw  = (document.getElementById('filter-category').value || '').trim();
+  const catF    = [...document.getElementById('filter-category-options').options].some(o => o.value === catRaw) ? catRaw : '';
   const statusF = document.getElementById('filter-status').value;
 
   // Stats
@@ -939,7 +956,7 @@ function renderParts() {
     return `
     <div class="part-card stock-${st} p-5 mb-3">
       <div class="flex items-start gap-4">
-        ${item.photo ? `<img src="${item.photo}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
+        ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <div class="flex items-center gap-2 flex-wrap">
@@ -1232,8 +1249,23 @@ async function submitPart() {
     _items = items; // update local cache immediately
 
     // Await DB insert before adding transaction: FK constraint requires item to exist first
-    const { error: insertErr } = await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, auth_uid: _authUid || null });
-    if (insertErr) { showFormError(errEl, 'Could not save part: ' + insertErr.message); return; }
+    const _row = { ...item, worker_name: WORKER_NAME, auth_uid: _authUid || null };
+    if (!navigator.onLine && window._whInvQueue) {
+      // Arc S D-001: offline -> queue the create (drains on reconnect). The item is
+      // already in the local cache (_items), so the worker sees it immediately.
+      await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
+      showToast('Saved offline — will sync when you reconnect.');
+    } else {
+      const { error: insertErr } = await db.from('inventory_items').upsert(_row);
+      if (insertErr) {
+        if (window._whInvQueue) {  // network hiccup while "online": queue it, don't lose the write
+          await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
+          showToast('Network issue — saved offline, will retry automatically.');
+        } else {
+          showFormError(errEl, 'Could not save part: ' + insertErr.message); return;
+        }
+      }
+    }
 
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
     writeAuditLog('create_inventory_item', 'inventory_items', item.id, partName || partNumber,
@@ -1296,12 +1328,16 @@ function submitUse() {
   closeUseModal();
   renderParts();
 
+  // Phase D1 (INTERACTIVE_LINEAGE_ROADMAP) — cross-surface RECEIPT. A use writes
+  // inventory_transactions + decrements qty_on_hand → feeds Analytics parts-consumption
+  // + stockout forecast (PRODUCTION_FIXES #16 chain), and raises an Alert Hub stock
+  // alert when low/out. Name what just rippled (Nielsen #1 visibility-of-status).
   if (st === 'out')
-    showToast(`${items[idx].part_number} is now OUT OF STOCK.`, 'warn');
+    showToast(`${items[idx].part_number} now OUT OF STOCK → Alert Hub stock alert · feeds Analytics stockout forecast.`, 'warn', 6000);
   else if (st === 'low')
-    showToast(`${items[idx].part_number} is LOW: ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} remaining.`, 'warn');
+    showToast(`${items[idx].part_number} LOW: ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} left → Alert Hub stock alert · feeds Analytics stockout forecast.`, 'warn', 6000);
   else
-    showToast(`Used ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number}.`);
+    showToast(`Used ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} → feeds Analytics parts-consumption rate.`, undefined, 5000);
 }
 
 // ────────────────────────────────────────────
@@ -1337,7 +1373,9 @@ function submitRestock() {
 
   closeRestockModal();
   renderParts();
-  showToast(`Restocked ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number}.`);
+  // Phase D1 — cross-surface receipt: a restock clears low/out flags (Alert Hub) and
+  // feeds Analytics parts-consumption; name the ripple.
+  showToast(`Restocked ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} → clears stock alerts · feeds Analytics.`, undefined, 5000);
 }
 
 // ────────────────────────────────────────────
@@ -1384,7 +1422,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/70 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
-      ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${item.photo}" alt="Inventory item photo" class="photo-thumb flex-shrink-0" />` : ''}
+      ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0" />` : ''}
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
@@ -1492,7 +1530,7 @@ async function confirmDeleteItem(id) {
 // TOAST
 // ────────────────────────────────────────────
 let toastTimer;
-function showToast(msg, type) {
+function showToast(msg, type, ms) {
   const icon = document.getElementById('toast-icon');
   document.getElementById('toast-text').textContent = msg;
   if (type === 'warn') {
@@ -1505,7 +1543,8 @@ function showToast(msg, type) {
   const toast = document.getElementById('toast');
   toast.classList.remove('hidden');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.add('hidden'), 3200);
+  // Optional longer duration for cross-surface receipts (Phase D1); default unchanged.
+  toastTimer = setTimeout(() => toast.classList.add('hidden'), ms || 3200);
 }
 
 // ────────────────────────────────────────────
@@ -1552,13 +1591,50 @@ document.getElementById('restock-modal').addEventListener('click', e => { if (e.
 document.getElementById('detail-modal-close').addEventListener('click', closeDetailModal);
 document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === document.getElementById('detail-modal')) closeDetailModal(); });
 
-document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 30; renderParts(); }, 300));
-document.getElementById('filter-category').addEventListener('change', () => { _invDisplayCount = 30; renderParts(); });
+// Arc X A3 (list-state persistence): mirror the live search into the URL (?q=) so
+// the filter survives a reload OR a leave-and-back-nav - the existing ?q= reader
+// restores it on return. replaceState (not pushState) keeps it out of history depth.
+function _invSyncUrlQ() {
+  try {
+    const q = document.getElementById('search-input').value.trim();
+    const url = new URL(window.location.href);
+    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+    history.replaceState(null, '', url);
+  } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+}
+document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 30; renderParts(); _invSyncUrlQ(); }, 300));
+['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 30; renderParts(); }));
 document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 30; renderParts(); });
 
 // ────────────────────────────────────────────
 // DATA INIT: migrate from localStorage then load from Supabase
 // ────────────────────────────────────────────
+// ── Phase D3 (INTERACTIVE_LINEAGE_ROADMAP) — live cross-page stock propagation ──
+// When a teammate uses/restocks a part (or a logbook job deducts parts via the
+// inventory_deduct RPC), inventory_items changes for this hive. Re-fetch the canonical
+// view + re-render so the OPEN inventory view updates live — no manual refresh. Re-fetch
+// (not client-merge of the raw row) keeps the server-derived is_low_stock / is_out_of_stock
+// flags canonical (no client recompute = no math-drift). Hive-mode only (realtime is a team
+// concern). inventory_items is published in supabase_realtime (mig 20260621000004); the
+// channel name + filter are NOT a tenant boundary — the SELECT RLS on inventory_items is
+// (realtime-engineer skill, Arc J). Connection guarded by utils.js rtConn() (settles once,
+// no silent freeze); channel removed on beforeunload.
+let invRealtimeChannel = null;
+function subscribeInventoryRealtime() {
+  if (!HIVE_ID || invRealtimeChannel) return;
+  const reload = (typeof debounce === 'function')
+    ? debounce(() => { initData().catch(e => console.warn('inv realtime reload:', e.message)); }, 600)
+    : () => { initData().catch(() => {}); };
+  invRealtimeChannel = db.channel('inventory-feed:' + HIVE_ID)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
+      () => reload())
+    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+}
+window.addEventListener('beforeunload', () => {
+  if (invRealtimeChannel) { try { db.removeChannel(invRealtimeChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup on unload */ } }
+});
+
 async function initData() {
   const _invChip = document.getElementById('inventory-source-chip');
   if (_invChip && typeof renderSourceChip === 'function') {
@@ -1588,16 +1664,18 @@ async function initData() {
   const ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, created_at';
   if (HIVE_ID) {
     itemsFetches = Promise.all([
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at')
+      // L2: a hive's inventory is bounded-by-nature (config list, not append-forever); insurance cap, never truncates realistic data
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').limit(2000),
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at').limit(2000)
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
     // it just wrote; v_asset_truth aliases asset_nodes.id → asset_id which
     // breaks the existing _buildAssetNodeMaps() consumer
     assetsFetches = Promise.all([
-      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at'),
-      db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at')
+      // L2: a hive's asset register is bounded-by-nature (config list); insurance cap
+      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').limit(2000),
+      db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at').limit(2000)
     ]);
   } else {
     itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
@@ -1605,13 +1683,13 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
     db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500),
     // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at'),
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap
     itemsFetches,
     assetsFetches
   ]);
@@ -1640,7 +1718,7 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at'),
+      db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
       // Same window/cap as the primary fetch above — keep the two paths consistent.
       db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500)
     ]);
@@ -1657,7 +1735,8 @@ async function initData() {
       .select('item_id, qty_reserved')
       .eq('hive_id', HIVE_ID)
       .is('consumed_at', null)
-      .is('released_at', null);
+      .is('released_at', null)
+      .limit(500); // L2: bounded-by-nature — only currently-active (unconsumed+unreleased) reservations exist in this set; per-hive simultaneous-active count is bounded by open jobs (≤ dozens), never reaches 500. Summed into a per-item Map; insurance cap cannot truncate a real set.
     if (resvErr) {
       console.warn('staged reservations:', resvErr.message);
     } else {
@@ -1692,7 +1771,7 @@ async function initData() {
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration
     const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
-      .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at');
+      .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap
     _assets = migA || [];
   } else {
     _assets = mergedAssets;
@@ -1754,6 +1833,19 @@ async function validateHiveMembership() {
   // v_inventory_items_truth.is_low_stock = 3).
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   await validateHiveMembership();
+  // Arc S D-lens (D-001/D-006): instantiate the SHARED offline-write queue so a
+  // brownout write queues to IndexedDB and drains on reconnect (offline-queue.js
+  // was loaded but never wired = dead code; this resolves it for inventory). The
+  // connectivity widget reads whGetQueueDepth() to show the pending-writes badge.
+  if (window.whCreateQueue) {
+    window._whInvQueue = window.whCreateQueue({
+      db: 'wh_inventory_offline', table: 'inventory_items',
+      identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      postSync: () => { try { initData(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
+    });
+    window.whRegisterQueue('inventory', window._whInvQueue);
+    window._whInvQueue.startAutoSync(db);
+  }
   // E2 consistent states: a failed load shows an inline error + Retry (shared
   // whListError) plus the platform toast, never a blank or stuck skeleton.
   try {
@@ -1765,6 +1857,9 @@ async function validateHiveMembership() {
     }
     if (typeof showToast === 'function') showToast('Inventory failed to load — tap Retry.', 'warn');
   }
+
+  // Phase D3 — live cross-page stock propagation (hive mode only; no-op solo).
+  subscribeInventoryRealtime();
 
   // Deep-link via ?q= (search-overlay part results link inventory.html?q=<part>;
   // without this reader the link landed on the page but never filtered the list).
@@ -1781,6 +1876,8 @@ async function validateHiveMembership() {
 </script>
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+  <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
   <script src="qr-scanner.js"></script>
   <!-- button-lock helper: prevents double-tap submits on use / restock / save flows.
        Use via withButtonLock(btn, async () => { await db.from(...).insert(...); }).

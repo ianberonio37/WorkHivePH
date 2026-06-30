@@ -1,0 +1,17 @@
+{
+  "stamped_at": "2026-06-17T19:34:47.005291+00:00",
+  "verified_nerves": 17,
+  "total_nerves": 17,
+  "H_paths_verified": 71,
+  "P_pages_engine_proven": 24,
+  "P_pages_fully_verified": 12,
+  "V_cells_proven": 56,
+  "V_cells_total": 77,
+  "V_cells_attributed": 11,
+  "artifact_grounding_resolved": 542,
+  "artifact_diagram_aligned": 17,
+  "artifact_bom_grounded": 7,
+  "artifact_export_resolved": 17,
+  "artifact_narrative_grounded": 1,
+  "note": "\u00a713 live data-lineage sweep (H + V axes) + \u00a713.13 artifact-correctness tier (A5) re-verified; forward-only ratchet held."
+}

@@ -175,3 +175,46 @@ def handle_zscore(payload: dict[str, Any], supabase: Any) -> dict[str, Any]:
         "warning":           is_warn,
         "diagnostic":        diag,
     }
+
+
+def zscore_compute(
+    values: list,
+    latest: float | None = None,
+    z_anomaly: float | None = None,
+    z_warning: float | None = None,
+) -> dict[str, Any]:
+    """Pure-compute 3-sigma Z-score anomaly check on a caller-supplied values array — NO DB.
+
+    handle_zscore() above fetches `sensor_readings` then runs exactly this math; exposing the
+    pure core as a stateless compute route (/sensors/zscore) lets a client (or the plant bridge
+    in test) check anomalies on its own window without a Supabase round-trip. Same 3-sigma rule,
+    same warning band — deterministic given the input (UFAI P7 F1 value-oracle + A4 statelessness).
+
+    `latest` defaults to values[0] (handle_zscore treats the most-recent reading as the latest).
+    """
+    za = Z_ANOMALY_THRESHOLD if z_anomaly is None else float(z_anomaly)
+    zw = Z_WARNING_THRESHOLD if z_warning is None else float(z_warning)
+    vals = [float(v) for v in values if v is not None]
+    n = len(vals)
+    if n < 2:
+        return {"n": n, "mean": None, "std": None, "z": None,
+                "anomaly": False, "warning": False,
+                "diagnostic": "Insufficient data: need at least 2 values."}
+    latest = vals[0] if latest is None else float(latest)
+    mean = sum(vals) / n
+    var = sum((v - mean) ** 2 for v in vals) / max(1, n - 1)
+    std = math.sqrt(var)
+    if std <= 0:
+        return {"n": n, "mean": mean, "std": 0.0, "latest": latest, "z": 0.0,
+                "anomaly": False, "warning": False,
+                "diagnostic": "Zero variance in window — sensor may be stuck or value is constant."}
+    z = abs(latest - mean) / std
+    is_anom = z >= za
+    is_warn = (z >= zw) and not is_anom
+    sign = "above" if latest > mean else "below"
+    return {
+        "n": n, "mean": mean, "std": std, "latest": latest, "z": z,
+        "anomaly": is_anom, "warning": is_warn,
+        "diagnostic": f"Latest value {latest:.4g} is {z:.2f} sigma {sign} the {n}-reading "
+                      f"window mean of {mean:.4g} (std {std:.4g}).",
+    }

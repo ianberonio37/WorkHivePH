@@ -58,8 +58,16 @@ EXPORT_DEFAULT_RE = re.compile(r"""export\s+default\b""")
 EXPORT_STAR_RE = re.compile(r"""export\s*\*\s*from""")
 
 
+# Single-pass alternation: scanning left-to-right, a `//` line comment is matched whole BEFORE
+# any `/*` inside it can start a block match. The old two-pass form (BLOCK before LINE) let a
+# `/*` embedded in a line comment (e.g. the path ".tmp/*.mts" on factsheet_render.ts:30) open a
+# spurious block comment that ran to the next `*/` (line 144) — swallowing the real
+# `export function buildOpsFactSheet` at line 136 → false "not exported" on its importer.
+COMMENT_RE = re.compile(r"/\*[\s\S]*?\*/|//[^\n]*")
+
+
 def _strip(code: str) -> str:
-    return LINE_COMMENT.sub("", BLOCK_COMMENT.sub("", code))
+    return COMMENT_RE.sub("", code)
 
 
 def _module_exports(path: Path, cache: dict) -> tuple[set[str], bool]:

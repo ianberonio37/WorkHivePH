@@ -1,0 +1,1912 @@
+{
+  "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
+  "totals": {
+    "anchors": 106,
+    "chrome_excluded": 41,
+    "data_anchors": 65,
+    "resolved": 65,
+    "resolved_pct": 100.0,
+    "resolved_pct_of_all": 61.3,
+    "resolved_by_formula_or_kpi": 0,
+    "resolved_by_js_heuristic": 1,
+    "resolved_by_verified_bind": 64,
+    "needs_js_parse": 0
+  },
+  "anchors": [
+    {
+      "page": "hive.html",
+      "id": "adoption-risk-score",
+      "token": "adoption",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "get_adoption_risk_current",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "Numeric adoption-risk score (0-100) for the hive, or '--' when no snapshot exists.",
+            "reads": "get_adoption_risk_current",
+            "view": null,
+            "table": null,
+            "rpc": "get_adoption_risk_current",
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "code-strip-value",
+      "token": "code-strip",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "code-value",
+      "token": "code-value",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "conn-label",
+      "token": "conn-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "presence-bar",
+      "token": "presence-bar",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "presenceChannel.presenceState",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Live chips of workers currently online in the hive (Supabase Realtime presence).",
+            "reads": "presenceChannel.presenceState",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "ss-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_logbook_truth + v_pm_scope_items_truth + v_inventory_items_truth + get_adoption_risk_current",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Supervisor verdict headline summarizing hive health across logbook, PM scope, inventory and adoption risk",
+            "reads": "v_logbook_truth + v_pm_scope_items_truth + v_inventory_items_truth + get_adoption_risk_current",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "welcome-log-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_logbook_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of all logbook entries by the current worker (welcome screen).",
+            "reads": "v_logbook_truth",
+            "view": "v_logbook_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "welcome-parts-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_logbook_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of CLOSED logbook entries by the current worker (welcome screen).",
+            "reads": "v_logbook_truth",
+            "view": "v_logbook_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "hive-focus-label",
+      "token": "hive-focus-label",
+      "bucket": "unknown",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "v_inventory_items_truth",
+        "source_kind": "table/view",
+        "confidence": "high"
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "quality-pct-value",
+      "token": "quality",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "good/total units (production-output form inputs)",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "OEE quality % = good/total x 100 (capped 100)",
+            "reads": "good/total units (production-output form inputs)",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": "SMRP OEE quality",
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "asset-picker-label",
+      "token": "asset-picker-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "extras-toggle-label",
+      "token": "extras-toggle-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "logbook-count-label",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "logbook",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count caption 'Showing N of M entries' for the logbook feed",
+            "reads": "logbook",
+            "view": null,
+            "table": "logbook",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "machine-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "logbook",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Distinct machine count in the header stat pills (worker's own entries)",
+            "reads": "logbook",
+            "view": null,
+            "table": "logbook",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "offline-queue-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "IndexedDB offline write-queue (getPendingEntries)",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of entries queued offline awaiting sync",
+            "reads": "IndexedDB offline write-queue (getPendingEntries)",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "open-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "logbook",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Open-entries count in the header stat pills (head COUNT query)",
+            "reads": "logbook",
+            "view": null,
+            "table": "logbook",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "open-jobs-count",
+      "token": "open-jobs",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "logbook",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Open-jobs badge ('N open job(s)') on the open-jobs panel",
+            "reads": "logbook",
+            "view": null,
+            "table": "logbook",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "pm-tasks-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_pm_scope_items_truth",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Inline PM-tasks header count ('N need(s) attention' / 'All tasks on track')",
+            "reads": "v_pm_scope_items_truth",
+            "view": "v_pm_scope_items_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": "PM scheduling \u2014 overdue/due-soon canonical signals",
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "total-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "logbook",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Total-entries count in the header stat pills (head COUNT query)",
+            "reads": "logbook",
+            "view": null,
+            "table": "logbook",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "logbook.html",
+      "id": "view-toggle-bar",
+      "token": "view-toggle-bar",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "inventory.html",
+      "id": "stat-total",
+      "token": "total",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_inventory_items_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Total parts count pill \u2014 shows items.length, the number of inventory items in the current scope.",
+            "reads": "v_inventory_items_truth",
+            "view": "v_inventory_items_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "inventory.html",
+      "id": "inv-count-label",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_inventory_items_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Pagination label 'Showing N of M parts' \u2014 visible.length / filtered.length of inventory items.",
+            "reads": "v_inventory_items_truth",
+            "view": "v_inventory_items_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "inventory.html",
+      "id": "inv-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_inventory_items_truth",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Plain-Read stock-health verdict headline (e.g. 'Stock is healthy', 'N parts out of stock') classifying inventory state.",
+            "reads": "v_inventory_items_truth",
+            "view": "v_inventory_items_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "filter-bar",
+      "token": "filter-bar",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "pm-count-label",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "pm_assets",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Shows 'Showing N of M assets' \u2014 the count of visible vs. filtered PM assets.",
+            "reads": "pm_assets",
+            "view": null,
+            "table": "pm_assets",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "pm-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "get_pm_compliance_smrp",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Plain-read verdict headline (e.g. 'PM compliance is healthy (88%)', 'PM compliance is in the red') driven by SMRP 2.1.1 compliance %, overdue count, and total.",
+            "reads": "get_pm_compliance_smrp",
+            "view": null,
+            "table": null,
+            "rpc": "get_pm_compliance_smrp",
+            "standard_cite": "SMRP 2.1.1",
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "rev-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "sheet-save-label",
+      "token": "sheet-save-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "analytics.html",
+      "id": "recompute-risk-label",
+      "token": "risk",
+      "bucket": "contracted",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "analytics.html",
+      "id": "an-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "analytics-orchestrator",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Plain-read reliability verdict ('need action' / 'climbing' / 'healthy' / 'not enough data') derived from OEE, worst-MTBF and PM-compliance.",
+            "reads": "analytics-orchestrator",
+            "view": null,
+            "table": null,
+            "rpc": "analytics-orchestrator",
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "analytics.html",
+      "id": "refresh-label",
+      "token": "refresh-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "analytics.html",
+      "id": "role-bar",
+      "token": "role-bar",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "analytics.html",
+      "id": "status-bar",
+      "token": "status-bar",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "skillmatrix.html",
+      "id": "exam-prog-label",
+      "token": "exam",
+      "bucket": "contracted",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "skillmatrix.html",
+      "id": "result-score",
+      "token": "result-score",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "client-side exam grading (answers vs answer key)",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Exam result score (X / 10) after submitting a quiz",
+            "reads": "client-side exam grading (answers vs answer key)",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "skillmatrix.html",
+      "id": "sm-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_skill_badges_truth + skill_profiles",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Skill-matrix verdict headline summarizing discipline progress vs targets",
+            "reads": "v_skill_badges_truth + skill_profiles",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "conn-label",
+      "token": "conn-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "hive-name-label",
+      "token": "hive-name-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "mod-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_community_posts_truth",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Mod-queue badge count = number of flagged posts",
+            "reads": "v_community_posts_truth",
+            "view": "v_community_posts_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "post-char-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "presence-bar",
+      "token": "presence-bar",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "hive-community-presence (Supabase Realtime presence)",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Live roster of teammates currently online",
+            "reads": "hive-community-presence (Supabase Realtime presence)",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "profile-xp",
+      "token": "profile-xp",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "community_xp",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Current user's total community XP",
+            "reads": "community_xp",
+            "view": null,
+            "table": "community_xp",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "community.html",
+      "id": "report-char-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "mk-card-total",
+      "token": "total",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_marketplace_listings_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Total count of published listings in the active section after filters, shown as the hero number on the 'total' summary card.",
+            "reads": "v_marketplace_listings_truth",
+            "view": "v_marketplace_listings_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "quality-bar",
+      "token": "quality",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "computeListingQuality",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Width (and color) of the listing-quality progress bar in the Post form, driven by a 0-100 quality score computed live from the form fields.",
+            "reads": "computeListingQuality",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "quality-score-num",
+      "token": "quality",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "computeListingQuality",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Numeric listing-quality score shown as 'NN / 100' beside the quality bar in the Post form.",
+            "reads": "computeListingQuality",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "compare-bar",
+      "token": "compare-bar",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "compare-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "mk-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_marketplace_listings_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Plain-read verdict headline summarizing the listing population, e.g. 'N listings \u00b7 M of them yours' / 'N {section} listings live'.",
+            "reads": "v_marketplace_listings_truth",
+            "view": "v_marketplace_listings_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "rfq-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "marketplace-seller.html",
+      "id": "ps-earned",
+      "token": "earned",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_marketplace_orders_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Seller's total PHP earned: sum of (price * 0.95, i.e. net of 5% platform fee) over orders with status 'released'.",
+            "reads": "v_marketplace_orders_truth",
+            "view": "v_marketplace_orders_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "marketplace-seller.html",
+      "id": "pstat-earned",
+      "token": "earned",
+      "bucket": "contracted",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "dp-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "schedule_items",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Plain-Read verdict headline for the day plan (e.g. 'Day plan looks manageable', 'N items overdue', 'No plan yet').",
+            "reads": "schedule_items",
+            "view": null,
+            "table": "schedule_items",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "sidebar-count-bar",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_logbook_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Capacity bar whose width visualizes the count of open logbook items in the sidebar.",
+            "reads": "v_logbook_truth",
+            "view": "v_logbook_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "sidebar-count-label",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_logbook_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Text label '{N} open item(s) from Logbook' in the sidebar header.",
+            "reads": "v_logbook_truth",
+            "view": "v_logbook_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "period-label",
+      "token": "period-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "engineering-design.html",
+      "id": "step-label",
+      "token": "step-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "assistant.html",
+      "id": "back-label",
+      "token": "back-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "report-sender.html",
+      "id": "chips-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "report-sender.html",
+      "id": "rs-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "report-sender.html",
+      "id": "mic-label",
+      "token": "mic-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "platform-health.html",
+      "id": "health-label",
+      "token": "health",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "platform_health.json",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Health band label (Healthy / Review / Action) derived from the composite score.",
+            "reads": "platform_health.json",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "platform-health.html",
+      "id": "health-num",
+      "token": "health",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "platform_health.json",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Composite platform health score (0-100) shown as the big number in the header ring.",
+            "reads": "platform_health.json",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "platform-health.html",
+      "id": "health-score",
+      "token": "health",
+      "bucket": "contracted",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "platform-health.html",
+      "id": "streak-num",
+      "token": "streak",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "wh_guard_hist (localStorage validator run history)",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Consecutive clean validator runs (0 FAIL, 0 regressions)",
+            "reads": "wh_guard_hist (localStorage validator run history)",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "platform-health.html",
+      "id": "action-bar",
+      "token": "action-bar",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "platform-health.html",
+      "id": "sticky-bar",
+      "token": "sticky-bar",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "project-manager.html",
+      "id": "pm-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "projects",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Plain-read project-health verdict headline (e.g. '3 active projects, none overdue' / 'N projects past end date')",
+            "reads": "projects",
+            "view": null,
+            "table": "projects",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "project-manager.html",
+      "id": "wiz-item-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "integrations.html",
+      "id": "it-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "integration_configs",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Headline integrations verdict label (e.g. 'N integrations stale', 'N CMMS integrations healthy', 'No integrations configured yet')",
+            "reads": "integration_configs",
+            "view": null,
+            "table": "integration_configs",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "integrations.html",
+      "id": "preview-count-label",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "client-parsed import file rows",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of valid rows to import from the selected file",
+            "reads": "client-parsed import file rows",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "integrations.html",
+      "id": "progress-label",
+      "token": "progress-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "integrations.html",
+      "id": "drop-label",
+      "token": "drop-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "ph-intelligence.html",
+      "id": "ph-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "ph_intelligence_reports",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Verdict headline for the latest regional PH intelligence report (e.g. 'No regional data yet', 'Report is thin or aging', '5-plant report, 12d old').",
+            "reads": "ph_intelligence_reports",
+            "view": null,
+            "table": "ph_intelligence_reports",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "predictive.html",
+      "id": "panel-trend",
+      "token": "trend",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "predictive.html",
+      "id": "pr-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_risk_truth",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "Plain-Read verdict headline (e.g. 'Fleet risk is high' / 'Fleet is healthy')",
+            "reads": "v_risk_truth",
+            "view": "v_risk_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "predictive.html",
+      "id": "trend-label",
+      "token": "trend",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "analytics-orchestrator",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "MTBF/failure-trend caption text under the weekly failure bars",
+            "reads": "analytics-orchestrator",
+            "view": null,
+            "table": null,
+            "rpc": "analytics-orchestrator",
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "achievements.html",
+      "id": "ac-card-level",
+      "token": "level",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_worker_achievements_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Total-level card: sum of current_level across all 12 achievement domains for the signed-in worker (max 1,200).",
+            "reads": "v_worker_achievements_truth",
+            "view": "v_worker_achievements_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "achievements.html",
+      "id": "hero-tier-label",
+      "token": "tier",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_worker_achievements_truth",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Hero tier badge label: worker's tier (e.g. 'Senior Technician') derived from their top achievement level.",
+            "reads": "v_worker_achievements_truth",
+            "view": "v_worker_achievements_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "achievements.html",
+      "id": "ac-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_worker_achievements_truth",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Plain-Read verdict headline interpreting weekly XP / active-domain pace (e.g. 'NN XP this week \u2014 solid pace', 'No achievements yet').",
+            "reads": "v_worker_achievements_truth",
+            "view": "v_worker_achievements_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "ah-card-total",
+      "token": "total",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "asset_nodes",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Hero count of approved assets registered in this hive.",
+            "reads": "asset_nodes",
+            "view": null,
+            "table": "asset_nodes",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "detail-level",
+      "token": "level",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "asset_nodes",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Asset hierarchy level (e.g. equipment) shown in the asset detail header.",
+            "reads": "asset_nodes",
+            "view": null,
+            "table": "asset_nodes",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "pf-pf-days",
+      "token": "pf-pf",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_pf_truth",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "P-F interval (days from potential-failure detection to functional failure) for the selected condition parameter.",
+            "reads": "v_pf_truth",
+            "view": "v_pf_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "risk-days",
+      "token": "risk",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_risk_truth",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "Predicted days until failure for the asset (from the risk model).",
+            "reads": "v_risk_truth",
+            "view": "v_risk_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "risk-score-num",
+      "token": "risk",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_risk_truth",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "Reliability-risk score shown as a percentage in the asset risk card.",
+            "reads": "v_risk_truth",
+            "view": "v_risk_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "ah-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "asset_nodes",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Composed status verdict sentence (e.g. 'N assets tracked, M marked critical' / 'N submissions awaiting approval') for the asset fleet.",
+            "reads": "asset_nodes",
+            "view": null,
+            "table": "asset_nodes",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "asset-hub.html",
+      "id": "pending-assets-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "asset_nodes",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of pending (and rejected) asset submissions in the supervisor approval queue.",
+            "reads": "asset_nodes",
+            "view": null,
+            "table": "asset_nodes",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "carry-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "shift_plans",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of open carry-forward items from the prior shift.",
+            "reads": "shift_plans",
+            "view": null,
+            "table": "shift_plans",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "parts-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "shift_plans",
+        "rung": "prescriptive",
+        "chain": [
+          {
+            "name": "Count of low-stock parts to pre-stage for this shift.",
+            "reads": "shift_plans",
+            "view": null,
+            "table": "shift_plans",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "pms-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "shift_plans",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Count of preventive-maintenance tasks due in this shift window.",
+            "reads": "shift_plans",
+            "view": null,
+            "table": "shift_plans",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "risk-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "shift_plans",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "Count of top-risk assets flagged for this shift window.",
+            "reads": "shift_plans",
+            "view": null,
+            "table": "shift_plans",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "shift-brain.html",
+      "id": "sb-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "shift_plans",
+        "rung": "prescriptive",
+        "chain": [
+          {
+            "name": "Overall shift-readiness verdict (e.g. 'Heavy shift - prioritize hot assets and carry-forward').",
+            "reads": "shift_plans",
+            "view": null,
+            "table": "shift_plans",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "anomaly-engine-count",
+      "token": "anomaly",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "v_anomaly_truth",
+        "rung": "predictive",
+        "chain": [
+          {
+            "name": "Top-5 Anomaly Engine signal-count badge (e.g. '5 signals'); the count is the size of the fused-anomaly list, not an aggregate",
+            "reads": "v_anomaly_truth",
+            "view": "v_anomaly_truth",
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-assets",
+      "token": "amc-stat",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "amc_briefings",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "AMC daily-brief 'High Risk' stat tile \u2014 count of high-risk assets in today's brief",
+            "reads": "amc_briefings",
+            "view": null,
+            "table": "amc_briefings",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-crew",
+      "token": "amc-stat",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "amc_briefings",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "AMC daily-brief 'Crew' stat tile \u2014 count of crew alerts in today's brief",
+            "reads": "amc_briefings",
+            "view": null,
+            "table": "amc_briefings",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-parts",
+      "token": "amc-stat",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "amc_briefings",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "AMC daily-brief 'Parts' stat tile \u2014 count of parts at risk / to stage in today's brief",
+            "reads": "amc_briefings",
+            "view": null,
+            "table": "amc_briefings",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "alert-hub.html",
+      "id": "amc-stat-pms",
+      "token": "amc-stat",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "amc_briefings",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "AMC daily-brief 'PMs Due' stat tile \u2014 count of PMs due in today's brief",
+            "reads": "amc_briefings",
+            "view": null,
+            "table": "amc_briefings",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "voice-journal.html",
+      "id": "entry-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "voice_journal_entries",
+        "rung": "descriptive",
+        "chain": [
+          {
+            "name": "Shows the count of journal entries currently displayed (e.g. '12 entries'), reflecting the active language filter + search.",
+            "reads": "voice_journal_entries",
+            "view": null,
+            "table": "voice_journal_entries",
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "voice-journal.html",
+      "id": "tts-toggle-label",
+      "token": "tts-toggle-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "ring-pct-label",
+      "token": "ring-pct",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "platform_health.json",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Health-ring status label ('All clear' / 'Attention' / 'Action needed') derived from the validator pass %.",
+            "reads": "platform_health.json",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "ring-pct-num",
+      "token": "ring-pct",
+      "bucket": "contracted",
+      "status": "RESOLVED_VERIFIED",
+      "source": {
+        "via": "verified_bind",
+        "reads": "platform_health.json",
+        "rung": "diagnostic",
+        "chain": [
+          {
+            "name": "Validator pass percentage shown as the big number inside the health ring (e.g. \"87%\").",
+            "reads": "platform_health.json",
+            "view": null,
+            "table": null,
+            "rpc": null,
+            "standard_cite": null,
+            "unit": null
+          }
+        ]
+      }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "stat-aicost-trend",
+      "token": "aicost-trend",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "stat-dau-trend",
+      "token": "trend",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "stat-hives-trend",
+      "token": "trend",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "stat-validators-trend",
+      "token": "trend",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "index.html",
+      "id": "popup-stage-label",
+      "token": "popup-stage-label",
+      "bucket": "unknown",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    }
+  ]
+}

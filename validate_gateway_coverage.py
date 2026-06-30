@@ -114,6 +114,10 @@ GATEWAY_BYPASS_OK = {
     # identity-key family is now ratcheted by validate_gateway_tenancy.py.
     # LIVE-proven: attacker no-JWT -> empty; authed user -> own-scoped.
     "voice-semantic-rag":         "Browser-callable personal voice-journal RAG; auth_uid IDOR FIXED (resolveIdentity JWT-verified uid, body ignored, anon->empty); structured tool, not routed",
+    # --- Auth front-door (Arc I, 2026-06-21): pre-auth / self-scoped, CANNOT route through
+    # platform-gateway because the gateway presumes an authenticated identity. Each self-secures.
+    "login":                      "PRE-AUTH front door (verify_jwt=false) — the single sign-in proxy; can't sit behind a gateway that requires a JWT. Server-side brute-force lockout (check_login_lockout/record_login_failure RPCs, 5 tries/15min) + enumeration-safe before forwarding to GoTrue (Arc I I7/A)",
+    "supervisor-reset-password":  "Self-scoped auth op — in-fn JWT verify + active-supervisor role gate + same-hive-WORKER-only scoping + audit-logged; sensitive credential action, not a flattenable {answer} chat (Arc I I3/I)",
 }
 
 # Forward-looking ratchet — ENFORCED (2026-06-15, Gateway Pillar R): every callable

@@ -308,6 +308,11 @@ def check_all_html_pages_in_scope():
         fname = os.path.basename(path)
         if fname in live_set:
             continue
+        # engineering-design.js is the extracted bundle of engineering-design.html; its
+        # innerHTML IS scanned via the page-bundle pairing in validator_utils.read_file
+        # (the .html read re-attaches the bundle), so flagging it standalone is a false positive.
+        if fname == "engineering-design.js":
+            continue
         # Skip backup/test/platform-internal/retired files
         if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
                                      "parts-tracker", "symbol-gallery", "architecture"]):
@@ -509,13 +514,18 @@ def check_ilike_wildcard_escape():
             if not m:
                 continue
             var_name = m.group(1)
-            # Check if var_name has .replace(/%/g applied within 20 lines above
+            # Within 20 lines above, var_name must neutralise BOTH LIKE wildcards (% and _).
+            # Two valid idioms (both keep the gate strong - both wildcards must be handled):
+            #   (a) ESCAPE:  var = ....replace(/%/g, '\\%').replace(/_/g, '\\_')
+            #   (b) STRIP :  var = ....replace(/[ ...%..._... ]/g, ' ')  (a char-class that
+            #       removes both % and _ - safe inside a PostgREST .or() where backslash-
+            #       escaping cannot be used). Stripping is at least as safe as escaping.
             look_back = max(0, i - 20)
             context = "\n".join(lines[look_back:i + 1])
-            safe_pattern = re.search(
-                rf'{re.escape(var_name)}\s*=.*\.replace\s*\(\s*/[%]',
-                context
-            )
+            v = re.escape(var_name)
+            escape_idiom = re.search(rf'{v}\s*=.*\.replace\s*\(\s*/%/.*\.replace\s*\(\s*/_/', context)
+            strip_idiom  = re.search(rf'{v}\s*=.*\.replace\s*\(\s*/\[(?=[^\]]*%)(?=[^\]]*_)[^\]]*\]', context)
+            safe_pattern = escape_idiom or strip_idiom
             if not safe_pattern:
                 issues.append({
                     "check": "ilike_wildcard_escape",

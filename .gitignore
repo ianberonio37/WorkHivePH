@@ -110,3 +110,6 @@ pm-*.png
 # Content Grounding Gate runtime (mirror companion convention)
 .last-content-gate-pass
 content_dev_runs.jsonl
+.momentum_drive
+.momentum_allow_stop
+.momentum_stop_state.json

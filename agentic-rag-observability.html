@@ -57,7 +57,7 @@
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
-      --red: #f87171; --amber: #fb923c; --muted: rgba(255,255,255,0.4);
+      --red: #f87171; --amber: #fb923c; --muted: rgba(255,255,255,0.7); /* D1 a11y: was 0.4 (~2.5:1) → 0.7 meets WCAG 1.4.3 4.5:1 */
       --text: var(--wh-cloud); --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -67,7 +67,10 @@
     .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
     .freshness { font-size: 0.62rem; color: var(--muted); }
 
-    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    /* L1 CLS reserve: #summary-cards is empty at first paint and fills with 7
+       async sum-cards (measured settled 336px) which pushes the details + all
+       cards below it down. Reserve the settled height so the fill is in-place. */
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; min-height: 336px; }
     .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
     .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); }
     .sum-card .sl { font-size: 0.58rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
@@ -83,6 +86,9 @@
     table.tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
     table.tbl th { text-align: left; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
     table.tbl td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+    /* D1 a11y/U7 + A1: wide multi-column tables overflow the viewport on narrow screens AND at the
+       768px tablet breakpoint → scroll horizontally within the card up to 820px (preserves desktop). */
+    @media (max-width: 820px) { table.tbl { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; } }
     table.tbl tr:hover td { background: rgba(255,255,255,0.02); }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
     .route-chip { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px;
@@ -101,9 +107,20 @@
     .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.75rem; }
     .filter-bar select, .filter-bar button {
       background: var(--surface); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 6px 10px; font-size: 0.75rem;
+      border-radius: 8px; padding: 8px 12px; font-size: 16px; min-height: 44px;
     }
     .filter-bar button { background: var(--gold); color: #1a1a1a; font-weight: 700; cursor: pointer; border: none; }
+    .engineering-details summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; padding: 4px 0; } /* D1 U2: disclosure toggle = tap target */
+
+    /* L1 CLS reserve (page-scoped, measured): above-the-fold async growers that
+       were empty→filled / placeholder→real-text and pushed visible content down.
+       Reserve each element's measured settled height so the fill happens in-place. */
+    /* #obs-verdict: 1-line "Computing…" placeholder (21px) → 2-line verdict (42px). */
+    #obs-verdict { min-height: 42px; }
+    /* #route-tbl: first table, empty tbody (39px) → filled (settled 158px). It sits
+       above the fold (the heavy + recent tables follow it), so its growth shifts
+       the cards below. Reserve the settled height as a skeleton. */
+    #route-tbl { min-height: 158px; }
   </style>
 </head>
 <body>
@@ -116,13 +133,13 @@
   </div>
 
   <main class="page" id="page-body">
-    <div class="page-header">
+    <header class="page-header">
       <div>
         <h1 class="page-title" style="margin:0;">Agentic RAG Observability</h1>
         <div class="page-sub">Phase 8 of AGENTIC_RAG_ROADMAP.md - per-hive trace breakdown of every agentic-rag-loop run</div>
       </div>
       <div class="freshness" id="freshness">Live</div>
-    </div>
+    </header>
 
     <div class="filter-bar">
       <label>Window:
@@ -171,7 +188,7 @@
     <div class="card">
       <h3>Route breakdown</h3>
       <div class="meta">Volume + retry rate + checker pass rate per route. Source: agentic_rag_traces grouped by route in the selected window.</div>
-      <table class="tbl" id="route-tbl" aria-label="Route breakdown: volume, retry rate, checker pass rate per agentic-RAG route">
+      <table class="tbl" tabindex="0" id="route-tbl" aria-label="Route breakdown: volume, retry rate, checker pass rate per agentic-RAG route">
         <thead><tr><th>Route</th><th class="num-right">Calls</th><th class="num-right">Avg retries</th><th class="num-right">Grader %</th><th class="num-right">Checker %</th><th class="num-right">Avg tokens</th><th class="num-right">p95 ms</th></tr></thead>
         <tbody></tbody>
       </table>
@@ -180,7 +197,7 @@
     <div class="card">
       <h3>Top 10 most token-heavy queries</h3>
       <div class="meta">Highest total_tokens in the selected window. Spot prompt drift or runaway retrievers early.</div>
-      <table class="tbl" id="heavy-tbl" aria-label="Top 10 most token-heavy agentic-RAG queries">
+      <table class="tbl" tabindex="0" id="heavy-tbl" aria-label="Top 10 most token-heavy agentic-RAG queries">
         <thead><tr><th>Question</th><th>Route</th><th>Retries</th><th>Checker</th><th class="num-right">Tokens</th><th class="num-right">Latency ms</th><th>When</th></tr></thead>
         <tbody></tbody>
       </table>
@@ -189,7 +206,7 @@
     <div class="card">
       <h3>Recent traces</h3>
       <div class="meta">Most recent 20 agentic-rag-loop runs in the selected window.</div>
-      <table class="tbl" id="recent-tbl" aria-label="Most recent 20 agentic-rag-loop trace entries">
+      <table class="tbl" tabindex="0" id="recent-tbl" aria-label="Most recent 20 agentic-rag-loop trace entries">
         <thead><tr><th>When</th><th>Route</th><th>Question</th><th>Retries</th><th>Grader</th><th>Checker</th><th>Citations</th><th class="num-right">Latency ms</th></tr></thead>
         <tbody></tbody>
       </table>
@@ -372,5 +389,7 @@
       el.style.opacity = (live.length > 0) ? '1' : '0.55';
     };
   </script>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). Read-only obs dashboard — load/error status announced here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

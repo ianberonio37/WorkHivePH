@@ -1,0 +1,286 @@
+{
+  "tool": "tools/validate_grounding_contract.py",
+  "subject": "BOM/SOW agent results.<field> reads resolve to the calc's real output keys",
+  "agents": 55,
+  "skipped_agents": 6,
+  "read_groups_total": 544,
+  "read_groups_resolved": 544,
+  "resolved_pct": 100.0,
+  "drift_cells": [],
+  "known_baseline": 0,
+  "new_drift": [],
+  "fixed_since_baseline": [],
+  "per_agent": {
+    "hvacBomSowAgent": {
+      "calc_type": "HVAC Cooling Load",
+      "groups": 2,
+      "drift": []
+    },
+    "ventBomSowAgent": {
+      "calc_type": "Ventilation / ACH",
+      "groups": 4,
+      "drift": []
+    },
+    "pumpBomSowAgent": {
+      "calc_type": "Pump Sizing (TDH)",
+      "skipped": "calc 422 on {} (needs inputs)",
+      "groups": 8
+    },
+    "pipeSizingBomSowAgent": {
+      "calc_type": "Pipe Sizing",
+      "skipped": "calc 422 on {} (needs inputs)",
+      "groups": 8
+    },
+    "compressedAirBomSowAgent": {
+      "calc_type": "Compressed Air",
+      "groups": 7,
+      "drift": []
+    },
+    "boilerBomSowAgent": {
+      "calc_type": "Boiler System",
+      "groups": 16,
+      "drift": []
+    },
+    "waterSupplyBomSowAgent": {
+      "calc_type": "Water Supply Pipe Sizing",
+      "groups": 9,
+      "drift": []
+    },
+    "hotWaterBomSowAgent": {
+      "calc_type": "Hot Water Demand",
+      "groups": 7,
+      "drift": []
+    },
+    "drainageBomSowAgent": {
+      "calc_type": "Drainage Pipe Sizing",
+      "groups": 8,
+      "drift": []
+    },
+    "septicBomSowAgent": {
+      "calc_type": "Septic Tank Sizing",
+      "groups": 14,
+      "drift": []
+    },
+    "waterSoftenerBomSowAgent": {
+      "calc_type": "Water Softener Sizing",
+      "skipped": "calc 422 on {} (needs inputs)",
+      "groups": 14
+    },
+    "waterTreatmentBomSowAgent": {
+      "calc_type": "Water Treatment System",
+      "skipped": "calc 422 on {} (needs inputs)",
+      "groups": 15
+    },
+    "wastewaterSTPBomSowAgent": {
+      "calc_type": "Wastewater Treatment (STP)",
+      "groups": 19,
+      "drift": []
+    },
+    "stormDrainBomSowAgent": {
+      "calc_type": "Storm Drain / Stormwater",
+      "groups": 17,
+      "drift": []
+    },
+    "greaseTrapBomSowAgent": {
+      "calc_type": "Grease Trap Sizing",
+      "groups": 8,
+      "drift": []
+    },
+    "roofDrainBomSowAgent": {
+      "calc_type": "Roof Drain Sizing",
+      "groups": 14,
+      "drift": []
+    },
+    "loadEstBomSowAgent": {
+      "calc_type": "Load Estimation",
+      "groups": 9,
+      "drift": []
+    },
+    "voltageDropBomSowAgent": {
+      "calc_type": "Voltage Drop",
+      "groups": 13,
+      "drift": []
+    },
+    "wireSizingBomSowAgent": {
+      "calc_type": "Wire Sizing",
+      "skipped": "calc 422 on {} (needs inputs)",
+      "groups": 15
+    },
+    "shortCircuitBomSowAgent": {
+      "calc_type": "Short Circuit",
+      "groups": 6,
+      "drift": []
+    },
+    "lightingDesignBomSowAgent": {
+      "calc_type": "Lighting Design",
+      "groups": 8,
+      "drift": []
+    },
+    "solarPVBomSowAgent": {
+      "calc_type": "Solar PV System",
+      "groups": 12,
+      "drift": []
+    },
+    "pfcBomSowAgent": {
+      "calc_type": "Power Factor Correction",
+      "groups": 8,
+      "drift": []
+    },
+    "cableTrayBomSowAgent": {
+      "calc_type": "Cable Tray Sizing",
+      "groups": 5,
+      "drift": []
+    },
+    "upsSizingBomSowAgent": {
+      "calc_type": "UPS Sizing",
+      "groups": 8,
+      "drift": []
+    },
+    "earthingBomSowAgent": {
+      "calc_type": "Earthing / Grounding System",
+      "groups": 5,
+      "drift": []
+    },
+    "lpsBomSowAgent": {
+      "calc_type": "Lightning Protection System (LPS)",
+      "groups": 10,
+      "drift": []
+    },
+    "generatorSizingBomSowAgent": {
+      "calc_type": "Generator Sizing",
+      "groups": 14,
+      "drift": []
+    },
+    "transformerSizingBomSowAgent": {
+      "calc_type": "Transformer Sizing",
+      "groups": 13,
+      "drift": []
+    },
+    "harmonicDistortionBomSowAgent": {
+      "calc_type": "Harmonic Distortion",
+      "groups": 9,
+      "drift": []
+    },
+    "cleanAgentSuppressionBomSowAgent": {
+      "calc_type": "Clean Agent Suppression",
+      "groups": 14,
+      "drift": []
+    },
+    "fireSprinklerBomSowAgent": {
+      "calc_type": "Fire Sprinkler Hydraulic",
+      "groups": 18,
+      "drift": []
+    },
+    "firePumpBomSowAgent": {
+      "calc_type": "Fire Pump Sizing",
+      "groups": 14,
+      "drift": []
+    },
+    "stairwellPressBomSowAgent": {
+      "calc_type": "Stairwell Pressurization",
+      "groups": 20,
+      "drift": []
+    },
+    "fireAlarmBatteryBomSowAgent": {
+      "calc_type": "Fire Alarm Battery",
+      "groups": 8,
+      "drift": []
+    },
+    "elevatorTrafficBomSowAgent": {
+      "calc_type": "Elevator Traffic Analysis",
+      "groups": 9,
+      "drift": []
+    },
+    "hoistCapacityBomSowAgent": {
+      "calc_type": "Hoist Capacity",
+      "groups": 10,
+      "drift": []
+    },
+    "chillerAirCooledBomSowAgent": {
+      "calc_type": "Chiller System \u2014 Air Cooled",
+      "groups": 16,
+      "drift": []
+    },
+    "chillerWaterCooledBomSowAgent": {
+      "calc_type": "Chiller System \u2014 Water Cooled",
+      "groups": 19,
+      "drift": []
+    },
+    "ahuBomSowAgent": {
+      "calc_type": "AHU Sizing",
+      "groups": 15,
+      "drift": []
+    },
+    "coolingTowerBomSowAgent": {
+      "calc_type": "Cooling Tower Sizing",
+      "groups": 23,
+      "drift": []
+    },
+    "ductSizingBomSowAgent": {
+      "calc_type": "Duct Sizing (Equal Friction)",
+      "skipped": "calc 422 on {} (needs inputs)",
+      "groups": 7
+    },
+    "refrigPipeSizingBomSowAgent": {
+      "calc_type": "Refrigerant Pipe Sizing",
+      "groups": 3,
+      "drift": []
+    },
+    "fcuSelectionBomSowAgent": {
+      "calc_type": "FCU Selection",
+      "groups": 6,
+      "drift": []
+    },
+    "expansionTankBomSowAgent": {
+      "calc_type": "Expansion Tank Sizing",
+      "groups": 6,
+      "drift": []
+    },
+    "heatExchangerBomSowAgent": {
+      "calc_type": "Heat Exchanger",
+      "groups": 8,
+      "drift": []
+    },
+    "shaftDesignBomSowAgent": {
+      "calc_type": "Shaft Design",
+      "groups": 17,
+      "drift": []
+    },
+    "bearingLifeBomSowAgent": {
+      "calc_type": "Bearing Life (L10)",
+      "groups": 6,
+      "drift": []
+    },
+    "boltTorqueBomSowAgent": {
+      "calc_type": "Bolt Torque & Preload",
+      "groups": 17,
+      "drift": []
+    },
+    "beamColumnBomSowAgent": {
+      "calc_type": "Beam / Column Design",
+      "groups": 18,
+      "drift": []
+    },
+    "pressureVesselBomSowAgent": {
+      "calc_type": "Pressure Vessel",
+      "groups": 16,
+      "drift": []
+    },
+    "vibrationAnalysisBomSowAgent": {
+      "calc_type": "Vibration Analysis",
+      "groups": 13,
+      "drift": []
+    },
+    "fluidPowerBomSowAgent": {
+      "calc_type": "Fluid Power",
+      "groups": 9,
+      "drift": []
+    },
+    "noiseAcousticsBomSowAgent": {
+      "calc_type": "Noise / Acoustics",
+      "groups": 6,
+      "drift": []
+    }
+  },
+  "result": "PASS"
+}

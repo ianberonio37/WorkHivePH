@@ -47,3 +47,25 @@ export const log = {
   warn:  (ctx: RequestContext | null, msg: string, extra?: Record<string, unknown>) => emit("warn",  ctx, msg, extra),
   error: (ctx: RequestContext | null, msg: string, extra?: Record<string, unknown>) => emit("error", ctx, msg, extra),
 };
+
+// Reusable per-request observability one-liner (the missing abstraction — until now each fn
+// hand-wrote `log.info(ctx, "request_start", …)`, so only ~9 of 59 had it). Adds I6 observability
+// with ONE call at the top of a handler:  const t0 = logRequestStart(req, "my-fn");
+// …and optionally at the end:            logRequestEnd(req, "my-fn", t0, status);
+// Returns a high-res start time so the end line can carry latency_ms. Never throws.
+export function logRequestStart(req: Request, route: string): number {
+  const t0 = (typeof performance !== "undefined" ? performance.now() : Date.now());
+  try {
+    const ctx = { trace_id: crypto.randomUUID().slice(0, 16), route } as unknown as RequestContext;
+    emit("info", ctx, "request_start", { method: req.method });
+  } catch { /* observability must never break the request */ }
+  return t0;
+}
+
+export function logRequestEnd(req: Request, route: string, t0: number, status: number): void {
+  try {
+    const now = (typeof performance !== "undefined" ? performance.now() : Date.now());
+    const ctx = { route } as unknown as RequestContext;
+    emit("info", ctx, "request_end", { method: req.method, status, latency_ms: Math.round(now - t0) });
+  } catch { /* never break the request */ }
+}

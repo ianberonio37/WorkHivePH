@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 153,
-    "total_calls": 35,
+    "files_scanned": 162,
+    "total_calls": 45,
     "total_drift": 0,
     "baseline": 0,
-    "rpcs_known": 81
+    "rpcs_known": 94
   },
   "per_file": [
     {
@@ -61,6 +61,10 @@
     },
     {
       "file": "engineering-design.html",
+      "issues": []
+    },
+    {
+      "file": "engineering-design.js",
       "issues": []
     },
     {
@@ -164,7 +168,15 @@
       "issues": []
     },
     {
+      "file": "engineering-design.js",
+      "issues": []
+    },
+    {
       "file": "form-autosave.js",
+      "issues": []
+    },
+    {
+      "file": "impact-preview.js",
       "issues": []
     },
     {
@@ -196,6 +208,10 @@
       "issues": []
     },
     {
+      "file": "provenance-hover.js",
+      "issues": []
+    },
+    {
       "file": "qr-scanner.js",
       "issues": []
     },
@@ -221,6 +237,10 @@
     },
     {
       "file": "voice-handler.js",
+      "issues": []
+    },
+    {
+      "file": "wayfinding.js",
       "issues": []
     },
     {
@@ -364,6 +384,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\ssrf-guard.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\tenant-context.ts",
       "issues": []
     },
@@ -381,6 +405,10 @@
     },
     {
       "file": "supabase\\functions\\_shared\\verified-state.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\voice-router-core.ts",
       "issues": []
     },
     {
@@ -484,6 +512,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\login\\index.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\marketplace-checkout\\index.ts",
       "issues": []
     },
@@ -561,6 +593,10 @@
     },
     {
       "file": "supabase\\functions\\shift-planner-orchestrator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\supervisor-reset-password\\index.ts",
       "issues": []
     },
     {

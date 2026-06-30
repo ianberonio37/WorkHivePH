@@ -46,6 +46,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I: machine-ingest gate — only trusted (service-role) callers may write.
@@ -135,6 +137,7 @@ function validateReading(
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "sensor-readings-ingest");  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));

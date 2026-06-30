@@ -159,25 +159,11 @@ async function fetchAssetGraphContext(
     parent = (parr && parr[0]) || null;
   }
 
-  const { data: edges } = await db.from("asset_edges")
-    .select("id, edge_type, from_node_id, to_node_id")
-    .eq("hive_id", hiveId)
-    .or(`from_node_id.eq.${assetId},to_node_id.eq.${assetId}`)
-    .limit(20);
-
-  let neighbors: AnyRow[] = [];
-  if (edges && edges.length) {
-    const otherIds = Array.from(new Set(edges.map(e => (e.from_node_id === assetId ? e.to_node_id : e.from_node_id))));
-    if (otherIds.length) {
-      const { data: nbs } = await db.from("v_asset_truth")
-        .select("id:asset_id, tag, name, criticality, iso_class")
-        .eq("hive_id", hiveId).in("asset_id", otherIds);
-      neighbors = (nbs || []).map(n => {
-        const ed = edges.find(e => e.from_node_id === n.id || e.to_node_id === n.id);
-        return { ...n, edge_type: ed ? ed.edge_type : "related" };
-      });
-    }
-  }
+  // Arc Y Y5 (fork#1, Ian 2026-06-27): the asset_edges "neighbors" feature was CUT
+  // entirely. The graph-edge UI was confusing jargon and the table is no longer
+  // maintained, so the AI Asset Brain no longer reads it for neighbor context.
+  // `parent` (from v_asset_truth.parent_id) still provides asset hierarchy.
+  const neighbors: AnyRow[] = [];
 
   return { node, overview, parent, neighbors };
 }

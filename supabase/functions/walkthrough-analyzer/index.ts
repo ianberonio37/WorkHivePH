@@ -38,11 +38,23 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { callAI, callAIMultimodal } from "../_shared/ai-chain.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// Arc L free-tier B gate (2026-06-23): this PUBLIC (verify_jwt=false) internal QA fn
+// calls vision/text LLMs with NO membership gate — an anon bot could burn unbounded
+// provider tokens. Bound it with a GENEROUS IP cap that fits the internal harness
+// (tools/analyze_walkthrough.py does ~36 page-analyses/run) yet blocks unbounded spam.
+import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+
+const _WA_URL = Deno.env.get("SUPABASE_URL") || "";
+const _WA_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const _WA_RATE_CAP = 300;  // /hour/IP — ~8× a harness run; anon spam still bounded
 
 // ── Sentinel Agent domain map — matches the 9-agent grouping ─────────────────
 const SENTINEL_DOMAINS = `
@@ -151,6 +163,7 @@ serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: getCorsHeaders(req) });
   }
+  logRequestStart(req, "walkthrough-analyzer");  // I6 observability
 
   try {
     const body = await req.json();
@@ -172,6 +185,25 @@ serve(async (req: Request): Promise<Response> => {
       failing_validators = [],
     } = body;
 
+    // Arc L free-tier B gate: bound generative vision/text AI per caller IP so an anon
+    // bot on this verify_jwt=false QA fn cannot burn unbounded provider tokens. Generous
+    // cap fits the internal harness; service-role callers (if any) are exempt. Stateless
+    // fn → a per-request client is created only for the counter read/write.
+    {
+      const _waAuth = req.headers.get("Authorization") || "";
+      const _waIsService = !!_WA_KEY && _waAuth.includes(_WA_KEY);
+      if (!_waIsService && _WA_URL && _WA_KEY) {
+        const _waIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _waRl = await checkSoloRateLimit(createClient(_WA_URL, _WA_KEY), soloRateLimitKey(null, _waIp), _WA_RATE_CAP);
+        if (!_waRl.allowed) {
+          return new Response(
+            JSON.stringify({ error: "Analysis rate limit reached. Try again later." }),
+            { status: 429, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
+          );
+        }
+      }
+    }
+
     // ── Phase 3: Proposal mode ────────────────────────────────────────────────
     // If action=propose, generate test/validator code for a specific finding.
     if (body.action === "propose") {
@@ -182,14 +214,17 @@ serve(async (req: Request): Promise<Response> => {
           { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
         );
       }
+      // Arc R (LLM01/LLM10): cap each caller-supplied finding field before it enters the
+      // code-generating PROPOSAL_SYSTEM prompt (anon-reachable, raw-concatenated).
+      const _cap = (v: unknown, n = 300) => String(v ?? "").slice(0, n);
       const proposalPrompt = `Finding to gate:
-ID: ${finding.id}
-Page: ${finding.page}
-Issue: ${finding.issue}
-Severity: ${finding.severity}
-Domain: ${finding.domain}
-Sentinel Agent: ${finding.sentinel_agent}
-Proposed gate (hint): ${finding._proposed_gate || "not specified"}
+ID: ${_cap(finding.id, 120)}
+Page: ${_cap(finding.page, 160)}
+Issue: ${_cap(finding.issue, 600)}
+Severity: ${_cap(finding.severity, 40)}
+Domain: ${_cap(finding.domain, 60)}
+Sentinel Agent: ${_cap(finding.sentinel_agent, 80)}
+Proposed gate (hint): ${_cap(finding._proposed_gate, 600) || "not specified"}
 
 Write the code to gate this finding permanently.`;
 
@@ -224,15 +259,24 @@ Write the code to gate this finding permanently.`;
     // ── 1. Visual analysis (if screenshot provided) ───────────────────────────
     // ANALYZE ALL PAGES. partial_capture and has_data are context, not filters.
     // The AI uses these notes to focus on structural issues when data is absent.
+    // Arc R (LLM10): cap the screenshot to ~5MB (base64) — anon-reachable vision tokens.
+    if (screenshot_b64 && screenshot_b64.length > 7_000_000) {
+      return new Response(
+        JSON.stringify({ error: "screenshot too large (cap ~5MB)" }),
+        { status: 413, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
+      );
+    }
     if (screenshot_b64) {
-      const visualPrompt = `Page: ${page_slug} (${page_file})
+      // Arc R (LLM01/LLM10): cap caller-supplied render-state notes before the visual prompt.
+      const _capn = (v: unknown, n = 400) => String(v ?? "").slice(0, n);
+      const visualPrompt = `Page: ${_capn(page_slug, 120)} (${_capn(page_file, 200)})
 
 Render state:
-- verdict_text: ${verdict_text ?? "not found"}
+- verdict_text: ${_capn(verdict_text, 400) || "not found"}
 - cards_settled: ${cards_settled}
 - chip_populated: ${chip_populated}
 
-${partial_note ? partial_note + "\n" : ""}${data_note ? data_note + "\n" : ""}${gate_note ? gate_note : ""}
+${partial_note ? _capn(partial_note) + "\n" : ""}${data_note ? _capn(data_note) + "\n" : ""}${gate_note ? _capn(gate_note) : ""}
 
 Analyze this screenshot. Use the context notes above to determine what is
 expected vs what is a real issue.`;

@@ -1,0 +1,338 @@
+{
+  "_doc": "Redundant-display detector (Phase C). Value-identity = shared terminus table (reliable, from registry adjacency). Verdicts are proposals; Ian disposes.",
+  "totals": {
+    "value_identity_clusters": 15,
+    "kpi_metric_clusters": 2,
+    "semantic_units_in_corpus": 6,
+    "verdicts_curated": 15,
+    "verdicts_pending_review": 0
+  },
+  "value_identity_clusters": [
+    {
+      "terminus_table": "hive_audit_log",
+      "is_infra": true,
+      "display_pages": [
+        "alert-hub",
+        "asset-hub",
+        "audit-log",
+        "community",
+        "founder-console",
+        "hive",
+        "inventory",
+        "logbook",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller",
+        "pm-scheduler"
+      ],
+      "page_count": 12,
+      "via_canonical_views": [],
+      "verdict": "KEEP-INFRA",
+      "canonical_home": "audit-log.html",
+      "ux_law": "n/a (audit trail)",
+      "why": "Append-only compliance trail written by 12 surfaces; audit-log.html is the canonical viewer. Not a KPI redundancy."
+    },
+    {
+      "terminus_table": "hive_members",
+      "is_infra": true,
+      "display_pages": [
+        "achievements",
+        "asset-hub",
+        "community",
+        "hive",
+        "inventory",
+        "logbook",
+        "pm-scheduler",
+        "project-manager",
+        "shift-brain",
+        "voice-journal"
+      ],
+      "page_count": 10,
+      "via_canonical_views": [
+        "v_worker_truth"
+      ],
+      "verdict": "KEEP-context",
+      "canonical_home": "hive.html",
+      "ux_law": "context read",
+      "why": "Membership/role read for gating + display across pages; one v_worker_truth. KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "logbook",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "logbook",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "page_count": 9,
+      "via_canonical_views": [
+        "v_logbook_truth"
+      ],
+      "verdict": "KEEP+RELABEL",
+      "canonical_home": "logbook.html",
+      "ux_law": "NN/g #6 + Norman Gulf of Evaluation",
+      "why": "Fault history on 9 surfaces (timeline, context panels) = the platform's spine; highest blast radius. Keep, but Phase-D should make its cross-page effect VISIBLE."
+    },
+    {
+      "terminus_table": "inventory_items",
+      "is_infra": false,
+      "display_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "inventory",
+        "logbook",
+        "project-manager"
+      ],
+      "page_count": 7,
+      "via_canonical_views": [
+        "v_inventory_items_truth"
+      ],
+      "verdict": "KEEP",
+      "canonical_home": "inventory.html",
+      "ux_law": "NN/g #6 + DRY",
+      "why": "Stock shown on 7 surfaces (alert-hub stock alert, logbook parts picker, hive low-stock) = legitimate context; all read v_inventory_items_truth.is_low_stock. Keep."
+    },
+    {
+      "terminus_table": "asset_nodes",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "hive",
+        "integrations",
+        "inventory",
+        "logbook",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "page_count": 7,
+      "via_canonical_views": [
+        "v_asset_truth"
+      ],
+      "verdict": "KEEP",
+      "canonical_home": "asset-hub.html",
+      "ux_law": "Jakob's Law (consistency)",
+      "why": "Asset registry referenced on 7 pages (pickers, links) = necessary context, one v_asset_truth. Keep."
+    },
+    {
+      "terminus_table": "pm_scope_items",
+      "is_infra": false,
+      "display_pages": [
+        "alert-hub",
+        "asset-hub",
+        "hive",
+        "integrations",
+        "logbook",
+        "pm-scheduler"
+      ],
+      "page_count": 6,
+      "via_canonical_views": [
+        "v_pm_scope_items_truth"
+      ],
+      "verdict": "KEEP+DEEPLINK",
+      "canonical_home": "pm-scheduler.html",
+      "ux_law": "NN/g #6 Recognition-over-Recall",
+      "why": "PM due/overdue on 5 surfaces, all v_pm_scope_items_truth. Reinforcement is fine; deep-link all to pm-scheduler; enforce is_overdue/is_due_soon."
+    },
+    {
+      "terminus_table": "pm_completions",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "page_count": 6,
+      "via_canonical_views": [
+        "v_pm_compliance_truth"
+      ],
+      "verdict": "KEEP",
+      "canonical_home": "pm-scheduler.html",
+      "ux_law": "NN/g #6 Recognition-over-Recall",
+      "why": "PM compliance ledger read on 6 pages for context; one canonical RPC get_pm_compliance_smrp. Keep, ensure single derivation."
+    },
+    {
+      "terminus_table": "marketplace_listings",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "page_count": 6,
+      "via_canonical_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "verdict": "KEEP",
+      "canonical_home": "marketplace.html",
+      "ux_law": "DRY",
+      "why": "Listings surfaced on 6 marketplace-family pages + asset-hub spares; one v_marketplace_listings_truth. Keep."
+    },
+    {
+      "terminus_table": "pm_assets",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "pm-scheduler"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [],
+      "verdict": "KEEP-context",
+      "canonical_home": "pm-scheduler.html",
+      "ux_law": "context read",
+      "why": "PM asset list referenced by pickers; KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "external_sync",
+      "is_infra": false,
+      "display_pages": [
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "plant-connections"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [
+        "v_external_sync_truth"
+      ],
+      "verdict": "KEEP-context",
+      "canonical_home": "plant-connections.html",
+      "ux_law": "context read",
+      "why": "CMMS/sensor sync status shown where relevant; KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "skill_badges",
+      "is_infra": false,
+      "display_pages": [
+        "assistant",
+        "hive",
+        "resume",
+        "skillmatrix"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [
+        "v_skill_badges_truth"
+      ],
+      "verdict": "KEEP-context",
+      "canonical_home": "skillmatrix.html",
+      "ux_law": "context read",
+      "why": "Skill badges read by resume/assistant/hive for context; KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "marketplace_disputes",
+      "is_infra": false,
+      "display_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [],
+      "verdict": "KEEP-context",
+      "canonical_home": "marketplace-admin.html",
+      "ux_law": "context read",
+      "why": "Marketplace-family context; candidate for a unified admin surface later. KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "marketplace_orders",
+      "is_infra": false,
+      "display_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [
+        "v_marketplace_orders_truth"
+      ],
+      "verdict": "KEEP-context",
+      "canonical_home": "marketplace.html",
+      "ux_law": "context read",
+      "why": "Order state across marketplace-family pages; KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "project_links",
+      "is_infra": false,
+      "display_pages": [
+        "logbook",
+        "pm-scheduler",
+        "project-manager",
+        "project-report"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [],
+      "verdict": "KEEP-context",
+      "canonical_home": "project-manager.html",
+      "ux_law": "context read",
+      "why": "Project\u2194entity links read where projects surface; KEEP (Ian 2026-06-29)."
+    },
+    {
+      "terminus_table": "marketplace_sellers",
+      "is_infra": false,
+      "display_pages": [
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ],
+      "page_count": 4,
+      "via_canonical_views": [
+        "v_marketplace_sellers_truth"
+      ],
+      "verdict": "KEEP-context",
+      "canonical_home": "marketplace-seller.html",
+      "ux_law": "context read",
+      "why": "Seller profile/tier read across marketplace-family; KEEP (Ian 2026-06-29)."
+    }
+  ],
+  "kpi_metric_clusters": [
+    {
+      "metric": "pm_overdue",
+      "canonical_source": [
+        "v_pm_scope_items_truth",
+        "get_hive_dashboard"
+      ],
+      "signal": "is_overdue",
+      "consumer_pages": [
+        "index.html",
+        "alert-hub.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "verdict": "KEEP (single-source enforced)",
+      "why": "kpi_source_registry already pins one derivation + forbids drift patterns. Redundancy is safe."
+    },
+    {
+      "metric": "low_stock",
+      "canonical_source": [
+        "v_inventory_items_truth"
+      ],
+      "signal": "is_low_stock",
+      "consumer_pages": [
+        "index.html",
+        "alert-hub.html",
+        "inventory.html",
+        "hive.html"
+      ],
+      "verdict": "KEEP (single-source enforced)",
+      "why": "kpi_source_registry already pins one derivation + forbids drift patterns. Redundancy is safe."
+    }
+  ]
+}

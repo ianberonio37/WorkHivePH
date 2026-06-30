@@ -6,11 +6,72 @@ returns { not_implemented: true } for calc types not yet migrated so
 the Edge Function falls back to its TypeScript handlers.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Any
 import traceback
+import logging
+import os
+import time
+
+from _auth import require_api_key, api_key_configured
+
+# ─── Structured logging (B1: replaces print()-only error logging) ─────────────
+# main.py previously had zero structured logging — every error path used print(),
+# which on Railway/Render lands in stdout untagged and unfilterable. Configure a
+# real logger so 5xx, auth failures, and slow requests are queryable, and add a
+# request-context access log below. Level via LOG_LEVEL env (default INFO).
+logging.basicConfig(
+    level=getattr(logging, os.environ.get("LOG_LEVEL", "INFO").upper(), logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("engcalc-api")
+
+# B1 keystone: warn loudly at startup when the edge↔python shared secret is unset,
+# so an unauthenticated compute API is never silently shipped. Enforcement itself
+# lives in _auth.require_api_key (applied to every compute route below).
+if not api_key_configured():
+    logger.warning(
+        "PYTHON_API_KEY unset — compute routes are UNAUTHENTICATED. Set PYTHON_API_KEY "
+        "on the python service AND in the edge functions to enforce the edge↔python gate."
+    )
+
+# numpy is pulled in transitively by the psychrometrics calcs (e.g. HVAC Cooling
+# Load). A handler that returns a numpy scalar will 500 /calculate because
+# FastAPI's JSON encoder cannot serialize numpy.bool_ (numpy.float64 happens to
+# subclass float and is safe, but numpy.bool_ does NOT subclass bool). The 500
+# is silent to the user: the Edge Function treats it as "Python unavailable" and
+# falls back to its TypeScript handler, so the worker silently gets the
+# UNVALIDATED TS value instead of the migrated Python one. Coerce numpy types to
+# native at the API boundary so the validated Python engine actually reaches the
+# browser. Guarded so the API still loads if numpy is ever absent.
+try:
+    import numpy as _np
+    _NP_SCALARS = (_np.bool_, _np.integer, _np.floating)
+except Exception:  # pragma: no cover - numpy is a transitive dep, not guaranteed
+    _np = None
+    _NP_SCALARS = ()
+
+
+def _to_jsonable(obj):
+    """Recursively coerce numpy scalars/arrays in a calc result to JSON-native
+    Python types. No-op for plain dicts/lists/primitives, so it is cheap and safe
+    to apply to every handler result before returning it."""
+    if isinstance(obj, dict):
+        return {k: _to_jsonable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_to_jsonable(v) for v in obj]
+    if _np is not None:
+        if isinstance(obj, _np.bool_):
+            return bool(obj)
+        if isinstance(obj, _np.integer):
+            return int(obj)
+        if isinstance(obj, _np.floating):
+            return float(obj)
+        if isinstance(obj, _np.ndarray):
+            return _to_jsonable(obj.tolist())
+    return obj
 
 app = FastAPI(
     title="Engineering Calc Python API",
@@ -18,13 +79,40 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS — allow the Supabase Edge Function and Netlify frontend
+# CORS — locked to known production origins (B1: was allow_origins=["*"]).
+# Mirrors supabase/functions/_shared/cors.ts: apex + www production, plus a
+# comma-separated ALLOWED_ORIGIN env for staging/preview, plus localhost/127.*
+# (any port) for local dev via regex. Server-to-server edge calls send no Origin
+# header so are unaffected; this only constrains browser-origin requests
+# (the direct /pdf and /tts/* frontend calls).
+_PROD_ORIGINS = ["https://workhiveph.com", "https://www.workhiveph.com"]
+_EXTRA_ORIGINS = [o.strip() for o in os.environ.get("ALLOWED_ORIGIN", "").split(",") if o.strip()]
+ALLOWED_ORIGINS = _PROD_ORIGINS + _EXTRA_ORIGINS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # locked down per-origin once deployed
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    """Per-request structured access log: method, path, status, latency. 5xx logs
+    at ERROR (queryable failures); slow/normal at INFO. Replaces the silent void
+    where main.py had no request observability at all (B1, I5/I6)."""
+    start = time.monotonic()
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("unhandled error %s %s", request.method, request.url.path)
+        raise
+    dur_ms = (time.monotonic() - start) * 1000
+    level = logging.ERROR if response.status_code >= 500 else logging.INFO
+    logger.log(level, "%s %s -> %s (%.1fms)", request.method, request.url.path,
+               response.status_code, dur_ms)
+    return response
 
 
 class CalcRequest(BaseModel):
@@ -46,6 +134,13 @@ class DiagramRequest(BaseModel):
 class PdfRequest(BaseModel):
     html: str                       # full innerHTML of the report panel
     filename: str = "report.pdf"   # suggested download filename
+
+
+class ZScoreRequest(BaseModel):
+    values: list[float]                         # the reading window (most-recent first)
+    latest: float | None = None                 # defaults to values[0]
+    z_anomaly: float | None = None              # override the 3-sigma anomaly threshold
+    z_warning: float | None = None              # override the 2-sigma warning threshold
 
 
 class ProjectRequest(BaseModel):
@@ -238,7 +333,7 @@ def health():
 
 
 @app.post("/calculate")
-def calculate(req: CalcRequest):
+def calculate(req: CalcRequest, _auth: None = Depends(require_api_key)):
     """
     Main calculation endpoint.
     - If a Python handler exists for req.calc_type: run it and return results.
@@ -256,19 +351,23 @@ def calculate(req: CalcRequest):
 
     try:
         results = handler(req.inputs)
-        return {"results": results}
+        return {"results": _to_jsonable(results)}
     except ValueError as e:
         # Input validation errors — surface as 422 so the Edge Function
         # can include the message in the error response to the frontend
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         # Unexpected errors — log the trace, return 500
-        print(f"ERROR in {req.calc_type}: {traceback.format_exc()}")
+        logger.error(f"ERROR in {req.calc_type}: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Calculation error: {str(e)}")
 
 
 @app.post("/diagram")
 def diagram(req: DiagramRequest):
+    # NOTE: intentionally NOT api-key-gated — /diagram is called BROWSER-DIRECT
+    # (engineering-design.html -> onrender.com/diagram), same class as /pdf and
+    # /tts/*. A browser cannot hold a server secret, so these are controlled by
+    # the CORS origin lockdown above, not the edge↔python shared-secret gate.
     """
     Diagram generation endpoint.
     Returns { svg: "..." } for supported diagram types,
@@ -294,8 +393,26 @@ def diagram(req: DiagramRequest):
         svg = handler(req.inputs, req.results)
         return {"svg": svg, "diagram_type": req.diagram_type}
     except Exception as e:
-        print(f"DIAGRAM ERROR {req.diagram_type}: {traceback.format_exc()}")
+        logger.error(f"DIAGRAM ERROR {req.diagram_type}: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Diagram error: {str(e)}")
+
+
+@app.post("/sensors/zscore")
+def sensors_zscore(req: ZScoreRequest):
+    # NOTE: intentionally NOT api-key-gated — pure stateless compute (no DB, no secret), same
+    # browser-direct class as /diagram and /tts. Access is controlled by the CORS origin lockdown.
+    """
+    Pure-compute 3-sigma Z-score anomaly check on a caller-supplied reading window.
+    The plant-side anomaly handler fetches readings from the DB then runs this same math;
+    this route exposes the deterministic core so a client can check its own array (no DB).
+    Returns { n, mean, std, latest, z, anomaly, warning, diagnostic }.
+    """
+    from sensors.anomaly import zscore_compute
+    try:
+        return _to_jsonable(zscore_compute(req.values, req.latest, req.z_anomaly, req.z_warning))
+    except Exception as e:
+        logger.error(f"ZSCORE ERROR: {traceback.format_exc()}")
+        raise HTTPException(status_code=400, detail=f"zscore error: {str(e)}")
 
 
 @app.post("/pdf")
@@ -359,7 +476,7 @@ def generate_pdf(req: PdfRequest):
     try:
         pdf_bytes = HTML(string=req.html, base_url=None).write_pdf(stylesheets=[base_css])
     except Exception as e:
-        print(f"weasyprint error: {e}")
+        logger.error(f"weasyprint error: {e}")
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
 
     # Sanitise filename: keep alphanumeric, hyphens, underscores, dots
@@ -391,7 +508,7 @@ ANALYTICS_PHASES = {
 }
 
 @app.post("/analytics")
-def analytics(req: AnalyticsRequest):
+def analytics(req: AnalyticsRequest, _auth: None = Depends(require_api_key)):
     """
     Stage 3 Analytics Engine endpoint.
     Routes by req.phase to the appropriate analytics module.
@@ -409,7 +526,7 @@ def analytics(req: AnalyticsRequest):
         try:
             return calculate(req.inputs)
         except Exception as e:
-            print(f"ANALYTICS ERROR [descriptive]: {traceback.format_exc()}")
+            logger.error(f"ANALYTICS ERROR [descriptive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
 
     if phase == "diagnostic":
@@ -417,7 +534,7 @@ def analytics(req: AnalyticsRequest):
         try:
             return calculate(req.inputs)
         except Exception as e:
-            print(f"ANALYTICS ERROR [diagnostic]: {traceback.format_exc()}")
+            logger.error(f"ANALYTICS ERROR [diagnostic]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
 
     if phase == "predictive":
@@ -425,7 +542,7 @@ def analytics(req: AnalyticsRequest):
         try:
             return calculate(req.inputs)
         except Exception as e:
-            print(f"ANALYTICS ERROR [predictive]: {traceback.format_exc()}")
+            logger.error(f"ANALYTICS ERROR [predictive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
 
     if phase == "prescriptive":
@@ -433,7 +550,7 @@ def analytics(req: AnalyticsRequest):
         try:
             return calculate(req.inputs)
         except Exception as e:
-            print(f"ANALYTICS ERROR [prescriptive]: {traceback.format_exc()}")
+            logger.error(f"ANALYTICS ERROR [prescriptive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
 
     raise HTTPException(
@@ -453,7 +570,7 @@ class WeibullRequest(BaseModel):
 
 
 @app.post("/reliability/weibull")
-def reliability_weibull(req: WeibullRequest):
+def reliability_weibull(req: WeibullRequest, _auth: None = Depends(require_api_key)):
     """Fit a 2-parameter Weibull from failure + censored durations.
 
     Returns the v_weibull_truth contract (beta, eta_days, failure_pattern,
@@ -465,7 +582,7 @@ def reliability_weibull(req: WeibullRequest):
         from reliability.weibull import fit_weibull
         return fit_weibull(req.failures, req.censored)
     except Exception as e:
-        print(f"WEIBULL ERROR: {traceback.format_exc()}")
+        logger.error(f"WEIBULL ERROR: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Weibull fit error: {str(e)}")
 
 
@@ -478,7 +595,7 @@ class PFRequest(BaseModel):
 
 
 @app.post("/reliability/pf-interval")
-def reliability_pf_interval(req: PFRequest):
+def reliability_pf_interval(req: PFRequest, _auth: None = Depends(require_api_key)):
     """Compute P-F interval + recommended inspection cadence per RCM rule.
 
     Returns the pf_intervals row shape (pf_days, recommended_interval_days,
@@ -496,7 +613,7 @@ def reliability_pf_interval(req: PFRequest):
             safety_critical=req.safety_critical,
         )
     except Exception as e:
-        print(f"PF ERROR: {traceback.format_exc()}")
+        logger.error(f"PF ERROR: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"P-F interval error: {str(e)}")
 
 
@@ -531,7 +648,7 @@ def analytics_health():
 # Standards: PMBOK 7th ed., AACE 17R-97, IDCON 6-Phase, ISO 21500.
 
 @app.post("/project/progress")
-def project_progress(req: ProjectRequest):
+def project_progress(req: ProjectRequest, _auth: None = Depends(require_api_key)):
     """
     Aggregates all 4 project phases into one response.
     Body: { project, items, links, logs, labor_rate_php_per_hour? }
@@ -557,21 +674,21 @@ def project_progress(req: ProjectRequest):
         from projects.descriptive import calculate as desc_calc
         out["rollup"] = desc_calc(inputs)
     except Exception as e:
-        print(f"PROJECT ERROR [descriptive]: {traceback.format_exc()}")
+        logger.error(f"PROJECT ERROR [descriptive]: {traceback.format_exc()}")
         out["rollup"] = {"error": str(e)}
 
     try:
         from projects.diagnostic import calculate as diag_calc
         out["earned_value"] = diag_calc(inputs)
     except Exception as e:
-        print(f"PROJECT ERROR [diagnostic]: {traceback.format_exc()}")
+        logger.error(f"PROJECT ERROR [diagnostic]: {traceback.format_exc()}")
         out["earned_value"] = {"available": False, "reason": str(e)}
 
     try:
         from projects.predictive import calculate as pred_calc
         out["forecast"] = pred_calc(inputs)
     except Exception as e:
-        print(f"PROJECT ERROR [predictive]: {traceback.format_exc()}")
+        logger.error(f"PROJECT ERROR [predictive]: {traceback.format_exc()}")
         out["forecast"] = {"forecasts": {}, "error": str(e)}
 
     try:
@@ -585,7 +702,7 @@ def project_progress(req: ProjectRequest):
         out["blockers"]              = presc.get("blockers", [])
         out["cycle_warning"]         = presc.get("cycle_warning")
     except Exception as e:
-        print(f"PROJECT ERROR [prescriptive]: {traceback.format_exc()}")
+        logger.error(f"PROJECT ERROR [prescriptive]: {traceback.format_exc()}")
         out["critical_path"]         = {"item_ids": [], "total_days": 0, "slack_per_item": {}}
         out["fast_track_candidates"] = []
         out["blockers"]              = []
@@ -596,7 +713,7 @@ def project_progress(req: ProjectRequest):
         from projects.resources import calculate as res_calc
         out["resources"] = res_calc(inputs)
     except Exception as e:
-        print(f"PROJECT ERROR [resources]: {traceback.format_exc()}")
+        logger.error(f"PROJECT ERROR [resources]: {traceback.format_exc()}")
         out["resources"] = {"error": str(e)}
 
     # Phase 5B/5D pass-through — roles and change_orders are loaded by the
@@ -635,7 +752,7 @@ class MLPredictRequest(BaseModel):
 
 
 @app.post("/ml/train")
-def ml_train(req: MLTrainRequest):
+def ml_train(req: MLTrainRequest, _auth: None = Depends(require_api_key)):
     """
     Triggered weekly by pg_cron -> trigger-ml-retrain edge function.
     Builds feature matrix from all hive logbook data and retrains GBM.
@@ -658,7 +775,7 @@ def ml_train(req: MLTrainRequest):
 
 
 @app.post("/ml/predict")
-def ml_predict(req: MLPredictRequest):
+def ml_predict(req: MLPredictRequest, _auth: None = Depends(require_api_key)):
     """
     Single-asset risk prediction. Called by batch-risk-scoring edge function.
     Returns risk_score (0-1), risk_level, model_version, recall, data_warning.

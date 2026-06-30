@@ -59,6 +59,8 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT          = Path(__file__).resolve().parent
 REPORT_PATH   = ROOT / "user_facing_jargon_report.json"
 BASELINE_PATH = ROOT / "user_facing_jargon_baseline.json"
+PROV_PATH     = ROOT / "display_provenance.json"
+IMPACT_PATH   = ROOT / "field_impact_preview.json"
 
 # Pages with user-facing dashboard chrome. Mirrors validate_source_chip_truth.py's
 # list; any *.html with renderSourceChip is also picked up via the glob below.
@@ -240,6 +242,60 @@ def _scan_page(page: Path) -> list[dict]:
     return issues
 
 
+def _scan_provenance() -> list[dict]:
+    """Scan the runtime 'where did this come from?' hover content (display_provenance.json,
+    Interactive-Lineage E2) for developer jargon. ONLY the RENDERED fields (lines / rung_label /
+    label) are scanned; the canonical `source` field is EXEMPT — it's the sanctioned machine-
+    plane channel (translated to plain words at build time via build_display_provenance.py's
+    SOURCE_PLAIN / USER_LABELS maps), exactly like the renderSourceChip `source:` field. This
+    puts the provenance popover — its own 'glass' on 20 pages — under the SAME jargon authority,
+    so a future build can't re-leak a view name / column / camelCase helper into the popover."""
+    if not PROV_PATH.exists():
+        return []
+    try:
+        data = json.loads(PROV_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    issues: list[dict] = []
+    for page, ents in (data.get("pages") or {}).items():
+        if page in EXCLUDE_PAGES:
+            continue  # internal/ops pages document internals by design
+        for eid, e in (ents or {}).items():
+            strings = list(e.get("lines") or []) + [e.get("rung_label") or "", e.get("label") or ""]
+            for s in strings:
+                hits = _scan_text(s)
+                if hits:
+                    issues.append({"where": "provenance",
+                                   "string": f"{page}/{eid}: {s}"[:160],
+                                   "tokens": sorted(set(hits))})
+    return issues
+
+
+def _scan_impact_preview() -> list[dict]:
+    """Scan the runtime 'this save updates N pages' hint (field_impact_preview.json,
+    Interactive-Lineage D2) for developer jargon. RENDERED fields only — `headline` and
+    `cascades_plain` (the user-voice cascade list). The canonical `cascades` (raw table
+    names) and `recompute_fns` (internal edge-fn names, never rendered) are EXEMPT."""
+    if not IMPACT_PATH.exists():
+        return []
+    try:
+        data = json.loads(IMPACT_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    surfaces = data.get("surfaces", data)
+    issues: list[dict] = []
+    for surf, info in (surfaces or {}).items():
+        if not isinstance(info, dict):
+            continue
+        strings = [info.get("headline") or ""] + list(info.get("cascades_plain") or [])
+        for s in strings:
+            hits = _scan_text(s)
+            if hits:
+                issues.append({"where": "impact_preview",
+                               "string": f"{surf}: {s}"[:160], "tokens": sorted(set(hits))})
+    return issues
+
+
 CHECK_NAMES = ["user_facing_jargon"]
 
 
@@ -277,6 +333,16 @@ def main() -> int:
         if issues:
             per_page.append({"page": name, "count": len(issues), "issues": issues})
             total += len(issues)
+
+    # The provenance hover + impact-preview hint are runtime "glass" too — scan them.
+    prov_issues = _scan_provenance()
+    if prov_issues:
+        per_page.append({"page": "display_provenance.json", "count": len(prov_issues), "issues": prov_issues})
+        total += len(prov_issues)
+    impact_issues = _scan_impact_preview()
+    if impact_issues:
+        per_page.append({"page": "field_impact_preview.json", "count": len(impact_issues), "issues": impact_issues})
+        total += len(impact_issues)
 
     # Baseline ratchet
     baseline = total

@@ -1,0 +1,249 @@
+{
+  "ran": "2026-06-24T20:02:04.877Z",
+  "seeder": "http://127.0.0.1:5000",
+  "chains": [
+    {
+      "id": "V2",
+      "title": "Close a job: logbook -> asset-hub -> pm-scheduler",
+      "role": "worker",
+      "signin": true,
+      "pages": 3,
+      "hops": 3,
+      "clicks": 0,
+      "ideal_hops": 3,
+      "excess_hops": 0,
+      "cumulative_cost": 3,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "logbook.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "asset-hub.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "pm-scheduler.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    },
+    {
+      "id": "V3",
+      "title": "Analyze health: analytics -> asset -> report -> benchmark",
+      "role": "supervisor",
+      "signin": true,
+      "pages": 4,
+      "hops": 4,
+      "clicks": 0,
+      "ideal_hops": 4,
+      "excess_hops": 0,
+      "cumulative_cost": 4,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "analytics.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "asset-hub.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "analytics-report.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "ph-intelligence.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    },
+    {
+      "id": "V4",
+      "title": "Supervise: hive -> audit -> ai-quality",
+      "role": "supervisor",
+      "signin": true,
+      "pages": 3,
+      "hops": 3,
+      "clicks": 0,
+      "ideal_hops": 3,
+      "excess_hops": 0,
+      "cumulative_cost": 3,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "hive.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "audit-log.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "ai-quality.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    },
+    {
+      "id": "V7",
+      "title": "Source/integrate: marketplace -> seller -> integrations -> plant-connections",
+      "role": "supervisor",
+      "signin": true,
+      "pages": 4,
+      "hops": 4,
+      "clicks": 0,
+      "ideal_hops": 4,
+      "excess_hops": 0,
+      "cumulative_cost": 4,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "marketplace.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "marketplace-seller.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "integrations.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "plant-connections.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    },
+    {
+      "id": "V5",
+      "title": "Build culture: skillmatrix -> achievements -> community",
+      "role": "worker",
+      "signin": true,
+      "pages": 3,
+      "hops": 3,
+      "clicks": 0,
+      "ideal_hops": 3,
+      "excess_hops": 0,
+      "cumulative_cost": 3,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "skillmatrix.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "achievements.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "community.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    },
+    {
+      "id": "V6",
+      "title": "Deliver project: engineering-design -> project-manager -> project-report",
+      "role": "supervisor",
+      "signin": true,
+      "pages": 3,
+      "hops": 3,
+      "clicks": 0,
+      "ideal_hops": 3,
+      "excess_hops": 0,
+      "cumulative_cost": 3,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "engineering-design.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "project-manager.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "project-report.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    },
+    {
+      "id": "Vmorning",
+      "title": "Morning rounds: index -> logbook -> pm-scheduler -> alert-hub -> dayplanner",
+      "role": "worker",
+      "signin": true,
+      "pages": 5,
+      "hops": 5,
+      "clicks": 0,
+      "ideal_hops": 5,
+      "excess_hops": 0,
+      "cumulative_cost": 5,
+      "continuity_ok": true,
+      "steps": [
+        {
+          "page": "index.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "logbook.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "pm-scheduler.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "alert-hub.html",
+          "continuity": true,
+          "why": null
+        },
+        {
+          "page": "dayplanner.html",
+          "continuity": true,
+          "why": null
+        }
+      ],
+      "verdict": "EFFORTLESS"
+    }
+  ],
+  "summary": {
+    "chains": 7,
+    "effortless": 7,
+    "continuity_breaks": 0,
+    "total_excess_hops": 0
+  }
+}

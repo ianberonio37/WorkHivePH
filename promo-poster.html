@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WorkHive Promo Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wh-orange:#F7A21B; --wh-orange-dark:#D88A0E; --wh-orange-light:#FDB94A;
+    --wh-blue:#29B6D9; --wh-blue-dark:#1A9ABF; --wh-blue-light:#5FCCE8;
+    --wh-navy:#162032; --wh-navy-mid:#1F2E45; --wh-navy-light:#2A3D58;
+    --wh-steel:#7B8794; --wh-cloud:#F4F6FA; --wh-body:#C9D2DE;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#0c121d;font-family:'Poppins',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+  .poster{
+    position:relative;width:1240px;height:1240px;overflow:hidden;color:var(--wh-cloud);
+    background:linear-gradient(158deg,#13243a 0%,#162032 38%,#1b2a40 70%,#23344e 100%);
+  }
+  /* aurora glow blobs */
+  .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.5;pointer-events:none}
+  .blob-orange{width:620px;height:620px;left:-180px;top:-160px;background:radial-gradient(circle,rgba(247,162,27,.42),transparent 62%)}
+  .blob-blue{width:760px;height:760px;right:-260px;bottom:-280px;background:radial-gradient(circle,rgba(41,182,217,.34),transparent 62%)}
+  .blob-orange2{width:480px;height:480px;right:120px;top:40px;background:radial-gradient(circle,rgba(247,162,27,.18),transparent 60%);filter:blur(140px)}
+  /* faint hex motif */
+  .hexes{position:absolute;inset:0;pointer-events:none;opacity:.06}
+  .hexes svg{position:absolute}
+
+  .inner{position:relative;z-index:3;width:100%;height:100%;padding:74px 80px 0;display:flex;flex-direction:column}
+
+  /* ── HEADER ── */
+  .header{display:flex;justify-content:space-between;align-items:center}
+  .logo{height:138px;width:auto;display:block;margin:0 0 0 -4px;filter:drop-shadow(0 8px 26px rgba(247,162,27,.28))}
+  .tag{ text-align:right;line-height:1.25}
+  .tag .t1{font-size:21px;font-weight:600;color:var(--wh-cloud);letter-spacing:.2px}
+  .tag .t2{font-size:14.5px;font-weight:500;color:var(--wh-steel);margin-top:3px;letter-spacing:.3px}
+  .tag .pill{display:inline-flex;align-items:center;gap:7px;margin-top:11px;padding:6px 13px;border-radius:999px;background:rgba(41,182,217,.12);border:1px solid rgba(41,182,217,.4);font-size:12.5px;font-weight:600;color:var(--wh-blue-light)}
+  .tag .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--wh-blue);box-shadow:0 0 8px var(--wh-blue)}
+
+  /* ── BODY ── */
+  .body{flex:1;display:flex;gap:18px;margin-top:40px;min-height:0}
+  .left{width:610px;flex:none;display:flex;flex-direction:column}
+  .right{flex:1;position:relative}
+
+  .headline{font-size:50px;font-weight:800;line-height:1.1;letter-spacing:-0.9px;color:var(--wh-cloud)}
+  .headline .pay{color:var(--wh-orange)}
+  .sub{margin-top:20px;font-size:19.5px;line-height:1.5;font-weight:400;color:var(--wh-body);max-width:560px}
+
+  .feats{margin-top:30px;display:flex;flex-direction:column;gap:19px}
+  .feat{display:flex;align-items:flex-start;gap:16px}
+  .chip{flex:none;width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+        background:rgba(247,162,27,.14);border:1px solid rgba(247,162,27,.55);box-shadow:0 0 0 4px rgba(247,162,27,.05)}
+  .chip svg{width:25px;height:25px;stroke:var(--wh-orange-light);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .feat .ft{padding-top:1px}
+  .feat .fn{font-size:20.5px;font-weight:700;color:var(--wh-cloud);line-height:1.2}
+  .feat .fb{font-size:15px;font-weight:400;color:var(--wh-steel);line-height:1.38;margin-top:3px;max-width:470px}
+
+  /* ── PHONES ── */
+  .cluster{position:absolute;top:50%;left:51%;transform:translate(-50%,-50%)}
+  .phone{position:absolute;border-radius:38px;background:#0a0f18;padding:9px;
+         box-shadow:0 34px 70px rgba(0,0,0,.55),0 0 0 1.5px rgba(255,255,255,.10),inset 0 0 0 2px rgba(255,255,255,.03)}
+  .phone .screen{position:relative;border-radius:30px;overflow:hidden;background:#0F1923}
+  .phone img{width:100%;display:block}
+  .phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:78px;height:8px;border-radius:99px;background:rgba(0,0,0,.55);z-index:2}
+  .phone .glare{position:absolute;inset:0;border-radius:30px;background:linear-gradient(125deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 32%);pointer-events:none;z-index:3}
+
+  .p-front{width:272px;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5}
+  .p-left {width:226px;left:50%;top:50%;transform:translate(-120%,-44%) rotate(-9deg);z-index:3}
+  .p-right{width:230px;left:50%;top:50%;transform:translate(12%,-50%) rotate(9deg);z-index:4}
+
+  .p-front .screen{aspect-ratio:430/932}
+  .p-left  .screen{aspect-ratio:430/932}
+  .p-right .screen{aspect-ratio:430/932}
+  .p-front img{height:100%;object-fit:cover;object-position:top}
+  .p-left  img{height:100%;object-fit:cover;object-position:top}
+  .p-right img{height:100%;object-fit:cover;object-position:top}
+
+  /* floating accent: critical-risk callout flag on front phone */
+  .flag{position:absolute;z-index:7;display:flex;align-items:center;gap:9px;padding:10px 15px;border-radius:14px;
+        background:rgba(22,32,50,.92);border:1px solid rgba(247,162,27,.5);box-shadow:0 18px 40px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+  .flag .fdot{width:30px;height:30px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(247,162,27,.18)}
+  .flag .fdot svg{width:17px;height:17px;stroke:var(--wh-orange);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .flag .fl1{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--wh-orange);text-transform:uppercase}
+  .flag .fl2{font-size:13.5px;font-weight:600;color:var(--wh-cloud);margin-top:1px}
+  .flag-risk{left:-52px;top:58px}
+  .flag-oee{right:-30px;bottom:122px;border-color:rgba(41,182,217,.5)}
+  .flag-oee .fdot{background:rgba(41,182,217,.16)}
+  .flag-oee .fdot svg{stroke:var(--wh-blue-light)}
+  .flag-oee .fl1{color:var(--wh-blue-light)}
+
+  /* ── OUTCOME BAND ── */
+  .band{flex:none;height:158px;display:flex;align-items:center;justify-content:space-between;gap:30px;
+        margin:0 -80px;padding:0 80px;background:rgba(15,25,35,.55);border-top:1px solid rgba(255,255,255,.07)}
+  .outcome{font-size:27px;font-weight:800;line-height:1.18;letter-spacing:-.4px}
+  .outcome .o2{color:var(--wh-orange)}
+  .outcome .o3{color:var(--wh-blue-light)}
+  .cta-wrap{text-align:right;flex:none}
+  .cta{display:inline-flex;align-items:center;gap:10px;padding:17px 30px;border-radius:999px;
+       background:linear-gradient(95deg,var(--wh-orange) 0%,var(--wh-orange-light) 100%);
+       color:#11192a;font-size:19px;font-weight:700;letter-spacing:.2px;box-shadow:0 14px 30px rgba(247,162,27,.32)}
+  .cta svg{width:19px;height:19px;stroke:#11192a;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .url{margin-top:11px;font-size:14.5px;font-weight:500;color:var(--wh-steel)}
+  .url b{color:var(--wh-cloud);font-weight:700}
+
+  /* ════ 9:16 STORY VARIANT (?v=story) ════ */
+  body.story .poster{width:1080px;height:1920px;background:linear-gradient(172deg,#13243a 0%,#162032 42%,#1b2a40 74%,#23344e 100%)}
+  body.story .blob-orange{width:600px;height:600px;left:-170px;top:-150px}
+  body.story .blob-blue{width:740px;height:740px;right:-250px;bottom:-240px}
+  body.story .blob-orange2{display:none}
+  body.story .hexes svg:nth-of-type(2){display:none}
+  body.story .inner{padding:88px 74px 0}
+  body.story .header{flex-direction:column;align-items:center;text-align:center;gap:14px}
+  body.story .logo{height:140px;margin:0}
+  body.story .tag{text-align:center}
+  body.story .body{flex-direction:column;margin-top:34px;gap:0;flex:1}
+  body.story .left{width:100%;align-items:center}
+  body.story .headline{font-size:72px;text-align:center;line-height:1.07}
+  body.story .sub{font-size:24px;max-width:820px;text-align:center;margin:20px auto 0}
+  body.story .feats{margin:34px auto 0;gap:21px;max-width:760px;width:100%}
+  body.story .feat .fn{font-size:23px}
+  body.story .feat .fb{max-width:none;font-size:16.5px;margin-top:3px}
+  body.story .chip{width:56px;height:56px;border-radius:16px}
+  body.story .chip svg{width:28px;height:28px}
+  body.story .right{flex:none;height:600px;margin-top:24px}
+  body.story .cluster{left:50%}
+  body.story .p-front{width:264px}
+  body.story .p-left{width:222px;transform:translate(-118%,-44%) rotate(-9deg)}
+  body.story .p-right{width:226px;transform:translate(10%,-50%) rotate(9deg)}
+  body.story .flag-risk{left:-30px;top:48px}
+  body.story .flag-oee{right:-14px;bottom:118px}
+  body.story .band{margin:0 -74px;padding:36px 74px;height:auto;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:18px}
+  body.story .outcome{font-size:34px}
+  body.story .cta-wrap{text-align:center}
+  body.story .cta{font-size:22px;padding:19px 36px}
+  body.story .url{font-size:17px;margin-top:14px}
+
+  /* ════ 1200x630 OG / LINK-PREVIEW VARIANT (?v=og) ════ */
+  body.og .poster{width:1200px;height:630px}
+  body.og .blob-orange{width:380px;height:380px;left:-120px;top:-110px}
+  body.og .blob-blue{width:470px;height:470px;right:-160px;bottom:-170px}
+  body.og .blob-orange2{display:none}
+  body.og .hexes{opacity:.05}
+  body.og .inner{padding:30px 46px 0}
+  body.og .header{align-items:center}
+  body.og .logo{height:70px;margin:0 0 0 -3px}
+  body.og .tag .t1{font-size:14.5px}
+  body.og .tag .t2{font-size:11px;margin-top:1px}
+  body.og .tag .pill{display:none}
+  body.og .body{margin-top:14px;gap:12px}
+  body.og .left{width:580px}
+  body.og .headline{font-size:34px;line-height:1.08;letter-spacing:-0.6px}
+  body.og .sub{font-size:14px;line-height:1.4;margin-top:11px;max-width:480px}
+  body.og .feats{margin-top:15px;gap:10px}
+  body.og .feat:nth-of-type(n+4){display:none}
+  body.og .chip{width:35px;height:35px;border-radius:10px}
+  body.og .chip svg{width:18px;height:18px}
+  body.og .feat .fn{font-size:15.5px}
+  body.og .feat .fb{font-size:12px;margin-top:1px;max-width:400px}
+  body.og .cluster{left:52%}
+  body.og .p-front{width:152px;transform:translate(-50%,-50%)}
+  body.og .p-left{width:126px;transform:translate(-120%,-44%) rotate(-9deg)}
+  body.og .p-right{width:128px;transform:translate(12%,-50%) rotate(9deg)}
+  body.og .phone{border-radius:22px;padding:5px}
+  body.og .phone .screen{border-radius:18px}
+  body.og .phone .notch{width:44px;height:5px;top:6px}
+  body.og .flag{padding:6px 9px;border-radius:9px;gap:6px}
+  body.og .flag .fdot{width:21px;height:21px;border-radius:6px}
+  body.og .flag .fdot svg{width:12px;height:12px}
+  body.og .flag .fl1{font-size:8px}
+  body.og .flag .fl2{font-size:9.5px}
+  body.og .flag-risk{left:-18px;top:26px}
+  body.og .flag-oee{right:-8px;bottom:66px}
+  body.og .band{height:72px;margin:0 -46px;padding:0 46px}
+  body.og .outcome{font-size:17px}
+  body.og .cta{padding:10px 18px;font-size:13px}
+  body.og .cta svg{width:13px;height:13px}
+  body.og .url{font-size:10.5px;margin-top:5px}
+</style>
+</head>
+<body>
+<div class="poster" id="poster">
+  <div class="blob blob-orange"></div>
+  <div class="blob blob-blue"></div>
+  <div class="blob blob-orange2"></div>
+  <div class="hexes">
+    <svg width="280" height="320" viewBox="0 0 100 116" style="right:120px;top:60px" fill="none" stroke="#F7A21B" stroke-width="2"><polygon points="50,3 95,29 95,87 50,113 5,87 5,29"/></svg>
+    <svg width="180" height="206" viewBox="0 0 100 116" style="right:430px;top:330px" fill="none" stroke="#29B6D9" stroke-width="2"><polygon points="50,3 95,29 95,87 50,113 5,87 5,29"/></svg>
+    <svg width="140" height="160" viewBox="0 0 100 116" style="right:90px;bottom:240px" fill="none" stroke="#F7A21B" stroke-width="2"><polygon points="50,3 95,29 95,87 50,113 5,87 5,29"/></svg>
+  </div>
+
+  <div class="inner">
+    <!-- HEADER -->
+    <div class="header">
+      <img class="logo" src="brand_assets/workhive-logo-tight.png" alt="WorkHive" />
+      <div class="tag">
+        <div class="t1">Simple. Smart. Built for the Plant Floor.</div>
+        <div class="t2">Free industrial tools for every Filipino worker.</div>
+        <span class="pill"><span class="dot"></span>The Hive is Open · Philippines</span>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+      <div class="left">
+        <h1 class="headline">Track Every Machine.<br>Stop Breakdowns<br><span class="pay">Before They Cost You.</span></h1>
+        <p class="sub">WorkHive turns your logbook, PM schedule, spare parts, and asset history into one early-warning system, so your team catches failures before they stop the line.</p>
+
+        <div class="feats">
+          <div class="feat">
+            <span class="chip"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+            <span class="ft"><div class="fn">Digital Logbook</div><div class="fb">Replace paper logs. Voice fill, photo-defect AI draft, offline-ready, sign-off.</div></span>
+          </div>
+          <div class="feat">
+            <span class="chip"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m8.5 15 2 2 4-4"/></svg></span>
+            <span class="ft"><div class="fn">PM Scheduler</div><div class="fb">Never miss a due date. Build PM scope by asset, see what is due today.</div></span>
+          </div>
+          <div class="feat">
+            <span class="chip"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></span>
+            <span class="ft"><div class="fn">Spare-Parts Inventory</div><div class="fb">Reorder before the next breakdown. Live stock ledger, low-stock alerts.</div></span>
+          </div>
+          <div class="feat">
+            <span class="chip"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v4M8 19h4"/></svg></span>
+            <span class="ft"><div class="fn">Engineering Calculators</div><div class="fb">Six disciplines, each with BOM and SOW, anchored to PEC, ASHRAE, and NFPA.</div></span>
+          </div>
+          <div class="feat">
+            <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span>
+            <span class="ft"><div class="fn">AI Work Assistant</div><div class="fb">Knows your hive, role, and context. Asks and answers in English or Tagalog.</div></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHONES -->
+      <div class="right">
+        <div class="cluster">
+          <div class="phone p-left">
+            <div class="screen"><div class="notch"></div><img src="wh_pm_clean.png" alt="PM Scheduler"><div class="glare"></div></div>
+          </div>
+          <div class="phone p-right">
+            <div class="screen"><div class="notch"></div><img src="wh_analytics_clean.png" alt="Analytics"><div class="glare"></div></div>
+          </div>
+          <div class="phone p-front">
+            <div class="screen"><div class="notch"></div><img src="wh_home_clean.png" alt="Home dashboard"><div class="glare"></div></div>
+          </div>
+
+          <div class="flag flag-risk">
+            <span class="fdot"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+            <span><div class="fl1">Critical Risk · Today</div><div class="fl2">TX-001 · 96% · MTBF 9d</div></span>
+          </div>
+          <div class="flag flag-oee">
+            <span class="fdot"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+            <span><div class="fl1">OEE · World Class</div><div class="fl2">87% · ISO 22400</div></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTCOME BAND -->
+    <div class="band">
+      <div class="outcome">Less Downtime. <span class="o2">Longer Asset Life.</span> <span class="o3">Lower Cost.</span></div>
+      <div class="cta-wrap">
+        <span class="cta">Start Free in Your Browser <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="url"><b>workhiveph.com</b> · No download, works in any browser, PWA installable</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const v = new URLSearchParams(location.search).get('v');
+  if (v === 'story') document.body.classList.add('story');
+  if (v === 'og') document.body.classList.add('og');
+</script>
+</body>
+</html>

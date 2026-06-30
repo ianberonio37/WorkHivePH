@@ -1,0 +1,205 @@
+{
+  "generated_at": "2026-06-17T19:30:57.022481+00:00",
+  "generator": "tools/journey_trace.py",
+  "nerves": {
+    "logbook_downtime__mttr": {
+      "field": "logbook.downtime_hours",
+      "input_surface": "logbook",
+      "verified": true,
+      "termini_ok": 6,
+      "termini_total": 6,
+      "consumers_proven": [
+        "D · logbook row",
+        "canonical · v_logbook_truth",
+        "KPI staleness · v_kpi_truth pre-refresh (materialized, <=1h)",
+        "KPI · v_kpi_truth.failures_30d (COUNT)",
+        "KPI · v_kpi_truth.total_downtime_30d (SUM)",
+        "KPI · v_kpi_truth.mttr_30d (AVG -- the MTTR nerve)"
+      ]
+    },
+    "logbook_status__open_jobs": {
+      "field": "logbook.status",
+      "input_surface": "logbook",
+      "verified": true,
+      "termini_ok": 2,
+      "termini_total": 2,
+      "consumers_proven": [
+        "canonical · v_logbook_truth exposes the Open entry",
+        "KPI · Open Jobs count (status='Open' rollup, hive.stat-open) +1"
+      ]
+    },
+    "inventory_qty__low_stock": {
+      "field": "inventory_items.qty_on_hand",
+      "input_surface": "inventory",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "D · inventory_items.qty_on_hand",
+        "canonical · v_inventory_items_truth.is_low_stock (qty<=min)",
+        "KPI · low_stock count (hive)"
+      ]
+    },
+    "pm_anchor__overdue": {
+      "field": "pm_scope_items.anchor_date",
+      "input_surface": "pm-scheduler",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "D · pm_scope_items.anchor_date",
+        "canonical · v_pm_scope_items_truth.is_overdue (next_due<today)",
+        "KPI · pm_overdue (distinct pm_asset_id roll-up, hive)"
+      ]
+    },
+    "pm_anchor__due_soon": {
+      "field": "pm_scope_items.anchor_date",
+      "input_surface": "pm-scheduler",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "D · pm_scope_items.anchor_date",
+        "canonical · v_pm_scope_items_truth.is_due_soon (today≤next_due≤+14)",
+        "KPI · pm_due_soon (distinct pm_asset_id roll-up, hive)"
+      ]
+    },
+    "pm_rpc__compliance": {
+      "field": "get_pm_compliance_smrp (RPC)",
+      "input_surface": "pm-scheduler",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "RPC · overall_pct == completed/scheduled",
+        "RPC · all 30 per-asset compliance_pct correct",
+        "RPC · rollup integrity (overall == Σ per-asset)"
+      ]
+    },
+    "skillmatrix_badge__level": {
+      "field": "skill_badges.level",
+      "input_surface": "skillmatrix",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "D · skill_badges row (level)",
+        "canonical · v_worker_skill_truth.current_level (= max badge level)",
+        "canonical · v_worker_skill_truth.badge_count (+1)"
+      ]
+    },
+    "assethub__criticality_and_rollup": {
+      "field": "asset_nodes.criticality + logbook.asset_node_id",
+      "input_surface": "asset-hub",
+      "verified": true,
+      "termini_ok": 2,
+      "termini_total": 2,
+      "consumers_proven": [
+        "canonical · v_asset_truth.criticality (passthrough)",
+        "canonical · v_asset_truth.lifetime_logbook_entries (cross-surface: logbook→asset +1)"
+      ]
+    },
+    "projectmgr_item__items_done": {
+      "field": "project_items.status",
+      "input_surface": "project-manager",
+      "verified": true,
+      "termini_ok": 2,
+      "termini_total": 2,
+      "consumers_proven": [
+        "D · project_items.status",
+        "canonical · v_project_truth.items_done (count status=done) +1"
+      ]
+    },
+    "community_softdelete__is_deleted": {
+      "field": "community_posts.deleted_at",
+      "input_surface": "community",
+      "verified": true,
+      "termini_ok": 1,
+      "termini_total": 1,
+      "consumers_proven": [
+        "canonical · v_community_posts_truth.is_deleted (deleted_at IS NOT NULL)"
+      ]
+    },
+    "marketplace_listing__active_count": {
+      "field": "marketplace_listings.status(published)",
+      "input_surface": "marketplace",
+      "verified": true,
+      "termini_ok": 2,
+      "termini_total": 2,
+      "consumers_proven": [
+        "D · marketplace_listings (published) row",
+        "canonical · v_marketplace_sellers_truth.active_listings_count (published rollup +1)"
+      ]
+    },
+    "reportsender_report__flags": {
+      "field": "ai_reports.report_type+generated_at",
+      "input_surface": "report-sender",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "canonical · v_ai_reports_truth.is_pm_overdue (report_type)",
+        "canonical · v_ai_reports_truth.fresh_24h (generated_at recency)",
+        "canonical · v_ai_reports_truth.is_failure_digest (negative — not this type)"
+      ]
+    },
+    "integrations_sync__fresh": {
+      "field": "external_sync.last_synced_at",
+      "input_surface": "integrations",
+      "verified": true,
+      "termini_ok": 2,
+      "termini_total": 2,
+      "consumers_proven": [
+        "canonical · v_external_sync_truth.synced_within_24h (last_synced_at recency)",
+        "canonical · v_external_sync_truth.days_since_sync (=0 today)"
+      ]
+    },
+    "alerthub_ack__status": {
+      "field": "anomaly_signals.status",
+      "input_surface": "alert-hub",
+      "verified": true,
+      "termini_ok": 1,
+      "termini_total": 1,
+      "consumers_proven": [
+        "canonical · v_anomaly_truth.status (acknowledge action)"
+      ]
+    },
+    "achievements_xp__level": {
+      "field": "worker_achievements.xp_total",
+      "input_surface": "achievements",
+      "verified": true,
+      "termini_ok": 4,
+      "termini_total": 4,
+      "consumers_proven": [
+        "D · worker_achievements.xp_total (+Δ)",
+        "canonical · v_worker_achievements_truth.xp_into_current_level (+Δ)",
+        "canonical · v_worker_achievements_truth.xp_to_next_level (-Δ)",
+        "invariant · xp_into == xp_total - level*xp_per_level"
+      ]
+    },
+    "auditlog_action__hive_scoped": {
+      "field": "hive_audit_log.action",
+      "input_surface": "audit-log",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "D · hive_audit_log row persisted",
+        "AU · visible scoped to own hive",
+        "S · invisible under another hive's filter"
+      ]
+    },
+    "risk_band__hot_count": {
+      "field": "asset_risk_scores.risk_score",
+      "input_surface": "predictive",
+      "verified": true,
+      "termini_ok": 3,
+      "termini_total": 3,
+      "consumers_proven": [
+        "canonical · v_risk_truth.risk_level (band flip → critical)",
+        "canonical · v_risk_truth.risk_score (passthrough)",
+        "KPI · top_risk_band hot-assets count (high+critical) +1"
+      ]
+    }
+  }
+}

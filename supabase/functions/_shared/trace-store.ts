@@ -73,6 +73,7 @@ export async function summarizeTraces(
 
   // unbounded-ok: capped at ROW_CAP recent rows via the created_at DESC index;
   // a rollup over the newest window, not a full-table scan.
+  // canonical-allow: wh_traces is the observability trace store's OWN table; this SLI rollup is control-plane telemetry, not a user-facing cross-surface KPI value — no v_*_truth wrapper applies.
   let q = db.from("wh_traces")
     .select("route, status, latency_ms, error_code, created_at")
     .gte("created_at", sinceIso)

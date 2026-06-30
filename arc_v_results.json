@@ -1,0 +1,3756 @@
+{
+  "ran": "2026-06-24T10:36:47.894Z",
+  "seeder": "http://127.0.0.1:5000",
+  "hive": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7",
+  "summary": {
+    "journeys": 102,
+    "measured": 102,
+    "errored": 0,
+    "total_click_hops": 164,
+    "total_interaction_cost": 217,
+    "total_steps": 217,
+    "total_debt": 0,
+    "total_slow_actions": 42,
+    "total_failed_actions": 7,
+    "total_slow_silent": 5,
+    "total_dead_ends": 7,
+    "total_flow_floor": 7,
+    "total_slow_with_busy": 0,
+    "journeys_with_ideal": 0,
+    "effort_pass": 0,
+    "effort_pct": null
+  },
+  "journeys": [
+    {
+      "id": "LA1",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "title": "First-time visitor: landing loads and the value is obvious",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 948,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LA2",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "title": "Visitor joins the early-access waitlist and gets confirmation (→ early_access_emails)",
+      "effort": {
+        "clicks": 2,
+        "fills": 1,
+        "hops": 1,
+        "steps": 4,
+        "click_hops": 3,
+        "interaction_cost": 4,
+        "net_latency_ms": 987,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LA3",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "title": "Curious visitor explores How-It-Works + opens an FAQ before committing",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 842,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LA5",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "title": "Visitor reaches a free tool from the landing (\"Free to use — sign up to start\")",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 1106,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LA4",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "title": "Returning worker opens the Sign-In modal, recovers from a bad password, then lands on home",
+      "effort": {
+        "clicks": 3,
+        "fills": 3,
+        "hops": 1,
+        "steps": 7,
+        "click_hops": 4,
+        "interaction_cost": 7,
+        "net_latency_ms": 1621,
+        "slow_actions": 2,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 1,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HM1",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "title": "Signed-in worker: home becomes the operational launchpad with a personalized greeting",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 622,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HM2",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "title": "Home KPI tiles show real counts that match the canonical truth views (and honor the calm-empty contract)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 664,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HM3",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "title": "Today's One Thing gives ONE truthful verdict + role-correct primary actions (worker vs supervisor)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 4,
+        "steps": 4,
+        "click_hops": 4,
+        "interaction_cost": 4,
+        "net_latency_ms": 1997,
+        "slow_actions": 3,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HM4",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "title": "From home, reach My Open Jobs + All Tools, deep-link to a tool, and sign out cleanly",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 5,
+        "steps": 6,
+        "click_hops": 6,
+        "interaction_cost": 6,
+        "net_latency_ms": 1985,
+        "slow_actions": 2,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LOG1",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "title": "Log a new repair/breakdown captured against the right machine",
+      "effort": {
+        "clicks": 5,
+        "fills": 2,
+        "hops": 1,
+        "steps": 8,
+        "click_hops": 6,
+        "interaction_cost": 8,
+        "net_latency_ms": 9738,
+        "slow_actions": 3,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 1,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LOG2",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "title": "Record downtime when closing a fix so MTTR stays truthful",
+      "effort": {
+        "clicks": 6,
+        "fills": 2,
+        "hops": 1,
+        "steps": 9,
+        "click_hops": 7,
+        "interaction_cost": 9,
+        "net_latency_ms": 9861,
+        "slow_actions": 3,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 1,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LOG3",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "title": "Resolve (close) an open job so the Open backlog + KPI drop",
+      "effort": {
+        "clicks": 6,
+        "fills": 2,
+        "hops": 2,
+        "steps": 10,
+        "click_hops": 8,
+        "interaction_cost": 10,
+        "net_latency_ms": 10495,
+        "slow_actions": 4,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 2,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LOG4",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "title": "Review my own logbook history + find a past repair by search/filter",
+      "effort": {
+        "clicks": 0,
+        "fills": 2,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 1,
+        "interaction_cost": 3,
+        "net_latency_ms": 473,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LOG5",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "supervisor",
+      "title": "Supervisor browses the whole team feed, hive-scoped (no cross-tenant bleed)",
+      "effort": {
+        "clicks": 2,
+        "fills": 0,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 3,
+        "interaction_cost": 3,
+        "net_latency_ms": 620,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "LOG6",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "title": "Export my logbook entries to CSV for an offline report/audit",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 467,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "INV1",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "title": "Add a new spare part to inventory",
+      "effort": {
+        "clicks": 2,
+        "fills": 4,
+        "hops": 1,
+        "steps": 7,
+        "click_hops": 3,
+        "interaction_cost": 7,
+        "net_latency_ms": 691,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "INV2",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "title": "Use (deduct) stock from a part for a job",
+      "effort": {
+        "clicks": 1,
+        "fills": 1,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 2,
+        "interaction_cost": 3,
+        "net_latency_ms": 593,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "INV3",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "title": "Restock a part to replenish quantity on hand",
+      "effort": {
+        "clicks": 1,
+        "fills": 1,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 2,
+        "interaction_cost": 3,
+        "net_latency_ms": 476,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "INV4",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "title": "Find a part by name/number/category/stock level",
+      "effort": {
+        "clicks": 0,
+        "fills": 2,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 1,
+        "interaction_cost": 3,
+        "net_latency_ms": 431,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "INV5",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "title": "Open a part's detail card (stock, linked assets, txn history)",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 613,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "DAY1",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "title": "Schedule a new maintenance task onto the day plan",
+      "effort": {
+        "clicks": 0,
+        "fills": 3,
+        "hops": 1,
+        "steps": 4,
+        "click_hops": 1,
+        "interaction_cost": 4,
+        "net_latency_ms": 482,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "DAY2",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "title": "Place an open logbook job onto the schedule",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 374,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "DAY3",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "title": "Mark a scheduled item Done and close the linked logbook job",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 359,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "DAY4",
+      "phase": "K2",
+      "page": "dayplanner.html",
+      "role": "worker",
+      "title": "Read the day-plan verdict + counts to decide what to work on",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 2,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 634,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HV1",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "title": "Supervisor opens the team roster — every active member, count-integrity",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 4562,
+        "slow_actions": 1,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HV2",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "title": "Supervisor removes (kicks) a member → status=kicked + audit",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 4534,
+        "slow_actions": 1,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HV3",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "title": "Supervisor approves a pending part → status=approved + published",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 360,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HV4",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "title": "Supervisor can reach Reset-PW for a worker (affordance + gate; reset itself = prior gate)",
+      "effort": {
+        "clicks": 2,
+        "fills": 0,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 3,
+        "interaction_cost": 3,
+        "net_latency_ms": 4645,
+        "slow_actions": 1,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HV5",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "title": "Supervisor reveals the hive invite code",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 2,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 739,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "HV6",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "title": "Supervisor reviews the hive action log (audit)",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 4583,
+        "slow_actions": 1,
+        "failed_actions": 1,
+        "flow": {
+          "dead_ends": 1,
+          "flow_floor": 1,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PM1",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "title": "See overdue / due-soon / compliance at a glance (matches the truth view)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 386,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PM2",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "title": "Open an overdue asset + see its overdue tasks (badges match the view)",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 516,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PM3",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "title": "Complete a PM task — findings logged + persisted",
+      "effort": {
+        "clicks": 1,
+        "fills": 1,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 2,
+        "interaction_cost": 3,
+        "net_latency_ms": 713,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PM4",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "supervisor",
+      "title": "Supervisor adds a PM asset via the wizard (+ worker is gated out)",
+      "effort": {
+        "clicks": 1,
+        "fills": 1,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 2,
+        "interaction_cost": 3,
+        "net_latency_ms": 453,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "CM1",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "title": "Post a message to the hive board",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 192,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "CM2",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "title": "React to a teammate's post with an emoji",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 173,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "CM3",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "title": "Open a thread and reply",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 170,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "CM4",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "title": "Soft-delete my own post (reversible)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 2,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 271,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AN1",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "title": "Read the reliability verdict (OEE/MTBF/PM) at a glance",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 778,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AN2",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "title": "Change the analysis window (30d) → KPIs recompute",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 244,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AN3",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "title": "Diagnostic phase — why failures happen",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 273,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AN4",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "title": "Prescriptive phase — AI action plan (or deterministic ranking)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 202,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AN5",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "title": "Supervisor recomputes hive risk scores on demand",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 235,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AK1",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "title": "Ask the AI assistant a question → grounded non-empty answer",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 330,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AK2",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "title": "Worker reviews which records are available as AI context",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 324,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AK3",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "title": "Worker rates an AI reply → feedback persists",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 323,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AK4",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "title": "Switch from Chat to the embedded Voice Journal tab",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 335,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AH1",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "title": "Fleet health rollup (total / critical / pending)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 146,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AH2",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "title": "Open an asset 360 — true history rollup",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 131,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AH3",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "title": "Per-asset Risk Profile (score/level/MTBF) or honest empty",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 146,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AH4",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "title": "Ask Asset Brain a grounded question about the asset",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 168,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AL1",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "worker",
+      "title": "Read the alert intelligence rollup",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 156,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AL2",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "worker",
+      "title": "Filter the feed by signal type (Risk)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 169,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AL3",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "title": "Acknowledge a fused anomaly signal",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 156,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AL4",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "title": "Review + approve the AMC daily brief",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 159,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AU1",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "title": "Supervisor reads the who-did-what feed",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 147,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AU2",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "title": "Filter the audit log by action",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 181,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AU3",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "title": "Expand an entry detail + export CSV",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 170,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AU4",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "worker",
+      "title": "Worker is correctly DENIED the audit log (supervisor-only gate)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 102,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "VJ1",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "title": "Browse past voice-journal entries (history truthful to DB)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 305,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "VJ2",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "title": "Search/filter past entries",
+      "effort": {
+        "clicks": 0,
+        "fills": 2,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 1,
+        "interaction_cost": 3,
+        "net_latency_ms": 379,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "VJ3",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "title": "Set companion persona — persists to worker_profiles",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 267,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "VJ4",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "title": "Record→transcribe→reply surface reachable (live mic attributed)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 308,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AQ1",
+      "phase": "K4",
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "title": "AI-health verdict + 3 cards (or honest maturity-empty)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 106,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AQ2",
+      "phase": "K4",
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "title": "Recommended action + drill into per-function AI detail",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 83,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AQ3",
+      "phase": "K4",
+      "page": "ai-quality.html",
+      "role": "worker",
+      "title": "Worker honestly gated until Stair 2 (or full dashboard)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 89,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AR1",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "title": "Compile the print-ready analytics report",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 143,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AR2",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "title": "Executive KPIs are truthful (PM compliance shown==DB)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 112,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AR3",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "title": "Switch report period + audience pivot",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 111,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "AR4",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "title": "Edit cover + save as PDF (print path)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 139,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "ED1",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "title": "Run Bearing Life (L10) → correct ISO 281 result",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 550,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "ED2",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "title": "Save a calc to hive history + find it again",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 583,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "ED3",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "title": "Global search finds the right calculator",
+      "effort": {
+        "clicks": 0,
+        "fills": 2,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 1,
+        "interaction_cost": 3,
+        "net_latency_ms": 591,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "ED4",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "title": "Generate a procurement BOM + Scope of Works from a calc",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 629,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PMK1",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "title": "Supervisor creates a project via the wizard",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 231,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PMK2",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "title": "Add a WBS scope item to a project",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 184,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PMK3",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "worker",
+      "title": "Mark a scope item done → project progress rolls up",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 165,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PMK4",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "worker",
+      "title": "Log daily progress (with a blocker)",
+      "effort": {
+        "clicks": 0,
+        "fills": 2,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 1,
+        "interaction_cost": 3,
+        "net_latency_ms": 210,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PMK5",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "title": "AI pre-fills a project from a plain-language description",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 170,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PRK1",
+      "phase": "K5",
+      "page": "project-report.html",
+      "role": "supervisor",
+      "title": "Open a compiled project status report",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 453,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PRK2",
+      "phase": "K5",
+      "page": "project-report.html",
+      "role": "supervisor",
+      "title": "EVM KPI strip — budget computed truthfully",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 232,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PRK3",
+      "phase": "K5",
+      "page": "project-report.html",
+      "role": "supervisor",
+      "title": "Generate an AI-drafted handover narrative",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 194,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "SKK1",
+      "phase": "K5",
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "title": "Skill matrix truthfully renders the worker badges (badge→level)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 314,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "SKK2",
+      "phase": "K5",
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "title": "Raise a discipline target → persists to skill_profiles",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 264,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "ACHK1",
+      "phase": "K5",
+      "page": "achievements.html",
+      "role": "worker",
+      "title": "Growth at a glance (XP/level/tier truthful)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 447,
+        "slow_actions": 1,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "ACHK2",
+      "phase": "K5",
+      "page": "achievements.html",
+      "role": "worker",
+      "title": "Per-domain badge grid + expand a domain",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 130,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "RESK1",
+      "phase": "K5",
+      "page": "resume.html",
+      "role": "worker",
+      "title": "Auto-fill resume from WorkHive skill/profile/logbook data",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 308,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "RESK3",
+      "phase": "K5",
+      "page": "resume.html",
+      "role": "worker",
+      "title": "Save resume to the cloud (owner-scoped resume_documents)",
+      "effort": {
+        "clicks": 0,
+        "fills": 1,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 1,
+        "interaction_cost": 2,
+        "net_latency_ms": 280,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "RESK4",
+      "phase": "K5",
+      "page": "resume.html",
+      "role": "worker",
+      "title": "Preview + export the resume (JSON/PDF)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 215,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MK1",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "anon",
+      "title": "Visitor browses listings by section + search (free, no sign-in to read)",
+      "effort": {
+        "clicks": 0,
+        "fills": 2,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 1,
+        "interaction_cost": 3,
+        "net_latency_ms": 250,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MK2",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "title": "Post a new marketplace listing (free to list)",
+      "effort": {
+        "clicks": 2,
+        "fills": 5,
+        "hops": 1,
+        "steps": 8,
+        "click_hops": 3,
+        "interaction_cost": 8,
+        "net_latency_ms": 355,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MK3",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "title": "Save a listing to my watchlist + see it in My Saved",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 170,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MK4",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "title": "Contact a seller about a listing (the free alternative to checkout)",
+      "effort": {
+        "clicks": 2,
+        "fills": 3,
+        "hops": 1,
+        "steps": 6,
+        "click_hops": 3,
+        "interaction_cost": 6,
+        "net_latency_ms": 296,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MK5",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "title": "Save the current search so I can re-run it later",
+      "effort": {
+        "clicks": 2,
+        "fills": 2,
+        "hops": 1,
+        "steps": 5,
+        "click_hops": 3,
+        "interaction_cost": 5,
+        "net_latency_ms": 259,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MS1",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "title": "Edit one of my draft listings and re-submit it",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 147,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MS2",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "title": "Reply to a buyer inquiry and mark it replied",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 157,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MS3",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "title": "Save my Messenger handle so buyers can reach me directly (free contact)",
+      "effort": {
+        "clicks": 1,
+        "fills": 1,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 2,
+        "interaction_cost": 3,
+        "net_latency_ms": 222,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "MS5",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "title": "View my seller performance (views/inquiries/conversion)",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 158,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "IN1",
+      "phase": "K6",
+      "page": "integrations.html",
+      "role": "supervisor",
+      "title": "Import CMMS work-order history (CSV) for cold-start analytics",
+      "effort": {
+        "clicks": 2,
+        "fills": 0,
+        "hops": 1,
+        "steps": 3,
+        "click_hops": 3,
+        "interaction_cost": 3,
+        "net_latency_ms": 482,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PC1",
+      "phase": "K6",
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "title": "See CMMS integration health at a glance",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 130,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PC3",
+      "phase": "K6",
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "title": "Check gateway API health (7-day success rate) — truthful to the audit log",
+      "effort": {
+        "clicks": 0,
+        "fills": 0,
+        "hops": 1,
+        "steps": 1,
+        "click_hops": 1,
+        "interaction_cost": 1,
+        "net_latency_ms": 102,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    },
+    {
+      "id": "PC5",
+      "phase": "K6",
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "title": "Expand engineering details to inspect raw configs/syncs/audit",
+      "effort": {
+        "clicks": 1,
+        "fills": 0,
+        "hops": 1,
+        "steps": 2,
+        "click_hops": 2,
+        "interaction_cost": 2,
+        "net_latency_ms": 187,
+        "slow_actions": 0,
+        "failed_actions": 0,
+        "flow": {
+          "dead_ends": 0,
+          "flow_floor": 0,
+          "slow_silent": 0,
+          "slow_with_busy": 0
+        },
+        "ideal": null,
+        "debt": 0,
+        "pass": null
+      },
+      "err": null
+    }
+  ],
+  "per_page": [
+    {
+      "page": "logbook.html",
+      "journeys": 6,
+      "click_hops": 27,
+      "debt": 0,
+      "slow": 11,
+      "slow_silent": 4,
+      "dead_ends": 3,
+      "flow_floor": 3,
+      "density": 8,
+      "max_choices": 8,
+      "miller": 1,
+      "load_floor": 1,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "index.html",
+      "journeys": 9,
+      "click_hops": 24,
+      "debt": 0,
+      "slow": 13,
+      "slow_silent": 1,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 11,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 1,
+      "clarity_signal": 0
+    },
+    {
+      "page": "hive.html",
+      "journeys": 6,
+      "click_hops": 12,
+      "debt": 0,
+      "slow": 5,
+      "slow_silent": 0,
+      "dead_ends": 4,
+      "flow_floor": 4,
+      "density": 19,
+      "max_choices": 6,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "marketplace.html",
+      "journeys": 5,
+      "click_hops": 11,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 12,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "inventory.html",
+      "journeys": 5,
+      "click_hops": 10,
+      "debt": 0,
+      "slow": 4,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 6,
+      "max_choices": 4,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 1,
+      "clarity_signal": 0
+    },
+    {
+      "page": "pm-scheduler.html",
+      "journeys": 4,
+      "click_hops": 7,
+      "debt": 0,
+      "slow": 1,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 8,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "dayplanner.html",
+      "journeys": 4,
+      "click_hops": 5,
+      "debt": 0,
+      "slow": 1,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 27,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 1,
+      "clarity_signal": 0
+    },
+    {
+      "page": "community.html",
+      "journeys": 4,
+      "click_hops": 5,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 19,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "analytics.html",
+      "journeys": 5,
+      "click_hops": 5,
+      "debt": 0,
+      "slow": 1,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 12,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "project-manager.html",
+      "journeys": 5,
+      "click_hops": 5,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 3,
+      "max_choices": 5,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "marketplace-seller.html",
+      "journeys": 4,
+      "click_hops": 5,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 14,
+      "max_choices": 3,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "assistant.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 8,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "asset-hub.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 7,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "alert-hub.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 6,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "audit-log.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 15,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "voice-journal.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 12,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "analytics-report.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 11,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "engineering-design.html",
+      "journeys": 4,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 4,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 13,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "plant-connections.html",
+      "journeys": 3,
+      "click_hops": 4,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 4,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "ai-quality.html",
+      "journeys": 3,
+      "click_hops": 3,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 5,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "project-report.html",
+      "journeys": 3,
+      "click_hops": 3,
+      "debt": 0,
+      "slow": 1,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 3,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "resume.html",
+      "journeys": 3,
+      "click_hops": 3,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 12,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 1,
+      "clarity_signal": 0
+    },
+    {
+      "page": "integrations.html",
+      "journeys": 1,
+      "click_hops": 3,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 4,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "skillmatrix.html",
+      "journeys": 2,
+      "click_hops": 2,
+      "debt": 0,
+      "slow": 0,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 4,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    },
+    {
+      "page": "achievements.html",
+      "journeys": 2,
+      "click_hops": 2,
+      "debt": 0,
+      "slow": 1,
+      "slow_silent": 0,
+      "dead_ends": 0,
+      "flow_floor": 0,
+      "density": 5,
+      "max_choices": 0,
+      "miller": 0,
+      "load_floor": 0,
+      "vague_ctas": 0,
+      "icon_only": 0,
+      "competing_primary": 0,
+      "clarity_signal": 0
+    }
+  ],
+  "load": {
+    "pages_probed": 25,
+    "total_load_floor": 1,
+    "miller_violations": 1,
+    "dense_pages": 0,
+    "by_page": {
+      "index.html": {
+        "density": 11,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 1,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "logbook.html": {
+        "density": 8,
+        "max_choices": 8,
+        "choice_sets": 2,
+        "miller_violations": 1,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 1
+      },
+      "inventory.html": {
+        "density": 6,
+        "max_choices": 4,
+        "choice_sets": 1,
+        "miller_violations": 0,
+        "competing_primary": 1,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "dayplanner.html": {
+        "density": 27,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 1,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "hive.html": {
+        "density": 19,
+        "max_choices": 6,
+        "choice_sets": 1,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "pm-scheduler.html": {
+        "density": 8,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "community.html": {
+        "density": 19,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "analytics.html": {
+        "density": 12,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "assistant.html": {
+        "density": 8,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "asset-hub.html": {
+        "density": 7,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "alert-hub.html": {
+        "density": 6,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "audit-log.html": {
+        "density": 15,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "voice-journal.html": {
+        "density": 12,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "ai-quality.html": {
+        "density": 5,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "analytics-report.html": {
+        "density": 11,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "engineering-design.html": {
+        "density": 13,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "project-manager.html": {
+        "density": 3,
+        "max_choices": 5,
+        "choice_sets": 2,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "project-report.html": {
+        "density": 3,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "skillmatrix.html": {
+        "density": 4,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "achievements.html": {
+        "density": 5,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "resume.html": {
+        "density": 12,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 1,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "marketplace.html": {
+        "density": 12,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "marketplace-seller.html": {
+        "density": 14,
+        "max_choices": 3,
+        "choice_sets": 2,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "integrations.html": {
+        "density": 4,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      },
+      "plant-connections.html": {
+        "density": 4,
+        "max_choices": 0,
+        "choice_sets": 0,
+        "miller_violations": 0,
+        "competing_primary": 0,
+        "dense_screen": false,
+        "load_floor": 0
+      }
+    }
+  },
+  "flow": {
+    "total_flow_floor": 7,
+    "total_slow_silent": 5,
+    "total_dead_ends": 7,
+    "total_slow_with_busy": 0
+  },
+  "clarity": {
+    "pages_probed": 25,
+    "total_clarity_signal": 0,
+    "total_vague_ctas": 0,
+    "total_icon_only_unlabeled": 0,
+    "pages_competing_primary": 0,
+    "by_page": {
+      "index.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 1,
+        "error_affordances": 0,
+        "clarity_signal": 0
+      },
+      "logbook.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "inventory.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 1,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "dayplanner.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 1,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "hive.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "pm-scheduler.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "community.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 2,
+        "clarity_signal": 0
+      },
+      "analytics.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "assistant.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "asset-hub.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "alert-hub.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "audit-log.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "voice-journal.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "ai-quality.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "analytics-report.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "engineering-design.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "project-manager.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 0,
+        "clarity_signal": 0
+      },
+      "project-report.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "skillmatrix.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "achievements.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "resume.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 1,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      },
+      "marketplace.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 0,
+        "clarity_signal": 0
+      },
+      "marketplace-seller.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 2,
+        "clarity_signal": 0
+      },
+      "integrations.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 0,
+        "clarity_signal": 0
+      },
+      "plant-connections.html": {
+        "vague_ctas": 0,
+        "icon_only_unlabeled": 0,
+        "competing_primary": 0,
+        "error_affordances": 1,
+        "clarity_signal": 0
+      }
+    }
+  }
+}

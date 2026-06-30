@@ -202,6 +202,56 @@ test.describe('hive.html — supervisor Plain-Read journey', () => {
     await expect(body).not.toBeVisible({ timeout: 3000 });
   });
 
+  // ── Arc Y Y6: the coach surfaces tap-to-fill example prompts (no blank-input dead end) ──
+  test('Y6 reliability coach shows 3 example prompts that fill the input on tap', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+
+    await whPage.locator('#coach-toggle-btn').click();
+    await expect(whPage.locator('#coach-body')).toBeVisible({ timeout: 3000 });
+
+    const chips = whPage.locator('#coach-examples .coach-example-chip');
+    await expect(chips, 'coach should surface 3 tap-to-fill examples').toHaveCount(3);
+
+    const firstText = (await chips.first().textContent() || '').trim();
+    await chips.first().click();
+    const inputVal = await whPage.locator('#coach-input').inputValue();
+    expect(inputVal, 'tapping an example should fill the coach input').toBe(firstText);
+  });
+
+  // ── Arc Y Y2: the hive-focus chip closes the intent capture->use loop ──
+  test('Y2 hive focus chip renders the set intent + re-opens the modal pre-selected', async ({ whPage }) => {
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await whPage.waitForTimeout(1500);
+
+    // Drive renderHiveFocus directly (no DB write) to exercise the set-intent path.
+    const res = await whPage.evaluate(() => {
+      if (typeof (window as any).renderHiveFocus !== 'function') return { ok: false, visible: false, label: '' };
+      (window as any).renderHiveFocus({ primary_goal: 'compliance' });
+      const chip = document.getElementById('hive-focus-chip');
+      const label = document.getElementById('hive-focus-label');
+      return {
+        ok: true,
+        visible: !!chip && !chip.classList.contains('hidden') && getComputedStyle(chip).display !== 'none',
+        label: label ? (label.textContent || '') : '',
+      };
+    });
+    if (!res.ok) { test.skip(true, 'renderHiveFocus not present (supervisor-only path)'); return; }
+    expect(res.visible, 'focus chip should show once intent is set').toBe(true);
+    expect(res.label, 'chip should show the plain-language goal').toContain('Compliance');
+
+    // Tap to change re-opens the modal with the current goal pre-selected.
+    await whPage.locator('#hive-focus-chip').click();
+    await expect(whPage.locator('#intent-capture')).toBeVisible({ timeout: 3000 });
+    const checked = await whPage.evaluate(() => {
+      const c = document.querySelector('input[name="intent-primary"]:checked') as HTMLInputElement | null;
+      return c ? c.value : null;
+    });
+    expect(checked, 'modal should pre-select the current goal').toBe('compliance');
+  });
+
   test('Today\'s Brief panel stays hidden when no AI reports exist', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);

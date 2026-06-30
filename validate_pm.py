@@ -186,7 +186,10 @@ def check_logbook_pm_fields(content, page):
     the logPayload must include pm_completion_id, closed_at, hive_id, worker_name, status.
     pm_completion_id links the logbook entry back to the PM record for analytics.
     """
-    m = re.search(r"const logPayload\s*=\s*\{([^}]{0,800})\}", content, re.DOTALL)
+    # cap raised 800→2400: the real logPayload block (pm-scheduler submitCompletion) is
+    # ~880 chars across its field list, so the old 800 ceiling made the `\}` never match →
+    # false "logPayload not found". The fields are flat (no nested `}`), so [^}] is still safe.
+    m = re.search(r"const logPayload\s*=\s*\{([^}]{0,2400})\}", content, re.DOTALL)
     if not m:
         return [{"check": "logbook_pm_fields", "page": page,
                  "reason": "logPayload not found in submitCompletion — PM-to-logbook cross-reference cannot be verified"}]

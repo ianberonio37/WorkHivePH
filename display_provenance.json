@@ -1,0 +1,766 @@
+{
+  "_doc": "Per-page display provenance (Phase E2). Powers the 'where did this come from?' hover. Keyed page -> element-id -> {rung, via, label, lines[]}. ONLY high-confidence anchors appear (formula-contract match sharing a specific token with the formula) so the hover never shows a confidently-WRONG source; loose js-heuristic + no-shared-token matches are the E3 residual (Phase B.2 hardening), excluded not faked. Built by tools/build_display_provenance.py from display_anchor_sources.json + display_ladder.json.",
+  "totals": {
+    "trustworthy_shown": 64,
+    "excluded_low_confidence": 1,
+    "pages_with_provenance": 21
+  },
+  "pages": {
+    "hive.html": {
+      "adoption-risk-score": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "How well your team is adopting the platform (0-100)",
+        "source": "get_adoption_risk_current",
+        "lines": [
+          "Shows: How well your team is adopting the platform (0-100)",
+          "Based on: the team adoption check"
+        ]
+      },
+      "presence-bar": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Which workers are online right now",
+        "source": "presenceChannel.presenceState",
+        "lines": [
+          "Shows: Which workers are online right now",
+          "Based on: who's online right now"
+        ]
+      },
+      "ss-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of hive health (logbook, PM, inventory, adoption)",
+        "source": "v_logbook_truth + v_pm_scope_items_truth + v_inventory_items_truth + get_adoption_risk_current",
+        "lines": [
+          "Shows: A plain-language read of hive health (logbook, PM, inventory, adoption)",
+          "Based on: your logbook entries, your PM schedule, your inventory, the team adoption check"
+        ]
+      },
+      "welcome-log-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many logbook entries you've made",
+        "source": "v_logbook_truth",
+        "lines": [
+          "Shows: How many logbook entries you've made",
+          "Based on: your logbook entries"
+        ]
+      },
+      "welcome-parts-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many of your logbook entries are closed",
+        "source": "v_logbook_truth",
+        "lines": [
+          "Shows: How many of your logbook entries are closed",
+          "Based on: your logbook entries"
+        ]
+      }
+    },
+    "logbook.html": {
+      "quality-pct-value": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Quality %: good units out of the total units you entered",
+        "source": "good/total units (production-output form inputs)",
+        "lines": [
+          "Shows: Quality %: good units out of the total units you entered",
+          "Based on: the good vs total units you entered",
+          "Standard: SMRP OEE quality"
+        ]
+      },
+      "logbook-count-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many entries you're viewing out of the total",
+        "source": "logbook",
+        "lines": [
+          "Shows: How many entries you're viewing out of the total",
+          "Based on: your logbook entries"
+        ]
+      },
+      "machine-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many different machines you've logged",
+        "source": "logbook",
+        "lines": [
+          "Shows: How many different machines you've logged",
+          "Based on: your logbook entries"
+        ]
+      },
+      "offline-queue-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Entries saved on your device, waiting to sync",
+        "source": "IndexedDB offline write-queue (getPendingEntries)",
+        "lines": [
+          "Shows: Entries saved on your device, waiting to sync",
+          "Based on: items saved on your device, waiting to sync"
+        ]
+      },
+      "open-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many of your entries are still open",
+        "source": "logbook",
+        "lines": [
+          "Shows: How many of your entries are still open",
+          "Based on: your logbook entries"
+        ]
+      },
+      "open-jobs-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Open jobs on this panel",
+        "source": "logbook",
+        "lines": [
+          "Shows: Open jobs on this panel",
+          "Based on: your logbook entries"
+        ]
+      },
+      "pm-tasks-count": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "PM tasks that need your attention",
+        "source": "v_pm_scope_items_truth",
+        "lines": [
+          "Shows: PM tasks that need your attention",
+          "Based on: your PM schedule"
+        ]
+      },
+      "total-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Your total number of logbook entries",
+        "source": "logbook",
+        "lines": [
+          "Shows: Your total number of logbook entries",
+          "Based on: your logbook entries"
+        ]
+      }
+    },
+    "inventory.html": {
+      "stat-total": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Parts in your inventory right now",
+        "source": "v_inventory_items_truth",
+        "lines": [
+          "Shows: Parts in your inventory right now",
+          "Based on: your inventory"
+        ]
+      },
+      "inv-count-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many parts you're viewing out of the total",
+        "source": "v_inventory_items_truth",
+        "lines": [
+          "Shows: How many parts you're viewing out of the total",
+          "Based on: your inventory"
+        ]
+      },
+      "inv-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of your stock health",
+        "source": "v_inventory_items_truth",
+        "lines": [
+          "Shows: A plain-language read of your stock health",
+          "Based on: your inventory"
+        ]
+      }
+    },
+    "pm-scheduler.html": {
+      "pm-count-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many assets you're viewing out of the total",
+        "source": "pm_assets",
+        "lines": [
+          "Shows: How many assets you're viewing out of the total",
+          "Based on: your PM assets"
+        ]
+      },
+      "pm-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of your PM compliance",
+        "source": "get_pm_compliance_smrp",
+        "lines": [
+          "Shows: A plain-language read of your PM compliance",
+          "Based on: your PM compliance",
+          "Standard: SMRP 2.1.1"
+        ]
+      }
+    },
+    "analytics.html": {
+      "an-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of your reliability (uptime, breakdowns, PM compliance)",
+        "source": "analytics-orchestrator",
+        "lines": [
+          "Shows: A plain-language read of your reliability (uptime, breakdowns, PM compliance)",
+          "Based on: the analytics engine"
+        ]
+      }
+    },
+    "skillmatrix.html": {
+      "result-score": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Your exam score out of 10",
+        "source": "client-side exam grading (answers vs answer key)",
+        "lines": [
+          "Shows: Your exam score out of 10",
+          "Based on: your exam answers"
+        ]
+      },
+      "sm-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of your skills vs targets",
+        "source": "v_skill_badges_truth + skill_profiles",
+        "lines": [
+          "Shows: A plain-language read of your skills vs targets",
+          "Based on: your skill badges, your skill profile"
+        ]
+      }
+    },
+    "community.html": {
+      "mod-count": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Flagged posts waiting for review",
+        "source": "v_community_posts_truth",
+        "lines": [
+          "Shows: Flagged posts waiting for review",
+          "Based on: community posts"
+        ]
+      },
+      "presence-bar": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Which teammates are online right now",
+        "source": "hive-community-presence (Supabase Realtime presence)",
+        "lines": [
+          "Shows: Which teammates are online right now",
+          "Based on: who's online right now"
+        ]
+      },
+      "profile-xp": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Your total community points",
+        "source": "community_xp",
+        "lines": [
+          "Shows: Your total community points",
+          "Based on: your community activity"
+        ]
+      }
+    },
+    "marketplace.html": {
+      "mk-card-total": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Listings that match the current filter",
+        "source": "v_marketplace_listings_truth",
+        "lines": [
+          "Shows: Listings that match the current filter",
+          "Based on: the marketplace listings"
+        ]
+      },
+      "quality-bar": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "How complete your listing is (0-100)",
+        "source": "computeListingQuality",
+        "lines": [
+          "Shows: How complete your listing is (0-100)",
+          "Based on: your listing quality score"
+        ]
+      },
+      "quality-score-num": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Your listing quality score out of 100",
+        "source": "computeListingQuality",
+        "lines": [
+          "Shows: Your listing quality score out of 100",
+          "Based on: your listing quality score"
+        ]
+      },
+      "mk-verdict-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "A plain-language summary of the listings",
+        "source": "v_marketplace_listings_truth",
+        "lines": [
+          "Shows: A plain-language summary of the listings",
+          "Based on: the marketplace listings"
+        ]
+      }
+    },
+    "marketplace-seller.html": {
+      "ps-earned": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Your total earnings (after the 5% platform fee)",
+        "source": "v_marketplace_orders_truth",
+        "lines": [
+          "Shows: Your total earnings (after the 5% platform fee)",
+          "Based on: your marketplace orders"
+        ]
+      }
+    },
+    "dayplanner.html": {
+      "dp-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of how manageable your day looks",
+        "source": "schedule_items",
+        "lines": [
+          "Shows: A plain-language read of how manageable your day looks",
+          "Based on: your schedule"
+        ]
+      },
+      "sidebar-count-bar": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How full your day is with open logbook items",
+        "source": "v_logbook_truth",
+        "lines": [
+          "Shows: How full your day is with open logbook items",
+          "Based on: your logbook entries"
+        ]
+      },
+      "sidebar-count-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Open logbook items on your plan",
+        "source": "v_logbook_truth",
+        "lines": [
+          "Shows: Open logbook items on your plan",
+          "Based on: your logbook entries"
+        ]
+      }
+    },
+    "platform-health.html": {
+      "health-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Overall status: healthy, review, or action",
+        "source": "platform_health.json",
+        "lines": [
+          "Shows: Overall status: healthy, review, or action",
+          "Based on: the platform status report"
+        ]
+      },
+      "health-num": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Overall platform health score (0-100)",
+        "source": "platform_health.json",
+        "lines": [
+          "Shows: Overall platform health score (0-100)",
+          "Based on: the platform status report"
+        ]
+      },
+      "streak-num": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many checks in a row passed cleanly",
+        "source": "wh_guard_hist (localStorage validator run history)",
+        "lines": [
+          "Shows: How many checks in a row passed cleanly",
+          "Based on: this device's check history"
+        ]
+      }
+    },
+    "project-manager.html": {
+      "pm-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of your projects' health",
+        "source": "projects",
+        "lines": [
+          "Shows: A plain-language read of your projects' health",
+          "Based on: your projects"
+        ]
+      }
+    },
+    "integrations.html": {
+      "it-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language status of your connected systems",
+        "source": "integration_configs",
+        "lines": [
+          "Shows: A plain-language status of your connected systems",
+          "Based on: your connected systems"
+        ]
+      },
+      "preview-count-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Valid rows that will import from your file",
+        "source": "client-parsed import file rows",
+        "lines": [
+          "Shows: Valid rows that will import from your file",
+          "Based on: the file you're importing"
+        ]
+      }
+    },
+    "ph-intelligence.html": {
+      "ph-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of the latest regional report",
+        "source": "ph_intelligence_reports",
+        "lines": [
+          "Shows: A plain-language read of the latest regional report",
+          "Based on: the Philippine maintenance benchmark"
+        ]
+      }
+    },
+    "predictive.html": {
+      "pr-verdict-label": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "A plain-language read of your fleet's risk",
+        "source": "v_risk_truth",
+        "lines": [
+          "Shows: A plain-language read of your fleet's risk",
+          "Based on: the risk scores"
+        ]
+      },
+      "trend-label": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "Whether breakdowns are trending up or down",
+        "source": "analytics-orchestrator",
+        "lines": [
+          "Shows: Whether breakdowns are trending up or down",
+          "Based on: the analytics engine"
+        ]
+      }
+    },
+    "achievements.html": {
+      "ac-card-level": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Your total level across all 12 achievement areas",
+        "source": "v_worker_achievements_truth",
+        "lines": [
+          "Shows: Your total level across all 12 achievement areas",
+          "Based on: your achievements"
+        ]
+      },
+      "hero-tier-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Your technician tier, from your highest achievement level",
+        "source": "v_worker_achievements_truth",
+        "lines": [
+          "Shows: Your technician tier, from your highest achievement level",
+          "Based on: your achievements"
+        ]
+      },
+      "ac-verdict-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "A plain-language read of your weekly progress",
+        "source": "v_worker_achievements_truth",
+        "lines": [
+          "Shows: A plain-language read of your weekly progress",
+          "Based on: your achievements"
+        ]
+      }
+    },
+    "asset-hub.html": {
+      "ah-card-total": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Approved assets registered in this hive",
+        "source": "asset_nodes",
+        "lines": [
+          "Shows: Approved assets registered in this hive",
+          "Based on: your asset register"
+        ]
+      },
+      "detail-level": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Where this asset sits in the equipment hierarchy",
+        "source": "asset_nodes",
+        "lines": [
+          "Shows: Where this asset sits in the equipment hierarchy",
+          "Based on: your asset register"
+        ]
+      },
+      "pf-pf-days": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "Days of warning between an early failure sign and actual failure",
+        "source": "v_pf_truth",
+        "lines": [
+          "Shows: Days of warning between an early failure sign and actual failure",
+          "Based on: the condition-monitoring analysis"
+        ]
+      },
+      "risk-days": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "Estimated days until this asset could fail",
+        "source": "v_risk_truth",
+        "lines": [
+          "Shows: Estimated days until this asset could fail",
+          "Based on: the risk scores"
+        ]
+      },
+      "risk-score-num": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "This asset's failure-risk score",
+        "source": "v_risk_truth",
+        "lines": [
+          "Shows: This asset's failure-risk score",
+          "Based on: the risk scores"
+        ]
+      },
+      "ah-verdict-label": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "A plain-language status of this hive's assets",
+        "source": "asset_nodes",
+        "lines": [
+          "Shows: A plain-language status of this hive's assets",
+          "Based on: your asset register"
+        ]
+      },
+      "pending-assets-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Asset submissions waiting for approval",
+        "source": "asset_nodes",
+        "lines": [
+          "Shows: Asset submissions waiting for approval",
+          "Based on: your asset register"
+        ]
+      }
+    },
+    "shift-brain.html": {
+      "carry-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Open items carried over from the last shift",
+        "source": "shift_plans",
+        "lines": [
+          "Shows: Open items carried over from the last shift",
+          "Based on: your shift plan"
+        ]
+      },
+      "parts-count": {
+        "rung": "prescriptive",
+        "rung_label": "Recommended action",
+        "via": "verified_bind",
+        "label": "Low-stock parts to pre-stage for this shift",
+        "source": "shift_plans",
+        "lines": [
+          "Shows: Low-stock parts to pre-stage for this shift",
+          "Based on: your shift plan"
+        ]
+      },
+      "pms-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "PM tasks due during this shift",
+        "source": "shift_plans",
+        "lines": [
+          "Shows: PM tasks due during this shift",
+          "Based on: your shift plan"
+        ]
+      },
+      "risk-count": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "Top-risk assets flagged for this shift",
+        "source": "shift_plans",
+        "lines": [
+          "Shows: Top-risk assets flagged for this shift",
+          "Based on: your shift plan"
+        ]
+      },
+      "sb-verdict-label": {
+        "rung": "prescriptive",
+        "rung_label": "Recommended action",
+        "via": "verified_bind",
+        "label": "A plain-language read of how heavy this shift is",
+        "source": "shift_plans",
+        "lines": [
+          "Shows: A plain-language read of how heavy this shift is",
+          "Based on: your shift plan"
+        ]
+      }
+    },
+    "alert-hub.html": {
+      "anomaly-engine-count": {
+        "rung": "predictive",
+        "rung_label": "Forecast",
+        "via": "verified_bind",
+        "label": "How many unusual sensor signals were detected (top 5)",
+        "source": "v_anomaly_truth",
+        "lines": [
+          "Shows: How many unusual sensor signals were detected (top 5)",
+          "Based on: the anomaly detector"
+        ]
+      },
+      "amc-stat-assets": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "High-risk assets in today's briefing",
+        "source": "amc_briefings",
+        "lines": [
+          "Shows: High-risk assets in today's briefing",
+          "Based on: today's maintenance briefing"
+        ]
+      },
+      "amc-stat-crew": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Crew alerts in today's briefing",
+        "source": "amc_briefings",
+        "lines": [
+          "Shows: Crew alerts in today's briefing",
+          "Based on: today's maintenance briefing"
+        ]
+      },
+      "amc-stat-parts": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "Parts to stage in today's briefing",
+        "source": "amc_briefings",
+        "lines": [
+          "Shows: Parts to stage in today's briefing",
+          "Based on: today's maintenance briefing"
+        ]
+      },
+      "amc-stat-pms": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "PMs due in today's briefing",
+        "source": "amc_briefings",
+        "lines": [
+          "Shows: PMs due in today's briefing",
+          "Based on: today's maintenance briefing"
+        ]
+      }
+    },
+    "voice-journal.html": {
+      "entry-count": {
+        "rung": "descriptive",
+        "rung_label": "Current measure",
+        "via": "verified_bind",
+        "label": "How many journal entries are showing",
+        "source": "voice_journal_entries",
+        "lines": [
+          "Shows: How many journal entries are showing",
+          "Based on: your voice journal"
+        ]
+      }
+    },
+    "founder-console.html": {
+      "ring-pct-label": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Overall status: all clear, attention, or action needed",
+        "source": "platform_health.json",
+        "lines": [
+          "Shows: Overall status: all clear, attention, or action needed",
+          "Based on: the platform status report"
+        ]
+      },
+      "ring-pct-num": {
+        "rung": "diagnostic",
+        "rung_label": "What's happening",
+        "via": "verified_bind",
+        "label": "Percentage of checks passing",
+        "source": "platform_health.json",
+        "lines": [
+          "Shows: Percentage of checks passing",
+          "Based on: the platform status report"
+        ]
+      }
+    }
+  },
+  "e3_residual": [
+    {
+      "page": "hive.html",
+      "id": "hive-focus-label",
+      "kind": "data_needs_bind",
+      "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
+    }
+  ]
+}

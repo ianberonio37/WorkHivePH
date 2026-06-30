@@ -78,6 +78,36 @@ def _read_nav_tools():
     src = read_file(NAV_HUB_PATH) or ""
     if not src:
         return []
+    # Strip JS comments (string-aware) up front so apostrophes ("workers don't see",
+    # "'analytics'") and any brackets inside `// …` / `/* … */` comments can't corrupt
+    # EITHER the array-bracket walk OR the per-tool brace scan below. That FP made the
+    # array walk overshoot into the role-mode array and 7 hidden tools parse as 1, so
+    # every role read 25-39 phantom-visible primary-nav tools (all falsely "over budget").
+    def _strip_js_comments(s):
+        out = []; k = 0; st = None
+        while k < len(s):
+            ch = s[k]
+            if st:
+                out.append(ch)
+                if ch == "\\" and k + 1 < len(s):
+                    out.append(s[k + 1]); k += 2; continue
+                if ch == st:
+                    st = None
+                k += 1; continue
+            if ch in ("'", '"', "`"):
+                st = ch; out.append(ch); k += 1; continue
+            if ch == "/" and k + 1 < len(s) and s[k + 1] == "/":
+                while k < len(s) and s[k] != "\n":
+                    k += 1
+                continue
+            if ch == "/" and k + 1 < len(s) and s[k + 1] == "*":
+                k += 2
+                while k + 1 < len(s) and not (s[k] == "*" and s[k + 1] == "/"):
+                    k += 1
+                k += 2; continue
+            out.append(ch); k += 1
+        return "".join(out)
+    src = _strip_js_comments(src)
     # Each TOOLS entry is a { ... } object literal. Extract them with a brace
     # walk so nested SVG strings don't confuse us.
     tools_match = re.search(r"const\s+TOOLS\s*=\s*\[", src)

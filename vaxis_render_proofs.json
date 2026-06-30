@@ -1,0 +1,151 @@
+{
+  "_meta": {
+    "doc": "§13 P4 V-axis F-layer (frontend render) live proofs — Playwright MCP + postgres, the §13.4 combo. Each entry asserts a rendered [data-rag-tile] .sc-hero value EQUALS the DB canonical value for the active hive. Falsifiable: journey_vaxis.py reads this to mark a journey's F cell attributed iff its entry has ok=true; delete this file and those F cells degrade to pending. Re-prove by signing in (Leandro / Baguio 9b4eaeac) and reading the tiles.",
+    "method": "read [data-rag-tile] .sc-hero (NOT body-regex); wait AFTER the page's one self-reload then bare evaluate; VERIFY-FIRST same-named != same-derivation (due_soon excludes already-overdue assets at the ASSET level).",
+    "hive": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7 (Baguio, supervisor: Leandro)",
+    "proven_at": "2026-06-16T12:10:00Z",
+    "base_url": "http://127.0.0.1:5000/workhive/"
+  },
+  "proofs": {
+    "J1": {
+      "journey": "Breakdown→Resolution",
+      "page": "hive.html",
+      "tile": "hive:open_issues",
+      "rendered_hero": 24,
+      "ok": true,
+      "components": [
+        {"name": "open WOs (logbook.status='Open')", "rendered": 10, "db_canonical": 10, "ok": true,
+         "db_query": "count(*) v_logbook_truth WHERE hive AND status='Open'"},
+        {"name": "PM overdue", "rendered": 10, "db_canonical": 10, "ok": true},
+        {"name": "stock issues (low_stock, 1 out)", "rendered": 4, "db_canonical": 4, "ok": true}
+      ],
+      "composite": "open_issues 24 == 10 open WOs + 10 PM overdue + 4 stock — rendered composite equals the sum of its DB canonical parts"
+    },
+    "J2": {
+      "journey": "PM cycle",
+      "page": "pm-scheduler.html",
+      "ok": true,
+      "tiles": [
+        {"tile": "pm-scheduler:overdue", "rendered": 10, "db_canonical": 10, "ok": true,
+         "db_query": "count(DISTINCT pm_asset_id) WHERE is_overdue"},
+        {"tile": "pm-scheduler:due_soon", "rendered": 20, "db_canonical": 20, "ok": true,
+         "db_query": "DISTINCT due_soon assets MINUS DISTINCT overdue assets (asset-level exclusion) — naive row-level count is 27; the page correctly excludes the 7 also-overdue assets",
+         "verify_first_note": "same-named != same-derivation"},
+        {"tile": "pm-scheduler:on_track + SMRP compliance", "rendered": 89, "db_canonical": 89, "ok": true,
+         "db_query": "round(get_pm_compliance_smrp(hive,90)->>'overall_pct')"}
+      ]
+    },
+    "J3": {
+      "journey": "Marketplace txn",
+      "page": "marketplace.html",
+      "ok": true,
+      "tiles": [
+        {"tile": "marketplace:listings_in_view", "rendered": 12, "db_canonical": 12, "ok": true,
+         "db_query": "count(*) marketplace_listings WHERE section='parts' AND status='published' (marketplace spans hives)"}
+      ]
+    },
+    "J4": {
+      "journey": "Voice pipeline",
+      "page": "voice-journal.html",
+      "ok": true,
+      "render": "Your journal: 80 entries",
+      "rendered": 80,
+      "db_canonical": 11933,
+      "derivation": "page renders the most-recent HISTORY_LIMIT=80 entries (voice-journal.html:401 .limit(HISTORY_LIMIT)) auth-scoped to the signed-in user (auth_uid e701ea32…, who has 11,933 ≥ 80 → cap correctly exercised)",
+      "verify_first_note": "same-named != same-derivation — by-design pagination (community pattern), NOT a count bug; the 80 == the LIMIT, entries are auth-scoped",
+      "ok_basis": "rendered count == HISTORY_LIMIT and entries are auth-scoped (D/AU/S proven at DB level)"
+    },
+    "J5": {
+      "journey": "Cross-hive isolation",
+      "page": "hive.html",
+      "ok": true,
+      "render": "OPEN ISSUES 24 (10 open WOs + 10 PM overdue + 4 stock)",
+      "tenancy_proof": "the signed-in Baguio (9b4eaeac) supervisor sees ONLY Baguio-scoped values — every rendered component equals the Baguio DB canonical; no other hive's data appears in the UI (the F-layer end of cross-hive isolation)",
+      "ok_basis": "rendered == active-hive DB canonical; cross-hive data absent from the render"
+    },
+    "J6": {
+      "journey": "Resilience",
+      "page": "status.html",
+      "ok": true,
+      "render": "10/10 probed surfaces healthy (100%) · per-surface HTTP 200 + deps (supabase/groq/cerebras ✓)",
+      "derivation": "status.html renders the live /health SLO grid (Pillar O) — matches the live /health probes journey_vaxis asserts for the A/AV cells",
+      "ok_basis": "SLO grid renders live health == the /health endpoint responses"
+    },
+    "T_shift_brain": {
+      "journey": "terminus render (P-axis attribution)",
+      "page": "shift-brain.html",
+      "ok": true,
+      "tiles": [
+        {"tile": "shift-brain:top_risk_this_shift", "rendered": 2, "db_canonical": 2, "ok": true,
+         "db_query": "count(*) v_risk_truth WHERE risk_level IN ('critical','high') (hot assets)"},
+        {"tile": "shift-brain:pms_due", "rendered": 10, "db_canonical": 10, "ok": true,
+         "db_query": "count(DISTINCT pm_asset_id) v_pm_scope_items_truth WHERE is_overdue"},
+        {"tile": "shift-brain:carry_forward", "rendered": 10, "db_canonical": 10, "ok": true,
+         "db_query": "count(*) v_logbook_truth WHERE status='Open' (open WOs)"}
+      ]
+    },
+    "T_predictive": {
+      "journey": "terminus render (P-axis attribution)",
+      "page": "predictive.html",
+      "ok": true,
+      "tiles": [
+        {"tile": "predictive:hot_assets", "rendered": 2, "db_canonical": 2, "ok": true,
+         "db_query": "count(*) v_risk_truth WHERE risk_level IN ('critical','high') (1 crit + 1 high of 5)"},
+        {"tile": "predictive:healthy_assets", "rendered": 1, "db_canonical": 1, "ok": true,
+         "db_query": "count(*) v_risk_truth WHERE risk_level='low'"}
+      ]
+    },
+    "T_project_report": {
+      "journey": "terminus render (P-axis attribution)",
+      "page": "project-report.html",
+      "ok": true,
+      "context": "?project_id=67ddf15d-1ea0-4917-8820-dd07330541b0 (CAP-2026-001 Compressor Replacement, Baguio) — the PM print-flow",
+      "tiles": [
+        {"tile": "wbs_scope (5/10)", "rendered": "5 of 10", "db_canonical": "items_done 5 / item_count 10", "ok": true,
+         "db_query": "v_project_truth.items_done, item_count WHERE project_id=…"},
+        {"tile": "owner", "rendered": "Leandro Marquez", "db_canonical": "Leandro Marquez", "ok": true},
+        {"tile": "status", "rendered": "active · CAPEX", "db_canonical": "status=active, project_type=CAPEX", "ok": true}
+      ],
+      "verify_first_note": "the '48% complete' headline is an HOURS-weighted figure (≠ the 50% item ratio) — same-named != same-derivation; the proof anchors on items_done/item_count/owner/status which match v_project_truth (proven nerve #8) exactly"
+    },
+    "T_analytics": {
+      "journey": "terminus render (P-axis attribution) — REQUIRES the python-api analytics svc on :8000",
+      "page": "analytics.html",
+      "ok": true,
+      "env_note": "env-block resolved by starting python-api (uvicorn main:app --port 8000); page renders live computed analytics instead of '—'",
+      "tiles": [
+        {"tile": "analytics:pm_compliance", "rendered": 88, "db_canonical": 88, "ok": true,
+         "db_query": "round(get_pm_compliance_smrp(hive,90)->>'overall_pct') = 88 — the PROVEN RPC (nerve #5)"}
+      ],
+      "rendered_live_but_derivation_unverified": [
+        {"tile": "analytics:oee", "rendered": "86%",
+         "note": "the svc's ISO-22400 partial OEE (availability×quality); analytics_snapshots.payload shows per-asset availability 93-97% + oee_pct=null (Performance dim unconfigured) — 86% is a fleet computation NOT cleanly traced to a single canonical → value-derivation verification pending"},
+        {"tile": "analytics:mtbf", "rendered": "6.1d",
+         "note": "svc-computed MTBF; window/derivation not replicated against a canonical → pending"}
+      ],
+      "ok_basis": "the PM-compliance tile == the proven RPC (nerve #5); credited on that verified tile + the resolved env-block. OEE/MTBF render live but are NOT claimed verified (verify-first — no false proof)."
+    },
+    "T_ai_quality": {
+      "journey": "terminus render (P-axis attribution) — VALUE-DERIVATION proof of the page's own aggregate()",
+      "page": "ai-quality.html",
+      "ok": true,
+      "method": "called the page's REAL aggregate(costRows, feedbackRows) fn via Playwright with a deterministic fixture (3 cost rows + 3 feedback) and asserted EVERY output against an independent hand-derived oracle — no DB-tie fragility (the live path .limit(2000)s + orders by created_at, so a separate psql window can differ; this proves the DERIVATION itself).",
+      "fixture": "cost=[{usd:1,tok:100,success,schema:T},{usd:2,tok:200,fallback,schema:F},{usd:0.5,tok:50,success,schema:T}]; feedback=[+1,+1,-1]",
+      "assertions": [
+        {"metric": "totalCalls", "expected": 3, "actual": 3, "ok": true},
+        {"metric": "totalCost", "expected": 3.5, "actual": 3.5, "ok": true},
+        {"metric": "totalTokens", "expected": 350, "actual": 350, "ok": true},
+        {"metric": "fallbackCount", "expected": 1, "actual": 1, "ok": true},
+        {"metric": "successCount", "expected": 2, "actual": 2, "ok": true},
+        {"metric": "schemaOk/schemaTotal", "expected": "2/3", "actual": "2/3", "ok": true},
+        {"metric": "thumbsUp/thumbsDown", "expected": "2/1", "actual": "2/1", "ok": true},
+        {"metric": "roiUsd = cost×(1.5 + goodRatio×4)", "expected": 14.5833, "actual": 14.5833, "ok": true},
+        {"metric": "roiConfidence (sample<10→low)", "expected": "low", "actual": "low", "ok": true},
+        {"metric": "fns top-by-cost", "expected": "ai-gateway/3", "actual": "ai-gateway/3", "ok": true}
+      ],
+      "real_sources": "ai_cost_log (12,499 live rows for the hive, 30d) + ai_reply_feedback — hive-scoped reads confirmed in code (L399/L417, .eq('hive_id', HIVE_ID)); page renders these via aggregate().",
+      "nerve_basis": "ai-quality aggregate() value-derivation proven via the REAL page fn (deterministic fixture, 10/10 metrics incl. the honest ROI formula + schema-compliance ratio + per-fn cost-sort match the hand oracle) + reads real hive-scoped ai_cost_log/ai_reply_feedback — the page's compute is value-correct",
+      "verify_first_note": "did NOT credit via a live tile==DB render (the .limit(2000)+created_at-tie boundary makes a separate psql window non-deterministic → would risk a false match); proved the DERIVATION deterministically instead"
+    }
+  }
+}

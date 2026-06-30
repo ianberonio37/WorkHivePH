@@ -1,0 +1,36 @@
+{
+  "tool": "tools/validate_ph_intelligence_benchmark.py",
+  "subject": "ph-intelligence cross-hive benchmark network (benchmark-compute + intelligence-api)",
+  "method": "live local edge fn vs hand-derived deterministic oracle; sentinel-isolated; cleaned up",
+  "results": {
+    "proofA": {
+      "category": "Centrifugal Pump",
+      "mtbf_days": "20",
+      "mttr_hours": "5",
+      "failure_count": "4",
+      "sample_machines": "1",
+      "oracle": {
+        "category": "Centrifugal Pump",
+        "mtbf": 20.0,
+        "mttr": 5.0,
+        "fc": 4,
+        "sm": 1
+      },
+      "ok": true
+    },
+    "proofB": {
+      "avg_mtbf_days": "20",
+      "p25_mtbf_days": "10",
+      "p75_mtbf_days": "30",
+      "sample_hives": "3",
+      "oracle": {
+        "avg": 20.0,
+        "p25": 10.0,
+        "p75": 30.0,
+        "sample_hives": 3
+      },
+      "ok": true
+    }
+  },
+  "result": "PASS"
+}

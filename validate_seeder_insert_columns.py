@@ -26,6 +26,10 @@ Baseline: seeder_insert_columns_baseline.json   Output: seeder_insert_columns_re
 Sentinel binding: name the L2 test 'test('seeder_insert_columns: ...')'.
 """
 import re, json, sys, os, glob, subprocess
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 from pathlib import Path
 
 from validator_utils import format_result  # noqa: E402

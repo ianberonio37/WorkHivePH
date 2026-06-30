@@ -53,19 +53,36 @@ def generate(inputs: dict, results: dict) -> str:
     T_room  = float(inputs.get("room_temp_C",    24.0))
     rh_room = float(inputs.get("room_rh_pct",    55.0)) / 100
 
-    # Mixed air (from results or estimate)
-    T_mix  = float(results.get("mixed_air_temp_C",
-                    T_oa * 0.2 + T_room * 0.8))
+    # Ground in the AHU calc's ACTUAL psychrometric outputs. The calc returns
+    # `T_mixed` (+ a `psychrometrics` block), `adp_c` (apparatus dew point),
+    # `coil_bypass_factor`, and `dT_sa` (supply fan heat) — NOT top-level
+    # *_temp_C. Reading those non-existent keys silently fell back to estimates,
+    # so the chart never reflected the calc. Read the real fields; estimate only
+    # when a field is genuinely absent (e.g. another calc reusing this chart).
+    psy = results.get("psychrometrics") if isinstance(results.get("psychrometrics"), dict) else {}
+
+    # Mixed air
+    T_mix  = float(results.get("T_mixed",
+                    psy.get("mixed_db_c",
+                     results.get("mixed_air_temp_C", T_oa * 0.2 + T_room * 0.8))))
     rh_mix = float(results.get("mixed_air_rh",
                     rh_oa * 0.2 + rh_room * 0.8))
 
-    # Off-coil / ADP
-    T_oc  = float(results.get("off_coil_temp_C",
-                   inputs.get("supply_air_temp_C", 13.0)))
+    # Off-coil air temp from the calc's ADP + bypass factor (ASHRAE coil model):
+    #   T_oc = ADP + BF·(T_mix − ADP)
+    _adp = results.get("adp_c")
+    _bf  = results.get("coil_bypass_factor")
+    if _adp is not None and _bf is not None:
+        T_oc = float(_adp) + float(_bf) * (T_mix - float(_adp))
+    else:
+        T_oc = float(results.get("off_coil_temp_C",
+                      inputs.get("supply_air_temp_C", 13.0)))
     rh_oc = float(results.get("off_coil_rh",       0.95))
 
-    # Supply air (after fan heat)
-    T_sup  = float(results.get("supply_temp_C",   T_oc + 1.0))
+    # Supply air = off-coil + supply fan heat gain (the calc's dT_sa)
+    _dt_sa = results.get("dT_sa")
+    T_sup  = float(results.get("supply_temp_C",
+                    T_oc + (float(_dt_sa) if _dt_sa is not None else 1.0)))
     rh_sup = float(results.get("supply_rh",        rh_oc * 0.92))
 
     # ── Chart range (tropical — 10 to 42°C) ──────────────────────────────────

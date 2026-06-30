@@ -37,6 +37,19 @@ export const PER_WORKER_CAP    = 200;
 export const PER_HIVE_CAP      = 1000;
 export const RECALL_CHARS      = 280;   // per-memory cap when formatting a block
 
+// C2.1: a memory whose `superseded_by` is set (it was corrected/replaced) is
+// down-ranked by this factor at recall so its replacement surfaces above it and
+// an obsolete fact/procedure cannot present as current. GUARDED: a row with
+// superseded_by NULL is multiplied by 1.0 — byte-identical to pre-C2.1 ranking.
+export const SUPERSEDE_PENALTY = 0.4;
+
+// C2.2: write-side semantic dedup. Before inserting an EMBEDDED procedural memory, cosine-search the
+// worker/hive's existing procedural library; a near-duplicate at or above this similarity is MERGED
+// (bump use_count, keep the higher importance) instead of accumulating a paraphrase row. High by design
+// — only a true restatement of the SAME procedure merges, never a merely-related one. Best-effort
+// (only for rows that actually got an embedding); a miss or RPC error just inserts normally.
+export const DEDUP_SIMILARITY = 0.95;
+
 export interface RecalledMemory {
   id:           string;
   memory_type:  MemoryType;
@@ -44,6 +57,7 @@ export interface RecalledMemory {
   importance:   number;
   use_count:    number;
   last_used_at: string | null;
+  superseded_by?: string | null;   // C2.1: set => obsolete => down-ranked at recall
 }
 
 export interface StoreInput {
@@ -98,7 +112,7 @@ export async function recallEpisodic(
 
   // canonical-allow: agent infra table, server-side store, no user-facing canonical surface
   let q = db.from("agent_episodic_memory")
-    .select("id, memory_type, content, importance, use_count, last_used_at")
+    .select("id, memory_type, content, importance, use_count, last_used_at, superseded_by")
     .in("memory_type", memoryTypes as unknown as string[])
     .order("importance", { ascending: false })
     .limit(Math.max(limit * 3, 50));
@@ -115,7 +129,11 @@ export async function recallEpisodic(
       const overlap = qTokens
         ? tokens(m.content).some((t) => qTokens.has(t)) ? 0.25 : 0
         : 0;
-      return { m, score: memScore(m) + overlap };
+      // C2.1: down-rank a superseded (corrected/replaced) memory so its
+      // replacement ranks above it. Guarded: superseded_by NULL -> ×1 (no-op,
+      // pre-C2.1 ranking is byte-identical when nothing is superseded).
+      const penalty = m.superseded_by ? SUPERSEDE_PENALTY : 1;
+      return { m, score: (memScore(m) + overlap) * penalty };
     })
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
@@ -182,7 +200,7 @@ export async function persistEpisodic(
   hiveId: string | null,
   workerName: string | null,
   memories: StoreInput[],
-): Promise<{ written: number; evicted: number; errors: string[] }> {
+): Promise<{ written: number; merged: number; evicted: number; errors: string[] }> {
   const errors: string[] = [];
   const rows = (memories || []).slice(0, MAX_STORE_BATCH).map((m) => ({
     hive_id:         hiveId,
@@ -210,11 +228,67 @@ export async function persistEpisodic(
     }
   }));
 
-  const { data, error } = await db.from("agent_episodic_memory").insert(rows).select("id");
-  if (error) errors.push(error.message);
+  // C2.2: write-side semantic dedup — MERGE a near-duplicate procedural memory (bump use_count, keep
+  // the higher importance) instead of inserting a paraphrase row, so the skill library doesn't bloat
+  // with restatements of the same fix. Only EMBEDDED procedural rows are checked (others carry no
+  // vector to compare); best-effort, so any RPC error falls through to a normal insert.
+  const toInsert: typeof rows = [];
+  let merged = 0;
+  for (const r of rows) {
+    if (r.memory_type === "procedural" && Array.isArray(r.embedding)) {
+      try {
+        const { data: near } = await db.rpc("match_procedural_memories", {
+          p_query_embedding: r.embedding,
+          p_hive_id: hiveId,
+          p_worker_name: workerName,
+          p_match_count: 1,
+          p_min_similarity: DEDUP_SIMILARITY,
+        });
+        const dup = (near as Array<{ id: string; importance: number; use_count: number }> | null)?.[0];
+        if (dup?.id) {
+          await db.from("agent_episodic_memory").update({
+            use_count:    (dup.use_count || 0) + 1,
+            importance:   Math.max(dup.importance || 0, r.importance),
+            last_used_at: new Date().toISOString(),
+          }).eq("id", dup.id);
+          merged++;
+          continue;   // near-dup merged — do NOT insert a paraphrase row
+        }
+      } catch (_err) { /* dedup is best-effort — fall through to a normal insert */ }
+    }
+    toInsert.push(r);
+  }
+
+  let written = 0;
+  if (toInsert.length) {
+    const { data, error } = await db.from("agent_episodic_memory").insert(toInsert).select("id");
+    if (error) errors.push(error.message);
+    written = (data || []).length;
+  }
 
   const evicted = await evictIfOverCap(db, hiveId, workerName);
-  return { written: (data || []).length, evicted, errors };
+  return { written, merged, evicted, errors };
+}
+
+/**
+ * C2.1: mark `oldId` as superseded by `newId` (a correction / replacement). The
+ * obsolete row is then down-ranked at recall (SUPERSEDE_PENALTY) in BOTH
+ * recallEpisodic and the match_procedural_memories RPC, so a corrected fact or
+ * procedure cannot co-surface as current with its reversal (a maintenance-safety
+ * guard). Service-role only — the aem_update RLS policy blocks anon/auth UPDATE.
+ * Best-effort: returns false on any error rather than throwing.
+ */
+export async function supersedeEpisodic(
+  db: SupabaseClient,
+  oldId: string,
+  newId: string,
+): Promise<boolean> {
+  if (!oldId || !newId || oldId === newId) return false;
+  const { error } = await db.from("agent_episodic_memory")
+    .update({ superseded_by: newId, superseded_at: new Date().toISOString() })
+    .eq("id", oldId);
+  if (error) { console.warn("[episodic-memory] supersede failed:", error.message); return false; }
+  return true;
 }
 
 /**

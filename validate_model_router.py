@@ -140,7 +140,13 @@ def check_callai_uses_reorder() -> list[dict]:
     inline  = re.search(r"for\s*\(\s*const\s+entry\s+of\s+reorderChain\s*\(", src)
     via_var = (re.search(r"const\s+chain\s*=\s*reorderChain\s*\(", src)
                and re.search(r"for\s*\(\s*const\s+entry\s+of\s+chain\b", src))
-    if not (inline or via_var):
+    # Form (c) — the iteration is delegated to a helper that RECEIVES reorderChain's
+    # output: `attemptChain(applySticky(reorderChain(taskProfile, true)))` and attemptChain
+    # does `for (const entry of chainArr)`. This is the autoswitch/sticky refactor; the
+    # old check false-FAILed it because the for-loop and reorderChain() sit in different fns.
+    via_helper = (re.search(r"attemptChain\s*\([^;]*reorderChain\s*\(", src)
+                  and re.search(r"for\s*\(\s*const\s+\w+\s+of\s+chainArr\b", src))
+    if not (inline or via_var or via_helper):
         return [{"check": "callai_uses_reorder",
                  "reason": "callAI body must iterate reorderChain(taskProfile) — inline "
                            "`for (const entry of reorderChain(...))` or via "

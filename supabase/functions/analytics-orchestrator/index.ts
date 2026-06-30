@@ -670,7 +670,7 @@ async function callPythonAnalytics(phase: string, inputs: Record<string, unknown
 
   const res = await fetch(`${PYTHON_URL}/analytics`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-API-Key": Deno.env.get("PYTHON_API_KEY") ?? "" },
     body: JSON.stringify({ phase, inputs }),
     signal: AbortSignal.timeout(90000), // 90s timeout — Render free tier cold start can take 50s+
   });

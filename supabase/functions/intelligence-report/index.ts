@@ -18,11 +18,15 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: PH intelligence report write
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkUserRateLimit, userRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -192,7 +196,15 @@ Write the report narrative sections.`;
 
   try {
     const raw  = await callAI(prompt, { systemPrompt: NARRATIVE_SYSTEM, temperature: 0.3, maxTokens: 800, jsonMode: true });
-    return JSON.parse(raw);
+    // Arc S F-lens (F-005): when ALL AI providers are down, callAI() degrades to the
+    // bare string "{}". JSON.parse("{}") succeeds, so without this guard the report
+    // would silently store an EMPTY narrative (no executive_summary) instead of
+    // falling through to the deterministic fallback below. Treat empty/"{}"/missing
+    // required fields as "AI unavailable" so the catch produces a real narrative.
+    if (!raw || raw.trim() === "" || raw.trim() === "{}") throw new Error("ai_unavailable");
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.executive_summary) throw new Error("ai_empty_narrative");
+    return parsed;
   } catch {
     return {
       executive_summary: `WorkHive analyzed ${(data.summary as Record<string, unknown>)?.work_orders || 0} maintenance records across ${(data.summary as Record<string, unknown>)?.active_hives || 0} Philippine industrial plants in this period.`,
@@ -211,9 +223,24 @@ Write the report narrative sections.`;
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  logRequestStart(req, "intelligence-report");  // I6 observability
 
   try {
     const db   = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+    // LLM10 unbounded-consumption + authZ: this is a HEAVY cross-hive aggregation + LLM narrative,
+    // user-triggered from ph-intelligence.html. Require a logged-in caller and cap per-user (low cap —
+    // it's expensive). The scheduled/cron path uses service_role and is exempt (trusted, periodic).
+    const _id = await resolveIdentity(db, req);
+    if (!_id.isServiceRole) {
+      if (!_id.authUid) {
+        return new Response(JSON.stringify({ error: "Authentication required" }),
+          { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+      const _rl = await checkUserRateLimit(db, "", _id.authUid, 50, 6);
+      if (!_rl.allowed) return userRateLimitedResponse(cors, _rl.user_cap);
+    }
+
     const body = await req.json().catch(() => ({}));
     const type = (body.period_type || "monthly") as "monthly" | "quarterly";
     const period = body.period || currentPeriod(type);

@@ -1,0 +1,655 @@
+{
+  "arc": "X",
+  "phase": "X2 Family C DONE + X3 (Family B+E) IN PROGRESS - B2 + E3 at floor, locked",
+  "frozen": "2026-06-25",
+  "what": "Deep-link capability map + A1 (generic-landing hand-off) LOCK. An entity-specific alert / tile / row / hero that NAMES a record (asset / part / job / PM / machine) must deep-link to THAT record + action - the way utils.js renderRiskStrip already emits asset-hub.html?tag=<asset>. X1 drove every such site to a deep-link AND gave the two reader-less destinations (pm-scheduler, alert-hub) a reader that pre-focuses the named record. This baseline is now a PRESENCE GUARD: each site's deep-link form and each destination's reader must stay present (regression -> gate FAIL). a1_scope_less is 0.",
+  "a1_scope_less_baseline": 0,
+  "deeplink_emit_sites": [
+    {
+      "id": "risk_strip_row",
+      "file": "utils.js",
+      "note": "GOOD exemplar (pre-existing)",
+      "assert_deeplinked": "var href = 'asset-hub\\.html\\?tag='"
+    },
+    {
+      "id": "pmdue_strip_row",
+      "file": "utils.js",
+      "entity": "asset_name",
+      "dest": "pm-scheduler",
+      "assert_deeplinked": "var href = 'pm-scheduler\\.html\\?asset='"
+    },
+    {
+      "id": "parts_strip_row",
+      "file": "utils.js",
+      "entity": "part_name",
+      "dest": "inventory",
+      "assert_deeplinked": "var href = 'inventory\\.html\\?q='"
+    },
+    {
+      "id": "index_open_job_row",
+      "file": "index.html",
+      "entity": "job",
+      "dest": "logbook",
+      "assert_deeplinked": "'logbook\\.html\\?id=' \\+ encodeURIComponent\\(_jid\\)"
+    },
+    {
+      "id": "index_hero_critpm",
+      "file": "index.html",
+      "entity": "critPM asset",
+      "dest": "pm-scheduler",
+      "assert_deeplinked": "'pm-scheduler\\.html\\?asset=' \\+ encodeURIComponent\\(critPM"
+    },
+    {
+      "id": "index_hero_oldest_job",
+      "file": "index.html",
+      "entity": "oldest job",
+      "dest": "logbook",
+      "assert_deeplinked": "'logbook\\.html\\?id=' \\+ encodeURIComponent\\(oldest"
+    },
+    {
+      "id": "index_hero_sigalert",
+      "file": "index.html",
+      "entity": "sigAlert machine",
+      "dest": "alert-hub",
+      "assert_deeplinked": "'alert-hub\\.html\\?focus=' \\+ encodeURIComponent\\(sigAlert"
+    },
+    {
+      "id": "alert_hub_low_stock",
+      "file": "alert-hub.html",
+      "entity": "part",
+      "dest": "inventory",
+      "assert_deeplinked": "'inventory\\.html\\?q=' \\+ encodeURIComponent\\(i\\.part_name"
+    },
+    {
+      "id": "alert_hub_pm_overdue",
+      "file": "alert-hub.html",
+      "entity": "asset",
+      "dest": "pm-scheduler",
+      "assert_deeplinked": "'pm-scheduler\\.html\\?asset=' \\+ encodeURIComponent\\(r\\.asset_name"
+    },
+    {
+      "id": "hive_pm_completion_card",
+      "file": "hive.html",
+      "entity": "asset",
+      "dest": "pm-scheduler",
+      "assert_deeplinked": "pm-scheduler\\.html\\?asset=\\$\\{encodeURIComponent\\(record\\.asset_name"
+    }
+  ],
+  "deeplink_readers": [
+    {
+      "id": "inventory_q_reader",
+      "file": "inventory.html",
+      "param": "?q=",
+      "assert_present": "URLSearchParams\\(window\\.location\\.search\\)\\.get\\('q'\\)"
+    },
+    {
+      "id": "logbook_id_reader",
+      "file": "logbook.html",
+      "param": "?id=",
+      "assert_present": "URLSearchParams\\(window\\.location\\.search\\)\\.get\\('id'\\)"
+    },
+    {
+      "id": "pm_scheduler_asset_reader",
+      "file": "pm-scheduler.html",
+      "param": "?asset=",
+      "assert_present": "_q\\.get\\('asset'\\)"
+    },
+    {
+      "id": "alert_hub_focus_reader",
+      "file": "alert-hub.html",
+      "param": "?focus=",
+      "assert_present": "renderFeed\\._focusDone"
+    }
+  ],
+  "c2_seed_labels": {
+    "note": "Family C / C2 (placeholder-as-label) SEED: the index.html front-door auth + join inputs relied on placeholder text only (no <label>/aria-label) - the most-trafficked form. Fixed with aria-label on each (a11y + recognition: the label survives once the user types). Gate locks each so it cannot regress to placeholder-only. C2 backlog (measured, driven next): marketplace-seller messenger/cert inputs, marketplace-admin search, + dynamic-template fields (resume/analytics/project-manager).",
+    "file": "index.html",
+    "input_ids": [
+      "si-username",
+      "si-password",
+      "su-username",
+      "su-password",
+      "su-confirm",
+      "su-displayname"
+    ]
+  },
+  "a2_action_focus": [
+    {
+      "id": "pm_scheduler_action_focus",
+      "file": "pm-scheduler.html",
+      "note": "A2: a deep-linked PM detail lands with the task action focused (not just shown)",
+      "assert_present": "_act\\.focus\\("
+    },
+    {
+      "id": "critpm_hero_carries_action",
+      "file": "index.html",
+      "note": "A2: the 'schedule the technician' hero carries &action=schedule (carry intent)",
+      "assert_present": "action=schedule"
+    }
+  ],
+  "a3_state_persistence": [
+    {
+      "id": "inventory_search_url_sync",
+      "file": "inventory.html",
+      "note": "A3: live search mirrored to URL ?q= (replaceState) so the filter survives reload + leave-and-back-nav; the existing ?q= reader restores it",
+      "assert_present": "_invSyncUrlQ"
+    },
+    {
+      "id": "pm_scheduler_filter_url_sync",
+      "file": "pm-scheduler.html",
+      "note": "A3: dashboard filter-chip + category mirrored to URL ?filter=/?cat= + restored before first render",
+      "assert_present": "_pmSyncUrl"
+    },
+    {
+      "id": "logbook_filter_url_sync",
+      "file": "logbook.html",
+      "note": "A3: mine-view search/category/status mirrored to URL ?q=/?cat=/?status= + restored on load (team view = server-side, excluded by design)",
+      "assert_present": "_logSyncUrl"
+    },
+    {
+      "id": "marketplace_filter_url_sync",
+      "file": "marketplace.html",
+      "note": "A3: buyer search + price range mirrored to URL ?q=/?min=/?max= + restored before first load",
+      "assert_present": "_mktSyncUrl"
+    },
+    {
+      "id": "community_filter_url_sync",
+      "file": "community.html",
+      "note": "A3: feed category + search mirrored to URL ?cat=/?q= + restored; thread open/close now PRESERVE q/cat (previously wiped the whole query string = filter amnesia on every thread view)",
+      "assert_present": "_commSyncUrl"
+    },
+    {
+      "id": "voice_journal_filter_url_sync",
+      "file": "voice-journal.html",
+      "note": "A3: journal language filter + search mirrored to URL ?filter=/?q= + restored before first render",
+      "assert_present": "_vjSyncUrl"
+    },
+    {
+      "id": "audit_log_filter_url_sync",
+      "file": "audit-log.html",
+      "note": "A3: actor/action/target/search filters mirrored to URL ?actor=/?action=/?target=/?q= + restored before first load",
+      "assert_present": "_auditSyncUrl"
+    },
+    {
+      "id": "marketplace_admin_tab_url_sync",
+      "file": "marketplace-admin.html",
+      "note": "A3: active admin queue tab mirrored to URL ?tab= + restored (per-tab search resets on tab change by design)",
+      "assert_present": "_admSyncUrl"
+    },
+    {
+      "id": "marketplace_seller_tab_url_sync",
+      "file": "marketplace-seller.html",
+      "note": "A3: active dashboard tab + listing status filter mirrored to URL ?tab=/?status= + restored",
+      "assert_present": "_selSyncUrl"
+    }
+  ],
+  "a3_coverage": {
+    "note": "A3 list-state persistence COMPLETE for all genuine filtered browse lists. DONE (9): inventory, pm-scheduler, logbook, marketplace, community, voice-journal, audit-log, marketplace-admin, marketplace-seller. EXEMPT: marketplace-seller-profile (a public seller's listings keyed by ?worker=, no user-facing list filter to persist); analytics (filters drive charts, not a detail-drill-back browse list); feedback/index + logbook.backup (not live pages). The live continuity sweep (X0 remainder) will probe back-nav state across all DONE to confirm at runtime.",
+    "done": [
+      "inventory.html",
+      "pm-scheduler.html",
+      "logbook.html",
+      "marketplace.html",
+      "community.html",
+      "voice-journal.html",
+      "audit-log.html",
+      "marketplace-admin.html",
+      "marketplace-seller.html"
+    ],
+    "pending": [],
+    "exempt": [
+      "marketplace-seller-profile.html",
+      "analytics.html"
+    ]
+  },
+  "intentionally_bare_exempt": [
+    {
+      "id": "index_hero_pm_count",
+      "file": "index.html",
+      "why": "headline is a COUNT ('N PM tasks are due'), names no single entity -> a bare list is correct (A1 governs NAMED entities only)."
+    },
+    {
+      "id": "index_hero_oos_count",
+      "file": "index.html",
+      "why": "headline is a COUNT ('N parts at zero'), names no single entity -> bare list is correct."
+    },
+    {
+      "id": "strip_footer_links",
+      "file": "utils.js",
+      "why": "section 'see all' footers ('All assets ->', 'Inventory ->', 'PM Scheduler ->') are summary nav, not per-entity hand-offs - correctly bare."
+    }
+  ],
+  "denominator_note": "10 entity-emit sites across the home dashboard (strips + hero) + alert-hub + hive card, all deep-linked; 4 destination readers (inventory, logbook, pm-scheduler [NEW], alert-hub [NEW]) pre-focus the named record. 3 count/footer surfaces are documented exempt (generic by nature). This is the A-family (Continuity) A1 lock; A2/A3/A4 + the live continuity sweep follow.",
+  "c2_family": {
+    "note": "C2 (placeholder-as-label) driven to 0 across all 41 feature pages. SEED (index auth/join) locked separately in c2_seed_labels. The 3 remaining dynamic/utility inputs now carry a persistent aria-label so the field name survives typing.",
+    "fixed_sites": [
+      {
+        "id": "analytics_list_search",
+        "file": "analytics.html",
+        "assert_present": "list-search\" aria-label=\"\\$\\{escHtml\\(searchPlaceholder"
+      },
+      {
+        "id": "pm_wizard_scope_item",
+        "file": "project-manager.html",
+        "assert_present": "aria-label=\"Scope item title\""
+      },
+      {
+        "id": "validator_catalog_q",
+        "file": "validator-catalog.html",
+        "assert_present": "id=\"q\" aria-label=\"Filter validators"
+      }
+    ]
+  },
+  "c1_recall": {
+    "note": "C1 (recall-dependent entity input). 16 raw candidates surfaced by the scanner; adversarial classification (per-site Explore agent + skeptic verify, workflow wf_1a227e20) confirmed 1 REAL violation (inventory part-number entry) - fixed with a datalist of existing part numbers (recognition + early duplicate-catch) - and 15 verified EXEMPT (definition-of-own-identity fields or free-form NL notes; you cannot pick from a list an entity you are authoring). Measured REAL C1 violations = 0.",
+    "fixed_sites": [
+      {
+        "id": "inventory_part_number_picker",
+        "file": "inventory.html",
+        "assert_present": "id=\"f-part-number\" type=\"text\" list=\"existing-part-numbers\""
+      }
+    ]
+  },
+  "c1_exempt": [
+    {
+      "page": "asset-hub.html",
+      "id": "ask-input",
+      "class": "NL_NOTE",
+      "reason": "free-form NL question to the asset-brain AI, not an entity identifier"
+    },
+    {
+      "page": "hive.html",
+      "id": "ho-handover-to",
+      "class": "NL_NOTE",
+      "reason": "handover signature line (document), composed not selected"
+    },
+    {
+      "page": "inventory.html",
+      "id": "f-part-name",
+      "class": "DEFINITION",
+      "reason": "authors the part's own canonical name"
+    },
+    {
+      "page": "inventory.html",
+      "id": "restock-note",
+      "class": "NL_NOTE",
+      "reason": "free-form restock note"
+    },
+    {
+      "page": "logbook.html",
+      "id": "a-asset-id",
+      "class": "DEFINITION",
+      "reason": "defines a NEW asset's identifier (register-asset)"
+    },
+    {
+      "page": "logbook.html",
+      "id": "a-model",
+      "class": "DEFINITION",
+      "reason": "new asset's own model property"
+    },
+    {
+      "page": "logbook.html",
+      "id": "a-serial-no",
+      "class": "DEFINITION",
+      "reason": "new asset's own serial property"
+    },
+    {
+      "page": "logbook.html",
+      "id": "edit-asset-asset-id",
+      "class": "DEFINITION",
+      "reason": "edits the asset's own canonical id"
+    },
+    {
+      "page": "logbook.html",
+      "id": "edit-asset-name",
+      "class": "DEFINITION",
+      "reason": "edits the asset's own canonical name"
+    },
+    {
+      "page": "logbook.html",
+      "id": "edit-asset-type",
+      "class": "DEFINITION",
+      "reason": "edits the asset's own type attribute (free-form, no controlled vocab)"
+    },
+    {
+      "page": "logbook.html",
+      "id": "edit-asset-location",
+      "class": "DEFINITION",
+      "reason": "edits the asset's own location attribute (no canonical location master)"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "id": "cert-input",
+      "class": "DEFINITION",
+      "reason": "seller authors their own certification claims"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "pm-edit-name",
+      "class": "DEFINITION",
+      "reason": "edits the asset's own name"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "id": "pm-edit-tag",
+      "class": "DEFINITION",
+      "reason": "edits the asset's own tag"
+    },
+    {
+      "page": "resume.html",
+      "id": "rm-current-title",
+      "class": "DEFINITION",
+      "reason": "names the user's own resume document"
+    }
+  ],
+  "c3_status_on_record": {
+    "note": "C3 (external memory for status) PRESENCE proxy [HARD]. Every canonical operational record-card surface must render at least one status / last-action / timestamp element on each card so the user never has to recall where a job/asset/part stands. Confirmed present across all 9 surfaces; each is a presence-guard (regression -> gate FAIL). SALIENCE (is it the RIGHT state, prominent enough) is SOFT -> Ian's eye (e.g. asset-hub card shows criticality; live-health/last-PM is a SOFT enhancement candidate).",
+    "surfaces": [
+      {
+        "id": "logbook_entry_card",
+        "file": "logbook.html",
+        "shows": "status badge + date + owner",
+        "assert_present": "statusBadge\\(e\\.status"
+      },
+      {
+        "id": "inventory_part_card",
+        "file": "inventory.html",
+        "shows": "stock status badge + qty",
+        "assert_present": "\\$\\{statusBadge\\(st\\)\\}"
+      },
+      {
+        "id": "pm_scheduler_card",
+        "file": "pm-scheduler.html",
+        "shows": "overall status badge + next-due",
+        "assert_present": "statusBadge\\(asset\\.overall\\)"
+      },
+      {
+        "id": "asset_hub_node_card",
+        "file": "asset-hub.html",
+        "shows": "criticality badge",
+        "assert_present": "critClass\\(n\\.criticality\\)"
+      },
+      {
+        "id": "alert_hub_feed_card",
+        "file": "alert-hub.html",
+        "shows": "severity tag + relative time",
+        "assert_present": "class=\"alert-time\""
+      },
+      {
+        "id": "audit_log_entry_row",
+        "file": "audit-log.html",
+        "shows": "actor + action + relative time",
+        "assert_present": "class=\"entry-time\""
+      },
+      {
+        "id": "community_post_card",
+        "file": "community.html",
+        "shows": "relative time + edited flag",
+        "assert_present": "formatTimeAgo\\(p\\.created_at\\)"
+      },
+      {
+        "id": "hive_entry_card",
+        "file": "hive.html",
+        "shows": "status badge + relative time",
+        "assert_present": "status-badge"
+      },
+      {
+        "id": "marketplace_listing_card",
+        "file": "marketplace.html",
+        "shows": "listing age (timeAgo)",
+        "assert_present": "timeAgo\\(item\\.created_at\\)"
+      }
+    ]
+  },
+  "b2_fixed": {
+    "note": "B2 (low information scent). 4 contentless link/button labels (View/Open) now carry an aria-label naming the object so screen-reader button-navigation + the label predicts the target (NN/g info-scent). The icon-only half of B2 is covered separately by validate_icon_button_label.py (reused).",
+    "fixed_sites": [
+      {
+        "id": "logbook_asset_view",
+        "file": "logbook.html",
+        "assert_present": "aria-label=\"View \\$\\{escHtml\\(a\\.name"
+      },
+      {
+        "id": "mkt_watch_view",
+        "file": "marketplace.html",
+        "assert_present": "btn-watch-view\"\\s+data-id=\"\\$\\{e\\(item\\.id\\)\\}\" aria-label=\"View "
+      },
+      {
+        "id": "mkt_listing_view",
+        "file": "marketplace.html",
+        "assert_present": "btn-view\" data-id=\"\\$\\{e\\(item\\.id\\)\\}\" aria-label=\"View "
+      },
+      {
+        "id": "resume_open",
+        "file": "resume.html",
+        "assert_present": "data-rm-open=\"\\$\\{e\\(d\\.id\\)\\}\" type=\"button\" aria-label=\"Open resume "
+      }
+    ]
+  },
+  "e3_fixed": {
+    "note": "E3 (destructive action without recovery). Scanner found 10 candidates; an adversarial trace workflow (wf_49f96d23, follows inline AND delegated handlers) found 4 REAL: marketplace-admin Remove-ID + Remove-Cert (both via handleSellerAction unverify - the badge-revoke path now confirms via whConfirm) and report-sender deleteContact (now confirms). The 4th REAL (marketplace watchlist Remove) is a REVERSIBLE toggle -> a confirm would be confirm-fatigue -> exempt. The other 6 were SAFE (already whConfirm) or NOT_DESTRUCTIVE (form-state only / modal close).",
+    "fixed_sites": [
+      {
+        "id": "mktadmin_unverify_confirm",
+        "file": "marketplace-admin.html",
+        "covers": "Remove ID + Remove Cert",
+        "assert_present": "if \\(!verified && typeof window\\.whConfirm === 'function'\\)"
+      },
+      {
+        "id": "reportsender_delcontact_confirm",
+        "file": "report-sender.html",
+        "assert_present": "from your report recipients\\?"
+      }
+    ]
+  },
+  "e3_triage": {
+    "note": "Full disposition of the 10 E3 candidates (wf_49f96d23, Explore agent + skeptic).",
+    "real_fixed": [
+      "marketplace-admin#Remove-ID (handleSellerAction)",
+      "marketplace-admin#Remove-Cert (handleSellerAction)",
+      "report-sender#deleteContact"
+    ],
+    "real_exempt_reversible": [
+      "marketplace#watchlist-Remove (toggleWatchlist - re-add is 1 click; confirm = confirm-fatigue)"
+    ],
+    "safe_has_recovery": [
+      "logbook#824 photo-remove (cancel recovers)",
+      "logbook#3353 entry-delete (double whConfirm)",
+      "marketplace-seller#737 listing-delete (whConfirm)",
+      "marketplace#1418 saved-search-delete (whConfirm)"
+    ],
+    "not_destructive": [
+      "inventory#472 photo-preview-clear (form state)",
+      "logbook#5162 parts-row-remove (form array)"
+    ]
+  },
+  "b3_fixed": {
+    "note": "B3 (dead-end / no next step). 24 empty-state candidates triaged (wf_e158e439, one Explore agent each) -> 6 REAL dead-ends (copy named an action/page with NO clickable path) each given a CTA inside the empty state; 18 EXEMPT (10 dashboard-maturity / 7 on-page-control / 1 filter-empty - recovery is on-page or the state is an intentional honest-empty).",
+    "fixed_sites": [
+      {
+        "id": "achievements_empty_cta",
+        "file": "achievements.html",
+        "assert_present": "href=\"logbook\\.html\"[^>]*>Log your first entry"
+      },
+      {
+        "id": "ai_quality_empty_cta",
+        "file": "ai-quality.html",
+        "assert_present": "href=\"logbook\\.html\"[^>]*>Open Logbook"
+      },
+      {
+        "id": "asset_hub_empty_cta",
+        "file": "asset-hub.html",
+        "assert_present": "\\+ Add via PM Scheduler"
+      },
+      {
+        "id": "logbook_empty_cta",
+        "file": "logbook.html",
+        "assert_present": "href=\"#log-form\"[^>]*>Log Your First Repair"
+      },
+      {
+        "id": "mkt_seller_empty_cta",
+        "file": "marketplace-seller.html",
+        "assert_present": "switchTab\\('listings'\\)[^>]*>Post a Listing"
+      },
+      {
+        "id": "skillmatrix_empty_cta",
+        "file": "skillmatrix.html",
+        "assert_present": "href=\"logbook\\.html\"[^>]*>Log work in the Logbook"
+      }
+    ]
+  },
+  "b3_exempt": [
+    {
+      "page": "analytics.html",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "audit-log.html",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "dayplanner.html",
+      "class": "ON_PAGE_CONTROL (+ Schedule btn)"
+    },
+    {
+      "page": "founder-console.html",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "logbook.html#filter",
+      "class": "FILTER_EMPTY"
+    },
+    {
+      "page": "logbook.html#register",
+      "class": "ON_PAGE_CONTROL (Register asset btn)"
+    },
+    {
+      "page": "marketplace-admin.html#530",
+      "class": "DASHBOARD_MATURITY (all reviewed)"
+    },
+    {
+      "page": "marketplace-admin.html#612",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "marketplace-seller-profile.html#366",
+      "class": "ON_PAGE_CONTROL (Back to Marketplace)"
+    },
+    {
+      "page": "marketplace-seller-profile.html#536",
+      "class": "ON_PAGE_CONTROL (filter tabs)"
+    },
+    {
+      "page": "marketplace-seller.html#757",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "marketplace-seller.html#810",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "ph-intelligence.html",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "plant-connections.html",
+      "class": "ON_PAGE_CONTROL (Integrations tab)"
+    },
+    {
+      "page": "platform-health.html",
+      "class": "DASHBOARD_MATURITY"
+    },
+    {
+      "page": "project-manager.html",
+      "class": "ON_PAGE_CONTROL (template above)"
+    },
+    {
+      "page": "public-feed.html",
+      "class": "DASHBOARD_MATURITY (read-only)"
+    },
+    {
+      "page": "voice-journal.html",
+      "class": "ON_PAGE_CONTROL (mic above)"
+    }
+  ],
+  "e2_fixed": {
+    "note": "E2 (unactionable error). 15 inline validation-error regions were silent to assistive tech (no aria-describedby tie, no role=alert; aria-describedby is 0 platform-wide). Each now carries role=alert + aria-live=assertive so a screen reader ANNOUNCES the error text when it appears (WCAG 4.1.3; form-level errors). Field-level aria-describedby ties are a SOFT enhancement. Measured E2 (silent errors) = 0.",
+    "fixed_sites": [
+      {
+        "id": "name-error",
+        "file": "assistant.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"name\\-error\""
+      },
+      {
+        "id": "m-required-error",
+        "file": "dayplanner.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"m\\-required\\-error\""
+      },
+      {
+        "id": "m-end-error",
+        "file": "dayplanner.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"m\\-end\\-error\""
+      },
+      {
+        "id": "create-error",
+        "file": "hive.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"create\\-error\""
+      },
+      {
+        "id": "join-error",
+        "file": "hive.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"join\\-error\""
+      },
+      {
+        "id": "si-error",
+        "file": "index.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"si\\-error\""
+      },
+      {
+        "id": "su-error",
+        "file": "index.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"su\\-error\""
+      },
+      {
+        "id": "part-form-error",
+        "file": "inventory.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"part\\-form\\-error\""
+      },
+      {
+        "id": "use-modal-error",
+        "file": "inventory.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"use\\-modal\\-error\""
+      },
+      {
+        "id": "kpi-error",
+        "file": "llm-observability.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"kpi\\-error\""
+      },
+      {
+        "id": "tasklist-ack-error",
+        "file": "logbook.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"tasklist\\-ack\\-error\""
+      },
+      {
+        "id": "edit-asset-error",
+        "file": "logbook.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"edit\\-asset\\-error\""
+      },
+      {
+        "id": "pm-edit-error",
+        "file": "pm-scheduler.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"pm\\-edit\\-error\""
+      },
+      {
+        "id": "email-error",
+        "file": "report-sender.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"email\\-error\""
+      },
+      {
+        "id": "sheet-error",
+        "file": "report-sender.html",
+        "assert_present": "role=\"alert\"[^>]*\\bid=\"sheet\\-error\""
+      }
+    ]
+  }
+}

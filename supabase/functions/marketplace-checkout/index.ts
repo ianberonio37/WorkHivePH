@@ -16,6 +16,8 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
+// Arc R (A01 BOLA): bind buyer_name to the verified caller.
+import { resolveIdentity } from '../_shared/tenant-context.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -69,7 +71,8 @@ serve(async (req: Request) => {
     return errJson('Invalid JSON body', 400, req);
   }
 
-  const { listing_id, buyer_name, hive_id } = body;
+  const { listing_id, hive_id } = body;
+  let buyer_name = body.buyer_name;
   if (!listing_id || !buyer_name) {
     return errJson('listing_id and buyer_name are required', 400, req);
   }
@@ -78,6 +81,22 @@ serve(async (req: Request) => {
   const supabaseUrl  = Deno.env.get('SUPABASE_URL')!;
   const serviceKey   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(supabaseUrl, serviceKey);
+
+  /* ── Arc R (A01 BOLA): buyer_name came from the body with NO JWT, so orders could be
+     attributed to any buyer/hive (pollutes another hive's order history + seeds the
+     pending_payment row the release path later pays out). Bind buyer_name to the verified
+     caller. (Price is already server-derived from the listing — safe.) NOTE: vestigial on
+     the free platform (PAYMENTS_ENABLED=false); interim defense-in-depth, not activation. */
+  const _id = await resolveIdentity(db, req);
+  if (!_id.isServiceRole) {
+    if (!_id.authUid) return errJson('Sign-in required', 401, req);
+    // canonical-allow: caller identity/authz read (own profile by auth_uid -> 403 if none);
+    // v_worker_truth is over hive_members, not the auth-identity source, so it cannot serve this.
+    const { data: _wp } = await db.from('worker_profiles')
+      .select('display_name').eq('auth_uid', _id.authUid).maybeSingle();
+    if (!_wp?.display_name) return errJson('No profile for caller', 403, req);
+    buyer_name = _wp.display_name;
+  }
 
   /* ── Fetch listing from DB (never trust client price) ────────────────── */
   const { data: listing, error: listErr } = await db

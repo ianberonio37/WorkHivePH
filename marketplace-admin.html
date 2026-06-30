@@ -10,7 +10,7 @@
   <!-- dashboard-allow: marketplace admin (different domain from analytics canonicals); reads v_marketplace_sellers_truth which already carries its own chip pattern. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,7 +33,7 @@
     /* Header */
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
-    .page-header p { font-size: 0.78rem; color: var(--wh-steel); margin-top: 0.15rem; }
+    .page-header p { font-size: 0.78rem; color: #9fb0c3; margin-top: 0.15rem; } /* AA contrast on navy (was --wh-steel ≈ 4.3:1) */
     .header-badge {
       padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;
       background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3); color: var(--wh-orange);
@@ -58,10 +58,12 @@
       display: flex; gap: 0.375rem; margin-bottom: 1.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07);
       border-radius: 0.75rem; padding: 0.35rem;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; /* contain 5-tab row at ≤360px (was 148px page overflow) */
     }
     .tab-btn {
-      flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem;
-      background: transparent; color: var(--wh-steel);
+      flex: 1 0 auto; min-height: 44px; padding: 0.55rem; border: none; border-radius: 0.5rem;
+      background: transparent; color: #9fb0c3; /* AA contrast on navy (was --wh-steel #7B8794 ≈ 4.3:1, failed) */
+      white-space: nowrap;
       font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer;
       transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
     }
@@ -104,6 +106,9 @@
 
     /* Listing cards */
     .listing-list { display: flex; flex-direction: column; gap: 0.875rem; }
+    /* CLS (Arc L L1): reserve a first-screen floor for the async listing list so its empty→skeleton→cards
+       fill doesn't push the (conditionally-shown) Load-More wrap below it — the dominant shifter (0.085). */
+    #content-area { min-height: 400px; }
 
     .admin-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
@@ -143,7 +148,7 @@
       border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.15);
     }
     .btn-approve {
-      flex: 1; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
+      flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
       color: #4ade80; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
       transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
@@ -151,7 +156,7 @@
     .btn-approve:hover { background: rgba(74,222,128,0.2); }
     .btn-approve:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-reject {
-      flex: 1; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
+      flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
       color: #f87171; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
       transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
@@ -237,7 +242,7 @@
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
   <h2>Platform Admins Only</h2>
   <p>This page is restricted to platform admins. If you should have access, ask the existing admin to add your worker name to the marketplace_platform_admins table.</p>
-  <a href="marketplace.html">Back to Marketplace</a>
+  <a href="marketplace.html" style="display:inline-flex;align-items:center;min-height:44px;">Back to Marketplace</a><!-- D1 U2 -->
 </div>
 
 <div id="toast" role="alert" aria-live="polite"></div>
@@ -305,13 +310,13 @@
   <!-- Search -->
   <div class="search-wrap">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input class="search-input" id="search-input" type="search" placeholder="Search listings or seller name…" autocomplete="off" />
+    <input class="search-input" id="search-input" type="search" placeholder="Search listings or seller name…" autocomplete="off" aria-label="Search listings or seller name" />
   </div>
 
   <!-- Content area -->
   <div id="content-area" class="listing-list"></div>
   <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreAdmin()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
   </div>
 </main>
 
@@ -469,17 +474,20 @@
   ============================================================ */
   async function loadStats() {
     try {
-      const [draftRes, pubRes, remRes, sellersRes] = await Promise.all([
+      // Arc L · L2: count-only queries (head:true) — transfer ZERO rows instead of fetching every
+      // seller just to tally. unverified = total − kyb_verified (= the original `!s.kyb_verified` falsy set).
+      const [draftRes, pubRes, remRes, sellersRes, verifiedRes] = await Promise.all([
         db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
         db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published'),
         db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'removed'),
-        db.from('v_marketplace_sellers_truth').select('kyb_verified', { count: 'exact' }),
+        db.from('v_marketplace_sellers_truth').select('id', { count: 'exact', head: true }),
+        db.from('v_marketplace_sellers_truth').select('id', { count: 'exact', head: true }).eq('kyb_verified', true),
       ]);
       _stats.draft      = draftRes.count  || 0;
       _stats.published  = pubRes.count    || 0;
       _stats.removed    = remRes.count    || 0;
-      _stats.sellers    = sellersRes.data?.length || 0;
-      _stats.unverified = (sellersRes.data || []).filter(s => !s.kyb_verified).length;
+      _stats.sellers    = sellersRes.count || 0;
+      _stats.unverified = (sellersRes.count || 0) - (verifiedRes.count || 0);
       updateStats();
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   }
@@ -694,6 +702,15 @@
   async function handleSellerAction(action, workerName) {
     const isCert    = action === 'cert-verify' || action === 'cert-unverify';
     const verified  = action === 'verify' || action === 'cert-verify';
+    // E3 (Arc X recovery): REVOKING a verification badge is destructive + audit-logged
+    // and immediately visible to buyers -> confirm first (verify/add is additive, no confirm).
+    if (!verified && typeof window.whConfirm === 'function') {
+      const noun = isCert ? "certification badge" : "identity verification";
+      const ok = await window.whConfirm(
+        `Remove ${workerName}'s ${noun}? They lose the verified badge until re-verified.`,
+        { okLabel: 'Remove badge', cancelLabel: 'Keep' });
+      if (!ok) return;
+    }
     const nowIso    = new Date().toISOString();
 
     const update = { updated_at: nowIso };
@@ -889,6 +906,18 @@
   /* ============================================================
      TAB SWITCH
   ============================================================ */
+  // Arc X A3 (list-state persistence): persist the active admin tab to the URL so a
+  // reload / leave-and-back returns to the same queue (the per-tab search is reset on
+  // tab change by design, so only the tab is persisted).
+  function _admSyncUrl() {
+    try {
+      const url = new URL(location.href);
+      const t = _tab || 'draft';
+      (t && t !== 'draft') ? url.searchParams.set('tab', t) : url.searchParams.delete('tab');
+      history.replaceState(null, '', url);
+    } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+  }
+
   function switchTab(tab) {
     _tab   = tab;
     _query = '';
@@ -905,6 +934,7 @@
     if (tab === 'sellers')   loadSellers();
     else if (tab === 'disputes') loadDisputes();
     else loadListings(tab === 'removed' ? 'removed' : tab === 'published' ? 'published' : 'draft');
+    _admSyncUrl();
   }
 
   /* ============================================================
@@ -950,7 +980,16 @@
       else renderListings();
     };
 
-    await Promise.all([loadListings('draft'), loadStats()]);
+    // Arc X A3: restore the active tab from the URL so a reload / leave-and-back
+    // returns to the same admin queue instead of resetting to Draft.
+    const _tabParam = new URLSearchParams(location.search).get('tab');
+    const _validTabs = ['published', 'removed', 'sellers', 'disputes'];
+    if (_tabParam && _validTabs.includes(_tabParam)) {
+      switchTab(_tabParam);
+      await loadStats();
+    } else {
+      await Promise.all([loadListings('draft'), loadStats()]);
+    }
   });
 
 })();

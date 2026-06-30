@@ -1,6 +1,6 @@
-# Flywheel Turn #113
+# Flywheel Turn #127
 
-_2026-06-16T18:56:15_
+_2026-06-30T18:49:33_
 
 ## Layer deltas
 
@@ -8,16 +8,12 @@ _2026-06-16T18:56:15_
 |---|---|---:|---:|---:|
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 50 | 50 | · |
-| L0    | baselines tracked       | 109 | 110 | +1 ✅ |
-| L0    | total locked count      | 1277 | 1329 | ↑52 ❌ |
+| L0    | baselines tracked       | 149 | 149 | · |
+| L0    | total locked count      | 1877 | 1877 | · |
 | L2    | sentinel parity cases   | 35 | 35 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
-## 🟡 Quarantined (1) — baseline deltas classified as noise, not scored (env up)
-
-| Validator | Was | Now | Class | Note |
-|---|---:|---:|---|---|
-| `structured_log_adoption` | 1 | 8 | **adoption-ratchet** |  |
+## No ratchets or regressions this turn — platform stable.
 
 ## ⏫ Promotions — queued for one-pass approval
 

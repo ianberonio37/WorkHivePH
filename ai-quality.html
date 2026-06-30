@@ -123,7 +123,7 @@
 
   <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No quality records yet for this period.</div>
+  <div id="empty-state" class="empty-state" hidden>No quality records yet for this period. AI quality scores accrue as you draft entries with AI. <a href="logbook.html" class="empty-cta" style="min-height:44px;display:inline-flex;align-items:center;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Open Logbook →</a></div>
 
     <header class="page-header">
       <div>
@@ -312,7 +312,7 @@
 
       return `
         <div class="simple-row">
-          <div class="simple-card tag-${trust.tone}">
+          <div class="simple-card hero tag-${trust.tone}">
             <div class="sc-label">Worker trust</div>
             <div class="sc-hero">${escHtml(trust.hero)}</div>
             <div class="sc-sub">${escHtml(trust.sub)}</div>
@@ -605,5 +605,7 @@
     el.style.opacity = (live.length > 0) ? '1' : '0.55';
   };
 </script>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

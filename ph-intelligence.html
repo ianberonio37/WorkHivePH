@@ -13,7 +13,7 @@
   <link rel="canonical" href="https://workhiveph.com/workhive/ph-intelligence.html" />
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -528,6 +528,7 @@
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </main>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
@@ -542,6 +543,8 @@
     el.style.opacity = (live.length > 0) ? '1' : '0.55';
   };
 </script>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast (already targets #toast) announces here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>
 

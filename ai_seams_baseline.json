@@ -4,9 +4,9 @@
   },
   "by_kind": {
     "ai\u2192ai": 1,
-    "ai\u2192quota": 28,
-    "ai\u2192tenant": 76,
+    "ai\u2192quota": 37,
+    "ai\u2192tenant": 83,
     "saas\u2192ai": 14
   },
-  "seam_count": 119
+  "seam_count": 135
 }

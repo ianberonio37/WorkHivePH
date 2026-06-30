@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 179,
-    "total_refs": 281,
-    "total_missing": 6,
-    "baseline": 0,
-    "env_names_known": 26
+    "files_scanned": 184,
+    "total_refs": 310,
+    "total_missing": 10,
+    "baseline": 10,
+    "env_names_known": 32
   },
   "per_file": [
     {
@@ -41,20 +41,7 @@
     },
     {
       "file": "supabase/functions/_shared/embedding-chain.ts",
-      "missing": [
-        {
-          "env": "CLOUDFLARE_ACCOUNT_ID",
-          "offset": 4824
-        },
-        {
-          "env": "EMBEDDING_PRIMARY",
-          "offset": 8575
-        },
-        {
-          "env": "BGE_EMBED_URL",
-          "offset": 9149
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/_shared/envelope.ts",
@@ -102,12 +89,7 @@
     },
     {
       "file": "supabase/functions/_shared/persona-knowledge.ts",
-      "missing": [
-        {
-          "env": "PERSONA_KNOWLEDGE_EMBED_MODEL",
-          "offset": 2149
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/_shared/persona.ts",
@@ -138,6 +120,10 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/ssrf-guard.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/tenant-context.ts",
       "missing": []
     },
@@ -158,6 +144,10 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/voice-router-core.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/agent-memory-store/index.ts",
       "missing": []
     },
@@ -171,12 +161,7 @@
     },
     {
       "file": "supabase/functions/ai-gateway/index.ts",
-      "missing": [
-        {
-          "env": "WH_ALLOW_DEBUG_ECHO",
-          "offset": 8559
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/ai-orchestrator/index.ts",
@@ -188,7 +173,12 @@
     },
     {
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 34718
+        }
+      ]
     },
     {
       "file": "supabase/functions/asset-brain-query/index.ts",
@@ -196,7 +186,12 @@
     },
     {
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 13037
+        }
+      ]
     },
     {
       "file": "supabase/functions/benchmark-compute/index.ts",
@@ -224,12 +219,7 @@
     },
     {
       "file": "supabase/functions/embed-entry/index.ts",
-      "missing": [
-        {
-          "env": "BGE_EMBED_URL",
-          "offset": 1964
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/engineering-bom-sow/index.ts",
@@ -237,7 +227,12 @@
     },
     {
       "file": "supabase/functions/engineering-calc-agent/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 289775
+        }
+      ]
     },
     {
       "file": "supabase/functions/equipment-label-ocr/index.ts",
@@ -266,6 +261,23 @@
     {
       "file": "supabase/functions/intelligence-report/index.ts",
       "missing": []
+    },
+    {
+      "file": "supabase/functions/login/index.ts",
+      "missing": [
+        {
+          "env": "WH_LOGIN_MAX_ATTEMPTS",
+          "offset": 1593
+        },
+        {
+          "env": "WH_LOGIN_WINDOW_MIN",
+          "offset": 1666
+        },
+        {
+          "env": "WH_LOGIN_LOCKOUT_MIN",
+          "offset": 1740
+        }
+      ]
     },
     {
       "file": "supabase/functions/marketplace-checkout/index.ts",
@@ -297,7 +309,12 @@
     },
     {
       "file": "supabase/functions/pf-calculator/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 10097
+        }
+      ]
     },
     {
       "file": "supabase/functions/platform-gateway/index.ts",
@@ -313,7 +330,12 @@
     },
     {
       "file": "supabase/functions/project-progress/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 2911
+        }
+      ]
     },
     {
       "file": "supabase/functions/resume-extract/index.ts",
@@ -348,12 +370,21 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/supervisor-reset-password/index.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/temporal-rag-orchestrator/index.ts",
       "missing": []
     },
     {
       "file": "supabase/functions/trigger-ml-retrain/index.ts",
-      "missing": []
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 5723
+        }
+      ]
     },
     {
       "file": "supabase/functions/tts-speak/index.ts",
@@ -401,6 +432,15 @@
     },
     {
       "file": "supabase/functions/weibull-fitter/index.ts",
+      "missing": [
+        {
+          "env": "PYTHON_API_KEY",
+          "offset": 9611
+        }
+      ]
+    },
+    {
+      "file": "python-api/_auth.py",
       "missing": []
     },
     {

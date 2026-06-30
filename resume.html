@@ -11,12 +11,12 @@
   <title>Resume / CV Builder | WorkHive</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <!-- Supabase CDN MUST be first script (utils.js getDb depends on it) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <!-- html2pdf for PDF export (P2). pagebreak mode:['css'] only per mobile-maestro rules. -->
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -521,9 +521,12 @@
           else if (fld.type === 'csv') val = Array.isArray(val) ? val.join(', ') : (val || '');
           else val = val || '';
           const dataAttr = `data-sec="${sec.key}" data-idx="${idx}" data-field="${fld.f}"${fld.type ? ` data-type="${fld.type}"` : ''}`;
+          // Arc X C2: the sibling <label> below is visible but not `for`-associated, so add
+          // an aria-label from the field name (placeholder is only an example, not the label).
+          const _alab = `aria-label="${escHtml(fld.label)}"`;
           const input = (fld.type === 'area' || fld.type === 'lines')
-            ? `<textarea class="wh-input" ${dataAttr} placeholder="${escHtml(fld.ph || '')}" rows="3">${escHtml(val)}</textarea>`
-            : `<input class="wh-input" ${dataAttr} placeholder="${escHtml(fld.ph || '')}" value="${escHtml(val)}" />`;
+            ? `<textarea class="wh-input" ${dataAttr} ${_alab} placeholder="${escHtml(fld.ph || '')}" rows="3">${escHtml(val)}</textarea>`
+            : `<input class="wh-input" ${dataAttr} ${_alab} placeholder="${escHtml(fld.ph || '')}" value="${escHtml(val)}" />`;
           const fieldHtml = `<div class="field"><label>${escHtml(fld.label)}</label>${input}${fld.hint ? `<div class="field-hint">${escHtml(fld.hint)}</div>` : ''}</div>`;
           if (fld.half) {
             if (pendingHalf) { fieldsHtml += `<div class="field-row">${pendingHalf}${fieldHtml}</div>`; pendingHalf = ''; }
@@ -630,6 +633,7 @@
         const { error } = await db.from('resume_versions').insert({ resume_id: _resumeId, auth_uid: _authUid, doc: resume, note: note || null });
         if (error) return;  // versioning is best-effort, never blocks the main save
         // Prune to the 10 most recent.
+        // canonical-allow: resume_versions is owner-scoped private version history (RLS owner-only), read here only to prune the worker's OWN snapshots — single-surface, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
         const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).range(10, 49);
         if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));
       } catch (_) { /* empty-catch-allow: versioning is best-effort, never blocks save */ }
@@ -651,6 +655,7 @@
         // permanent device-only save (cloud save quietly stops working). Verify
         // the target exists first; if not, fall through to a fresh insert.
         if (_resumeId) {
+          // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only); this stale-id existence guard reads the worker's OWN row by id — single-surface, not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
           const { data: stillThere } = await db.from('resume_documents').select('id').eq('id', _resumeId).maybeSingle();
           if (!stillThere) _resumeId = null;
         }
@@ -786,7 +791,7 @@
             <div class="rm-row-sub">Updated ${e(relTime(d.updated_at))}</div>
           </div>
           <div class="rm-row-actions">
-            ${isCur ? '' : `<button class="btn btn-ghost btn-sm" data-rm-open="${e(d.id)}" type="button">Open</button>`}
+            ${isCur ? '' : `<button class="btn btn-ghost btn-sm" data-rm-open="${e(d.id)}" type="button" aria-label="Open resume ${e(title)}">Open</button>`}
             <button class="icon-del" data-rm-del="${e(d.id)}" type="button" aria-label="Delete resume ${e(title)}">✕</button>
           </div></div>`;
       }).join('');
@@ -841,10 +846,10 @@
     async function runAutofill() {
       toast('Gathering your WorkHive data…');
       const [badgesRes, profileRes, certRes, logRes, userRes] = await Promise.allSettled([
-        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME),
+        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME).limit(500),
         db.from('skill_profiles').select('primary_skill').eq('worker_name', WORKER_NAME).maybeSingle(),
         // canonical-allow: v_skill_badges_truth (read above) exposes discipline+level only; the resume certificate auto-fill also needs earned_at + exam_score, which the truth view does not expose, so it reads skill_badges directly for those supplementary columns.
-        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', WORKER_NAME),
+        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', WORKER_NAME).limit(500),
         db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', WORKER_NAME).order('created_at', { ascending: false }).limit(300),
         db.auth.getUser(),
       ]);

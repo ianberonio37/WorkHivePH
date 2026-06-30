@@ -20,6 +20,9 @@ Agents supported:
   CO2                             — NFPA 12 method (separate standard)
   Argon       (IG-01)             — ISO 14520-7
 """
+# standard-allow: ISO 14520 (Gaseous Fire-Extinguishing Systems) is the governing
+# DESIGN STANDARD this clean-agent suppression calc implements (alongside NFPA 2001).
+# It is cited as the calc's method source, not an un-anchored KPI/formula reference.
 
 import math
 
@@ -102,8 +105,17 @@ def calculate(inputs: dict) -> dict:
     # Specific vapor volume at design temperature
     S = _specific_vol(agent_key, temp_c)
 
-    # NFPA 2001 / ISO 14520 agent mass formula
-    W_calc = (V_adj / S) * (c_design / (100.0 - c_design))
+    # NFPA 2001 / ISO 14520 agent quantity. Halocarbons (FM-200, Novec) use the linear
+    # mass-fraction factor C/(100−C) (§5.3). Inert gases (Inergen/IG-541, CO2) DISPLACE
+    # air, so the quantity follows the LOGARITHMIC displacement relation
+    # 2.303·log10[100/(100−C)] (§5.4 / ISO 14520-13) — NOT C/(100−C).
+    # (Fixed 2026-06-23 Arc Q: the engine applied the halocarbon formula to inert gases
+    # too, overstating Inergen mass ~22% / CO2 similarly at design concentration —
+    # conservative but non-standard. Verified vs NFPA 2001 §5.4 per agent.)
+    if agent["type"] == "inert_gas":
+        W_calc = (V_adj / S) * 2.303 * math.log10(100.0 / (100.0 - c_design))
+    else:
+        W_calc = (V_adj / S) * (c_design / (100.0 - c_design))
     W_design = W_calc * safety_factor * flooding_factor
 
     # Per zone (if multiple zones, use worst-case zone quantity per NFPA 2001 §3.3)

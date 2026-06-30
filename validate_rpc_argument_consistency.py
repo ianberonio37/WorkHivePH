@@ -28,7 +28,7 @@ PAGES = [
     "pm-scheduler.html", "analytics.html", "analytics-report.html",
     "skillmatrix.html", "community.html", "public-feed.html",
     "marketplace.html", "marketplace-seller.html", "dayplanner.html",
-    "engineering-design.html", "assistant.html", "report-sender.html",
+    "engineering-design.html", "engineering-design.js", "assistant.html", "report-sender.html",
     "platform-health.html", "project-manager.html", "integrations.html",
     "ph-intelligence.html", "project-report.html", "predictive.html",
     "ai-quality.html", "plant-connections.html", "achievements.html",
@@ -111,7 +111,12 @@ def main() -> int:
                 continue
 
             args_text = m.group("args") or ""
-            arg_keys = {km.group("key").lower() for km in ARG_KEY_RE.finditer(args_text)}
+            # Scrub string-literal CONTENTS first so a ':' inside a value (e.g.
+            # `p_note: 'Used in job: ' + x`) isn't misread as an arg key ('job:').
+            # Replace each '...' / "..." / `...` with empty quotes — keys survive, the
+            # colon-bearing prose inside the string does not.
+            args_scrubbed = re.sub(r"(['\"`])(?:\\.|(?!\1).)*?\1", "''", args_text)
+            arg_keys = {km.group("key").lower() for km in ARG_KEY_RE.finditer(args_scrubbed)}
             expected = rpc_args[rpc_name]
             if not expected:
                 # Couldn't parse signature; skip arg check

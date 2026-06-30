@@ -98,6 +98,13 @@ CATALOG_TABLES_IGNORED = {
     # platform aligns to. Wiping it removes the registry that the Standards
     # Auto-Update Agent reads.
     "industry_standards",
+    # Companion L08 persona RAG corpus — global (no tenant col), populated by the ingest
+    # pipeline (SKILL.md → embeddings), NOT the test seeder. Wiping it loses the persona KB
+    # the companion grounds on, with nothing to restore it. Same posture as the RAG catalogs.
+    "persona_knowledge",
+    # Global embedding cache keyed by (query_hash, model) — regenerable edge-side, not test
+    # data and not seeder-restored; leave it (self-heals on next embed) rather than wipe.
+    "embedding_cache",
 }
 
 

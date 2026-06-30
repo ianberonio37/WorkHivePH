@@ -19,7 +19,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -256,10 +256,10 @@
 
       <!-- View tabs -->
       <div class="view-tabs">
-        <button class="view-tab active" onclick="switchView('dilo')" id="tab-dilo">DILO</button>
-        <button class="view-tab" onclick="switchView('wilo')" id="tab-wilo">WILO</button>
-        <button class="view-tab" onclick="switchView('milo')" id="tab-milo">MILO</button>
-        <button class="view-tab" onclick="switchView('yilo')" id="tab-yilo">YILO</button>
+        <button class="view-tab active" onclick="switchView('dilo')" id="tab-dilo" title="DILO — Day view (Day In the Life Of)" aria-label="Day view (DILO)">DILO</button>
+        <button class="view-tab" onclick="switchView('wilo')" id="tab-wilo" title="WILO — Week view (Week In the Life Of)" aria-label="Week view (WILO)">WILO</button>
+        <button class="view-tab" onclick="switchView('milo')" id="tab-milo" title="MILO — Month view (Month In the Life Of)" aria-label="Month view (MILO)">MILO</button>
+        <button class="view-tab" onclick="switchView('yilo')" id="tab-yilo" title="YILO — Year view (Year In the Life Of)" aria-label="Year view (YILO)">YILO</button>
       </div>
 
       <div style="flex:1"></div>
@@ -293,7 +293,7 @@
       <div class="verdict-text"><span id="dp-verdict-label">Loading day plan...</span><small id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="dp-card-today" data-rag-tile="dayplanner:today_count" data-rag-label="Tasks today">
+      <div class="simple-card hero tag-grey" id="dp-card-today" data-rag-tile="dayplanner:today_count" data-rag-label="Tasks today">
         <div class="sc-label">Today</div>
         <div class="sc-hero" id="dp-today-hero">0</div>
         <div class="sc-sub" id="dp-today-sub">Loading...</div>
@@ -352,8 +352,8 @@
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
         <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Title *</label>
-        <input class="wh-input" id="m-title" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
-        <div id="m-required-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
+        <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
+        <div role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
@@ -368,8 +368,8 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
           <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">End Time</label>
-          <input class="wh-input" id="m-end" type="time" oninput="document.getElementById('m-end-error').style.display='none'" />
-          <div id="m-end-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
+          <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
+          <div role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
           <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Category</label>
@@ -565,7 +565,8 @@ async function loadSchedule() {
     const { data, error } = await db.from('schedule_items')
       .select('*')
       .eq('worker_name', WORKER_NAME)
-      .order('date', { ascending: true });
+      .order('date', { ascending: true })
+      .limit(1000); // L2: a worker's planner is bounded-by-nature (dozens-hundreds); insurance cap
     if (error) throw error;
     scheduleItems = (data || []).map(fromDBRow);
 
@@ -592,7 +593,12 @@ async function loadSchedule() {
   render();
 }
 
+// D3.3: timestamp of the last write made on THIS device, so the realtime
+// handler can suppress the echo of our own change (only OTHER devices' edits
+// should trigger a "live" reload + toast).
+let _dpLastLocalWrite = 0;
 async function syncItemToSupabase(item) {
+  _dpLastLocalWrite = Date.now();
   try {
     const row = toDBRow(item);
     // Tier F capture contract — schedule_item_v1 runtime validation.
@@ -613,6 +619,7 @@ async function syncItemToSupabase(item) {
 }
 
 async function deleteItemFromSupabase(id) {
+  _dpLastLocalWrite = Date.now();
   try {
     const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
     if (error) { console.warn('Schedule delete failed:', error.message); showToast('Delete failed — check your connection', 'error'); }
@@ -645,7 +652,7 @@ function toggleSidebar() {
 
 async function loadLogbook() {
   try {
-    const { data, error } = await db.from('v_logbook_truth').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false });
+    const { data, error } = await db.from('v_logbook_truth').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false }).limit(1000); // L2: newest-first insurance cap on a worker's logbook
     if (error) throw error;
     // Show open items: not Closed/Resolved
     logbookItems = (data || []).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
@@ -803,13 +810,17 @@ function render() {
 // Layer D — Plain-Read summary for Day Planner.
 function renderDayplannerSummary() {
   const today = new Date();
-  const ymdToday = today.toISOString().slice(0, 10);
+  // Use the SAME local formatter (toYMD) the writes use — schedule_items.date is stored as
+  // toYMD(local). toISOString() is UTC, so in the evening (PHT = UTC+8) it returned
+  // YESTERDAY's date and the today/week counts silently undercounted local-dated items
+  // (Arc K T-lens caught this). Comparing local-to-local keeps the counts truthful.
+  const ymdToday = toYMD(today);
   // Monday-start week boundaries (PHT shifts assume Mon-Sun)
   const dow = today.getDay() || 7; // Sun=7 instead of 0
   const monday = new Date(today); monday.setDate(today.getDate() - (dow - 1)); monday.setHours(0,0,0,0);
   const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999);
-  const ymdMon = monday.toISOString().slice(0, 10);
-  const ymdSun = sunday.toISOString().slice(0, 10);
+  const ymdMon = toYMD(monday);
+  const ymdSun = toYMD(sunday);
 
   const todayCount = scheduleItems.filter(i => i.date === ymdToday).length;
   const weekCount  = scheduleItems.filter(i => i.date >= ymdMon && i.date <= ymdSun).length;
@@ -1537,6 +1548,37 @@ document.addEventListener('keydown', e => {
 
     // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
+
+    // ── D3.3 (INTERACTIVE_LINEAGE_ROADMAP) — live personal-schedule sync ──
+    // schedule_items is the personal day plan (owner-scoped: RLS auth_uid =
+    // auth.uid()). Subscribe so an edit made on ANOTHER device/tab refreshes this
+    // open view live, instead of going stale until a manual reload. Filter by
+    // _authUid (the canonical owner key — a UUID, so no spaced-worker_name filter
+    // pitfalls) which matches exactly what RLS enforces. We suppress the echo of
+    // our OWN device's write (a save/delete here already updates local state) via
+    // _dpLastLocalWrite, so only other-device edits toast. schedule_items is
+    // published + REPLICA IDENTITY FULL (mig 20260629000000) so the worker-scoped
+    // DELETE event carries auth_uid. rtConn() guards the silent-freeze; channel
+    // removed on beforeunload.
+    let _dpRtChannel = null;
+    if (_authUid) {
+      const reloadSchedule = (typeof debounce === 'function')
+        ? debounce(() => {
+            // Skip the echo of our own just-made write (local state is already current).
+            if (Date.now() - _dpLastLocalWrite < 2500) return;
+            loadSchedule().then(() => showToast('Schedule updated live'))
+              .catch(e => console.warn('[dayplanner] live reload:', e.message));
+          }, 700)
+        : () => { loadSchedule().catch(() => {}); };
+      _dpRtChannel = db.channel('dayplan-feed:' + _authUid)
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'schedule_items', filter: 'auth_uid=eq.' + _authUid },
+          () => reloadSchedule())
+        .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+      window.addEventListener('beforeunload', () => {
+        if (_dpRtChannel) { try { db.removeChannel(_dpRtChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup */ } }
+      });
+    }
   })();
 </script>
 <script src="nav-hub.js"></script>
@@ -1575,5 +1617,6 @@ document.addEventListener('keydown', e => {
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

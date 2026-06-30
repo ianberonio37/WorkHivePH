@@ -149,3 +149,30 @@ Alternate between audiences across videos so the channel serves everyone:
 - Runway Gen-4: each video generation costs credits. Use for hero shots only; screen-record for UI shots.
 - OpenRouter: idea generation uses Haiku (cheap). Script generation uses Sonnet (higher quality). Both use existing keys.
 - If OpenRouter fails, the tool automatically falls back to Groq (Llama 3.3 70B) -- quality is slightly lower but still usable.
+
+---
+
+## ★ FLAGSHIP PRODUCTION (2026 standard — supersedes "Step 4: Produce the Video")
+
+The Runway/Kling + OBS + CapCut + ElevenLabs path above is the **legacy** lane (it produced the dated stock-footage + corner-PiP + robotic-TTS look). The **flagship pipeline** is now the production standard: code-driven (Remotion), free, local, brand-pixel-perfect to `promo-poster.html`, product-as-hero, spring motion, mute-first kinetic captions, native 9:16/1:1/16:9, and quality-gated. Steps 1-3 (ideas, review, script) still apply upstream.
+
+### Flagship Step A — idea → spec
+```
+python -m tools.video_idea_generator flagship <idea_id>
+```
+- MUST run as `-m` (module), not `python tools/video_idea_generator.py` (the AI chain import needs the project root on `sys.path`).
+- AI-chain writes a validated `FlagshipSpec` to `.tmp/video_specs/<id>_flagship.json`: a 6-beat arc (hook → stakes → reveal → plan → payoff → end card), **one pain + one feature**, mute-first copy, no em dashes, and it picks the matching REAL product screen from the 9-screen library in `remotion_scenes/public/` (home, analytics, pm, logbook, inventory, skillmatrix, alerthub, assistant, engdesign). The end card is a LOCKED brand closer (not AI-varied).
+
+### Flagship Step B — spec → finished videos
+```
+python tools/render_flagship.py --spec .tmp/video_specs/<id>_flagship.json --name <id> --desktop
+```
+- Renders the data-driven Remotion `FlagshipReel` (`remotion_scenes/src/FlagshipReel.tsx`) in **9:16 + 1:1 + 16:9** from ONE responsive source, mixes a music bed + light SFX, **auto-scores the creative quality gate** (3s-hook / ABCD / mute-readability), and copies finals to the Desktop.
+- Flags: `--aspects 9x16` (subset) · `--gate-only` (score the spec, no render) · `--no-gate` · `--no-audio` · `--default` (the reference spec).
+- Renders are ~2.5 min each → 18 (6 ideas × 3 aspects) exceed one 10-min job; batch in groups of ≤3.
+
+### Notes / gotchas
+- **ffmpeg** is the `imageio_ffmpeg` binary (not on PATH): `python -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())"`.
+- **Add a product screen:** capture the page clean at a 430×932 phone viewport (sign into a seeded hive for populated data; hide the floating widgets `sticky-mobile-cta`/`wh-hub`/`wh-feedback-fab`/`wh-ai-widget` + scrollbar), drop the PNG in `remotion_scenes/public/`, and add a `SCREEN_CATALOG` entry in `tools/video_idea_generator.py`.
+- All 6 backlog ideas (idea_019..024) pass the gate at 88.9 and are produced in all 3 aspects (`Desktop/WorkHive_Videos/`).
+- **UI gap (see `VIDEO_MARKETING_UI_FINDINGS.md`):** the `video_marketing_app` dashboard's "Auto-Produce" still runs the LEGACY assembler — it is NOT yet wired to this flagship pipeline. Top revamp item.

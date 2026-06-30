@@ -14,7 +14,10 @@
         "hive.html",
         "pm-scheduler.html",
         "supabase/functions/shift-planner-orchestrator/index.ts",
-        "supabase/functions/ai-orchestrator/index.ts"
+        "supabase/functions/ai-orchestrator/index.ts",
+        "supabase/functions/scheduled-agents/index.ts",
+        "supabase/functions/hierarchical-summarizer/index.ts",
+        "supabase/functions/agentic-rag-loop/index.ts"
       ],
       "forbidden": [
         {

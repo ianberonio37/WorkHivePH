@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -35,6 +35,10 @@
     /* Filter bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
     .filter-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    /* Arc L L1 CLS reserve: #date-filters ships EMPTY and is filled async with 5
+       date chips (each .chip min-height:44px). Reserve the settled one-row height
+       so the chip render does not grow 0→44px and push the feed down (0.361 CLS). */
+    #date-filters { min-height: 44px; }
     .chip {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; background: rgba(22,32,50,0.85);
@@ -77,6 +81,12 @@
 
     /* Feed */
     .feed { display: flex; flex-direction: column; gap: 8px; }
+    /* Arc L L1 CLS reserve: #feed ships with a single short "Loading…" line then
+       grows to a 5-row skeleton and then the entry list, pushing #audit-load-more-wrap
+       + footer below it (0.181 CLS each). Reserve a first-screen height (~5 entries
+       at ~72px + 8px gaps) so the loading→skeleton→entries transition does not grow
+       the above-fold region. Over-reserving slightly = harmless uniform whitespace. */
+    #feed { min-height: 400px; }
     .entry {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 12px 14px; background: rgba(22,32,50,0.85);
@@ -114,6 +124,7 @@
       font-size: .65rem; font-weight: 600; color: var(--gold);
       background: transparent; border: none; padding: 4px 0;
       cursor: pointer; margin-top: 4px;
+      min-height: 44px; display: inline-flex; align-items: center; /* D1 U2: gloved-field tap target */
     }
     .entry-meta-toggle:hover { text-decoration: underline; }
     .entry-meta {
@@ -191,19 +202,21 @@
   </div>
 
   <!-- Main content -->
-  <div id="main-content" style="display:none;">
+  <!-- ships VISIBLE (skeleton; supervisor-gated data loads after auth) — the init
+       gates HIDE it on failure. Revealing a display:none main-content in JS popped
+       the whole page in = ~0.7 CLS (Arc L L1). -->
+  <div id="main-content">
     <div class="filter-bar">
       <div class="filter-row" id="date-filters" role="tablist" aria-label="Date range"></div>
       <div class="filter-row">
-        <select id="actor-filter" class="filter-select" aria-label="Filter by actor">
-          <option value="">All actors</option>
-        </select>
-        <select id="action-filter" class="filter-select" aria-label="Filter by action">
-          <option value="">All actions</option>
-        </select>
-        <select id="target-filter" class="filter-select" aria-label="Filter by target type">
-          <option value="">All targets</option>
-        </select>
+        <!-- Arc V L-lens: actor/action/target filters were flat >7-option <select>s (Miller overload);
+             datalist comboboxes let the user TYPE to narrow (low Hick), esp. the 11-actor list. -->
+        <input id="actor-filter" list="actor-filter-options" type="text" class="filter-select" aria-label="Filter by actor" placeholder="All actors" autocomplete="off" />
+        <datalist id="actor-filter-options"></datalist>
+        <input id="action-filter" list="action-filter-options" type="text" class="filter-select" aria-label="Filter by action" placeholder="All actions" autocomplete="off" />
+        <datalist id="action-filter-options"></datalist>
+        <input id="target-filter" list="target-filter-options" type="text" class="filter-select" aria-label="Filter by target type" placeholder="All targets" autocomplete="off" />
+        <datalist id="target-filter-options"></datalist>
         <input id="search-input" class="filter-input" type="search" placeholder="Search target name or actor..." aria-label="Search audit entries" />
       </div>
       <div class="filter-row">
@@ -263,16 +276,20 @@
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
   const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
+  const mainEl = document.getElementById('main-content');
   if (!HIVE_ID) {
+    if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-no-hive').style.display = 'block';
     return;
   }
   if (HIVE_ROLE !== 'supervisor') {
+    if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-not-supervisor').style.display = 'block';
     return;
   }
 
-  document.getElementById('main-content').style.display = 'block';
+  // main-content already VISIBLE (shipped without display:none) so it paints once
+  // in final layout — no JS reveal here (that was the ~0.7 CLS bomb; Arc L L1).
   if (HIVE_NAME) {
     const pill = document.getElementById('hive-pill');
     pill.textContent = '🐝 ' + HIVE_NAME;
@@ -297,22 +314,19 @@
   let _realtimeSub = null;
   let _auditDisplayCount = 30;  // List View Contract: client-side slice pagination
 
-  // ── Realtime subscription — auto-refresh on insert ─────────────────────────
+  // ── Auto-refresh — Arc L scale-out (1M realtime decision: reduce + poll-fallback) ──
+  // The audit feed is NOT safety-critical, so a 30s visibility-aware poll replaces the
+  // per-user WebSocket channel. Supabase Realtime caps ~10K concurrent; at 1M users a
+  // per-user subscription is a hard wall, while whPoll pauses on hidden tabs (no wasted
+  // reads). Same UX intent (the feed self-refreshes), zero realtime channel cost.
   function subscribeRealtime() {
     if (_realtimeSub) return;
-    _realtimeSub = db
-      .channel('hive_audit_log:' + HIVE_ID)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'hive_audit_log',
-        filter: 'hive_id=eq.' + HIVE_ID,
-      }, () => { loadEntries(); })
-      .subscribe();
+    _realtimeSub = whPoll(loadEntries, 30000, { immediate: false });  // first load already ran
   }
   function unsubscribeRealtime() {
     if (!_realtimeSub) return;
-    db.removeChannel(_realtimeSub);
+    if (typeof _realtimeSub.stop === 'function') _realtimeSub.stop();
+    else db.removeChannel(_realtimeSub);   // defensive: legacy channel handle
     _realtimeSub = null;
   }
   document.addEventListener('visibilitychange', function () {
@@ -322,19 +336,37 @@
   window.addEventListener('beforeunload', unsubscribeRealtime);
 
   // ── Wire filter controls ───────────────────────────────────────────────────
-  document.getElementById('actor-filter').addEventListener('change', (e) => {
-    _activeActor = e.target.value; _auditDisplayCount = 30; renderFeed();
-  });
-  document.getElementById('action-filter').addEventListener('change', (e) => {
-    _activeAction = e.target.value; _auditDisplayCount = 30; renderFeed();
-  });
-  document.getElementById('target-filter').addEventListener('change', (e) => {
-    _activeTarget = e.target.value; _auditDisplayCount = 30; renderFeed();
-  });
+  // datalist comboboxes: react to typed input AND option selection; only apply the filter on an
+  // EXACT match against the live option list (partial/typed-but-incomplete text → '' = show all, so
+  // mid-typing never blanks the feed).
+  // Arc X A3 (list-state persistence): mirror the audit filters (actor/action/target/
+  // search) into the URL so they survive a reload / leave-and-back-nav; the restore
+  // block below reapplies them before the first render.
+  function _auditSyncUrl() {
+    try {
+      const url = new URL(location.href);
+      const pairs = { actor: _activeActor, action: _activeAction, target: _activeTarget, q: _searchTerm };
+      for (const [k, v] of Object.entries(pairs)) { v ? url.searchParams.set(k, v) : url.searchParams.delete(k); }
+      history.replaceState(null, '', url);
+    } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
+  }
+
+  const wireFilter = (id, setActive) => {
+    const inp = document.getElementById(id);
+    ['input', 'change'].forEach(ev => inp.addEventListener(ev, (e) => {
+      const v = (e.target.value || '').trim();
+      const valid = [...document.getElementById(id + '-options').options].some(o => o.value === v);
+      setActive(valid ? v : '');
+      _auditDisplayCount = 30; renderFeed(); _auditSyncUrl();
+    }));
+  };
+  wireFilter('actor-filter',  v => { _activeActor = v; });
+  wireFilter('action-filter', v => { _activeAction = v; });
+  wireFilter('target-filter', v => { _activeTarget = v; });
   document.getElementById('search-input').addEventListener('input', (e) => {
     _searchTerm = (e.target.value || '').toLowerCase().trim();
     _auditDisplayCount = 30;
-    renderFeed();
+    renderFeed(); _auditSyncUrl();
   });
   document.getElementById('btn-export').addEventListener('click', exportCsv);
   document.getElementById('btn-clear').addEventListener('click', () => {
@@ -344,9 +376,24 @@
     document.getElementById('target-filter').value = '';
     document.getElementById('search-input').value  = '';
     _auditDisplayCount = 30;
-    renderFeed();
+    renderFeed(); _auditSyncUrl();
   });
   window.loadMoreAudit = () => { _auditDisplayCount += 30; renderFeed(); };
+
+  // Arc X A3: restore the audit filters from the URL before the first load, so a reload
+  // / leave-and-back keeps the supervisor's filtered view.
+  try {
+    const _aq = new URLSearchParams(location.search);
+    const _setF = (id, key, assign) => {
+      const v = _aq.get(key);
+      if (v) { const el = document.getElementById(id); if (el) el.value = v; assign(v); }
+    };
+    _setF('actor-filter',  'actor',  v => { _activeActor = v; });
+    _setF('action-filter', 'action', v => { _activeAction = v; });
+    _setF('target-filter', 'target', v => { _activeTarget = v; });
+    const _q = _aq.get('q');
+    if (_q) { const el = document.getElementById('search-input'); if (el) el.value = _q; _searchTerm = _q.toLowerCase(); }
+  } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 
   const _auditChip = document.getElementById('audit-source-chip');
   if (_auditChip && typeof renderSourceChip === 'function') {
@@ -417,21 +464,18 @@
     const actions = Array.from(new Set(_entries.map(e => e.action).filter(Boolean))).sort();
     const targets = Array.from(new Set(_entries.map(e => e.target_type).filter(Boolean))).sort();
 
-    function fillSelect(id, items, currentValue) {
-      const sel = document.getElementById(id);
-      const first = sel.options[0];
-      sel.innerHTML = '';
-      sel.appendChild(first);
-      for (const v of items) {
-        const opt = document.createElement('option');
-        opt.value = v; opt.textContent = v;
-        if (v === currentValue) opt.selected = true;
-        sel.appendChild(opt);
-      }
+    function fillSelect(id, items) {
+      // Populate the <datalist> for a filter combobox. The <input> keeps its OWN value across
+      // re-renders (we NEVER set it here — doing so would clobber active typing); only the option
+      // list is refreshed. Items are data-derived, so build via createElement (XSS-safe via .value).
+      const dl = document.getElementById(id + '-options');
+      if (!dl) return;
+      dl.innerHTML = '';
+      for (const v of items) { const o = document.createElement('option'); o.value = v; dl.appendChild(o); }
     }
-    fillSelect('actor-filter',  actors,  _activeActor);
-    fillSelect('action-filter', actions, _activeAction);
-    fillSelect('target-filter', targets, _activeTarget);
+    fillSelect('actor-filter',  actors);
+    fillSelect('action-filter', actions);
+    fillSelect('target-filter', targets);
   }
 
   function applyFilters() {
@@ -596,5 +640,7 @@
 </script>
 <script src="companion-launcher.js"></script>
 </main>
+<!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
+<div id="toast" role="alert" aria-live="polite"></div>
 </body>
 </html>

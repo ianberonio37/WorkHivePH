@@ -1189,6 +1189,28 @@ Added edit-to-closed path (Check 4) to `test-data-seeder/flows/logbook.py`.
 
 ---
 
+### 30. Marketplace buyer search returned HTTP 400 for EVERY query (search fully broken) — FIXED 2026-06-25
+
+**Discovered:** 2026-06-25 — live Playwright-MCP walk while adding Arc X A3 list-state persistence to marketplace.html. Typing in the marketplace search box logged `400 (Bad Request)` from `…/rest/v1/v_marketplace_listings_truth?…&search_vector=plfts(english).<term>`.
+
+**What's wrong:**
+`marketplace.html loadListings()` ran `q.textSearch('search_vector', _query, {type:'plain', config:'english'})` against the canonical truth view `v_marketplace_listings_truth`. That view exposes NO `search_vector` tsvector column (confirmed via information_schema: it has `title`, `description`, … but no `search_vector`). PostgREST rejects the filter with 400, so EVERY buyer search failed silently (the list just didn't update). Search was completely non-functional in production.
+
+**Where:**
+- `marketplace.html` — `loadListings()` (the `textSearch('search_vector', …)` call)
+
+**How to fix (done):**
+1. Replaced the tsvector call with an ILIKE on the columns the view exposes: `q.or('title.ilike.%<safe>%,description.ilike.%<safe>%')`, sanitising user input of PostgREST/or() delimiters + LIKE wildcards (`[,()%*\\]`).
+2. Added a regression guard: `validate_marketplace.py::check_search_uses_existing_columns` FAILs if `textSearch('search_vector', …)` reappears in marketplace.html (16/16 now).
+
+**Verified:** live — searching "Honeywell" returns the Honeywell listing and filters out Schneider/Atlas Copco; 0 console errors (was 1×400).
+
+**Lesson:** when a client queries a `v_*_truth` VIEW, only the VIEW's columns are available — a tsvector/index column on the base table is NOT exposed unless the view selects it. Query the view's actual columns (or add the column to the view in a migration). Pairs data-engineer + qa-tester.
+
+**Status:** FIXED 2026-06-25 (local, uncommitted)
+
+---
+
 ## Template for new entries
 
 ```

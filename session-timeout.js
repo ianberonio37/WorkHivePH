@@ -34,9 +34,19 @@
   if (window._whSessionTimeoutMounted) return;
   window._whSessionTimeoutMounted = true;
 
-  const IDLE_LIMIT_MS      = 15 * 60 * 1000;   // soft prompt at 15 min
-  const IDLE_HARD_LIMIT_MS = 60 * 60 * 1000;   // hard clear at 60 min
-  const CHECK_INTERVAL_MS  = 30 * 1000;        // tick every 30s
+  // Production defaults: 15-min soft prompt, 60-min hard clear, 30s tick.
+  // A TEST harness may shrink these via window.WH_IDLE_TIMEOUT_OVERRIDE
+  // (= { idle, hard, check } in ms) set BEFORE this script runs — e.g.
+  // Playwright addInitScript — so the idle→prompt→hard-clear sequence is
+  // observable without waiting an hour (Arc I I2/A test-hook). Production
+  // never sets the override, so behaviour is byte-identical to before. Each
+  // value is sanity-floored to a POSITIVE number, so a bad/zero override
+  // can NEVER disable the protection (it falls back to the default).
+  const _idleOverride = (typeof window !== 'undefined' && window.WH_IDLE_TIMEOUT_OVERRIDE) || {};
+  const _posMs = (v, dflt) => (typeof v === 'number' && v > 0 ? v : dflt);
+  const IDLE_LIMIT_MS      = _posMs(_idleOverride.idle,  15 * 60 * 1000); // soft prompt at 15 min
+  const IDLE_HARD_LIMIT_MS = _posMs(_idleOverride.hard,  60 * 60 * 1000); // hard clear at 60 min
+  const CHECK_INTERVAL_MS  = _posMs(_idleOverride.check, 30 * 1000);      // tick every 30s
 
   // Pages that share the same auth identity. The hard-clear redirects here.
   const SIGN_IN_URL = 'index.html?signin=1';

@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: router; forwards to sub-agents
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
@@ -8,6 +10,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -499,17 +502,22 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  logRequestStart(req, "ai-orchestrator");  // I6 observability
 
   try {
     const body = await req.json();
     // Gateway shape adapter (Phase 1+2): the gateway forwards `message`, while
     // direct callers send `question`. Accept either so both paths work.
-    const question = body.question ?? body.message;
+    // Arc R (LLM10): cap user-controlled text before it enters router/synthesis prompts.
+    // Matches the codebase's MAX_QUESTION_CHARS=500 standard (asset-brain-query). An
+    // uncapped message is an injection budget + cost-exhaustion surface.
+    const _q = body.question ?? body.message;
+    const question = typeof _q === "string" ? _q.slice(0, 500) : _q;
     const { hive_id, mode } = body;
     // Gateway forwards the worker's recall window as `memory` (loadMemory +
     // formatMemoryContext). Thread it into synthesis so the assistant brain
     // honors prior turns (capstone Memory-pillar fix 2026-06-07).
-    const memoryBlock = typeof body.memory === "string" ? body.memory : "";
+    const memoryBlock = (typeof body.memory === "string" ? body.memory : "").slice(0, 4000);
     let worker_name = body.worker_name;
 
     if (!question) {
@@ -567,6 +575,14 @@ serve(async (req) => {
         }
         worker_name = _name;
       }
+    }
+
+    // LLM10 unbounded-consumption: rate-limit the user-facing 7-agent fan-out (the hive.html Coach
+    // calls this DIRECTLY, not via the gateway). Skip the trusted service_role path (gateway/cron,
+    // rate-limited upstream); key on the verified hive (solo callers are bounded single-user).
+    if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
+      const _rl = await checkAIRateLimit(db, hive_id || "");
+      if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
     }
 
     const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat", memoryBlock);

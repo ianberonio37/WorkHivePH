@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-06-10T09:35:25+00:00",
+  "generated_at": "2026-06-29T10:57:14+00:00",
   "generator": "content_substrate.py",
   "catalog_counts": {
-    "nav_tools_total": 28,
-    "nav_tools_visible": 18,
-    "nav_tools_hidden": 10,
-    "features_total": 29,
-    "features_active": 29,
-    "features_routed": 28,
-    "learn_articles": 37,
-    "sitemap_urls": 42,
-    "sitemap_learn_urls": 37,
+    "nav_tools_total": 24,
+    "nav_tools_visible": 17,
+    "nav_tools_hidden": 7,
+    "features_total": 27,
+    "features_active": 27,
+    "features_routed": 26,
+    "learn_articles": 38,
+    "sitemap_urls": 43,
+    "sitemap_learn_urls": 38,
     "faqs_index": 15,
     "intel_features": 22
   },
@@ -19,7 +19,6 @@
       "present": true,
       "linked_pages": [
         "analytics.html",
-        "asset-hub.html",
         "assistant.html",
         "engineering-design.html",
         "hive.html",
@@ -30,11 +29,10 @@
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "linked_count": 11,
+      "linked_count": 10,
       "count_claims": {
         "guide": [
-          37,
-          37
+          38
         ],
         "tool": [
           33
@@ -60,13 +58,13 @@
     },
     "learn": {
       "present": true,
-      "article_count": 37,
-      "dated": 37,
+      "article_count": 38,
+      "dated": 38,
       "undated": 0
     },
     "seo_geo": {
-      "sitemap_urls": 42,
-      "sitemap_learn_urls": 37,
+      "sitemap_urls": 43,
+      "sitemap_learn_urls": 38,
       "llms_present": true,
       "llms_feature_bullets": 6,
       "robots_present": true,
@@ -74,40 +72,35 @@
     },
     "video": {
       "present": true,
-      "ideas": 18,
+      "ideas": 11,
       "solution_features": [
         "AI Maintenance Assistant",
         "Alert Hub",
         "Analytics & OEE Dashboard",
-        "CMMS Integrations",
-        "Day Planner",
+        "Asset Brain",
         "Engineering Design Calculator",
         "Hive Dashboard",
-        "Maintenance Logbook",
         "Marketplace",
         "PH Industry Intelligence",
-        "PM Checklist",
         "Predictive Analytics",
-        "Project Manager",
         "Resume Builder",
-        "Shift Brain",
-        "Skill Matrix"
+        "Shift Handover Report"
       ]
     }
   },
   "discover": {
-    "article_coverage_pct": 96.4,
+    "article_coverage_pct": 100.0,
     "orphan_count": 0,
     "gap_count": 0,
-    "nav_only_uncovered": 1,
+    "nav_only_uncovered": 0,
     "learn_hub_unlisted": 0
   },
   "coverage_summary": {
-    "active_routed": 28,
-    "with_article": 27,
-    "article_coverage_pct": 96.4,
-    "on_landing": 11,
-    "named_in_llms": 25
+    "active_routed": 26,
+    "with_article": 26,
+    "article_coverage_pct": 100.0,
+    "on_landing": 10,
+    "named_in_llms": 24
   },
   "alias_issues": []
 }

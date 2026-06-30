@@ -99,6 +99,14 @@ def main() -> int:
         page = ROOT / name
         if not page.exists(): continue
         raw = page.read_text(encoding="utf-8", errors="replace")
+        # Page-bundle pairing (Arc L / L1): engineering-design.html's handler functions
+        # were extracted to engineering-design.js — re-attach it so the page's inline
+        # onclick="handler()" attributes resolve against their defs (else every handler
+        # reads as an orphan once it moves out of the .html).
+        if name == "engineering-design.html":
+            _bundle = ROOT / "engineering-design.js"
+            if _bundle.exists():
+                raw += "\n" + _bundle.read_text(encoding="utf-8", errors="replace")
 
         # Extract <script> bodies for function defs. We don't strip comments
         # because we WANT to see inline handlers; only strip HTML comments.

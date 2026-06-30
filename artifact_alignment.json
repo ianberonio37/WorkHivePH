@@ -1,0 +1,21 @@
+{
+  "verified_checks": 14,
+  "total_checks": 14,
+  "denominator_cells": 14,
+  "by_cell": {
+    "engineering-design:ai_doc": true,
+    "engineering-design:diagram": true,
+    "engineering-design:pdf": true,
+    "engineering-design:csv": true,
+    "engineering-design:guide": true,
+    "analytics-report:pdf": true,
+    "project-report:pdf": true,
+    "asset-hub:pdf": true,
+    "hive:pdf": true,
+    "audit-log:csv": true,
+    "logbook:csv": true,
+    "resume:pdf": true,
+    "resume:ai_doc": true,
+    "report-sender:ai_doc": true
+  }
+}

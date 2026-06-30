@@ -1,0 +1,4372 @@
+{
+  "_doc": "Per-field downstream blast radius (Phase A of INTERACTIVE_LINEAGE_ROADMAP). display_fanout = surfaces that DISPLAY the field's terminus table (auto, complete). causal_cascades = curated cross-page write-cascades (seed, expand).",
+  "totals": {
+    "persisted_fields_analyzed": 101,
+    "dead_end_fields": 5,
+    "fields_with_causal_cascade": 38,
+    "avg_display_fanout": 2.73,
+    "max_display_fanout": 8
+  },
+  "per_page": {
+    "asset-hub": {
+      "fields": 22,
+      "persisted": 13,
+      "dead_end": 0,
+      "fanout_sum": 0,
+      "max_depth": 3
+    },
+    "community": {
+      "fields": 7,
+      "persisted": 0,
+      "dead_end": 0,
+      "fanout_sum": 0,
+      "max_depth": 0
+    },
+    "dayplanner": {
+      "fields": 6,
+      "persisted": 0,
+      "dead_end": 0,
+      "fanout_sum": 0,
+      "max_depth": 0
+    },
+    "integrations": {
+      "fields": 7,
+      "persisted": 6,
+      "dead_end": 0,
+      "fanout_sum": 5,
+      "max_depth": 2
+    },
+    "inventory": {
+      "fields": 15,
+      "persisted": 8,
+      "dead_end": 0,
+      "fanout_sum": 48,
+      "max_depth": 3
+    },
+    "logbook": {
+      "fields": 38,
+      "persisted": 11,
+      "dead_end": 0,
+      "fanout_sum": 79,
+      "max_depth": 3
+    },
+    "marketplace": {
+      "fields": 29,
+      "persisted": 19,
+      "dead_end": 0,
+      "fanout_sum": 65,
+      "max_depth": 3
+    },
+    "pm-scheduler": {
+      "fields": 17,
+      "persisted": 7,
+      "dead_end": 0,
+      "fanout_sum": 35,
+      "max_depth": 3
+    },
+    "project-manager": {
+      "fields": 46,
+      "persisted": 37,
+      "dead_end": 5,
+      "fanout_sum": 44,
+      "max_depth": 3
+    },
+    "report-sender": {
+      "fields": 3,
+      "persisted": 0,
+      "dead_end": 0,
+      "fanout_sum": 0,
+      "max_depth": 0
+    },
+    "resume": {
+      "fields": 6,
+      "persisted": 0,
+      "dead_end": 0,
+      "fanout_sum": 0,
+      "max_depth": 0
+    }
+  },
+  "fields": [
+    {
+      "surface": "asset-hub",
+      "field": "fmea-cause",
+      "terminus": "rcm_fmea_modes.cause_text",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-consequence",
+      "terminus": "rcm_fmea_modes.consequence_class",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-detection",
+      "terminus": "rcm_fmea_modes",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-effect",
+      "terminus": "rcm_fmea_modes.effect_text",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-failure-mode",
+      "terminus": "rcm_fmea_modes",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-function",
+      "terminus": "rcm_fmea_modes",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-occurrence",
+      "terminus": "rcm_fmea_modes",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "fmea-severity",
+      "terminus": "rcm_fmea_modes",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_fmea_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "fmea-populator"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "asset_risk_scores",
+          "via": "FMEA top-RPN factor (weight 0.10) in batch-risk-scoring",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ]
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "index",
+        "predictive",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-decision",
+      "terminus": "rcm_strategies",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_rcm_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-interval",
+      "terminus": "rcm_strategies",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_rcm_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-interval-custom",
+      "terminus": "rcm_strategies",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_rcm_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-rationale",
+      "terminus": "rcm_strategies",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_rcm_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "asset-hub",
+      "field": "rcm-task",
+      "terminus": "rcm_strategies",
+      "display_fanout": 0,
+      "display_depth": 3,
+      "displayed_on_pages": [],
+      "displayed_via_views": [
+        "v_rcm_truth"
+      ],
+      "read_by_edge_fns": [
+        "asset-brain-query"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "integrations",
+      "field": "api-key-label",
+      "terminus": "api_keys",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "intelligence-api"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-freq",
+      "terminus": "integration_configs",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "plant-connections"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "cmms-push-completion",
+        "cmms-sync",
+        "cmms-webhook-receiver"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-sync polls external CMMS, inserts normalized work-order rows into logbook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:241"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-sync upserts normalized synced records into external_sync",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:236"
+        },
+        {
+          "to_table": "cmms_audit_log",
+          "via": "edge fn cmms-sync writes a reconciliation/impact audit row after each run",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:348"
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "edge fn cmms-sync normalizes external CMMS work-order notes into the fault knowledge base",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:246"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-webhook-receiver upserts the external<->WorkHive sync record on each inbound CMMS webhook",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:246"
+        },
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-webhook-receiver inserts a normalized work-order row into logbook on an inbound CMMS webhook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub",
+            "asset-hub",
+            "pm-scheduler"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:254"
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "plant-connections",
+        "pm-scheduler",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-label",
+      "terminus": "integration_configs",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "plant-connections"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "cmms-push-completion",
+        "cmms-sync",
+        "cmms-webhook-receiver"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-sync polls external CMMS, inserts normalized work-order rows into logbook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:241"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-sync upserts normalized synced records into external_sync",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:236"
+        },
+        {
+          "to_table": "cmms_audit_log",
+          "via": "edge fn cmms-sync writes a reconciliation/impact audit row after each run",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:348"
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "edge fn cmms-sync normalizes external CMMS work-order notes into the fault knowledge base",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:246"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-webhook-receiver upserts the external<->WorkHive sync record on each inbound CMMS webhook",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:246"
+        },
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-webhook-receiver inserts a normalized work-order row into logbook on an inbound CMMS webhook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub",
+            "asset-hub",
+            "pm-scheduler"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:254"
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "plant-connections",
+        "pm-scheduler",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-token",
+      "terminus": "integration_configs",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "plant-connections"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "cmms-push-completion",
+        "cmms-sync",
+        "cmms-webhook-receiver"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-sync polls external CMMS, inserts normalized work-order rows into logbook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:241"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-sync upserts normalized synced records into external_sync",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:236"
+        },
+        {
+          "to_table": "cmms_audit_log",
+          "via": "edge fn cmms-sync writes a reconciliation/impact audit row after each run",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:348"
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "edge fn cmms-sync normalizes external CMMS work-order notes into the fault knowledge base",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:246"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-webhook-receiver upserts the external<->WorkHive sync record on each inbound CMMS webhook",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:246"
+        },
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-webhook-receiver inserts a normalized work-order row into logbook on an inbound CMMS webhook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub",
+            "asset-hub",
+            "pm-scheduler"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:254"
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "plant-connections",
+        "pm-scheduler",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-type",
+      "terminus": "integration_configs",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "plant-connections"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "cmms-push-completion",
+        "cmms-sync",
+        "cmms-webhook-receiver"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-sync polls external CMMS, inserts normalized work-order rows into logbook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:241"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-sync upserts normalized synced records into external_sync",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:236"
+        },
+        {
+          "to_table": "cmms_audit_log",
+          "via": "edge fn cmms-sync writes a reconciliation/impact audit row after each run",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:348"
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "edge fn cmms-sync normalizes external CMMS work-order notes into the fault knowledge base",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:246"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-webhook-receiver upserts the external<->WorkHive sync record on each inbound CMMS webhook",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:246"
+        },
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-webhook-receiver inserts a normalized work-order row into logbook on an inbound CMMS webhook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub",
+            "asset-hub",
+            "pm-scheduler"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:254"
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "plant-connections",
+        "pm-scheduler",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "integrations",
+      "field": "sc-url",
+      "terminus": "integration_configs",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "plant-connections"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "cmms-push-completion",
+        "cmms-sync",
+        "cmms-webhook-receiver"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-sync polls external CMMS, inserts normalized work-order rows into logbook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:241"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-sync upserts normalized synced records into external_sync",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:236"
+        },
+        {
+          "to_table": "cmms_audit_log",
+          "via": "edge fn cmms-sync writes a reconciliation/impact audit row after each run",
+          "downstream_pages": [
+            "integrations"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:348"
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "edge fn cmms-sync normalizes external CMMS work-order notes into the fault knowledge base",
+          "downstream_pages": [
+            "integrations",
+            "logbook"
+          ],
+          "evidence": "functions/cmms-sync/index.ts:246"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-webhook-receiver upserts the external<->WorkHive sync record on each inbound CMMS webhook",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:246"
+        },
+        {
+          "to_table": "logbook",
+          "via": "edge fn cmms-webhook-receiver inserts a normalized work-order row into logbook on an inbound CMMS webhook",
+          "downstream_pages": [
+            "logbook",
+            "analytics",
+            "shift-brain",
+            "alert-hub",
+            "asset-hub",
+            "pm-scheduler"
+          ],
+          "evidence": "functions/cmms-webhook-receiver/index.ts:254"
+        }
+      ],
+      "cascade_pages": [
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "integrations",
+        "logbook",
+        "plant-connections",
+        "pm-scheduler",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "inventory",
+      "field": "f-category",
+      "terminus": "inventory_items.category",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "f-location",
+      "terminus": "inventory_items.bin_location",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "f-notes",
+      "terminus": "inventory_items.notes",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "f-unit",
+      "terminus": "inventory_items.unit",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "restock-note",
+      "terminus": "inventory_items",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "restock-qty",
+      "terminus": "inventory_items",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "use-job-ref",
+      "terminus": "inventory_items",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "inventory",
+      "field": "use-qty",
+      "terminus": "inventory_items",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_inventory_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "logbook",
+      "field": "a-location",
+      "terminus": "asset_nodes.location",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "hive",
+        "integrations",
+        "inventory",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_asset_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-gateway",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "equipment-label-ocr",
+        "fmea-populator",
+        "pf-calculator",
+        "platform-scraper",
+        "sensor-readings-ingest",
+        "visual-defect-capture",
+        "voice-action-router",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "logbook",
+      "field": "a-name",
+      "terminus": "asset_nodes.name",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "hive",
+        "integrations",
+        "inventory",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_asset_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-gateway",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "equipment-label-ocr",
+        "fmea-populator",
+        "pf-calculator",
+        "platform-scraper",
+        "sensor-readings-ingest",
+        "visual-defect-capture",
+        "voice-action-router",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "logbook",
+      "field": "a-type",
+      "terminus": "asset_nodes.type",
+      "display_fanout": 6,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "hive",
+        "integrations",
+        "inventory",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_asset_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-gateway",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "equipment-label-ocr",
+        "fmea-populator",
+        "pf-calculator",
+        "platform-scraper",
+        "sensor-readings-ingest",
+        "visual-defect-capture",
+        "voice-action-router",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "logbook",
+      "field": "f-action",
+      "terminus": "logbook.action",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-consequence",
+      "terminus": "logbook.failure_consequence",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-downtime",
+      "terminus": "logbook.downtime",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-knowledge",
+      "terminus": "logbook.knowledge",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-maint-type",
+      "terminus": "logbook.maintenance_type",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-problem",
+      "terminus": "logbook.problem",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "f-root-cause",
+      "terminus": "logbook.root_cause",
+      "display_fanout": 8,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "pm-scheduler",
+        "project-manager",
+        "resume"
+      ],
+      "displayed_via_views": [
+        "v_logbook_truth"
+      ],
+      "read_by_edge_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "weibull-fitter"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_completions",
+          "via": "logbook.html save w/ PM tasks checked",
+          "downstream_pages": [
+            "pm-scheduler",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_transactions",
+          "via": "logbook 'Parts Used' -> inventory_deduct RPC",
+          "downstream_pages": [
+            "inventory",
+            "analytics"
+          ]
+        },
+        {
+          "to_table": "inventory_items",
+          "via": "inventory_deduct decrement qty_on_hand",
+          "downstream_pages": [
+            "inventory",
+            "alert-hub",
+            "hive"
+          ]
+        },
+        {
+          "to_table": "fault_knowledge",
+          "via": "DB trigger embed-logbook (AFTER INSERT) -> embed-entry edge fn embeds fault text + inserts knowledge row",
+          "downstream_pages": [
+            "logbook",
+            "integrations",
+            "hive"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1874 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() upserts XP/level (Wrench Chronicle/Safety Sentinel/Failure Hunter)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,180"
+        },
+        {
+          "to_table": "achievement_xp_log",
+          "via": "trigger trg_logbook_achievement -> award_achievement_xp() appends XP audit row",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:294,205"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_logbook (BEFORE INSERT) logs a warn row at the hive logbook row-cap",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000003_hive_quotas.sql:94,76"
+        },
+        {
+          "to_table": "rcm_fmea_modes",
+          "via": "edge fn fmea-populator clusters 365d corrective root-causes per asset, AI-inserts unapproved FMEA modes",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/fmea-populator/index.ts:376"
+        },
+        {
+          "to_table": "weibull_fits",
+          "via": "edge fn weibull-fitter reads corrective TBF for an asset, fits Weibull, inserts fit",
+          "downstream_pages": [
+            "asset-hub",
+            "predictive"
+          ],
+          "evidence": "functions/weibull-fitter/index.ts:289"
+        },
+        {
+          "to_table": "pf_intervals",
+          "via": "edge fn pf-calculator reads logbook.readings_json series, inserts computed P-F interval",
+          "downstream_pages": [
+            "asset-hub"
+          ],
+          "evidence": "functions/pf-calculator/index.ts:283"
+        },
+        {
+          "to_table": "knowledge_graph_facts",
+          "via": "edge fn semantic-fact-extractor LLM-extracts subject-predicate-object triples, upserts",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/semantic-fact-extractor/index.ts:282"
+        },
+        {
+          "to_table": "failure_signature_alerts",
+          "via": "edge fn failure-signature-scan (daily) runs 4 pre-failure rules over logbook history, upserts alerts",
+          "downstream_pages": [],
+          "evidence": "functions/failure-signature-scan/index.ts:262"
+        },
+        {
+          "to_table": "ai_reports",
+          "via": "edge fn scheduled-agents reads PM/logbook/analytics views, saves a generated AI report",
+          "downstream_pages": [
+            "hive",
+            "report-sender"
+          ],
+          "evidence": "functions/scheduled-agents/index.ts:45"
+        },
+        {
+          "to_table": "analytics_snapshots",
+          "via": "edge fn analytics-orchestrator computes MTBF/MTTR/OEE over logbook+pm, upserts snapshot",
+          "downstream_pages": [
+            "analytics"
+          ],
+          "evidence": "functions/analytics-orchestrator/index.ts:1062"
+        },
+        {
+          "to_table": "hive_benchmarks",
+          "via": "edge fn benchmark-compute (weekly) reads cross-hive MTBF/MTTR, upserts each hive's benchmark",
+          "downstream_pages": [
+            "hive",
+            "ph-intelligence"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:164"
+        },
+        {
+          "to_table": "network_benchmarks",
+          "via": "edge fn benchmark-compute upserts anonymized cross-hive network aggregate",
+          "downstream_pages": [
+            "hive"
+          ],
+          "evidence": "functions/benchmark-compute/index.ts:214"
+        },
+        {
+          "to_table": "ph_intelligence_reports",
+          "via": "edge fn intelligence-report (monthly) aggregates anonymized cross-hive data, upserts State-of-PH report",
+          "downstream_pages": [
+            "ph-intelligence"
+          ],
+          "evidence": "functions/intelligence-report/index.ts:262"
+        },
+        {
+          "to_table": "external_sync",
+          "via": "edge fn cmms-push-completion marks external_sync Closed after pushing the completion to the CMMS",
+          "downstream_pages": [
+            "asset-hub",
+            "integrations",
+            "logbook",
+            "plant-connections"
+          ],
+          "evidence": "functions/cmms-push-completion/index.ts:144"
+        },
+        {
+          "to_table": "asset_risk_scores",
+          "via": "edge fn batch-risk-scoring weights recent corrective/failure events into the risk composite",
+          "downstream_pages": [
+            "predictive",
+            "alert-hub",
+            "asset-hub",
+            "shift-brain",
+            "analytics",
+            "index"
+          ],
+          "evidence": "functions/batch-risk-scoring/index.ts:415"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "hive",
+        "index",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "report-sender",
+        "shift-brain"
+      ]
+    },
+    {
+      "surface": "logbook",
+      "field": "tasklist-ack-check",
+      "terminus": "pm_completions.tasklist_acknowledged",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "pm-scheduler",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-description",
+      "terminus": "marketplace_disputes",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "founder-console",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-listing-id",
+      "terminus": "marketplace_disputes",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "founder-console",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-order-id",
+      "terminus": "marketplace_disputes",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "founder-console",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-reason",
+      "terminus": "marketplace_disputes",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "founder-console",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "dispute-seller-name",
+      "terminus": "marketplace_disputes",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "founder-console",
+        "marketplace-admin",
+        "marketplace-seller"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-contact",
+      "terminus": "marketplace_inquiries",
+      "display_fanout": 2,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_inquiries_truth"
+      ],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-listing-id",
+      "terminus": "marketplace_inquiries",
+      "display_fanout": 2,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_inquiries_truth"
+      ],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-message",
+      "terminus": "marketplace_inquiries",
+      "display_fanout": 2,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_inquiries_truth"
+      ],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "inq-name",
+      "terminus": "marketplace_inquiries",
+      "display_fanout": 2,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_inquiries_truth"
+      ],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-condition",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-contact",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-desc",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-image-file",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-image-url",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-location",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-price",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "post-title",
+      "terminus": "marketplace_listings",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_marketplace_listings_truth"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-checkout"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_orders",
+          "via": "edge fn marketplace-checkout creates the escrow order row when a buyer checks out a listing",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "founder-console"
+          ],
+          "evidence": "functions/marketplace-checkout/index.ts:179"
+        }
+      ],
+      "cascade_pages": [
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "review-comment",
+      "terminus": "marketplace_reviews",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "marketplace-seller-profile"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_sellers",
+          "via": "trigger trg_update_seller_rating -> update_seller_rating() recomputes rating_avg/count, upserts seller",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "marketplace-seller-profile"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1918,517"
+        }
+      ],
+      "cascade_pages": [
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ]
+    },
+    {
+      "surface": "marketplace",
+      "field": "review-rating",
+      "terminus": "marketplace_reviews",
+      "display_fanout": 1,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "marketplace-seller-profile"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [
+        {
+          "to_table": "marketplace_sellers",
+          "via": "trigger trg_update_seller_rating -> update_seller_rating() recomputes rating_avg/count, upserts seller",
+          "downstream_pages": [
+            "marketplace",
+            "marketplace-admin",
+            "marketplace-seller",
+            "marketplace-seller-profile"
+          ],
+          "evidence": "migrations/20260420000000_baseline.sql:1918,517"
+        }
+      ],
+      "cascade_pages": [
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-criticality",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-location",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-name",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "pm-edit-tag",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "sheet-action",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "sheet-findings",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "pm-scheduler",
+      "field": "sheet-log-toggle",
+      "terminus": "pm_completions",
+      "display_fanout": 5,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "displayed_via_views": [
+        "v_pm_compliance_truth"
+      ],
+      "read_by_edge_fns": [
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "trigger-ml-retrain"
+      ],
+      "causal_cascades": [
+        {
+          "to_table": "pm_knowledge",
+          "via": "DB trigger embed-pm-completions -> embed-entry embeds PM-health summary + inserts knowledge row",
+          "downstream_pages": [],
+          "evidence": "migrations/20260420000000_baseline.sql:1878 ; functions/embed-entry/index.ts:251"
+        },
+        {
+          "to_table": "worker_achievements",
+          "via": "trigger trg_pm_achievement -> award_achievement_xp() (Uptime Guardian +60 XP)",
+          "downstream_pages": [
+            "achievements"
+          ],
+          "evidence": "migrations/20260508000002_achievements.sql:318,180"
+        },
+        {
+          "to_table": "automation_log",
+          "via": "trigger trg_hive_quota_pm_completions (BEFORE INSERT) logs over-quota warn row",
+          "downstream_pages": [
+            "alert-hub"
+          ],
+          "evidence": "migrations/20260511000007_db_hygiene_wave2.sql:64,54"
+        }
+      ],
+      "cascade_pages": [
+        "achievements",
+        "alert-hub"
+      ]
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-cost",
+      "terminus": "project_change_orders.cost_impact_php",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-days",
+      "terminus": "project_change_orders.schedule_impact_days",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-reason",
+      "terminus": "project_change_orders.reason",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-scope",
+      "terminus": "project_change_orders",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "co-title",
+      "terminus": "project_change_orders",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-budget",
+      "terminus": "projects.budget_php",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-desc",
+      "terminus": "projects.description",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-end",
+      "terminus": "projects.end_date",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-name",
+      "terminus": "projects",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-owner",
+      "terminus": "projects.owner_name",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-priority",
+      "terminus": "projects.priority",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-start",
+      "terminus": "projects.start_date",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "f-type",
+      "terminus": "projects",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "l-picker",
+      "terminus": "project_links",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler",
+        "project-report"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress",
+        "scheduled-agents"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "l-text",
+      "terminus": "project_links",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler",
+        "project-report"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress",
+        "scheduled-agents"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "l-type",
+      "terminus": "project_links",
+      "display_fanout": 3,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler",
+        "project-report"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress",
+        "scheduled-agents"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-blockers",
+      "terminus": "project_progress_logs.blockers",
+      "display_fanout": 0,
+      "display_depth": 1,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-date",
+      "terminus": "project_progress_logs.log_date",
+      "display_fanout": 0,
+      "display_depth": 1,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-hours",
+      "terminus": "project_progress_logs.hours_worked",
+      "display_fanout": 0,
+      "display_depth": 1,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-notes",
+      "terminus": "project_progress_logs.notes",
+      "display_fanout": 0,
+      "display_depth": 1,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "p-pct",
+      "terminus": "project_progress_logs.pct_complete",
+      "display_fanout": 0,
+      "display_depth": 1,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "r-notes",
+      "terminus": "project_roles.notes",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "r-role",
+      "terminus": "project_roles",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "r-worker",
+      "terminus": "project_roles",
+      "display_fanout": 0,
+      "display_depth": 2,
+      "displayed_on_pages": [],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-est",
+      "terminus": "project_items.estimated_hours",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-notes",
+      "terminus": "project_items.notes",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-owner",
+      "terminus": "project_items.owner_name",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-pend",
+      "terminus": "project_items.planned_end",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-phase",
+      "terminus": "project_items.notes",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-pstart",
+      "terminus": "project_items.planned_start",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "s-wbs",
+      "terminus": "project_items.wbs_code",
+      "display_fanout": 1,
+      "display_depth": 3,
+      "displayed_on_pages": [
+        "project-report"
+      ],
+      "displayed_via_views": [
+        "v_project_items_truth"
+      ],
+      "read_by_edge_fns": [
+        "project-orchestrator",
+        "project-progress"
+      ],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-budget",
+      "terminus": "projects.budget_php",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-desc",
+      "terminus": "projects.description",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-end",
+      "terminus": "projects.end_date",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-owner",
+      "terminus": "projects.owner_name",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-priority",
+      "terminus": "projects.priority",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    },
+    {
+      "surface": "project-manager",
+      "field": "wiz-start",
+      "terminus": "projects.start_date",
+      "display_fanout": 2,
+      "display_depth": 2,
+      "displayed_on_pages": [
+        "logbook",
+        "pm-scheduler"
+      ],
+      "displayed_via_views": [],
+      "read_by_edge_fns": [],
+      "causal_cascades": [],
+      "cascade_pages": []
+    }
+  ]
+}

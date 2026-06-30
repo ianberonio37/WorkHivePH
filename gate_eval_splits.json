@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-09T23:17:00+00:00",
+  "built_ts": "2026-06-24T04:24:18+00:00",
   "counts": {
-    "train": 177,
-    "val": 73,
-    "test": 56
+    "train": 227,
+    "val": 89,
+    "test": 73
   },
-  "total": 306,
-  "test_seal": "300e12b39d4d46863c484244d5056a8d30ec2aef694695646756d1395f3e7f27",
+  "total": 389,
+  "test_seal": "69c7e5818c43a2ac442e1b4bf38894cf155f017b0f8d5b2019bcbee688e86a63",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -111,6 +111,22 @@
       "split": "train",
       "eval_dimension": "agent"
     },
+    "agent_golden:AG-A10-param-fidelity": {
+      "id": "AG-A10-param-fidelity",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-A2-multi-intent": {
+      "id": "AG-A2-multi-intent",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
     "agent_golden:AG-NEG-01-offtopic-weather": {
       "id": "AG-NEG-01-offtopic-weather",
       "kind": "agent_golden",
@@ -141,6 +157,30 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-05-delete-all-p101": {
+      "id": "AG-NEG-05-delete-all-p101",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-06-order-pump-online": {
+      "id": "AG-NEG-06-order-pump-online",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "agent"
+    },
+    "agent_golden:AG-NEG-07-log-no-asset": {
+      "id": "AG-NEG-07-log-no-asset",
+      "kind": "agent_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
       "eval_dimension": "agent"
     },
     "agent_golden:AGC-01-pull-then-log": {
@@ -1015,6 +1055,62 @@
       "split": "val",
       "eval_dimension": "memory"
     },
+    "memory_golden:MEM-EX-04-coupling-pn": {
+      "id": "MEM-EX-04-coupling-pn",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-05-solenoid-torque": {
+      "id": "MEM-EX-05-solenoid-torque",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-06-fault-code": {
+      "id": "MEM-EX-06-fault-code",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-07-relay-pn": {
+      "id": "MEM-EX-07-relay-pn",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-08-gland-torque": {
+      "id": "MEM-EX-08-gland-torque",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-EX-09-gasket-pn": {
+      "id": "MEM-EX-09-gasket-pn",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-LIM-01-buried-torque": {
+      "id": "MEM-LIM-01-buried-torque",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
     "memory_golden:MEM-MS-01-symptom-action": {
       "id": "MEM-MS-01-symptom-action",
       "kind": "memory_golden",
@@ -1033,6 +1129,54 @@
     },
     "memory_golden:MEM-MS-03-part-and-qty": {
       "id": "MEM-MS-03-part-and-qty",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-04-impeller-pn-qty": {
+      "id": "MEM-MS-04-impeller-pn-qty",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-05-bearing-temp-grease": {
+      "id": "MEM-MS-05-bearing-temp-grease",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-06-faultcode-oilcap": {
+      "id": "MEM-MS-06-faultcode-oilcap",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-07-breather-oilgrade": {
+      "id": "MEM-MS-07-breather-oilgrade",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-08-coupling-qty": {
+      "id": "MEM-MS-08-coupling-qty",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-MS-09-faultcode-charge": {
+      "id": "MEM-MS-09-faultcode-charge",
       "kind": "memory_golden",
       "domain": "ai",
       "dimension": "functionality",
@@ -1071,6 +1215,78 @@
       "split": "train",
       "eval_dimension": "memory"
     },
+    "memory_golden:MEM-NEG-05-never-told-bearing": {
+      "id": "MEM-NEG-05-never-told-bearing",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-06-no-vibration-history": {
+      "id": "MEM-NEG-06-no-vibration-history",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-07-no-reorder-point": {
+      "id": "MEM-NEG-07-no-reorder-point",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-08-did-i-ever-say-vendor": {
+      "id": "MEM-NEG-08-did-i-ever-say-vendor",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-09-never-told-coupling": {
+      "id": "MEM-NEG-09-never-told-coupling",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-10-no-torque-history": {
+      "id": "MEM-NEG-10-no-torque-history",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-11-no-fault-code-history": {
+      "id": "MEM-NEG-11-no-fault-code-history",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-NEG-12-did-i-ever-say-grease": {
+      "id": "MEM-NEG-12-did-i-ever-say-grease",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-PRO-01-followup": {
+      "id": "MEM-PRO-01-followup",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
     "memory_golden:MEM-TMP-01-latest-inspection": {
       "id": "MEM-TMP-01-latest-inspection",
       "kind": "memory_golden",
@@ -1095,6 +1311,54 @@
       "split": "test",
       "eval_dimension": "memory"
     },
+    "memory_golden:MEM-TMP-04-latest-vibration": {
+      "id": "MEM-TMP-04-latest-vibration",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-05-current-shim": {
+      "id": "MEM-TMP-05-current-shim",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-06-latest-fault-code": {
+      "id": "MEM-TMP-06-latest-fault-code",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-07-latest-vibration": {
+      "id": "MEM-TMP-07-latest-vibration",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-08-latest-fault-code": {
+      "id": "MEM-TMP-08-latest-fault-code",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-TMP-09-current-shim": {
+      "id": "MEM-TMP-09-current-shim",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
     "memory_golden:MEM-UP-01-reorder-point": {
       "id": "MEM-UP-01-reorder-point",
       "kind": "memory_golden",
@@ -1111,12 +1375,92 @@
       "split": "val",
       "eval_dimension": "memory"
     },
+    "memory_golden:MEM-UP-03-torque-corrected": {
+      "id": "MEM-UP-03-torque-corrected",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-04-bearing-part-corrected": {
+      "id": "MEM-UP-04-bearing-part-corrected",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-05-vibration-alarm-corrected": {
+      "id": "MEM-UP-05-vibration-alarm-corrected",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-06-npsh-torque-corrected": {
+      "id": "MEM-UP-06-npsh-torque-corrected",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-07-lube-grade-corrected": {
+      "id": "MEM-UP-07-lube-grade-corrected",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "memory_golden:MEM-UP-08-belt-part-corrected": {
+      "id": "MEM-UP-08-belt-part-corrected",
+      "kind": "memory_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "memory"
+    },
+    "persona_golden:PR-EMPATHY-D5-01": {
+      "id": "PR-EMPATHY-D5-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
     "persona_golden:PR-HEZ-BRG-01": {
       "id": "PR-HEZ-BRG-01",
       "kind": "persona_golden",
       "domain": "ai",
       "dimension": "functionality",
       "split": "val",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-BRG-02": {
+      "id": "PR-HEZ-BRG-02",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-BRG-03": {
+      "id": "PR-HEZ-BRG-03",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-EMP-01": {
+      "id": "PR-HEZ-EMP-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
       "eval_dimension": "persona"
     },
     "persona_golden:PR-HEZ-ID-01": {
@@ -1133,6 +1477,14 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "val",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-ID-03": {
+      "id": "PR-HEZ-ID-03",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
       "eval_dimension": "persona"
     },
     "persona_golden:PR-HEZ-REG-01": {
@@ -1159,8 +1511,72 @@
       "split": "test",
       "eval_dimension": "persona"
     },
+    "persona_golden:PR-HEZ-REG-04": {
+      "id": "PR-HEZ-REG-04",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-05": {
+      "id": "PR-HEZ-REG-05",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-06": {
+      "id": "PR-HEZ-REG-06",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-07": {
+      "id": "PR-HEZ-REG-07",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-HEZ-REG-08": {
+      "id": "PR-HEZ-REG-08",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
     "persona_golden:PR-ZAN-BRG-01": {
       "id": "PR-ZAN-BRG-01",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-BRG-02": {
+      "id": "PR-ZAN-BRG-02",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-BRG-03": {
+      "id": "PR-ZAN-BRG-03",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-EMP-02": {
+      "id": "PR-ZAN-EMP-02",
       "kind": "persona_golden",
       "domain": "ai",
       "dimension": "functionality",
@@ -1181,6 +1597,14 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-ID-03": {
+      "id": "PR-ZAN-ID-03",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
       "eval_dimension": "persona"
     },
     "persona_golden:PR-ZAN-REG-01": {
@@ -1205,6 +1629,46 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-04-backlog-growth": {
+      "id": "PR-ZAN-REG-04-backlog-growth",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-05-oee-trend": {
+      "id": "PR-ZAN-REG-05-oee-trend",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-06-recurring-fault": {
+      "id": "PR-ZAN-REG-06-recurring-fault",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-07-downtime-cost": {
+      "id": "PR-ZAN-REG-07-downtime-cost",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "persona"
+    },
+    "persona_golden:PR-ZAN-REG-08-reactive-ratio": {
+      "id": "PR-ZAN-REG-08-reactive-ratio",
+      "kind": "persona_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
       "eval_dimension": "persona"
     },
     "rag_golden:RG-01-failure-history": {
@@ -1263,6 +1727,134 @@
       "split": "train",
       "eval_dimension": "rag"
     },
+    "rag_golden:RG-16-fmea-rcm-modes-to-strategy": {
+      "id": "RG-16-fmea-rcm-modes-to-strategy",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-17-pf-weibull-wearout-monitoring": {
+      "id": "RG-17-pf-weibull-wearout-monitoring",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-18-rcm-task-selection-rephrase": {
+      "id": "RG-18-rcm-task-selection-rephrase",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-19-fmea-severity-ranking": {
+      "id": "RG-19-fmea-severity-ranking",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-20-recent-downtime": {
+      "id": "RG-20-recent-downtime",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-21-common-failure": {
+      "id": "RG-21-common-failure",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-22-repair-summary": {
+      "id": "RG-22-repair-summary",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-23-wearout-phase": {
+      "id": "RG-23-wearout-phase",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-24-characteristic-life": {
+      "id": "RG-24-characteristic-life",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-25-top-failure-mode": {
+      "id": "RG-25-top-failure-mode",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-26-fmea-detection": {
+      "id": "RG-26-fmea-detection",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-27-pf-inspection": {
+      "id": "RG-27-pf-inspection",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-28-condition-monitoring": {
+      "id": "RG-28-condition-monitoring",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-29-rtf-or-scheduled": {
+      "id": "RG-29-rtf-or-scheduled",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-30-rcm-task": {
+      "id": "RG-30-rcm-task",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-31-reliability-picture": {
+      "id": "RG-31-reliability-picture",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
     "rag_golden:RG-NEG-01-no-risk-data": {
       "id": "RG-NEG-01-no-risk-data",
       "kind": "rag_golden",
@@ -1277,6 +1869,46 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-04-no-risk-score": {
+      "id": "RG-NEG-04-no-risk-score",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-05-out-of-scope-vendor-ceo": {
+      "id": "RG-NEG-05-out-of-scope-vendor-ceo",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-06-out-of-scope-weather": {
+      "id": "RG-NEG-06-out-of-scope-weather",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-07-no-vibration-fft": {
+      "id": "RG-NEG-07-no-vibration-fft",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "rag"
+    },
+    "rag_golden:RG-NEG-08-out-of-scope-price": {
+      "id": "RG-NEG-08-out-of-scope-price",
+      "kind": "rag_golden",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
       "eval_dimension": "rag"
     },
     "robustness_golden:ROB-F1": {
@@ -1508,6 +2140,13 @@
       "dimension": "internal_control",
       "split": "val"
     },
+    "spec:tests/auth-identity-arc-i.spec.ts": {
+      "id": "tests/auth-identity-arc-i.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
     "spec:tests/calm-dashboard.spec.ts": {
       "id": "tests/calm-dashboard.spec.ts",
       "kind": "spec",
@@ -1591,6 +2230,13 @@
       "domain": "saas",
       "dimension": "functionality",
       "split": "test"
+    },
+    "spec:tests/idle-timeout.spec.ts": {
+      "id": "tests/idle-timeout.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
     },
     "spec:tests/index.spec.ts": {
       "id": "tests/index.spec.ts",
@@ -2271,6 +2917,13 @@
       "dimension": "functionality",
       "split": "train"
     },
+    "spec:tests/realtime-arc-j.spec.ts": {
+      "id": "tests/realtime-arc-j.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
     "spec:tests/report-sender.spec.ts": {
       "id": "tests/report-sender.spec.ts",
       "kind": "spec",
@@ -2333,6 +2986,13 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "val"
+    },
+    "spec:tests/voice-router-determinism.spec.ts": {
+      "id": "tests/voice-router-determinism.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train"
     }
   }
 }

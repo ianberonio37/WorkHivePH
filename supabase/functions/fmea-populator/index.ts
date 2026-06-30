@@ -20,6 +20,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -217,6 +219,7 @@ async function classifyCluster(
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "fmea-populator");  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));

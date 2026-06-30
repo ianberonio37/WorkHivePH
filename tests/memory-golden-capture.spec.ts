@@ -128,7 +128,7 @@ test.describe('Memory golden capture (Phase 8 §8.3)', () => {
   });
 
   test('drive the Memory golden set through the live assistant gateway (2-phase)', async ({ whPage }) => {
-    test.setTimeout(30 * 60 * 1000); // ~31 fan-out calls x (LLM latency + 4s pacing)
+    test.setTimeout(45 * 60 * 1000); // ~120 fan-out calls (49-unit golden) x (free-tier LLM latency + 4s pacing)
     const golden = JSON.parse(fs.readFileSync(GOLDEN_PATH, 'utf8'));
     const units: any[] = [...(golden.scripts || [])];
 

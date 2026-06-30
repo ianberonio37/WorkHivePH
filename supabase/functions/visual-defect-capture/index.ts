@@ -55,6 +55,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 // contract-allow: produces visual defect draft; future Tier C: visual_defect_draft_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAIMultimodal } from "../_shared/ai-chain.ts";
@@ -239,6 +241,7 @@ function coerceDraft(parsed: Record<string, unknown>): DraftRow {
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  logRequestStart(req, "visual-defect-capture");  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));

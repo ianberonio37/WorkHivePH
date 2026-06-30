@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **506**
+- Capture fields discovered:  **240**
 - Framework names skipped:    **2** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **504** ✅
+- Alive (≥1 consumer):        **238** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 
@@ -18,7 +18,7 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (221)
+## Low-usage candidates — `consumer_count == 1` (19)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
@@ -28,64 +28,22 @@ but worth a scan for vestigial half-wired fields.
 | `a-scan-input` | logbook.html |
 | `cl-text` | resume.html |
 | `custom-item-freq` | pm-scheduler.html |
-| `edge-target` | asset-hub.html |
-| `edge-type` | asset-hub.html |
-| `f-C-rating` | engineering-design.html |
-| `f-Fa` | engineering-design.html |
-| `f-Fr` | engineering-design.html |
-| `f-Mu` | engineering-design.html |
-| `f-Pu` | engineering-design.html |
-| `f-Vu` | engineering-design.html |
-| `f-acc-pmax` | engineering-design.html |
-| `f-acc-pmin` | engineering-design.html |
-| `f-acc-vol` | engineering-design.html |
-| `f-alpha` | engineering-design.html |
-| `f-b-mm` | engineering-design.html |
-| `f-barrier-h` | engineering-design.html |
-| `f-bearing-no` | engineering-design.html |
-| `f-bore-mm` | engineering-design.html |
-| `f-ca-alt` | engineering-design.html |
-| `f-ca-conc` | engineering-design.html |
-| `f-ca-sf` | engineering-design.html |
-| `f-ca-temp` | engineering-design.html |
-| `f-ca-vol` | engineering-design.html |
-| `f-ca-zones` | engineering-design.html |
-| `f-capacity` | engineering-design.html |
-| `f-ceiling` | engineering-design.html |
-| `f-center-dist` | engineering-design.html |
-| `f-chiller-tr` | engineering-design.html |
-| `f-chw-return` | engineering-design.html |
-| `f-chw-supply` | engineering-design.html |
-| `f-cold-flow` | engineering-design.html |
-| `f-cold-in` | engineering-design.html |
-| `f-cold-out` | engineering-design.html |
-| `f-corrosion-mm` | engineering-design.html |
-| `f-ct-run` | engineering-design.html |
-| `f-cyl-force` | engineering-design.html |
-| `f-d-recv` | engineering-design.html |
-| `f-d-source` | engineering-design.html |
-| `f-demand-lpd` | engineering-design.html |
-| `f-design-pressure` | engineering-design.html |
-| `f-design-temp` | engineering-design.html |
-| `f-desludge` | engineering-design.html |
-| `f-door-h` | engineering-design.html |
-| `f-door-w` | engineering-design.html |
-| `f-doors-per-floor` | engineering-design.html |
-| `f-dose-hours` | engineering-design.html |
-| `f-dose-level` | engineering-design.html |
-| `f-driven-rpm` | engineering-design.html |
-| `f-eccentricity` | engineering-design.html |
-| `f-eg-ph` | engineering-design.html |
-| `f-eg-pw` | engineering-design.html |
-| `f-eg-ringd` | engineering-design.html |
-| `f-elevation` | engineering-design.html |
-| `f-et-fill-temp` | engineering-design.html |
-| `f-et-head` | engineering-design.html |
-| `f-et-kw` | engineering-design.html |
-| `f-et-project` | engineering-design.html |
-| `f-et-vol` | engineering-design.html |
-| `f-ext-load` | engineering-design.html |
-| ... | ... (161 more) |
+| `fb-d-note` | founder-console.html |
+| `fb-d-priority` | founder-console.html |
+| `fb-d-public` | founder-console.html |
+| `fb-filter-kind` | founder-console.html |
+| `filter-route` | agentic-rag-observability.html |
+| `filter-type` | project-manager.html |
+| `filter-window` | agentic-rag-observability.html |
+| `ho-handover-to` | hive.html |
+| `pf-direction` | asset-hub.html |
+| `pf-f-threshold` | asset-hub.html |
+| `pf-p-threshold` | asset-hub.html |
+| `pf-safety-critical` | asset-hub.html |
+| `promote-dedupe` | resume.html |
+| `rfq-contact` | marketplace.html |
+| `save-search-email` | marketplace.html |
+| `today-context` | assistant.html |
 
 ## What to do with a phantom
 

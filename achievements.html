@@ -11,7 +11,7 @@
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/achievements.html" />
   <link rel="manifest" href="manifest.json" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -329,7 +329,7 @@
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No achievements yet — start logging entries to earn your first badge.</div>
+  <div id="empty-state" class="empty-state" hidden>No achievements yet — earn your first badge by logging work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log your first entry →</a></div>
 
 
 
@@ -362,8 +362,8 @@
        audience, same job "how am I progressing?"). One nav entry; this tab bar switches
        Skills ↔ Achievements. Both pages kept on disk (reachable via tabs). -->
   <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 1rem 6px; flex-wrap:wrap;">
-    <a role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
-    <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
+    <a role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
+    <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
   </div>
   <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>
 
@@ -374,7 +374,7 @@
     <div class="verdict-text"><span id="ac-verdict-label">Computing XP progress...</span><small id="ac-verdict-sub">Adding this week's XP and counting active domains.</small></div>
   </div>
   <div class="simple-row">
-    <div class="simple-card tag-grey" id="ac-card-week" data-rag-tile="achievements:xp_this_week" data-rag-label="XP this week">
+    <div class="simple-card hero tag-grey" id="ac-card-week" data-rag-tile="achievements:xp_this_week" data-rag-label="XP this week">
       <div class="sc-label">XP this week</div>
       <div class="sc-hero" id="ac-week-hero">0</div>
       <div class="sc-sub" id="ac-week-sub">Loading...</div>
@@ -831,7 +831,8 @@
       .from('v_worker_truth')
       .select('worker_name')
       .eq('hive_id', HIVE_ID)
-      .neq('hive_status', 'kicked');
+      .neq('hive_status', 'kicked')
+      .limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the leaderboard-roster read)
 
     if (membersErr) {
       // E2 consistent states: a failed fetch shows an inline error + Retry (shared
@@ -852,7 +853,8 @@
     const { data: achs } = await db
       .from('v_worker_achievements_truth')
       .select('worker_name, current_level')
-      .in('worker_name', names);
+      .in('worker_name', names)
+      .limit(500); // Arc L · L2: row cap. names[] is bounded by the .limit(500) roster read above; each worker has ≤12 achievement domains (fixed ACHIEVEMENT_DEFS enum) → set can't reach 500.
 
     const sums = {};
     for (const row of (achs || [])) {
@@ -957,7 +959,7 @@
         renderAchievementsBody();
         if (newLevel > oldLevel) handleLevelUp(updated.achievement_id, oldLevel, newLevel);
       })
-      .subscribe();
+      .subscribe(rtConn());
   }
   window.addEventListener('beforeunload', () => { if (_achChannel) db.removeChannel(_achChannel); });
 
@@ -978,7 +980,8 @@
     const [achRes, logRes] = await Promise.all([
       db.from('v_worker_achievements_truth')
         .select('achievement_id, current_level, xp_total, last_action_at')
-        .eq('worker_name', WORKER_NAME),
+        .eq('worker_name', WORKER_NAME)
+        .limit(500), // Arc L · L2: row cap. Single worker's achievements = ≤12 rows (one per fixed ACHIEVEMENT_DEFS domain) → can't reach 500; insurance only.
       db.from('achievement_xp_log')
         .select('achievement_id, xp_earned, source_action, earned_at')
         .eq('worker_name', WORKER_NAME)
@@ -1019,5 +1022,6 @@
   };
 </script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

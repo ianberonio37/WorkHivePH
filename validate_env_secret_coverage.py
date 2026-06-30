@@ -95,6 +95,13 @@ OPTIONAL_VARS: dict = {
     "WH_SOLO_RATE_LIMIT_OVERRIDE": "Phase 0 solo rate limit (resume-builder): always-on IP/auth_uid ceiling for solo (no-hive) callers in _shared/rate-limit.ts (DEFAULT_SOLO_RATE_LIMIT_PER_HOUR). Falls back to compiled default 30 when unset; only raise for synthetic walks.",
     "WH_LOG_LEVEL": "P1 roadmap 2026-05-26: structured-logger threshold (_shared/logger.ts). Values: debug | info | warn | error. Falls back to 'info' when unset.",
     "WH_VOICE_QUOTA_RATIO": "P1 roadmap 2026-05-27 turn 7: voice quota share inside the per-hive rate-limit bucket (_shared/rate-limit.ts checkClassedRateLimit). 0.0-1.0; falls back to 0.7 when unset.",
+    "CLOUDFLARE_ACCOUNT_ID": "Embedding-chain (_shared/embedding-chain.ts) Cloudflare Workers-AI provider — VERIFIED graceful: cloudflareEmbed throws if unset and the fallback chain catches it + moves to the next provider (voyage/jina/bge-local). Not configured locally; the chain runs without it.",
+    "CLOUDFLARE_API_TOKEN": "Co-required with CLOUDFLARE_ACCOUNT_ID for the Cloudflare embed provider; same graceful-skip path in the fallback chain when missing.",
+    "EMBEDDING_PRIMARY": "Embedding-chain provider preference (_shared/embedding-chain.ts) — VERIFIED graceful: `Deno.env.get('EMBEDDING_PRIMARY') || 'voyage'`, defaults to voyage when unset.",
+    "PYTHON_API_KEY": "Arc F python-api shared-secret auth (python-api/_auth.py require_api_key). Configure-to-enable: when unset the API warns + ALLOWS (no auth), and the 7 edge callers send X-API-Key only when set. Graceful — local stack runs without it.",
+    "WH_LOGIN_MAX_ATTEMPTS": "Arc I I7/A brute-force lockout threshold (login/index.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_LOGIN_MAX_ATTEMPTS') || 5)`, defaults to 5 attempts when unset.",
+    "WH_LOGIN_WINDOW_MIN": "Arc I I7/A brute-force window (login/index.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_LOGIN_WINDOW_MIN') || 15)`, defaults to 15 min when unset.",
+    "WH_LOGIN_LOCKOUT_MIN": "Arc I I7/A lockout duration (login/index.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_LOGIN_LOCKOUT_MIN') || 15)`, defaults to 15 min when unset.",
 }
 
 # API-key-prefix patterns that indicate a real secret. The trailing length

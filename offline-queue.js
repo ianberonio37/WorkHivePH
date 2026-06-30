@@ -97,6 +97,19 @@
     let _draining = false;
     const channel = _broadcast('wh-offline-queue:' + cfg.db);
 
+    // Arc S D-lens (D-002): retry/backoff/dead-letter so a failing item neither
+    // wedges the queue nor retries forever. Exponential-ish backoff between attempts;
+    // after MAX_RETRIES the item is flagged 'stalled' (kept for inspection, surfaced
+    // as a warning by the connectivity widget, skipped by auto-drain).
+    const MAX_RETRIES = 8;
+    const BACKOFF_MS  = [1000, 5000, 30000, 120000, 600000, 3600000]; // 1s → 1h, then capped
+    const _backoff = (rc) => BACKOFF_MS[Math.min(rc, BACKOFF_MS.length - 1)];
+    const _due = (item) => {
+      if (item.status === 'stalled') return false;            // dead-letter: no auto-retry
+      if (!item.last_error_at) return true;                   // never attempted / last was clean
+      return (Date.now() - item.last_error_at) >= _backoff(item.retry_count || 0);
+    };
+
     async function _idb() {
       if (_dbRef) return _dbRef;
       _dbRef = await _openDB(cfg.db, cfg.store);
@@ -135,8 +148,10 @@
       try {
         const pending = await getPending();
         if (!pending.length) return { drained: 0, errors: 0 };
+        const idb = await _idb();
 
         for (const item of pending) {
+          if (!_due(item)) continue;   // Arc S D-002: stalled (dead-letter) or still in backoff
           const op = item.op || 'insert';
           let error = null;
           try {
@@ -175,6 +190,14 @@
               try { cfg.onSyncedRow(item); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: consumer hook isolation
             }
           } else {
+            // Arc S D-002: record the failure with backoff + dead-letter so a
+            // permanently-failing item doesn't wedge the queue or retry forever.
+            const rc = (item.retry_count || 0) + 1;
+            const upd = { ...item, retry_count: rc, last_error_at: Date.now(),
+                          last_error: (error && error.message) ? String(error.message).slice(0, 200) : 'unknown' };
+            if (rc >= MAX_RETRIES) upd.status = 'stalled';
+            try { await _idbReq(idb, cfg.store, 'readwrite', (s) => s.put(upd)); }
+            catch (_) { /* empty-catch-allow: best-effort persist of retry meta */ }
             errors += 1;
           }
         }
@@ -188,7 +211,7 @@
       return { drained, errors };
     }
 
-    function startAutoSync(supabase) {
+    function startAutoSync(supabase, periodMs) {
       if (!supabase) return;
       const tick = () => {
         if (navigator.onLine) drain(supabase);
@@ -196,6 +219,13 @@
       window.addEventListener('online', tick);
       // Initial drain on page load (covers the page-reload-after-brownout case)
       setTimeout(tick, 1500);
+      // Arc S D-002: periodic retry so an item still in backoff — or a backend that
+      // recovered while we never left 'online' — drains without needing an
+      // offline→online flip. _due() gates per-item backoff so this isn't a hammer.
+      const period = periodMs || 60000;
+      // timer-cleanup-allow: lifetime auto-sync drain poll (Arc S D-002) — one per page,
+      // runs for the page's entire life by design; no teardown/clearInterval needed.
+      if (typeof setInterval === 'function') setInterval(tick, period);
     }
 
     return { enqueue, getPending, remove, clear, drain, startAutoSync, _cfg: cfg };
@@ -210,18 +240,20 @@
     _registry.set(name, queue);
   }
   async function whGetQueueDepth() {
-    let total = 0;
+    let total = 0, stalled = 0;
     const perSurface = {};
     for (const [name, q] of _registry.entries()) {
       try {
         const pending = await q.getPending();
         perSurface[name] = pending.length;
         total += pending.length;
+        // Arc S D-002: surface dead-lettered items so the widget can warn "N stuck".
+        stalled += pending.filter((it) => it && it.status === 'stalled').length;
       } catch (_) {
         perSurface[name] = -1;
       }
     }
-    return { total, perSurface };
+    return { total, stalled, perSurface };
   }
 
   window.whCreateQueue     = whCreateQueue;

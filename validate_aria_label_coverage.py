@@ -112,6 +112,14 @@ def main() -> int:
 
         # Inputs
         for m in INPUT_RE.finditer(body):
+            # Skip "<input>" mentioned inside a JS line-comment (e.g. a code comment that
+            # says "the <input> keeps its value") - it's prose, not a real element. HTML
+            # comments are already stripped; JS `//` comments are not, so guard here:
+            # if a `//` (not part of `://`) precedes this match on its own line, skip it.
+            line_start = body.rfind("\n", 0, m.start()) + 1
+            line_prefix = body[line_start:m.start()]
+            if re.search(r"(^|[^:])//", line_prefix):
+                continue
             attrs = m.group("attrs")
             tm = ATTR_TYPE.search(attrs)
             input_type = (tm.group(1) if tm else "text").lower()

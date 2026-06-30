@@ -1,10 +1,10 @@
 {
   "summary": {
     "pages_scanned": 30,
-    "total_handlers": 986,
+    "total_handlers": 996,
     "total_orphans": 0,
     "baseline": 0,
-    "shared_fns_known": 505
+    "shared_fns_known": 523
   },
   "per_page": [
     {

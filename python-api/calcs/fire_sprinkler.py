@@ -22,12 +22,22 @@ import math
 
 # ─── NFPA 13 hazard occupancy classifications ─────────────────────────────────
 # density (mm/min), design_area (m²), hose_stream (L/min)
+# density = NFPA 13 §19.3 design density: Light 0.10 / OH1 0.15 / OH2 0.20 /
+#   EH1 0.30 / EH2 0.40 gpm/ft² × 40.8 = mm/min. (Bug fixed 2026-06-23, Arc Q:
+#   the column was one hazard-step too LOW — Light was 2.04 ≈ 0.05 gpm/ft², HALF
+#   the NFPA-required water = an under-designed system. Caught by value-vs-standard
+#   probe; the prior oracle had blessed the wrong value because it was derived from
+#   this table rather than independently from NFPA — a change-detector.)
+# hose_lpm = NFPA 13 hose-stream allowance added to the sprinkler demand for water-
+#   supply sizing: Light 100 / Ordinary 250 / Extra 500 gpm × 3.785 = L/min.
+#   (Also fixed 2026-06-23 Arc Q: the column was one step too HIGH — Light had
+#   950 L/min ≈ 250 gpm = Ordinary's value — over-stating total demand.)
 HAZARD_CLASS: dict[str, dict] = {
-    "Light Hazard":            {"density_mm_min": 2.04,  "area_m2": 139, "hose_lpm": 950},
-    "Ordinary Hazard Group 1": {"density_mm_min": 4.08,  "area_m2": 139, "hose_lpm": 1900},
-    "Ordinary Hazard Group 2": {"density_mm_min": 6.12,  "area_m2": 139, "hose_lpm": 1900},
-    "Extra Hazard Group 1":    {"density_mm_min": 8.16,  "area_m2": 232, "hose_lpm": 3785},
-    "Extra Hazard Group 2":    {"density_mm_min": 12.24, "area_m2": 232, "hose_lpm": 3785},
+    "Light Hazard":            {"density_mm_min": 4.08,  "area_m2": 139, "hose_lpm": 379},
+    "Ordinary Hazard Group 1": {"density_mm_min": 6.12,  "area_m2": 139, "hose_lpm": 946},
+    "Ordinary Hazard Group 2": {"density_mm_min": 8.16,  "area_m2": 139, "hose_lpm": 946},
+    "Extra Hazard Group 1":    {"density_mm_min": 12.24, "area_m2": 232, "hose_lpm": 1893},
+    "Extra Hazard Group 2":    {"density_mm_min": 16.32, "area_m2": 232, "hose_lpm": 1893},
 }
 
 # Occupancy → hazard class mapping (NFPA 13 Annex B)

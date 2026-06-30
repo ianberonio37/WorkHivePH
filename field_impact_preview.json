@@ -1,0 +1,176 @@
+{
+  "_doc": "Per-write-surface PRE-COMMIT impact preview (Phase D2). Powers a 'this will update N tiles on M pages' confirmation on high-blast saves. Reuse of Phase A field_blast_radius.json \u2014 pages = display fan-out + causal cascade reach. Built by tools/build_field_impact_preview.py.",
+  "high_blast_min": 4,
+  "surfaces": {
+    "inventory": {
+      "page_count": 6,
+      "max_field_fanout": 6,
+      "pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "logbook",
+        "project-manager"
+      ],
+      "cascades": [],
+      "cascades_plain": [],
+      "recompute_fns": [
+        "agentic-rag-loop",
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "batch-risk-scoring",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "platform-scraper",
+        "shift-planner-orchestrator"
+      ],
+      "headline": "This update reaches 6 pages (Alert Hub, Assistant, Hive, Integrations\u2026)."
+    },
+    "logbook": {
+      "page_count": 17,
+      "max_field_fanout": 8,
+      "pages": [
+        "achievements",
+        "alert-hub",
+        "analytics",
+        "asset-hub",
+        "assistant",
+        "dayplanner",
+        "hive",
+        "integrations",
+        "inventory",
+        "logbook",
+        "ph-intelligence",
+        "plant-connections",
+        "pm-scheduler",
+        "predictive",
+        "project-manager",
+        "report-sender",
+        "resume"
+      ],
+      "cascades": [
+        "pm_completions",
+        "inventory_transactions",
+        "inventory_items",
+        "fault_knowledge",
+        "worker_achievements",
+        "achievement_xp_log",
+        "automation_log",
+        "rcm_fmea_modes",
+        "weibull_fits",
+        "pf_intervals",
+        "knowledge_graph_facts",
+        "failure_signature_alerts",
+        "ai_reports",
+        "analytics_snapshots",
+        "hive_benchmarks",
+        "network_benchmarks",
+        "ph_intelligence_reports",
+        "external_sync",
+        "pm_knowledge"
+      ],
+      "cascades_plain": [
+        "PM compliance",
+        "inventory usage",
+        "stock levels",
+        "the knowledge base",
+        "achievements",
+        "failure-mode analysis",
+        "reliability analysis",
+        "early-warning alerts",
+        "AI reports",
+        "analytics",
+        "benchmarks",
+        "the regional report",
+        "your connected systems"
+      ],
+      "recompute_fns": [
+        "agentic-rag-loop",
+        "ai-gateway",
+        "ai-orchestrator",
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "benchmark-compute",
+        "cmms-sync",
+        "cmms-webhook-receiver",
+        "embed-entry",
+        "equipment-label-ocr",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "parts-staging-recommender",
+        "pf-calculator",
+        "platform-scraper",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "sensor-readings-ingest",
+        "shift-planner-orchestrator",
+        "trigger-ml-retrain",
+        "visual-defect-capture",
+        "voice-action-router",
+        "weibull-fitter"
+      ],
+      "headline": "This update reaches 17 pages (Achievements, Alert Hub, Analytics, Asset Hub\u2026) \u00b7 also updates PM compliance, inventory usage, stock levels."
+    },
+    "marketplace": {
+      "page_count": 7,
+      "max_field_fanout": 5,
+      "pages": [
+        "asset-hub",
+        "founder-console",
+        "marketplace",
+        "marketplace-admin",
+        "marketplace-seller",
+        "marketplace-seller-profile",
+        "project-manager"
+      ],
+      "cascades": [
+        "marketplace_sellers"
+      ],
+      "cascades_plain": [
+        "seller ratings"
+      ],
+      "recompute_fns": [
+        "marketplace-checkout"
+      ],
+      "headline": "This update reaches 7 pages (Asset Hub, Founder Console, Marketplace, Marketplace Admin\u2026) \u00b7 also updates seller ratings."
+    },
+    "pm-scheduler": {
+      "page_count": 7,
+      "max_field_fanout": 5,
+      "pages": [
+        "achievements",
+        "alert-hub",
+        "asset-hub",
+        "assistant",
+        "hive",
+        "logbook",
+        "project-manager"
+      ],
+      "cascades": [
+        "pm_knowledge",
+        "worker_achievements",
+        "automation_log"
+      ],
+      "cascades_plain": [
+        "achievements"
+      ],
+      "recompute_fns": [
+        "agentic-rag-loop",
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "embed-entry",
+        "hierarchical-summarizer",
+        "scheduled-agents",
+        "trigger-ml-retrain"
+      ],
+      "headline": "This update reaches 7 pages (Achievements, Alert Hub, Asset Hub, Assistant\u2026) \u00b7 also updates achievements."
+    }
+  }
+}

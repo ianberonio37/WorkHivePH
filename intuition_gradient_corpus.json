@@ -1,0 +1,504 @@
+{
+  "arc": "Y",
+  "source": "intuition_gradient_harness",
+  "pages": 42,
+  "corpus": [
+    {
+      "page": "achievements.html",
+      "labels": [
+        "Growth",
+        "← Skills",
+        "Achievements",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "labels": [
+        "Agentic RAG Observability",
+        "Route breakdown",
+        "Top 10 most token-heavy queries",
+        "Recent traces"
+      ]
+    },
+    {
+      "page": "ai-quality.html",
+      "labels": [
+        "We won't fake this.",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "alert-hub.html",
+      "labels": [
+        "Alert Hub",
+        "⊞All 65",
+        "AMC 5",
+        "Risk 5",
+        "PM 30",
+        "Stock 4",
+        "Staging 1",
+        "Pattern 20",
+        "System 0",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "analytics-report.html",
+      "labels": [
+        "Reports",
+        "Analytics report",
+        "Send / schedule →",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "analytics.html",
+      "labels": [
+        "Analytics Engine",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer",
+        "OEE — Overall Equipment Effectiveness ISO 22400-2:2014 · partial (A × Q) · 30 as",
+        "Repeat Failure Count ISO 14224:2016 · 47 repeat pair(s) found",
+        "Parts Consumption Rate SMRP · last 90 days"
+      ]
+    },
+    {
+      "page": "architecture.html",
+      "labels": [
+        "WorkHive: Platform Architecture"
+      ]
+    },
+    {
+      "page": "asset-hub.html",
+      "labels": [
+        "Asset Hub",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "assistant.html",
+      "labels": [
+        "Chat",
+        "Journal",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "audit-log.html",
+      "labels": [
+        "Audit Log",
+        "Supervisors only",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer",
+        "24h",
+        "7 days",
+        "30 days",
+        "90 days",
+        "All time"
+      ]
+    },
+    {
+      "page": "community.html",
+      "labels": [
+        "Community",
+        "New Post",
+        "Thread",
+        "Report Post",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "dayplanner.html",
+      "labels": [
+        "Maintenance Day Planner: WorkHive",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "engineering-design.html",
+      "labels": [
+        "Engineering Design",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "founder-console.html",
+      "labels": [
+        "WorkHive Founder Console",
+        "Is the platform alive?",
+        "Tech Health",
+        "Recent admin activity",
+        "Memento Memory Cache",
+        "Companion Eval (Phase 8)",
+        "Who's using it?",
+        "Growth Pulse",
+        "Feature heatmap",
+        "Hive maturity",
+        "Power users",
+        "Money flow",
+        "Marketplace pulse",
+        "AI cost detail",
+        "By provider",
+        "Top spending hives",
+        "User feel",
+        "Feedback inbox",
+        "New 0",
+        "Triaged 0",
+        "In progress 0",
+        "Resolved 0",
+        "All 0"
+      ]
+    },
+    {
+      "page": "hive.html",
+      "labels": [
+        "Baguio Textile Mills",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer",
+        "Why are you here?"
+      ]
+    },
+    {
+      "page": "index.html",
+      "labels": [
+        "Good morning, Bryan",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer",
+        "Good morning, Leandro"
+      ]
+    },
+    {
+      "page": "integrations.html",
+      "labels": [
+        "Connections",
+        "CMMS Integration",
+        "Plant / IoT →",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "inventory.html",
+      "labels": [
+        "Inventory Monitor",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "llm-observability.html",
+      "labels": [
+        "LLM Observability",
+        "Total calls",
+        "Cache hit rate",
+        "Fallback rate",
+        "Tokens used",
+        "p50 latency",
+        "Error rate",
+        "Per-task routing",
+        "Per-hive budget burn"
+      ]
+    },
+    {
+      "page": "logbook.html",
+      "labels": [
+        "Your Repair Logbook",
+        "Log a Repair",
+        "My Open Jobs",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "marketplace-admin.html",
+      "labels": [
+        "Platform Admins Only",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer",
+        "Marketplace Admin",
+        "Pending 1",
+        "Published 24",
+        "Sellers 2",
+        "Removed 0",
+        "Refurbished Grundfos CR 95-3 pump"
+      ]
+    },
+    {
+      "page": "marketplace-seller-profile.html",
+      "labels": [
+        "No seller specified",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "marketplace-seller.html",
+      "labels": [
+        "Bryan Garcia",
+        "Listings 5",
+        "Inquiries 0",
+        "Analytics",
+        "No inquiries yet",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer",
+        "Leandro Marquez",
+        "Listings 4"
+      ]
+    },
+    {
+      "page": "marketplace.html",
+      "labels": [
+        "Marketplace",
+        "Parts 12",
+        "Training 6",
+        "Jobs 6",
+        "Schneider MCCB 160A 3P",
+        "Used ABB ACS580 VFD 75kW",
+        "Refurbished Grundfos CR 95-3 pump",
+        "Set of Filter Cartridges (8 pcs)",
+        "Atlas Copco GA75 - reconditioned",
+        "Honeywell Pressure Transmitter",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "offline-fallback.html",
+      "labels": [
+        "This page isn't available offline yet"
+      ]
+    },
+    {
+      "page": "ph-intelligence.html",
+      "labels": [
+        "We won't fake this.",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "plant-connections.html",
+      "labels": [
+        "Connections",
+        "← CMMS Integration",
+        "Plant / IoT",
+        "Supervisor access only",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "platform-health.html",
+      "labels": [
+        "Platform Admins Only",
+        "WorkHive Platform Guardian"
+      ]
+    },
+    {
+      "page": "pm-scheduler.html",
+      "labels": [
+        "PM Scheduler",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "predictive.html",
+      "labels": [
+        "Predictive Maintenance",
+        "Risk Ranking",
+        "Health Heatmap",
+        "Failure Trend",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "project-manager.html",
+      "labels": [
+        "Project Manager",
+        "Active 4",
+        "Planning 0",
+        "On hold 0",
+        "Complete 0",
+        "All 4",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "project-report.html",
+      "labels": [
+        "Project Report",
+        "§1 Executive Summary",
+        "§2 Scope of Work (WBS)",
+        "§3 Linked Work",
+        "§4 Daily Progress Timeline",
+        "§5 Lessons Learned",
+        "§6 Sign-off",
+        "§7 Appendix — Standards & References",
+        "No project specified",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "promo-poster.html",
+      "labels": [
+        "Track Every Machine.Stop BreakdownsBefore They Cost You."
+      ]
+    },
+    {
+      "page": "public-feed.html",
+      "labels": [
+        "What hives are talking about",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "report-sender.html",
+      "labels": [
+        "Reports",
+        "← Analytics report",
+        "Send / schedule",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "resume.html",
+      "labels": [
+        "Resume / CV Builder",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "shift-brain.html",
+      "labels": [
+        "Shift Brain",
+        "Top risk assets5",
+        "PMs due30",
+        "Carry-forward (open from prior shift)12",
+        "Parts pre-stage (low stock)4",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "skillmatrix.html",
+      "labels": [
+        "Growth",
+        "Skills",
+        "Achievements →",
+        "Your Targets",
+        "Disciplines",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    },
+    {
+      "page": "status.html",
+      "labels": [
+        "WorkHive Gateway — Status",
+        "SLO targets (28-day window)"
+      ]
+    },
+    {
+      "page": "symbol-gallery.html",
+      "labels": [
+        "Engineering Drawing: Symbol Gallery"
+      ]
+    },
+    {
+      "page": "validator-catalog.html",
+      "labels": [
+        "Validator Catalog"
+      ]
+    },
+    {
+      "page": "voice-journal.html",
+      "labels": [
+        "Voice Journal",
+        "Your journal",
+        "⊞All",
+        "Field",
+        "Supervisor",
+        "Engineer"
+      ]
+    }
+  ]
+}

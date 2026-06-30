@@ -55,6 +55,9 @@ NON_TOOL_PAGES = {
     "agentic-rag-observability.html",  # Phase 8 placeholder — observability for the agentic-RAG loop, admin-only
     "llm-observability.html",        # P1 roadmap 2026-05-27 — LLM observability dashboard (admin/devops only).
     "validator-catalog.html",        # P1 roadmap 2026-05-27 — validator catalog browser (admin/devops only).
+    "status.html",                   # Pillar O (Observability/SLO) local status page — admin/devops, not a worker tool (mirrors llm-observability)
+    "offline-fallback.html",         # PWA offline fallback shown by the service worker when the network is down — not a worker tool
+    "promo-poster.html",             # marketing poster/OG-image generator (admin/marketing), not a worker maintenance tool
 }
 
 # ── Suffix patterns for test/scratch variants (skipped without complaint) ─────

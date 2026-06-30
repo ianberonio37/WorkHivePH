@@ -99,6 +99,7 @@ CHECK_NAMES = [
     "subpage_path_ordering",
     "order_status_consistency",
     "platform_fee_consistent",
+    "search_uses_existing_columns",
 ]
 
 CHECK_LABELS = {
@@ -117,6 +118,7 @@ CHECK_LABELS = {
     "subpage_path_ordering":       "L3  marketplace-admin/seller checked BEFORE marketplace in companion-launcher.js",
     "order_status_consistency":    "L4  All 6 order status values declared on backend match UI labels",
     "platform_fee_consistent":     "L4  Platform fee constant matches between checkout and release",
+    "search_uses_existing_columns":"L4  Buyer search queries columns the truth view exposes (no search_vector tsvector → 400)",
 }
 
 
@@ -451,6 +453,25 @@ def check_platform_fee_consistent():
     return issues
 
 
+def check_search_uses_existing_columns():
+    """The buyer browse search must query columns the canonical truth view actually
+    exposes. marketplace.html queried v_marketplace_listings_truth via
+    textSearch('search_vector', ...) but that view has NO search_vector tsvector column,
+    so EVERY search returned HTTP 400 (search fully broken). Fixed to an ILIKE on
+    title+description; this guard prevents the broken-tsvector pattern from returning."""
+    issues = []
+    content = read_file("marketplace.html") or ""
+    if re.search(r"textSearch\(\s*['\"]search_vector['\"]", content):
+        issues.append({
+            "check":  "search_uses_existing_columns",
+            "reason": "marketplace.html calls textSearch('search_vector', ...) on "
+                      "v_marketplace_listings_truth, which exposes NO search_vector column "
+                      "-> PostgREST 400 on every buyer search (search silently broken). "
+                      "Use .or('title.ilike.%q%,description.ilike.%q%') on columns the view exposes.",
+        })
+    return issues
+
+
 # ── Runner ────────────────────────────────────────────────────────────────────
 def main():
     def bold(s): return f"\033[1m{s}\033[0m"
@@ -475,6 +496,7 @@ def main():
     all_issues.extend(check_subpage_path_ordering())
     all_issues.extend(check_order_status_consistency())
     all_issues.extend(check_platform_fee_consistent())
+    all_issues.extend(check_search_uses_existing_columns())
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

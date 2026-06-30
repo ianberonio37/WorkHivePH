@@ -203,12 +203,19 @@ serve(async (req) => {
     const sigHeader = req.headers.get("X-WorkHive-Signature") || "";
     const tsHeader  = req.headers.get("X-WorkHive-Timestamp")  || "";
 
-    if (config.auth_token) {
-      const valid = await verifySignature(rawBody, sigHeader, tsHeader, config.auth_token);
-      if (!valid) {
-        return new Response(JSON.stringify({ error: "Invalid signature" }),
-          { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
-      }
+    // Arc R (A07/A08): FAIL CLOSED. The old code only verified the signature when
+    // config.auth_token was set — a config with a null/empty token skipped verification
+    // entirely, so anyone who learned the config_id could POST forged work-order/logbook
+    // events into the hive. A webhook receiver with no shared secret cannot authenticate
+    // its caller, so reject rather than accept unsigned events.
+    if (!config.auth_token) {
+      return new Response(JSON.stringify({ error: "Webhook signature not configured" }),
+        { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    const valid = await verifySignature(rawBody, sigHeader, tsHeader, config.auth_token);
+    if (!valid) {
+      return new Response(JSON.stringify({ error: "Invalid signature" }),
+        { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
     const body       = JSON.parse(rawBody) as Record<string, unknown>;

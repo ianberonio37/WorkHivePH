@@ -13,6 +13,8 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logRequestStart } from "../_shared/logger.ts";
+
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
@@ -21,6 +23,11 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual sync path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { STATUS_MAP, TYPE_MAP, FieldMap } from "../_shared/mappings.ts";
+// Arc R (A10): tenant-controlled endpoint_url must be SSRF-guarded before fetch.
+import { safeFetch } from "../_shared/ssrf-guard.ts";
+// Arc S F-lens (F-010): circuit-break the external CMMS dependency so a dead/slow
+// CMMS endpoint stops being hammered (escalating cooldown) and fails fast.
+import { isSlotBlocked, recordSlotFailure, recordSlotSuccess } from "../_shared/provider-health.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -159,8 +166,19 @@ async function fetchPage(
   const sep = url.includes("?") ? "&" : "?";
   url += sep + params.toString();
 
-  const resp = await fetch(url, { headers, signal: AbortSignal.timeout(30000) });
-  if (!resp.ok) throw new Error(`CMMS API ${resp.status}: ${await resp.text().catch(() => "")}`);
+  // Arc R (A10): endpoint_url is tenant-controlled — SSRF-guard the fetch so it can't be
+  // pointed at metadata/RFC1918/internal hosts (which would also leak the Bearer authToken).
+  // Arc S F-lens (F-010): circuit-breaker keyed per CMMS system — a dead endpoint
+  // sheds fast (escalating cooldown) instead of being retried into the ground.
+  const _slot = `cmms-${systemType}`;
+  if (isSlotBlocked(_slot)) throw new Error("CMMS temporarily unavailable (circuit-breaker open)");
+  const resp = await safeFetch(url, { headers, signal: AbortSignal.timeout(30000) });
+  if (!resp.ok) {
+    const _ra = Number(resp.headers.get("retry-after"));
+    recordSlotFailure(_slot, Number.isFinite(_ra) && _ra > 0 ? _ra * 1000 : undefined);
+    throw new Error(`CMMS API ${resp.status}`); // do not echo upstream body
+  }
+  recordSlotSuccess(_slot);
 
   const json = await resp.json();
   const rows = parseRows(systemType, json);
@@ -244,6 +262,7 @@ async function syncConfig(
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  logRequestStart(req, "cmms-sync");  // I6 observability
 
   try {
     const db = createClient(
@@ -268,6 +287,18 @@ serve(async (req) => {
             { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
+      }
+    } else {
+      // Arc R (A01): no hive_id = the all-hives cron path. The old comment CLAIMED this was
+      // "reached only by service-role" but never ENFORCED it — an anon caller POSTing {}
+      // fanned out a sync across EVERY hive (cross-tenant writes + SSRF amplification via
+      // each hive's endpoint_url). Require service_role for the no-hive_id fan-out.
+      const { isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole) {
+        return new Response(
+          JSON.stringify({ error: "service_role required for all-hives sync", code: "forbidden" }),
+          { status: 403, headers: { ...cors, "Content-Type": "application/json" } },
+        );
       }
     }
 

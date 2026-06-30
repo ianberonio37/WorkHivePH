@@ -104,14 +104,20 @@ def _check_file(path: Path) -> list:
     issues = []
     body = path.read_text(encoding="utf-8", errors="replace")
     src = _strip_comments_keep_lines(body)
+    body_lines = body.splitlines()
     for start, end in _scan_positions(body, path):
-        if "fetch-error-allow" in body[max(0, start-300): end+200]:
+        line_no = src.count("\n", 0, start) + 1
+        # `start`/`end` are offsets in the COMMENT-STRIPPED src, so indexing body with them
+        # drifts by the comment chars removed before the fetch (the char-window below misses
+        # the marker in heavily-commented files). The line number IS accurate (newlines are
+        # preserved when stripping), so ALSO accept the marker within ±3 lines in the raw body.
+        near = "\n".join(body_lines[max(0, line_no - 4): line_no + 2])
+        if "fetch-error-allow" in body[max(0, start-300): end+200] or "fetch-error-allow" in near:
             continue
         if _is_in_try(src, start):
             continue
         if _has_followup_catch(src, end):
             continue
-        line_no = src.count("\n", 0, start) + 1
         issues.append({"file": str(path.relative_to(ROOT)).replace("\\", "/"), "line": line_no})
     return issues
 

@@ -16,6 +16,8 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { log } from "../_shared/logger.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// Arc R (A01 BOLA): authorize escrow release by the VERIFIED caller, not a body string.
+import { resolveIdentity } from '../_shared/tenant-context.ts';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -64,6 +66,23 @@ serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
+  /* ── Arc R (A01 BOLA): authorize by VERIFIED identity, not a spoofable body string ──
+     The old code compared order.buyer_name to a client-supplied buyer_name with NO JWT,
+     so any anon caller could release another buyer's escrow (fire a Stripe Transfer +
+     flip status). Require a signed-in caller and bind the buyer to their auth identity;
+     service_role (trusted automation) keeps the body value. */
+  let effectiveBuyer = buyer_name;
+  const _id = await resolveIdentity(db, req);
+  if (!_id.isServiceRole) {
+    if (!_id.authUid) return errJson('Sign-in required', 401, req);
+    // canonical-allow: caller identity/authz read (own profile by auth_uid -> 403 if none);
+    // v_worker_truth is over hive_members, not the auth-identity source, so it cannot serve this.
+    const { data: _wp } = await db.from('worker_profiles')
+      .select('display_name').eq('auth_uid', _id.authUid).maybeSingle();
+    if (!_wp?.display_name) return errJson('No profile for caller', 403, req);
+    effectiveBuyer = _wp.display_name;
+  }
+
   /* ── Fetch the order ────────────────────────────────────────────────── */
   const { data: order, error: orderErr } = await db
     .from('v_marketplace_orders_truth')
@@ -74,7 +93,7 @@ serve(async (req: Request) => {
   if (orderErr || !order) {
     return errJson('Order not found', 404, req);
   }
-  if (order.buyer_name !== buyer_name) {
+  if (order.buyer_name !== effectiveBuyer) {
     return errJson('You are not the buyer for this order', 403, req);
   }
   if (order.status !== 'escrow_hold') {

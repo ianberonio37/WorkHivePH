@@ -1,0 +1,12 @@
+{
+  "verified_nerves": 17,
+  "h_verified": 71,
+  "p_engine": 24,
+  "p_full": 12,
+  "v_proven": 56,
+  "grounding_resolved": 542,
+  "diagram_aligned": 17,
+  "bom_grounded": 7,
+  "narrative_grounded": 1,
+  "export_resolved": 17
+}

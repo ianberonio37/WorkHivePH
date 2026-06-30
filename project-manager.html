@@ -17,7 +17,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet">
 <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
 <style>
   :root {
@@ -330,6 +330,17 @@
 .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
 .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
 /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
+/* ── CLS reservation (Arc L) — reserve settled heights of above-the-fold async growers ──
+   Each container below renders empty/placeholder at first paint then fills from a DB read,
+   growing and pushing the content list below it DOWN. Reserving the MEASURED settled height
+   holds the layout still (page-scoped only; shared card/ac-text reserves live in components.css). */
+#list-view > .row { min-height: 85px; }          /* h1 header row wraps to 2 lines on mobile (Print btn + hive-tag) → reserve settled 85 */
+#pm-mgr-source-chip { min-height: 54px; }       /* empty <p> 0→54 (fills with "reads from X" chip) */
+#pm-verdict.verdict { min-height: 99px; }        /* verdict box 84→99 (verdict-sub wraps to 2 lines) */
+#pm-verdict-sub { display:block; min-height: 47px; } /* sub 31→47 (placeholder 1-line → real 2-line wrap) */
+#hive-tag { display:inline-block; min-height: 18px; } /* h1-row chip fills with hive name */
+.simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
+#pm-action-text { min-height: 79px; }            /* recommendation 60→79 (longer real text wraps) */
 #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
 #pm-summary-details.open { display:block; }
 </style>
@@ -376,7 +387,7 @@
       <div class="verdict-text"><span id="pm-verdict-label">Computing project health...</span><small id="pm-verdict-sub">Counting active projects, overdue, and on-hold work.</small></div>
     </div>
     <div class="simple-row">
-      <div class="simple-card tag-grey" id="pm-card-active" data-rag-tile="project-manager:active_projects" data-rag-label="Active projects">
+      <div class="simple-card hero tag-grey" id="pm-card-active" data-rag-tile="project-manager:active_projects" data-rag-label="Active projects">
         <div class="sc-label">Active projects</div>
         <div class="sc-hero" id="pm-active-hero">0</div>
         <div class="sc-sub" id="pm-active-sub">Loading...</div>
@@ -854,7 +865,7 @@ let _rtChannel  = null;
 /* ── Helpers ───────────────────────────────────────────────── */
 const e = typeof escHtml === 'function' ? escHtml : (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function $(id) { return document.getElementById(id); }
-function showToast(msg, kind) {
+function showToast(msg, kind, ms) {
   const c = $('toast-container');
   const t = document.createElement('div');
   t.className = 'toast' + (kind === 'error' ? ' error' : kind === 'success' ? ' success' : '');
@@ -863,7 +874,7 @@ function showToast(msg, kind) {
   // timer-cleanup-allow: every setTimeout on this page is short-lived and
   // self-completing (toast auto-remove, 0ms wizard chaining, focus restore).
   // No long-running polling — no clearTimeout needed.
-  setTimeout(() => t.remove(), 3500);
+  setTimeout(() => t.remove(), ms || 3500);
 }
 function fmtDate(d) {
   if (!d) return '—';
@@ -947,7 +958,7 @@ async function loadHiveMembers() {
   // (active membership for THIS hive, ordered for the dropdown); v_worker_truth
   // is a worker-centric composite that doesn't expose the same ordering scope
   const { data, error } = await db.from('hive_members')
-    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name');
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
   if (error) { console.warn(error.message); return; }
   _members = (data || []).map(r => r.worker_name).filter(Boolean);
   // Populate filter + form pickers
@@ -964,14 +975,14 @@ async function loadProjects() {
   if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4);
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, budget_php, created_at, updated_at')
-    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false });
+    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
   if (error) { showToast('Load failed: ' + error.message, 'error'); return; }
   _projects = data || [];
   // Pull rollup from project_items in batch (one query, then group)
   const ids = _projects.map(p => p.id);
   if (ids.length) {
     const { data: items } = await db.from('v_project_items_truth')
-      .select('project_id, pct_complete, estimated_hours, status').in('project_id', ids);
+      .select('project_id, pct_complete, estimated_hours, status').in('project_id', ids).limit(500); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap)
     const rollup = {};
     (items || []).forEach(it => {
       if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0 };
@@ -1559,7 +1570,7 @@ function renderWizardItems() {
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _wizardState.items.map((it, idx) => `
       <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
         <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${idx}, this.checked)">
-        <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${idx}, 'title', this.value)" placeholder="Scope item">
+        <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${idx}, 'title', this.value)" aria-label="Scope item title" placeholder="Scope item">
         <input type="number" class="est-input" value="${it.est_h || ''}" oninput="wizardEditItem(${idx}, 'est_h', this.value)" min="0" step="0.5" title="Estimated hours">
         <span class="phase-tag phase-${it.freq_phase || 'execute'}">${e(it.freq_phase || 'execute')}</span>
         <button type="button" class="item-remove" onclick="wizardRemoveItem(${idx})" title="Remove">×</button>
@@ -1674,7 +1685,7 @@ async function wizardSubmit() {
     if (itemErr) { showToast('Project created, but scope items failed: ' + itemErr.message, 'error'); }
   }
 
-  showToast(`Created ${codeData} (${checkedItems.length} scope items)`, 'success');
+  showToast(`✓ Project ${codeData} created (${checkedItems.length} scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`, 'success', 6000);
   closeModal('modal-wizard');
   resetCreateBtn();
   await loadProjects();
@@ -1783,7 +1794,7 @@ async function saveProject() {
       showToast('Project was modified by someone else — reload to see the latest.', 'error');
       return;
     }
-    showToast('Saved.', 'success');
+    showToast('✓ Project saved → Project Report updated · refreshes wherever it is linked (Logbook · PM Scheduler)', 'success', 5000);
     closeModal('modal-project');
     await loadProjects();
     if (_detailId === _editingId) await openDetail(_editingId);
@@ -1798,7 +1809,7 @@ async function saveProject() {
   payload.status = 'planning';
   const { data: ins, error: insErr } = await db.from('projects').insert(payload).select().single();
   if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); return; }
-  showToast('Created ' + payload.project_code, 'success');
+  showToast(`✓ Project ${payload.project_code} created → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`, 'success', 6000);
   closeModal('modal-project');
   await loadProjects();
   await openDetail(ins.id);
@@ -1836,12 +1847,12 @@ async function openDetail(id) {
 
   // Load children + rollup + roles + change_orders in parallel
   const [itemsRes, linksRes, logsRes, progRes, rolesRes, coRes] = await Promise.all([
-    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order'),
-    db.from('project_links').select('*').eq('project_id', id).order('created_at'),
+    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order').limit(500), // Arc L · L2: row cap (one project's scope items ≤ dozens; insurance cap)
+    db.from('project_links').select('*').eq('project_id', id).order('created_at').limit(500), // Arc L · L2: row cap (one project's links ≤ dozens; insurance cap)
     db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).limit(30),
     fetchProgressRollup(id),
-    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }),
-    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }),
+    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap)
+    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap)
   ]);
   _items = itemsRes.data || [];
   _links = linksRes.data || [];
@@ -2163,7 +2174,9 @@ async function linkSuggested(idx) {
     link_type: 'logbook', link_id: c.id,
     label: `${c.machine || '?'} — ${(c.problem || '').slice(0, 60)}`,
   });
-  if (error) { showToast(error.message, 'error'); return; }
+  // Arc S C-lens (gap-C-010): project_links_target_uidx makes a double-click
+  // benign — 23505 means the link already exists, not a failure.
+  if (error && error.code !== '23505') { showToast(error.message, 'error'); return; }
   showToast('Linked.', 'success');
   await refreshDetail();
 }
@@ -2244,7 +2257,8 @@ async function saveLink() {
     payload = { project_id: _detailId, hive_id: HIVE_ID, link_type: t, link_id: id, label };
   }
   const { error } = await db.from('project_links').insert(payload);
-  if (error) { showToast('Link failed: ' + error.message, 'error'); return; }
+  // Arc S C-lens (gap-C-010): 23505 = link already exists (dedup guard) -> benign.
+  if (error && error.code !== '23505') { showToast('Link failed: ' + error.message, 'error'); return; }
   showToast('Linked.', 'success');
   closeModal('modal-link');
   await refreshDetail();
@@ -2791,7 +2805,7 @@ function subscribeRealtime() {
         () => { if (_detailId) refreshDetail(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'project_progress_logs', filter: `hive_id=eq.${HIVE_ID}` },
         () => { if (_detailId) refreshDetail(); })
-    .subscribe();
+    .subscribe(rtConn());
 }
 window.addEventListener('beforeunload', () => { if (_rtChannel) db.removeChannel(_rtChannel); });
 
@@ -2804,5 +2818,6 @@ document.querySelectorAll('.modal-bg').forEach(el => {
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </body>
 </html>

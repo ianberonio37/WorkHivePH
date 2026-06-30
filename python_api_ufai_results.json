@@ -1,0 +1,1666 @@
+{
+  "phase": "B0-baseline",
+  "spine": "PYTHON_API_UFAI_ROADMAP.md",
+  "overall": {
+    "applicable": 157,
+    "covered": 157,
+    "verified": 157,
+    "live": 157,
+    "fix": 0,
+    "covered_pct": 100.0,
+    "verified_pct": 100.0,
+    "live_pct": 100.0
+  },
+  "per_lens": {
+    "U": {
+      "total": 48,
+      "na": 2,
+      "applicable": 46,
+      "covered": 46,
+      "verified": 46,
+      "live": 46,
+      "fix": 0,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 90
+    },
+    "F": {
+      "total": 40,
+      "na": 2,
+      "applicable": 38,
+      "covered": 38,
+      "verified": 38,
+      "live": 38,
+      "fix": 0,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 80
+    },
+    "A": {
+      "total": 48,
+      "na": 16,
+      "applicable": 32,
+      "covered": 32,
+      "verified": 32,
+      "live": 32,
+      "fix": 0,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 82
+    },
+    "I": {
+      "total": 48,
+      "na": 7,
+      "applicable": 41,
+      "covered": 41,
+      "verified": 41,
+      "live": 41,
+      "fix": 0,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0,
+      "live_pct": 100.0,
+      "floor": 92
+    }
+  },
+  "per_row": {
+    "P1 calcs": {
+      "applicable": 20,
+      "covered": 20,
+      "verified": 20,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P2 ml": {
+      "applicable": 19,
+      "covered": 19,
+      "verified": 19,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P3 analytics": {
+      "applicable": 20,
+      "covered": 20,
+      "verified": 20,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P4 diagrams": {
+      "applicable": 18,
+      "covered": 18,
+      "verified": 18,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P5 projects": {
+      "applicable": 20,
+      "covered": 20,
+      "verified": 20,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P6 reliability": {
+      "applicable": 20,
+      "covered": 20,
+      "verified": 20,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P7 sensors": {
+      "applicable": 18,
+      "covered": 18,
+      "verified": 18,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    },
+    "P8 app-shell": {
+      "applicable": 22,
+      "covered": 22,
+      "verified": 22,
+      "covered_pct": 100.0,
+      "verified_pct": 100.0
+    }
+  },
+  "cells": [
+    {
+      "row": "P1 calcs",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /calcs -> 200 semantic status"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /calcs -> 200"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST (full path) + validate_calc_formula_accuracy value-oracle"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical /calculate payload twice -> byte-identical result"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: unknown calc_type -> 200 {not_implemented:true} (graceful fallthrough)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /calculate (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "A",
+      "cell": "A6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live readiness /calcs -> 200 (+ dep status)"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "require_api_key exercised LIVE on the container: allow-branch via happy-200 POST + enforce-branch (real env) + 32/32 validator"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P1 calcs",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /calcs -> 200 health/observability surface"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /ml/status -> 200 semantic status"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /ml/status -> 200"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: /ml/predict risk_score \u2208 [0,1] (bounded value invariant; GBM has no closed-form oracle so the live bound is the F-proof)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "F",
+      "cell": "F2",
+      "status": "na",
+      "tier": "na",
+      "evidence": "GBM training is stochastic by nature (seeded, not pinned here)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: /ml/predict returned model_version rules-v1 = fallback path ran"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /ml/predict (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "A",
+      "cell": "A6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live readiness /ml/status -> 200 (+ dep status)"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "require_api_key exercised LIVE on the container: allow-branch via happy-200 POST + enforce-branch (real env) + 32/32 validator"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P2 ml",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /ml/status -> 200 health/observability surface"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /analytics/health -> 200 semantic status"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /analytics/health -> 200"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST (full path) + validate_analytics_correctness value-oracle"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical payload twice -> byte-identical body (no RNG/clock in handler)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate/unknown valid body -> non-500 graceful shape (no crash cascade)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /analytics (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "A",
+      "cell": "A6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live readiness /analytics/health -> 200 (+ dep status)"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "require_api_key exercised LIVE on the container: allow-branch via happy-200 POST + enforce-branch (real env) + 32/32 validator"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P3 analytics",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /analytics/health -> 200 health/observability surface"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /diagram -> semantic 200 status"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "U",
+      "cell": "U5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no health/discovery surface for this sub-layer"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: /diagram returns a real {svg} body (valid XML produced end-to-end; pixel value oracle-hard \u00a75)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical payload twice -> byte-identical body (no RNG/clock in handler)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate/unknown valid body -> non-500 graceful shape (no crash cascade)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /diagram (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "A",
+      "cell": "A6",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no readiness endpoint for this sub-layer"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "browser-direct pure-compute route (/diagram,/sensors/zscore,/pdf,/tts; no DB, no server secret) \u2014 its access control is the CORS lockdown, PROVEN LIVE (disallowed origin gets NO Access-Control-Allow-Origin, workhiveph.com echoed)"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P4 diagrams",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: log_requests middleware emits a structured access-log line for this route (method/path/status/latency) in the running container's logs"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /project/health -> 200 semantic status"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /project/health -> 200"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST (full path) + validate_projects_correctness value-oracle"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical payload twice -> byte-identical body (no RNG/clock in handler)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate/unknown valid body -> non-500 graceful shape (no crash cascade)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /project/progress (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "A",
+      "cell": "A6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live readiness /project/health -> 200 (+ dep status)"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "require_api_key exercised LIVE on the container: allow-branch via happy-200 POST + enforce-branch (real env) + 32/32 validator"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P5 projects",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /project/health -> 200 health/observability surface"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /reliability/health -> 200 semantic status"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /reliability/health -> 200"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST (full path) + validate_reliability_correctness value-oracle"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical payload twice -> byte-identical body (no RNG/clock in handler)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate/unknown valid body -> non-500 graceful shape (no crash cascade)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /reliability/weibull (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "A",
+      "cell": "A6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live readiness /reliability/health -> 200 (+ dep status)"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "require_api_key exercised LIVE on the container: allow-branch via happy-200 POST + enforce-branch (real env) + 32/32 validator"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P6 reliability",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /reliability/health -> 200 health/observability surface"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /sensors/zscore -> semantic 200 status"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "U",
+      "cell": "U5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no health/discovery surface for this sub-layer"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live value-oracle: /sensors/zscore correct on BOTH the anomaly case (latest 50 vs ~10 mean \u2192 z>3 \u2192 anomaly:true) and the zero-variance case (all-equal \u2192 z=0 \u2192 anomaly:false)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical payload twice -> byte-identical body (no RNG/clock in handler)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate/unknown valid body -> non-500 graceful shape (no crash cascade)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /sensors/zscore (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "A",
+      "cell": "A1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "pure compute sub-layer \u2014 no config to externalize"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "A",
+      "cell": "A5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no backing service (in-process compute)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "A",
+      "cell": "A6",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no readiness endpoint for this sub-layer"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "browser-direct pure-compute route (/diagram,/sensors/zscore,/pdf,/tts; no DB, no server secret) \u2014 its access control is the CORS lockdown, PROVEN LIVE (disallowed origin gets NO Access-Control-Allow-Origin, workhiveph.com echoed)"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live schema-invalid POST -> 4xx: pydantic input bound enforced at runtime on this route"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "I",
+      "cell": "I4",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no secret/PII surface in pure compute"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P7 sensors",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: log_requests middleware emits a structured access-log line for this route (method/path/status/latency) in the running container's logs"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST proves the pydantic request schema is enforced at runtime"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /health -> 200 semantic status"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: schema-invalid POST -> 4xx with structured {detail|error} body (FastAPI error contract)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST schema-invalid body -> 422 (pydantic, on the container)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /health -> 200"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS preflight: allowed origin echoed (CORS contract answered)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "F",
+      "cell": "F1",
+      "status": "na",
+      "tier": "na",
+      "evidence": "app-shell has no domain value to oracle"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: identical payload twice -> byte-identical body (no RNG/clock in handler)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "F",
+      "cell": "F3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 JSON body proves _to_jsonable serialized cleanly (no numpy-500)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "F",
+      "cell": "F4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate/unknown valid body -> non-500 graceful shape (no crash cascade)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "F",
+      "cell": "F5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-200 POST /tts/speak (pydantic+auth-allow+handler+_to_jsonable)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "A",
+      "cell": "A1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: /tts/speak served 200 \u2192 the env-read config path (voice/TTS config from env) ran end-to-end; no in-code secret literal"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "whole-API deps gate green (every hard import declared) + pip-audit CVE scan ran"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "A",
+      "cell": "A3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: degenerate input degrades gracefully (non-500) \u2014 no crash cascade on the running service"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "A",
+      "cell": "A4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: interleaved call X\u2192Y\u2192X returns byte-identical X (no cross-request state held on the running service)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "A",
+      "cell": "A5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: /tts/speak served 200 via the Edge-TTS backing service behind its import guard (swappable backend exercised end-to-end)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "A",
+      "cell": "A6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live readiness /health -> 200 (+ dep status)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "I",
+      "cell": "I1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "browser-direct pure-compute route (/diagram,/sensors/zscore,/pdf,/tts; no DB, no server secret) \u2014 its access control is the CORS lockdown, PROVEN LIVE (disallowed origin gets NO Access-Control-Allow-Origin, workhiveph.com echoed)"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: disallowed origin gets NO Access-Control-Allow-Origin; workhiveph.com echoed"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: /tts/speak text > cap -> 413 (input size-cap enforced at runtime); + cache-key path sanitize"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "I",
+      "cell": "I4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live: no secret-shaped value (sk_live_/AKIA/postgres://DSN/service-role/JWT) egressed in ANY route's live response body; no hardcoded secret literal in source"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "log_requests middleware emitting structured access-logs live in container logs"
+    },
+    {
+      "row": "P8 app-shell",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live GET /health -> 200 health/observability surface"
+    }
+  ],
+  "main_markers": {
+    "cors_open": false,
+    "cors_locked": true,
+    "auth_dep": true,
+    "pydantic": true,
+    "httpexc": true,
+    "status_codes": [
+      "400",
+      "404",
+      "413",
+      "422",
+      "500",
+      "502",
+      "503"
+    ],
+    "trycatch": 27,
+    "to_jsonable": true,
+    "struct_log": true,
+    "print_log": false,
+    "env_get": true,
+    "input_cap": true,
+    "filename_sanitize": true,
+    "_bytes": 40546
+  },
+  "live_probe": {
+    "/health": 200,
+    "/calcs": 200,
+    "/analytics/health": 200,
+    "/reliability/health": 200,
+    "/project/health": 200,
+    "/ml/status": 200
+  },
+  "validator_folds": {
+    "validate_analytics_correctness": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_calc_api_serializable": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_calc_formula_accuracy": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_ml_deps": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_projects_correctness": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_python_api_auth": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_python_api_deps": {
+      "ran": true,
+      "ok": true
+    },
+    "validate_reliability_correctness": {
+      "ran": true,
+      "ok": true
+    }
+  }
+}

@@ -58,6 +58,14 @@ def main() -> int:
         page = ROOT / name
         if not page.exists(): continue
         raw = page.read_text(encoding="utf-8", errors="replace")
+        # Page-bundle pairing (Arc L / L1): engineering-design.html's getElementById
+        # consumers live in the extracted engineering-design.js bundle — re-attach it so
+        # those refs resolve against the page's full id set (else every JS lookup of a
+        # .html-declared id reads as an orphan).
+        if name == "engineering-design.html":
+            _bundle = ROOT / "engineering-design.js"
+            if _bundle.exists():
+                raw += "\n" + _bundle.read_text(encoding="utf-8", errors="replace")
         body = HTML_COMMENT_RE.sub("", raw)
 
         # All HTML ids declared anywhere on the page
