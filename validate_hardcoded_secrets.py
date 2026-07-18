@@ -46,6 +46,7 @@ import json
 import sys
 import os
 import glob
+import subprocess
 from collections import defaultdict
 
 if sys.platform == "win32" and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
@@ -73,6 +74,8 @@ ALLOWLIST_DIRS = (
     "node_modules",
     ".git",
     "video_marketing_app",
+    "substrate",   # harvested EXTERNAL content, not our code (2026-07-18): keep out of doc-scan noise
+    ".tmp",        # disposable intermediates
 )
 
 # Patterns. Each: (provider_name, regex). The bodies require enough chars
@@ -85,8 +88,10 @@ PROVIDER_PATTERNS = [
     ("Slack",      re.compile(r"\b(xoxb|xoxa|xoxp|xoxs|xoxr)-[A-Za-z0-9\-]{16,}")),
     ("Google API", re.compile(r"\bAIza[0-9A-Za-z\-_]{35}")),
     ("Groq",       re.compile(r"\bgsk_[A-Za-z0-9]{40,}")),
-    ("Cerebras",   re.compile(r"\bcs-[A-Za-z0-9]{32,}")),
+    ("Cerebras",   re.compile(r"\bcsk?-[A-Za-z0-9]{32,}")),   # real keys are csk-...; the old cs- prefix MISSED them (2026-07-18 leak)
     ("DeepSeek",   re.compile(r"\bsk-deepseek-[A-Za-z0-9]{20,}")),
+    ("Voyage",     re.compile(r"\bpa-[A-Za-z0-9_]{40,}\b")),  # Voyage AI embed keys (2026-07-18 leak); no hyphen in body avoids slug false-positives
+    ("Jina",       re.compile(r"\bjina_[A-Za-z0-9_]{30,}")),  # Jina embed keys (2026-07-18 leak)
 ]
 
 # Generic password / secret assignment.
@@ -110,6 +115,21 @@ def _is_allowlisted(path: str) -> bool:
     return any(p in ALLOWLIST_DIRS for p in parts)
 
 
+def _tracked_doc_files() -> list[str]:
+    """Git-TRACKED docs + config (.md/.txt/.sh/.ps1/.yml/.yaml) — the public-leak surface the
+    code-only globs above never scanned. On 2026-07-18 a real Groq/Cerebras/Voyage/Jina key block
+    pasted into a tracked .md deploy-notes doc (PHASE_1_5_2_DEPLOYMENT.md) leaked to the PUBLIC repo
+    and tripped GitHub secret-scanning; neither this gate (code-only) nor validate_committed_env_secret
+    (.env-only) covered a .md. Scanning the tracked doc set closes that exact crack. Tracked-only =
+    exactly the set that can leak; avoids walking node_modules."""
+    try:
+        res = subprocess.run(["git", "ls-files"], capture_output=True, text=True, timeout=30)
+    except Exception:
+        return []
+    exts = (".md", ".txt", ".sh", ".ps1", ".yml", ".yaml")
+    return [f for f in res.stdout.splitlines() if f.lower().endswith(exts)]
+
+
 def list_scannable_files() -> list[str]:
     out: list[str] = []
     # Top-level HTML / JS / CSS / TS
@@ -130,6 +150,9 @@ def list_scannable_files() -> list[str]:
     # Validators / orchestrator scripts
     for path in sorted(glob.glob("*.py")):
         out.append(path)
+    # Docs + config (2026-07-18 leak): pasted provider keys in tracked .md/.txt/.sh/.ps1/.yml
+    out.extend(_tracked_doc_files())
+    out = sorted(set(out))
     return [p for p in out if not _is_allowlisted(p)]
 
 

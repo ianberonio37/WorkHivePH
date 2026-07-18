@@ -8,13 +8,17 @@
 
 ## Phase B: Environment Configuration ✓ DONE
 
-Your API keys are now in `.env`:
+Your API keys go in `.env` (NEVER commit real values — placeholders shown):
 ```
-GROQ_API_KEY=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
-CEREBRAS_API_KEY=csk-e6vh9vprvmcpm9p3hvk8nth2n9xv8pjwy55e62cw88hd6r9m
-VOYAGE_API_KEY=pa-yOUB1CbrzTPQzfvOBLajJ_2H4k4IGs5g6UqNDcbJjxC
-JINA_API_KEY=jina_7d6a447d73da4f79a7e066023ae54113_FM6ZwaeymFgBRX8iyVD3grHE_Kh
+GROQ_API_KEY=<your-groq-key>
+CEREBRAS_API_KEY=<your-cerebras-key>
+VOYAGE_API_KEY=<your-voyage-key>
+JINA_API_KEY=<your-jina-key>
 ```
+<!-- SECURITY 2026-07-18: the real keys that were pasted here were leaked to the public
+     repo (GitHub secret-scanning alert, commit 44a3a1e5) and must be ROTATED at each
+     provider console. Never paste live secrets into tracked docs; they belong only in
+     the gitignored .env. -->
 
 Configuration settings:
 ```
