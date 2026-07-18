@@ -1,5 +1,11 @@
 /* ============================================================================
- * ufai_battery.js  —  The reusable Grounded-Sweep UFAI battery  (v1.4.0)
+ * ufai_battery.js  —  The reusable Grounded-Sweep UFAI battery  (v1.5.0)
+ *
+ * MOBILE-FIT (added v1.5.0, live prod journey 2026-07-18): two U-class dimensions the rubric
+ * was BLIND to — `content-trapped` (a fixed-height overflow:hidden container hides content below
+ * its box = unreachable by scroll on a short viewport, e.g. the Dayplanner scroll-trap) and
+ * `text-overflows-box` (text spilling past the viewport right edge or hard-clipped by a nowrap box).
+ * The old overflow check was page-level + horizontal only, so both were invisible. Run at 390px.
  * ============================================================================
  * ONE injectable that you paste into the Playwright MCP `browser_evaluate`
  * `function` arg. It installs `window.__UFAI` and runs a MEASURED battery
@@ -353,6 +359,53 @@
     if (overflow > OVERFLOW_TOL) defects.push(defect('U', 'horiz-overflow', document.documentElement,
       `${round(overflow)}px past viewport`, '0 (no horizontal scroll @390)',
       'find the overflowing child (often a fixed-width row or long token)', 'Minor'));
+
+    // VERTICAL REACHABILITY (mobile-fit dim 1, live prod journey 2026-07-18): content trapped in a
+    // fixed-height overflow:hidden container is UNREACHABLE by scrolling — the page-level horizOverflow
+    // above reads 0 while a whole panel below the fold is clipped away (the Dayplanner mobile scroll-trap:
+    // .app-layout{height:100vh;overflow:hidden} hid 393px of content with no way to reach it).
+    let contentTrapped = 0;
+    for (const el of document.querySelectorAll('body *')) {
+      let cs; try { cs = getComputedStyle(el); } catch (_) { continue; }
+      if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+      if (cs.position === 'fixed' || cs.position === 'sticky' || cs.pointerEvents === 'none') continue; // skip decorative fixed bg (aurora/hex/beams)
+      if (!/hidden|clip/.test(cs.overflowY) && !/hidden|clip/.test(cs.overflow)) continue;
+      const hiddenPx = el.scrollHeight - el.clientHeight;
+      if (hiddenPx <= 40 || el.clientHeight <= 150) continue;
+      if ((el.innerText || '').trim().length < 20) continue;        // real content, not a decorative shell
+      contentTrapped++;
+      if (contentTrapped <= 6) defects.push(defect('U', 'content-trapped', el,
+        `${round(hiddenPx)}px of content clipped inside an overflow:hidden box (client-h ${el.clientHeight})`,
+        'no content clipped — let it scroll (overflow:auto) or flow (height:auto) on mobile',
+        'a fixed-height overflow:hidden container hides everything below its box → unreachable on a short viewport', 'Major'));
+    }
+    metrics.contentTrapped = contentTrapped;
+
+    // TEXT-FIT (mobile-fit dim 2): text SPILLING past the viewport right edge, or hard-clipped by a
+    // nowrap box (no ellipsis) — overflow:hidden clips text with NO page-level horizontal scroll, so the
+    // horizOverflow check above cannot see it. Intentional ellipsis truncation is NOT flagged.
+    let textOverflow = 0;
+    for (const el of document.querySelectorAll('body *')) {
+      const hasText = Array.prototype.some.call(el.childNodes, n => n.nodeType === 3 && n.textContent.trim().length > 1);
+      if (!hasText) continue;
+      let cs; try { cs = getComputedStyle(el); } catch (_) { continue; }
+      if (cs.display === 'none' || cs.visibility === 'hidden' || el.offsetParent === null) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) continue;
+      // REAL clip = the element's OWN content overflows its OWN box (nowrap, not ellipsis-truncated).
+      // Deliberately NOT flagging "right edge past viewport": that false-positives on hidden SEO title
+      // spans and on children of intended overflow-x scroll rows (their own content fits, overX≈0).
+      // Calibrated on the 2026-07-18 full sweep — the only real hit was the analytics filter chips
+      // (squished below their text width → overX +30px → overlap).
+      const overX = el.scrollWidth - el.clientWidth;
+      if (!(overX > 3 && cs.whiteSpace === 'nowrap' && cs.textOverflow !== 'ellipsis')) continue;
+      textOverflow++;
+      if (textOverflow <= 8) defects.push(defect('U', 'text-overflows-box', el,
+        `text overflows its box by ${round(overX)}px (nowrap, no ellipsis) → clipped/overlapping`,
+        'text must fit — wrap it, add flex-shrink:0 so it is not squished, widen the box, or add text-overflow:ellipsis',
+        '"' + (el.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 40) + '"', 'Minor'));
+    }
+    metrics.textOverflow = textOverflow;
 
     // CLS (visual stability) read from buffered observer
     if (_state.cwv.CLS != null && _state.cwv.CLS > CWV_GOOD.CLS) {

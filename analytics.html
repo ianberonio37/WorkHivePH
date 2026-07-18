@@ -113,6 +113,8 @@
       cursor: pointer;
       transition: background 0.12s, border-color 0.12s, color 0.12s;
       white-space: nowrap;
+      flex-shrink: 0;   /* mobile fix 2026-07-18: in the nowrap scroll row, without this the chips
+                           squish below their text width and OVERLAP (unreadable filters on a phone) */
     }
     .filter-chip:hover {
       background: rgba(255,255,255,0.07);
