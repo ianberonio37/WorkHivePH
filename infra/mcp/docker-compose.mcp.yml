@@ -96,13 +96,14 @@ services:
       - glitchtip_redis
       - glitchtip_migrate
     ports:
-      - "127.0.0.1:8000:8000"
+      # host 8000 is taken by workhive_python_api_fwd; GlitchTip web maps to 8001 (2026-07-18).
+      - "127.0.0.1:8001:8000"
     environment:
       DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD:-glitchtip_change_me}@glitchtip_postgres:5432/glitchtip
       SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-replace_me_with_50_random_chars}
       PORT: "8000"
       EMAIL_URL: consolemail://
-      GLITCHTIP_DOMAIN: http://localhost:8000
+      GLITCHTIP_DOMAIN: http://localhost:8001
       DEFAULT_FROM_EMAIL: glitchtip@localhost
       CELERY_WORKER_AUTOSCALE: "1,3"
       CELERY_WORKER_MAX_TASKS_PER_CHILD: "10000"

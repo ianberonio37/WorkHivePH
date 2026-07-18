@@ -19,3 +19,23 @@ datasources:
       connMaxLifetime: 14400
     editable: false
     isDefault: true
+
+  # GlitchTip app-error store (G4.3, 2026-07-18). Separate Postgres (workhive_glitchtip_postgres);
+  # Grafana is on the same mcp network so it resolves the container name. Read-only grafana_reader
+  # role (glitchtip_reader.sql); same .env.mcp secret as the Supabase datasource.
+  - name: GlitchTip
+    type: postgres
+    uid: glitchtip_local
+    url: glitchtip_postgres:5432
+    database: glitchtip
+    user: grafana_reader
+    secureJsonData:
+      password: ${GRAFANA_PG_READER_PASSWORD}
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: false
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+    editable: false

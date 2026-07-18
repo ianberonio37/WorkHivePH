@@ -12,6 +12,7 @@
     { "title": "SLO / Golden Signals", "type": "link", "url": "/d/workhive-slo-arct", "icon": "heart", "targetBlank": false },
     { "title": "DB & Security Health", "type": "link", "url": "/d/workhive-db-health", "icon": "cloud", "targetBlank": false },
     { "title": "Growth", "type": "link", "url": "/d/workhive-growth", "icon": "graph", "targetBlank": false },
+    { "title": "App Errors", "type": "link", "url": "/d/workhive-errors", "icon": "bug", "targetBlank": false },
     { "title": "Platform Actions", "type": "link", "url": "http://127.0.0.1:5000/workhive/platform-actions.html", "icon": "bolt", "targetBlank": true }
   ],
   "templating": {

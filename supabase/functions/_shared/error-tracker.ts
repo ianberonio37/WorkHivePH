@@ -2,9 +2,12 @@
 // Sentry-equivalent error aggregation scaffold for WorkHive edge fns
 // (P1 roadmap 2026-05-27 turn 7, L/G2 cell scaffolding).
 //
-// Today: writes errors to wh_traces with an `error_code` set. When a Sentry
-// DSN is provisioned (P2), swap the implementation to also post to Sentry's
-// envelope endpoint. Callers don't change.
+// Today: writes errors to wh_traces with an `error_code` set AND (when a GlitchTip/
+// Sentry DSN is provisioned via the GLITCHTIP_DSN env var) posts the error to the
+// GlitchTip ingest endpoint so it appears as a grouped, stack-trace-bearing issue in
+// the App-Errors Grafana board. Callers don't change; if the DSN is unset the GlitchTip
+// post is skipped (fail-quiet), so this is safe with or without GlitchTip running.
+// (Grafana G4.3 app-error observability, 2026-07-18 — the "P2 swap" this scaffold noted.)
 //
 // Usage:
 //   import { trackError } from "../_shared/error-tracker.ts";
@@ -13,8 +16,8 @@
 //     return fail(ctx, "agent_dispatch_failed", ...);
 //   }
 //
-// Cost: one row write per error. wh_traces has a hive-scoped RLS read
-// policy + service-role write, so this is safe to call from any fn.
+// Cost: one row write per error + (if DSN set) one fire-and-forget HTTP POST. wh_traces
+// has a hive-scoped RLS read policy + service-role write, so this is safe from any fn.
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import type { RequestContext } from "./envelope.ts";
@@ -24,6 +27,53 @@ export interface ErrorContext {
   route?:    string;
   hive_id?:  string | null;
   user_id?:  string | null;
+}
+
+/** Post an error to GlitchTip (Sentry-compatible) if GLITCHTIP_DSN is configured.
+ *  DSN form: http(s)://<public_key>@<host>/<project_id>. Fail-quiet by design —
+ *  error tracking must never throw or block the caller's error path. */
+async function reportToGlitchtip(
+  errorCode: string,
+  message: string,
+  ctx: RequestContext | ErrorContext | null,
+  extra: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const dsn = (globalThis as any).Deno?.env?.get?.("GLITCHTIP_DSN");
+    if (!dsn) return;
+    const m = String(dsn).match(/^(https?):\/\/([^@]+)@([^/]+)\/(\d+)$/);
+    if (!m) return;
+    const [, proto, key, host, projectId] = m;
+    const url = `${proto}://${host}/api/${projectId}/store/`;
+    const event = {
+      event_id: crypto.randomUUID().replace(/-/g, ""),
+      timestamp: new Date().toISOString(),
+      platform: "javascript",
+      level: "error",
+      logentry: { message: `${errorCode}: ${message}`.slice(0, 500) },
+      exception: { values: [{ type: errorCode, value: message.slice(0, 500) }] },
+      transaction: ctx?.route ?? "unknown",
+      server_name: "supabase-edge",
+      tags: {
+        error_code: errorCode,
+        route: ctx?.route ?? "unknown",
+        hive_id: (ctx?.hive_id ?? "none") as string,
+      },
+      extra,
+    };
+    // Short timeout so a slow/unreachable GlitchTip never delays the fn response.
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Sentry-Auth": `Sentry sentry_version=7, sentry_key=${key}, sentry_client=workhive-edge/1.0`,
+      },
+      body: JSON.stringify(event),
+      signal: ctrl.signal,
+    }).finally(() => clearTimeout(t));
+  } catch (_) { /* fail-quiet: error tracking must never throw */ void 0; }
 }
 
 export async function trackError(
@@ -63,6 +113,10 @@ export async function trackError(
       model_chain: [],
     });
   } catch (_) { /* fail-quiet: error tracking must never throw */ void 0; }
+
+  // Also surface to GlitchTip (grouped issues + App-Errors Grafana board) when a DSN
+  // is configured. No-op + fail-quiet when GLITCHTIP_DSN is unset.
+  await reportToGlitchtip(errorCode, message, ctx, extra);
 }
 
 /** Returns the wh_traces error count over the last `windowMin` minutes

@@ -64,6 +64,20 @@ TIMESTAMP_RE = re.compile(r"^\d{14}_[a-z0-9_]+\.sql$")
 # (verify the second commit landed BEFORE the migration was deployed; if
 # yes, the entry is permanently safe; if not, it's prod/clone drift).
 ALLOWED_MULTI_COMMIT = {
+    # ── 2026-07-18 production catch-up self-heal (prod was 2 months behind + squash-rebaselined) ──
+    # Edited IN-PLACE while pushing the accumulated migrations to prod (PRODUCTION_DEPLOY_RUNBOOK.md +
+    # commit c7b0b04) to survive prod/local schema drift a granular replay hit. Each edit is idempotent
+    # (BOM strip / IF NOT EXISTS / guarded GRANT) and a no-op on any already-consistent environment.
+    "20260609000005_fix_readiness_blocker_summary.sql":
+        "2026-07-18 prod deploy: stripped a UTF-8 BOM prod's migration runner rejected (local psql strips it); content otherwise unchanged.",
+    "20260620000008_rls_enable_remaining_hive_tables.sql":
+        "2026-07-18 prod deploy: ADD COLUMN IF NOT EXISTS hive_id before the RLS policy (prod's legacy external_sync lacked it after a history squash); no-op where it exists.",
+    "20260705000003_q4_daily_ai_ceiling.sql":
+        "2026-07-18 prod deploy: CREATE TABLE IF NOT EXISTS ai_rate_limits before the ALTER (squash lost the table on prod); no-op where it exists.",
+    "20260718000002_cron_health_view.sql":
+        "2026-07-18 prod deploy: guarded the grafana_reader GRANT (role created by the infra/mcp/grafana side-file prod hasn't run); the view is created regardless.",
+    "20260718000003_storage_health_view.sql":
+        "2026-07-18 prod deploy: guarded the grafana_reader GRANT (same class as cron_health_view).",
     # ── 2026-05-20 voice-phase migration cascade self-heal (turns 10-11) ───────
     # Local Supabase migration up failed because of cross-migration schema
     # collisions (CREATE TABLE IF NOT EXISTS X declared twice with different

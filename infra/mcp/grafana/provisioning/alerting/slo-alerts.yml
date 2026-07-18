@@ -474,3 +474,44 @@ groups:
                 - evaluator:
                     type: gt
                     params: [25]
+      # G4.3 APP ERRORS (2026-07-18): a NEW GlitchTip issue in the last hour = a fresh failure
+      # mode (not just a re-occurrence of a known one). Reads the GlitchTip Postgres via the
+      # glitchtip_local datasource. Pairs the count-only SLO alert with "here's the actual issue".
+      - uid: wh_founder_new_error_issue
+        title: New app-error issue (GlitchTip)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: warning
+        annotations:
+          summary: "A new error issue appeared in GlitchTip in the last hour — a fresh failure mode. See App Errors (http://127.0.0.1:3001/d/workhive-errors) or GlitchTip (http://127.0.0.1:8001)."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: glitchtip_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from issue_events_issue where first_seen > now() - interval '1 hour' and is_deleted is not true"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]

@@ -1,0 +1,72 @@
+{
+  "uid": "workhive-errors",
+  "title": "WorkHive App Errors (GlitchTip)",
+  "tags": ["workhive", "founder", "errors", "glitchtip", "ops"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": { "from": "now-7d", "to": "now" },
+  "links": [
+    { "title": "Founder Home", "type": "link", "url": "/d/workhive-founder-home", "icon": "home", "targetBlank": false },
+    { "title": "SLO / Golden Signals", "type": "link", "url": "/d/workhive-slo-arct", "icon": "heart", "targetBlank": false },
+    { "title": "Open GlitchTip", "type": "link", "url": "http://127.0.0.1:8001", "icon": "external link", "targetBlank": true }
+  ],
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Unresolved issues",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" },
+      "description": "Open (unresolved) issues in GlitchTip. Each issue is a distinct grouped error — the backlog of things broken.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 10 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" }, "rawSql": "select count(*) as value from issue_events_issue where status = 0 and is_deleted is not true" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "New issues (24h)",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" },
+      "description": "Issues first seen in the last 24h — brand-new failure modes.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" }, "rawSql": "select count(*) as value from issue_events_issue where first_seen > now() - interval '24 hours' and is_deleted is not true" } ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Events (24h)",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" },
+      "description": "Total error events ingested in the last 24h (an issue can have many events).",
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "area" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" }, "rawSql": "select count(*) as value from issue_events_issueevent where received > now() - interval '24 hours'" } ]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Error+ issues active (24h)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" },
+      "description": "Unresolved issues at level error/fatal seen in the last 24h — the ones that actually hurt users.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" }, "rawSql": "select count(*) as value from issue_events_issue where level >= 4 and status = 0 and last_seen > now() - interval '24 hours' and is_deleted is not true" } ]
+    },
+    {
+      "id": 5, "type": "table", "title": "Top unresolved issues (by event count)",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" },
+      "description": "Open issues ranked by how many times they've fired. Fix top-down — the biggest count is hurting the most users. 'culprit' is where it's thrown.",
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } }, "overrides": [ { "matcher": { "id": "byName", "options": "events" }, "properties": [ { "id": "custom.cellOptions", "value": { "type": "color-background" } }, { "id": "thresholds", "value": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 5 }, { "color": "red", "value": 25 } ] } } ] } ] },
+      "options": { "showHeader": true, "sortBy": [ { "displayName": "events", "desc": true } ] },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" }, "rawSql": "select case level when 5 then 'fatal' when 4 then 'error' when 3 then 'warning' when 2 then 'info' when 1 then 'debug' else level::text end as level, count as events, left(title, 90) as issue, left(coalesce(culprit,''), 60) as culprit, last_seen from issue_events_issue where status = 0 and is_deleted is not true order by count desc, last_seen desc limit 25" } ]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Error events over time (7d)",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 15 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" },
+      "description": "Hourly ingested error events. A spike = a new incident; pair it with the SLO board / deploy timeline to find the cause.",
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 60, "lineWidth": 1 }, "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": false }, "tooltip": { "mode": "single" } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "grafana-postgresql-datasource", "uid": "glitchtip_local" }, "rawSql": "select date_trunc('hour', received) as time, count(*) as events from issue_events_issueevent where received > now() - interval '7 days' group by 1 order by 1" } ]
+    }
+  ]
+}
