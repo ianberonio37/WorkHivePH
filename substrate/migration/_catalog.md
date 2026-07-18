@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:351
-source_sha: 7c3ed4aa1cb18572
+source: dir:supabase/migrations:353
+source_sha: 70595dfd799f5243
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (351 migrations)
+## migration · catalog (353 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000001_canonical_lineage_edges` — policies:canonical_lineage_edges_read · tables:canonical_lineage_edges
-- `20260520000002_get_oee_by_machine` — fns:get_oee_by_machine
 - `20260520000003_drop_phantom_columns_DRAFT` — tables:agent_memory,ai_quality_log,amc_briefings,anomaly_alerts,auth_session_events,avatar_animations
 - `20260520000004_drop_phantom_columns_safe` — tables:avatar_animations,avatar_state,best_practices,consulting_engagements,cross_hive_alerts,dialog_state
 - `20260520000005_asset_ideal_cycle_time` — tables:asset_nodes
@@ -90,7 +88,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260620000005_rls_harden_hive_members_insert` — policies:anon_insert_members
 - `20260620000006_rls_enable_api_keys` — policies:api_keys_hive_rw · tables:api_keys
 - `20260620000007_rls_enable_project_family` — policies:if · tables:public
-- `20260620000008_rls_enable_remaining_hive_tables` — policies:if · tables:public
+- `20260620000008_rls_enable_remaining_hive_tables` — policies:if · tables:IF,public
 - `20260620000009_rls_harden_personal_tables` — policies:allow_anon_all
 - `20260620000010_rls_personal_skill_matrix` — policies:allow_anon_all,skill_badges_read,skill_profiles_read
 - `20260620000011_rls_personal_worker_profiles` — policies:profiles,profiles_read_own · fns:check_username_available
@@ -209,7 +207,9 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260717000016_skill_profiles_bind_worker_name` — fns:bind_skill_profile_worker_name · triggers:tg_bind_skill_profile_worker_name
 - `20260717000017_community_posts_truth_add_updated_at` — (misc DDL/DML)
 - `20260718000001_ops_artifact_metrics` — tables:ops_artifact_metrics
-- `20260718000002_register_ops_seller_canonical_sources` — (misc DDL/DML)
+- `20260718000002_cron_health_view` — (misc DDL/DML)
+- `20260718000003_storage_health_view` — (misc DDL/DML)
+- `20260718000004_register_ops_seller_canonical_sources` — (misc DDL/DML)
 
 (showing last 200)
 

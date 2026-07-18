@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-07-18T17:34:34.694716",
+  "timestamp": "2026-07-18T19:32:00.744582",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 23.1,
+      "duration": 13.2,
       "stderr": ""
     },
     {
       "id": "multi-scenario-per-rule",
       "status": "PASS",
-      "duration": 0.1,
+      "duration": 0.2,
       "stderr": ""
     },
     {
@@ -36,7 +36,7 @@
     {
       "id": "freshness",
       "status": "PASS",
-      "duration": 0.2,
+      "duration": 0.1,
       "stderr": ""
     }
   ]
