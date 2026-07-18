@@ -967,8 +967,10 @@
       ? M('R1', 'Spacing scale (declared tokens / 8-pt)', onGrid.length, distinct.length,
           `gaps=[${distinct.sort((a, b) => a - b).join(',')}] offScale=[${off.join(',')}]`)
       : NA('R1', 'Spacing scale (declared tokens / 8-pt)', 'single-block root: no inter-block gaps to grade'));
-    out.push(M('R2', 'Alignment & grid (no overflow)', document.body.scrollWidth <= window.innerWidth + 2 ? 1 : 0, 1,
-      `scrollW=${document.body.scrollWidth} vs ${window.innerWidth}`));
+    out.push((isPoster || isPrintDoc)
+      ? NA('R2', 'Alignment & grid (no overflow)', 'print/poster artifact — fixed width by design, not a responsive page')
+      : M('R2', 'Alignment & grid (no overflow)', document.body.scrollWidth <= window.innerWidth + 2 ? 1 : 0, 1,
+        `scrollW=${document.body.scrollWidth} vs ${window.innerWidth}`));
     // R3 governs CONTROLS as well as cards. Measuring only .simple-card scored this page
     // 100% while its buttons carried FOUR radii (0/8/10/999px) and THREE heights
     // (44/50/72) for one concept -- the "not uniform / cluttered" Ian saw. Two reads:
@@ -1258,6 +1260,11 @@
     // React-Native + CSS harvest (substrate/external/external-react-native-*, external-css-*).
     // Runs at 390 in family_rubric_sweep.mjs's mobile pass. T1/T2 mirror ufai_battery.js v1.5.0.
     try {
+      if (isPoster || isPrintDoc) {
+        // a fixed-width PRINT poster / print report is a STATIC cited artifact, not a phone app —
+        // the native-app dims don't apply (Ian's 2026-07-15 scope decision, extended to class T).
+        ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8'].forEach((id) => out.push(NA(id, 'Native-app feel', 'print/poster artifact — phone-app dims N/A')));
+      } else {
       const _tAll = Array.from(document.querySelectorAll('body *'));
       const _tcs = (e) => { try { return getComputedStyle(e); } catch (_) { return null; } };
 
@@ -1339,6 +1346,7 @@
         ? NA('T8', 'Interactive-state semantics', 'no stateful toggles/tabs/expanders on this page')
         : M('T8', 'Interactive-state semantics (aria-pressed/expanded/selected)', _st.length, _sf.length,
           `${_st.length}/${_sf.length} stateful controls expose their state`));
+      }
     } catch (_) { /* empty-catch-allow: best-effort native-mobile lens */ }
 
     // ── roll-up ─────────────────────────────────────────────────────────────
