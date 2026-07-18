@@ -243,14 +243,43 @@ async function surveyPage(context, file) {
     // tighter desktop density behind @media bumps (same recipe as frontend_ufai_sweep:
     // "the field viewport is the honest one"). Re-measure those two at 390x780.
     await page.setViewportSize({ width: 390, height: 780 });
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(1100);   // was 700 (F1/K2 only); bumped for the full dual-viewport survey so
+                                       // the 390 reflow fully settles before grading every layout dim (avoids
+                                       // a transient-reflow artifact reading a dim falsely-low @390).
     const mob = await page.evaluate(() => window.__RUBRIC.survey({ pageId: location.pathname.split('/').pop() }));
     if (res && res.dims && mob && mob.dims) {
-      for (const dim of ['F1', 'K2']) {
-        const i = res.dims.findIndex((d) => d.dim === dim);
-        const m = mob.dims.find((d) => d.dim === dim);
-        if (i >= 0 && m) res.dims[i] = m;
+      // ── DUAL-VIEWPORT GRADE (2026-07-18, Ian: "in our rubric … you dont consider it using phone") ──
+      // The A-S ruler was DESKTOP-only (survey graded at 1280): a page could be flawless at 1280 and
+      // broken at 390 and still score 100. Now grade EVERY dim at BOTH 1280 (res, desktop) and 390
+      // (mob, phone — this full-390 survey already ran above; we used to keep only F1/K2 from it) and
+      // keep the WORSE per dim — the honest score for a tool used by a field-tech on a phone AND a
+      // supervisor on desktop. Viewport-independent dims (contrast, readability, internal-control)
+      // read identically, so this only lowers a dim genuinely worse on the phone. F1/K2 + class-T
+      // naturally take the 390 read. I1 (CWV, a load metric) is overridden at desktop below, after this.
+      // Dual-grade ONLY the genuinely viewport-sensitive dims — LAYOUT / DENSITY / TAP / NATIVE-FEEL:
+      // C1 hierarchy, C3 whitespace, R spacing/alignment/uniformity/regions, V collision, F1 tap, K2
+      // reach, M1 form layout, W1 back-affordance, T native-feel. CONTENT dims (A2 scannability, B
+      // readability, C2 contrast, E/G/H/I/J/L/N/O/P/Q/S) are viewport-INDEPENDENT: the same text /
+      // colour / i18n labels exist at 390 and 1280, so a @390 difference there is a measurement
+      // artifact (async _t() labels not re-settled after the resize), NOT a phone issue — §16.1's
+      // "the residual failures were the RULER, not the pages". So keep those at the settled desktop grade.
+      const VIEWPORT_SENSITIVE = /^(C1|C3|R\d|V\d|F1|K2|M1|W1|T\d)$/;
+      for (let i = 0; i < res.dims.length; i++) {
+        const d = res.dims[i];
+        if (!VIEWPORT_SENSITIVE.test(d.dim)) continue;
+        const m = mob.dims.find((x) => x.dim === d.dim);
+        if (!m) continue;
+        if (d.kind === 'MEASURED' && m.kind === 'MEASURED' && typeof d.pct === 'number' && typeof m.pct === 'number') {
+          if (m.pct < d.pct) res.dims[i] = Object.assign({}, m, { note: '@390(worse): ' + m.note });
+          else if (m.pct > d.pct) res.dims[i] = Object.assign({}, d, { note: d.note + ' [@1280; @390=' + m.pct + '%]' });
+        } else if (m.kind === 'MEASURED' && d.kind !== 'MEASURED') {
+          res.dims[i] = m;   // desktop couldn't measure it (N/A) but the phone could
+        }
       }
+      // recompute the page's overall from the merged dual-viewport dims
+      const _sc = res.dims.filter((o) => o.kind === 'MEASURED' && o.pct !== null);
+      res.OVERALL_measured_pct = _sc.length ? Math.round(_sc.reduce((s, o) => s + o.pct, 0) / _sc.length) : null;
+      res.dualViewport = { graded: '390+1280, worse-per-dim' };
       // ── LIVE PROBES (back at desktop for a real load reading + interaction) ──
       // Isolated try/catch: a probe (esp. the D2 click) must NEVER null the already-captured
       // survey `res` — achievements' tab navigated once and destroyed the context, ERRORing an
