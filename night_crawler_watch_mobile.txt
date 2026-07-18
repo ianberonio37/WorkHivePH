@@ -1,0 +1,18 @@
+# Native-mobile / React-Native UI-UX standards — harvest for the UFAI mobile-benchmark rubric extension
+# (Ian 2026-07-18: "benchmark on how react native develop their mobile apps; use Night Crawler exhaustively")
+# url | topic
+
+# --- React Native (the named benchmark) ---
+https://reactnative.dev/docs/accessibility | react native accessibility standards
+https://reactnative.dev/docs/performance | react native performance jank 60fps
+https://reactnative.dev/docs/optimizing-flatlist-configuration | react native list virtualization long lists
+
+# --- Native platform standards RN targets (Android Material) ---
+https://m3.material.io/foundations/accessible-design/accessibility-basics | material design touch target size accessibility
+https://m3.material.io/foundations/layout/understanding-layout/overview | material design mobile layout regions
+
+# --- Native-feel on the web (how our web app achieves the native feel) ---
+https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior | css overscroll-behavior native scroll containment
+https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action | css touch-action gesture handling
+https://developer.mozilla.org/en-US/docs/Web/CSS/env | css env safe-area-inset notch home indicator
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/inputmode | html inputmode mobile keyboard type

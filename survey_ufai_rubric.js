@@ -1250,6 +1250,90 @@
             `companion=${compVis} avatar=${avatarVis} nav-hub=${hubVis}`));
     }
 
+    // ══ T · NATIVE-APP FEEL (2026-07-18 native-mobile benchmark, measured @390) ═══════════
+    // "Does this feel like a native mobile app, not a shrunk desktop one?" Cited from the fresh
+    // React-Native + CSS harvest (substrate/external/external-react-native-*, external-css-*).
+    // Runs at 390 in family_rubric_sweep.mjs's mobile pass. T1/T2 mirror ufai_battery.js v1.5.0.
+    try {
+      const _tAll = Array.from(document.querySelectorAll('body *'));
+      const _tcs = (e) => { try { return getComputedStyle(e); } catch (_) { return null; } };
+
+      // T1 Content reachability — no fixed-height overflow:hidden box clips real content below it
+      let t1 = 0;
+      for (const e of _tAll) {
+        const s = _tcs(e); if (!s) continue;
+        if (s.position === 'fixed' || s.position === 'sticky' || s.pointerEvents === 'none') continue;
+        if (!/hidden|clip/.test(s.overflowY) && !/hidden|clip/.test(s.overflow)) continue;
+        if (e.scrollHeight - e.clientHeight <= 40 || e.clientHeight <= 150) continue;
+        if ((e.innerText || '').trim().length < 20) continue;
+        t1++;
+      }
+      out.push(M('T1', 'Content reachability (no fixed-height scroll-trap)', t1 === 0 ? 1 : 0, 1,
+        t1 ? `${t1} overflow:hidden box(es) clip content below the fold @390 (unreachable)` : 'no trapped content @390'));
+
+      // T2 Text fits its box — no nowrap text clipped/overflowing its own box
+      let t2 = 0;
+      for (const e of _tAll) {
+        if (![].some.call(e.childNodes, n => n.nodeType === 3 && n.textContent.trim().length > 1)) continue;
+        const s = _tcs(e); if (!s || s.display === 'none' || s.visibility === 'hidden' || !e.offsetParent) continue;
+        const r = e.getBoundingClientRect(); if (r.width < 2 || r.height < 2) continue;
+        if (e.scrollWidth - e.clientWidth > 3 && s.whiteSpace === 'nowrap' && s.textOverflow !== 'ellipsis') t2++;
+      }
+      out.push(M('T2', 'Text fits its box (no clip/overlap)', t2 === 0 ? 1 : 0, 1,
+        t2 ? `${t2} element(s) overflow their nowrap box @390 (clipped/overlapping)` : 'all text fits @390'));
+
+      // T3 Tap responsiveness — the interactive surface drops the ~300ms delay (touch-action)
+      const _bta = (_tcs(document.body) || {}).touchAction || 'auto';
+      const _dta = (_tcs(document.documentElement) || {}).touchAction || 'auto';
+      const t3ok = /manipulation|none|pan/.test(_bta) || /manipulation|none|pan/.test(_dta);
+      out.push(M('T3', 'Tap responsiveness (touch-action: manipulation)', t3ok ? 1 : 0, 1,
+        t3ok ? `touch-action set (${_bta})` : 'touch-action:auto — legacy ~300ms click delay + double-tap-zoom not suppressed'));
+
+      // T4 Native scroll containment — internal scroll containers set overscroll-behavior contain/none
+      const _scr = _tAll.filter(e => { const s = _tcs(e); return s && /auto|scroll/.test(s.overflowY) && e.scrollHeight > e.clientHeight + 8 && e.clientHeight > 120; });
+      const _t4bad = _scr.filter(e => { const s = _tcs(e); return s && (s.overscrollBehaviorY || 'auto') === 'auto'; });
+      out.push(_scr.length === 0
+        ? NA('T4', 'Native scroll containment (overscroll-behavior)', 'no internal scroll containers on this page')
+        : M('T4', 'Native scroll containment (overscroll-behavior)', _scr.length - _t4bad.length, _scr.length,
+          _t4bad.length ? `${_t4bad.length}/${_scr.length} scroll container(s) chain to the page (overscroll-behavior:auto)` : `all ${_scr.length} scroll containers contained`));
+
+      // T5 Safe-area — viewport-fit=cover (prerequisite for env(safe-area-inset-*) to be non-zero)
+      const _vp = (document.querySelector('meta[name="viewport"]') || {}).content || '';
+      const _cover = /viewport-fit\s*=\s*cover/.test(_vp);
+      out.push(M('T5', 'Safe-area (viewport-fit=cover)', _cover ? 1 : 0, 1,
+        _cover ? 'viewport-fit=cover set — env(safe-area-inset) active' : 'no viewport-fit=cover: env(safe-area-inset) resolves to 0, fixed chrome can hit the notch/home indicator'));
+
+      // T6 Long-list virtualization — a long list must not mount an unbounded node count (RN FlatList)
+      let t6 = 0, t6sel = '';
+      for (const e of _tAll) {
+        const s = _tcs(e); if (!s) continue;
+        if (!/auto|scroll/.test(s.overflowY) && !/auto|scroll/.test(s.overflow)) continue;
+        const kids = e.children ? e.children.length : 0;
+        if (kids > t6) { t6 = kids; t6sel = e.id ? '#' + e.id : (e.className || e.tagName).toString().slice(0, 24); }
+      }
+      out.push(t6 <= 30
+        ? NA('T6', 'Long-list virtualization', `no long list (worst scroll container = ${t6} children)`)
+        : M('T6', 'Long-list virtualization', t6 <= 150 ? 1 : 0, 1,
+          t6 <= 150 ? `longest list ${t6} nodes (<=150 ok)` : `${t6} peer nodes mounted in ${t6sel} — virtualize / paginate (RN FlatList)`));
+
+      // T7 Clean JS thread — measured by ufai_battery.js F-pillar (console history invisible post-load here)
+      out.push(NA('T7', 'Clean JS thread (no console noise on load)', 'measured by ufai_battery.js consoleErrorsSinceBoot'));
+
+      // T8 Interactive-state semantics — toggles/tabs/expanders expose pressed/expanded/selected/disabled
+      const _sf = _tAll.filter(e => {
+        if (!vis(e)) return false;
+        const role = (e.getAttribute('role') || '').toLowerCase();
+        const tag = e.tagName.toLowerCase();
+        return role === 'tab' || role === 'switch' || e.hasAttribute('aria-expanded') ||
+          (tag === 'button' && /toggle|tab|expand|collapse|filter|switch/i.test((e.className || '') + ' ' + (e.id || '')));
+      });
+      const _st = _sf.filter(e => ['aria-pressed', 'aria-expanded', 'aria-selected', 'aria-checked', 'aria-disabled'].some(a => e.hasAttribute(a)) || e.hasAttribute('disabled'));
+      out.push(_sf.length === 0
+        ? NA('T8', 'Interactive-state semantics', 'no stateful toggles/tabs/expanders on this page')
+        : M('T8', 'Interactive-state semantics (aria-pressed/expanded/selected)', _st.length, _sf.length,
+          `${_st.length}/${_sf.length} stateful controls expose their state`));
+    } catch (_) { /* empty-catch-allow: best-effort native-mobile lens */ }
+
     // ── roll-up ─────────────────────────────────────────────────────────────
     const measured = out.filter(o => o && o.kind === 'MEASURED');
     const judged = out.filter(o => o.kind === 'JUDGED');
@@ -1268,7 +1352,7 @@
     return {
       _v: V,
       pageId: opts.pageId || location.pathname,
-      lens: 'substrate/reference/ufai-ux-rubric.md (18 classes A-R / 44 dims)',
+      lens: 'substrate/reference/ufai-ux-rubric.md (classes A-T + V/W / ~57 dims; T = native-mobile benchmark, 2026-07-18)',
       counts: { dims: out.length, measured: measured.length, judged: judged.length, na: na.length },
       b3_offenders: out._b3,   // the exact sentences to REWRITE — scoring alone fixes nothing
       c2_offenders: out._c2,   // every below-floor text el (worst-stop scored) — the C2 fix list
