@@ -1755,17 +1755,25 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       el.setAttribute(attr, el.classList.contains('active') ? 'true' : 'false');
     };
     btns.forEach(sync);
-    // observe .active flips so the announced state tracks the visual state
+    // observe .active flips AND newly-inserted toggles so the announced state tracks the visual
+    // state. 2026-07-18: data-driven pages render toggles AFTER load (analytics .kpi-toggle) — the
+    // attribute-only observer never wired them, so add childList to catch dynamically-added ones.
     if (!window.__whToggleObs) {
       window.__whToggleObs = new MutationObserver(function (muts) {
         muts.forEach(function (m) {
           if (m.type === 'attributes' && m.attributeName === 'class') {
             var el = m.target;
             if (window.WH_TOGGLE_CLASSES.some(function (c) { return el.classList && el.classList.contains(c); })) sync(el);
+          } else if (m.type === 'childList') {
+            m.addedNodes.forEach(function (n) {
+              if (n.nodeType !== 1) return;
+              if (window.WH_TOGGLE_CLASSES.some(function (c) { return n.classList && n.classList.contains(c); })) sync(n);
+              if (n.querySelectorAll) n.querySelectorAll(sel).forEach(sync);
+            });
           }
         });
       });
-      window.__whToggleObs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      window.__whToggleObs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], childList: true });
     }
   }
   window.whToggleAria = whToggleAria;
