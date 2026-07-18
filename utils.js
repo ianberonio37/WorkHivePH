@@ -1737,7 +1737,12 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   // is the 31/32 shared surface) sets aria-pressed from `.active` at init AND observes
   // class changes so a toggle stays announced. Genuinely correct: a screen reader
   // reads the RUNTIME DOM. Managed classes = the ones the a11y gate knows as toggleables.
-  window.WH_TOGGLE_CLASSES = ['filter-chip', 'tab-btn', 'reaction-btn', 'phase-tab', 'view-tab'];
+  // 2026-07-18: extended after the thorough class-T (T8) sweep found stateful tabs/toggles on
+  // engineering-design (.page-tab), pm-scheduler (.nav-tab), marketplace (.section-toggle-btn,
+  // .btn-filter), analytics (.kpi-toggle) that show .active visually but exposed no aria-state.
+  // Adding them here auto-wires aria-pressed (synced to .active by the MutationObserver) family-wide.
+  window.WH_TOGGLE_CLASSES = ['filter-chip', 'tab-btn', 'reaction-btn', 'phase-tab', 'view-tab',
+    'page-tab', 'nav-tab', 'section-toggle-btn', 'kpi-toggle', 'btn-filter', 'wh-toggle'];
   function whToggleAria(root) {
     if (typeof document === 'undefined') return;
     root = root || document;
