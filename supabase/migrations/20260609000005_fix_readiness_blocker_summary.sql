@@ -1,4 +1,4 @@
-﻿-- Forward fix (2026-06-09): Stair-1 readiness blocker listed SATISFIED criteria
+-- Forward fix (2026-06-09): Stair-1 readiness blocker listed SATISFIED criteria
 -- as blockers (e.g. '30 of 5 PM templates registered' when 30>=5 is met).
 -- Re-defines compute_hive_readiness to emit only UNMET clauses. Body copied
 -- from 20260513000001_hive_readiness.sql with the Stair-1 blocker corrected.

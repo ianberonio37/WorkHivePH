@@ -22,4 +22,13 @@ CREATE VIEW public.v_cron_health AS
   FROM cron.job j
   LEFT JOIN cron.job_run_details d ON d.jobid = j.jobid;
 
-GRANT SELECT ON public.v_cron_health TO grafana_reader;
+-- self-heal prod/local drift (2026-07-18): grafana_reader is created by the side-file
+-- infra/mcp/grafana/grafana_reader.sql, which prod has not run yet. Grant only when the role exists
+-- (local now; prod once the side-file runs). The view is created above regardless; only the Grafana
+-- monitoring role reads it, never the app, so deferring the grant never affects app functionality.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana_reader') THEN
+    GRANT SELECT ON public.v_cron_health TO grafana_reader;
+  END IF;
+END $$;

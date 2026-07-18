@@ -25,6 +25,11 @@ begin
     'integration_configs','offline_snapshot_cache','parts_staged_reservations','parts_staging_recommendations',
     'project_knowledge','tts_quality_log'
   ] loop
+    -- self-heal prod/local drift (2026-07-18): on prod a legacy external_sync predated the
+    -- 2026-05-06 CREATE TABLE IF NOT EXISTS (history squash), so IF-NOT-EXISTS skipped and hive_id
+    -- was absent. ADD COLUMN IF NOT EXISTS is a no-op where hive_id already exists (all other 15) and
+    -- brings the drifted table in line so the hive-scoped policy below can be created.
+    execute format('alter table public.%I add column if not exists hive_id uuid', t);
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists %I on public.%I', t || '_hive_rw', t);  -- idempotent re-run
     execute format($p$create policy %I on public.%I for all

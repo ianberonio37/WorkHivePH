@@ -7,9 +7,20 @@
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana_reader') THEN
+    -- Fresh install: create with the placeholder. The REAL password lives in
+    -- infra/mcp/.env.mcp (GRAFANA_PG_READER_PASSWORD); the Grafana container + datasource
+    -- use it. After first setup, align the role to that value once:
+    --   ALTER ROLE grafana_reader WITH LOGIN PASSWORD '<GRAFANA_PG_READER_PASSWORD>';
+    -- The datasource-health check in validate_grafana_reader_reads.py FAILS loudly if the
+    -- role's password and the datasource's disagree (so this can't silently rot again).
     CREATE ROLE grafana_reader WITH LOGIN PASSWORD 'CHANGE_ME_grafana_reader';
   ELSE
-    ALTER ROLE grafana_reader WITH LOGIN PASSWORD 'CHANGE_ME_grafana_reader';
+    -- Role exists: ensure LOGIN but DO NOT reset the password. Re-running this file to add
+    -- grants/policies must NEVER clobber the operator-set password. On 2026-07-18 the old
+    -- unconditional `ALTER ... PASSWORD 'CHANGE_ME_grafana_reader'` here reset the role back
+    -- to the placeholder on every grant re-apply, so the datasource (which sends the real
+    -- .env.mcp secret) failed auth and EVERY panel went dark ("password authentication failed").
+    ALTER ROLE grafana_reader WITH LOGIN;
   END IF;
 END
 $$;
@@ -68,7 +79,9 @@ BEGIN
       'marketplace_listings', 'marketplace_sellers', 'marketplace_disputes',
       'hive_audit_log', 'platform_feedback', 'ops_artifact_metrics',
       'ai_reply_feedback', 'agentic_rag_traces',  -- P3 AI-observability pages
-      'hives'                                      -- G2 Founder-Home $hive template variable
+      'hives',                                     -- G2 Founder-Home $hive template variable
+      -- G4 DB & Security Health drill-down (auth signals):
+      'login_attempts', 'auth_session_events', 'ai_rate_limits', 'ai_user_rate_limits'
     ] LOOP
       IF EXISTS (SELECT 1 FROM information_schema.tables
                  WHERE table_schema = 'public' AND table_name = t) THEN
@@ -97,3 +110,25 @@ $grafana_p1$;
 -- the run history read-only. grafana_reader only needs SELECT on that view (NOT cron
 -- schema access). This surfaced 27+ SILENT failed cron runs in the last 7 days.
 GRANT SELECT ON public.v_cron_health TO grafana_reader;
+
+-- G4 DB-HEALTH (other observability, 2026-07-18): infra-level golden signals — connection
+-- saturation, DB size growth, cache-hit ratio, and the slowest queries (pg_stat_statements).
+-- pg_stat_activity/pg_stat_statements only show the reader's OWN rows without elevated
+-- stats access; pg_monitor is the STANDARD least-privilege monitoring role (read-only,
+-- stats-only — it does NOT grant table data access) that lets grafana_reader see all
+-- backends + statement stats. Supabase ships pg_stat_statements in the `extensions` schema.
+DO $grafana_dbhealth$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana_reader') THEN
+    GRANT pg_monitor TO grafana_reader;
+    IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'extensions') THEN
+      GRANT USAGE ON SCHEMA extensions TO grafana_reader;
+    END IF;
+  END IF;
+END
+$grafana_dbhealth$;
+
+-- G4.4 STORAGE (other observability, 2026-07-18): object-storage usage per bucket. Same
+-- pattern as v_cron_health: storage.objects is RLS-tenant-scoped, so a postgres-owned
+-- aggregate view (migration 20260718000003) exposes counts/bytes without per-object paths.
+GRANT SELECT ON public.v_storage_health TO grafana_reader;

@@ -50,6 +50,10 @@ REQUIRED = [
     "ai_reply_feedback", "agentic_rag_traces", "hives",
     # G4 other-observability (cron-health): postgres-owned view over cron.job_run_details
     "v_cron_health",
+    # G4 DB & Security Health drill-down (auth signals)
+    "login_attempts", "auth_session_events", "ai_rate_limits",
+    # G4.4 storage-health (postgres-owned aggregate view over storage.objects)
+    "v_storage_health",
 ]
 
 

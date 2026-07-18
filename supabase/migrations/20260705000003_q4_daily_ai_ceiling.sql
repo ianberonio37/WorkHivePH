@@ -13,6 +13,15 @@
 
 BEGIN;
 
+-- self-heal prod/local drift (2026-07-18): prod's squash baseline records the 2026-05-08 CREATE as
+-- applied but ai_rate_limits does not actually exist on prod. Recreate it here (idempotent; a no-op
+-- locally where it already exists) so the ALTER below has a table to extend.
+CREATE TABLE IF NOT EXISTS public.ai_rate_limits (
+  hive_id      uuid PRIMARY KEY REFERENCES public.hives(id) ON DELETE CASCADE,
+  call_count   integer NOT NULL DEFAULT 0,
+  window_start timestamptz NOT NULL DEFAULT now()
+);
+
 ALTER TABLE public.ai_rate_limits
   ADD COLUMN IF NOT EXISTS day_count        integer NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS day_window_start timestamptz;

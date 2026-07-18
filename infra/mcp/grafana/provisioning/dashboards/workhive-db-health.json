@@ -1,0 +1,106 @@
+{
+  "uid": "workhive-db-health",
+  "title": "WorkHive DB & Security Health",
+  "tags": ["workhive", "founder", "database", "security", "ops"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "links": [
+    { "title": "Founder Home", "type": "link", "url": "/d/workhive-founder-home", "icon": "home", "targetBlank": false },
+    { "title": "Founder Ops (detail)", "type": "link", "url": "/d/workhive-founder-ops", "icon": "dashboard", "targetBlank": false }
+  ],
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "DB connections (of 100)",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Active + idle backends vs max_connections (100). Saturation exhausts the pool and new requests fail — a silent outage cause.",
+      "fieldConfig": { "defaults": { "max": 100, "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 70 }, { "color": "red", "value": 85 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from pg_stat_activity" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Database size",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "unit": "decbytes", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select pg_database_size('postgres') as value" } ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Cache hit ratio",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "% of block reads served from shared buffers. Below ~99% means the working set is spilling to disk — add memory or indexes.",
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 90, "max": 100, "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "orange", "value": 95 }, { "color": "green", "value": 99 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select round(sum(blks_hit)*100.0/nullif(sum(blks_hit+blks_read),0),2) as value from pg_stat_database" } ]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Deadlocks (total)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Cumulative deadlocks across all databases since stats reset. Any sustained growth points at a lock-ordering bug.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(sum(deadlocks),0) as value from pg_stat_database" } ]
+    },
+    {
+      "id": 5, "type": "stat", "title": "Failed login attempts (24h)",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Sum of fail_count from the login rate-limiter over the last 24h. A spike suggests credential-stuffing / brute-force.",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 10 }, { "color": "red", "value": 50 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(sum(fail_count),0) as value from login_attempts where window_start > now() - interval '24 hours'" } ]
+    },
+    {
+      "id": 6, "type": "stat", "title": "Locked-out identifiers (now)",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 10 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Accounts/IPs currently locked by the rate-limiter (locked_until in the future).",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from login_attempts where locked_until > now()" } ]
+    },
+    {
+      "id": 7, "type": "table", "title": "Suspicious identifiers (locked or high-fail)",
+      "gridPos": { "h": 10, "w": 18, "x": 6, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Login identifiers that are currently locked or have accumulated >= 3 failures. Watch for a single IP hitting many identifiers.",
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } }, "overrides": [ { "matcher": { "id": "byName", "options": "fail_count" }, "properties": [ { "id": "custom.cellOptions", "value": { "type": "color-background" } }, { "id": "thresholds", "value": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 3 }, { "color": "red", "value": 5 } ] } } ] } ] },
+      "options": { "showHeader": true, "sortBy": [ { "displayName": "fail_count", "desc": true } ] },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select identifier, ip, fail_count, window_start, locked_until from login_attempts where locked_until > now() or fail_count >= 3 order by fail_count desc, window_start desc limit 25" } ]
+    },
+    {
+      "id": 8, "type": "table", "title": "Slowest queries (by mean exec time)",
+      "gridPos": { "h": 11, "w": 24, "x": 0, "y": 15 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Top statements from pg_stat_statements by average execution time. This is where to look first when the app feels slow — the query, how often it runs, and its mean/total cost.",
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } }, "overrides": [ { "matcher": { "id": "byName", "options": "mean_ms" }, "properties": [ { "id": "unit", "value": "ms" }, { "id": "custom.cellOptions", "value": { "type": "color-background" } }, { "id": "thresholds", "value": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 50 }, { "color": "red", "value": 250 } ] } } ] }, { "matcher": { "id": "byName", "options": "total_ms" }, "properties": [ { "id": "unit", "value": "ms" } ] } ] },
+      "options": { "showHeader": true, "sortBy": [ { "displayName": "mean_ms", "desc": true } ] },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select left(regexp_replace(query, '\\s+', ' ', 'g'), 110) as query, calls, round(mean_exec_time::numeric, 1) as mean_ms, round(total_exec_time::numeric, 0) as total_ms from extensions.pg_stat_statements where query not ilike '%pg_stat_statements%' and query not ilike '%pg_stat_activity%' and calls > 1 order by mean_exec_time desc limit 15" } ]
+    },
+    {
+      "id": 9, "type": "stat", "title": "Object storage used",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 26 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Total bytes across all storage buckets. Billed usage — watch the trend, not the absolute.",
+      "fieldConfig": { "defaults": { "unit": "decbytes", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(sum(bytes),0) as value from v_storage_health" } ]
+    },
+    {
+      "id": 10, "type": "table", "title": "Storage by bucket",
+      "gridPos": { "h": 6, "w": 18, "x": 6, "y": 26 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Object count, bytes, and newest upload per bucket (from public.v_storage_health).",
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } }, "overrides": [ { "matcher": { "id": "byName", "options": "bytes" }, "properties": [ { "id": "unit", "value": "decbytes" } ] } ] },
+      "options": { "showHeader": true, "sortBy": [ { "displayName": "bytes", "desc": true } ] },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select bucket_id, objects, bytes, newest_at from v_storage_health order by bytes desc" } ]
+    }
+  ]
+}

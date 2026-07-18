@@ -393,3 +393,84 @@ groups:
                 - evaluator:
                     type: gt
                     params: [0]
+      # G4 DB-HEALTH (2026-07-18): connection-pool saturation. max_connections=100; new
+      # requests fail once the pool is exhausted — a silent outage. Warn at 80 (headroom
+      # to act before 100). Reads pg_stat_activity via the pg_monitor grant.
+      - uid: wh_founder_db_connections
+        title: DB connections near saturation
+        condition: C
+        for: 2m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: warning
+        annotations:
+          summary: "Postgres connections are near the 100 cap — the pool may exhaust and start refusing requests. See DB & Security Health (http://127.0.0.1:3001/d/workhive-db-health)."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from pg_stat_activity"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [80]
+      # G4 SECURITY (2026-07-18): failed-login / brute-force surge. Sums fail_count from
+      # the login rate-limiter over the last 15m; a sharp rise = credential-stuffing.
+      - uid: wh_founder_failed_login_surge
+        title: Failed-login surge (15m)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: warning
+        annotations:
+          summary: "A surge of failed logins in the last 15 minutes — possible brute-force / credential-stuffing. Check locked identifiers on DB & Security Health (http://127.0.0.1:3001/d/workhive-db-health)."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, coalesce(sum(fail_count),0)::float as v from login_attempts where window_start > now() - interval '15 minutes'"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [25]

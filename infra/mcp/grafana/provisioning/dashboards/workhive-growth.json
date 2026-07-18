@@ -1,0 +1,69 @@
+{
+  "uid": "workhive-growth",
+  "title": "WorkHive Growth",
+  "tags": ["workhive", "founder", "growth", "funnel", "ops"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": { "from": "now-30d", "to": "now" },
+  "links": [
+    { "title": "Founder Home", "type": "link", "url": "/d/workhive-founder-home", "icon": "home", "targetBlank": false },
+    { "title": "Founder Ops (detail)", "type": "link", "url": "/d/workhive-founder-ops", "icon": "dashboard", "targetBlank": false }
+  ],
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "New hives (30d)",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from hives where created_at > now() - interval '30 days'" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Onboarding completion",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "% of hives that completed onboarding (set an intent or persona). A low value = signups landing but not activating — the #1 growth leak.",
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "orange", "value": 50 }, { "color": "green", "value": 80 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select round(100.0 * count(*) filter (where (intent is not null and intent::text not in ('null','{}','[]')) or preferred_persona is not null) / nullif(count(*),0), 0) as value from hives" } ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Active hives (7d)",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(distinct h.id) as value from hives h join analytics_events e on e.hive_id = h.id and e.created_at > now() - interval '7 days'" } ]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Active workers (24h)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Distinct workers producing events in the last 24h — daily-active proxy.",
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(distinct worker_name) as value from analytics_events where worker_name is not null and created_at > now() - interval '24 hours'" } ]
+    },
+    {
+      "id": 5, "type": "barchart", "title": "Signup funnel (hive lifecycle)",
+      "gridPos": { "h": 11, "w": 14, "x": 0, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Where hives drop off: signed up -> onboarded (intent/persona) -> activated (any event) -> active in 7d -> active in 24h. The gap between adjacent bars is the leak to fix.",
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-BlPu" }, "custom": { "lineWidth": 1, "fillOpacity": 80 } }, "overrides": [] },
+      "options": { "orientation": "horizontal", "xField": "stage", "showValue": "always", "legend": { "showLegend": false } },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select stage, hives from ( select 1 ord, 'Signed up' stage, (select count(*) from hives)::int hives union all select 2, 'Onboarded', (select count(*) from hives where (intent is not null and intent::text not in ('null','{}','[]')) or preferred_persona is not null)::int union all select 3, 'Activated', (select count(distinct h.id) from hives h join analytics_events e on e.hive_id=h.id)::int union all select 4, 'Active 7d', (select count(distinct h.id) from hives h join analytics_events e on e.hive_id=h.id and e.created_at>now()-interval '7 days')::int union all select 5, 'Active 24h', (select count(distinct h.id) from hives h join analytics_events e on e.hive_id=h.id and e.created_at>now()-interval '24 hours')::int ) f order by ord" } ]
+    },
+    {
+      "id": 6, "type": "table", "title": "Top product actions (30d)",
+      "gridPos": { "h": 11, "w": 10, "x": 14, "y": 5 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "What users actually DO (event_name counts, page_view excluded) — the features earning engagement.",
+      "fieldConfig": { "defaults": { "custom": { "align": "left" } }, "overrides": [] },
+      "options": { "showHeader": true, "sortBy": [ { "displayName": "events", "desc": true } ] },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select event_name, count(*) as events from analytics_events where event_name <> 'page_view' and created_at > now() - interval '30 days' group by event_name order by events desc limit 15" } ]
+    }
+  ]
+}
