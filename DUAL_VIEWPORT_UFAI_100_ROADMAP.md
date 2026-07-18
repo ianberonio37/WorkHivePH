@@ -31,10 +31,20 @@
 - **promo-poster [R2 0%, T1 0%, T5 0%]** — a fixed-width PRINT poster; phone-layout dims don't apply. → mark **N/A** for the poster (like other print docs), not "fix".
 
 ## Drive queue (execute in order; re-sweep after each cluster)
-1. **Ruler:** V1 decorative-bg exclusion → re-sweep → confirm the 4 phantom V1s clear + isolate the real pm-scheduler one.
-2. **Shared:** T8 classes; R3 control vocab.
-3. **Per-page:** F1/K2 (index, voice-journal), B3, C1 (hive), C2, E3/A1/N1 singles.
-4. **Env/exempt:** I1 prod-verify; promo-poster → N/A.
-5. **Final full dual-viewport sweep → 100% (or documented N/A) on all 32 pages.**
+1. ✅ **DONE — Ruler: V1** container-child + decorative-bg exclusion (`f4c9c2e`). index/hive/eng-design/public-feed phantoms cleared → 100%; pm-scheduler isolated as a REAL collision.
+2. ✅ **DONE — T8** (committed local): action-verb exclusion (agentic-rag `#filter-apply` false positive → N/A) + wired hive/integrations toggles via `.wh-toggle`. hive 85→100, integrations 75→100, agentic-rag →N/A.
+3. **NEXT — REAL per-page fixes remaining (≈8 clusters):**
+   - **pm-scheduler V1** — real collision: bottom-nav bar × nav-hub FAB overlap @390 (reposition/clear).
+   - **hive C1 67% @390** — visual hierarchy at phone width.
+   - **R3 [marketplace 67%, community 67%, engineering-design 67%]** — control-vocabulary drift (one shape per role); likely a shared token/class fix.
+   - **F1 [index 65%, voice-journal 79%] · K2 [index 50%, voice-journal 50%]** — tap size / field reach @390.
+   - **B3 [project-manager 67%, voice-journal 33%]** — readability (≤20 words/sentence, grade ≤8).
+   - **C2 [shift-brain 98%, project-report 96%]** — one contrast stop below floor.
+   - **singles:** E3 [shift-brain 50%], A1 [marketplace-admin 75%], N1 [marketplace-admin 75%].
+4. **I1 [marketplace, logbook, ph-intelligence] = CLS 0.102–0.123 (>0.1)** — CORRECTED: NOT a local-env/LCP artifact (LCP is 132–448ms OK); a REAL marginal layout-shift on `#wh-main-content`. Reserve space for late content to pull CLS <0.1 (likely one shared fix — same culprit on 2 pages).
+5. **promo-poster [R2/T1/T5 = 0%]** — a fixed-width PRINT poster; the phone-layout dims don't apply → mark **N/A** (add to the print-doc exempt path), not "fix".
+6. **Final full dual-viewport sweep → 100% (or documented N/A) on all 32 pages.**
+
+**Progress:** board was 32 pages / mean 99 / 17 with gaps → after V1 ruler + T8: the 4 V1 phantoms + 3 T8 pages resolved. Instrument verifies LOCALLY (`family_rubric_sweep.mjs`, no deploy needed per cluster); push fixes to prod at the end.
 
 _Instrument: `node tools/family_rubric_sweep.mjs [--page X]` (local seeder, pabloaguilar). Board: `family_rubric_scoreboard.json`._
