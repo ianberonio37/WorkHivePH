@@ -40,12 +40,13 @@ from validator_utils import format_result
 # marketplace_listings) were in the allowlist as "published" but were NOT in the live
 # publication → their feeds were silently dead. When docker is reachable, cross-check the
 # REAL publication (pg_publication_tables), not just the allowlist. Fixed by migration
-# 20260621000004 (publishes the 7 RLS-safe ones); marketplace_listings stays exempt
-# (RLS-OFF public storefront — needs its own RLS decision before publishing).
+# 20260621000004 (publishes the 7 RLS-safe ones). marketplace_listings was formerly EXEMPT
+# while it was RLS-OFF (publishing an RLS-off table = anon cross-tenant exfil feed); RLS was
+# added 2026-07-06 (mig 20260706000001) and it was published 2026-07-06 (mig 20260706000002),
+# so it is now a REQUIRED live-publication member (its "New listing" feed was silently dead
+# until then; deep-walk dim-11). No subscribed table is exempt from the live requirement now.
 DB_CONTAINER = "supabase_db_workhive"
-LIVE_PUBLISH_EXEMPT = {
-    "marketplace_listings",  # RLS-off public storefront; publishing pending an RLS decision
-}
+LIVE_PUBLISH_EXEMPT = set()
 
 
 def live_published_tables():

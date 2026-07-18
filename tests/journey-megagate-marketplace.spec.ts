@@ -1,15 +1,16 @@
 /**
- * Tier 5b — Marketplace flows (5 scenarios, P1)
+ * Tier 5b — Marketplace flows (FREE marketplace, P1)
  *
- * Seller list → Admin approve → Buyer checkout → Webhook → Inquiries.
- * Stripe is the payment rail; webhook signature verification is critical.
+ * Seller list → Admin approve → Inquiries. The marketplace is free + contact-only
+ * (Stripe removed 2026-06-30): no checkout/webhook/payment rail. Buyers reach
+ * sellers via the inquiry form; the seller profile surfaces those inquiries.
  *
  * Named `journey-megagate-marketplace` to coexist with the pre-existing
  * `journey-marketplace.spec.ts`.
  */
 import { test, expect } from './_fixtures';
 import { waitForPageReady } from './_helpers';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '..');
@@ -35,28 +36,6 @@ test.describe('Tier 5b — Marketplace flows (megagate)', () => {
     expect(html, 'must update marketplace_listings').toMatch(
       /from\s*\(\s*['"]marketplace_listings['"]\s*\)[\s\S]{0,400}\.update\s*\(/
     );
-  });
-
-  test('F3_buyer_checkout_invokes_edge_fn: marketplace.html calls marketplace-checkout', async () => {
-    // WHY: marketplace-checkout edge fn creates Stripe session server-side; price always fetched from DB
-    const html = readFileSync(resolve(ROOT, 'marketplace.html'), 'utf-8');
-    // Either direct fetch to the function URL OR supabase.functions.invoke
-    const callsDirect = /functions\/v1\/marketplace-checkout/.test(html);
-    const callsInvoke = /invoke\s*\(\s*['"]marketplace-checkout['"]/.test(html);
-    expect(callsDirect || callsInvoke, 'must call marketplace-checkout edge fn').toBeTruthy();
-  });
-
-  test('F4_stripe_webhook_signature_verification: marketplace-webhook verifies HMAC-SHA256', async () => {
-    // WHY: webhook MUST verify Stripe-Signature against STRIPE_WEBHOOK_SECRET before any DB write
-    const fnPath = resolve(ROOT, 'supabase/functions/marketplace-webhook/index.ts');
-    expect(existsSync(fnPath), 'marketplace-webhook edge fn must exist').toBeTruthy();
-    const src = readFileSync(fnPath, 'utf-8');
-    // HMAC-SHA256 verification block present
-    expect(src, 'must read Stripe-Signature header').toMatch(/stripe-signature/i);
-    expect(src, 'must read STRIPE_WEBHOOK_SECRET from env').toMatch(/STRIPE_WEBHOOK_SECRET/);
-    expect(src, 'must use HMAC SHA-256').toMatch(/HMAC[\s\S]{0,80}SHA-?256/);
-    // Reject invalid signature with 401
-    expect(src, 'must return 401 on invalid signature').toMatch(/Invalid Stripe signature[\s\S]{0,40},\s*401/);
   });
 
   test('F5_seller_inquiries_visible_on_profile: marketplace-seller-profile reads marketplace_inquiries (or canonical view)', async () => {

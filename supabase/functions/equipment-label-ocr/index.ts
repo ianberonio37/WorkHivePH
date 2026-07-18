@@ -44,7 +44,8 @@
  *   devops (getCorsHeaders dynamic CORS; AbortSignal at 60s)
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: enriches asset_nodes register flow; no new artifact table
@@ -217,7 +218,12 @@ async function matchAssetNodes(
   return null;
 }
 
-serve(async (req) => {
+serveObserved("equipment-label-ocr", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "equipment-label-ocr", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
   logRequestStart(req, "equipment-label-ocr");  // I6 observability

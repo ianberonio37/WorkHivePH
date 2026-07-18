@@ -72,6 +72,12 @@
       border: none;
       cursor: pointer;
       transition: all 0.2s;
+      /* U-6 (deep-arc P3): 44px min target — report action buttons used py-2 (37px). Same
+         inline-flex centering the page's own .page-tab/.discipline-pill use. WCAG 2.5.8 / HIG. */
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
@@ -87,6 +93,11 @@
       border: 1px solid rgba(255,255,255,0.15);
       cursor: pointer;
       transition: all 0.2s;
+      /* U-6 (deep-arc P3): 44px min target (WCAG 2.5.8 / Apple HIG). */
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .btn-ghost:hover { border-color: rgba(255,255,255,0.35); color: white; }
 
@@ -97,7 +108,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 0.625rem;
+      /* 0.625rem = 10px: a phantom radius in no token (rubric S1). Same control ROLE as
+         analytics' .phase-tab, so it takes the same vocabulary. */
+      border-radius: var(--wh-radius-sm);
       font-size: 0.8rem;
       font-weight: 500;
       color: rgba(255,255,255,0.6);
@@ -226,6 +239,16 @@
       #report-panel table { font-size: 0.72rem; }
       #report-panel th, #report-panel td { padding: 0.3rem 0.4rem; }
       #report-panel .result-highlight .res-value { font-size: 1.1rem; }
+      /* A-3/A-4 (deep-arc P6): any report/doc table wider than the viewport scrolls horizontally
+         instead of overflowing the page (WCAG 1.4.10 reflow), regardless of which renderer emitted
+         it or whether it was wrapped in .table-wrap. */
+      #report-panel table, .doc-panel table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        max-width: 100%;
+      }
     }
     #report-panel h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: #1a1a1a; }
     #report-panel h2 { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -238,7 +261,10 @@
     #report-panel .total-row td { font-weight: 700; background: #f9f9f9; }
     #report-panel .result-highlight { background: #fffbf0; border: 1.5px solid var(--wh-orange); border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
     #report-panel .result-highlight .res-label { font-size: 0.78rem; color: #666; }
-    #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: var(--wh-orange-dark); }
+    /* U-1 (deep-arc P3): --wh-orange-dark (#d88a0e) on cream #fffbf0 measured 2.68:1 — the
+       headline RESULT was the least-readable text on the page. #8a4b00 is a dark amber that
+       stays on-brand and clears WCAG AA 4.5:1 on the cream highlight (verified live via axe). */
+    #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #8a4b00; }
     #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
     @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr; gap: 0.5rem; } }
     @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
@@ -430,8 +456,15 @@
 
     /* Print styles */
     @media print {
-      body > *:not(#print-wrapper) { display: none !important; }
-      #print-wrapper { display: block !important; }
+      /* A-1 (deep-arc P6): native Ctrl+P must print the actual rendered report, not the empty
+         #print-wrapper. The "Download PDF" button uses weasyprint/html2pdf (no @media print),
+         and #print-wrapper is never filled — so the old rule printed a blank page. Show the
+         report subtree; hide all app chrome + the report's own action buttons. */
+      body * { visibility: hidden; }
+      #report-output, #report-output * { visibility: visible; }
+      #report-output { position: absolute; left: 0; top: 0; width: 100%; margin: 0; }
+      #report-output button { display: none !important; }
+      .aurora-bg, #toast, #hive-gate { display: none !important; }
       #report-panel { box-shadow: none; border-radius: 0; padding: 1.5cm; }
     }
 
@@ -462,7 +495,7 @@
       color: rgba(255,255,255,0.6);
     }
     .discipline-pill.active .pill-count {
-      background: rgba(247,162,27,0.2); color: var(--wh-orange);
+      background: rgba(247,162,27,0.2); color: var(--wh-orange-light);
     }
 
     /* Search box */
@@ -555,9 +588,9 @@
   <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);" class="sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <a href="index.html" style="color:rgba(255,255,255,0.6);font-size:0.8rem;text-decoration:none;" class="hidden sm:block">← Back</a>
+        <a href="index.html" style="color:rgba(255,255,255,0.72);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
-          <h1 class="font-bold text-sm" style="color:#F7A21B;margin:0;">Engineering Design</h1>
+          <h1 class="font-bold text-sm" style="color:#F7A21B;margin:0;" data-i="ed_title">Engineering Design</h1>
           <div class="text-xs" style="color:rgba(255,255,255,0.6);">Design Calculation Tool</div>
           <!-- Arc L/L1 CLS: filled by renderSourceChip() in init() (deterministic
                freshness+source+2 notes ≈ 161px @390). Reserve it so the header doesn't
@@ -566,14 +599,20 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button class="page-tab active" data-tab="calculator" onclick="switchTab('calculator')">Calculator</button>
-        <button class="page-tab" data-tab="history" onclick="switchTab('history')">History</button>
-        <button class="page-tab" data-tab="guide" onclick="switchTab('guide')">Guide</button>
+        <button class="page-tab active" data-tab="calculator" onclick="switchTab('calculator')" data-i="ed_calc">Calculator</button>
+        <button class="page-tab" data-tab="history" onclick="switchTab('history')" data-i="ed_hist">History</button>
+        <button class="page-tab" data-tab="guide" onclick="switchTab('guide')" data-i="ed_guide">Guide</button>
       </div>
     </div>
   </div>
 
   <!-- ══════════════════════ TAB: CALCULATOR ══════════════════════ -->
+  <div class="max-w-7xl mx-auto px-4" style="padding-top:0.75rem;">
+    <details class="wh-help">
+      <summary>How this page works</summary>
+      <p>Pick a discipline, choose a calculation, and fill in the inputs. Results show the sized answer with the governing formula and the standard it follows. Use the report tab to export what you sized; nothing changes in your hive until you save.</p>
+    </details>
+  </div>
   <div id="tab-calculator" class="max-w-7xl mx-auto px-4 pt-6">
 
     <!-- Step indicator -->
@@ -597,7 +636,8 @@
             <svg class="search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
-            <input aria-label="Search all 53 calculations…" id="calc-search" type="search" placeholder="Search all 53 calculations…" oninput="searchCalcs(this.value)" />
+            <!-- count is DERIVED from CALC_TYPES_UI by syncCalcCounts() at init (deep-arc P1/F-3); this static value is only the first-paint hint -->
+            <input aria-label="Search all 55 calculations…" id="calc-search" type="search" placeholder="Search all 55 calculations…" oninput="searchCalcs(this.value)" />
           </div>
         </div>
 
@@ -607,18 +647,18 @@
         <div class="card p-5" id="step1-card">
           <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
           <div class="flex gap-3" style="flex-wrap:wrap;">
-            <button class="discipline-pill active" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">11</span></button>
-            <button class="discipline-pill" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
-            <button class="discipline-pill" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical <span class="pill-count">14</span></button>
-            <button class="discipline-pill" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🚰 Plumbing <span class="pill-count">10</span></button>
-            <button class="discipline-pill" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection <span class="pill-count">5</span></button>
-            <button class="discipline-pill" data-disc="Machine Design" onclick="selectDiscipline('Machine Design')">⚙️ Machine Design <span class="pill-count">12</span></button>
+            <button class="discipline-pill active" translate="no" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">10</span></button>
+            <button class="discipline-pill" translate="no" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
+            <button class="discipline-pill" translate="no" data-disc="Electrical" onclick="selectDiscipline('Electrical')">⚡ Electrical <span class="pill-count">14</span></button>
+            <button class="discipline-pill" translate="no" data-disc="Plumbing" onclick="selectDiscipline('Plumbing')">🚰 Plumbing <span class="pill-count">10</span></button>
+            <button class="discipline-pill" translate="no" data-disc="Fire Protection" onclick="selectDiscipline('Fire Protection')">🔥 Fire Protection <span class="pill-count">5</span></button>
+            <button class="discipline-pill" translate="no" data-disc="Machine Design" onclick="selectDiscipline('Machine Design')">⚙️ Machine Design <span class="pill-count">12</span></button>
           </div>
         </div>
 
         <!-- Step 2: Calc Type -->
         <div class="card p-5" id="step2-card" style="opacity:0.5;pointer-events:none;">
-          <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 2: Calculation Type</div>
+          <h2 class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
           <!-- Arc L/L1 CLS: this grid ships EMPTY and is filled by selectDiscipline('HVAC')
                in init() (after the deferred bundle parses). Reserve the MEASURED default-
                discipline fill height (HVAC = 11 cards + 2 sub-headers ≈ 893px @390) so the
@@ -630,7 +670,13 @@
 
         <!-- Step 3: Inputs -->
         <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
-          <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="text-xs font-600" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
+            <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
+                 (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
+                 stay untouched. The engine always receives SI (runCalculation normalizes). -->
+            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial">⇄ Units: Metric (SI)</button>
+          </div>
           <div id="input-form-area">
             <p class="text-sm" style="color:rgba(255,255,255,0.6);">Select a calculation type first.</p>
           </div>
@@ -638,7 +684,7 @@
 
         <!-- Step 4: Calculate button -->
         <div id="step4-card" style="opacity:0.5;pointer-events:none;">
-          <button id="calc-btn" class="btn-primary w-full text-center" onclick="runCalculation()" disabled>
+          <button id="calc-btn" class="btn-primary w-full text-center" onclick="runCalculation()" disabled data-i="runcalc">
             Run Calculation
           </button>
         </div>
@@ -680,6 +726,10 @@
               <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()">⬇ Download PDF</button>
               <button class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()">💾 Save</button>
             </div>
+          </div>
+          <!-- AI-7 (deep-arc P5): disclose AI-drafted content + display where trust should/should not go -->
+          <div class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.6);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
+            ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong style="color:#29B6D9;">AI-drafted; review before use</strong>.
           </div>
           <div id="report-panel"></div>
         </div>
@@ -841,7 +891,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
 
 <!-- Mermaid.js: system diagram rendering -->
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" crossorigin="anonymous"></script>
 <script>
   mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
 </script>
@@ -850,9 +900,17 @@
 <script src="drawing-symbols.js"></script>
 
 <!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="engineering-design.js" defer></script>
 <script src="companion-launcher.js"></script>
 </main>
+
+<script>window.WH_FIL_PAGE={ed_title:'Disenyong Pang-inhinyero',ed_calc:'Calculator',ed_hist:'Kasaysayan',ed_guide:'Gabay',runcalc:'Patakbuhin ang Kalkulasyon'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

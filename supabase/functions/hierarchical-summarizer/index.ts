@@ -12,9 +12,14 @@
  *      pm_overdue, downtime_h → structured JSON (TS, deterministic).
  *   3. Generate 1-2 paragraph natural-language digest via callAI (free-tier).
  *
- * Trigger: pg_cron daily at 02:00 PHT (after batch-risk-scoring at 13:00 PHT
- * the previous day). Spread across off-peak hours to avoid TPM contention
- * with live agentic-rag-loop traffic.
+ * Trigger (ACTUAL, corrected 2026-07-12): on-demand only — invoked per (hive, level,
+ * period) by the ops tool tools/backfill_hierarchical_summaries.py and chained by
+ * semantic-fact-extractor. There is NO pg_cron for it (it takes a required per-hive/level
+ * body and has no drain-all-hives mode, so a bare {} cron cannot fan out). The earlier
+ * "pg_cron daily at 02:00 PHT" header was aspirational and never scheduled — a cron-honesty
+ * gap surfaced by validate_cron_schedule_integrity L5 (ASSET_ALERT_SHIFT_DEEP_ARC).
+ * TODO (Ian's call, logged PRODUCTION_FIXES): to auto-refresh the rollups, add a drain mode
+ * (loop active hives × due levels on empty body) + a portable-URL cron, like amc-orchestrator.
  *
  * Body:
  *   { hive_id, level, period_start?: ISO-date, period_end?: ISO-date,
@@ -37,7 +42,7 @@
  * contract-allow: scheduled rollup writer; output schema documented above.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
@@ -346,7 +351,7 @@ async function rollupOnePeriod(
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("hierarchical-summarizer", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 

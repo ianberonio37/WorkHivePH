@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -35,7 +36,12 @@ const PYTHON_URL = Deno.env.get("PYTHON_API_URL");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-serve(async (req) => {
+serveObserved("batch-risk-scoring", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "batch-risk-scoring", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   logRequestStart(req, "batch-risk-scoring");  // I6 observability
@@ -149,12 +155,8 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log.error(null, "batch-risk-scoring:", { detail: msg });
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "batch-risk-scoring", "batch_risk_scoring_error", err);
   }
 });
 

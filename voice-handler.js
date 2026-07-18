@@ -46,8 +46,17 @@
 
   let _db = null;
   function _getDb() {
-    if (!_db && window.supabase) {
-      _db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Finding #6 / deep-walk dim-14: route through the shared getDb() singleton so this
+    // module inherits the idle/expired-session token refresh (autoRefreshToken + the
+    // visibilitychange getSession() refresh) and the fail-fast timeout fetch, and does NOT
+    // spin up a SECOND GoTrueClient racing on the same localStorage auth key. Fall back to a
+    // raw client only if utils.js/getDb isn't present on the host page.
+    if (!_db) {
+      if (typeof window.getDb === 'function') {
+        _db = window.getDb(SUPABASE_URL, SUPABASE_KEY);
+      } else if (window.supabase) {
+        _db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
     }
     return _db;
   }
@@ -574,6 +583,8 @@
       const fd = new FormData();
       fd.append('audio', blob, 'voice.webm');
       fd.append('language', 'en');
+      // Pass the active hive so the indigenous ASR primes on + repairs this hive's real asset tags (CL12).
+      if (ctx && ctx.hive_id) fd.append('hive_id', ctx.hive_id);
       const tResp = await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
@@ -7871,7 +7882,9 @@
           window.speakPersona(clarifyAnswer, { persona });
         }
         _appendSessionTurn(transcript, clarifyAnswer);
-        _saveJournalTurn(db, ctx, transcript, clarifyAnswer, persona);
+        // No client journal insert here: the ai-gateway `voice-journal` call above
+        // already persisted this turn server-side (with an embedding). A second
+        // _saveJournalTurn would double-write the same turn. [journal-single-write]
         _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, clarifyAnswer, newIntentKind, newConfidence, 0);
         _updateDialogState(db, ctx.hive_id, sessionId, priorIntent, (priorDialogState && priorDialogState.intent_confidence) || newConfidence, priorSlots || {}, true, clarifyAnswer);
         _showTalkAgainButton();
@@ -7904,8 +7917,13 @@
       _pushBranch(newIntentKind, priorSlots || {});
       // Session-memory turn (always — works for anon walkthrough).
       _appendSessionTurn(transcript, answer);
-      // Durable save — silently no-ops if RLS denies (anon workers).
-      _saveJournalTurn(db, ctx, transcript, answer, persona);
+      // Durable journal save: the ai-gateway `voice-journal` call above ALREADY
+      // persisted this (transcript, answer) turn server-side via persistJournalEntry
+      // — with an embedding + server-resolved attribution. Calling _saveJournalTurn
+      // here too DOUBLE-WROTE the same turn (an embedding-less duplicate), so the
+      // history UI showed every companion turn twice and the recall index carried a
+      // dead copy. The gateway (server) persist is the single source of truth for
+      // this path — do NOT re-add a client insert here. [journal-single-write]
       // Phase 2: Store in agent_memory table (session-scoped, enable recall + dedup)
       _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, answer, newIntentKind, newConfidence, 0);
       // Phase 4: Update dialog state with new intent + context (enable multi-turn slot carryover)
@@ -8178,7 +8196,7 @@
       const a = initOpts.alert;
       const sev = String(a.severity || 'high').toUpperCase();
       const proactiveLine = '[' + sev + '] ' + String(a.description).slice(0, 200) +
-        (a.action_suggested ? ' — ' + String(a.action_suggested).slice(0, 120) : '');
+        (a.action_suggested ? '-' + String(a.action_suggested).slice(0, 120) : '');
       try {
         const persona = _getPersonaSafe();
         _setStatus(personaName_safe() + ' (heads up):');

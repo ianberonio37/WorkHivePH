@@ -16,6 +16,7 @@ RESET_TABLES = [
     "resume_documents",            # 20260603000000 - owner-scoped personal resume doc
     "agentic_rag_traces",          # 20260521120000 — append-only RAG trace log
     "canonical_period_summaries",  # 20260521121000 — period rollup cache
+    "ops_artifact_metrics",        # 20260718000001 — ops artifact metrics (memento/companion eval landed by land_ops_artifacts.py); data, PK id
     "agent_episodic_memory",       # 20260521122000 — per-worker episodic memory
     "agent_followups",             # 20260531000002 — agent prospective-memory queue
     "unified_events",              # 20260521123000 — unified event stream
@@ -158,6 +159,7 @@ RESET_TABLES = [
     "pdf_jobs",
     "hive_route_calls",
     "hive_route_quotas",
+    "ai_global_budget",   # Q6 singleton LLM-pool counter; re-seeded by consume RPC on next call
     # Inventory + parts
     "parts_records",
     "inventory_transactions",

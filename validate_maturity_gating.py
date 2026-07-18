@@ -47,7 +47,7 @@ ROOT = Path(__file__).parent
 # a tuple (filename, required_stair). When a new gated surface ships (e.g. the
 # upcoming Anomaly Engine 2.0 at Stair 3+), add it here.
 GATED_PAGES: list[tuple[str, int]] = [
-    ("predictive.html",      3),
+    # predictive.html removed 2026-07-01 — page deleted; per-asset risk-360 merged into asset-hub.
     ("ph-intelligence.html", 3),
     # analytics.html — predictive + prescriptive phases are gated, but the
     # descriptive phase is fine at any stair. Banner-only gating planned in

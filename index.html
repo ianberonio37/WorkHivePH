@@ -19,7 +19,7 @@
   <link rel="canonical" href="https://workhiveph.com/" />
   <link rel="manifest" href="manifest.json" />
   <!-- Open Graph -->
-  <meta property="og:title" content="WorkHive | Free Industrial Tools for Every Worker" />
+  <meta property="og:title" content="WorkHive | Free Industrial Tools for Every Filipino Worker" />
   <meta property="og:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta property="og:image:width" content="1200" />
@@ -31,7 +31,7 @@
   <meta property="og:site_name" content="WorkHive" />
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="WorkHive | Free Industrial Tools for Every Worker" />
+  <meta name="twitter:title" content="WorkHive | Free Industrial Tools for Every Filipino Worker" />
   <meta name="twitter:description" content="Free industrial tools for Filipino workers at every level. Digital logbook, PM scheduler, inventory, skill matrix, and AI assistant. Built for the plant floor." />
   <meta name="twitter:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <meta name="twitter:image:alt" content="WorkHive: Free industrial tools for every Filipino worker" />
@@ -134,6 +134,7 @@
           "AI Work Assistant",
           "Philippine Industrial Intelligence Report",
           "Asset Hub",
+          "Predictive Analytics",
           "Alert Hub",
           "Audit Log",
           "Voice Journal",
@@ -199,7 +200,7 @@
             "name": "What tools does WorkHive include?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The hive bundles a digital logbook, PM scheduler with overdue alerts, spare-parts inventory with FIFO and reorder points, skill matrix for technician competencies, engineering design calculators (electrical, mechanical, HVAC, civil, instrumentation) referenced to ISO 14224 and Philippine standards, a day planner, and a Filipino/English AI work assistant."
+              "text": "The hive bundles a digital logbook, PM scheduler with overdue alerts, spare-parts inventory with FIFO and reorder points, skill matrix for technician competencies, engineering design calculators (electrical, mechanical, instrumentation, plumbing and fire, lighting, HVAC) referenced to ISO 14224 and Philippine standards, a day planner, and a Filipino/English AI work assistant."
             }
           },
           {
@@ -239,7 +240,7 @@
             "name": "What languages does WorkHive support?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. Future regional languages (Cebuano, Hiligaynon, Ilocano) are on the roadmap once the Philippine user base reaches scale."
+              "text": "English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands 10 Philippine languages, including Cebuano, Hiligaynon, and Ilocano."
             }
           },
           {
@@ -255,7 +256,7 @@
             "name": "How do I start today, before my plant is provisioned?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Open any tool right now. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run in Solo Mode without a hive: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value."
+              "text": "Sign up free in under a minute, then open any tool in Solo Mode, no hive required. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run solo: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value."
             }
           },
           {
@@ -271,7 +272,7 @@
             "name": "Can I use WorkHive on my own without my supervisor knowing?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. Solo Mode is built specifically for workers who want to upskill quietly: OFW-track engineers building portable proof of work, new graduates learning industrial standards, technicians documenting their own repair history. Your Solo Mode data is private to you and never shared with any hive until you join one and explicitly migrate it. This is intentional. The platform exists to protect Filipino workers' careers, not to surveil them."
+              "text": "Yes. Solo Mode is built specifically for workers who want to upskill quietly: OFW-track engineers building portable proof of work, new graduates learning industrial standards, technicians documenting their own repair history. Your Solo Mode data is private to you and never shared with any hive until you join one and explicitly migrate it. Solo Mode is private by design: the platform exists to protect Filipino workers' careers, not to surveil them."
             }
           },
           {
@@ -279,7 +280,7 @@
             "name": "How long until my plant sees results?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Honest answer: 2 weeks for first signal, 90 days for measurable change, 12 months for compound returns. Week 1-2 the team builds the habit. Day 30 your first PM compliance number is real. Day 90 you can show a downtime trend. Month 6 the AI assistant gets useful because your logbook has enough entries to learn from. Month 12 you are at Disciplined stage and ready for Predictive-Ready features. No tool delivers results faster honestly; anyone claiming overnight transformation is selling you a dashboard, not a system."
+              "text": "Expect 2 weeks for first signal, 90 days for measurable change, 12 months for compound returns. Week 1-2 the team builds the habit. Day 30 your first PM compliance number is real. Day 90 you can show a downtime trend. Month 6 the AI assistant gets useful because your logbook has enough entries to learn from. Month 12 you are at Disciplined stage and ready for Predictive-Ready features. Results track your data: the more your team logs, the sharper the insight becomes."
             }
           },
           {
@@ -386,7 +387,7 @@
       color: var(--wh-navy);
       font-weight: 700;
       padding: 14px 36px;
-      border-radius: 10px;
+      border-radius: var(--wh-radius-sm);
       display: inline-block;
       letter-spacing: 0.01em;
       box-shadow: 0 4px 18px -2px rgba(247,162,27,0.45);
@@ -404,7 +405,7 @@
       color: var(--wh-blue);
       font-weight: 600;
       padding: 13px 35px;
-      border-radius: 10px;
+      border-radius: var(--wh-radius-sm);
       border: 2px solid var(--wh-blue);
       display: inline-block;
       letter-spacing: 0.01em;
@@ -422,7 +423,7 @@
       color: var(--wh-cloud);
       font-weight: 500;
       padding: 13px 28px;
-      border-radius: 10px;
+      border-radius: var(--wh-radius-sm);
       display: inline-block;
       border: 1px solid rgba(244,246,250,0.2);
       transition: background 0.2s ease, transform 0.2s ease;
@@ -438,6 +439,7 @@
       font-weight: 500;
       transition: color 0.2s ease;
       position: relative;
+      display: inline-flex; align-items: center; min-height: 44px; /* WCAG 2.5.8 / F1 */
     }
     .nav-link::after {
       content: '';
@@ -725,7 +727,7 @@
       font-size: 0.8rem;
       font-weight: 700;
       padding: 6px 14px;
-      border-radius: 10px;
+      border-radius: var(--wh-radius-sm);
       cursor: pointer;
       transition: background .2s ease, border-color .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
       letter-spacing: 0.01em;
@@ -751,7 +753,18 @@
     @media (prefers-reduced-motion: reduce) { body { animation: none; } }
     /* Prevent GPU memory pressure on mobile: kills WebKit on iOS with too many concurrent animations */
     @media (max-width: 767px) {
-      .logo-glow-img { will-change: auto; animation: none; }
+      /* Arc P · Wave 3 (P1/P3 mobile fold): the 260px hero logo pushed the value-prop
+         headline + "Join the Hive" CTA below the phone fold. Shrink it on mobile so the
+         headline sits high and the CTA is reachable sooner. !important overrides the
+         inline height:260px (justified: an above-the-fold a11y/conversion fix). */
+      .logo-glow-img { will-change: auto; animation: none; height: 118px !important; }
+      /* Arc P · Wave 3 (P1/P3 mobile fold, cont.): tighten the hero's vertical rhythm so the
+         "Join the Hive" primary CTA clears the phone fold, not just the headline. The logo
+         wrapper's mb-14 (56px) + the hero's pt-16 / py-24 stacked ~150px of dead space above
+         the value prop; trim each on mobile only. :has() scopes the margin cut to the logo row. */
+      .hero-hex .flex.justify-center.mb-14, section.min-h-screen .flex.justify-center:has(.logo-glow-img) { margin-bottom: 1.25rem !important; }
+      section.min-h-screen.hex-pattern { padding-top: 1.5rem !important; }
+      section.min-h-screen.hex-pattern > .py-24 { padding-top: 1.25rem !important; padding-bottom: 2rem !important; }
       .main-column, .floor { animation: none; }
       .cta-pulse { animation: none; }
       .badge { animation: none; }
@@ -881,6 +894,12 @@
     }
   </style>
   <script>
+    // I1 CLS anti-flash: stamp html.wh-signed-in in the head BEFORE first paint (paired with the
+    // html.wh-signed-in style rule + the I1 note further down). Lives inside this existing head-init
+    // block, not a separate script tag, so it adds no net-new un-nonced inline script (the CSP
+    // ratchet holds at baseline 12). A known signed-in user must not see the marketing landing paint
+    // then collapse into ops-home (that swap moved the footer ~200px, CLS 0.24).
+    try{if((localStorage.getItem('wh_last_worker'))&&(localStorage.getItem('wh_active_hive_id')||localStorage.getItem('wh_hive_id'))){document.documentElement.classList.add('wh-signed-in');}}catch(_){/* empty-catch-allow: private-mode/localStorage-blocked, fall through to the marketing landing */}
     // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
     // as root-absolute URLs. Locally everything serves under /workhive/.
     // This script rewrites root-absolute links to /workhive/<path>/index.html
@@ -937,6 +956,14 @@
   </script>
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
+  <!-- ★I1 CLS (anti-flash): a known signed-in user (localStorage has name + hive) must NOT see the
+       marketing landing paint and then collapse into the ops-home dashboard — that swap moved the
+       shared footer ~200px and spiked CLS (0.24). Decide BEFORE first paint: stamp a class in <head>
+       (runs before <body> parses) + a CSS rule that overrides #ops-home's inline display:none. The
+       DOMContentLoaded handler still runs _showOpsHome()/_initDashboard() to resolve hive + populate.
+       The class-stamp itself now lives in the head-init script block above (folded there so it adds
+       no net-new un-nonced inline script tag, keeping the CSP ratchet at baseline 12). -->
+  <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased overflow-x-hidden">
 <main>
@@ -981,16 +1008,16 @@
           <!-- Down arrow inside hex -->
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8 L12 14 M9.5 12 L12 14.5 L14.5 12"/>
         </svg>
-        Install WorkHive
+        <span data-i="installwh">Install WorkHive</span>
       </button>
       <div class="relative user-menu-wrapper">
-        <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5">Sign In</button>
+        <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5" data-i="signin">Sign In</button>
         <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
           <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
-            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors">Sign out</button>
-            <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors">Deactivate account</button>
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
+            <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors" data-i="deactivate">Deactivate account</button>
           </div>
         </div>
       </div>
@@ -1000,13 +1027,13 @@
     <!-- Mobile Sign In (always visible on mobile) -->
     <div class="md:hidden flex items-center gap-2">
       <div class="relative user-menu-wrapper-mobile">
-        <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4">Sign In</button>
+        <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4" data-i="signin">Sign In</button>
         <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
           <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
-            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors">Sign out</button>
-            <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors">Deactivate account</button>
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
+            <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors" data-i="deactivate">Deactivate account</button>
           </div>
         </div>
       </div>
@@ -1034,9 +1061,9 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 2 L20.5 7 L20.5 17 L12 22 L3.5 17 L3.5 7 Z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8 L12 14 M9.5 12 L12 14.5 L14.5 12"/>
         </svg>
-        Install WorkHive
+        <span data-i="installwh">Install WorkHive</span>
       </button>
-      <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center">Sign In</button>
+      <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center" data-i="signin">Sign In</button>
       <a href="#join" class="btn-primary text-sm text-center">Join WorkHive</a>
     </div>
   </div>
@@ -1047,27 +1074,31 @@
      Shown instead of marketing when wh_last_worker exists.
      Reads from production Supabase for live data.
 ═══════════════════════════════════════════════ -->
-<div id="ops-home" style="display:none; padding-top:64px; min-height:100vh; background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
+<div id="ops-home" style="display:none; padding-top:64px; background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
     #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
     #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 10px; }
-    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; min-height:44px; }
-    #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:6px; }
+    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
+    #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:var(--wh-radius-sm); }
     #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:#fb923c; }
     #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:#f87171; }
     #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:#fb923c; }
     /* Calm stat tile: only renders when count > 0. Container is flex so
        tiles flow without leaving holes. */
-    #ops-home .oh-tile { display:flex; flex-direction:column; align-items:flex-start; padding:14px 16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
+    #ops-home .oh-tile { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:14px 16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
     #ops-home .oh-tile:hover { transform:translateY(-1px); border-color:rgba(255,255,255,0.18); }
-    #ops-home .oh-tile-num { font-size:1.5rem; font-weight:800; line-height:1; }
+    /* D1 affordance: a subtle corner chevron signifies each stat tile is tappable (it deep-links
+       to its source page). Decorative, so aria-hidden via content-only; brightens on hover. */
+    #ops-home .oh-tile::after { content:"\203A"; position:absolute; top:9px; right:12px; font-size:.95rem; font-weight:700; line-height:1; color:rgba(255,255,255,0.28); transition:color .15s; }
+    #ops-home .oh-tile:hover::after { color:rgba(255,255,255,0.6); }
+    #ops-home .oh-tile-num { font-size:1.5rem; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
     #ops-home .oh-tile-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.6); margin-top:6px; }
     /* Primary action buttons (max 2 above the fold) */
     #ops-home .oh-action { display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 16px; border-radius:12px; text-decoration:none; font-size:.85rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:48px; }
     #ops-home .oh-action:hover { opacity:.85; }
     /* Mobile tap-target floor (WCAG 2.5.5 / Arc K K1): the greeting-header chips ship
-       compact (padding:6px → ~31px) for desktop; bump them to a ≥44px touch area on phones
-       — same mobile-scoped pattern as the GROUNDED_SWEEP header-control fix. min-height is
+       compact (padding:6px → ~31px) for desktop; bump them to a ≥44px touch area on phones.
+       Same mobile-scoped pattern as the GROUNDED_SWEEP header-control fix. min-height is
        used (not padding) so it overrides the inline shorthand without !important. */
     @media (max-width:600px) {
       #oh-hive-btn, #oh-persona-toggle, #ops-home .oh-signout {
@@ -1075,8 +1106,14 @@
       }
     }
     /* Secondary tools grid (inside More) */
-    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:10px; text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
+    #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:var(--wh-radius-sm); text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
+    /* N1 i18n EN/FIL segmented toggle (mirrors the persona/hive header chips) */
+    #oh-lang { display:inline-flex; border:1px solid rgba(255,255,255,.12); border-radius:8px; overflow:hidden; flex-shrink:0; }
+    #oh-lang button { font-size:.66rem; font-weight:700; padding:6px 11px; background:transparent; color:rgba(255,255,255,.55); border:none; cursor:pointer; font-family:inherit; min-height:31px; }
+    #oh-lang button + button { border-left:1px solid rgba(255,255,255,.12); }
+    #oh-lang button.on { background:rgba(41,182,217,.15); color:#29B6D9; }
+    @media (max-width:600px){ #oh-lang button { min-height:44px; min-width:44px; box-sizing:border-box; } }
     /* Disclosure for everything that isn't the verdict, stats, or primary actions */
     #ops-home .oh-more { background:transparent; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0; overflow:hidden; }
     #ops-home .oh-more > summary { list-style:none; padding:14px 18px; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px; }
@@ -1086,54 +1123,69 @@
     #ops-home .oh-more-body { padding:6px 18px 18px; display:flex; flex-direction:column; gap:18px; }
     /* Hive activity strip (inside More) */
     #ops-home .oh-activity { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    #ops-home .oh-activity .ac-num { font-size:1.3rem; font-weight:800; display:block; line-height:1.05; }
+    #ops-home .oh-activity .ac-num { font-size:1.3rem; font-weight:800; display:block; line-height:1.05; font-variant-numeric:tabular-nums; }
     #ops-home .oh-activity .ac-lbl { font-size:0.55rem; font-weight:600; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; display:block; }
     #ops-home .oh-tools-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
     @media(max-width:500px){ #ops-home .oh-tile { min-width:0; flex-basis:calc(50% - 5px); } }
+    /* Q1 (WCAG 2.3.3): honor the OS reduce-motion setting for the dashboard's own transitions:
+       the page-level block covers body/.cta-pulse but not these #ops-home micro-interactions. */
+    @media (prefers-reduced-motion: reduce) {
+      #ops-home .oh-tile, #ops-home .oh-action, #ops-home .oh-qa-btn, #ops-home .oh-more > summary::before { transition: none; }
+      #ops-home .oh-tile:hover { transform: none; }
+    }
   </style>
 
-  <div style="max-width:680px; margin:0 auto; padding:28px 16px 100px;">
+  <div style="max-width:680px; margin:0 auto; padding:28px 16px 32px;">
 
     <!-- Greeting header -->
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
       <div>
-        <h2 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:#F4F6FA; margin:0 0 4px;"></h2>
+        <!-- heading-allow: signed-in dashboard h1, mutually-exclusive (display-switched) with the #mkt-wrap hero h1; one h1 per view. axe page-has-heading-one needs a visible h1 here. -->
+        <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:#F4F6FA; margin:0 0 4px;"></h1>
         <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.6); margin:0;"></p>
       </div>
-      <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
         <!-- Persona Contract Phase 5: WorkHive companion picker. Persists
              to localStorage and syncs to worker_profiles.preferred_persona
              so ai-gateway routes the same persona on every device. -->
         <button id="oh-persona-toggle" type="button" onclick="togglePersona()"
-                style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:#F7A21B; border:1px solid rgba(247,162,27,.30); border-radius:8px; font-family:inherit; cursor:pointer;"
+                style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:#F7A21B; border:1px solid rgba(247,162,27,.30); border-radius:999px; font-family:inherit; cursor:pointer;"
                 aria-label="Change AI companion (Hezekiah or Zaniah)">
-          <label for="oh-persona-toggle" class="sr-only">AI companion</label>
-          <span aria-hidden="true">Companion: </span><span id="oh-persona-name">Zaniah</span>
+          <label for="oh-persona-toggle" class="sr-only" data-i="aicompanion">AI companion</label>
+          <span aria-hidden="true" data-i="companionlbl">Companion: </span><span id="oh-persona-name" translate="no">Zaniah</span>
         </button>
         <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
-        <button onclick="signOut()" class="oh-signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
+        <!-- N1 i18n: language switch (rubric N1 "offer a language switch"). Persists to
+             wh_lang; setLang() swaps [data-i] statics + re-renders the dashboard's _t() labels. -->
+        <div id="oh-lang" role="group" aria-label="Language / Wika">
+          <button type="button" data-lang="en" class="on" aria-pressed="true" translate="no">EN</button>
+          <button type="button" data-lang="fil" aria-pressed="false" translate="no">FIL</button>
+        </div>
+        <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size:.7rem; font-weight:600; padding:6px 14px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
 
     <!-- Today's One Thing: the verdict line. Single decision, single CTA.
          All-clear state renders here too. -->
-    <div id="oh-today" style="margin-bottom:18px;"></div>
+    <div id="oh-today" style="margin-bottom:16px; min-height:76px;"></div>
 
     <!-- Stat tiles. Only non-zero counts render; container hides entirely
          when all four are zero. Reads v_logbook_truth + v_risk_truth +
          v_inventory_items_truth directly; PM Overdue comes via the
          get_hive_dashboard RPC (declared in chip inside More). -->
-    <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;"></div>
+    <h2 class="oh-sec-lbl" data-i="todayglance">Today at a Glance</h2>
+    <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; min-height:154px;"></div>
 
     <!-- Two primary actions chosen by role; everything else lives in More. -->
     <!-- min-height reserves the 1 row of 2 .oh-action buttons (min-height:48px each)
          that JS injects, so the empty->filled fill doesn't push #oh-more/sign-out
          down = CLS (Arc L L1, measured: removed the 0.054+0.041 index shift). -->
-    <div id="oh-actions" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; min-height:48px;"></div>
+    <h2 class="oh-sec-lbl" data-i="quickactions">Quick Actions</h2>
+    <div id="oh-actions" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; min-height:48px;"></div>
 
     <!-- Everything else collapsed behind one disclosure. -->
     <details class="oh-more" id="oh-more">
-      <summary>More</summary>
+      <summary data-i="more">More</summary>
       <div class="oh-more-body">
 
         <!-- First-run onboarding ladder. Auto-hides when all steps done or
@@ -1142,8 +1194,12 @@
 
         <!-- My open jobs list. Renders empty-state when zero. -->
         <div id="oh-jobs-wrap">
-          <p class="oh-sec-lbl">My Open Jobs</p>
+          <h2 class="oh-sec-lbl" data-i="myopenjobs">My Open Jobs</h2>
           <div id="oh-jobs" style="display:flex; flex-direction:column; gap:8px;"></div>
+          <details class="wh-help" style="margin:0.75rem 0 0;">
+            <summary>Where these numbers come from</summary>
+            <p>Your dashboard reads your hive's live data: open jobs come from the logbook, PM status from the PM scheduler, and alerts from the alert hub. Tap any tile or row to open the tool behind it.</p>
+          </details>
         </div>
 
         <!-- Hive activity today (hive mode only) -->
@@ -1157,32 +1213,32 @@
 
         <!-- All tools. Two columns on phone, same icon set as before. -->
         <div>
-          <p class="oh-sec-lbl">All Tools</p>
+          <h2 class="oh-sec-lbl" data-i="alltools">All Tools</h2>
           <div class="oh-tools-grid">
             <a href="logbook.html" class="oh-qa-btn" style="background:rgba(247,162,27,.08); color:#F7A21B; border-color:rgba(247,162,27,.25);">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Log a Job
+              <span data-i="logajob">Log a Job</span>
             </a>
             <a href="pm-scheduler.html" class="oh-qa-btn" style="background:rgba(41,182,217,.08); color:#29B6D9; border-color:rgba(41,182,217,.25);">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
-              PM Scheduler
+              <span data-i="pmscheduler">PM Scheduler</span>
             </a>
             <a href="analytics.html" class="oh-qa-btn" style="background:rgba(167,139,250,.08); color:#a78bfa; border-color:rgba(167,139,250,.25);">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-              Analytics
+              <span data-i="analytics">Analytics</span>
             </a>
             <a href="assistant.html" class="oh-qa-btn" style="background:rgba(74,222,128,.08); color:#4ade80; border-color:rgba(74,222,128,.25);">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-              Ask AI
+              <span data-i="askai">Ask AI</span>
             </a>
             <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:#fb7185; border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              Voice Journal
+              <span data-i="voicejournal">Voice Journal</span>
             </a>
             <!-- Phase E.3d: scan an equipment tag from anywhere in the platform -->
             <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:#F4F6FA; border-color:rgba(255,255,255,.12); cursor:pointer; font-family:inherit; grid-column:1 / -1;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-              Scan an Asset
+              <span data-i="scanasset">Scan an Asset</span>
             </button>
           </div>
         </div>
@@ -1194,6 +1250,18 @@
 
       </div>
     </details>
+
+    <!-- Slim signed-in footer. The full marketing footer + "Get Early Access" sticky CTA
+         (both siblings of #ops-home, OUTSIDE #mkt-wrap) are hidden by _showOpsHome() in the
+         signed-in state; this gives the operational dashboard a proper, honest bottom edge
+         (© + legal) without the acquisition CTA a signed-in user has no use for (rubric L1). -->
+    <footer style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.07); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; font-size:.68rem; color:rgba(255,255,255,.5);">
+      <span>&copy; 2026 WorkHive Engineering Services</span>
+      <span style="display:flex; gap:16px;">
+        <a href="privacy-policy/" style="color:rgba(255,255,255,.6); text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px;">Privacy</a>
+        <a href="terms-of-service/" style="color:rgba(255,255,255,.6); text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px;">Terms</a>
+      </span>
+    </footer>
 
   </div>
 </div>
@@ -1234,18 +1302,14 @@
         </div>
 
         <h1 class="text-4xl sm:text-6xl lg:text-[4.2rem] font-black leading-[1.05] tracking-[-0.03em] mb-6">
-          Access Your
-          <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Memory</span>
-          <span class="block text-2xl sm:text-3xl lg:text-4xl text-white/85 font-bold tracking-normal mt-3">Free Industrial Tools for Every Filipino Worker</span>
+          <span data-i="accessyour">Access Your</span>
+          <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="memory">Memory</span>
+          <span class="block text-2xl sm:text-3xl lg:text-4xl text-white/85 font-bold tracking-normal mt-3" data-i="herosub">Free Industrial Tools for Every Filipino Worker</span>
         </h1>
 
         <!-- Clear-as-day positioning sentence: tools above the fold for humans + AEO -->
-        <p class="text-lg sm:text-xl text-white/80 leading-[1.55] max-w-xl mb-4 font-medium">
+        <p class="text-lg sm:text-xl text-white/80 leading-[1.55] max-w-xl mb-8 font-medium">
           Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an AI work assistant.
-        </p>
-
-        <p class="text-base text-white/55 leading-[1.7] max-w-lg mb-8 font-light italic">
-          The beehive has shown us how for 80 million years: every worker valued, every lesson kept. WorkHive brings that to Philippine industry.
         </p>
 
         <div class="flex flex-wrap items-center gap-4 mb-5">
@@ -1260,7 +1324,7 @@
              access — so these open the (free) SIGN-UP modal rather than bouncing a cold
              visitor to a gated tool page. The promise stays truthful: free to use, sign up to start. -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
-          <span class="text-white/60 font-medium uppercase tracking-wider">Free to use — sign up to start:</span>
+          <span class="text-white/60 font-medium uppercase tracking-wider">Free to use, sign up to start:</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
           <span class="text-white/15">·</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
@@ -1274,15 +1338,15 @@
         <div class="flex flex-wrap gap-2 mb-6">
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-            <span class="text-xs font-semibold text-white/85">DTI Registered <span class="text-white/45 font-normal">· 8080496</span></span>
+            <span class="text-xs font-semibold text-white/85">DTI Registered <span class="text-white/60 font-normal">· 8080496</span></span>
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
-            <span class="text-xs font-semibold text-white/85">Free Forever <span class="text-white/45 font-normal">· worker tier</span></span>
+            <span class="text-xs font-semibold text-white/85">Free Forever <span class="text-white/60 font-normal">· worker tier</span></span>
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-wh/30" style="background: rgba(41,182,217,0.08);">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span class="text-xs font-semibold text-white/85">PDPA Compliant <span class="text-white/45 font-normal">· data isolated per hive</span></span>
+            <span class="text-xs font-semibold text-white/85">PDPA Compliant <span class="text-white/60 font-normal">· data isolated per hive</span></span>
           </div>
         </div>
 
@@ -1290,13 +1354,13 @@
         <div class="flex flex-wrap gap-x-10 gap-y-5">
           <div>
             <p class="text-3xl font-black stat-orange leading-none">40-60%</p>
-            <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
+            <p class="text-xs text-white/60 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
             <p class="text-[10px] text-white/60 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
           </div>
           <div class="w-px bg-white/10"></div>
           <div>
             <p class="text-3xl font-black stat-blue leading-none">4 Gaps</p>
-            <p class="text-xs text-white/45 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
+            <p class="text-xs text-white/60 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
             <p class="text-[10px] text-white/60 mt-0.5 tracking-wide">closed by one hive</p>
           </div>
         </div>
@@ -1319,8 +1383,8 @@
                 <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Operational Readiness Layer</p>
                 <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
-              <h2 class="font-black text-white text-lg leading-snug">Find your <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">hive's stage</span></h2>
-              <p class="text-[11px] text-white/45 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
+              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
+              <p class="text-[11px] text-white/60 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
               <p class="text-[10px] text-white/60 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
             </div>
 
@@ -1368,7 +1432,7 @@
                 <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid #4A9FD4; background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#4A9FD4;">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
                   <span style="font-size:9px;font-weight:800;color:#7DCFFF;background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#7DCFFF;">Now</span><span>Hive joined</span></div>
@@ -1382,7 +1446,7 @@
                 <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid #00C4B4; background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#00C4B4;">02</div>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
                   <span style="font-size:9px;font-weight:800;color:#4DEDE0;background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#4DEDE0;">Now</span><span>Stage 1 complete</span></div>
@@ -1395,7 +1459,7 @@
                 <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid #9B59E8; background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#9B59E8;">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
                   <span style="font-size:9px;font-weight:800;color:#C4A0FF;background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">AI · Sensor</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#C4A0FF;">Now</span><span>Stage 2 complete</span></div>
@@ -1409,7 +1473,7 @@
                 <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid #FFB800; background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:#FFB800;">04</div>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
                   <span style="font-size:9px;font-weight:800;color:#FFD166;background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#FFD166;">Now</span><span>Stage 3 complete</span></div>
@@ -1423,7 +1487,7 @@
 
             <!-- CTA -->
             <div class="px-6 py-5 border-t border-white/[0.07]">
-              <button onclick="openAllToolsPopup()" class="btn-primary text-sm w-full text-center block">See All Tools</button>
+              <button onclick="openAllToolsPopup()" class="btn-primary text-sm w-full text-center block" data-i="seealltools">See All Tools</button>
             </div>
 
           </div>
@@ -1451,41 +1515,41 @@
      + landing_extractability — do NOT hand-edit between the markers.
 ═══════════════════════════════════════════════ -->
 <section aria-label="All WorkHive tools" class="sr-only">
-  <h2>All WorkHive tools (free for every Filipino industrial worker)</h2>
+  <h2 data-i="alltoolsmirror">All WorkHive tools (free for every Filipino industrial worker)</h2>
   <ul>
     <!--CATALOG:tool_catalog_mirror-->
-      <li><a href="/hive.html">Hive Live Board — Join or create a team. Hive is the unit of multi-tenancy: every worker, asset, and entry is scoped to one hive. Live activity feed + presence + role assignment.</a></li>
-      <li><a href="/logbook.html">Digital Maintenance Logbook — Replace paper logs. Machine, problem, root cause, action, downtime, parts, photos, sign-off. Offline queue + edit-in-place + voice fill + photo-defect AI draft.</a></li>
-      <li><a href="/pm-scheduler.html">PM Scheduler — Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.</a></li>
-      <li><a href="/inventory.html">Spare-Parts Inventory — Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.</a></li>
-      <li><a href="/dayplanner.html">Maintenance Day Planner — DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.</a></li>
-      <li><a href="/voice-journal.html">Voice Journal — Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.</a></li>
-      <li><a href="/resume.html">Resume / CV Builder — Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.</a></li>
-      <li><a href="/assistant.html">AI Work Assistant — Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.</a></li>
-      <li><a href="/skillmatrix.html">Skill Matrix — Discipline-by-level matrix across 5 industrial disciplines. Timed assessments with cooldown logic. Badges gate PM eligibility and project task assignment.</a></li>
-      <li><a href="/report-sender.html">Report Sender — Shift handover + end-of-day digest. a-f structure with LOTO detection regex. Multi-channel email + print-ready PDF.</a></li>
-      <li><a href="/alert-hub.html">Alert Hub — One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.</a></li>
-      <li><a href="/asset-hub.html">Asset Hub — Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset's own history. QR/barcode scan.</a></li>
-      <li><a href="/logbook.html">Visual Defect Capture — Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.</a></li>
-      <li><a href="/community.html">Community — Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.</a></li>
-      <li><a href="/public-feed.html">Public Feed — Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.</a></li>
-      <li><a href="/achievements.html">Achievements — 12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.</a></li>
-      <li><a href="/analytics.html">Analytics Engine — MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.</a></li>
-      <li><a href="/analytics-report.html">Analytics Report — Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.</a></li>
-      <li><a href="/predictive.html">Predictive Maintenance — Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.</a></li>
-      <li><a href="/ph-intelligence.html">Philippine Industrial Intelligence Report — Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.</a></li>
-      <li><a href="/shift-brain.html">Shift Brain — Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.</a></li>
-      <li><a href="/asset-hub.html">Reliability Workbench — Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.</a></li>
-      <li><a href="/asset-hub.html">Live Telemetry — MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.</a></li>
-      <li><a href="/inventory.html">Parts Staging — Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.</a></li>
-      <li><a href="/audit-log.html">Audit Log — Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.</a></li>
-      <li><a href="/engineering-design.html">Engineering Design Calculator — 51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing &amp; fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.</a></li>
-      <li><a href="/project-manager.html">Project Manager — Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.</a></li>
-      <li><a href="/project-report.html">Project Report — Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.</a></li>
-      <li><a href="/integrations.html">CMMS Integration — SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
-      <li><a href="/marketplace.html">Marketplace — Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Stripe escrow gated pending registration.</a></li>
-      <li><a href="/marketplace-seller.html">Marketplace Seller — Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
-      <li><a href="/ai-quality.html">AI Quality + ROI — WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings — gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
+      <li><a href="/hive.html">Hive Live Board: Join or create a team. Hive is the unit of multi-tenancy: every worker, asset, and entry is scoped to one hive. Live activity feed + presence + role assignment.</a></li>
+      <li><a href="/logbook.html">Digital Maintenance Logbook: Replace paper logs. Machine, problem, root cause, action, downtime, parts, photos, sign-off. Offline queue + edit-in-place + voice fill + photo-defect AI draft.</a></li>
+      <li><a href="/pm-scheduler.html">PM Scheduler: Replace spreadsheet PM trackers. Add assets, build PM scope by category, set Monthly/Quarterly/Semi-Annual/Yearly frequencies, track every due date.</a></li>
+      <li><a href="/inventory.html">Spare-Parts Inventory: Replace Excel parts lists. Stock ledger, reorder alerts, supervisor-approved restocks, transaction audit, running stock balance.</a></li>
+      <li><a href="/dayplanner.html">Maintenance Day Planner: DILO / WILO / MILO / YILO multi-resolution personal scheduler. Pulls from your logbook entries and PM schedule.</a></li>
+      <li><a href="/voice-journal.html">Voice Journal: Speak in any of 10 Philippine languages (Tagalog, Cebuano, Ilocano, Hiligaynon, Bikol, Waray, Kapampangan, Pangasinan). Semantic recall + private rolling memory.</a></li>
+      <li><a href="/resume.html">Resume / CV Builder: Turn your Skill Matrix, badges and logbook into a professional, ATS-friendly resume. Snap a photo or upload a PDF/Word/Excel from your phone. AI extracts the details into an editable checklist you control. Free for every worker.</a></li>
+      <li><a href="/assistant.html">AI Work Assistant: Floating helper on every page. Knows your hive, your role, your context. Routes through our AI service with memory + private-information redaction. Available across all 4 stages.</a></li>
+      <li><a href="/skillmatrix.html">Skill Matrix: Discipline-by-level matrix across 5 industrial disciplines. Timed assessments with cooldown logic. Badges gate PM eligibility and project task assignment.</a></li>
+      <li><a href="/report-sender.html">Report Sender: Shift handover + end-of-day digest. a-f structure with LOTO detection regex. Multi-channel email + print-ready PDF.</a></li>
+      <li><a href="/alert-hub.html">Alert Hub: One chronological inbox: risk, PM, stock, pattern, automation alerts. Plus the AMC Daily Brief at 06:00 PHT, a 5-sub-agent batched recommendation the supervisor approves with one tap.</a></li>
+      <li><a href="/asset-hub.html">Asset Hub: Asset Brain 360 per equipment: live state, full timeline (logbook + PM + inventory + projects), parent and sister machines, parts that fit, AI Q+A grounded in this asset's own history. QR/barcode scan.</a></li>
+      <li><a href="/logbook.html">Visual Defect Capture: Snap a photo of rust, leak, crack, burn. Multimodal LLM (Llama-4-Scout / Gemma-3) classifies, OCRs the asset tag, drafts the logbook entry. Inside the logbook flow.</a></li>
+      <li><a href="/community.html">Community: Hive forum: categories (general, safety, technical, announcement), reactions, threads, mentions, supervisor moderation, soft-delete with undo.</a></li>
+      <li><a href="/public-feed.html">Public Feed: Cross-hive public posts, opt-in only. Workers gain visibility across plants while hive data stays isolated. Rate-limited at the DB level.</a></li>
+      <li><a href="/achievements.html">Achievements: 12-domain XP system (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.). Tier frames Iron to Legend. XP rewards real work, not clicks.</a></li>
+      <li><a href="/analytics.html">Analytics Engine: MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.</a></li>
+      <li><a href="/analytics-report.html">Analytics Report: Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.</a></li>
+      <li><a href="/asset-hub.html">Predictive Maintenance: Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.</a></li>
+      <li><a href="/ph-intelligence.html">Philippine Industrial Intelligence Report: Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.</a></li>
+      <li><a href="/shift-brain.html">Shift Brain: Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.</a></li>
+      <li><a href="/asset-hub.html">Reliability Workbench: Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.</a></li>
+      <li><a href="/asset-hub.html">Live Telemetry: MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.</a></li>
+      <li><a href="/inventory.html">Parts Staging: Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.</a></li>
+      <li><a href="/audit-log.html">Audit Log: Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.</a></li>
+      <li><a href="/engineering-design.html">Engineering Design Calculator: 51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing &amp; fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.</a></li>
+      <li><a href="/project-manager.html">Project Manager: Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.</a></li>
+      <li><a href="/project-report.html">Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.</a></li>
+      <li><a href="/integrations.html">CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
+      <li><a href="/marketplace.html">Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.</a></li>
+      <li><a href="/marketplace-seller.html">Marketplace Seller: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
+      <li><a href="/ai-quality.html">AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
     <!--/CATALOG:tool_catalog_mirror-->
   </ul>
 </section>
@@ -1496,11 +1560,15 @@
 <section id="what-is-workhive" class="py-16 reveal" style="background: rgba(22,32,50,0.5); position: relative; z-index: 1;">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
     <p class="text-xs text-orange-wh font-bold uppercase tracking-[0.15em] mb-4">In one paragraph</p>
-    <h2 class="text-3xl sm:text-4xl font-black leading-[1.15] tracking-[-0.02em] mb-6 text-white">What is WorkHive?</h2>
+    <h2 class="text-3xl sm:text-4xl font-black leading-[1.15] tracking-[-0.02em] mb-6 text-white" data-i="whatiswh">What is WorkHive?</h2>
     <p class="text-base sm:text-lg text-white/75 leading-[1.75] font-light max-w-3xl mx-auto">
       WorkHive is a <strong class="text-white font-semibold">free industrial intelligence platform</strong> for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
     </p>
-    <p class="text-sm text-white/45 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
+    <p class="text-sm text-white/60 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
+    <a href="/learn/what-is-workhive-complete-platform-guide/" class="inline-flex items-center gap-2 mt-7 text-orange-wh hover:text-orange-light transition-colors font-semibold text-sm">
+      Read the complete platform guide
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </a>
   </div>
 </section>
 
@@ -1544,70 +1612,9 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════
-     PROBLEM SECTION
-═══════════════════════════════════════════════ -->
-<section class="py-24 lg:py-32 reveal" style="background: rgba(22,32,50,0.75); position: relative; z-index: 1;">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div class="text-center max-w-2xl mx-auto mb-20">
-      <div class="hex-divider justify-center"><span></span><span style="background:#29B6D9; width:6px; height:6px;"></span><span></span></div>
-      <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Why the hive is broken</p>
-      <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
-        Filipino workers are skilled.<br/>
-        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">The system is failing them.</span>
-      </h2>
-      <p class="text-white/55 leading-[1.75] font-light">
-        Four systemic failures hold Filipino industry back. Not because of the workers. Because of the system.
-      </p>
-    </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger-wrap">
-      <!-- Problem 1 -->
-      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);">
-          <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-        </div>
-        <h3 class="font-bold text-white text-base mb-2">Fragmentation</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Every department runs in isolation. Every boundary requires a human to carry information, manually, imperfectly.</p>
-      </div>
-
-      <!-- Problem 2 -->
-      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);">
-          <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
-        </div>
-        <h3 class="font-bold text-white text-base mb-2">Knowledge Loss</h3>
-        <p class="text-sm text-white/50 leading-relaxed">When a technician retires, 12 years of expertise disappears entirely. Replacing that knowledge costs ₱800K to ₱2.4M in lost productivity per transition.</p>
-      </div>
-
-      <!-- Problem 3 -->
-      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);">
-          <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-        </div>
-        <h3 class="font-bold text-white text-base mb-2">Reactive Processes</h3>
-        <p class="text-sm text-white/50 leading-relaxed">An unplanned failure costs 4 to 8 times more than the same repair done preventively. The warnings were there. No system was listening.</p>
-      </div>
-
-      <!-- Problem 4 -->
-      <div class="rounded-2xl p-6 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);">
-          <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
-        </div>
-        <h3 class="font-bold text-white text-base mb-2">Skills Invisibility</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Organizations can't deploy their best people because they don't know what their people can actually do. Jobs are assigned by availability, not competence.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- Arc P · P1/P2: the standalone PROBLEM SECTION was merged into "Four gaps. One hive."
+     below — each gap card now leads with its red "The gap:" problem line (problem→solution
+     per card), deleting a full-height section and front-loading the point. -->
 
 <!-- ═══════════════════════════════════════════════
      PLATFORM: THE 4 GAPS
@@ -1621,8 +1628,8 @@
       <div class="hex-divider justify-center"><span></span><span style="background:#F7A21B; width:6px; height:6px;"></span><span></span></div>
       <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">How the hive works</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
-        Four gaps.<br/>
-        <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">One hive.</span>
+        <span data-i="fourgaps">Four gaps.</span><br/>
+        <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="onehive">One hive.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
         Philippine industrial work is held back by four compounding gaps. WorkHive is the first
@@ -1638,9 +1645,10 @@
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">01</div>
           <div>
             <span class="tag-blue mb-2 inline-block">Fix It Fast</span>
-            <h3 class="text-xl font-bold text-white">From Chaos to Coordination</h3>
+            <h3 class="text-xl font-bold text-white" data-i="chaoscoord">From Chaos to Coordination</h3>
           </div>
         </div>
+        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
           Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
         </p>
@@ -1662,9 +1670,10 @@
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">02</div>
           <div>
             <span class="tag-blue mb-2 inline-block">Right Person, Right Job</span>
-            <h3 class="text-xl font-bold text-white">From Guesswork to Precision</h3>
+            <h3 class="text-xl font-bold text-white" data-i="guessprecision">From Guesswork to Precision</h3>
           </div>
         </div>
+        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.</p>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
           Right person, right job, every time. Competence replaces availability.
         </p>
@@ -1686,9 +1695,10 @@
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">03</div>
           <div>
             <span class="tag-blue mb-2 inline-block">The Hive Remembers</span>
-            <h3 class="text-xl font-bold text-white">From Amnesia to Memory</h3>
+            <h3 class="text-xl font-bold text-white" data-i="amnesiamemory">From Amnesia to Memory</h3>
           </div>
         </div>
+        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
@@ -1710,9 +1720,10 @@
           <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">04</div>
           <div>
             <span class="tag-blue mb-2 inline-block">Find a Specialist</span>
-            <h3 class="text-xl font-bold text-white">From Luck to Design</h3>
+            <h3 class="text-xl font-bold text-white" data-i="lucktodesign">From Luck to Design</h3>
           </div>
         </div>
+        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> The right specialist takes weeks to find, if you find them at all.</p>
         <p class="text-white/55 text-sm leading-relaxed mb-6">
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
@@ -1747,20 +1758,18 @@
         <div class="hex-divider"><span></span><span style="background:#F7A21B; width:6px; height:6px;"></span><span></span></div>
         <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">The hive in action</p>
         <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
-          The day after<br/>
-          <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">WorkHive.</span>
+          <span data-i="dayafter">The day after</span><br/>
+          <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" translate="no">WorkHive.</span>
         </h2>
         <p class="text-white/55 leading-[1.75] font-light mb-10">
-          The gap between where Philippine industrial work is today and where it could be is not
-          a gap of talent or ambition. It is a gap of systems. Filipino workers are already capable.
-          WorkHive gives them the infrastructure they deserve.
+          The gap is not talent or ambition. It is systems. WorkHive gives capable Filipino workers the infrastructure they deserve.
         </p>
 
         <!-- before/after -->
         <div class="space-y-4">
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-            <p class="text-white/45 text-sm line-through">Equipment fails without warning. 24h downtime. Millions lost.</p>
+            <p class="text-white/60 text-sm line-through">Equipment fails without warning. 24h downtime. Millions lost.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
@@ -1769,16 +1778,16 @@
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-            <p class="text-white/45 text-sm line-through">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
+            <p class="text-white/60 text-sm line-through">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
-            <p class="text-white/80 text-sm">AI matches the best available worker. 98% precision. Done right, first time.</p>
+            <p class="text-white/80 text-sm">AI matches the best available worker by skill and availability. Done right, first time.</p>
           </div>
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-            <p class="text-white/45 text-sm line-through">Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.</p>
+            <p class="text-white/60 text-sm line-through">Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
@@ -1818,14 +1827,14 @@
 <!-- ═══════════════════════════════════════════════
      COMMUNITY
 ═══════════════════════════════════════════════ -->
-<section id="community" class="py-24 lg:py-32" style="background: rgba(31,46,69,0.75); position: relative; z-index: 1;">
+<section id="community" class="py-16 lg:py-20" style="background: rgba(31,46,69,0.75); position: relative; z-index: 1;">
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div class="text-center max-w-2xl mx-auto mb-20 reveal">
+    <div class="text-center max-w-2xl mx-auto mb-12 reveal">
       <div class="hex-divider justify-center"><span></span><span style="background:#29B6D9; width:6px; height:6px;"></span><span></span></div>
       <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Find your role</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
-        Every worker<br/>
-        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">has a role in the hive.</span>
+        <span data-i="everyworker">Every worker</span><br/>
+        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="roleinhive">has a role in the hive.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
         Whether you're on the floor or running the floor, the hive works for you.
@@ -1841,7 +1850,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
         </div>
-        <h3 class="font-bold text-white text-lg mb-2">Technicians &amp; Operators</h3>
+        <h3 class="font-bold text-white text-lg mb-2" data-i="techsops">Technicians &amp; Operators</h3>
         <p class="text-sm text-white/50 leading-relaxed">You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.</p>
       </div>
 
@@ -1851,7 +1860,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
         </div>
-        <h3 class="font-bold text-white text-lg mb-2">Managers &amp; Supervisors</h3>
+        <h3 class="font-bold text-white text-lg mb-2" data-i="mgrsups">Managers &amp; Supervisors</h3>
         <p class="text-sm text-white/50 leading-relaxed">You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.</p>
       </div>
 
@@ -1861,10 +1870,31 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
           </svg>
         </div>
-        <h3 class="font-bold text-white text-lg mb-2">Entrepreneurs &amp; Builders</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Build a verified reputation in the hive. Get found by plants that need exactly what you do.</p>
+        <h3 class="font-bold text-white text-lg mb-2" data-i="entrepreneurs">Entrepreneurs &amp; Builders</h3>
+        <p class="text-sm text-white/50 leading-relaxed">Build a verified reputation in the hive. Post your services, get found by the plants that need exactly what you do, and let your track record speak. No middleman, no platform fee.</p>
       </div>
 
+    </div>
+
+    <!-- Community-of-Practice band: the "Community" nav anchor must reach the actual forum, not just
+         the persona pitch. Names the CoP + ties trust -> marketplace (the X-thesis) + links to the feed
+         and the CoP explainer. -->
+    <div class="mt-10 rounded-2xl p-8 sm:p-10 border border-white/[0.07] reveal text-center" style="background: linear-gradient(145deg, rgba(41,182,217,0.10) 0%, rgba(247,162,27,0.06) 100%);">
+      <h3 class="font-black text-white text-2xl sm:text-3xl mb-3 tracking-[-0.02em]" data-i="communitypractice">A community of practice, not just a forum</h3>
+      <p class="text-white/60 leading-relaxed font-light max-w-2xl mx-auto mb-7">
+        Ask a question at 2am and a technician three plants away answers it. Share the fix that saved your shift.
+        The trust you build by helping others follows you, from the community straight to the free marketplace,
+        where it becomes real jobs and trades.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="public-feed.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); min-height:44px;">
+          See the community feed
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+        <a href="/learn/industrial-community-of-practice-philippines/" class="inline-flex items-center gap-1.5 text-blue-wh font-semibold hover:text-white transition-colors" style="min-height:44px;">
+          How a community of practice works →
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -1875,7 +1905,7 @@
 <section id="faq" class="py-24 lg:py-32 reveal" style="background: rgba(22,32,50,0.75); position: relative; z-index: 1;">
   <div class="max-w-3xl mx-auto px-5 sm:px-8">
     <div class="hex-divider"><span></span><span></span><span></span></div>
-    <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6 text-white">Frequently asked questions</h2>
+    <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6 text-white" data-i="faqtitle">Frequently asked questions</h2>
     <p class="text-white/55 mb-12 text-lg leading-relaxed font-light">Quick answers about WorkHive, pricing, privacy, and what works offline.</p>
 
     <div class="space-y-4">
@@ -1897,7 +1927,7 @@
 
       <details class="faq-item">
         <summary>What tools does WorkHive include?</summary>
-        <div class="faq-answer">The hive bundles a digital logbook, PM scheduler with overdue alerts, spare-parts inventory with FIFO and reorder points, skill matrix for technician competencies, engineering design calculators (electrical, mechanical, HVAC, civil, instrumentation) referenced to ISO 14224 and Philippine standards, a day planner, and a Filipino/English AI work assistant.</div>
+        <div class="faq-answer">The hive bundles a digital logbook, PM scheduler with overdue alerts, spare-parts inventory with FIFO and reorder points, skill matrix for technician competencies, engineering design calculators (electrical, mechanical, instrumentation, plumbing and fire, lighting, HVAC) referenced to ISO 14224 and Philippine standards, a day planner, and a Filipino/English AI work assistant.</div>
       </details>
 
       <details class="faq-item">
@@ -1922,7 +1952,7 @@
 
       <details class="faq-item">
         <summary>What languages does WorkHive support?</summary>
-        <div class="faq-answer">English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. Future regional languages (Cebuano, Hiligaynon, Ilocano) are on the roadmap once the Philippine user base reaches scale.</div>
+        <div class="faq-answer">English by default, with Filipino (Tagalog) support in the AI work assistant. Workers can ask questions in either language and receive responses appropriate to their role and stage. The Voice Journal additionally understands 10 Philippine languages, including Cebuano, Hiligaynon, and Ilocano.</div>
       </details>
 
       <details class="faq-item">
@@ -1932,7 +1962,7 @@
 
       <details class="faq-item">
         <summary>How do I start today, before my plant is provisioned?</summary>
-        <div class="faq-answer">Open any tool right now. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run in Solo Mode without a hive: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value.</div>
+        <div class="faq-answer">Sign up free in under a minute, then open any tool in Solo Mode, no hive required. The Logbook, PM Scheduler, Engineering Calculators, and AI Assistant all run solo: type entries, run calculations, ask the assistant. When your plant joins, your Solo Mode entries migrate into your hive automatically. You do not have to wait for anyone to approve anything before getting value.</div>
       </details>
 
       <details class="faq-item">
@@ -1942,12 +1972,12 @@
 
       <details class="faq-item">
         <summary>Can I use WorkHive on my own without my supervisor knowing?</summary>
-        <div class="faq-answer">Yes. Solo Mode is built specifically for workers who want to upskill quietly: OFW-track engineers building portable proof of work, new graduates learning industrial standards, technicians documenting their own repair history. Your Solo Mode data is private to you and never shared with any hive until you join one and explicitly migrate it. This is intentional. The platform exists to protect Filipino workers' careers, not to surveil them.</div>
+        <div class="faq-answer">Yes. Solo Mode is built specifically for workers who want to upskill quietly: OFW-track engineers building portable proof of work, new graduates learning industrial standards, technicians documenting their own repair history. Your Solo Mode data is private to you and never shared with any hive until you join one and explicitly migrate it. Solo Mode is private by design: the platform exists to protect Filipino workers' careers, not to surveil them.</div>
       </details>
 
       <details class="faq-item">
         <summary>How long until my plant sees results?</summary>
-        <div class="faq-answer">Honest answer: 2 weeks for first signal, 90 days for measurable change, 12 months for compound returns. Week 1-2 the team builds the habit. Day 30 your first PM compliance number is real. Day 90 you can show a downtime trend. Month 6 the AI assistant gets useful because your logbook has enough entries to learn from. Month 12 you are at Disciplined stage and ready for Predictive-Ready features. No tool delivers results faster honestly; anyone claiming overnight transformation is selling you a dashboard, not a system.</div>
+        <div class="faq-answer">Expect 2 weeks for first signal, 90 days for measurable change, 12 months for compound returns. Week 1-2 the team builds the habit. Day 30 your first PM compliance number is real. Day 90 you can show a downtime trend. Month 6 the AI assistant gets useful because your logbook has enough entries to learn from. Month 12 you are at Disciplined stage and ready for Predictive-Ready features. Results track your data: the more your team logs, the sharper the insight becomes.</div>
       </details>
 
       <details class="faq-item">
@@ -1962,43 +1992,43 @@
 <!-- ═══════════════════════════════════════════════
      LEARN TEASER (drives traffic to /learn/ hub)
 ═══════════════════════════════════════════════ -->
-<section id="learn-teaser" class="py-20 lg:py-28 reveal" style="background: rgba(22,32,50,0.55); position: relative; z-index: 1;">
+<section id="learn-teaser" class="py-12 lg:py-16 reveal" style="background: rgba(22,32,50,0.55); position: relative; z-index: 1;">
   <div class="max-w-6xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-12">
       <p class="text-xs font-bold uppercase tracking-[0.15em] text-orange-wh mb-4">Free guides</p>
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-5">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-5" data-i="practicalwriting">
         Practical writing for the Philippine plant floor
       </h2>
       <p class="text-white/55 leading-relaxed font-light">
-        <!--CATALOG:guide_count-->38<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+        <!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
       </p>
     </div>
 
     <div class="grid sm:grid-cols-3 gap-5 mb-10">
 
-      <a href="/learn/start-digital-logbook-philippine-factory/" class="learn-teaser-card">
-        <div class="learn-teaser-pill">Logbook</div>
-        <h3 class="learn-teaser-title">How to start a digital logbook in a Philippine factory</h3>
-        <p class="learn-teaser-meta">11 min · zero-budget rollout · 7 FAQs</p>
+      <a href="/learn/what-is-workhive-complete-platform-guide/" class="learn-teaser-card">
+        <div class="learn-teaser-pill">Start Here</div>
+        <h3 class="learn-teaser-title" data-i="guidewh">What is WorkHive? The complete platform guide</h3>
+        <p class="learn-teaser-meta">12 min · the whole platform in one map · 6 FAQs</p>
+      </a>
+
+      <a href="/learn/workhive-ai-companion-complete-capabilities/" class="learn-teaser-card">
+        <div class="learn-teaser-pill">AI Companion</div>
+        <h3 class="learn-teaser-title" data-i="guideai">The AI companion: everything it can do</h3>
+        <p class="learn-teaser-meta">11 min · Hezekiah + Zaniah · how to get the most from it</p>
       </a>
 
       <a href="/learn/what-is-oee-how-to-calculate/" class="learn-teaser-card">
         <div class="learn-teaser-pill">OEE</div>
-        <h3 class="learn-teaser-title">What is OEE and how do I calculate it?</h3>
+        <h3 class="learn-teaser-title" data-i="guideoee">What is OEE and how do I calculate it?</h3>
         <p class="learn-teaser-meta">10 min · worked PH example · 6 FAQs</p>
-      </a>
-
-      <a href="/learn/ai-work-assistant-maintenance-technicians/" class="learn-teaser-card">
-        <div class="learn-teaser-pill">AI Assistant</div>
-        <h3 class="learn-teaser-title">AI work assistant for every industrial worker</h3>
-        <p class="learn-teaser-meta">10 min · career-protection guide · 6 FAQs</p>
       </a>
 
     </div>
 
     <div class="text-center">
       <a href="/learn/" class="inline-flex items-center gap-2 text-orange-wh hover:text-orange-light transition-colors font-semibold">
-        See all <!--CATALOG:guide_count-->38<!--/CATALOG:guide_count--> guides
+        See all <!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> guides
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </a>
     </div>
@@ -2042,7 +2072,7 @@
     }
     .learn-teaser-meta {
       font-size: 0.78rem;
-      color: rgba(244,246,250,0.45);
+      color: rgba(244,246,250,0.62);  /* 0.45 was 3.82:1 (fail); 0.62 clears WCAG 4.5:1 */
     }
   </style>
 </section>
@@ -2062,8 +2092,8 @@
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="w-auto" style="height: 80px; filter: drop-shadow(0 0 20px rgba(247,162,27,0.35));" />
     </div>
     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-[-0.03em] mb-6">
-      Join the hive.<br/>
-      <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Build the future.</span>
+      <span data-i="jointhehive">Join the hive.</span><br/>
+      <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="buildfuture">Build the future.</span>
     </h2>
     <p class="text-lg text-white/55 leading-[1.75] font-light mb-10 max-w-xl mx-auto">
       The beehive has been showing us how for 80 million years: every worker valued, every role
@@ -2087,9 +2117,9 @@
           class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
           style="background: rgba(42,61,88,0.7);"
         />
-        <button type="submit" class="btn-primary text-sm whitespace-nowrap">Join the Hive</button>
+        <button type="submit" class="btn-primary text-sm whitespace-nowrap" data-i="joinhivebtn">Join the Hive</button>
       </div>
-      <label for="join-role" class="sr-only">Your role (optional)</label>
+      <label for="join-role" class="sr-only" data-i="yourrole">Your role (optional)</label>
       <select
         id="join-role"
         name="role"
@@ -2121,7 +2151,7 @@
         </div>
         <p class="text-sm text-white/55 leading-snug">DTI Registered Business <span class="text-white/60">No. 8080496</span></p>
       </div>
-      <div class="flex items-center gap-2 text-white/45">
+      <div class="flex items-center gap-2 text-white/60">
         <svg class="w-4 h-4 text-orange-wh" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
         <span class="text-sm">Free at the worker tier, forever</span>
       </div>
@@ -2154,13 +2184,14 @@
           <li><a href="/skillmatrix.html"        class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Skill Matrix</a></li>
           <li><a href="/engineering-design.html" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Design Calculator</a></li>
           <li><a href="/assistant.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">AI Work Assistant</a></li>
-          <li><a href="/learn/"                  class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (38 free guides)</a></li>
+          <li><a href="/learn/"                  class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (<!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> free guides)</a></li>
         </ul>
       </div>
       <div>
         <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Company</p>
         <ul class="space-y-3">
           <li><a href="/about/" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">About</a></li>
+          <li><a href="/feedback/" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Roadmap &amp; Feedback</a></li>
           <li><a href="mailto:admin@workhiveph.com" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Contact</a></li>
         </ul>
         <p class="text-xs text-white/60 mt-6">DTI Registered<br/>Business Name 8080496</p>
@@ -2324,7 +2355,7 @@
 
 <!-- ── Stage Popup Overlay ── -->
 <div id="stage-popup-overlay" onclick="closeStagePopup()" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(10,18,28,0.75); backdrop-filter:blur(6px); display:none;">
-  <div id="stage-popup" onclick="event.stopPropagation()" class="relative w-full max-w-2xl rounded-3xl border border-white/10 overflow-hidden" style="background: linear-gradient(145deg, rgba(42,61,88,0.97) 0%, rgba(22,32,50,0.99) 100%); box-shadow: 0 40px 100px -12px rgba(0,0,0,0.8); max-height: 90vh; display: flex; flex-direction: column;">
+  <div id="stage-popup" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Growth path stage details" tabindex="-1" class="relative w-full max-w-2xl rounded-3xl border border-white/10 overflow-hidden" style="background: linear-gradient(145deg, rgba(42,61,88,0.97) 0%, rgba(22,32,50,0.99) 100%); box-shadow: 0 40px 100px -12px rgba(0,0,0,0.8); max-height: 90vh; display: flex; flex-direction: column;">
 
     <!-- popup top bar: stage tabs + close -->
     <div class="px-5 pt-5 pb-0 flex-shrink-0">
@@ -2338,19 +2369,19 @@
       <div id="popup-tabs-row" class="grid grid-cols-4 gap-1.5 mb-5">
         <button onclick="switchPopupStage(1)" id="ptab-1" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/60 mb-0.5">01</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Foundation</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stfoundation">Foundation</span>
         </button>
         <button onclick="switchPopupStage(2)" id="ptab-2" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/60 mb-0.5">02</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Discipline</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stdiscipline">Discipline</span>
         </button>
         <button onclick="switchPopupStage(3)" id="ptab-3" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/60 mb-0.5">03</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Predictive</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stpredictive">Predictive</span>
         </button>
         <button onclick="switchPopupStage(4)" id="ptab-4" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
           <span class="text-[10px] font-bold block text-white/60 mb-0.5">04</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight">Leader</span>
+          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stleader">Leader</span>
         </button>
       </div>
     </div>
@@ -2358,7 +2389,7 @@
     <!-- stage info -->
     <div id="popup-stage-info" class="px-5 pb-4 border-b border-white/[0.07] flex-shrink-0">
       <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:#F7A21B;"></p>
-      <p id="popup-stage-quote" class="text-white/45 text-xs italic"></p>
+      <p id="popup-stage-quote" class="text-white/60 text-xs italic"></p>
     </div>
 
     <!-- tools grid (scrollable) -->
@@ -2430,7 +2461,7 @@
       tools: [
         { name: 'Analytics Engine',        desc: 'MTBF, MTTR, Availability, OEE, PM Compliance, Pareto. 4 phases (descriptive, diagnostic, predictive, prescriptive). ISO 14224 + SMRP + ISA-101 anchored.',                                                          link: 'analytics.html',           icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
         { name: 'Analytics Report',    desc: 'Print-ready report compiled from all 4 phases. RAG-coloured tiles + AI action plan + sign-off block. Mirrors the maintenance audit format.',                                                                       link: 'analytics-report.html',    icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-        { name: 'Predictive Maintenance',  desc: 'Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.',                link: 'predictive.html',          icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
+        { name: 'Predictive Maintenance',  desc: 'Risk Ranking, Health Heatmap, Failure Trend forecast. Rules engine from Day 1; GBM ML model activates after 500+ corrective records. Honest gating: we suppress predictions on insufficient data.',                link: 'asset-hub.html',           icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
         { name: 'Philippine Industrial Intelligence Report',         desc: 'Monthly Philippine Industrial Maintenance Report. MTBF benchmarks by equipment type, top failure causes, seasonal patterns (typhoon, brownout, salt-air). N≥5 hive privacy guard.',                              link: 'ph-intelligence.html',     icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
         { name: 'Shift Brain',             desc: 'Autonomous shift planner. 4 sub-agents (risk-ranking, PMs-due, carry-forward open work, parts pre-stage) plus AI briefing synthesis. Cron at 06:00, 14:00, 22:00 PHT. Supervisor publishes to crew.',                link: 'shift-brain.html',         icon: 'M12 6V4m0 16v-2M6 12H4m16 0h-2M7.05 7.05L5.64 5.64m12.72 12.72l-1.41-1.41M16.95 7.05l1.41-1.41M5.64 18.36l1.41-1.41 M12 12m-4 0a4 4 0 108 0 4 4 0 10-8 0' },
         { name: 'Reliability Workbench',   desc: 'Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.',                                  link: 'asset-hub.html',           icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
@@ -2451,7 +2482,7 @@
         { name: 'Project Manager',             desc: 'Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.',                          link: 'project-manager.html',    icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
         { name: 'Project Report',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         { name: 'CMMS Integration',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
-        { name: 'Marketplace',                 desc: 'Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Stripe escrow gated pending registration.',                              link: 'marketplace.html',        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+        { name: 'Marketplace',                 desc: 'Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.',                              link: 'marketplace.html',        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
         { name: 'Marketplace Seller',          desc: 'Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.',                                                         link: 'marketplace-seller.html', icon: 'M3 9l1-4h16l1 4M3 9h18M3 9v11a1 1 0 001 1h4v-7h4v7h8a1 1 0 001-1V9' },
       ]
     }
@@ -2463,10 +2494,11 @@
     document.getElementById('popup-stage-label').style.color = s.color;
     document.getElementById('popup-stage-quote').textContent = s.quote;
 
-    // update tabs
+    // update tabs — clear EVERY active* class (tabs use active-blue/teal/purple/gold
+    // per stage; removing only 'active'+'active-blue' left prior stages highlighted = F6 bug)
     [1,2,3,4].forEach(i => {
       const tab = document.getElementById('ptab-' + i);
-      tab.classList.remove('active', 'active-blue');
+      Array.prototype.slice.call(tab.classList).filter(c => c.indexOf('active') === 0).forEach(c => tab.classList.remove(c));
     });
     document.getElementById('ptab-' + n).classList.add(s.tabClass);
 
@@ -2493,6 +2525,24 @@
 
   var _SPRING_VISCOUS = 'transform 0.25s ease-out';
 
+  // Focus management for the stage-popup dialog (WCAG 2.4.3 focus order + the
+  // dialog pattern), mirroring the sign-in modal (:3260-3281). Without this the
+  // aria-modal popup left focus on the opener card and let Tab escape to the
+  // page behind it (Landing Deep-Arc U2/U5).
+  var _stagePopupOpener = null;
+  function _stagePopupFocusIn() {
+    var popup = document.getElementById('stage-popup');
+    if (!popup) return;
+    var f = popup.querySelector('a[href],button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])');
+    try { (f || popup).focus(); } catch (_e) { /* empty-catch-allow: focus is best-effort a11y */ }
+  }
+  function _stagePopupFocusRestore() {
+    if (_stagePopupOpener && typeof _stagePopupOpener.focus === 'function') {
+      try { _stagePopupOpener.focus(); } catch (_e) { /* empty-catch-allow: opener may be gone; restore-focus is best-effort */ }
+    }
+    _stagePopupOpener = null;
+  }
+
   function _popupSpringIn() {
     var popup = document.getElementById('stage-popup');
     popup.style.transition = 'none';
@@ -2508,6 +2558,7 @@
   }
 
   function openStagePopup(n) {
+    _stagePopupOpener = document.activeElement;
     renderPopupStage(n);
     document.getElementById('popup-tabs-row').style.display = 'none';
     var overlay = document.getElementById('stage-popup-overlay');
@@ -2518,9 +2569,11 @@
       overlay.style.opacity = '1';
     });
     _popupSpringIn();
+    _stagePopupFocusIn();
   }
 
   function openAllToolsPopup() {
+    _stagePopupOpener = document.activeElement;
     renderPopupStage(1);
     document.getElementById('popup-tabs-row').style.display = 'grid';
     var overlay = document.getElementById('stage-popup-overlay');
@@ -2531,11 +2584,14 @@
       overlay.style.opacity = '1';
     });
     _popupSpringIn();
+    _stagePopupFocusIn();
   }
 
   function closeStagePopup() {
     var popup = document.getElementById('stage-popup');
     var overlay = document.getElementById('stage-popup-overlay');
+    if (overlay.style.display === 'none') return;  // idempotent: don't restore focus when already closed
+    _stagePopupFocusRestore();
     popup.style.transition = 'transform 0.22s ease-in, opacity 0.18s ease-in';
     popup.style.transform = 'scale(0.92) translateY(8px)';
     popup.style.opacity = '0';
@@ -2551,7 +2607,24 @@
     }, 220);
   }
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStagePopup(); });
+  // Stage-popup keyboard: ESC closes + Tab is trapped inside the open dialog
+  // (mirrors the sign-in modal :3260-3281). Scoped to when the overlay is
+  // actually visible so it never fires on a closed popup.
+  document.addEventListener('keydown', function(e) {
+    var overlay = document.getElementById('stage-popup-overlay');
+    if (!overlay || overlay.style.display === 'none') return;
+    if (e.key === 'Escape') { closeStagePopup(); return; }
+    if (e.key === 'Tab') {
+      var popup = document.getElementById('stage-popup');
+      var f = [].slice.call(popup.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])'))
+        .filter(function(el) { return el.offsetParent !== null; });
+      if (!f.length) { e.preventDefault(); popup.focus(); return; }
+      var first = f[0], last = f[f.length - 1];
+      if (!popup.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
 </script>
 
   <script src="utils.js"></script>
@@ -2570,7 +2643,10 @@
      role="status" aria-live="polite">
   <div style="background:rgba(22,32,50,0.97); border:1px solid rgba(247,162,27,0.3); border-radius:999px; padding:10px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,0.4); font-size:0.78rem;">
     <span style="color:rgba(255,255,255,0.6);">Signed in as <strong id="upgrade-banner-name" style="color:white;"></strong></span>
-    <button onclick="upgradeToAccount()" style="background:#F7A21B; color:#162032; border:none; border-radius:999px; padding:5px 14px; font-size:0.75rem; font-weight:700; cursor:pointer;">Secure account →</button>
+    <!-- Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
+         housekeeping nudge no longer outshines the page's real primary action (the
+         verdict/next-job). Also bumped to the 44px gloved-field tap target. -->
+    <button onclick="upgradeToAccount()" style="background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Secure account →</button>
     <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
   </div>
 </div>
@@ -2590,6 +2666,7 @@
     .signin-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     #hamburger { min-height: 44px; min-width: 44px; align-items: center; justify-content: center; }
     #oh-persona-toggle, .oh-signout { min-height: 44px; }
+    #oh-lang button { min-height: 44px; min-width: 44px; }
   }
 </style>
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
@@ -2604,10 +2681,10 @@
     <div class="flex mb-5 rounded-xl overflow-hidden" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
       <button id="tab-signin" onclick="switchAuthTab('signin')" role="tab" aria-selected="true" aria-controls="panel-signin"
         class="flex-1 py-2.5 text-sm font-bold transition-colors"
-        style="background:rgba(247,162,27,0.1); color:#F7A21B; border-right:1px solid rgba(255,255,255,0.1);">Sign In</button>
+        style="background:rgba(247,162,27,0.1); color:#F7A21B; border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
       <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
         class="flex-1 py-2.5 text-sm font-semibold transition-colors"
-        style="color:rgba(255,255,255,0.6);">Sign Up</button>
+        style="color:rgba(255,255,255,0.6);" data-i="signup">Sign Up</button>
     </div>
 
     <!-- Sign In panel -->
@@ -2631,18 +2708,18 @@
       <p role="alert" aria-live="assertive" id="si-error" class="text-xs text-red-400 mb-3 hidden"></p>
       <button type="submit" id="si-btn" onclick="submitSignIn()"
         class="w-full rounded-xl py-3 text-sm font-bold"
-        style="background:#F7A21B; color:#162032;">Sign In</button>
+        style="background:#F7A21B; color:#162032;" data-i="signin">Sign In</button>
       <!-- Arc I I3/I — password recovery: email reset (real-email users) + supervisor-assisted (no-email workers) -->
       <p style="margin-top:10px; text-align:center;">
-        <button type="button" onclick="forgotPassword(event)" style="display:inline; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;">Forgot your password?</button>
+        <button type="button" onclick="forgotPassword(event)" style="display:inline; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;" data-i="forgotpwd">Forgot your password?</button>
       </p>
 
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
-        <p style="font-size:.65rem; color:rgba(255,255,255,0.2); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
+        <p style="font-size:.65rem; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
         <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
           class="w-full rounded-xl py-2.5 text-sm font-semibold"
-          style="background:rgba(41,182,217,0.08); color:#29B6D9; border:1px solid rgba(41,182,217,0.25);">
+          style="background:rgba(41,182,217,0.08); color:#29B6D9; border:1px solid rgba(41,182,217,0.25);" translate="no">
           Enterprise SSO (Okta / Azure AD)
         </button>
       </div>
@@ -2688,8 +2765,8 @@
       <p role="alert" aria-live="assertive" id="su-error" class="text-xs text-red-400 mb-3 hidden"></p>
       <button type="submit" id="su-btn" onclick="submitSignUp()"
         class="w-full rounded-xl py-3 text-sm font-bold"
-        style="background:#F7A21B; color:#162032;">Create Account</button>
-      <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.2);">Username cannot be changed later</p>
+        style="background:#F7A21B; color:#162032;" data-i="createaccount">Create Account</button>
+      <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);">Username cannot be changed later</p>
     </form>
 
     <!-- Guest panel removed (C4: all access now requires auth) -->
@@ -2699,7 +2776,7 @@
         <p style="color:rgba(255,255,255,0.6); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
           WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
         </p>
-        <button onclick="switchAuthTab('signup')" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;">
+        <button onclick="switchAuthTab('signup')" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;" data-i="createaccountgo">
           Create Account →
         </button>
       </div>
@@ -2781,7 +2858,7 @@
       if (btn) {
         const active = t === tab;
         btn.style.background = active ? 'rgba(247,162,27,0.1)' : 'transparent';
-        btn.style.color      = active ? '#F7A21B' : 'rgba(255,255,255,0.4)';
+        btn.style.color      = active ? '#F7A21B' : 'rgba(255,255,255,0.62)';  // 0.62 clears WCAG 4.5:1 on the modal bg (0.4 was 3.67:1)
         btn.style.fontWeight = active ? '700' : '600';
         btn.setAttribute('aria-selected', active ? 'true' : 'false');
       }
@@ -2861,7 +2938,7 @@
   // hive, then sets them only from B's own membership truth (solo mode if none).
   async function resolveActiveHiveContext(db, displayName) {
     // Clear up front: never inherit the previous identity's tenant context.
-    ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code']
+    ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code','wh_hives']
       .forEach(k => localStorage.removeItem(k));
     if (!displayName) return null;
     try {
@@ -2883,6 +2960,18 @@
         .limit(500);
       if (!hives || !hives.length) return null;
 
+      // Refresh the hive-switcher LIST too, not just the active hive — otherwise the
+      // previous identity's wh_hives leaks into this session (e.g. a worker signing in
+      // after a supervisor would see the supervisor's hive as a switch target: a
+      // cross-tenant name residue + a broken switch. Issue #1 residue). Rebuild from
+      // THIS identity's own membership truth.
+      try {
+        localStorage.setItem('wh_hives', JSON.stringify(hives.map(h => {
+          const mm = memberships.find(x => x.hive_id === h.id);
+          return { id: h.id, name: h.name, role: mm ? mm.role : 'worker', code: '' };
+        })));
+      } catch (_) { /* empty-catch-allow: localStorage QuotaExceededError on iOS Safari is non-fatal */ }
+
       const first = hives[0];
       const m = memberships.find(x => x.hive_id === first.id);
       const role = m ? m.role : 'worker';
@@ -2890,6 +2979,16 @@
       localStorage.setItem('wh_hive_id',         first.id);
       localStorage.setItem('wh_hive_name',       first.name);
       localStorage.setItem('wh_hive_role',       role);
+      // Refresh the view now that the active hive changed, mirroring how
+      // hive.html's switch handlers re-render (switchToHive/initBoard). If the
+      // ops-home dashboard is already on screen, re-render it against the new
+      // hive so it never keeps showing the previous tenant; during the initial
+      // sign-in/sign-up flip ops-home is still hidden, so the caller's own
+      // _initDashboard render handles it and we skip the redundant call here.
+      const _ops = document.getElementById('ops-home');
+      if (_ops && _ops.style.display === 'block' && typeof _initDashboard === 'function') {
+        _initDashboard(displayName).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
+      }
       return { id: first.id, name: first.name, role };
     } catch (_e) {
       return null;  // fail to solo mode rather than leak the prior tenant
@@ -2967,7 +3066,7 @@
     if (mkt && ops) {
       mkt.style.display = 'none';
       ops.style.display = 'block';
-      if (typeof _initDashboard === 'function') _initDashboard(displayName);
+      if (typeof _initDashboard === 'function') _initDashboard(displayName).then(() => { if (typeof whFreshnessFooter === 'function' && document.getElementById('ops-home')?.style.display !== 'none') whFreshnessFooter(); }); // G1 (FAMILY F3)
     }
   }
 
@@ -3054,7 +3153,7 @@
     if (_mkt && _ops) {
       _mkt.style.display = 'none';
       _ops.style.display = 'block';
-      if (typeof _initDashboard === 'function') _initDashboard(displayName);
+      if (typeof _initDashboard === 'function') _initDashboard(displayName).then(() => { if (typeof whFreshnessFooter === 'function' && document.getElementById('ops-home')?.style.display !== 'none') whFreshnessFooter(); }); // G1 (FAMILY F3)
     }
 
     // C2: Check if display_name matches existing hive records.
@@ -3070,7 +3169,7 @@
           <div style="font-size:2.5rem; margin-bottom:0.75rem;">&#10003;</div>
           <p style="color:white; font-weight:800; font-size:1rem; margin:0 0 0.5rem;">Account secured!</p>
           <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin:0 0 1.5rem; line-height:1.5;">
-            Your existing records as <strong style="color:#F7A21B;">${displayName.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</strong>
+            Your existing records as <strong style="color:#F7A21B;">${escHtml(displayName)}</strong>
             are now linked to your account.
           </p>
           <button onclick="closeSignIn()" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;width:100%;">
@@ -3370,6 +3469,8 @@
       }
       document.getElementById('mkt-wrap').style.display = 'none';
       document.getElementById('ops-home').style.display = 'block';
+      // Marketing-chrome hide (footer/sticky-CTA/upgrade-banner) now lives in _initDashboard so
+      // EVERY dashboard-render path applies it (not just this one). _initDashboard runs below.
       _initDashboard(name);
     };
     const _lsWorker = localStorage.getItem('wh_last_worker')
@@ -3566,7 +3667,7 @@
 </script>
 
 <!-- Supabase for early access signup (anon key: safe to expose in frontend) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script>
 (function() {
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
@@ -3608,29 +3709,120 @@
   // _escHtml was an inline alias for escHtml (from utils.js) -- removed 2026-05-18
   // per security skill rule (drift risk). All call sites updated to use escHtml directly.
 
-  function _timeAgo(iso) {
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60)  return 'just now';
-    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
-    return `${Math.floor(diff/86400)}d ago`;
-  }
+  function _timeAgo(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
+
+  // ── N1 i18n: EN/FIL for the signed-in home dashboard (parity with hive.html) ──
+  // WH_LANG = active locale (persisted to wh_lang); _t(en,fil) translates the
+  // JS-RENDERED label strings; setLang swaps the static [data-i] nodes AND
+  // re-renders the dashboard so the render-fn labels re-evaluate _t(). Data
+  // values (worker/machine names, counts, asset IDs) stay as-is by design —
+  // same rule hive.html uses for its dynamic greeting.
+  window.WH_LANG = window.WH_LANG || (function(){ try { return localStorage.getItem('wh_lang') === 'fil' ? 'fil' : 'en'; } catch(_){ /* empty-catch-allow: localStorage blocked -> default to EN */ return 'en'; } })();
+  window._t = window._t || function _t(en, fil){ return (window.WH_LANG === 'fil' && fil) ? fil : en; };
+  window._ohFIL = {
+    more:'Higit pa', myopenjobs:'Aking Bukas na Trabaho', alltools:'Lahat ng Tool',
+    todayglance:'Ngayong Araw sa Isang Tingin', quickactions:'Mabilisang Aksyon',
+    logajob:'Mag-log ng Trabaho', pmscheduler:'PM Scheduler', analytics:'Analytics',
+    askai:'Tanungin ang AI', voicejournal:'Voice Journal', scanasset:'I-scan ang Asset',
+    signout:'Mag-sign Out', priv:'Privacy', terms:'Terms',
+    // N1: static-label keys for the marketing landing + auth modal (same engine,
+    // selector widened to [data-i] so the whole page swaps on EN/FIL toggle).
+    signin:'Mag-sign In', signup:'Mag-sign Up', signoutmenu:'Mag-sign out',
+    deactivate:'I-deactivate ang account', installwh:'I-install ang WorkHive',
+    aicompanion:'Kasamang AI', companionlbl:'Kasama: ',
+    accessyour:'I-access ang Iyong', memory:'Memorya',
+    herosub:'Libreng Industrial Tools para sa Bawat Manggagawang Pilipino',
+    findyour:'Hanapin ang', hivesstage:'stage ng iyong hive',
+    seealltools:'Tingnan Lahat ng Tool',
+    alltoolsmirror:'Lahat ng WorkHive tools (libre para sa bawat Filipino industrial worker)',
+    whatiswh:'Ano ang WorkHive?', fourgaps:'Apat na gap.', onehive:'Isang hive.',
+    chaoscoord:'Mula Gulo Tungo sa Koordinasyon', guessprecision:'Mula Hula Tungo sa Katumpakan',
+    amnesiamemory:'Mula Paglimot Tungo sa Memorya', lucktodesign:'Mula Swerte Tungo sa Disenyo',
+    dayafter:'Ang araw pagkatapos ng', everyworker:'Bawat manggagawa',
+    roleinhive:'may papel sa hive.', techsops:'Mga Technician at Operator',
+    mgrsups:'Mga Manager at Supervisor', entrepreneurs:'Mga Entrepreneur at Builder',
+    communitypractice:'Isang community of practice, hindi lang forum',
+    faqtitle:'Mga madalas itanong',
+    practicalwriting:'Praktikal na sulatin para sa Philippine plant floor',
+    guidewh:'Ano ang WorkHive? Ang kumpletong gabay sa platform',
+    guideai:'Ang AI companion: lahat ng kaya nitong gawin',
+    guideoee:'Ano ang OEE at paano ito kalkulahin?',
+    jointhehive:'Sumali sa hive.', buildfuture:'Buuin ang kinabukasan.',
+    joinhivebtn:'Sumali sa Hive', yourrole:'Ang iyong role (opsyonal)',
+    stfoundation:'Pundasyon', stdiscipline:'Disiplina', stpredictive:'Predictive', stleader:'Lider',
+    secureaccount:'I-secure ang account →', forgotpwd:'Nakalimutan ang password?',
+    createaccount:'Gumawa ng Account', createaccountgo:'Gumawa ng Account →'
+  };
+  // Verdict-card fixed phrases (label + cta from renderTodaysOneThing's candidate set).
+  window._ohVerdict = {
+    'Critical Risk':'Kritikal na Panganib', 'Sensor Anomaly':'Anomalya sa Sensor',
+    'Critical Failure Signature':'Kritikal na Failure Signature', 'AMC Brief Awaiting Approval':'AMC Brief na Naghihintay ng Approval',
+    'Critical PM Overdue':'Kritikal na Lumipas na PM', 'PM Overdue':'Lumipas na PM',
+    'Out of Stock':'Ubos na Stock', 'Oldest Open Job':'Pinakamatandang Bukas na Trabaho',
+    'Open Asset Hub':'Buksan ang Asset Hub', 'Open Alert Hub':'Buksan ang Alert Hub',
+    'Open PM Scheduler':'Buksan ang PM Scheduler', 'Open Inventory':'Buksan ang Imbentaryo',
+    'Open Logbook':'Buksan ang Logbook', 'Inspect now to avoid breakdown.':'Suriin agad para maiwasan ang pagkasira.'
+  };
+  window._tv = function _tv(s){ return (window.WH_LANG === 'fil' && window._ohVerdict[s]) ? window._ohVerdict[s] : s; };
+  window._ohEnCap = null;
+  window.setLang = function setLang(l, btn){
+    window.WH_LANG = (l === 'fil') ? 'fil' : 'en';
+    try { localStorage.setItem('wh_lang', window.WH_LANG); } catch(_){ /* empty-catch-allow: locale persistence is best-effort (private mode / blocked storage) */ }
+    // N1: widened from '#ops-home [data-i]' — the marketing landing + auth modal
+    // statics now carry data-i too, so the whole document participates in the swap.
+    var els = document.querySelectorAll('[data-i]');
+    if (!window._ohEnCap) { window._ohEnCap = {}; els.forEach(function(e){ window._ohEnCap[e.dataset.i] = e.innerHTML; }); }
+    var d = (window.WH_LANG === 'fil') ? window._ohFIL : window._ohEnCap;
+    els.forEach(function(e){ if (d[e.dataset.i] != null) e.innerHTML = d[e.dataset.i]; });
+    document.documentElement.lang = (window.WH_LANG === 'fil') ? 'fil' : 'en';
+    document.querySelectorAll('#oh-lang button').forEach(function(b){ var on = b.dataset.lang === window.WH_LANG; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    try { if (window._ohLastName) window._initDashboard(window._ohLastName); } catch(_){ /* empty-catch-allow: re-render is best-effort; a failure leaves the prior render intact */ }
+    try { document.dispatchEvent(new CustomEvent('wh-locale-change', { detail: window.WH_LANG })); } catch(_){ /* empty-catch-allow: locale-change event is advisory for listeners */ }
+  };
+  // Wire the EN/FIL toggle via addEventListener (no inline onclick) so it adds no CSP
+  // inline-handler debt (validate_csp.py ratchet). Buttons already exist in the DOM above.
+  document.querySelectorAll('#oh-lang button').forEach(function(b){
+    b.addEventListener('click', function(){ window.setLang(b.dataset.lang, b); });
+  });
 
   function _greeting(name) {
     const h = new Date().getHours();
-    const time = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    const time = h < 12 ? _t('morning','umaga') : h < 17 ? _t('afternoon','hapon') : _t('evening','gabi');
     const first = name.split(' ')[0];
-    return `Good ${time}, ${escHtml(first)} 👋`;
+    return `${_t('Good','Magandang')} ${time}, ${escHtml(first)} 👋`;
   }
 
   function _dateStr() {
     const d = new Date();
-    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const days   = window.WH_LANG === 'fil'
+      ? ['Linggo','Lunes','Martes','Miyerkoles','Huwebes','Biyernes','Sabado']
+      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} · ${d.getHours() < 12 ? 'Morning' : d.getHours() < 17 ? 'Afternoon' : 'Evening'} Shift`;
+    const shift = d.getHours() < 12 ? _t('Morning','Umaga') : d.getHours() < 17 ? _t('Afternoon','Hapon') : _t('Evening','Gabi');
+    return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} · ${shift} ${_t('Shift','Shift')}`;
   }
 
   window._initDashboard = async function(workerName) {
+    window._ohLastName = workerName; // N1: remembered so setLang() can re-render in the active locale
+    // N1: reflect the PERSISTED locale on load. The JS-rendered strings below already read
+    // _t()/WH_LANG, but the static [data-i] chrome (More, tool names, Sign Out) needs a swap
+    // + the toggle needs its active state, so a returning FIL user doesn't see mixed EN/FIL.
+    (function _ohSyncLang(){
+      document.querySelectorAll('#oh-lang button').forEach(function(b){ var on = b.dataset.lang === window.WH_LANG; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+      var els = document.querySelectorAll('[data-i]'); // N1: widened, see setLang()
+      if (!window._ohEnCap) { window._ohEnCap = {}; els.forEach(function(e){ window._ohEnCap[e.dataset.i] = e.innerHTML; }); }
+      if (window.WH_LANG === 'fil') { els.forEach(function(e){ if (window._ohFIL[e.dataset.i] != null) e.innerHTML = window._ohFIL[e.dataset.i]; }); }
+    })();
+    // Whole-page disposition (rubric L1 + R4/R5): hide the marketing chrome that lives OUTSIDE
+    // #mkt-wrap (the marketing <footer>, the "Get Early Access" sticky CTA, the upgrade banner).
+    // This MUST live in _initDashboard, not only _showOpsHome — several paths (re-auth, hive-switch,
+    // sign-in flip) render the dashboard by calling _initDashboard directly and bypass _showOpsHome,
+    // so those loads would otherwise leak the 1184px marketing footer below the fold.
+    (function _ohHideMarketingChrome(){
+      var f = document.querySelector('#wh-main-content > footer'); if (f) f.style.display = 'none';
+      var c = document.getElementById('sticky-mobile-cta'); if (c) c.style.display = 'none';
+      var u = document.getElementById('upgrade-banner'); if (u) u.style.display = 'none';
+    })();
     const db = _getOhDb();
     const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
     const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
@@ -3639,6 +3831,11 @@
     // Greeting + date
     document.getElementById('oh-greeting').textContent = _greeting(workerName);
     document.getElementById('oh-date').textContent = _dateStr();
+
+    // G1 (FF1): canonical skeleton in the open-jobs list while the dashboard queries run
+    // (first render only — re-renders from hive-switch/setLang keep the existing rows).
+    const _ohJobs = document.getElementById('oh-jobs');
+    if (_ohJobs && !_ohJobs.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_ohJobs, 3);
 
     // Persona Contract Phase 5: hydrate the companion toggle from
     // worker_profiles.preferred_persona (account-level) so the choice
@@ -3682,14 +3879,19 @@
       const _primary = _role === 'supervisor'
         ? [
             { href:'hive.html',     label:'Hive Board',         color:'#29B6D9', bg:'rgba(41,182,217,.12)', br:'rgba(41,182,217,.30)' },
-            { href:'assistant.html', label:`Ask ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
+            { href:'assistant.html', label:`${_t('Ask','Tanungin si')} ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
           ]
         : [
-            { href:'logbook.html',   label:'Log a Job',           color:'#F7A21B', bg:'rgba(247,162,27,.12)', br:'rgba(247,162,27,.30)' },
-            { href:'assistant.html', label:`Ask ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
+            { href:'logbook.html',   label:_t('Log a Job','Mag-log ng Trabaho'), color:'#F7A21B', bg:'rgba(247,162,27,.12)', br:'rgba(247,162,27,.30)' },
+            { href:'assistant.html', label:`${_t('Ask','Tanungin si')} ${_personaName}`, color:'#4ade80', bg:'rgba(74,222,128,.10)', br:'rgba(74,222,128,.30)' },
           ];
-      _ohActionsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _primary.map(p =>
-        `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.bg}; color:${p.color}; border-color:${p.br};">${escHtml(p.label)}</a>`
+      // Arc P · Wave 1 (P3 "one obvious primary action"): the FIRST role action is the
+      // solid-fill PRIMARY (the role's core job — Hive Board / Log a Job = the brightest
+      // control), the second is a tinted secondary. Ends the "co-equal CTAs" ambiguity.
+      _ohActionsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _primary.map((p, i) =>
+        i === 0
+          ? `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.color}; color:#162032; border-color:${p.color}; font-weight:800;">${escHtml(p.label)}</a>`
+          : `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.bg}; color:${p.color}; border-color:${p.br};">${escHtml(p.label)}</a>`
       ).join('');
     }
 
@@ -3736,6 +3938,7 @@
     // ANY error (RPC absent before deploy, non-member, network) and in solo
     // mode (worker_name scope, which the hive-only RPC does not cover).
     // Parity proven by tests/journey-home-fanout-parity.spec.ts.
+    let _ohLoadFailed = false;
     let _dash = null;
     if (HIVE_ID) {
       try {
@@ -3857,7 +4060,26 @@
       pmDoneToday = pmDoneTodayRes.status === 'fulfilled' ? (pmDoneTodayRes.value.count || 0) : 0;
       jobsCount  = jobsCountRes.status  === 'fulfilled' ? Number(jobsCountRes.value.count  || 0) : 0;
       risksCount = risksCountRes.status === 'fulfilled' ? Number(risksCountRes.value.count || 0) : 0;
+      // A5: total network failure = every REAL read failed (log/inv/jobs-count;
+      // the hive-only reads are synthetic Promise.resolve in solo mode). NOTE:
+      // supabase-js RESOLVES with {data:null, error} on a network fault (it does
+      // not reject), so we must check .value.error too, not just 'rejected'.
+      _ohLoadFailed = [logRes, invRes, jobsCountRes].every(function (r) {
+        return r.status === 'rejected' || (r.value && r.value.error);
+      });
     }  // end legacy multi-query fallback
+
+    // A5: a total data-load failure (RPC null + every real read rejected =
+    // offline / server down) must show an HONEST "couldn't refresh" state, not
+    // an empty dashboard that reads as a false "All clear". The greeting, hive
+    // button and role actions already rendered above; replace the verdict + stop.
+    if (_ohLoadFailed) {
+      const _t = document.getElementById('oh-today');
+      if (_t) _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
+        + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#f87171; margin:0 0 2px;">Couldn\'t refresh</p>'
+        + '<p style="font-size:.9rem; color:#F4F6FA; margin:0;">We could not load your latest hive data. Check your connection and try again.</p></div>';
+      return;
+    }
 
     // Low stock + PM overdue. In hive mode both come from the RPC payload;
     // in solo / fallback mode both are derived from the legacy fetch.
@@ -3925,10 +4147,10 @@
       const statsEl = document.getElementById('oh-stats');
       if (!statsEl) return;
       const tiles = [
-        { kpi: 'open-jobs',   num: jobsCount,       label: 'Open Jobs',   color: '#F7A21B', href: 'logbook.html'      },
-        { kpi: 'risk-alerts', num: risksCount,      label: 'Risk Alerts', color: '#f87171', href: 'asset-hub.html'    },
-        { kpi: 'pm-overdue',  num: pmOverdueCount,  label: 'PM Overdue',  color: '#29B6D9', href: 'pm-scheduler.html' },
-        { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `Stock (${_outOfStock} out · ${_lowOnly} low)` : 'Low Stock', color: '#fb923c', href: 'inventory.html'    },
+        { kpi: 'open-jobs',   num: jobsCount,       label: _t('Open Jobs','Bukas na Trabaho'),   color: '#F7A21B', href: 'logbook.html'      },
+        { kpi: 'risk-alerts', num: risksCount,      label: _t('Risk Alerts','Alerto sa Panganib'), color: '#f87171', href: 'asset-hub.html'    },
+        { kpi: 'pm-overdue',  num: pmOverdueCount,  label: _t('PM Overdue','Lumipas na PM'),  color: '#29B6D9', href: 'pm-scheduler.html' },
+        { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#fb923c', href: 'inventory.html'    },
       ].filter(t => Number(t.num) > 0);
 
       if (tiles.length === 0) {
@@ -4072,7 +4294,7 @@
           tone: 'critical', accent: '#f87171',
           label: 'Critical Risk',
           headline: `${r.asset_name || 'Unnamed asset'}: risk ${Math.round((Number(r.risk_score) || 0) * 100)}%`,
-          detail: r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d. Inspect now.` : 'Inspect now to avoid breakdown.',
+          detail: r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d. ${_t('Inspect now.','Suriin agad.')}` : 'Inspect now to avoid breakdown.',
           cta: 'Open Asset Hub',
           href: `asset-hub.html?tag=${encodeURIComponent(r.asset_name || '')}`,
         });
@@ -4154,9 +4376,9 @@
              style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid #4ade80;">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:#4ade80; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
             <div style="flex:1; min-width:0;">
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#4ade80; margin:0 0 2px;">All clear</p>
-              <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0;">Nothing urgent right now.</p>
-              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' ? 'Review the alert feed or the AMC daily brief.' : ((jobs.length === 0 && closedToday === 0) ? 'Log your first job to get started.' : 'Plan your shift in the Day Planner.')}</p>
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#4ade80; margin:0 0 2px;">${_t('All clear','Malinaw lahat')}</p>
+              <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0;">${_t('Nothing urgent right now.','Walang urgent ngayon.')}</p>
+              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' ? _t('Review the alert feed or the AMC daily brief.','Tingnan ang alert feed o ang AMC daily brief.') : ((jobs.length === 0 && closedToday === 0) ? _t('Log your first job to get started.','Mag-log ng unang trabaho para makapagsimula.') : _t('Plan your shift in the Day Planner.','Planuhin ang shift mo sa Day Planner.'))}</p>
             </div>
             <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
@@ -4169,11 +4391,11 @@
            style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid ${pick.accent};">
           <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
-            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">Today &middot; ${escHtml(pick.label)}</p>
+            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">${_t('Today','Ngayon')} &middot; ${escHtml(_tv(pick.label))}</p>
             <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
-            <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(pick.detail)}</p>
+            <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(_tv(pick.detail))}</p>
           </div>
-          <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(pick.cta)} &#8594;</span>
+          <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
         </a>`;
     })();
 
@@ -4190,19 +4412,19 @@
       if (!el) return;
       const steps = [
         {
-          id: 1, label: 'Set your name',
+          id: 1, label: _t('Set your name','Itakda ang pangalan mo'),
           done: !!(workerName && workerName.trim()),
-          cta: 'Go to home', href: '#',
+          cta: _t('Go to home','Pumunta sa home'), href: '#',
         },
         {
-          id: 2, label: 'Log your first repair',
+          id: 2, label: _t('Log your first repair','I-log ang unang repair'),
           done: jobs.length > 0 || closedToday > 0,
-          cta: 'Open Logbook', href: 'logbook.html',
+          cta: _t('Open Logbook','Buksan ang Logbook'), href: 'logbook.html',
         },
         {
-          id: 3, label: HIVE_ID ? 'Plan your first PM' : 'Join a hive (or stay solo)',
+          id: 3, label: HIVE_ID ? _t('Plan your first PM','Planuhin ang unang PM') : _t('Join a hive (or stay solo)','Sumali sa hive (o mag-solo)'),
           done: HIVE_ID ? (pmDoneToday > 0) : true,
-          cta: HIVE_ID ? 'Open PM Scheduler' : 'Open Hive Board',
+          cta: HIVE_ID ? _t('Open PM Scheduler','Buksan ang PM Scheduler') : _t('Open Hive Board','Buksan ang Hive Board'),
           href:  HIVE_ID ? 'pm-scheduler.html' : 'hive.html',
         },
       ];
@@ -4215,12 +4437,12 @@
         <div class="oh-card" style="padding:16px 18px; border-left:3px solid #F7A21B;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
             <div>
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#F7A21B; margin:0;">Getting Started &middot; ${done} of ${steps.length}</p>
-              <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">Finish these three steps to unlock the platform.</p>
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#F7A21B; margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
+              <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">${_t('Finish these three steps to unlock the platform.','Tapusin ang tatlong hakbang para ma-unlock ang platform.')}</p>
             </div>
             <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
                     style="font-size:.62rem; color:rgba(255,255,255,.6); background:none; border:none; cursor:pointer; padding:6px 8px; min-height:44px;">
-              Dismiss &times;
+              ${_t('Dismiss','I-dismiss')} &times;
             </button>
           </div>
           <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:14px;">
@@ -4247,7 +4469,7 @@
     if (topRiskEl && risks.length > 0 && typeof renderRiskStrip === 'function') {
       topRiskEl.style.display = 'block';
       topRiskEl/* xss-allow: renderRiskStrip escHtml's every field (utils.js) */ .innerHTML =
-        renderRiskStrip(risks, { title: 'Top At-Risk Assets', limit: 3, ragTile: 'index:top_risk' });
+        renderRiskStrip(risks, { title: _t('Top At-Risk Assets','Pinaka-Nanganganib na Asset'), limit: 3, ragTile: 'index:top_risk' });
     }
 
     // Hive Activity Today (only meaningful when in a hive context)
@@ -4255,19 +4477,19 @@
     if (activityEl && HIVE_ID) {
       activityEl.style.display = 'block';
       activityEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <p class="oh-sec-lbl">Hive Activity Today</p>
+        <h2 class="oh-sec-lbl">${_t('Hive Activity Today','Aktibidad ng Hive Ngayon')}</h2>
         <div class="oh-card oh-activity" data-rag-tile="index:hive_activity" data-rag-label="Hive Activity Today" style="padding:14px;">
           <div style="text-align:center;">
             <span class="ac-num" style="color:#4ade80;">${closedToday}</span>
-            <span class="ac-lbl">Jobs Closed</span>
+            <span class="ac-lbl">${_t('Jobs Closed','Tapos na Trabaho')}</span>
           </div>
           <div style="text-align:center; border-left:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06);">
             <span class="ac-num" style="color:#29B6D9;">${pmDoneToday}</span>
-            <span class="ac-lbl">PM Done</span>
+            <span class="ac-lbl">${_t('PM Done','Tapos na PM')}</span>
           </div>
           <div style="text-align:center;">
             <span class="ac-num" style="color:#a78bfa;">${risks.length}</span>
-            <span class="ac-lbl">Active Alerts</span>
+            <span class="ac-lbl">${_t('Active Alerts','Aktibong Alerto')}</span>
           </div>
         </div>`;
     }
@@ -4278,8 +4500,8 @@
       if (!jobs.length) {
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
           <div style="font-size:1.4rem; margin-bottom:6px;">✓</div>
-          <div style="font-size:.82rem; font-weight:700; color:#4ade80; margin-bottom:4px;">All clear</div>
-          <div style="font-size:.7rem; color:rgba(255,255,255,.6);">No open jobs right now. Tap <strong style="color:#F7A21B;">+ Log a Job</strong> below if a fault comes up.</div>
+          <div style="font-size:.82rem; font-weight:700; color:#4ade80; margin-bottom:4px;">${_t('All clear','Malinaw lahat')}</div>
+          <div style="font-size:.7rem; color:rgba(255,255,255,.6);">${_t('No open jobs right now. Tap','Walang bukas na trabaho ngayon. I-tap ang')} <strong style="color:#F7A21B;">+ ${_t('Log a Job','Mag-log ng Trabaho')}</strong> ${_t('below if a fault comes up.','sa ibaba kung may masira.')}</div>
         </div>`;
       } else {
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = jobs.map(j => {
@@ -4308,7 +4530,7 @@
       stockEl.style.display = 'block';
       stockEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="oh-card" style="padding:12px 16px; border-left:3px solid #fb923c;">
-          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#fb923c; margin:0 0 8px;">Low Stock (${lowStock.length})</p>
+          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#fb923c; margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
               <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
@@ -4318,10 +4540,17 @@
           </div>
         </div>`;
     }
+    if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); // G1 (FAMILY F3): inside the fn = every call path stamps
   };
 
 })();
 </script>
 </main>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

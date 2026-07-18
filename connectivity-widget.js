@@ -110,6 +110,11 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
     .wh-conn-chip:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.18); }
+    /* ★V1 (Ian's screenshot: the "Online" chip overlapped the companion avatar). When the nav-hub
+       reveals the companion trigger it springs from bottom:24px to bottom:96px (tops out ~152px); the
+       chip at 5.5rem/88px then collides with it. Raise the chip + popover ABOVE the sprung trigger. */
+    body.wh-hub-open .wh-conn-chip { bottom: 10.5rem; }
+    body.wh-hub-open .wh-conn-popover { bottom: 13rem; }
     .wh-conn-dot {
       width: 8px; height: 8px; border-radius: 50%;
       background: #4ade80;

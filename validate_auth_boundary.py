@@ -72,7 +72,6 @@ AUTH_BOUNDARY_OK_PAGES: dict[str, str] = {
 }
 AUTH_BOUNDARY_OK_FNS: dict[str, str] = {
     "_shared":                "shared lib, not an endpoint",
-    "marketplace-webhook":    "Stripe server-to-server webhook; auth via Stripe signature, not JWT",
     "cmms-webhook-receiver":  "CMMS webhook; auth via shared secret header",
     "voice-transcribe":       "Whisper proxy; uses anon key + rate limit only",
     "send-report-email":      "scheduled send via service role; no user JWT",

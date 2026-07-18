@@ -29,7 +29,7 @@
  * with escaped wildcards), devops (getCorsHeaders dynamic CORS).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -233,7 +233,7 @@ async function resolveAssetCandidates(
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("voice-action-router", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -451,11 +451,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // Inline JSON.stringify({ error: ... }) for the static error-contract scan.
-    return new Response(
-      JSON.stringify({ error: "Internal error", detail: msg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-action-router", "voice_action_router_error", err);
   }
 });

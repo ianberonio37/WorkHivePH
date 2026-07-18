@@ -12,10 +12,13 @@
 //   • every reset is audit-logged (who reset whom, when) to hive_audit_log.
 // Returns a freshly generated temp password to the SUPERVISOR only (over their authed channel); the worker
 // changes it on next sign-in (client nudge). verify_jwt stays ON (a real supervisor session is required).
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logRequestStart } from "../_shared/logger.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): tight per-actor limit on this privileged action.
+import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
 
 function tempPassword(): string {
   // 14 chars, mixed classes, no ambiguous 0/O/1/l — readable when dictated in a noisy plant.
@@ -26,7 +29,12 @@ function tempPassword(): string {
   return base.sort(() => Math.random() - 0.5).join("");
 }
 
-serve(async (req) => {
+serveObserved("supervisor-reset-password", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "supervisor-reset-password", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "supervisor-reset-password");
@@ -56,6 +64,12 @@ serve(async (req) => {
   if (!actor || actor.hive_status !== "active" || actor.role !== "supervisor") {
     return json(403, { error: "not_supervisor", message: "Only an active supervisor of this hive can reset a member's password." });
   }
+
+  // A5: password resets are rare for a legit supervisor — a tight per-actor bucket
+  // (5/hour, 20/day) contains a compromised supervisor account mass-resetting members.
+  const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  const _rl = await checkSoloRateLimit(admin, soloRateLimitKey(actorUid, _ip), 5, 20, _ip);
+  if (!_rl.allowed) return json(429, { error: "rate_limited", message: "Too many password resets. Try again later." });
 
   // 2. target must be an ACTIVE WORKER of the SAME hive (never another supervisor; never cross-hive)
   const { data: tgt } = await admin.from("v_worker_truth")

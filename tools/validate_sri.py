@@ -38,6 +38,10 @@ EXEMPT_HOST = re.compile(r"fonts\.googleapis\.com|fonts\.gstatic\.com|googletagm
 OWN_HOST = re.compile(r"workhiveph\.com|supabase\.co/storage|hzyvnjtisfgbksicrouu\.supabase\.co")
 # A version pin: @x.y.z  OR /x.y.z/  OR -x.y.z. (e.g. plotly-basic-2.26.0)
 PINNED = re.compile(r"@\d+\.\d+\.\d+|/\d+\.\d+\.\d+/|-\d+\.\d+\.\d+")
+# Tailwind Play CDN: a runtime JIT compiler with NO versioned artifact — it cannot be SRI-hashed at all
+# (pinning is not the fix; migrating to a built static CSS file is). Reported DISTINCTLY from pin-first so
+# the backlog line doesn't imply "just add a hash." (Arc R R3, 2026-07-03.)
+PLAY_CDN = re.compile(r"cdn\.tailwindcss\.com")
 
 
 def classify_tag(tag: str) -> str | None:
@@ -92,26 +96,34 @@ def main() -> int:
         return 0 if self_test() else 1
 
     pinned_hits: dict[str, list] = {}
-    floating_n = 0
+    pin_first_urls: list[str] = []   # floating but pinnable+SRI-able (freeze to current-resolved)
+    play_cdn_urls: list[str] = []    # floating AND un-SRI-able (Tailwind Play CDN — migrate to built CSS)
     for p in sorted(ROOT.glob("*.html")):
         if "backup" in p.name or "-test" in p.name:
             continue
         pinned, floating = scan(p.read_text(encoding="utf-8", errors="replace"))
         if pinned:
             pinned_hits[p.name] = pinned
-        floating_n += len(floating)
+        for u in floating:
+            (play_cdn_urls if PLAY_CDN.search(u) else pin_first_urls).append(u)
 
     pinned_n = sum(len(v) for v in pinned_hits.values())
     print(f"{B}SRI gate (Arc R / S-lens, OWASP A08){X}")
     for fn, urls in pinned_hits.items():
         for u in urls:
             print(f"  {R}FAIL{X} {fn}: pinned CDN script w/o SRI -> {u}")
-    print(f"  pinned-without-SRI: {pinned_n}  ·  floating (pin-first backlog, Ian-reviewable): {floating_n}")
+    print(f"  pinned-without-SRI: {pinned_n}  ·  pin-first backlog (Ian-reviewable): {len(pin_first_urls)}"
+          f"  ·  Play-CDN un-SRI-able (migrate to built CSS): {len(play_cdn_urls)}")
+    if pin_first_urls:
+        print(f"  {Y}NOTE{X} {len(pin_first_urls)} floating tag(s) CAN be pinned+SRI'd (freeze to current-resolved, "
+              f"hash-verify): " + ", ".join(sorted(set(pin_first_urls))))
+    if play_cdn_urls:
+        print(f"  {Y}NOTE{X} {len(play_cdn_urls)}x cdn.tailwindcss.com — Tailwind Play CDN is a runtime JIT with no "
+              f"versioned artifact; SRI is not the lever, migrating to a built static CSS file is (own Ian-gated unit).")
     if pinned_n:
         print(f"{R}FAIL: {pinned_n} version-pinned third-party CDN script(s) lack integrity= .{X}")
         return 1
-    print(f"{G}PASS - every version-pinned CDN script has SRI. "
-          f"({floating_n} floating tags tracked as pin-first backlog).{X}")
+    print(f"{G}PASS - every version-pinned CDN script has SRI.{X}")
     return 0
 
 

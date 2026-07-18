@@ -1,6 +1,6 @@
 {
   "summary": {
-    "pages_scanned": 31,
+    "pages_scanned": 29,
     "pages_with_orphans": 0,
     "total_orphans": 0,
     "total_allowlisted": 0,
@@ -93,11 +93,6 @@
       "allowlisted": []
     },
     {
-      "page": "platform-health.html",
-      "orphans": [],
-      "allowlisted": []
-    },
-    {
       "page": "project-manager.html",
       "orphans": [],
       "allowlisted": []
@@ -114,11 +109,6 @@
     },
     {
       "page": "project-report.html",
-      "orphans": [],
-      "allowlisted": []
-    },
-    {
-      "page": "predictive.html",
       "orphans": [],
       "allowlisted": []
     },

@@ -51,7 +51,7 @@ URLISH_NAME = re.compile(r"url|endpoint|target|href|link|loc|uri", re.IGNORECASE
 # A provider/constant fetch is verified-safe even with a URL-ish var name, when a
 # provider auth/host marker sits in the fetch's own option block.
 PROVIDER_MARKER = re.compile(
-    r"Ocp-Apim|AZURE|SUPABASE_URL|PYTHON_URL|GROQ|OPENAI|ANTHROPIC|CEREBRAS|VOYAGE|stripe|x-api-key|googleapis",
+    r"Ocp-Apim|AZURE|SUPABASE_URL|PYTHON_URL|GROQ|OPENAI|ANTHROPIC|CEREBRAS|VOYAGE|x-api-key|googleapis",
     re.IGNORECASE,
 )
 

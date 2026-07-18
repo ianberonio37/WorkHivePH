@@ -1,7 +1,7 @@
 {
   "summary": {
     "files_scanned": 127,
-    "total_calls": 724,
+    "total_calls": 729,
     "total_unbounded": 1,
     "baseline": 1
   },
@@ -64,7 +64,12 @@
     },
     {
       "file": "engineering-design.js",
-      "issues": []
+      "issues": [
+        {
+          "table": "engineering_calcs",
+          "offset": 1822876
+        }
+      ]
     },
     {
       "file": "assistant.html",
@@ -72,10 +77,6 @@
     },
     {
       "file": "report-sender.html",
-      "issues": []
-    },
-    {
-      "file": "platform-health.html",
       "issues": []
     },
     {
@@ -92,10 +93,6 @@
     },
     {
       "file": "project-report.html",
-      "issues": []
-    },
-    {
-      "file": "predictive.html",
       "issues": []
     },
     {
@@ -128,6 +125,14 @@
     },
     {
       "file": "voice-journal.html",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/action_provenance.test.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/action_provenance.ts",
       "issues": []
     },
     {
@@ -187,6 +192,14 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/gutted_reply.test.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/gutted_reply.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/health.ts",
       "issues": []
     },
@@ -211,6 +224,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/observability.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/persona-knowledge.ts",
       "issues": []
     },
@@ -224,6 +241,10 @@
     },
     {
       "file": "supabase/functions/_shared/rate-limit.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/redactPII.names.test.ts",
       "issues": []
     },
     {
@@ -296,12 +317,7 @@
     },
     {
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "issues": [
-        {
-          "table": "v_pm_scope_items_truth",
-          "offset": 9606
-        }
-      ]
+      "issues": []
     },
     {
       "file": "supabase/functions/asset-brain-query/index.ts",
@@ -380,23 +396,7 @@
       "issues": []
     },
     {
-      "file": "supabase/functions/marketplace-checkout/index.ts",
-      "issues": []
-    },
-    {
-      "file": "supabase/functions/marketplace-connect-onboard/index.ts",
-      "issues": []
-    },
-    {
-      "file": "supabase/functions/marketplace-connect-status/index.ts",
-      "issues": []
-    },
-    {
-      "file": "supabase/functions/marketplace-release/index.ts",
-      "issues": []
-    },
-    {
-      "file": "supabase/functions/marketplace-webhook/index.ts",
+      "file": "supabase/functions/marketplace-listing-assist/index.ts",
       "issues": []
     },
     {

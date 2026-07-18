@@ -82,6 +82,32 @@ def get_token(email: str, password: str) -> str | None:
         print(f"{RED}auth failed: {e}{RESET}"); return None
 
 
+def resolve_active_hive(email: str, fallback: str | None = None) -> str | None:
+    """Reseed-proof hive resolution. The USERS[...]['hive_id'] constants go STALE on every reseed
+    (hive UUIDs are regenerated), and the gateway 403s ('Caller is not an active member of this
+    hive') on a stale id, silently zeroing an entire run. So resolve the user's CURRENT active hive
+    from the DB at runtime (supervisor row preferred), falling back to the constant if the DB is
+    unreachable. Found 2026-07-11 when every pablo probe 403'd on the hardcoded 3792d7f0."""
+    if psycopg2 is None:
+        return fallback
+    try:
+        c = psycopg2.connect(DB_DSN)
+        try:
+            with c.cursor() as cur:
+                cur.execute(
+                    "SELECT hm.hive_id::text FROM auth.users u "
+                    "JOIN hive_members hm ON hm.auth_uid = u.id "
+                    "WHERE u.email=%s AND hm.status='active' "
+                    "ORDER BY (hm.role='supervisor') DESC LIMIT 1",
+                    (email,))
+                row = cur.fetchone()
+                return row[0] if row and row[0] else fallback
+        finally:
+            c.close()
+    except Exception:
+        return fallback
+
+
 # ─── the Gateway Engine, ported to Python (②b, 2026-06-14) ────────────────────────────
 # The grader's SERVED-NUMBER set is now AUTO-DERIVED from the SAME registry the edge reads
 # (supabase/functions/_shared/companion_source_registry.json), by re-running each declarative
@@ -163,14 +189,19 @@ def _run_engine_spec(cur, hive_id: str, entry: dict) -> str:
         if k == "count":
             slots[as_] = str(len(rows))
         elif k == "count_where":
-            if agg.get("gte"):
-                fld, thr = agg["gte"][0], agg["gte"][1]
-                def _ge(r):
-                    try: return float(r.get(fld)) >= float(thr)
+            # Composite AND predicate mirroring ai-gateway buildFromRegistry: eq/any/gte each
+            # optional, an absent one passes. eq:[field,value] enables scope counts (published
+            # PARTS = eq:["section","parts"] + any:["is_published"]). Kept in lockstep with the TS.
+            eqp, anyp, gtep = agg.get("eq"), agg.get("any"), agg.get("gte")
+            def _ok(r, _eq=eqp, _any=anyp, _gte=gtep):
+                if _eq and str(r.get(_eq[0])) != str(_eq[1]): return False
+                if _any and not anyflag(r, _any): return False
+                if _gte:
+                    try:
+                        if float(r.get(_gte[0])) < float(_gte[1]): return False
                     except Exception: return False
-                slots[as_] = str(sum(1 for r in rows if _ge(r)))
-            else:
-                slots[as_] = str(sum(1 for r in rows if anyflag(r, agg.get("any"))))
+                return True
+            slots[as_] = str(sum(1 for r in rows if _ok(r)))
         elif k == "count_distinct":
             slots[as_] = str(len({r.get(agg["field"]) for r in rows if r.get(agg["field"]) is not None}))
         elif k == "distinct_list":
@@ -1946,6 +1977,13 @@ def main() -> int:
     token = get_token(user["email"], user["password"])
     if not token:
         print(f"{RED}no token — aborting{RESET}"); return 2
+    # Reseed-proof: the hardcoded hive_id goes stale on reseed and 403s every probe. Resolve the
+    # user's CURRENT active hive from the DB and use it for the whole run (memory clear, ground
+    # truth, and every gateway call all read this local `user`).
+    _resolved = resolve_active_hive(user["email"], user["hive_id"])
+    if _resolved and _resolved != user["hive_id"]:
+        print(f"{YEL}hive resolved from DB: {user['hive_id']} -> {_resolved} (reseed-proof){RESET}", flush=True)
+        user = {**user, "hive_id": _resolved}
 
     gt_conn = psycopg2.connect(DB_DSN) if psycopg2 else None
     if args.fresh_memory and gt_conn is not None:

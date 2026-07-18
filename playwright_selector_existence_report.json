@@ -1,7 +1,7 @@
 {
   "summary": {
-    "specs_scanned": 31,
-    "total_lookups": 144,
+    "specs_scanned": 34,
+    "total_lookups": 156,
     "total_drift": 2,
     "baseline": 2
   },
@@ -15,6 +15,14 @@
     },
     {
       "spec": "alert-hub-amc.spec.ts",
+      "targets": [
+        "alert-hub.html",
+        "alert-hub.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "alert-hub-triage.spec.ts",
       "targets": [
         "alert-hub.html",
         "alert-hub.html"
@@ -70,6 +78,15 @@
       "spec": "integrations.spec.ts",
       "targets": [
         "integrations.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "intelligence-reuse-connectivity.spec.ts",
+      "targets": [
+        "alert-hub.html",
+        "asset-hub.html",
+        "alert-hub.html"
       ],
       "misses": []
     },
@@ -197,7 +214,6 @@
         "hive.html",
         "logbook.html",
         "inventory.html",
-        "predictive.html",
         "analytics-report.html",
         "engineering-design.html",
         "engineering-design.html",
@@ -211,7 +227,6 @@
         "community.html",
         "hive.html",
         "logbook.html",
-        "predictive.html",
         "analytics.html",
         "index.html",
         "hive.html",
@@ -344,6 +359,13 @@
       "spec": "rag-golden-capture.spec.ts",
       "targets": [
         "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "shift-brain-freshness.spec.ts",
+      "targets": [
+        "shift-brain.html"
       ],
       "misses": []
     }

@@ -26,7 +26,7 @@
  * vs sidecar pattern -- this is the single-entry choice).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
 
 // contract-allow: router; forwards to edge fns
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -100,24 +100,6 @@ const PLATFORM_ROUTES: Record<string, {
     requires_auth: true,
     audit: true,
     description: "PDF chunk -> embedding -> knowledge table ingestion",
-  },
-  "marketplace-checkout": {
-    fn: "marketplace-checkout",
-    requires_auth: true,
-    audit: true,
-    description: "Stripe checkout for marketplace listings",
-  },
-  "marketplace-release": {
-    fn: "marketplace-release",
-    requires_auth: true,
-    audit: true,
-    description: "Release escrow on completed marketplace order",
-  },
-  "marketplace-connect-status": {
-    fn: "marketplace-connect-status",
-    requires_auth: true,
-    audit: true,
-    description: "Stripe Connect onboarding status check",
   },
   "send-report-email": {
     fn: "send-report-email",
@@ -204,7 +186,7 @@ interface GatewayRequest {
   request_id?: string;
 }
 
-serve(async (req) => {
+serveObserved("platform-gateway", async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
   if (req.method === "OPTIONS") {

@@ -1,22 +1,40 @@
 {
   "_doc": "Deterministic edge-function cross-table WRITE map (Phase A residual-closer of INTERACTIVE_LINEAGE_ROADMAP). Parsed from each function's index.ts `.from(T).insert/upsert/update/delete`. disposition: data_mapped/data_unmapped (displayed table -> must be in causal_cascades.json) | operational (job/audit log) | self_config | infra (no display page).",
   "totals": {
-    "edge_fns_with_writes": 37,
-    "data_cascades_mapped": 26,
-    "data_cascades_UNMAPPED": 0,
+    "edge_fns_with_writes": 31,
+    "data_cascades_mapped": 21,
+    "data_cascades_UNMAPPED": 1,
     "operational_log_writes": 14,
     "self_config_writes": 2,
-    "infra_writes": 12
+    "infra_writes": 11
   },
-  "data_cascades_unmapped": [],
+  "data_cascades_unmapped": [
+    {
+      "fn": "cmms-webhook-receiver",
+      "to_table": "inventory_items",
+      "line": 378,
+      "evidence": "functions/cmms-webhook-receiver/index.ts:378",
+      "downstream_pages": [
+        "alert-hub",
+        "assistant",
+        "hive",
+        "integrations",
+        "inventory",
+        "logbook",
+        "marketplace",
+        "project-manager"
+      ],
+      "disposition": "data_unmapped"
+    }
+  ],
   "by_fn": {
     "agentic-rag-loop": {
       "writes": [
         {
           "fn": "agentic-rag-loop",
           "to_table": "agentic_rag_traces",
-          "line": 793,
-          "evidence": "functions/agentic-rag-loop/index.ts:793",
+          "line": 822,
+          "evidence": "functions/agentic-rag-loop/index.ts:822",
           "downstream_pages": [
             "agentic-rag-observability"
           ],
@@ -48,8 +66,8 @@
         {
           "fn": "ai-eval-runner",
           "to_table": "ai_quality_log",
-          "line": 315,
-          "evidence": "functions/ai-eval-runner/index.ts:315",
+          "line": 321,
+          "evidence": "functions/ai-eval-runner/index.ts:321",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -62,8 +80,8 @@
         {
           "fn": "amc-orchestrator",
           "to_table": "amc_briefings",
-          "line": 608,
-          "evidence": "functions/amc-orchestrator/index.ts:608",
+          "line": 609,
+          "evidence": "functions/amc-orchestrator/index.ts:609",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -85,8 +103,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1062,
-          "evidence": "functions/analytics-orchestrator/index.ts:1062",
+          "line": 1091,
+          "evidence": "functions/analytics-orchestrator/index.ts:1091",
           "downstream_pages": [
             "analytics"
           ],
@@ -109,35 +127,7 @@
       ],
       "invoked_by_pages": [
         "alert-hub",
-        "predictive",
         "shift-brain"
-      ]
-    },
-    "asset-brain-query": {
-      "writes": [
-        {
-          "fn": "asset-brain-query",
-          "to_table": "ai_rate_limits",
-          "line": 106,
-          "evidence": "functions/asset-brain-query/index.ts:106",
-          "downstream_pages": [],
-          "disposition": "infra"
-        }
-      ],
-      "reads": [
-        "ai_rate_limits",
-        "pm_completions",
-        "v_asset_truth",
-        "v_fmea_truth",
-        "v_logbook_truth",
-        "v_pf_truth",
-        "v_rcm_truth",
-        "v_risk_truth",
-        "v_weibull_truth",
-        "v_worker_truth"
-      ],
-      "invoked_by_pages": [
-        "asset-hub"
       ]
     },
     "batch-risk-scoring": {
@@ -145,20 +135,19 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "asset_risk_scores",
-          "line": 415,
-          "evidence": "functions/batch-risk-scoring/index.ts:415",
+          "line": 417,
+          "evidence": "functions/batch-risk-scoring/index.ts:417",
           "downstream_pages": [
             "alert-hub",
-            "asset-hub",
-            "predictive"
+            "asset-hub"
           ],
           "disposition": "data_mapped"
         },
         {
           "fn": "batch-risk-scoring",
           "to_table": "automation_log",
-          "line": 98,
-          "evidence": "functions/batch-risk-scoring/index.ts:98",
+          "line": 104,
+          "evidence": "functions/batch-risk-scoring/index.ts:104",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -179,8 +168,7 @@
         "v_worker_truth"
       ],
       "invoked_by_pages": [
-        "analytics",
-        "predictive"
+        "analytics"
       ]
     },
     "benchmark-compute": {
@@ -188,8 +176,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "automation_log",
-          "line": 277,
-          "evidence": "functions/benchmark-compute/index.ts:277",
+          "line": 290,
+          "evidence": "functions/benchmark-compute/index.ts:290",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -198,8 +186,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "hive_benchmarks",
-          "line": 164,
-          "evidence": "functions/benchmark-compute/index.ts:164",
+          "line": 167,
+          "evidence": "functions/benchmark-compute/index.ts:167",
           "downstream_pages": [
             "hive",
             "ph-intelligence"
@@ -209,8 +197,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "network_benchmarks",
-          "line": 214,
-          "evidence": "functions/benchmark-compute/index.ts:214",
+          "line": 217,
+          "evidence": "functions/benchmark-compute/index.ts:217",
           "downstream_pages": [
             "hive"
           ],
@@ -231,8 +219,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "automation_log",
-          "line": 151,
-          "evidence": "functions/cmms-push-completion/index.ts:151",
+          "line": 195,
+          "evidence": "functions/cmms-push-completion/index.ts:195",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -241,8 +229,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "external_sync",
-          "line": 144,
-          "evidence": "functions/cmms-push-completion/index.ts:144",
+          "line": 179,
+          "evidence": "functions/cmms-push-completion/index.ts:179",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -253,6 +241,7 @@
         }
       ],
       "reads": [
+        "external_sync",
         "integration_configs",
         "v_external_sync_truth"
       ],
@@ -265,8 +254,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "automation_log",
-          "line": 340,
-          "evidence": "functions/cmms-sync/index.ts:340",
+          "line": 403,
+          "evidence": "functions/cmms-sync/index.ts:403",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -275,8 +264,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "cmms_audit_log",
-          "line": 348,
-          "evidence": "functions/cmms-sync/index.ts:348",
+          "line": 411,
+          "evidence": "functions/cmms-sync/index.ts:411",
           "downstream_pages": [
             "integrations"
           ],
@@ -285,8 +274,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "external_sync",
-          "line": 236,
-          "evidence": "functions/cmms-sync/index.ts:236",
+          "line": 258,
+          "evidence": "functions/cmms-sync/index.ts:258",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -298,8 +287,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "fault_knowledge",
-          "line": 246,
-          "evidence": "functions/cmms-sync/index.ts:246",
+          "line": 271,
+          "evidence": "functions/cmms-sync/index.ts:271",
           "downstream_pages": [
             "integrations",
             "logbook"
@@ -309,8 +298,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "integration_configs",
-          "line": 331,
-          "evidence": "functions/cmms-sync/index.ts:331",
+          "line": 394,
+          "evidence": "functions/cmms-sync/index.ts:394",
           "downstream_pages": [
             "integrations",
             "plant-connections"
@@ -320,8 +309,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "logbook",
-          "line": 241,
-          "evidence": "functions/cmms-sync/index.ts:241",
+          "line": 267,
+          "evidence": "functions/cmms-sync/index.ts:267",
           "downstream_pages": [
             "asset-hub",
             "assistant",
@@ -337,6 +326,7 @@
         }
       ],
       "reads": [
+        "external_sync",
         "integration_configs",
         "v_worker_truth"
       ],
@@ -349,8 +339,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "external_sync",
-          "line": 246,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:246",
+          "line": 329,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:329",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -361,9 +351,26 @@
         },
         {
           "fn": "cmms-webhook-receiver",
+          "to_table": "inventory_items",
+          "line": 378,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:378",
+          "downstream_pages": [
+            "alert-hub",
+            "assistant",
+            "hive",
+            "integrations",
+            "inventory",
+            "logbook",
+            "marketplace",
+            "project-manager"
+          ],
+          "disposition": "data_unmapped"
+        },
+        {
+          "fn": "cmms-webhook-receiver",
           "to_table": "logbook",
-          "line": 254,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:254",
+          "line": 334,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:334",
           "downstream_pages": [
             "asset-hub",
             "assistant",
@@ -379,7 +386,9 @@
         }
       ],
       "reads": [
+        "external_sync",
         "integration_configs",
+        "inventory_items",
         "v_external_sync_truth",
         "v_worker_truth"
       ],
@@ -404,8 +413,8 @@
         {
           "fn": "export-hive-data",
           "to_table": "hive_audit_log",
-          "line": 151,
-          "evidence": "functions/export-hive-data/index.ts:151",
+          "line": 157,
+          "evidence": "functions/export-hive-data/index.ts:157",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
@@ -418,6 +427,7 @@
             "marketplace",
             "marketplace-admin",
             "marketplace-seller",
+            "platform-actions",
             "pm-scheduler"
           ],
           "disposition": "operational"
@@ -433,8 +443,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 343,
-          "evidence": "functions/failure-signature-scan/index.ts:343",
+          "line": 349,
+          "evidence": "functions/failure-signature-scan/index.ts:349",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -443,8 +453,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "failure_signature_alerts",
-          "line": 262,
-          "evidence": "functions/failure-signature-scan/index.ts:262",
+          "line": 263,
+          "evidence": "functions/failure-signature-scan/index.ts:263",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -460,16 +470,16 @@
         {
           "fn": "fmea-populator",
           "to_table": "ai_rate_limits",
-          "line": 105,
-          "evidence": "functions/fmea-populator/index.ts:105",
+          "line": 106,
+          "evidence": "functions/fmea-populator/index.ts:106",
           "downstream_pages": [],
           "disposition": "infra"
         },
         {
           "fn": "fmea-populator",
           "to_table": "rcm_fmea_modes",
-          "line": 376,
-          "evidence": "functions/fmea-populator/index.ts:376",
+          "line": 382,
+          "evidence": "functions/fmea-populator/index.ts:382",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -491,8 +501,8 @@
         {
           "fn": "hierarchical-summarizer",
           "to_table": "canonical_period_summaries",
-          "line": 329,
-          "evidence": "functions/hierarchical-summarizer/index.ts:329",
+          "line": 334,
+          "evidence": "functions/hierarchical-summarizer/index.ts:334",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -508,8 +518,8 @@
         {
           "fn": "intelligence-api",
           "to_table": "api_keys",
-          "line": 73,
-          "evidence": "functions/intelligence-api/index.ts:73",
+          "line": 74,
+          "evidence": "functions/intelligence-api/index.ts:74",
           "downstream_pages": [
             "integrations"
           ],
@@ -529,8 +539,8 @@
         {
           "fn": "intelligence-report",
           "to_table": "automation_log",
-          "line": 265,
-          "evidence": "functions/intelligence-report/index.ts:265",
+          "line": 284,
+          "evidence": "functions/intelligence-report/index.ts:284",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -539,8 +549,8 @@
         {
           "fn": "intelligence-report",
           "to_table": "ph_intelligence_reports",
-          "line": 262,
-          "evidence": "functions/intelligence-report/index.ts:262",
+          "line": 281,
+          "evidence": "functions/intelligence-report/index.ts:281",
           "downstream_pages": [
             "ph-intelligence"
           ],
@@ -557,124 +567,13 @@
         "ph-intelligence"
       ]
     },
-    "marketplace-checkout": {
-      "writes": [
-        {
-          "fn": "marketplace-checkout",
-          "to_table": "marketplace_orders",
-          "line": 179,
-          "evidence": "functions/marketplace-checkout/index.ts:179",
-          "downstream_pages": [
-            "founder-console",
-            "marketplace",
-            "marketplace-admin",
-            "marketplace-seller"
-          ],
-          "disposition": "data_mapped"
-        }
-      ],
-      "reads": [
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth",
-        "worker_profiles"
-      ],
-      "invoked_by_pages": []
-    },
-    "marketplace-connect-onboard": {
-      "writes": [
-        {
-          "fn": "marketplace-connect-onboard",
-          "to_table": "marketplace_sellers",
-          "line": 141,
-          "evidence": "functions/marketplace-connect-onboard/index.ts:141",
-          "downstream_pages": [
-            "marketplace",
-            "marketplace-admin",
-            "marketplace-seller",
-            "marketplace-seller-profile"
-          ],
-          "disposition": "data_mapped"
-        }
-      ],
-      "reads": [
-        "v_marketplace_sellers_truth",
-        "worker_profiles"
-      ],
-      "invoked_by_pages": []
-    },
-    "marketplace-connect-status": {
-      "writes": [
-        {
-          "fn": "marketplace-connect-status",
-          "to_table": "marketplace_sellers",
-          "line": 127,
-          "evidence": "functions/marketplace-connect-status/index.ts:127",
-          "downstream_pages": [
-            "marketplace",
-            "marketplace-admin",
-            "marketplace-seller",
-            "marketplace-seller-profile"
-          ],
-          "disposition": "data_mapped"
-        }
-      ],
-      "reads": [
-        "v_marketplace_sellers_truth",
-        "worker_profiles"
-      ],
-      "invoked_by_pages": []
-    },
-    "marketplace-release": {
-      "writes": [
-        {
-          "fn": "marketplace-release",
-          "to_table": "marketplace_orders",
-          "line": 152,
-          "evidence": "functions/marketplace-release/index.ts:152",
-          "downstream_pages": [
-            "founder-console",
-            "marketplace",
-            "marketplace-admin",
-            "marketplace-seller"
-          ],
-          "disposition": "data_mapped"
-        }
-      ],
-      "reads": [
-        "v_marketplace_orders_truth",
-        "v_marketplace_sellers_truth",
-        "worker_profiles"
-      ],
-      "invoked_by_pages": []
-    },
-    "marketplace-webhook": {
-      "writes": [
-        {
-          "fn": "marketplace-webhook",
-          "to_table": "marketplace_orders",
-          "line": 140,
-          "evidence": "functions/marketplace-webhook/index.ts:140",
-          "downstream_pages": [
-            "founder-console",
-            "marketplace",
-            "marketplace-admin",
-            "marketplace-seller"
-          ],
-          "disposition": "data_mapped"
-        }
-      ],
-      "reads": [
-        "v_marketplace_orders_truth"
-      ],
-      "invoked_by_pages": []
-    },
     "parts-staging-recommender": {
       "writes": [
         {
           "fn": "parts-staging-recommender",
           "to_table": "automation_log",
-          "line": 80,
-          "evidence": "functions/parts-staging-recommender/index.ts:80",
+          "line": 86,
+          "evidence": "functions/parts-staging-recommender/index.ts:86",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -683,8 +582,8 @@
         {
           "fn": "parts-staging-recommender",
           "to_table": "parts_staging_recommendations",
-          "line": 235,
-          "evidence": "functions/parts-staging-recommender/index.ts:235",
+          "line": 237,
+          "evidence": "functions/parts-staging-recommender/index.ts:237",
           "downstream_pages": [
             "alert-hub",
             "asset-hub"
@@ -705,8 +604,8 @@
         {
           "fn": "pdf-ingest",
           "to_table": "pdf_jobs",
-          "line": 61,
-          "evidence": "functions/pdf-ingest/index.ts:61",
+          "line": 62,
+          "evidence": "functions/pdf-ingest/index.ts:62",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -721,8 +620,8 @@
         {
           "fn": "pf-calculator",
           "to_table": "pf_intervals",
-          "line": 283,
-          "evidence": "functions/pf-calculator/index.ts:283",
+          "line": 296,
+          "evidence": "functions/pf-calculator/index.ts:296",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -742,8 +641,8 @@
         {
           "fn": "platform-gateway",
           "to_table": "gateway_audit_log",
-          "line": 289,
-          "evidence": "functions/platform-gateway/index.ts:289",
+          "line": 271,
+          "evidence": "functions/platform-gateway/index.ts:271",
           "downstream_pages": [
             "plant-connections"
           ],
@@ -758,8 +657,8 @@
         {
           "fn": "scheduled-agents",
           "to_table": "ai_reports",
-          "line": 45,
-          "evidence": "functions/scheduled-agents/index.ts:45",
+          "line": 46,
+          "evidence": "functions/scheduled-agents/index.ts:46",
           "downstream_pages": [
             "hive",
             "report-sender"
@@ -769,8 +668,8 @@
         {
           "fn": "scheduled-agents",
           "to_table": "automation_log",
-          "line": 39,
-          "evidence": "functions/scheduled-agents/index.ts:39",
+          "line": 40,
+          "evidence": "functions/scheduled-agents/index.ts:40",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -792,8 +691,8 @@
         {
           "fn": "semantic-fact-extractor",
           "to_table": "knowledge_graph_facts",
-          "line": 282,
-          "evidence": "functions/semantic-fact-extractor/index.ts:282",
+          "line": 283,
+          "evidence": "functions/semantic-fact-extractor/index.ts:283",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -809,8 +708,8 @@
         {
           "fn": "send-report-email",
           "to_table": "automation_log",
-          "line": 228,
-          "evidence": "functions/send-report-email/index.ts:228",
+          "line": 243,
+          "evidence": "functions/send-report-email/index.ts:243",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -828,8 +727,8 @@
         {
           "fn": "sensor-readings-ingest",
           "to_table": "sensor_readings",
-          "line": 234,
-          "evidence": "functions/sensor-readings-ingest/index.ts:234",
+          "line": 240,
+          "evidence": "functions/sensor-readings-ingest/index.ts:240",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -846,8 +745,8 @@
         {
           "fn": "shift-planner-orchestrator",
           "to_table": "shift_plans",
-          "line": 239,
-          "evidence": "functions/shift-planner-orchestrator/index.ts:239",
+          "line": 288,
+          "evidence": "functions/shift-planner-orchestrator/index.ts:288",
           "downstream_pages": [
             "shift-brain"
           ],
@@ -870,8 +769,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "hive_audit_log",
-          "line": 74,
-          "evidence": "functions/supervisor-reset-password/index.ts:74",
+          "line": 88,
+          "evidence": "functions/supervisor-reset-password/index.ts:88",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
@@ -884,6 +783,7 @@
             "marketplace",
             "marketplace-admin",
             "marketplace-seller",
+            "platform-actions",
             "pm-scheduler"
           ],
           "disposition": "operational"
@@ -918,8 +818,8 @@
         {
           "fn": "trigger-ml-retrain",
           "to_table": "automation_log",
-          "line": 129,
-          "evidence": "functions/trigger-ml-retrain/index.ts:129",
+          "line": 135,
+          "evidence": "functions/trigger-ml-retrain/index.ts:135",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -940,16 +840,16 @@
         {
           "fn": "visual-defect-capture",
           "to_table": "ai_rate_limits",
-          "line": 149,
-          "evidence": "functions/visual-defect-capture/index.ts:149",
+          "line": 150,
+          "evidence": "functions/visual-defect-capture/index.ts:150",
           "downstream_pages": [],
           "disposition": "infra"
         },
         {
           "fn": "visual-defect-capture",
           "to_table": "fault_knowledge",
-          "line": 420,
-          "evidence": "functions/visual-defect-capture/index.ts:420",
+          "line": 426,
+          "evidence": "functions/visual-defect-capture/index.ts:426",
           "downstream_pages": [
             "integrations",
             "logbook"
@@ -987,8 +887,8 @@
         {
           "fn": "weibull-fitter",
           "to_table": "weibull_fits",
-          "line": 289,
-          "evidence": "functions/weibull-fitter/index.ts:289",
+          "line": 298,
+          "evidence": "functions/weibull-fitter/index.ts:298",
           "downstream_pages": [
             "asset-hub"
           ],

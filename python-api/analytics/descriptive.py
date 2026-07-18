@@ -33,9 +33,16 @@ def _to_df(records: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+# format="ISO8601" is REQUIRED, not cosmetic: pandas >=2.0 infers ONE format from
+# the first element and coerces every non-matching value to NaT. Postgres emits
+# mixed precision in the same column -- real user writes carry microseconds
+# ("...:40.422439+00:00") while seeded/whole-second rows do not -- so inference
+# locked onto microseconds and silently dropped 308 of 310 rows (99.4%). Every
+# date-based metric then computed on 2 rows and reported it with full confidence.
+# ISO8601 parses any valid ISO precision. (2026-07-15)
 def _parse_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
     if col in df.columns:
-        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
+        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce", format="ISO8601")
     return df
 
 
@@ -235,11 +242,20 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], p
             "compliance_pct": round(compliance, 1),
         })
 
-    overall = float(np.mean([r["compliance_pct"] for r in results])) if results else 0
+    # SMRP 2.1.1 PM Compliance = total completed / total scheduled across the program
+    # (WEIGHTED), NOT the unweighted mean of per-asset % — the mean lets a 1-PM asset
+    # count the same as a 20-PM asset and drifts from the "N of M PMs on time" count
+    # shown beside it (analytics arc F1d). This matches journey_trace's terminus
+    # assertion (overall_pct == 100·completed/scheduled) + the RPC fix.
+    _tot_sched = sum(r["scheduled"] for r in results)
+    _tot_done  = sum(r["completed"] for r in results)
+    overall = (_tot_done / _tot_sched * 100) if _tot_sched > 0 else 0
     results.sort(key=lambda x: x["compliance_pct"])
     return {
         "compliance_by_asset": results,
         "overall_pct": round(overall, 1),
+        "total_scheduled": _tot_sched,
+        "total_completed": _tot_done,
         "standard": "SMRP Metric 2.1.1",
     }
 

@@ -1,0 +1,395 @@
+# Arc T/T4 — alert routing over the SLO error signal. Auto-provisioned at boot.
+# The burn-rate ALERT LOGIC is proven locally by tools/slo_burn_check.py (multi-
+# window, deduped, fault-inject-proven to fire exactly one right-severity alert);
+# this wires the equivalent signal into Grafana's routing (rule -> policy ->
+# contact point) so it has a durable, version-controlled notification surface.
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: workhive-slo
+    receivers:
+      # EMAIL (G1, 2026-07-18): the sole founder's real channel. LOCAL sends via the
+      # Supabase inbucket catcher (GF_SMTP_HOST=supabase_inbucket_workhive:1025) — view
+      # at http://127.0.0.1:54324. For PROD, override GF_SMTP_* to a real provider.
+      - uid: wh_slo_email
+        type: email
+        settings:
+          addresses: ian.beronio37@gmail.com
+          singleEmail: true
+      # WEBHOOK kept for the fault-walk / a future incident endpoint (harmless locally).
+      - uid: wh_slo_webhook
+        type: webhook
+        settings:
+          url: http://host.docker.internal:9099/slo-alert
+          httpMethod: POST
+
+# Mute non-critical (ops-queue) notifications off-hours so a solo founder isn't pinged
+# at night for a queue that can wait — the Grafana-recommended anti-fatigue lever. The
+# SLO error + founder-critical (AI-cost/error-budget) routes are NOT muted; they page anytime.
+muteTimes:
+  - orgId: 1
+    name: off-hours
+    time_intervals:
+      # An interval time range cannot WRAP midnight (Grafana rejects start >= end), so
+      # the overnight quiet window is two ranges: late evening + early morning.
+      - times:
+          - start_time: '00:00'
+            end_time: '08:00'
+          - start_time: '21:00'
+            end_time: '24:00'
+      - weekdays: ['saturday', 'sunday']
+
+policies:
+  - orgId: 1
+    receiver: workhive-slo
+    group_by: ['grafana_folder', 'alertname']
+    routes:
+      - receiver: workhive-slo
+        object_matchers:
+          - ['service', '=', 'workhive-edge']
+      - receiver: workhive-slo
+        object_matchers:
+          - ['service', '=', 'workhive-ops']
+        mute_time_intervals:
+          - off-hours
+      # Founder business signals (AI-cost runaway / new-signup / churn) — NOT muted:
+      # a money leak or a growth/churn event is worth reaching the founder anytime.
+      - receiver: workhive-slo
+        object_matchers:
+          - ['service', '=', 'workhive-founder']
+
+groups:
+  - orgId: 1
+    name: WorkHive SLO
+    folder: WorkHive
+    interval: 1m
+    rules:
+      - uid: wh_slo_edge_errors
+        title: Edge unhandled errors (1h)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-edge
+          severity: warning
+        annotations:
+          summary: "WorkHive edge fns produced unhandled errors (wh_traces, excl. 401/403/429) in the last hour."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as errors from wh_traces where error_code is not null and coalesce(status,0) not in (401,403,429) and created_at > now() - interval '1 hour'"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+
+  # OPERATOR-CONSOLE → GRAFANA arc (P1/§4, 2026-07-18): governance-queue alerts.
+  # Grafana watches the ② action queues (the same counts as the Founder-Ops stat
+  # panels) and fires when there's something to do; each alert's summary links to
+  # the ONE lean action page (platform-actions.html) that performs the write. This
+  # is the "you live in Grafana; the action page opens only when needed" pattern.
+  - orgId: 1
+    name: WorkHive Ops Queues
+    folder: WorkHive
+    interval: 5m
+    rules:
+      - uid: wh_ops_listings_review
+        title: Listings awaiting review
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-ops
+          severity: info
+        annotations:
+          summary: "Marketplace listings are waiting for admin review — act at http://127.0.0.1:5000/workhive/platform-actions.html"
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from marketplace_listings where status = 'draft'"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+      - uid: wh_ops_sellers_verify
+        title: Sellers awaiting verification
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-ops
+          severity: info
+        annotations:
+          summary: "Sellers are awaiting ID/cert verification — act at http://127.0.0.1:5000/workhive/platform-actions.html"
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from marketplace_sellers where kyb_verified is not true or (cert_verified is not true and certifications is not null)"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+      - uid: wh_ops_disputes_open
+        title: Open marketplace disputes
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-ops
+          severity: warning
+        annotations:
+          summary: "Marketplace disputes are open and need resolution — act at http://127.0.0.1:5000/workhive/platform-actions.html"
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from marketplace_disputes where status in ('open','seller_responded')"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+
+  # WorkHive Founder Signals (G1, 2026-07-18): the business alerts a SOLE FOUNDER wants —
+  # a money leak, a growth event, a churn signal. Routed to email, NOT muted off-hours.
+  - orgId: 1
+    name: WorkHive Founder Signals
+    folder: WorkHive
+    interval: 10m
+    rules:
+      - uid: wh_founder_ai_cost_runaway
+        title: AI cost runaway (24h over budget)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: critical
+        annotations:
+          summary: "AI spend in the last 24h exceeded the daily budget — check the LLM chain for a runaway loop (http://127.0.0.1:3001/d/workhive-founder-ops)."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 86400
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, coalesce(sum(cost_usd),0)::float as v from ai_cost_log where created_at > now() - interval '24 hours'"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+      - uid: wh_founder_new_signup
+        title: New hive signup (last hour)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: info
+        annotations:
+          summary: "A new hive signed up in the last hour — the good ping."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from hives where created_at > now() - interval '1 hour'"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+      - uid: wh_founder_hive_churn
+        title: Hive went silent (was active, none in 7d)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: warning
+        annotations:
+          summary: "A hive that was active before has had no activity for 7 days — a churn signal worth a check-in."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from hives h where exists (select 1 from analytics_events e where e.hive_id = h.id and e.created_at < now() - interval '7 days') and not exists (select 1 from analytics_events e where e.hive_id = h.id and e.created_at > now() - interval '7 days')"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+      # G4 CRON-HEALTH (2026-07-18): a scheduled job FAILING is silent today — nobody
+      # watches cron.job_run_details. This fires when any pg_cron job failed in the last
+      # 24h (read via the postgres-owned public.v_cron_health view), so a broken daily
+      # automation (PM-overdue, risk-scoring, AI-eval) can't rot unnoticed. It surfaced
+      # 27+ silent failures on the first run. Threshold >0 = warn on the first failure.
+      - uid: wh_founder_cron_failed
+        title: Scheduled job failed (24h)
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          service: workhive-founder
+          severity: warning
+        annotations:
+          summary: "A pg_cron scheduled job failed in the last 24h — an automation isn't running. See Founder Home 'Recent cron failures' (http://127.0.0.1:3001/d/workhive-founder-home)."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 86400
+              to: 0
+            datasourceUid: supabase_local
+            model:
+              refId: A
+              format: table
+              rawSql: "select now() as time, count(*)::float as v from v_cron_health where status = 'failed' and start_time > now() - interval '24 hours'"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]

@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js" integrity="sha384-4zPMCkaV0wO70MQq0L4L61dbpYMWn2Br91U2s3eYnKsTPhwH+2D3PTs0OrvLO8h9" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -36,32 +36,53 @@
     .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
 
     /* ── Header ── */
-    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+    /* One 8-pt spacing scale across the page: block gaps are 16px, with 24px
+       reserved for the header's section break (R1). */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    /* The source chip is empty in markup and filled by renderSourceChip() after the
+       fetch, so its slot must be reserved or the whole page below it drops (I1/CLS).
+       62px = one caption line (16px) + the 44px "How this is computed" tap target. */
+    #wh-source-chip { min-height: 62px; margin: 0; }
     .page-header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; }
     .page-header p { font-size: 0.75rem; color: #9aa6b3; margin-top: 0.2rem; }
-    .header-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
+    .header-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(167,139,250,0.15); color: var(--wh-violet-text); border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
 
     /* ── Period selector ── */
-    .period-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .period-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .period-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.15s;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
       min-height: 44px;
     }
-    .period-btn.active { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #a78bfa; }
+    .period-btn.active { background: rgba(167,139,250,0.15); border-color: var(--wh-violet-text); color: var(--wh-violet-text); }
+    /* SAME SHAPE MUST MEAN SAME JOB (rubric R3, gestalt similarity). This rendered
+       999px/44px -- pixel-identical to .filter-chip, .period-btn and .role-btn -- so the
+       one control that DOES something looked exactly like the chips that merely filter.
+       Only a tint separated them, and a tint cannot carry the distinction (CVD, print,
+       forced-colors). The rounded-rect is the platform's ACTION vocabulary; the pill stays
+       the FILTER vocabulary. Measured: this was the page's worst R3 collision --
+       "999px|44 worn by period-btn+refresh-btn+role-btn+filter-chip".
+       [external-ux-laws-principles-jakob-hick-fitts-miller (gestalt similarity)] */
     .refresh-btn {
-      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.2s;
-      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: #a78bfa;
+      font-family: var(--wh-font); font-size: 0.72rem; font-weight: 600;
+      padding: 0.4rem 0.875rem; border-radius: var(--wh-radius-sm); cursor: pointer; transition: all 0.2s;
+      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: var(--wh-violet-text);
       min-height: 44px; margin-left: auto; display: flex; align-items: center; gap: 0.35rem;
     }
     .refresh-btn:hover { background: rgba(167,139,250,0.18); }
     .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .refresh-btn.spinning #refresh-icon { display: inline-block; animation: spin 0.8s linear infinite; }
+    /* Refresh-all is the page's primary action (get the latest across all phases) — filled so
+       the 5-second scan lands on one clear CTA (A1); the sibling report/nav buttons stay ghost. */
+    #refresh-btn { background: linear-gradient(135deg, #7c5cff, #a78bfa); border-color: transparent; color: var(--wh-navy); font-weight: 700; }
+    #refresh-btn:hover { filter: brightness(1.08); background: linear-gradient(135deg, #7c5cff, #a78bfa); }
 
     /* ── Phase tabs ── */
-    .phase-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.25rem; }
+    /* NAVIGATE vocabulary (Ian, 2026-07-15): view-switchers are a CONNECTED TAB-BAR --
+       joined siblings, 8px outer corners, no gap -- visually distinct from both the
+       select pills (filters) and the action rects. rubric R3 third role. */
+    .phase-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; overflow-x: auto; border-radius: var(--wh-radius-sm); border: 1px solid rgba(255,255,255,0.1); width: fit-content; max-width: 100%; }
 
     /* ── Global filter chips (Criticality + Discipline) ──────────────── */
     .global-filters {
@@ -70,7 +91,7 @@
       margin-bottom: 1rem;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 0.625rem;
+      border-radius: var(--wh-radius);
     }
     .filter-group { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
     .filter-label {
@@ -99,13 +120,13 @@
     }
     .filter-chip.active {
       background: rgba(167,139,250,0.18);
-      border-color: rgba(167,139,250,0.5);
+      border-color: var(--wh-violet-text);
       color: #fff;
     }
     .filter-chip:active { transform: scale(0.97); }
     .filter-active-banner {
       font-size: 0.68rem;
-      color: rgba(167,139,250,0.85);
+      color: var(--wh-violet-text);
       padding: 0.25rem 0.5rem;
       background: rgba(167,139,250,0.06);
       border-radius: 0.4rem;
@@ -118,14 +139,18 @@
     }
     .phase-tab {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.5rem 0.875rem; border-radius: 0.625rem; cursor: pointer; white-space: nowrap;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+      padding: 0.5rem 0.875rem; border-radius: 0; cursor: pointer; white-space: nowrap;
+      background: rgba(255,255,255,0.04); border: none; border-right: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
       transition: all 0.15s; min-height: 44px;
     }
-    .phase-tab.active { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.35); color: #a78bfa; }
+    .phase-tab.active { background: rgba(167,139,250,0.12); border-color: var(--wh-violet-text); color: var(--wh-violet-text); }
     .phase-tab.soon { opacity: 0.4; cursor: not-allowed; }
     /* Arc Y Y5: academic term as a small subtitle under the plain JtBD label */
-    .phase-sub { display: block; font-size: 0.58rem; font-weight: 400; opacity: 0.6; letter-spacing: 0.02em; margin-top: 1px; }
+    /* WCAG 2.2 AA (FB2/axe color-contrast): opacity:0.6 compounded the already-translucent
+       parent color, dropping the sub-label to 3.29:1 (inactive) / 2.89:1 (active) over the
+       tab bg. Use explicit opaque colors instead -> 6.49:1 inactive / 8.02:1 active. */
+    .phase-sub { display: block; font-size: 0.58rem; font-weight: 400; color: #9aa6b3; letter-spacing: 0.02em; margin-top: 1px; }
+    .phase-tab.active .phase-sub { color: #c4b5fd; }
 
     /* ── Cards ── */
     .card {
@@ -133,18 +158,20 @@
       border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.25rem;
       margin-bottom: 1rem;
     }
-    .card-title { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .card-title { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.62); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; } /* arc U5: WCAG AA 4.5:1 over dark bg */
     .card-standard { font-size: 0.6rem; color: rgba(255,255,255,0.6); font-weight: 500; }
 
     /* ── Tables ── */
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-    .data-table th { text-align: left; color: rgba(255,255,255,0.3); font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; }
-    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
+    .data-table th { text-align: left; color: rgba(255,255,255,0.62); font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table .machine-name { font-weight: 600; color: #fff; }
-    .data-table .num { text-align: right; font-weight: 700; }
-    .data-table .alert { color: #f87171; }
+    .data-table .num { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .data-table .alert { color: var(--wh-red-text); }
     .data-table .warn  { color: var(--wh-orange); }
+    /* Arc A1: wide tables (6-col Priority Ranking etc.) scroll horizontally within their
+       card at 390px instead of clipping/overflowing the page. */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .data-table .good  { color: #4ade80; }
 
     /* ── Top-N + Show All toggle ─────────────────────────────────────────
@@ -160,8 +187,8 @@
       min-height: 44px;                    /* mobile tap target */
       background: rgba(167,139,250,0.06);
       border: 1px solid rgba(167,139,250,0.18);
-      border-radius: 0.625rem;
-      color: rgba(167,139,250,0.85);
+      border-radius: var(--wh-radius-sm);
+      color: var(--wh-violet-text);
       font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
@@ -170,7 +197,7 @@
     }
     .list-with-showall .showall-toggle:hover {
       background: rgba(167,139,250,0.12);
-      border-color: rgba(167,139,250,0.35);
+      border-color: var(--wh-violet-text);
       color: #fff;
     }
     .list-with-showall .showall-toggle:active { transform: scale(0.99); }
@@ -178,9 +205,10 @@
     .list-with-showall .list-search {
       display: block;
       width: 100%;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
       padding: 0.55rem 0.85rem;
-      min-height: 38px;
+      /* 44px is the tap-target floor (F1) — gloved, one-handed field use. */
+      min-height: 44px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.5rem;
@@ -191,10 +219,9 @@
       outline: none;
       -webkit-appearance: none;
     }
-    .list-with-showall .list-search::placeholder { color: rgba(255,255,255,0.3); }
-    .list-with-showall .list-search:focus {
+    .list-with-showall .list-search::placeholder { color: rgba(255,255,255,0.6); }    .list-with-showall .list-search:focus {
       background: rgba(255,255,255,0.06);
-      border-color: rgba(167,139,250,0.5);
+      border-color: var(--wh-violet-text);
     }
     /* iOS Safari adds a clear button by default; keep it. */
     .list-with-showall .list-search::-webkit-search-cancel-button { cursor: pointer; }
@@ -202,9 +229,8 @@
     /* ── Stat tiles ── */
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .stat-tile { background: rgba(255,255,255,0.04); border-radius: 0.75rem; padding: 0.875rem; border: 1px solid rgba(255,255,255,0.06); }
-    .stat-tile .val { font-size: 1.5rem; font-weight: 800; color: #a78bfa; line-height: 1; }
-    .stat-tile .label { font-size: 0.65rem; color: rgba(255,255,255,0.35); margin-top: 0.25rem; font-weight: 600; }
-
+    .stat-tile .val { font-size: 1.5rem; font-weight: 800; color: var(--wh-violet-text); line-height: 1; }
+    .stat-tile .label { font-size: 0.65rem; color: rgba(255,255,255,0.62); margin-top: 0.25rem; font-weight: 600; }
     /* ── Bar chart (CSS) ── */
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
     .bar-label { font-size: 0.7rem; color: rgba(255,255,255,0.6); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -213,9 +239,7 @@
     .bar-val { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.5); width: 40px; text-align: right; flex-shrink: 0; }
 
     /* ── Empty / loading states ── */
-    .empty { text-align: center; padding: 2rem; color: rgba(255,255,255,0.25); font-size: 0.78rem; }
-    .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color: rgba(255,255,255,0.35); font-size: 0.8rem; }
-    .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .empty { text-align: center; padding: 2rem; color: rgba(255,255,255,0.6); font-size: 0.78rem; }    .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color: rgba(255,255,255,0.6); font-size: 0.8rem; }    .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: var(--wh-violet-text); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     /* ── Collapsible card detail ── */
     .kpi-detail {
@@ -237,7 +261,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .kpi-chevron {
-      font-size: 0.65rem; color: rgba(255,255,255,0.25);
+      font-size: 0.65rem; color: rgba(255,255,255,0.6); /* arc U5: SC 1.4.11 non-text contrast */
       transition: transform 0.25s ease; flex-shrink: 0; margin-left: 0.5rem;
     }
     .kpi-chevron.open { transform: rotate(180deg); }
@@ -267,8 +291,7 @@
     .role-card-title { font-size:0.68rem; font-weight:700; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
     .role-row { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
     .role-row:last-child { border-bottom:none; }
-    .role-row .label { color:rgba(255,255,255,0.45); }
-    .role-row .val { font-weight:700; }
+    .role-row .label { color:rgba(255,255,255,0.62); }    .role-row .val { font-weight:700; }
 
     /* In-card AI recommendation block (replaces the separate banner below) */
     .role-ai-rec {
@@ -280,7 +303,7 @@
     }
     .role-ai-rec-label {
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
-      text-transform: uppercase; color: #a78bfa; margin-bottom: 0.25rem;
+      text-transform: uppercase; color: var(--wh-violet-text); margin-bottom: 0.25rem;
     }
     .role-ai-rec-text {
       font-size: 0.74rem; color: rgba(255,255,255,0.75); line-height: 1.45;
@@ -289,7 +312,7 @@
       font-family:'Poppins',sans-serif; font-size:1rem; font-weight:500;
       background:rgba(22,32,50,0.7); border:1px solid rgba(247,162,27,0.25);
       border-radius:0.5rem; color:var(--wh-orange); padding:0.3rem 0.6rem;
-      cursor:pointer; outline:none; width:100%; margin:0.25rem 0;
+      cursor:pointer; outline:none; width:100%; margin:0.25rem 0; min-height:44px;
     }
     .pm-asset-select option { background:#1a2e44; color:var(--wh-cloud); }
 
@@ -297,7 +320,7 @@
     .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
 
     /* ── Repeat failure badge ── */
-    .repeat-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 999px; background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+    .repeat-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 999px; background: rgba(248,113,113,0.15); color: var(--wh-red-text); border: 1px solid rgba(248,113,113,0.25); }
 
     /* ── Compliance bar ── */
     .compliance-track { height: 10px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0.4rem 0; }
@@ -312,7 +335,9 @@
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    /* min-height reserves the filled height so the loading -> final text swap
+       cannot shift the page (I1/CLS). Keep the loading copy to one sub-line. */
+    .verdict { display:flex; align-items:center; gap:16px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; min-height:72px; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; color:rgba(255,255,255,0.92); }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
@@ -321,26 +346,69 @@
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
-    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
-    .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; margin-bottom:16px; }
+    .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
+    /* tabular-nums keeps digits on a fixed pitch so KPIs stay comparable
+       column-to-column and do not jitter as values refresh (C4). */
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
-    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
-    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    /* min-height reserves the height of the recommendation + its CTA, which are
+       both filled in after the fetch resolves (I1/CLS). */
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; min-height:168px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+/* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
+   component CSS — no components.css link — so .ac-cta lives here too). */
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta:hover { background:var(--wh-orange-dark); }
+.action-card .ac-cta:active { transform:scale(0.98); }
+.action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
     .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #an-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #an-summary-details.open { display:block; }
+
+    /* N1: EN/FIL toggle. 44px min on both axes -- F1 fails on the MIN dimension,
+       so a 44px-tall but 30px-wide button would still fail (paid for on hive). */
+    .hdr-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .an-lang { display:flex; gap:4px; }
+    .an-lang button {
+      /* SELECT vocabulary = the pill. This is a state toggle (aria-pressed), the same
+         job as .filter-chip / .period-btn / .role-btn, so it must wear their shape --
+         it wore the 8px ACTION rect instead: same job, two shapes (rubric R3). */
+      min-width:44px; min-height:44px; padding:0 8px; border-radius:var(--wh-radius-pill); cursor:pointer;
+      background:transparent; border:1px solid rgba(255,255,255,0.12);
+      color:rgba(255,255,255,0.6); font-family:inherit; font-size:0.62rem; font-weight:800;
+      letter-spacing:0.06em; transition:background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .an-lang button:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.24); }
+    .an-lang button.on { background:rgba(167,139,250,0.14); border-color:var(--wh-violet-text); color:var(--wh-violet-text); }
+
+    /* ── Q1: motion-reduced variant (respects the OS setting) ──────────────────
+       Every state this page animates INTO is still reached — only the travel is
+       removed, so a vestibular-sensitive user gets the same information without
+       the movement. The loading spinners deliberately keep spinning: a progress
+       indicator is essential motion (WCAG 2.3.3 exempts it), and freezing one
+       would read as "the page hung" rather than "the page is working". */
+    @media (prefers-reduced-motion: reduce) {
+      .period-btn, .refresh-btn, .phase-tab, .filter-chip, .role-btn,
+      .list-with-showall .list-search, .details-toggle,
+      .action-card .ac-cta        { transition: none; }
+      .action-card .ac-cta:active { transform: none; }
+      /* the bar still renders at its full width, it just does not grow into it */
+      .bar-fill                   { transition: none; }
+      .kpi-detail                 { transition: none; }
+      .kpi-chevron                { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -360,10 +428,18 @@
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1>Analytics Engine</h1>
+      <h1 translate="no">Analytics Engine</h1>
       <p>ISO 14224 · SMRP Metrics · Stage 3 Cyborg Worker</p>
     </div>
-    <span class="header-badge">Stage 3</span>
+    <div class="hdr-right">
+      <!-- N1: EN/FIL toggle. Wired by addEventListener below (never inline onclick --
+           validate_csp.py ratchets inline handlers). -->
+      <div id="an-lang" class="an-lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" class="on" aria-pressed="true" translate="no">EN</button>
+        <button type="button" data-lang="fil" aria-pressed="false" translate="no">FIL</button>
+      </div>
+      <span class="header-badge">Stage 3</span>
+    </div>
   </div>
 
   <!-- Page-level controls: period selector + refresh.
@@ -371,29 +447,28 @@
        each role view. -->
   <p id="wh-source-chip"></p>
   <div class="period-row">
-    <button class="period-btn" data-days="30" onclick="setPeriod(30, true)">30 days</button>
-    <button class="period-btn active" data-days="90" onclick="setPeriod(90, true)">90 days</button>
-    <button class="period-btn" data-days="180" onclick="setPeriod(180, true)">180 days</button>
-    <button class="period-btn" data-days="365" onclick="setPeriod(365, true)">1 year</button>
+    <button class="period-btn" aria-pressed="false" data-days="30" onclick="setPeriod(30, true)"><span data-i="d30">30 days</span></button>
+    <button class="period-btn active" aria-pressed="true" data-days="90" onclick="setPeriod(90, true)"><span data-i="d90">90 days</span></button>
+    <button class="period-btn" aria-pressed="false" data-days="180" onclick="setPeriod(180, true)"><span data-i="d180">180 days</span></button>
+    <button class="period-btn" aria-pressed="false" data-days="365" onclick="setPeriod(365, true)"><span data-i="d365">1 year</span></button>
     <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()" title="Refresh all phases">
       <span id="refresh-icon">🔄</span>
-      <span id="refresh-label">Refresh</span>
+      <span id="refresh-label" data-i="refresh">Refresh</span>
     </button>
 
-    <!-- Recompute risk (Predictive phase, supervisors): risk scores are written by
-         the daily 13:00 PHT cron; this triggers an on-demand recompute for THIS hive
-         so predictive numbers can refresh now. Shown only on Predictive for supervisors. -->
-    <button class="refresh-btn" id="recompute-risk-btn" onclick="recomputeRiskScores()" title="Recompute this hive's risk scores now — instead of waiting for the daily 13:00 PHT run" style="display:none;">
-      <span id="recompute-risk-icon">↻</span>
-      <span id="recompute-risk-label">Recompute risk</span>
-    </button>
+    <!-- Recompute risk lived HERE until 2026-07-15 and caused a measured 0.173 CLS:
+         it is Predictive-only, so revealing it wrapped this shared header row
+         96 -> 148px and shoved the whole page down 52px on every switch into (and
+         out of) Predictive. It now renders INSIDE the Predictive panel, where it
+         sits next to the numbers it recomputes (Gestalt common region) and the
+         wholesale panel swap costs no shift. See renderPredictive(). -->
 
     <!-- Phase B merge: report tools now live as buttons inside Analytics, not as separate nav items -->
     <a href="analytics-report.html" class="refresh-btn" id="report-pdf-btn" title="Open the print-ready Analytics Report" style="text-decoration:none;">
-      📄 <span style="margin-left:4px;">PDF Report</span>
+      📄 <span style="margin-left:4px;" data-i="pdfreport">PDF Report</span>
     </a>
     <a href="report-sender.html" class="refresh-btn" id="report-send-btn" title="Send Analytics Report by email" style="text-decoration:none;">
-      ✉️ <span style="margin-left:4px;">Send</span>
+      ✉️ <span style="margin-left:4px;" data-i="send">Send</span>
     </a>
   </div>
 
@@ -403,18 +478,18 @@
        drivers; the three buttons below funnel into the same canonical engines
        Analytics already uses, so the user lands on the right surface in one
        tap instead of hunting through the FAB drawer. -->
-  <div class="period-row" style="margin-top:-4px;">
+  <div class="period-row">
     <!-- Phase 4 (2026-06-10): predictive.html retired — per-asset risk 360 lives in
          Asset Hub (same v_risk_truth); the failure-trend/next-failure view is the
          Predictive phase inside this page's own analytics engine. -->
     <a href="asset-hub.html" class="refresh-btn" title="Per-asset risk ranking and full asset 360" style="text-decoration:none;">
-      🔮 <span style="margin-left:4px;">Asset Risk</span>
+      🔮 <span style="margin-left:4px;" data-i="assetrisk">Asset Risk</span>
     </a>
     <a href="shift-brain.html" class="refresh-btn" title="Today's top-risk list + handover summary for the current shift" style="text-decoration:none;">
-      🧠 <span style="margin-left:4px;">Shift Brain</span>
+      🧠 <span style="margin-left:4px;" data-i="shiftbrain">Shift Brain</span>
     </a>
     <a href="ph-intelligence.html" class="refresh-btn" title="Cross-hive network view: how this hive compares to the platform's anonymised aggregates" style="text-decoration:none;">
-      🌏 <span style="margin-left:4px;">Network View</span>
+      🌏 <span style="margin-left:4px;" data-i="networkview">Network View</span>
     </a>
   </div>
 
@@ -424,37 +499,39 @@
   <div id="an-summary">
     <div id="an-verdict" class="verdict empty">
       <span id="an-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span id="an-verdict-label">Rolling up reliability KPIs...</span><small id="an-verdict-sub">Loading OEE (partial, A × Q), MTBF (partial, calendar time), and PM compliance (30-day approximation) from the descriptive phase.</small></div>
+      <div class="verdict-text"><span id="an-verdict-label">Rolling up reliability KPIs...</span><small id="an-verdict-sub">Reading your logbook for this period.</small></div>
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="an-card-oee" data-rag-tile="analytics:oee" data-rag-label="OEE (avg, partial)">
-        <div class="sc-label">OEE (avg, partial)</div>
-        <div class="sc-hero" id="an-oee-hero">—</div>
+        <div class="sc-label" data-i="lbloee">OEE (avg, partial)</div>
+        <div class="sc-hero" id="an-oee-hero">-</div>
         <div class="sc-sub" id="an-oee-sub">Loading...</div>
-        <span class="sc-tag" id="an-oee-tag">—</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 22400-2:2014 §5.5 · partial (A × Q) until ideal cycle time captured</small>
+        <span class="sc-tag" id="an-oee-tag">-</span>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 22400-2:2014 · Availability × Quality only. Add each asset's cycle time to include Performance.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-mtbf" data-rag-tile="analytics:mtbf" data-rag-label="Worst MTBF (partial)">
-        <div class="sc-label">Worst MTBF (partial)</div>
-        <div class="sc-hero" id="an-mtbf-hero">—</div>
+        <div class="sc-label" data-i="lblmtbf">Worst MTBF (partial)</div>
+        <div class="sc-hero" id="an-mtbf-hero">-</div>
         <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
-        <span class="sc-tag" id="an-mtbf-tag">—</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 14224:2016 §9.3 · partial: calendar time (not operating time)</small>
+        <span class="sc-tag" id="an-mtbf-tag">-</span>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 14224:2016 · Counts calendar days between failures, not running hours.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-pm" data-rag-tile="analytics:pm_compliance" data-rag-label="PM compliance (30d approx)">
-        <div class="sc-label">PM compliance (30d approx)</div>
-        <div class="sc-hero" id="an-pm-hero">—</div>
+        <div class="sc-label" data-i="lblpm">PM compliance (30 days)</div>
+        <div class="sc-hero" id="an-pm-hero">-</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
-        <span class="sc-tag" id="an-pm-tag">—</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">SMRP Best Practices v5.0 §2.1.1 · partial: 30-day floor approximation</small>
+        <span class="sc-tag" id="an-pm-tag">-</span>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">SMRP v5.0 · Estimated from the last 30 days.</small>
       </div>
     </div>
     <div class="action-card">
-      <div class="ac-label">What to do next</div>
+      <div class="ac-label" data-i="whatnext">What to do next</div>
       <div class="ac-text" id="an-action-text">Computing recommendation...</div>
+      <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
+      <a id="an-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
-      Show details
+      <span data-i="showdetails">Show details</span>
     </button>
     <div id="an-summary-details" role="region" aria-label="Analytics methodology"
     data-rag-tile="analytics:detail_panel"
@@ -474,51 +551,57 @@
        (per multitenant-engineer skill). The "Manager" tier was UI-only and showed
        reframed supervisor data — removed to reduce clutter. -->
   <div class="role-bar" id="role-bar">
-    <button class="role-btn" id="role-worker"     onclick="setRole('worker')"    ><span class="role-icon">🔧</span>Field Tech</button>
-    <button class="role-btn" id="role-supervisor" onclick="setRole('supervisor')"><span class="role-icon">👷</span>Supervisor</button>
+    <button class="role-btn" aria-pressed="false" id="role-worker"     onclick="setRole('worker')"    ><span class="role-icon">🔧</span><span data-i="rolework">Field Tech</span></button>
+    <button class="role-btn" aria-pressed="false" id="role-supervisor" onclick="setRole('supervisor')"><span class="role-icon">👷</span><span data-i="rolesup">Supervisor</span></button>
   </div>
 
   <!-- Role Quick View (injected by JS) -->
   <div id="role-quick-view"></div>
 
   <!-- Status bar: last updated + loading indicator -->
-  <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;min-height:20px;">
+  <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;min-height:20px;">
     <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;display:none;"></span>
     <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.6);"></span>
-    <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:rgba(167,139,250,0.2);border-top-color:#a78bfa;display:none;"></div>
+    <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);display:none;"></div>
   </div>
 
+  <h2 class="wh-section-title" data-i="an_phases_heading">Insights by phase</h2>
+
   <!-- Phase tabs -->
-  <div class="phase-tabs">
+  <div class="phase-tabs" id="phase-tabs">
     <!-- Arc Y Y5 (fork#4): plain job-to-be-done labels lead; the standards-anchored
          academic term is kept as a subtitle (discoverable for engineers, comprehensible
          for technicians). setPhase matches on data-phase, not the visible text. -->
-    <button class="phase-tab active" data-phase="descriptive"  onclick="setPhase('descriptive')">What happened<span class="phase-sub">Descriptive</span></button>
-    <button class="phase-tab" data-phase="diagnostic"   onclick="setPhase('diagnostic')">Why it happened<span class="phase-sub">Diagnostic</span></button>
-    <button class="phase-tab" data-phase="predictive"   onclick="setPhase('predictive')">What's coming<span class="phase-sub">Predictive</span></button>
-    <button class="phase-tab" data-phase="prescriptive"  onclick="setPhase('prescriptive')">What to do<span class="phase-sub">Prescriptive</span></button>
+    <button class="phase-tab active" aria-pressed="true" data-phase="descriptive"  onclick="setPhase('descriptive')"><span data-i="ph1">What happened</span><span class="phase-sub" data-i="ph1s">Descriptive</span></button>
+    <button class="phase-tab" aria-pressed="false" data-phase="diagnostic"   onclick="setPhase('diagnostic')"><span data-i="ph2">Why it happened</span><span class="phase-sub" data-i="ph2s">Diagnostic</span></button>
+    <button class="phase-tab" aria-pressed="false" data-phase="predictive"   onclick="setPhase('predictive')"><span data-i="ph3">What's coming</span><span class="phase-sub" data-i="ph3s">Predictive</span></button>
+    <button class="phase-tab" aria-pressed="false" data-phase="prescriptive"  onclick="setPhase('prescriptive')"><span data-i="ph4">What to do</span><span class="phase-sub" data-i="ph4s">Prescriptive</span></button>
   </div>
 
   <!-- Global filters: narrow every panel by criticality + discipline.
        Empty / all = no filter. State persists in localStorage. -->
   <div class="global-filters" id="global-filters">
     <div class="filter-group">
-      <span class="filter-label">Criticality</span>
-      <button class="filter-chip active" data-dim="criticality" data-value="all"     onclick="setFilter(this)">All</button>
-      <button class="filter-chip"        data-dim="criticality" data-value="Critical" onclick="setFilter(this)">🔴 Critical</button>
-      <button class="filter-chip"        data-dim="criticality" data-value="High"     onclick="setFilter(this)">🟠 High</button>
-      <button class="filter-chip"        data-dim="criticality" data-value="Medium"   onclick="setFilter(this)">🟡 Medium</button>
-      <button class="filter-chip"        data-dim="criticality" data-value="Low"      onclick="setFilter(this)">🟢 Low</button>
+      <span class="filter-label" data-i="fcrit">Criticality</span>
+      <button class="filter-chip active" aria-pressed="true" data-dim="criticality" data-value="all"     onclick="setFilter(this)"><span data-i="fall1">All</span></button>
+      <!-- N1: criticality taxonomy deliberately stays English in FIL (canonical
+           platform vocabulary — see the i18n contract comment beside _anFIL). -->
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Critical" onclick="setFilter(this)" translate="no">🔴 Critical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="High"     onclick="setFilter(this)" translate="no">🟠 High</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Medium"   onclick="setFilter(this)" translate="no">🟡 Medium</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Low"      onclick="setFilter(this)" translate="no">🟢 Low</button>
     </div>
     <div class="filter-group">
-      <span class="filter-label">Discipline</span>
-      <button class="filter-chip active" data-dim="discipline" data-value="all"           onclick="setFilter(this)">All</button>
-      <button class="filter-chip"        data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)">Mechanical</button>
-      <button class="filter-chip"        data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)">Electrical</button>
-      <button class="filter-chip"        data-dim="discipline" data-value="Instrumentation" onclick="setFilter(this)">Instrumentation</button>
-      <button class="filter-chip"        data-dim="discipline" data-value="Hydraulic"      onclick="setFilter(this)">Hydraulic</button>
-      <button class="filter-chip"        data-dim="discipline" data-value="Pneumatic"      onclick="setFilter(this)">Pneumatic</button>
-      <button class="filter-chip"        data-dim="discipline" data-value="Lubrication"    onclick="setFilter(this)">Lubrication</button>
+      <span class="filter-label" data-i="fdisc">Discipline</span>
+      <button class="filter-chip active" aria-pressed="true" data-dim="discipline" data-value="all"           onclick="setFilter(this)"><span data-i="fall2">All</span></button>
+      <!-- N1: discipline taxonomy deliberately stays English in FIL (canonical
+           platform vocabulary — see the i18n contract comment beside _anFIL). -->
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Mechanical"     onclick="setFilter(this)" translate="no">Mechanical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Electrical"     onclick="setFilter(this)" translate="no">Electrical</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Instrumentation" onclick="setFilter(this)" translate="no">Instrumentation</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Hydraulic"      onclick="setFilter(this)" translate="no">Hydraulic</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Pneumatic"      onclick="setFilter(this)" translate="no">Pneumatic</button>
+      <button class="filter-chip" aria-pressed="false" data-dim="discipline" data-value="Lubrication"    onclick="setFilter(this)" translate="no">Lubrication</button>
     </div>
     <div id="filter-active-banner" class="filter-active-banner" style="display:none;"></div>
   </div>
@@ -530,7 +613,7 @@
     <summary style="list-style:none; cursor:pointer;">
       <div id="phase-banner" class="info-banner">
         <span>📊</span>
-        <span>Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.</span>
+        <span>Phase 1: Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.</span>
       </div>
     </summary>
   </details>
@@ -540,7 +623,7 @@
     data-rag-tile="analytics:results_panel"
     data-rag-label="Per-machine analytics results">
     <div class="card" style="padding:2rem;text-align:center;">
-      <div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin:0 auto 1rem;"></div>
+      <div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);margin:0 auto 1rem;"></div>
       <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Loading analytics...</p>
     </div>
   </div>
@@ -564,8 +647,8 @@
    * Keywords below remain greppable so the L2 contract verifies presence.
    */
   const ANALYTICS_L2_ANCHORS = {
-    groq_fallback_chain: 'groq → cerebras → sambanova → gemini-flash-lite → openrouter (free-tier chain — see ai-chain.ts)',
-    groq_null_guard:     '(response?.choices ?? [])[0]?.message?.content — guards null Groq response',
+    groq_fallback_chain: 'groq → cerebras → sambanova → gemini-flash-lite → openrouter (free-tier chain: see ai-chain.ts)',
+    groq_null_guard:     '(response?.choices ?? [])[0]?.message?.content: guards null Groq response',
     machine_normalize:   'name.toLowerCase().trim() before MTBF group-by (machine normalization)',
     CALC_TYPES_ref:      'CALC_TYPES registry count (calc-type count consistent across pages)',
   };
@@ -575,7 +658,7 @@
     'Fetching maintenance records from your hive...',
     'Running ISO 14224 standards-grade analysis...',
     'Computing MTBF, MTTR and Availability...',
-    'Warming up analytics engine — first run may take up to 60 seconds...',
+    'Warming up analytics engine (first run may take up to 60 seconds)...',
     'Cross-referencing logbook, PM, and inventory data...',
     'Applying Spearman correlation and statistical models...',
     'Building your maintenance intelligence report...',
@@ -615,7 +698,14 @@
     || localStorage.getItem('workerName') || '';
   // C4: redirect deferred to DOMContentLoaded — checks auth session first
 
-  const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+  // Resilience (arc): a hive MEMBER must never silently drop to worker scope just because
+  // wh_active_hive_id wasn't set. When exactly ONE hive membership exists (unambiguous), default
+  // to it — multi-hive with no active selection stays null (genuinely ambiguous). Prevents a
+  // supervisor seeing their own worker-scoped KPIs instead of the hive's.
+  const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || (() => {
+    try { const h = JSON.parse(localStorage.getItem('wh_hives') || '[]'); return (Array.isArray(h) && h.length === 1 && h[0] && h[0].id) ? h[0].id : null; }
+    catch (_e) { return null; }
+  })();
   const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
   let _period  = 90;
@@ -623,9 +713,23 @@
   let _loading = false;
 
   // ── Result cache — one entry per phase, survives tab switching ────────────
-  const _cache = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };
-  const _cacheTime = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };
+  let _cache = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };
+  let _cacheTime = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };  // reassigned to {} in setFilter() to invalidate — must be let, not const (was a TypeError on every filter click; deep-walk dim-9 2026-07-06)
   const PHASES = ['descriptive', 'diagnostic', 'predictive', 'prescriptive'];
+
+  // WCAG 4.1.2 (Name, Role, Value) + 1.4.1 (Use of Color): selection state was carried by
+  // the .active TINT ALONE -- measured live, 18 filter/period/role controls exposed NO
+  // aria-pressed, so which filter is active was announced to nobody and, for a CVD or
+  // forced-colors user, shown to nobody either. Mirroring .active into aria-pressed keeps
+  // the two in lock-step at every toggle site (they drifted apart when set separately).
+  // NOTE: the phase switcher LOOKS like a tab set, but role="tab" without a tablist +
+  // arrow-key roving focus ships a BROKEN tab widget -- partial ARIA is worse than none.
+  // These are one-of-N selectors, so a pressed toggle-button group is the honest pattern.
+  const setActive = (el, on) => {
+    if (!el) return;
+    el.classList.toggle('active', !!on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  };
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function showToast(msg) {
@@ -640,7 +744,7 @@
   function setPeriod(days, rerun = false) {
     _period = days;
     document.querySelectorAll('.period-btn').forEach(b => {
-      b.classList.toggle('active', Number(b.dataset.days) === days);
+      setActive(b, Number(b.dataset.days) === days);
     });
     // Source chip carries the live window value so the user can compare
     // it against Predictive's 365d annual-decay snapshot.
@@ -653,16 +757,16 @@
   }
 
   const PHASE_BANNERS = {
-    descriptive: '📊 Phase 1 — Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.',
-    diagnostic:  '🔍 Phase 2 — Diagnostic Analytics. Why did it happen? Standards: ISO 14224:2016 failure taxonomy, Spearman correlation, SAE JA1011.',
-    predictive:  '🔮 Phase 3 — Predictive Analytics. What will happen? Standards: ISO 13381-1:2015, ISO 14224:2016, SMRP composite health score.',
-    prescriptive:'⚡ Phase 4 — Prescriptive Analytics. What should I do? Standards: ISO 55000:2014, SAE JA1011 RCM, SMRP workforce metrics. Powered by WorkHive AI.',
+    descriptive: '📊 Phase 1: Descriptive Analytics. What happened? Standards: ISO 14224:2016, SMRP Metrics.',
+    diagnostic:  '🔍 Phase 2: Diagnostic Analytics. Why did it happen? Standards: ISO 14224:2016 failure taxonomy, Spearman correlation, SAE JA1011.',
+    predictive:  '🔮 Phase 3: Predictive Analytics. What will happen? Standards: ISO 13381-1:2015, ISO 14224:2016, SMRP composite health score.',
+    prescriptive:'⚡ Phase 4: Prescriptive Analytics. What should I do? Standards: ISO 55000:2014, SAE JA1011 RCM, SMRP workforce metrics. Powered by WorkHive AI.',
   };
 
   function setPhase(phase) {
     _phase = phase;
     document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
-      b.classList.toggle('active', (b.dataset.phase || b.textContent.toLowerCase()) === phase);
+      setActive(b, (b.dataset.phase || b.textContent.toLowerCase()) === phase);
     });
     const banner = document.getElementById('phase-banner');
     if (banner && PHASE_BANNERS[phase]) {
@@ -670,12 +774,8 @@
       banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<span>${icons[phase]||'📊'}</span><span>${PHASE_BANNERS[phase]}</span>`;
     }
 
-    // Recompute-risk button: only on Predictive, only for supervisors (2026-06-08).
-    // Risk scores feeding Predictive come from the daily cron snapshot; supervisors
-    // can recompute on demand here instead of waiting for 13:00 PHT.
-    const _rcBtn = document.getElementById('recompute-risk-btn');
-    if (_rcBtn) _rcBtn.style.display =
-      (phase === 'predictive' && HIVE_ROLE === 'supervisor' && HIVE_ID) ? 'inline-flex' : 'none';
+    // (The recompute-risk button is rendered by renderPredictive() inside the panel
+    // itself — toggling it in the shared header row cost a measured 0.173 CLS.)
 
     // Instant switch from cache if available
     if (_cache[phase]) {
@@ -713,7 +813,7 @@
     } catch (err) {
       console.warn('[analytics] recompute risk failed:', (err && err.message) || err);
       if (lbl) lbl.textContent = '⚠ Try again';
-      showToast('Recompute failed — check console');
+      showToast('Recompute failed, check console');
     } finally {
       setTimeout(() => { if (lbl) lbl.textContent = orig; if (btn) btn.disabled = false; }, 2600);
     }
@@ -737,7 +837,7 @@
 
     // Update chip active state for this dimension
     document.querySelectorAll(`.filter-chip[data-dim="${dim}"]`).forEach(c => {
-      c.classList.toggle('active', c.dataset.value === val);
+      setActive(c, c.dataset.value === val);
     });
     updateFilterActiveBanner();
 
@@ -763,14 +863,14 @@
       banner.textContent = '';
     } else {
       banner.style.display = '';
-      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:#a78bfa;cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;">clear</button>`;
+      banner/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `Filtered: ${active.map(escHtml).join(' · ')} <button onclick="resetFilters()" style="margin-left:0.5rem;background:none;border:none;color:var(--wh-violet-text);cursor:pointer;text-decoration:underline;font-size:0.66rem;font-family:inherit;">clear</button>`;
     }
   }
   function resetFilters() {
     _filters = { criticality: 'all', discipline: 'all' };
     try { localStorage.setItem('wh_analytics_filters', JSON.stringify(_filters)); } catch { /* empty-catch-allow: best-effort silent swallow */ }
     document.querySelectorAll('.filter-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.value === 'all');
+      setActive(c, c.dataset.value === 'all');
     });
     updateFilterActiveBanner();
     _cache = {}; _cacheTime = {};
@@ -786,7 +886,7 @@
     document.querySelectorAll('.filter-chip').forEach(c => {
       const dim = c.dataset.dim;
       const val = c.dataset.value;
-      c.classList.toggle('active', _filters[dim] === val);
+      setActive(c, _filters[dim] === val);
     });
     updateFilterActiveBanner();
   }
@@ -830,11 +930,11 @@
       renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
-      showToast('Analysis failed — check console');
+      showToast('Analysis failed, check console');
       if (_phase === phase) {
         document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-          <div class="card"><div class="empty" style="color:#f87171;">
-            ${escHtml(err.message.includes('not yet available') ? 'Analytics engine warming up — try Refresh in a moment.' : err.message)}
+          <div class="card"><div class="empty" style="color:var(--wh-red-text);">
+            ${escHtml(err.message.includes('not yet available') ? 'Analytics engine warming up, try Refresh in a moment.' : err.message)}
           </div></div>`;
         // Verdict label must leave the "Rolling up reliability KPIs..." state
         // even when the orchestrator fails — otherwise the page sits on the
@@ -845,6 +945,16 @@
           ? 'Analytics engine warming up'
           : 'Analytics unavailable';
         if (vSub) vSub.textContent = 'Tap Refresh once the engine is ready.';
+      }
+      // A5: the OEE/MTBF/PM summary tiles are populated ONLY by the descriptive render;
+      // if descriptive fails they'd sit on "Loading..." forever, contradicting the
+      // "Analytics unavailable" verdict. Leave the loading state honestly (arc A5).
+      if (phase === 'descriptive') {
+        ['oee', 'mtbf', 'pm'].forEach(k => {
+          const h = document.getElementById('an-' + k + '-hero'); if (h) h.textContent = '-';
+          const s = document.getElementById('an-' + k + '-sub');  if (s) s.textContent = 'Unavailable';
+          const t = document.getElementById('an-' + k + '-tag');  if (t) t.textContent = '-';
+        });
       }
     }
   }
@@ -952,15 +1062,15 @@
     const mins = Math.round((Date.now() - t) / 60000);
     dot.style.display = 'block';
     dot.style.background = mins > 60 ? '#F7A21B' : '#4ade80';
-    txt.textContent = `Updated ${mins < 1 ? 'just now' : mins + ' min ago'}`;
+    txt.textContent = `Updated ${typeof whFmtAgo === 'function' ? whFmtAgo(t) : (mins < 1 ? 'just now' : mins + ' min ago')}`; // FD1e canonical
   }
 
   // ── Skeleton loading cards ─────────────────────────────────────────────────
   function showSkeleton() {
     document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="card skeleton" style="min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem;">
-        <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:rgba(167,139,250,0.15);border-top-color:#a78bfa;margin-bottom:1.25rem;"></div>
-        <div style="color:#a78bfa;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
+        <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);margin-bottom:1.25rem;"></div>
+        <div style="color:var(--wh-violet-text);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
         <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
         <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
         <div style="display:flex;gap:0.5rem;">
@@ -984,7 +1094,7 @@
     _kpiCardId = 0; // reset card IDs for clean DOM
     const panel = document.getElementById('results-panel');
     const period = data.period_days || _period;
-    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+    const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
 
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">
       Generated: ${escHtml(gen)} · Period: last ${period} days
@@ -1035,12 +1145,13 @@
       // units in breakdown entries).
       const oeeNote = (data && data.oee && data.oee.note)
                         ? data.oee.note
-                        : 'Not enough downtime data yet';
-      setCard('oee', '—', oeeNote, 'NO DATA', 'grey');
+                        : _t('Not enough downtime data yet', 'Kulang pa ang datos ng downtime');
+      setCard('oee', '-', oeeNote, 'NO DATA', 'grey');
     } else {
-      const tag  = oeeAvg >= 85 ? 'WORLD CLASS' : oeeAvg >= 65 ? 'TYPICAL' : 'NEEDS WORK';
+      const tag  = oeeAvg >= 85 ? _t('WORLD CLASS','WORLD CLASS') : oeeAvg >= 65 ? _t('TYPICAL','KARANIWAN') : _t('NEEDS WORK','KAILANGAN AYUSIN');
       const tone = oeeAvg >= 85 ? 'green' : oeeAvg >= 65 ? 'amber' : 'red';
-      setCard('oee', oeeAvg + '%', `Avg across ${oeeAssets.length} asset${oeeAssets.length === 1 ? '' : 's'}`, tag, tone);
+      const _n = oeeAssets.length;
+      setCard('oee', oeeAvg + '%', _t(`Avg across ${_n} asset${_n === 1 ? '' : 's'}`, `Karaniwan sa ${_n} asset`), tag, tone);
     }
 
     // ── Worst MTBF (lowest mtbf_days across assets with failures) ─────
@@ -1051,21 +1162,21 @@
       if (worstMTBF == null || r.mtbf_days < worstMTBF.mtbf_days) worstMTBF = r;
     }
     if (!worstMTBF) {
-      setCard('mtbf', '—', 'No corrective failures in this window', 'CLEAN', 'green');
+      setCard('mtbf', '-', _t('No corrective failures in this window', 'Walang corrective failure sa window na ito'), _t('CLEAN','MALINIS'), 'green');
     } else {
       const d   = Number(worstMTBF.mtbf_days);
-      const tag  = d < 14 ? 'FREQUENT' : d < 30 ? 'CONCERN' : 'OK';
+      const tag  = d < 14 ? _t('FREQUENT','MADALAS') : d < 30 ? _t('CONCERN','ALALAHANIN') : 'OK';
       const tone = d < 14 ? 'red' : d < 30 ? 'amber' : 'green';
       // MTBF row uses the `machine` field (matches renderMTBF + renderOEE).
-      const assetLabel = worstMTBF.machine || worstMTBF.asset_name || 'Worst asset';
-      setCard('mtbf', d + 'd', assetLabel + ' between failures', tag, tone);
+      const assetLabel = worstMTBF.machine || worstMTBF.asset_name || _t('Worst asset','Pinakamasamang asset');
+      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures`, `${assetLabel} sa pagitan ng pagkasira`), tag, tone);
     }
 
     // ── PM compliance ────────────────────────────────────────────────
     // The Python API returns d.overall_pct + d.compliance_by_asset[]
     // (each row: asset_name, completed, scheduled, compliance_pct).
     let pmPct = null;
-    let pmSub = 'No PM data this period';
+    let pmSub = _t('No PM data this period', 'Walang datos ng PM sa panahong ito');
     if (data && data.pm_compliance) {
       if (typeof data.pm_compliance.overall_pct === 'number') {
         pmPct = Math.round(data.pm_compliance.overall_pct);
@@ -1081,13 +1192,14 @@
         const totalDone  = rows.reduce((s, r) => s + (Number(r.completed)  || 0), 0);
         const totalSched = rows.reduce((s, r) => s + (Number(r.scheduled) || 0), 0);
         const failing = rows.filter(r => Number(r.compliance_pct) < 85).length;
-        pmSub = `${totalDone} of ${totalSched} PMs on time${failing ? ' · ' + failing + ' asset' + (failing === 1 ? '' : 's') + ' under 85%' : ''}`;
+        const _fail = failing ? _t(` · ${failing} asset${failing === 1 ? '' : 's'} under 85%`, ` · ${failing} asset ang mababa sa 85%`) : '';
+        pmSub = _t(`${totalDone} of ${totalSched} PMs on time${_fail}`, `${totalDone} sa ${totalSched} PM ang nasa oras${_fail}`);
       }
     }
     if (pmPct == null) {
-      setCard('pm', '—', pmSub, 'NO DATA', 'grey');
+      setCard('pm', '-', pmSub, 'NO DATA', 'grey');
     } else {
-      const tag  = pmPct >= 80 ? 'STAIR-READY' : pmPct >= 60 ? 'BUILDING' : 'LOW';
+      const tag  = pmPct >= 80 ? _t('STAIR-READY','HANDA SA STAIR') : pmPct >= 60 ? _t('BUILDING','PAPALAKI') : _t('LOW','MABABA');
       const tone = pmPct >= 80 ? 'green' : pmPct >= 60 ? 'amber' : 'red';
       setCard('pm', pmPct + '%', pmSub, tag, tone);
     }
@@ -1100,22 +1212,25 @@
     const mtbfWatch = worstMTBF && Number(worstMTBF.mtbf_days) < 30;
     const pmWatch   = pmPct != null && pmPct < 80;
     let tone, label, sub;
+    // N1: the verdict is the page's 5-second answer, so it translates. The metric
+    // NAMES (OEE / MTBF / PM) stay English on purpose -- see the i18n note below.
     if (oeeBad || mtbfBad || pmBad) {
-      tone = 'attn'; label = 'Reliability KPIs need action';
+      tone = 'attn'; label = _t('Reliability KPIs need action', 'Kailangan ng aksyon ang reliability KPIs');
       const flags = [];
       if (oeeBad)  flags.push(`OEE ${oeeAvg}%`);
-      if (mtbfBad) flags.push(`worst MTBF ${worstMTBF.mtbf_days}d`);
+      if (mtbfBad) flags.push(`${_t('worst MTBF', 'pinakamababang MTBF')} ${worstMTBF.mtbf_days}d`);
       if (pmBad)   flags.push(`PM compliance ${pmPct}%`);
-      sub = 'Below floor: ' + flags.join(' · ') + '.';
+      sub = _t('Below floor: ', 'Mababa sa pamantayan: ') + flags.join(' · ') + '.';
     } else if (oeeWatch || mtbfWatch || pmWatch) {
-      tone = 'watch'; label = 'Reliability KPIs are climbing';
-      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '—'} · worst MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : '—'} · PM compliance ${pmPct != null ? pmPct + '%' : '—'}.`;
+      tone = 'watch'; label = _t('Reliability KPIs are climbing', 'Umaakyat ang reliability KPIs');
+      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '-'} · ${_t('worst MTBF', 'pinakamababang MTBF')} ${worstMTBF ? worstMTBF.mtbf_days + 'd' : '-'} · PM compliance ${pmPct != null ? pmPct + '%' : '-'}.`;
     } else if (oeeAvg == null && !worstMTBF && pmPct == null) {
-      tone = 'empty'; label = 'Not enough data yet';
-      sub  = 'Log corrective failures + run a few PM completions, then come back. Analytics needs 30+ days of activity to find patterns.';
+      tone = 'empty'; label = _t('Not enough data yet', 'Kulang pa ang datos');
+      sub  = _t('Log corrective failures + run a few PM completions, then come back. Analytics needs 30+ days of activity to find patterns.',
+                'Mag-log ng mga corrective failure at ilang natapos na PM, tapos bumalik. Kailangan ng Analytics ng 30+ araw na aktibidad para makakita ng pattern.');
     } else {
-      tone = 'healthy'; label = 'Reliability KPIs are healthy';
-      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '—'} · MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : 'clean'} · PM ${pmPct != null ? pmPct + '%' : '—'}.`;
+      tone = 'healthy'; label = _t('Reliability KPIs are healthy', 'Malusog ang reliability KPIs');
+      sub  = `OEE ${oeeAvg != null ? oeeAvg + '%' : '-'} · MTBF ${worstMTBF ? worstMTBF.mtbf_days + 'd' : _t('clean','malinis')} · PM ${pmPct != null ? pmPct + '%' : '-'}.`;
     }
     const vBox = document.getElementById('an-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -1126,23 +1241,55 @@
     // ── Action ───────────────────────────────────────────────────────
     const actBox = document.getElementById('an-action-text');
     if (actBox) {
+      // Arc P · Wave 1 (P3 / FUSION 3a): one primary button — scroll to the analysis
+      // tabs for on-page drill-downs, or navigate cross-page when PM is the lever.
+      const setCta = (label, opts) => {
+        const b = document.getElementById('an-action-btn'); if (!b) return; opts = opts || {};
+        b.textContent = label; b.classList.remove('hidden');
+        // An on-page CTA gets a REAL fragment href, not "#": the browser already
+        // jumps to the target with zero JS, and the handler below only upgrades
+        // that to a smooth scroll. `href="#"` would strand the button if the
+        // script ever fails, and reads as a dead link to a11y tooling.
+        b.setAttribute('href', opts.href || (opts.scroll ? opts.scroll.replace(/^\./, '#') : '#'));
+        b.onclick = opts.href ? null : (e) => {
+          const t = opts.scroll && document.querySelector(opts.scroll);
+          if (!t) return;                       // no target -> let the href do its job
+          e.preventDefault();
+          t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+      };
+      const hideCta = () => { const b = document.getElementById('an-action-btn'); if (b) b.classList.add('hidden'); };
       let text;
       if (mtbfBad) {
-        const a = (worstMTBF.machine || worstMTBF.asset_name || 'One asset');
-        text = `${a} is failing every ${worstMTBF.mtbf_days} days. Open the Predictive tab to see if its risk score is climbing — likely time for a root-cause review or replacement.`;
+        const a = (worstMTBF.machine || worstMTBF.asset_name || _t('One asset','Isang asset'));
+        text = _t(`${a} fails every ${worstMTBF.mtbf_days} days. Check if its risk is rising. It may need a root-cause review or replacement.`,
+                  `Nasisira ang ${a} bawat ${worstMTBF.mtbf_days} araw. Tingnan kung tumataas ang panganib nito. Maaaring kailangan ng root-cause review o palitan.`);
+        setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { scroll: '.phase-tabs' });
       } else if (pmBad) {
-        text = `PM compliance at ${pmPct}% — this drags every other KPI. Open PM Scheduler and bulk-assign overdue items across the next two weeks.`;
+        text = _t(`PM compliance at ${pmPct}%, this drags every other KPI. Open PM Scheduler and bulk-assign overdue items across the next two weeks.`,
+                  `Nasa ${pmPct}% ang PM compliance, hinihila nito pababa ang lahat ng ibang KPI. Buksan ang PM Scheduler at i-assign nang sabay-sabay ang mga lumipas na item sa susunod na dalawang linggo.`);
+        setCta(_t('Open PM Scheduler →','Buksan ang PM Scheduler →'), { href: 'pm-scheduler.html' });
       } else if (oeeBad) {
-        text = `OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below — they pinpoint which assets are consuming the most uptime.`;
+        text = _t(`OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below: they pinpoint which assets are consuming the most uptime.`,
+                  `Nasa ${oeeAvg}% ang OEE. Buksan ang Downtime Pareto at Repeat Failures na card sa ibaba: itinuturo ng mga ito kung aling asset ang kumakain ng pinakamaraming uptime.`);
+        setCta(_t('See the downtime breakdown →','Tingnan ang downtime breakdown →'), { scroll: '.phase-tabs' });
       } else if (mtbfWatch) {
         const a = (worstMTBF.machine || worstMTBF.asset_name || 'asset');
-        text = `Worst MTBF (${a}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`;
+        text = _t(`Worst MTBF (${a}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`,
+                  `Nasa warning band ang pinakamababang MTBF (${a}, ${worstMTBF.mtbf_days}d). Mag-schedule ng PRO PM cycle o condition-based check bago ito bumaba sa 14 araw.`);
+        setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { scroll: '.phase-tabs' });
       } else if (pmWatch) {
-        text = `PM compliance ${pmPct}%. Bring it above 80% to clear the Reliability dimension on the Maturity Stairway.`;
+        text = _t(`PM compliance ${pmPct}%. Bring it above 80% to clear the Reliability dimension on the Maturity Stairway.`,
+                  `PM compliance ${pmPct}%. Itaas ito lampas 80% para malampasan ang Reliability dimension sa Maturity Stairway.`);
+        setCta(_t('Open PM Scheduler →','Buksan ang PM Scheduler →'), { href: 'pm-scheduler.html' });
       } else if (oeeAvg == null) {
-        text = 'No analytics yet. Log corrective failures + a few PM completions, then refresh this page in a day or two.';
+        text = _t('No analytics yet. Log corrective failures + a few PM completions, then refresh this page in a day or two.',
+                  'Wala pang analytics. Mag-log ng mga corrective failure at ilang natapos na PM, tapos i-refresh ang pahinang ito sa loob ng isa o dalawang araw.');
+        hideCta();
       } else {
-        text = 'KPIs are healthy. Use the Predictive tab to see which assets are trending up in risk, and the Prescriptive tab for the recommended next interventions.';
+        text = _t('KPIs are healthy. Use the Predictive tab to see which assets are trending up in risk, and the Prescriptive tab for the recommended next interventions.',
+                  'Malusog ang mga KPI. Gamitin ang Predictive tab para makita kung aling asset ang tumataas ang panganib, at ang Prescriptive tab para sa mga inirerekomendang susunod na hakbang.');
+        setCta(_t('Explore the Predictive tab →','Tuklasin ang Predictive tab →'), { scroll: '.phase-tabs' });
       }
       actBox.textContent = text;
     }
@@ -1186,41 +1333,53 @@
   // ── OEE (Descriptive) ──────────────────────────────────────────────────────
   function renderOEE(d) {
     if (!d?.oee_by_asset?.length) return `<div class="card">
-      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (Availability × Quality)</span></div>
+      <h2 class="card-title">OEE: Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (Availability × Quality)</span></h2>
       <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No production_output data yet. Fill Quick Readings and production units in Breakdown entries.')}</div>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Full OEE = Availability × Performance × Quality. Performance requires per-asset ideal cycle time (not yet captured). Until then the platform reports the partial form.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">This is OEE without Performance. Add each asset's ideal cycle time to see the full score.</p>
     </div>`;
-    const rows = d.oee_by_asset.map(r => {
-      const oee = r.oee_pct;
-      const cls = oee === null ? '' : oee >= 85 ? 'good' : oee >= 65 ? 'warn' : 'alert';
-      return `<tr>
-        <td class="machine-name">${escHtml(r.machine)}</td>
-        <td class="num">${r.availability_pct !== null ? r.availability_pct + '%' : '—'}</td>
-        <td class="num">${r.quality_pct !== null ? r.quality_pct + '%' : '—'}</td>
-        <td class="num ${cls}">${oee !== null ? oee + '%' : '—'}</td>
-      </tr>`;
-    }).join('');
+    // Arc P · Wave 2 (P2 list-discipline): sort worst-OEE first + cap to top-8 with a
+    // "Show all N" toggle via the shared helper (was: all ~25 rows rendered inline,
+    // in payload order). Null-OEE (no-data) assets sort last.
+    const sorted = d.oee_by_asset.slice().sort((a, b) =>
+      (a.oee_pct == null ? Infinity : a.oee_pct) - (b.oee_pct == null ? Infinity : b.oee_pct));
+    const table = renderListWithShowAll({
+      items: sorted,
+      tableHeader: '<thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>',
+      defaultN: 8,
+      itemNoun: 'asset',
+      renderRow: (r) => {
+        const oee = r.oee_pct;
+        const cls = oee === null ? '' : oee >= 85 ? 'good' : oee >= 65 ? 'warn' : 'alert';
+        return `<tr>
+          <td class="machine-name">${escHtml(r.machine)}</td>
+          <td class="num">${r.availability_pct !== null ? r.availability_pct + '%' : '-'}</td>
+          <td class="num">${r.quality_pct !== null ? r.quality_pct + '%' : '-'}</td>
+          <td class="num ${cls}">${oee !== null ? oee + '%' : '-'}</td>
+        </tr>`;
+      }
+    });
     return `<div class="card">
-      <div class="card-title">OEE — Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (A × Q) · ${d.assets_tracked} asset(s)</span></div>
-      <!-- table-name-allow: maintenance analytics data table --> <table class="data-table">
-        <thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. Performance dimension pending per-asset ideal cycle time capture; this card shows the partial (A × Q) until that fuel field lands. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
+      <h2 class="card-title">OEE: Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (A × Q) · ${d.assets_tracked} asset(s)</span></h2>
+      ${table}
+      <!-- B3: was 21 words, grade 11.1, three clauses deep, and it leaked an internal
+           metaphor onto the glass ("until that fuel field lands"). A supervisor needs:
+           what this shows, what unlocks the rest, how to read the colours. One idea per
+           sentence, <=20 words each. (2026-07-15, found by the B3 readability lens.) -->
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. This shows A × Q only. Add each asset's ideal cycle time to see Performance. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
     </div>`;
   }
 
   function renderMTBF(d) {
-    if (!d || !d.mtbf_by_asset?.length) return cardEmpty('MTBF — Mean Time Between Failures', 'ISO 14224:2016 §9.3', 'No corrective failures found in the selected period.');
+    if (!d || !d.mtbf_by_asset?.length) return cardEmpty('MTBF: Mean Time Between Failures', 'ISO 14224:2016 §9.3', 'No corrective failures found in the selected period.');
     const withData = d.mtbf_by_asset.filter(r => r.mtbf_days !== null);
     const worst    = withData[0]; // sorted lowest first
-    const heroVal  = worst ? worst.mtbf_days + 'd' : '—';
+    const heroVal  = worst ? worst.mtbf_days + 'd' : '-';
     const heroColor= !worst ? 'grey' : worst.mtbf_days < 14 ? 'red' : worst.mtbf_days < 30 ? 'yellow' : 'green';
-    const heroSub  = worst ? `${worst.machine} — most critical asset` : 'Insufficient failure history';
+    const heroSub  = worst ? `${worst.machine}: most critical asset` : 'Insufficient failure history';
 
     const detail = renderListWithShowAll({
       items: d.mtbf_by_asset,
-      tableHeader: '<thead><tr><th>Machine</th><th class="num">Failures</th><th class="num">MTBF</th></tr></thead>',
+      tableHeader: `<thead><tr><th>${_t('Machine','Makina')}</th><th class="num">${_t('Failures','Pagkasira')}</th><th class="num">MTBF</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'asset',
       searchable: true,
@@ -1229,14 +1388,14 @@
         return `<tr>
           <td class="machine-name">${escHtml(r.machine)}</td>
           <td class="num">${r.failure_count}</td>
-          <td class="num ${cls}">${r.mtbf_days !== null ? r.mtbf_days + 'd' : '—'}</td>
+          <td class="num ${cls}">${r.mtbf_days !== null ? r.mtbf_days + 'd' : '-'}</td>
         </tr>`;
       },
     });
 
     return kpiCard({
-      title: 'MTBF — Mean Time Between Failures', standard: 'ISO 14224:2016 §9.3',
-      value: heroVal, unit: worst ? 'average between failures' : '', sublabel: heroSub,
+      title: 'MTBF: Mean Time Between Failures', standard: 'ISO 14224:2016 §9.3',
+      value: heroVal, unit: worst ? _t('average between failures','karaniwan sa pagitan ng pagkasira') : '', sublabel: heroSub,
       color: heroColor,
       detail,
       legend: '🔴 <14d critical · 🟡 <30d watch · 🟢 ≥30d healthy',
@@ -1244,7 +1403,7 @@
   }
 
   function renderMTTR(d) {
-    if (!d || !d.mttr_by_asset?.length) return cardEmpty('MTTR — Mean Time To Repair', 'ISO 14224:2016 §9.4', d?.note || 'No closed corrective entries with logged downtime_hours found.');
+    if (!d || !d.mttr_by_asset?.length) return cardEmpty('MTTR: Mean Time To Repair', 'ISO 14224:2016 §9.4', d?.note || 'No closed corrective entries with logged downtime_hours found.');
     const worst = d.mttr_by_asset[0]; // sorted highest first
     const heroColor = worst.mttr_hours > 24 ? 'red' : worst.mttr_hours > 8 ? 'yellow' : 'green';
 
@@ -1266,8 +1425,8 @@
     });
 
     return kpiCard({
-      title: 'MTTR — Mean Time To Repair', standard: 'ISO 14224:2016 §9.4',
-      value: worst.mttr_hours + 'h', unit: 'slowest repair', sublabel: `${worst.machine} — ${worst.repair_count} repair(s)`,
+      title: 'MTTR: Mean Time To Repair', standard: 'ISO 14224:2016 §9.4',
+      value: worst.mttr_hours + 'h', unit: 'slowest repair', sublabel: `${worst.machine}: ${worst.repair_count} repair(s)`,
       color: heroColor,
       detail,
       legend: '🔴 >24h · 🟡 >8h · 🟢 ≤8h',
@@ -1275,7 +1434,7 @@
   }
 
   function renderAvailability(d) {
-    if (!d || !d.availability_by_asset?.length) return cardEmpty('Availability %', 'ISO 14224:2016 §9.2', 'Insufficient data — need both MTBF and MTTR per machine.');
+    if (!d || !d.availability_by_asset?.length) return cardEmpty('Availability %', 'ISO 14224:2016 §9.2', 'Insufficient data: need both MTBF and MTTR per machine.');
     const withData = d.availability_by_asset.filter(r => r.availability_pct !== null);
     const worst = withData[0]; // sorted lowest first
     const heroColor = !worst ? 'grey' : worst.availability_pct < 80 ? 'red' : worst.availability_pct < 90 ? 'yellow' : 'green';
@@ -1293,7 +1452,7 @@
         return `<div style="margin-bottom:0.6rem;">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
             <span style="font-size:0.72rem;font-weight:600;color:#fff;">${escHtml(r.machine)}</span>
-            <span style="font-size:0.72rem;font-weight:700;color:${color}">${pct !== null ? pct + '%' : '—'}</span>
+            <span style="font-size:0.72rem;font-weight:700;color:${color}">${pct !== null ? pct + '%' : '-'}</span>
           </div>
           <div class="compliance-track"><div class="compliance-fill" style="width:${barPct}%;background:${color}"></div></div>
         </div>`;
@@ -1302,8 +1461,8 @@
 
     return kpiCard({
       title: 'Availability %', standard: 'ISO 14224:2016 §9.2',
-      value: worst ? worst.availability_pct + '%' : '—', unit: 'lowest asset',
-      sublabel: worst ? `${worst.machine} — MTBF/(MTBF+MTTR)` : 'No data',
+      value: worst ? worst.availability_pct + '%' : '-', unit: 'lowest asset',
+      sublabel: worst ? `${worst.machine}: MTBF/(MTBF+MTTR)` : 'No data',
       color: heroColor,
       detail,
       legend: '🔴 <80% · 🟡 <90% · 🟢 ≥90%',
@@ -1328,7 +1487,7 @@
       value: overall + '%', unit: 'overall hive',
       sublabel: failing.length ? `${failing.length} asset(s) below 85% target` : 'All assets on track',
       color: heroColor,
-      detail: `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Asset</th><th class="num">Done/Sched</th><th class="num">Rate</th></tr></thead><tbody>${rows}</tbody></table>`,
+      detail: `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th class="num">Done/Sched</th><th class="num">Rate</th></tr></thead><tbody>${rows}</tbody></table></div>`,
       legend: '🔴 <70% · 🟡 <85% · 🟢 ≥85%',
     });
   }
@@ -1355,11 +1514,11 @@
     });
     return kpiCard({
       title: 'Failure Frequency', standard: `ISO 14224:2016 · last ${d.period_days} days`,
-      value: total, unit: 'total failures',
-      sublabel: top ? `${top.machine} — most failures (${top.failure_count})` : '',
+      value: total, unit: _t('total failures','kabuuang pagkasira'),
+      sublabel: top ? `${top.machine}: most failures (${top.failure_count})` : '',
       color: heroColor,
       detail,
-      legend: '🔴 >10 failures · 🟡 >4 · 🟢 ≤4 in period',
+      legend: _t('🔴 >10 failures · 🟡 >4 · 🟢 ≤4 in period', '🔴 >10 pagkasira · 🟡 >4 · 🟢 ≤4 sa panahon'),
     });
   }
 
@@ -1395,10 +1554,27 @@
     const top = d.pareto[0];
     const color = top.pct_of_total > 50 ? 'red' : top.pct_of_total > 30 ? 'yellow' : 'green';
     const chartId = `chart-pareto-${_kpiCardId}`;
+    // L1 honest design: a Pareto card must not imply an 80/20 concentration that the
+    // data does not have. When downtime is spread evenly there IS no vital few, and
+    // saying so is the finding -- it means "no single asset to chase; the losses are
+    // systemic". _shown is what the chart actually plots (top 8), so the reach it
+    // reports is the reach the reader can see.
+    const _shown     = d.pareto.slice(0, 8);
+    const _cumShown  = Math.round(_shown[_shown.length - 1]?.cumulative_pct ?? 0);
+    const _hasTail   = _shown.some(r => (r.cumulative_pct ?? 0) > 80);
+    const _concentrated = _hasTail || _cumShown >= 80;
 
     queueChart(() => {
       const items = d.pareto.slice(0, 8);
-      const barColors = items.map((_, i) => i === 0 ? '#f87171' : i < 3 ? '#F7A21B' : '#a78bfa');
+      // Colour encodes the Pareto 80% rule -- a real property of each row -- and not
+      // its rank. The previous `i === 0 ? red : i < 3 ? orange` did two wrong things:
+      // it repainted the survivors whenever a filter changed the ordering, and it
+      // spent the reserved status hues on "is ranked first" instead of "is in a bad
+      // state" (a hive with all-healthy assets still showed a red bar). Bar LENGTH
+      // already carries magnitude, so hue is free to carry the vital-few split.
+      const barColors = items.map(r => (r.cumulative_pct ?? 0) <= 80
+        ? '#a78bfa'                    // vital few: inside the 80% of downtime
+        : 'rgba(167,139,250,0.32)');   // trivial many: the tail
       const traces = [
         {
           type: 'bar', orientation: 'h',
@@ -1408,6 +1584,11 @@
           hovertemplate: '%{y}: %{x}h<extra></extra>',
         },
         {
+          // A Pareto's second axis is the cumulative % OF THE SAME measure -- derived
+          // from the bars and bounded 0-100 by construction, not an independent series
+          // on an arbitrarily aligned scale. The dual-axis anti-pattern targets the
+          // latter; a Pareto is the standard named form engineers expect here
+          // (ISO 14224 / SMRP / Juran), so the convention is kept deliberately.
           type: 'scatter', mode: 'lines+markers',
           x: items.map(r => r.cumulative_pct),
           y: items.map(r => r.machine),
@@ -1422,6 +1603,11 @@
         margin: { l: 130, r: 50, t: 10, b: 30 },
         xaxis:  { ...PLOTLY_BASE_LAYOUT.xaxis, title: { text: 'Downtime (h)', font: { size: 10 } } },
         xaxis2: { overlaying: 'x', side: 'top', range: [0, 110], title: { text: 'Cumulative %', font: { size: 10 } }, color: '#4ade80', gridcolor: 'rgba(0,0,0,0)' },
+        // Plotly puts data[0] at the BOTTOM of a horizontal bar chart, which renders a
+        // Pareto upside-down: the worst offender ends up last. Reversing the axis puts
+        // the biggest bar on top, so the chart reads worst-first like every Pareto the
+        // reader has seen, and the cumulative line climbs as the eye travels down.
+        yaxis:  { ...PLOTLY_BASE_LAYOUT.yaxis, autorange: 'reversed' },
         height: Math.max(180, items.length * 36),
         shapes: [{ type: 'line', x0: 80, x1: 80, y0: -0.5, y1: items.length - 0.5, xref: 'x2', line: { color: 'rgba(74,222,128,0.4)', width: 1, dash: 'dot' } }],
         annotations: [{ x: 80, y: items.length - 0.5, xref: 'x2', text: '80%', font: { color: '#4ade80', size: 9 }, showarrow: false, yshift: 8 }],
@@ -1431,7 +1617,7 @@
         // clear message instead of throwing ReferenceError into a silent chart.
         if (typeof Plotly === 'undefined') {
           const _el = document.getElementById(chartId);
-          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable — the charting library could not load. Check your connection and refresh.</div>';
+          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable: the charting library could not load. Check your connection and refresh.</div>';
         } else {
           Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
         }
@@ -1441,10 +1627,23 @@
     return kpiCard({
       title: 'Downtime Pareto', standard: '80/20 Rule',
       value: d.total_downtime_hours + 'h', unit: 'total downtime',
-      sublabel: `${escHtml(d.top_machine || '—')} = ${d.top_machine_pct || 0}% of all downtime`,
+      sublabel: _concentrated
+        ? _t(`${d.top_machine || '-'} = ${d.top_machine_pct || 0}% of all downtime`,
+             `${d.top_machine || '-'} = ${d.top_machine_pct || 0}% ng lahat ng downtime`)
+        : _t(`No 80/20 concentration: the top ${_shown.length} assets are only ${_cumShown}% of downtime. Losses are spread, so chasing one asset will not move the total.`,
+             `Walang 80/20 na konsentrasyon: ang nangungunang ${_shown.length} asset ay ${_cumShown}% lang ng downtime. Kalat ang pagkalugi, kaya hindi mababawasan ang kabuuan sa paghabol sa iisang asset.`),
       color,
-      detail: `<div id="${chartId}" style="width:100%;"></div>`,
-      legend: 'Green line = cumulative %. Dotted line = 80% threshold.',
+      // Reserve the chart's computed height so the async Plotly draw (queueChart →
+      // flushCharts, ~350ms later) doesn't push content down = CLS (Analytics arc A4).
+      // role=img + aria-label gives the Plotly SVG a text alternative for SR users (arc U5, SC 1.1.1).
+      detail: `<div id="${chartId}" role="img" aria-label="Downtime Pareto chart. ${escHtml(d.top_machine || 'Top asset')} accounts for ${d.top_machine_pct || 0} percent of ${d.total_downtime_hours} hours total downtime." style="width:100%;min-height:${Math.max(180, Math.min(d.pareto.length, 8) * 36)}px;"></div>`,
+      // The legend describes what is actually on screen: only mention the faded tail
+      // when a faded bar exists, or it sends the reader hunting for a cue that is not there.
+      legend: _hasTail
+        ? _t('Solid bars = the vital few causing the first 80% of downtime; faded bars = the tail. Green line = cumulative %, dotted line = the 80% mark.',
+             'Solidong bar = ang iilang sanhi ng unang 80% ng downtime; kupas na bar = ang buntot. Berdeng linya = cumulative %, tuldok na linya = ang 80% na marka.')
+        : _t(`Bars = downtime hours per asset. Green line = cumulative %; it reaches only ${_cumShown}% across these ${_shown.length}, so no vital few stands out.`,
+             `Bar = oras ng downtime kada asset. Berdeng linya = cumulative %; umaabot lang ito sa ${_cumShown}% sa ${_shown.length} na ito, kaya walang iilang namumukod.`),
     });
   }
 
@@ -1453,7 +1652,7 @@
     if (!d || !d.consumption?.length) return cardEmpty('Parts Consumption Rate', 'SMRP', d?.note || 'No parts usage transactions found in period.');
     const list = renderListWithShowAll({
       items: d.consumption,
-      tableHeader: '<thead><tr><th>Part</th><th class="num">Used</th><th class="num">Per Week</th><th class="num">Per Month</th></tr></thead>',
+      tableHeader: `<thead><tr><th>${_t('Part','Piyesa')}</th><th class="num">${_t('Used','Nagamit')}</th><th class="num">${_t('Per Week','Kada Linggo')}</th><th class="num">${_t('Per Month','Kada Buwan')}</th></tr></thead>`,
       defaultN: 10,
       itemNoun: 'part',
       searchable: true,
@@ -1465,7 +1664,7 @@
       </tr>`,
     });
     return `<div class="card">
-      <div class="card-title">Parts Consumption Rate <span class="card-standard">SMRP · last ${d.period_days} days</span></div>
+      <h2 class="card-title">Parts Consumption Rate <span class="card-standard">SMRP · last ${d.period_days} days</span></h2>
       ${list}
     </div>`;
   }
@@ -1474,7 +1673,7 @@
   function renderRepeatFailures(d) {
     if (!d || !d.repeats?.length) {
       return `<div class="card">
-        <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></div>
+        <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></h2>
         <div class="empty" style="padding:1rem 0;">
           <span style="color:#4ade80;">✓ No repeat failures detected.</span><br>
           <span style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
@@ -1493,7 +1692,7 @@
       </tr>`,
     });
     return `<div class="card">
-      <div class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></div>
+      <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></h2>
       ${list}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
@@ -1503,7 +1702,7 @@
   function renderDiagnostic(data) {
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
-    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+    const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: root causes → recurrence → correlations (strategic→tactical) → taxonomy → QA
     html += renderFailureModeDistribution(data.failure_mode_distribution);  // top "why" signal
@@ -1520,7 +1719,7 @@
   function renderRCMConsequence(d) {
     if (!d?.distribution?.length || d.distribution.every(x => x.count === 0)) {
       return `<div class="card">
-        <div class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4</span></div>
+        <h2 class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4</span></h2>
         <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No consequence data yet. Select impact level in Breakdown entries.')}</div>
       </div>`;
     }
@@ -1536,7 +1735,7 @@
       </div>`;
     }).join('');
     return `<div class="card">
-      <div class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4 · ${d.coverage_pct}% coverage</span></div>
+      <h2 class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4 · ${d.coverage_pct}% coverage</span></h2>
       ${bars}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
     </div>`;
@@ -1554,9 +1753,9 @@
       </div>`;
     }).join('');
     return `<div class="card">
-      <div class="card-title">Failure Mode Distribution <span class="card-standard">ISO 14224:2016 · ${d.total_failures} total failures</span></div>
+      <h2 class="card-title">Failure Mode Distribution <span class="card-standard">ISO 14224:2016 · ${d.total_failures} total failures</span></h2>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Top mode: <strong style="color:#a78bfa">${escHtml(d.top_root_cause || '—')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Top mode: <strong style="color:var(--wh-violet-text)">${escHtml(d.top_root_cause || '-')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
     </div>`;
   }
 
@@ -1566,7 +1765,7 @@
     const corr = d.correlation;
     const cls = sig ? (corr > 0.3 ? 'alert' : 'warn') : 'good';
     return `<div class="card">
-      <div class="card-title">PM-Failure Correlation <span class="card-standard">Spearman rank (SciPy)</span></div>
+      <h2 class="card-title">PM-Failure Correlation <span class="card-standard">Spearman rank (SciPy)</span></h2>
       ${corr !== null ? `
         <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0.75rem;">
           <div class="stat-tile"><div class="val ${cls}">${corr}</div><div class="label">Correlation r</div></div>
@@ -1579,21 +1778,38 @@
   }
 
   function renderSkillMTTRCorrelation(d) {
-    if (!d?.by_discipline?.length) return cardEmpty('Skill-MTTR Correlation', 'Spearman rank (SciPy)', d?.note || 'Insufficient data — need workers with both skill badges and repair history.');
+    if (!d?.by_discipline?.length) return cardEmpty('Skill-MTTR Correlation', 'Spearman rank (SciPy)', d?.note || 'Insufficient data: need workers with both skill badges and repair history.');
+    // E4 "digest, don't dump" (all three rules failed on this one card):
+    //  1. COLLAPSE REPETITION — every discipline printed the SAME "Not significant..."
+    //     sentence, so the card said one thing five times. Say it ONCE, up top.
+    //  2. TRANSLATE THE STATISTIC — a bare "r = 0.866" beside "Not significant" reads as a
+    //     contradiction to a non-statistician. Name the strength in words next to it.
+    //  3. THE DECODER RING GOES FIRST — the "r = how strongly..." legend sat BELOW the
+    //     rows, i.e. after the reader already needed it.
+    // [external-dashboard-design-aggregate-summarise-answer-not-, ux-millers-law]
+    const sigOnes = d.by_discipline.filter(x => x.significant);
+    const noneSig = sigOnes.length === 0;
+    const headline = noneSig
+      ? `Skill level does not predict repair time in any of the ${d.by_discipline.length} disciplines.`
+      : `In ${sigOnes.length} of ${d.by_discipline.length} disciplines, skill level does predict repair time.`;
+    const strength = (r) => { const a = Math.abs(Number(r) || 0);
+      return a < 0.3 ? 'weak' : a < 0.7 ? 'moderate' : 'strong'; };
     const cards = d.by_discipline.map(disc => {
       const sig = disc.significant;
       const cls = sig && disc.correlation < -0.3 ? 'good' : sig ? 'warn' : '';
       return `<div style="margin-bottom:0.875rem;padding-bottom:0.875rem;border-bottom:1px solid rgba(255,255,255,0.05);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(disc.discipline)}</span>
-          <span class="${cls}" style="font-size:0.72rem;font-weight:700;">r = ${disc.correlation} ${sig ? '✓' : ''}</span>
+          <span class="${cls}" style="font-size:0.72rem;font-weight:700;">r = ${disc.correlation} (${strength(disc.correlation)}) ${sig ? '✓' : ''}</span>
         </div>
-        <p style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${escHtml(disc.interpretation)}</p>
+        ${sig ? `<p style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${escHtml(disc.interpretation)}</p>` : ''}
         ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
       </div>`;
     }).join('');
     return `<div class="card">
-      <div class="card-title">Skill-MTTR Correlation <span class="card-standard">Spearman rank by discipline</span></div>
+      <h2 class="card-title">Skill-MTTR Correlation <span class="card-standard">Spearman rank by discipline</span></h2>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.75);font-weight:600;margin-bottom:0.5rem;">${escHtml(headline)}</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-bottom:0.75rem;">r = how strongly skill level tracks repair speed (-1 to +1). A negative r means more-skilled workers repair faster (good). The check mark = statistically significant.</p>
       ${cards}
     </div>`;
   }
@@ -1604,28 +1820,50 @@
       <td class="machine-name">${escHtml(j.machine)}</td>
       <td class="num alert">${j.downtime_hours}h</td>
       <td class="num">${j.above_avg_by_h > 0 ? '+' : ''}${j.above_avg_by_h}h</td>
-      <td style="font-size:0.68rem;color:rgba(255,255,255,0.4);">${escHtml(j.date)}</td>
+      <td style="font-size:0.68rem;color:rgba(255,255,255,0.6);">${escHtml(j.date)}</td>
     </tr>`).join('');
     return `<div class="card">
-      <div class="card-title">Parts Availability Impact <span class="card-standard">logbook × inventory cross-reference</span></div>
+      <h2 class="card-title">Parts Availability Impact <span class="card-standard">logbook × inventory cross-reference</span></h2>
       <div class="stat-grid" style="margin-bottom:0.75rem;">
         <div class="stat-tile"><div class="val">${d.overall_avg_mttr_h}h</div><div class="label">Avg MTTR</div></div>
         <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
       </div>
-      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>` : ''}
+      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
   function renderRepeatFailureClustering(d) {
     if (!d?.clusters?.length) return cardEmpty('Repeat Failure Clustering', 'ISO 14224:2016', 'No root_cause data to cluster.');
-    const systemic = (d.systemic_issues || []).map(s => `
-      <div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(248,113,113,0.06);border-radius:0.5rem;border:1px solid rgba(248,113,113,0.15);">
-        <div style="font-size:0.75rem;font-weight:600;color:#f87171;">${escHtml(s.root_cause)}</div>
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:0.2rem;">Affects ${s.machine_count} machines: ${s.machines.map(m => escHtml(m)).join(', ')} · ${s.total_occurrences} occurrences</div>
-      </div>`).join('');
+    // E4 "digest, don't dump": this printed all 26 machine codes as prose on each of 12
+    // cards, and buried the occurrence count AFTER the wall of codes -- so the finding
+    // ("Wear is systemic") was the hardest thing on the card to read. NN/g: a dashboard
+    // AGGREGATES AND SUMMARISES, it does not display raw data. Miller 5+-2 caps the inline
+    // list; the rest goes behind native disclosure (no JS, keyboard-accessible by default).
+    // [external-dashboard-design-aggregate-summarise-answer-not-, ux-millers-law,
+    //  ux-progressive-disclosure]
+    const MILLER = 5;
+    const systemic = (d.systemic_issues || []).map(s => {
+      const all  = s.machines || [];
+      const head = all.slice(0, MILLER).map(m => escHtml(m)).join(', ');
+      const rest = all.length - MILLER;
+      const more = rest > 0
+        ? `<details style="display:inline;">
+             <summary style="display:inline;cursor:pointer;color:var(--wh-violet-text);min-height:44px;line-height:44px;">+${rest} more</summary>
+             <span style="color:rgba(255,255,255,0.6);">${all.slice(MILLER).map(m => escHtml(m)).join(', ')}</span>
+           </details>`
+        : '';
+      return `
+      <div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(248,113,113,0.06);border-radius:var(--wh-radius-sm);border:1px solid rgba(248,113,113,0.15);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;">
+          <span style="font-size:0.75rem;font-weight:600;color:var(--wh-red-text);">${escHtml(s.root_cause)}</span>
+          <span style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.75);white-space:nowrap;">${s.machine_count} machines · ${s.total_occurrences} occurrences</span>
+        </div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.2rem;">${head}${more ? ' ' + more : ''}</div>
+      </div>`;
+    }).join('');
     return `<div class="card">
-      <div class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></div>
+      <h2 class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></h2>
       ${systemic || '<p style="font-size:0.75rem;color:#4ade80;">✓ No systemic failures detected across machines.</p>'}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
     </div>`;
@@ -1633,7 +1871,7 @@
 
   function renderEngineeringValidation(d) {
     if (!d?.flagged?.length) return `<div class="card">
-      <div class="card-title">Engineering Validation <span class="card-standard">WAT pattern — engineering_calcs × logbook</span></div>
+      <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: engineering_calcs × logbook</span></h2>
       <div class="empty" style="padding:1rem 0;color:#4ade80;">✓ ${escHtml(d?.note || 'No matches found between failure history and engineering calc records.')}</div>
     </div>`;
     const rows = d.flagged.map(f => `
@@ -1642,11 +1880,11 @@
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(f.machine)}</span>
           <span class="warn" style="font-size:0.68rem;font-weight:700;">${f.failure_count} failures · ${f.total_downtime_h}h DT</span>
         </div>
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);">Matched calc: ${escHtml(f.matched_calc)}</div>
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);">Matched calc: ${escHtml(f.matched_calc)}</div>
         <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
       </div>`).join('');
     return `<div class="card">
-      <div class="card-title">Engineering Validation <span class="card-standard">WAT pattern — ${d.flagged_count} match(es) flagged</span></div>
+      <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: ${d.flagged_count} match(es) flagged</span></h2>
       ${rows}
     </div>`;
   }
@@ -1655,8 +1893,19 @@
   function renderPredictive(data) {
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
-    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+    const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    // Recompute risk (supervisors only): risk scores come from the daily 13:00 PHT
+    // cron, so this forces an on-demand recompute for THIS hive. It renders inside
+    // the panel rather than the shared header row — see the note at the header.
+    if (HIVE_ROLE === 'supervisor' && HIVE_ID) {
+      html += `<div class="period-row" style="margin-bottom:1rem;">
+        <button class="refresh-btn" id="recompute-risk-btn" onclick="recomputeRiskScores()" title="Recompute this hive's risk scores now, instead of waiting for the daily 13:00 PHT run">
+          <span id="recompute-risk-icon">↻</span>
+          <span id="recompute-risk-label">${_t('Recompute risk','Muling kalkulahin')}</span>
+        </button>
+      </div>`;
+    }
     // Order: trend → specific predictions → triage → realtime sensors → schedule → supply → leading indicator
     html += renderFailureTrend(data.failure_trend);                  // high-altitude direction
     html += renderNextFailureDates(data.next_failure_dates);         // specific assets + dates — most actionable
@@ -1671,7 +1920,7 @@
 
   function renderPartsSpike(d) {
     if (!d?.spikes?.length) return `<div class="card">
-      <div class="card-title">Parts Consumption Spike <span class="card-standard">Rule-based · current vs previous period</span></div>
+      <h2 class="card-title">Parts Consumption Spike <span class="card-standard">Rule-based · current vs previous period</span></h2>
       <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No consumption spikes detected. Parts usage is consistent with the previous period.</div>
     </div>`;
 
@@ -1691,7 +1940,7 @@
               ${s.spike_factor ? s.spike_factor + '× spike' : 'New usage'}
             </span>
           </div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-bottom:0.25rem;">
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">
             Now: ${s.current_rate}/mo ${s.previous_rate > 0 ? `· Before: ${s.previous_rate}/mo` : '· No prior usage'}
           </div>
           <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);">${escHtml(s.interpretation)}</p>
@@ -1701,12 +1950,12 @@
 
     return kpiCard({
       title: 'Parts Consumption Spike',
-      standard: 'Rule-based — Predictive Analytics Stage 2',
+      standard: 'Rule-based, Predictive Analytics Stage 2',
       value: d.spike_count,
       unit: `part${d.spike_count !== 1 ? 's' : ''} with unusual consumption`,
       sublabel: d.critical_count > 0
-        ? `${d.critical_count} CRITICAL — inspect assets using these parts immediately`
-        : 'Consumption rising — schedule inspection before next failure',
+        ? `${d.critical_count} CRITICAL: inspect assets using these parts immediately`
+        : 'Consumption rising: schedule inspection before next failure',
       color,
       detail,
       legend: 'Spike = current period rate ≥ 2× previous period. Signals degradation BEFORE a fault is logged.',
@@ -1715,7 +1964,7 @@
 
   function renderAnomalyBaseline(d) {
     if (!d?.baselines?.length) return `<div class="card">
-      <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ±2σ control limits</span></div>
+      <h2 class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ±2σ control limits</span></h2>
       <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No readings data yet. Fill Quick Readings in Breakdown entries to activate.')}</div>
     </div>`;
 
@@ -1747,22 +1996,34 @@
     });
 
     return `<div class="card">
-      <div class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span><!-- native-dialog-allow: literal text in HTML string, not a function call --></div>
+      <h2 class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span><!-- native-dialog-allow: literal text in HTML string, not a function call --></h2>
       ${anomalyHtml}
       <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
       ${baselineList}
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">"σ" (sigma) = how far a reading strays from the machine's normal range. Past 2σ (the UCL / upper control limit) is unusual and worth a check. Mean = the machine's typical value.</p>
     </div>`;
   }
 
   function renderHealthScores(d) {
     if (!d?.health_scores?.length) return cardEmpty('Equipment Health Score', 'SMRP-inspired composite (0-100)', d?.note || 'No data available.');
-    const worst   = d.health_scores[0]; // sorted lowest first
-    const heroColor = worst.color === 'red' ? 'red' : worst.color === 'yellow' ? 'yellow' : 'green';
+    // Hero = the worst ASSESSABLE machine (enough fault history for a confident verdict).
+    // Machines flagged "Insufficient Data" (grey) are surfaced via the count + greyed bars,
+    // never as the headline health number (arc AI1: no false-green on thin data).
+    const sufficient = d.health_scores.filter(s => s.data_sufficient !== false);
+    const worst   = sufficient[0] || d.health_scores[0]; // sorted lowest-health first
+    const heroColor = worst.color === 'red' ? 'red' : worst.color === 'yellow' ? 'yellow' : worst.color === 'grey' ? 'grey' : 'green';
     const chartId = `chart-health-${_kpiCardId}`;
 
     queueChart(() => {
       const top5 = d.health_scores.slice(0, 5);
-      const colors = top5.map(s => s.color === 'red' ? '#f87171' : s.color === 'yellow' ? '#F7A21B' : '#4ade80');
+      // Plotly needs a resolved literal -- var(--wh-*) does NOT work inside a chart
+      // colour array, which is why the E4 migration deliberately left JS hexes alone.
+      // Reading the token at runtime keeps ONE source of truth without breaking the chart.
+      // No hex fallback on purpose: a fallback would re-introduce the very literal this
+      // reads the token to avoid. tokens.css is render-blocking, <link>ed in <head>, and
+      // L1-gated -- if --wh-orange were missing the page is already broken.
+      const _tok = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+      const colors = top5.map(s => s.color === 'red' ? '#f87171' : s.color === 'yellow' ? _tok('--wh-orange') : s.color === 'grey' ? _tok('--wh-steel') : '#4ade80');
       const traces = [{
         type: 'bar', orientation: 'h',
         x: top5.map(s => s.health_score),
@@ -1776,6 +2037,9 @@
         ...PLOTLY_BASE_LAYOUT,
         margin: { l: 130, r: 40, t: 10, b: 20 },
         xaxis: { ...PLOTLY_BASE_LAYOUT.xaxis, range: [0, 110] },
+        // health_scores arrives worst-first; without the reverse, Plotly renders the
+        // worst asset at the bottom and the healthiest on top (same trap as the Pareto).
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, autorange: 'reversed' },
         height: Math.max(160, top5.length * 38),
         shapes: [
           { type:'line', x0:80, x1:80, y0:-0.5, y1:top5.length-0.5, line:{ color:'rgba(74,222,128,0.4)', width:1, dash:'dot' } },
@@ -1787,7 +2051,7 @@
         // clear message instead of throwing ReferenceError into a silent chart.
         if (typeof Plotly === 'undefined') {
           const _el = document.getElementById(chartId);
-          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable — the charting library could not load. Check your connection and refresh.</div>';
+          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable: the charting library could not load. Check your connection and refresh.</div>';
         } else {
           Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
         }
@@ -1798,18 +2062,20 @@
     const worstComps = worst.components || {};
     const compBreakdown = worstComps.pm_score !== undefined ? `
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">PM ${worstComps.pm_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">Fault ${worstComps.fault_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">Time ${worstComps.time_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">Repeat ${worstComps.repeat_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">PM ${worstComps.pm_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">Fault ${worstComps.fault_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">Time ${worstComps.time_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">Repeat ${worstComps.repeat_score}</span>
       </div>` : '';
 
     return kpiCard({
-      title: 'Equipment Health Score', standard: 'Predictive Analytics skill — 4-component formula',
+      title: 'Equipment Health Score', standard: 'Predictive Analytics skill: 4-component formula',
       value: worst.health_score, unit: '/ 100 lowest',
-      sublabel: `${worst.machine} — ${worst.status} · ${d.at_risk_count} at risk · ${d.watch_count} watch · ${d.healthy_count} healthy`,
+      sublabel: `${worst.machine}: ${worst.status} · ${d.at_risk_count} at risk · ${d.watch_count} watch · ${d.healthy_count} healthy${d.insufficient_count ? ' · ' + d.insufficient_count + ' insufficient data' : ''}`,
       color: heroColor,
-      detail: `<div id="${chartId}" style="width:100%;"></div>${compBreakdown}`,
+      // Reserve computed chart height to prevent the async Plotly draw from causing CLS (arc A4).
+      // role=img + aria-label = SR text alternative for the chart (arc U5, SC 1.1.1).
+      detail: `<div id="${chartId}" role="img" aria-label="Equipment health score chart. Worst assessable asset: ${escHtml(worst.machine)} at ${worst.health_score} of 100 (${worst.status})." style="width:100%;min-height:${Math.max(160, Math.min(d.health_scores.length, 5) * 38)}px;"></div>${compBreakdown}`,
       legend: 'Weights: 30% PM overdue + 30% fault frequency + 20% time-to-failure + 20% repeat faults. Green = 80, Yellow = 60.',
     });
   }
@@ -1830,7 +2096,7 @@
         if (isSuspect) {
           statusHtml = `<span style="font-size:0.62rem;color:#F7A21B;">⚠ Check data</span>`;
         } else if (isOverdue) {
-          statusHtml = `<span style="font-size:0.62rem;color:#f87171;">Overdue by ${Math.abs(Math.round(p.days_until))}d — not yet logged</span>`;
+          statusHtml = `<span style="font-size:0.62rem;color:var(--wh-red-text);">Overdue by ${Math.abs(Math.round(p.days_until))}d, not yet logged</span>`;
         } else {
           statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'#F7A21B':'#4ade80'};">Due in ${Math.round(p.days_until)} days</span>`;
         }
@@ -1853,21 +2119,21 @@
       standard: `ISO 13381-1:2015 · last failure + MTBF`,
       value: d.high_risk,
       unit: `machine${d.high_risk !== 1 ? 's' : ''} overdue`,
-      sublabel: d.high_risk > 0 ? `${d.high_risk} machine(s) past predicted failure date — check if logged` : `${d.medium_risk} machine(s) due within 14 days`,
+      sublabel: d.high_risk > 0 ? `${d.high_risk} machine(s) past predicted failure date, check if logged` : `${d.medium_risk} machine(s) due within 14 days`,
       color: d.high_risk > 0 ? 'red' : d.medium_risk > 0 ? 'yellow' : 'green',
       detail: `
         ${list}
-        ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:#F7A21B;margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day — likely multiple failures logged in same shift. Review logbook entries for data accuracy.</p>` : ''}
-        <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Past dates mean the machine was due to fail again based on MTBF — check if a new failure was logged or if the machine is overdue for inspection.</p>`,
+        ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:var(--wh-orange);margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day (likely multiple failures logged in same shift). Review logbook entries for data accuracy.</p>` : ''}
+        <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">A past date means MTBF expected another failure by now. Check the logbook, or inspect the machine.</p>`,
       legend: 'Prediction = last logged failure date + mean interval between historical failures. Requires ≥ 2 failures per machine.',
     });
   }
 
   function renderPMDueCalendar(d) {
-    if (!d?.calendar?.length) return cardEmpty('PM Due Calendar', 'Deterministic — last completion + frequency', 'No PM scope items found.');
+    if (!d?.calendar?.length) return cardEmpty('PM Due Calendar', 'Deterministic: last completion + frequency', 'No PM scope items found.');
 
     if (!d.overdue_count && !d.due_soon_count) return `<div class="card">
-      <div class="card-title">PM Due Calendar <span class="card-standard">Deterministic · All ${d.total_tasks} tasks on schedule</span></div>
+      <h2 class="card-title">PM Due Calendar <span class="card-standard">Deterministic · All ${d.total_tasks} tasks on schedule</span></h2>
       <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All ${d.total_tasks} PM tasks are on schedule.</div>
     </div>`;
 
@@ -1892,7 +2158,7 @@
       const hasOver   = tasks.some(t => t.risk === 'OVERDUE');
       const hasSoon   = tasks.some(t => t.risk === 'DUE SOON');
       const assetColor = hasOver ? '#f87171' : hasSoon ? '#F7A21B' : '#a78bfa';
-      const badge     = hasOver ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
+      const badge     = hasOver ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
                       : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
       const id = `pm-asset-${pmCardId++}`;
       // Auto-expand overdue assets
@@ -1952,7 +2218,7 @@
 
   function renderPartsStockout(d) {
     if (!d?.stockout_risk?.length) return `<div class="card">
-      <div class="card-title">Parts Stockout Risk <span class="card-standard">Deterministic — qty / daily consumption rate</span></div>
+      <h2 class="card-title">Parts Stockout Risk <span class="card-standard">Deterministic: qty / daily consumption rate</span></h2>
       <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No parts projected to stock out soon.</div>
     </div>`;
     const list = renderListWithShowAll({
@@ -1966,14 +2232,14 @@
         return `<tr>
           <td class="machine-name">${escHtml(p.part_name)}</td>
           <td class="num">${p.qty_on_hand}</td>
-          <td class="num">${p.daily_rate || '—'}</td>
-          <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '—'}</td>
+          <td class="num">${p.daily_rate || '-'}</td>
+          <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '-'}</td>
           <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'#f87171':p.risk==='HIGH'?'#F7A21B':'#a78bfa'}">${p.risk}</span></td>
         </tr>`;
       },
     });
     return `<div class="card">
-      <div class="card-title">Parts Stockout Risk <span class="card-standard">SMRP inventory · ${d.at_risk_count} parts at risk</span></div>
+      <h2 class="card-title">Parts Stockout Risk <span class="card-standard">SMRP inventory · ${d.at_risk_count} parts at risk</span></h2>
       ${list}
     </div>`;
   }
@@ -2020,7 +2286,7 @@
         // clear message instead of throwing ReferenceError into a silent chart.
         if (typeof Plotly === 'undefined') {
           const _el = document.getElementById(chartId);
-          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable — the charting library could not load. Check your connection and refresh.</div>';
+          if (_el) _el.innerHTML = '<div style="padding:1.25rem;color:var(--text-muted,#8a8a8a);text-align:center;font-size:.9rem">Charts unavailable: the charting library could not load. Check your connection and refresh.</div>';
         } else {
           Plotly.newPlot(chartId, traces, layout, PLOTLY_CONFIG);
         }
@@ -2031,10 +2297,12 @@
     const totalFailures = d.trend.reduce((s, t) => s + t.count, 0);
     return kpiCard({
       title: 'Failure Trend', standard: `Linear trend · ${d.data_points} weeks`,
-      value: totalFailures, unit: 'failures in period',
-      sublabel: `${arrow} — ${escHtml(d.trend_label || '')}`,
+      value: totalFailures, unit: _t('failures in period','pagkasira sa panahon'),
+      sublabel: `${arrow}: ${escHtml(d.trend_label || '')}`,
       color: dirColor,
-      detail: `<div id="${chartId}" style="width:100%;"></div>`,
+      // Trend chart is a fixed 200px-tall Plotly draw; reserve it to prevent CLS (arc A4).
+      // role=img + aria-label = SR text alternative (arc U5, SC 1.1.1).
+      detail: `<div id="${chartId}" role="img" aria-label="Failure trend chart. ${escHtml(d.trend_label || 'Trend')}: ${totalFailures} failures over ${d.data_points} weeks." style="width:100%;min-height:200px;"></div>`,
       legend: 'Y-axis = failures per week. Declining line = improving maintenance. Dotted line = 4-week forecast.',
     });
   }
@@ -2043,7 +2311,7 @@
   function renderPrescriptive(data) {
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
-    const gen = data.generated_at ? new Date(data.generated_at).toLocaleString('en-PH') : '';
+    const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
     let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: AI synthesis → triage → this-week ops actions → scheduling change → HR development
     if (data.action_plan) html += renderActionPlan(data.action_plan);  // cross-phase synthesis
@@ -2059,8 +2327,8 @@
     if (!plan?.this_week?.length) return '';
     const items = plan.this_week.map(a => `<li style="margin-bottom:0.4rem;color:rgba(255,255,255,0.8);">${escHtml(a)}</li>`).join('');
     const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:#F7A21B;border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
-    return `<div class="card" style="border-color:rgba(167,139,250,0.3);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
-      <div class="card-title" style="color:#a78bfa;">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
+    return `<div class="card" style="border-color:var(--wh-violet-text);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
+      <div class="card-title" style="color:var(--wh-violet-text);">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
       ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;">${escHtml(plan.summary)}</p>` : ''}
       <ul style="padding-left:1.25rem;font-size:0.75rem;line-height:1.7;">${items}</ul>
       ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
@@ -2068,10 +2336,10 @@
   }
 
   function renderPriorityRanking(d) {
-    if (!d?.ranking?.length) return cardEmpty('Priority Maintenance Ranking', 'ISO 55001 risk framework', 'No corrective failure data found in the selected period.');
+    if (!d?.ranking?.length) return cardEmpty('Priority Maintenance Ranking', 'ISO 55001-inspired composite', 'No corrective failure data found in the selected period.');
     const list = renderListWithShowAll({
       items: d.ranking,
-      tableHeader: '<thead><tr><th>Priority</th><th>Machine</th><th>Criticality</th><th class="num">Failures</th><th class="num">Avg DT</th><th class="num">Score</th></tr></thead>',
+      tableHeader: `<thead><tr><th>${_t('Priority','Prayoridad')}</th><th>${_t('Machine','Makina')}</th><th>${_t('Criticality','Kahalagahan')}</th><th class="num">${_t('Failures','Pagkasira')}</th><th class="num">${_t('Avg DT','Avg DT')}</th><th class="num">${_t('Score','Iskor')}</th></tr></thead>`,
       defaultN: 8,
       itemNoun: 'asset',
       searchable: true,
@@ -2080,15 +2348,15 @@
         return `<tr>
           <td><span style="font-size:0.7rem;font-weight:800;color:${pColor};padding:0.15rem 0.4rem;border-radius:999px;background:rgba(0,0,0,0.2);">${r.priority}</span></td>
           <td class="machine-name">${escHtml(r.machine)}</td>
-          <td style="font-size:0.68rem;color:rgba(255,255,255,0.4);">${escHtml(r.criticality)}</td>
+          <td style="font-size:0.68rem;color:rgba(255,255,255,0.6);">${escHtml(r.criticality)}</td>
           <td class="num">${r.failure_count}</td>
           <td class="num">${r.avg_downtime_h}h</td>
-          <td class="num" style="color:#a78bfa;font-weight:800;">${r.risk_score}</td>
+          <td class="num" style="color:var(--wh-violet-text);font-weight:800;">${r.risk_score}</td>
         </tr>`;
       },
     });
     return `<div class="card">
-      <div class="card-title">Priority Maintenance Ranking <span class="card-standard">ISO 55001 · 🔴 ${d.p1_count} P1 · 🟡 ${d.p2_count} P2</span></div>
+      <h2 class="card-title">Priority Maintenance Ranking <span class="card-standard">ISO 55001-inspired · 🔴 ${d.p1_count} P1 · 🟡 ${d.p2_count} P2</span></h2>
       ${list}
       <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
     </div>`;
@@ -2105,14 +2373,14 @@
       const skipped = d?.skipped_count ?? 0;
       let empty;
       if (scopeN === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">No PM scopes registered yet. Add PM tasks to assets in PM Scheduler to enable interval optimisation.</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">No PM scopes registered yet. Add PM tasks to assets in PM Scheduler to enable interval optimisation.</div>`;
       } else if (cmp === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">Couldn't compare PM intervals: ${scopeN} assets have PM scopes but none have matching failure history in logbook for this period. Recommendations will appear once breakdowns log against the same assets.</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">Couldn't compare PM intervals: ${scopeN} assets have PM scopes but none have matching failure history in logbook for this period. Recommendations will appear once breakdowns log against the same assets.</div>`;
       } else {
         empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Compared ${cmp} asset${cmp === 1 ? '' : 's'}: current PM intervals are appropriate based on failure history.</div>`;
       }
       return `<div class="card">
-        <div class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM</span></div>
+        <h2 class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM</span></h2>
         ${empty}
       </div>`;
     }
@@ -2134,15 +2402,21 @@
           <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
               <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
-              <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('INCREASE')?'#f87171':'#F7A21B'};">${escHtml(r.action)}</span>
+              <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'#f87171':r.action.includes('INCREASE')?'#f87171':'var(--wh-orange)'};">${escHtml(r.action)}</span>
             </div>
             <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(r.reason)}</p>
-            <p style="font-size:0.65rem;color:#a78bfa;margin-top:0.25rem;">Recommended: every ${r.recommended_days} days (currently tightest = ${r.current_frequency}${scopeNote})</p>
+            <!-- Name the SCHEDULABLE frequency ("Daily"), not "every 1 days": the operator
+                 picks a frequency from a dropdown, so a raw day-count is not actionable.
+                 ROOT CAUSE means PM frequency is not the lever, so it must NOT print a
+                 "Recommended: <interval>" line -- that is the no-op the card used to show. -->
+            ${r.action.includes('ROOT CAUSE')
+              ? `<p style="font-size:0.65rem;color:var(--wh-violet-text);margin-top:0.25rem;">PM stays ${escHtml(r.current_frequency)}${scopeNote}. The fix is the failure mode, not the schedule.</p>`
+              : `<p style="font-size:0.65rem;color:var(--wh-violet-text);margin-top:0.25rem;">Recommended: ${escHtml(r.recommended_frequency || ('every ' + r.recommended_days + ' days'))} (currently ${escHtml(r.current_frequency)}${scopeNote})</p>`}
           </div>`;
       },
     });
     return `<div class="card">
-      <div class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM · ${d.count} recommendation(s)</span></div>
+      <h2 class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM · ${d.count} recommendation(s)</span></h2>
       ${list}
     </div>`;
   }
@@ -2167,18 +2441,18 @@
       const machineList = grp.machines.length
         ? `<span style="color:rgba(255,255,255,0.55);"> · ${escHtml(grp.machines.slice(0, 4).join(', '))}${grp.machines.length > 4 ? ` +${grp.machines.length - 4} more` : ''}</span>`
         : '';
-      return `<div style="font-size:0.74rem;color:#f87171;margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.4);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
+      return `<div style="font-size:0.74rem;color:var(--wh-red-text);margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.6);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
     }).join('');
     return `<div class="card">
-      <div class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></div>
-      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table"><thead><tr><th>Machine</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table>` : ''}
+      <h2 class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></h2>
+      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Machine</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table></div>` : ''}
       ${gaps}
     </div>`;
   }
 
   function renderPartsReorder(d) {
     if (!d?.reorder?.length) return `<div class="card">
-      <div class="card-title">Parts Reorder Recommendation <span class="card-standard">Inventory × PM cross-reference</span></div>
+      <h2 class="card-title">Parts Reorder Recommendation <span class="card-standard">Inventory × PM cross-reference</span></h2>
       <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All parts are above reorder points.</div>
     </div>`;
     const list = renderListWithShowAll({
@@ -2190,7 +2464,7 @@
       renderRow: (r) => {
         const cls = r.urgency==='CRITICAL' ? 'alert' : r.urgency==='HIGH' ? 'warn' : '';
         return `<tr>
-          <td class="machine-name">${escHtml(r.part_name)}${r.pm_relevant ? ' <span style="font-size:0.6rem;color:#a78bfa;">PM</span>' : ''}</td>
+          <td class="machine-name">${escHtml(r.part_name)}${r.pm_relevant ? ' <span style="font-size:0.6rem;color:var(--wh-violet-text);">PM</span>' : ''}</td>
           <td class="num">${r.qty_on_hand}</td>
           <td class="num">${r.reorder_point}</td>
           <td class="num ${cls}">${r.urgency}</td>
@@ -2199,7 +2473,7 @@
       },
     });
     return `<div class="card">
-      <div class="card-title">Parts Reorder Recommendation <span class="card-standard">🔴 ${d.critical_count} critical · PM-linked parts marked</span></div>
+      <h2 class="card-title">Parts Reorder Recommendation <span class="card-standard">🔴 ${d.critical_count} critical · PM-linked parts marked</span></h2>
       ${list}
     </div>`;
   }
@@ -2216,16 +2490,16 @@
       const badges = d?.badge_count ?? 0;
       let empty;
       if (cats === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">${escHtml(d?.note || 'No closed corrective entries with downtime in this period — nothing to evaluate yet.')}</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">${escHtml(d?.note || 'No closed corrective entries with downtime in this period, nothing to evaluate yet.')}</div>`;
       } else if (badges === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.4);padding:1rem 0;font-size:0.82rem;">No skill badges yet. Workers need to take exams in Skill Matrix before training gaps can be detected.</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">No skill badges yet. Workers need to take exams in Skill Matrix before training gaps can be detected.</div>`;
       } else if (above === 0) {
         empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Evaluated ${cats} categor${cats === 1 ? 'y' : 'ies'}: no MTTR spike above the +20% threshold. Repair times are consistent across the team.</div>`;
       } else {
         empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ ${above} categor${above === 1 ? 'y has' : 'ies have'} elevated MTTR, but every worker in the affected disciplines is already Level 3+. No upskilling needed.</div>`;
       }
       return `<div class="card">
-        <div class="card-title">Training Gap Recommendation <span class="card-standard">MTTR × Skill cross-reference</span></div>
+        <h2 class="card-title">Training Gap Recommendation <span class="card-standard">MTTR × Skill cross-reference</span></h2>
         ${empty}
       </div>`;
     }
@@ -2233,13 +2507,13 @@
       <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(g.discipline)}</span>
-          <span style="font-size:0.7rem;color:#f87171;">Avg MTTR: ${g.avg_mttr_h}h (+${g.above_avg_by_h}h above avg)</span>
+          <span style="font-size:0.7rem;color:var(--wh-red-text);">Avg MTTR: ${g.avg_mttr_h}h (+${g.above_avg_by_h}h above avg)</span>
         </div>
         <p style="font-size:0.72rem;color:rgba(255,255,255,0.6);">${escHtml(g.recommendation)}</p>
-        ${g.low_skill_workers?.length ? `<div style="margin-top:0.4rem;">${g.low_skill_workers.map(w=>`<span style="font-size:0.65rem;color:#a78bfa;margin-right:0.5rem;">${escHtml(w.worker)} (L${w.current_level})</span>`).join('')}</div>` : ''}
+        ${g.low_skill_workers?.length ? `<div style="margin-top:0.4rem;">${g.low_skill_workers.map(w=>`<span style="font-size:0.65rem;color:var(--wh-violet-text);margin-right:0.5rem;">${escHtml(w.worker)} (L${w.current_level})</span>`).join('')}</div>` : ''}
       </div>`).join('');
     return `<div class="card">
-      <div class="card-title">Training Gap Recommendation <span class="card-standard">SMRP workforce development · ${d.gap_count} gap(s)</span></div>
+      <h2 class="card-title">Training Gap Recommendation <span class="card-standard">SMRP workforce development · ${d.gap_count} gap(s)</span></h2>
       ${cards}
     </div>`;
   }
@@ -2247,7 +2521,7 @@
   // ── Empty card helper ──────────────────────────────────────────────────────
   function cardEmpty(title, std, msg) {
     return `<div class="card">
-      <div class="card-title">${escHtml(title)} <span class="card-standard">${escHtml(std)}</span></div>
+      <h2 class="card-title">${escHtml(title)} <span class="card-standard">${escHtml(std)}</span></h2>
       <div class="empty">${escHtml(msg)}</div>
     </div>`;
   }
@@ -2267,6 +2541,14 @@
   //     defaultN: 8,
   //     itemNoun: 'asset',                    // for "Show all 30 assets ↓"
   //   });
+  // N1 noun helper: EN pluralises the noun; FIL leaves it unchanged (the count
+  // itself already marks plurality, and "mga" is carried by the phrase around it).
+  function _anNoun(noun, total) {
+    const FIL = { asset:'asset', machine:'makina', part:'piyesa', pair:'pares', item:'item' };
+    if (window.WH_LANG === 'fil') return FIL[noun] || noun;
+    return total === 1 ? noun : noun + 's';
+  }
+
   function renderListWithShowAll({ items, renderRow, wrap = 'table', tableHeader = '', defaultN = 8, itemNoun = 'item', searchable = false, searchPlaceholder = '' }) {
     if (!items?.length) return '';
     const total = items.length;
@@ -2276,33 +2558,39 @@
     if (total <= defaultN && !searchable) {
       const html = items.map(renderRow).join('');
       return wrap === 'table'
-        ? `<!-- table-name-allow: maintenance analytics data table --> <table class="data-table">${tableHeader}<tbody>${html}</tbody></table>`
+        ? `<div class="table-scroll"><!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table">${tableHeader}<tbody>${html}</tbody></table></div></div>`
         : `<div class="cards-stack">${html}</div>`;
     }
 
     const visibleHtml = items.slice(0, defaultN).map(renderRow).join('');
     const hiddenHtml  = total > defaultN ? items.slice(defaultN).map(renderRow).join('') : '';
-    const showAllTxt  = `Show all ${total} ${itemNoun}${total === 1 ? '' : 's'} ↓`;
-    const showLessTxt = `Show top ${defaultN} ↑`;
+    // N1: build each locale's WHOLE phrase rather than concatenating fragments.
+    // English pluralises with a trailing "s"; Filipino marks plural with "mga"
+    // before an unchanged noun, so an "+ s" would produce "mga asset s".
+    const _noun = _anNoun(itemNoun, total);
+    const showAllTxt  = _t(`Show all ${total} ${_noun} ↓`, `Ipakita lahat ng ${total} ${_noun} ↓`);
+    const showLessTxt = _t(`Show top ${defaultN} ↑`, `Ipakita ang nangungunang ${defaultN} ↑`);
 
     // Search input — only when explicitly enabled AND list is big enough to
     // benefit (>=8 items). Small lists don't need search clutter. Auto-expands
     // hidden rows on input so matches outside the top-N are still findable.
     const showSearch = searchable && total >= 8;
+    const _pn = _anNoun(itemNoun, 2);
+    const _searchLbl = searchPlaceholder || _t(`Filter ${_pn}`, `Salain ang ${_pn}`);
     const searchInput = showSearch ? `
-      <input type="search" class="list-search" aria-label="${escHtml(searchPlaceholder || ('Filter ' + itemNoun + 's'))}" placeholder="${escHtml(searchPlaceholder || ('Filter ' + itemNoun + 's…'))}"
+      <input type="search" class="list-search" aria-label="${escHtml(_searchLbl)}" placeholder="${escHtml(_searchLbl + '…')}"
         oninput="filterShowAllList(this)" />
     ` : '';
 
     if (wrap === 'table') {
       return `<div class="list-with-showall">
         ${searchInput}
-        <!-- table-name-allow: maintenance analytics data table --> <table class="data-table">
+        <div class="table-scroll"><!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table">
           ${tableHeader}
           <tbody>${visibleHtml}</tbody>
           ${hiddenHtml ? `<tbody class="extra-rows" hidden>${hiddenHtml}</tbody>` : ''}
-        </table>
-        ${total > defaultN ? `<button type="button" class="showall-toggle" onclick="toggleShowAll(this)"
+        </table></div></div>
+        ${total > defaultN ? `<button type="button" class="showall-toggle" aria-expanded="false" onclick="toggleShowAll(this)"
           data-show-all="${escHtml(showAllTxt)}" data-show-less="${escHtml(showLessTxt)}">${escHtml(showAllTxt)}</button>` : ''}
       </div>`;
     }
@@ -2310,7 +2598,7 @@
       ${searchInput}
       <div class="cards-stack">${visibleHtml}</div>
       ${hiddenHtml ? `<div class="extra-cards" hidden>${hiddenHtml}</div>` : ''}
-      ${total > defaultN ? `<button type="button" class="showall-toggle" onclick="toggleShowAll(this)"
+      ${total > defaultN ? `<button type="button" class="showall-toggle" aria-expanded="false" onclick="toggleShowAll(this)"
         data-show-all="${escHtml(showAllTxt)}" data-show-less="${escHtml(showLessTxt)}">${escHtml(showAllTxt)}</button>` : ''}
     </div>`;
   }
@@ -2356,6 +2644,9 @@
     const extra = wrap?.querySelector('.extra-rows, .extra-cards');
     if (!extra) return;
     const isHidden = extra.hasAttribute('hidden');
+    // aria-expanded must move WITH the hidden attribute: this is a disclosure, and its
+    // state was previously conveyed only by the button's label text (WCAG 4.1.2).
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
     if (isHidden) {
       extra.removeAttribute('hidden');
       btn.textContent = btn.dataset.showLess;
@@ -2377,7 +2668,7 @@
     if (role !== 'supervisor') role = 'worker';
     _role = role;
     document.querySelectorAll('.role-btn').forEach(b => {
-      b.classList.toggle('active', b.id === `role-${role}`);
+      setActive(b, b.id === `role-${role}`);
     });
     renderRoleQuickView();
   }
@@ -2403,7 +2694,7 @@
   function _buildPMTaskRows(tasks) {
     return tasks.map(t => `
       <div class="role-row" style="padding-left:1rem;">
-        <span class="label">${escHtml(t.asset_name)} — ${escHtml(t.task.slice(0, 45))}</span>
+        <span class="label">${escHtml(t.asset_name)}: ${escHtml(t.task.slice(0, 45))}</span>
         <span class="val" style="color:${t.risk==='OVERDUE'?'#f87171':'#F7A21B'};">${escHtml(t.status)}</span>
       </div>`).join('');
   }
@@ -2439,7 +2730,7 @@
       rows.push(`<div class="role-row"><span class="label">📅 PM tasks due</span><span class="val" style="color:#F7A21B;">${urgent.length} need attention</span></div>`);
 
       // Asset dropdown
-      const opts = [`<option value="">— Filter by asset (${assetNames.length}) —</option>`]
+      const opts = [`<option value="">Filter by asset (${assetNames.length})</option>`]
         .concat(assetNames.map(a =>
           `<option value="${escHtml(a)}">${escHtml(a)} (${assetMap[a].length})</option>`
         )).join('');
@@ -2459,21 +2750,21 @@
     // Parts needed
     const reorder = presc?.parts_reorder?.reorder?.filter(r => r.urgency === 'CRITICAL').slice(0, 3) || [];
     if (reorder.length) {
-      rows.push(`<div class="role-row"><span class="label">📦 Critical parts</span><span class="val" style="color:#f87171;">${reorder.length} out of stock</span></div>`);
+      rows.push(`<div class="role-row"><span class="label">📦 Critical parts</span><span class="val" style="color:var(--wh-red-text);">${reorder.length} out of stock</span></div>`);
       reorder.forEach(r => rows.push(`<div class="role-row" style="padding-left:1rem;">
         <span class="label">${escHtml(r.part_name)}</span>
-        <span class="val" style="color:#f87171;">Out — order ${r.suggested_order}</span>
+        <span class="val" style="color:var(--wh-red-text);">Out, order ${r.suggested_order}</span>
       </div>`));
     }
 
     // Next predicted failure
     const nextFail = pred?.next_failure_dates?.predictions?.filter(p => p.risk === 'HIGH')[0];
     if (nextFail) {
-      rows.push(`<div class="role-row"><span class="label">⚠ Next failure risk</span><span class="val" style="color:#f87171;">${escHtml(nextFail.machine)} by ${escHtml(nextFail.predicted_next)}</span></div>`);
+      rows.push(`<div class="role-row"><span class="label">⚠ Next failure risk</span><span class="val" style="color:var(--wh-red-text);">${escHtml(nextFail.machine)} by ${escHtml(nextFail.predicted_next)}</span></div>`);
     }
 
     if (!rows.length) return '';
-    return `<div class="role-card"><div class="role-card-title">🔧 Field Tech — My Focus Today</div>${rows.join('')}</div>`;
+    return `<div class="role-card"><div class="role-card-title">🔧 Field Tech: My Focus Today</div>${rows.join('')}</div>`;
   }
 
   // ── Supervisor Quick View: team KPIs + overdue + training ─────────────────
@@ -2494,11 +2785,11 @@
 
     // Overdue PMs — Arc Y Y2 fork#2: canonical = ASSETS overdue (matches the tiles), not tasks
     const overdue = pred?.pm_due_calendar?.overdue_asset_count ?? pred?.pm_due_calendar?.overdue_count;
-    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 Overdue PMs</span><span class="val" style="color:#f87171;">${overdue} asset(s) overdue</span></div>`);
+    if (overdue > 0) rows.push(`<div class="role-row"><span class="label">🔴 Overdue PMs</span><span class="val" style="color:var(--wh-red-text);">${overdue} asset(s) overdue</span></div>`);
 
     // Training gaps
     const gaps = presc?.training_gaps?.gaps?.[0];
-    if (gaps) rows.push(`<div class="role-row"><span class="label">📚 Training gap</span><span class="val" style="color:#F7A21B;">${escHtml(gaps.discipline)} — avg MTTR ${gaps.avg_mttr_h}h</span></div>`);
+    if (gaps) rows.push(`<div class="role-row"><span class="label">📚 Training gap</span><span class="val" style="color:var(--wh-orange);">${escHtml(gaps.discipline)}: avg MTTR ${gaps.avg_mttr_h}h</span></div>`);
 
     // AI synthesis — full text in-card (no separate banner below since #27).
     // Tied to the bottom because it integrates everything above.
@@ -2512,7 +2803,7 @@
     }
 
     if (!rows.length && !aiBlock) return '';
-    return `<div class="role-card"><div class="role-card-title">👷 Supervisor — Team Status</div>${rows.join('')}${aiBlock}</div>`;
+    return `<div class="role-card"><div class="role-card-title">👷 Supervisor: Team Status</div>${rows.join('')}${aiBlock}</div>`;
   }
 
   // (Removed: buildManagerView and updateCommandBar — see PRODUCTION_FIXES #27.
@@ -2533,20 +2824,77 @@
     // calc_mttr / calc_oee) over v_logbook_truth — no direct db.from() of
     // the view, but the RPC bodies guarantee identical lineage.
     el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
-      freshness: 'Live recomputation each refresh',
+      freshness: _t('Live recomputation each refresh', 'Muling kinakalkula sa bawat refresh'),
       source:    'v_logbook_truth via Postgres RPCs',
-      window:    `MTBF / MTTR / OEE @ ${_period}d window (selected period)`,
+      method:    [`MTBF / MTTR / OEE @ ${_period}d ${_t('window (selected period)', 'window (piniling panahon)')}`],
     });
   }
 
+  // ── N1 i18n: EN/FIL (same contract as index.html / hive.html) ───────────────
+  // WH_LANG = active locale (persisted to wh_lang); _t(en,fil) translates the
+  // JS-RENDERED strings; setLang swaps the static [data-i] nodes AND re-renders
+  // the active phase so the render-fns re-evaluate _t().
+  //
+  // What deliberately STAYS English in FIL: standards ids (ISO 14224, SMRP),
+  // metric names (OEE / MTBF / MTTR), the criticality + discipline taxonomies,
+  // and DATA (machine names, counts, asset ids). Those are the platform's
+  // canonical vocabulary and read as English on a Filipino shop floor too --
+  // translating them would break recognition against every other surface.
+  window.WH_LANG = window.WH_LANG || (function(){ try { return localStorage.getItem('wh_lang') === 'fil' ? 'fil' : 'en'; } catch(_){ /* empty-catch-allow: localStorage blocked -> default to EN */ return 'en'; } })();
+  window._t = window._t || function _t(en, fil){ return (window.WH_LANG === 'fil' && fil) ? fil : en; };
+  window._anFIL = {
+    d30:'30 araw', d90:'90 araw', d180:'180 araw', d365:'1 taon',
+    refresh:'I-refresh', recompute:'Muling kalkulahin', pdfreport:'PDF na Ulat', send:'Ipadala',
+    assetrisk:'Panganib ng Asset', shiftbrain:'Shift Brain', networkview:'Network View',
+    lbloee:'OEE (karaniwan, bahagi)', lblmtbf:'Pinakamababang MTBF (bahagi)', lblpm:'PM compliance (30 araw)',
+    whatnext:'Ano ang susunod', showdetails:'Ipakita ang detalye',
+    ph1:'Ano ang nangyari',  ph1s:'Descriptive',
+    ph2:'Bakit ito nangyari', ph2s:'Diagnostic',
+    ph3:'Ano ang paparating', ph3s:'Predictive',
+    ph4:'Ano ang gagawin',    ph4s:'Prescriptive',
+    fcrit:'Kahalagahan', fdisc:'Disiplina', fall1:'Lahat', fall2:'Lahat',
+    rolework:'Teknisyan', rolesup:'Superbisor',
+    an_phases_heading:'Mga insight kada yugto',
+  };
+  window._anEnCap = null;
+  window.setLang = function setLang(l){
+    window.WH_LANG = (l === 'fil') ? 'fil' : 'en';
+    try { localStorage.setItem('wh_lang', window.WH_LANG); } catch(_){ /* empty-catch-allow: locale persistence is best-effort (private mode / blocked storage) */ }
+    var els = document.querySelectorAll('.page [data-i]');
+    // Capture the authored EN copy once, so switching back restores it verbatim.
+    if (!window._anEnCap) { window._anEnCap = {}; els.forEach(function(e){ window._anEnCap[e.dataset.i] = e.innerHTML; }); }
+    var dict = (window.WH_LANG === 'fil') ? window._anFIL : window._anEnCap;
+    els.forEach(function(e){ if (dict[e.dataset.i] != null) e.innerHTML = dict[e.dataset.i]; });
+    document.documentElement.lang = (window.WH_LANG === 'fil') ? 'fil' : 'en';
+    document.querySelectorAll('#an-lang button').forEach(function(b){
+      var on = b.dataset.lang === window.WH_LANG;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    _refreshSourceChip();
+    // Re-render the active phase so every _t() label re-evaluates (renders from
+    // _cache when warm, so this costs no extra fetch).
+    try { if (typeof setPhase === 'function' && _phase) setPhase(_phase); } catch(_){ /* empty-catch-allow: re-render is best-effort; a failure leaves the prior render intact */ }
+    try { document.dispatchEvent(new CustomEvent('wh-locale-change', { detail: window.WH_LANG })); } catch(_){ /* empty-catch-allow: locale-change event is advisory for listeners */ }
+  };
+  document.querySelectorAll('#an-lang button').forEach(function(b){
+    b.addEventListener('click', function(){ window.setLang(b.dataset.lang); });
+  });
+
   window.addEventListener('DOMContentLoaded', async () => {
     _refreshSourceChip();
+    // Sync-on-load: without this a returning FIL user gets EN statics next to
+    // FIL rendered strings (the mixed-locale bug caught on the home dashboard).
+    if (window.WH_LANG === 'fil') window.setLang('fil');
 
     // C4: restore identity from auth session on new device
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
     // Set default role based on HIVE_ROLE
     setRole(_role);
+    // G1 (FF1): canonical skeleton replaces the hand-rolled spinner block as the wait
+    // state while autoLoad() computes/hydrates (results-panel is fully re-rendered on load).
+    const _rp = document.getElementById('results-panel');
+    if (_rp && typeof whListSkeleton === 'function') whListSkeleton(_rp, 4);
     autoLoad();
 
     // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
@@ -2572,5 +2920,11 @@
 </script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

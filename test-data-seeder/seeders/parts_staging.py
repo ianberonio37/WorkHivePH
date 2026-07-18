@@ -66,7 +66,11 @@ def seed_parts_staging(client, log, ctx: dict) -> dict:
             "asset_name":    asset["asset_name"],
             "risk_score":    asset["risk_score"],
             "failure_mode":  "Repeat bearing failure pattern",
-            "parts":         json.dumps(parts),
+            # jsonb column: pass the list directly. json.dumps() double-encodes it into a
+            # jsonb *string* scalar (jsonb_typeof='string'), which the asset-hub / alert-hub
+            # consumers' Array.isArray() guard then reads as 0 parts. Match the producer
+            # (parts-staging-recommender writes `parts: picked` as an array).
+            "parts":         parts,
             "rationale":     (
                 f"Risk score {asset['risk_score']:.2f} on {asset['asset_name']}. "
                 f"{len(parts)} parts appear in 55%+ of past corrective fixes "

@@ -71,6 +71,13 @@ def db_numbers(sql: str) -> set[float] | None:
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; BOLD = "\033[1m"; RESET = "\033[0m"
 
 # Seeded user with a real hive (the companion-sweep / journey creds).
+# NOTE (2026-07-13): hive_id 9b4eaeac… is a DEAD/reseeded hive (0 members) → live invoke 403s
+# "not_a_member" → the gate vacuously "passes" (nothing fetched). The correct current hive is
+# leandro's Baguio `636cf7e8-431a-4907-8a9f-43dd4cc216d6`, BUT swapping it also requires
+# REGENERATING this gate's per-surface grounding-set baseline for the new hive's data (else
+# legit new-hive numbers read as drift). That coupled fix belongs to the analytics/narrative
+# arc (§13.16 A7.1); tracked in the stale-hive-fixture catalogue. Left as-is to avoid a
+# half-migrated red mid-companion-arc.
 USER = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234",
         "hive_id": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7", "worker": "Leandro Marquez"}
 

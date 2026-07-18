@@ -4,7 +4,7 @@
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
 //
-// AI_ASSET_VERSION: 2
+// AI_ASSET_VERSION: 4
 // C5 (Self-Improving Gate) — bump this integer whenever the model chain,
 // provider order, judge model, or any other content the eval gate scores
 // against changes. The ai-asset-versioning validator FAILs if the file
@@ -219,6 +219,13 @@ function parseRetryAfter(h: string | null): number | undefined {
  * user content when a response happened to contain `</think>` as a literal
  * (e.g. example text in user transcripts). Now: only strip when the
  * response clearly LOOKS like reasoning-model output.
+ *
+ * V5 (2026-07-13): some free-tier models narrate their PLAN as bare prose with
+ * NO <think> tags ("We need to respond as Zaniah, strategist, in English, short
+ * 1-3 sentences... The worker says:...") and often run out of tokens mid-plan,
+ * so no clean answer follows. voice_family_probe caught this leaking the persona
+ * scaffold verbatim into the companion reply. Case 3 detects that untagged leak
+ * with a STRONG two-part signature and returns "" so callAI falls to the next model.
  */
 export function stripReasoningBlocks(text: string): string {
   if (!text) return text;
@@ -235,6 +242,18 @@ export function stripReasoningBlocks(text: string): string {
       // Unclosed and starts with <think — no usable content remained.
       return "";
     }
+  }
+  // Case 3 — UNTAGGED reasoning-model leak. Fires ONLY when BOTH hold, so a real
+  // answer that merely discusses strategy can never trip it:
+  //   (a) the string STARTS with a first-person planning verb about RESPONDING, and
+  //   (b) it references internal instruction/persona scaffold no user answer contains.
+  // When both match, the reply IS scaffold (not an answer) -> "" -> caller tries next model.
+  const startsWithPlan =
+    /^\s*(?:okay,?\s*|so,?\s*|alright,?\s*|well,?\s*)?(?:we|i|let(?:'s| us| me))\b[^.!?\n]{0,60}?(?:\b(?:need(?:s)? to|should|must|will|have to|'ll|'re going to|going to|want to)\b[^.!?\n]{0,60}?)?\b(?:respond|reply|answer|say|be|act|write|give|frame|craft|address|produce|consider)\b/i;
+  const hasScaffoldMeta =
+    /\b(?:as\s+(?:zaniah|hezekiah)|as\s+the\s+(?:strategist|technician)|1\s*-\s*3\s+sentences|short\s+1-3|kpis?\s+verbatim|sisterly\s+ph\s+english|\bpersona\b|system\s+prompt|the\s+worker\s+(?:says|said)|snapshot\s+data|memory\s+block)\b/i;
+  if (startsWithPlan.test(out) && hasScaffoldMeta.test(out)) {
+    return "";
   }
   return out;
 }
@@ -262,9 +281,14 @@ export async function callAI(
     taskProfile?: string;
     sessionKey?: string;   // multi-turn affinity — pin this conversation to one model (~30min)
     faultInject?: FaultInject;  // LOCAL-ONLY test hook (W4); ignored in prod
+    /** Q6 chain-depth telemetry hook. Fired (best-effort) when a model serves, with the
+     *  winning model's index in the canonical PROVIDER_CHAIN (0=primary) + which pass.
+     *  Optional + fully isolated in try/catch — existing callers pass nothing and are
+     *  unaffected; a throwing hook can never break the answer. */
+    onServed?: (meta: { providerName: string; modelName: string; depth: number; pass: number }) => void;
   } = {}
 ): Promise<string> {
-  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile, sessionKey, faultInject } = options;
+  const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile, sessionKey, faultInject, onServed } = options;
 
   const messages = systemPrompt
     ? [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
@@ -284,7 +308,7 @@ export async function callAI(
 
   // One pass down a chain: returns the answer on the first success, or null if every entry
   // was skipped/failed (so the caller can run the P3 retry pass before degrading to "{}").
-  const attemptChain = async (chainArr: ProviderEntry[]): Promise<string | null> => {
+  const attemptChain = async (chainArr: ProviderEntry[], passNum: number): Promise<string | null> => {
     for (const entry of chainArr) {
       const apiKey = Deno.env.get(entry.envKey);
       if (!apiKey) continue;
@@ -367,6 +391,16 @@ export async function callAI(
             console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
             recordSlotSuccess(entry.provider);
             recordSlotSuccess(modelSlot);
+            // Q6 chain-depth telemetry: report the winning model's CANONICAL depth (its
+            // index in PROVIDER_CHAIN, 0=primary), not its position in the reordered pass —
+            // so "served deep" reliably means "primary providers exhausted / quality decaying".
+            // Best-effort: a throwing hook must never break the answer.
+            if (onServed) {
+              try {
+                const depth = PROVIDER_CHAIN.findIndex(e => e.provider === entry.provider && e.model === entry.model);
+                onServed({ providerName: entry.provider, modelName: entry.model, depth: depth < 0 ? 0 : depth, pass: passNum });
+              } catch { /* empty-catch-allow: telemetry must never break the answer path */ }
+            }
             // Pin this conversation to the model that just served it so the next
             // turn stays on the same model (no-op when sessionKey is absent).
             if (sessionKey) setStickyModel(sessionKey, entry.provider, entry.model);
@@ -387,8 +421,56 @@ export async function callAI(
     return null;
   };
 
+  // Sovereign local LLM (NATIVE_AI_ROADMAP.md #2b, V-axis): when a plant sets WH_LLM_URL to its own
+  // OpenAI-compatible endpoint (Ollama / llama.cpp / vLLM), try it FIRST so inference AND the worker's
+  // data stay in-plant. Env-gated + additive exactly like WH_ASR_URL / BGE_EMBED_URL / WH_TTS_URL:
+  // unset in production today, so this returns null and the free-tier chain below runs UNCHANGED. Fails
+  // OPEN (any non-2xx / empty / throw -> null -> the cloud chain serves), so a local-server outage or a
+  // model hiccup never dead-ends the worker (the "fallback-to-cloud hedge is the correct default" rule).
+  const tryLocalLLM = async (): Promise<string | null> => {
+    const base = (Deno.env.get("WH_LLM_URL") || "").replace(/\/+$/, "");
+    if (!base) return null;
+    const model = Deno.env.get("WH_LLM_MODEL") || "llama3.1";
+    const key = Deno.env.get("WH_LLM_API_KEY");
+    try {
+      const res = await fetch(`${base}/chat/completions`, {
+        method: "POST",
+        signal: AbortSignal.timeout(60000),
+        headers: {
+          "Content-Type": "application/json",
+          ...(key ? { "Authorization": `Bearer ${key}` } : {}),
+        },
+        body: JSON.stringify({
+          model, messages, temperature, max_tokens: maxTokens,
+          ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+        }),
+      });
+      if (!res.ok) {
+        console.warn(`[ai-chain] WH_LLM_URL ${res.status} (sovereign) falling back to cloud chain`);
+        return null;
+      }
+      const data = await res.json();
+      const content: string | undefined = data?.choices?.[0]?.message?.content;
+      const stripped = content ? stripReasoningBlocks(content) : "";
+      if (stripped) {
+        console.log(`[ai-chain] served by WH_LLM_URL (sovereign local) / ${model}`);
+        if (onServed) {
+          try { onServed({ providerName: "wh-llm-local", modelName: model, depth: 0, pass: 0 }); }
+          catch { /* empty-catch-allow: telemetry must never break the answer path */ }
+        }
+        return stripped;
+      }
+      return null;
+    } catch (err) {
+      console.warn(`[ai-chain] WH_LLM_URL threw: ${String(err).slice(0, 80)} falling back to cloud chain`);
+      return null;
+    }
+  };
+  const sovereign = await tryLocalLLM();
+  if (sovereign !== null) return sovereign;
+
   // Pass 1 — herd-spread chain (P1), sticky pin first.
-  const first = await attemptChain(applySticky(reorderChain(taskProfile, true)));
+  const first = await attemptChain(applySticky(reorderChain(taskProfile, true)), 1);
   if (first !== null) return first;
 
   // P3 (2026-06-14): one bounded jittered-retry pass before degrading to "{}". A concurrent
@@ -398,7 +480,7 @@ export async function callAI(
   // immediately, and capped at exactly one extra pass so a call can never hang.
   if (!(faultInject?.failAll)) {
     await new Promise((r) => setTimeout(r, 300 + Math.floor(Math.random() * 900)));
-    const second = await attemptChain(applySticky(reorderChain(taskProfile, true)));
+    const second = await attemptChain(applySticky(reorderChain(taskProfile, true)), 2);
     if (second !== null) return second;
   }
 
@@ -497,8 +579,14 @@ export async function callAIMultimodal(
       const data = await res.json();
       const content: string | undefined = data?.choices?.[0]?.message?.content;
       if (content) {
-        console.log(`[ai-chain:vision] served by ${entry.provider} / ${entry.model}`);
-        return stripReasoningBlocks(content);
+        const stripped = stripReasoningBlocks(content);
+        if (stripped) {
+          console.log(`[ai-chain:vision] served by ${entry.provider} / ${entry.model}`);
+          return stripped;
+        }
+        // Reasoning-only (tagged or untagged scaffold leak), no usable answer — try next.
+        console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} returned only reasoning — trying next`);
+        continue;
       }
       console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} returned empty content — trying next`);
     } catch (err) {

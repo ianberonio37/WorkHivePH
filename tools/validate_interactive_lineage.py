@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D22
 """
 validate_interactive_lineage.py  --  Phase F of the INTERACTIVE_LINEAGE_ROADMAP.
 

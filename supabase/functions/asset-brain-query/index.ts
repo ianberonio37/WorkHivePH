@@ -23,7 +23,7 @@
  * (getCorsHeaders dynamic, no static origin).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
 
 // contract-allow: natural-language asset query; passthrough to AI
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -86,38 +86,12 @@ Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"neighbor"|
 narration is a 1-2 sentence prose summary of the answer in your persona's voice (Phase 7 TTS picks the voice). Paraphrase only what's in the answer; quote any number or asset name verbatim.`;
 
 // ---------------------------------------------------------------------------
-// Rate limit gate
+// Rate limit gate — A5 (FULLSTACK_COMPONENT_LIBRARY Layer A, 2026-07-17): the local
+// checkAIRateLimit copy was a DIVERGED pre-day-ceiling twin of the canonical
+// _shared/rate-limit.ts version (no daily cap, no solo-mode, racy double-write).
+// Delegated to the canonical — same call site, richer protection.
 // ---------------------------------------------------------------------------
-
-async function checkAIRateLimit(
-  db: SupabaseClient,
-  hiveId: string,
-  limitPerHour: number,
-): Promise<{ allowed: boolean; remaining: number }> {
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
-
-  const { data } = await db
-    .from("ai_rate_limits")
-    .select("call_count, window_start")
-    .eq("hive_id", hiveId)
-    .maybeSingle();
-
-  if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
-      hive_id:      hiveId,
-      call_count:   1,
-      window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
-  }
-  if (data.call_count >= limitPerHour) {
-    return { allowed: false, remaining: 0 };
-  }
-  await db.from("ai_rate_limits")
-    .update({ call_count: data.call_count + 1 })
-    .eq("hive_id", hiveId);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
-}
+import { checkAIRateLimit } from "../_shared/rate-limit.ts";
 
 // ---------------------------------------------------------------------------
 // Retrieval lanes
@@ -464,7 +438,7 @@ function composeContext(
 // Handler
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("asset-brain-query", async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
   if (req.method === "OPTIONS") {
@@ -610,14 +584,8 @@ serve(async (req) => {
       asset:     { tag: graphRes.node.tag, name: graphRes.node.name },
     }, 200, corsHeaders);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // Inline JSON.stringify({ error: ... }) so the edge-contract validator can
-    // confirm the error shape via static scan. jsonResponse below preserves
-    // the same shape on every other failure path.
-    return new Response(
-      JSON.stringify({ error: "Internal error", detail: msg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "asset-brain-query", "asset_brain_query_error", err);
   }
 });
 

@@ -1,0 +1,216 @@
+---
+name: migration-catalog
+type: migration
+source: dir:supabase/migrations:351
+source_sha: 7c3ed4aa1cb18572
+last_verified: 2026-07-13
+supersedes: null
+---
+## migration · catalog (351 migrations)
+
+Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
+
+- `20260520000001_canonical_lineage_edges` — policies:canonical_lineage_edges_read · tables:canonical_lineage_edges
+- `20260520000002_get_oee_by_machine` — fns:get_oee_by_machine
+- `20260520000003_drop_phantom_columns_DRAFT` — tables:agent_memory,ai_quality_log,amc_briefings,anomaly_alerts,auth_session_events,avatar_animations
+- `20260520000004_drop_phantom_columns_safe` — tables:avatar_animations,avatar_state,best_practices,consulting_engagements,cross_hive_alerts,dialog_state
+- `20260520000005_asset_ideal_cycle_time` — tables:asset_nodes
+- `20260520000006_get_oee_by_machine_full` — fns:get_oee_by_machine
+- `20260520000007_drop_phantom_columns_auth_tier` — tables:auth_session_events,mfa_enrollments,sso_configs
+- `20260520000008_drop_phantom_columns_transient` — tables:ai_quality_log,anomaly_alerts,fallback_model_faq,kb_documents,offline_snapshot_cache,platform_feedback_votes
+- `20260520000009_drop_phantom_columns_seeder_only` — tables:amc_briefings,parts_staged_reservations,platform_feedback,project_items,sensor_readings,sensor_topic_map
+- `20260520000010_v_alert_truth` — (misc DDL/DML)
+- `20260520000011_v_amc_truth` — (misc DDL/DML)
+- `20260520000012_v_sensor_truth` — (misc DDL/DML)
+- `20260520000013_v_alert_truth_add_rule_id` — (misc DDL/DML)
+- `20260520000014_register_iec_60812` — (misc DDL/DML)
+- `20260520000015_canonical_view_allow_insurance_bridge` — (misc DDL/DML)
+- `20260520000016_register_canonical_standards_from_file` — tables:canonical_standards
+- `20260520000017_v_marketplace_listings_truth` — (misc DDL/DML)
+- `20260520000018_v_community_posts_truth` — (misc DDL/DML)
+- `20260520000019_v_hives_truth` — (misc DDL/DML)
+- `20260520000020_v_marketplace_inquiries_truth` — (misc DDL/DML)
+- `20260520000021_v_external_sync_truth` — (misc DDL/DML)
+- `20260520000022_v_inventory_transactions_truth` — (misc DDL/DML)
+- `20260520000023_v_marketplace_orders_truth` — (misc DDL/DML)
+- `20260520000024_v_project_items_progress_truth` — tables:project_items
+- `20260520000025_v_ai_reports_skill_badges_achievements_truth` — tables:achievement_definitions,adds
+- `20260520000026_persona_rename_hezekiah_zaniah` — tables:hives,worker_profiles
+- `20260520000027_security_definer_search_path_hardening` — (misc DDL/DML)
+- `20260521000001_fk_on_delete_hardening` — tables:parts_records,worker_achievements
+- `20260521120000_agentic_rag_traces` — policies:agentic_rag_traces_insert,agentic_rag_traces_read · tables:agentic_rag_traces
+- `20260521121000_canonical_period_summaries` — policies:cps_insert,cps_read,cps_update · tables:canonical_period_summaries
+- `20260521122000_agent_episodic_memory` — policies:aem_insert,aem_read,aem_update · tables:agent_episodic_memory
+- `20260521123000_unified_events` — policies:ue_insert,ue_read · tables:unified_events
+- `20260521124000_register_agentic_rag_tables` — tables:migration
+- `20260521125000_voice_companion_infra_tables` — policies:ai_audit_log_hive_insert,ai_audit_log_hive_select,ai_knowledge_gap_hive_all,ai_quality_escalation_hive_all,asset_watchlist_hive_all,before · tables:ai_audit_log,ai_cost_log,ai_knowledge_gap,ai_quality_escalation,asset_watchlist,companion_handoff
+- `20260521126000_fix_broken_quota_triggers` — (misc DDL/DML)
+- `20260521127000_unique_nulls_not_distinct_on_period_summaries` — tables:canonical_period_summaries
+- `20260526000001_p1_roadmap_substrate` — policies:ai_cache_service_all,ai_user_rl_service_all,wh_health_public_read,wh_health_service_all,wh_traces_hive_read,wh_traces_service_all · fns:ai_cache_bump,ai_cache_sweep_expired · tables:ai_cache,ai_user_rate_limits,wh_health_status,wh_traces
+- `20260530000000_unified_events_verified_state` — fns:unified_event_source_rank
+- `20260531000000_knowledge_graph_facts_dedup` — (misc DDL/DML)
+- `20260531000001_procedural_skill_matcher` — fns:match_procedural_memories
+- `20260531000002_agent_followups` — policies:followups_insert,followups_read,followups_update · tables:agent_followups
+- `20260601000000_v_asset_state_truth_meta_columns` — (misc DDL/DML)
+- `20260603000000_resume_builder` — policies:resume_documents_delete,resume_documents_insert,resume_documents_read,resume_documents_update,resume_versions_delete,resume_versions_insert · fns:resume_documents_touch_updated_at · triggers:trg_resume_documents_touch · tables:resume_documents,resume_versions
+- `20260606000000_get_hive_dashboard` — fns:get_hive_dashboard
+- `20260607000000_get_hive_board_dashboard` — fns:get_hive_board_dashboard
+- `20260607000001_get_hive_board_dashboard_phase2` — fns:get_hive_board_dashboard
+- `20260607000002_get_hive_board_dashboard_phase3` — fns:get_hive_board_dashboard
+- `20260607000003_definer_hive_membership_gates` — fns:compute_anomaly_signals,fetch_active_alerts,get_adoption_risk_current,get_hive_readiness_current,semantic_search_kb,semantic_search_kg_facts
+- `20260607000004_definer_revoke_service_role_only` — (misc DDL/DML)
+- `20260607000005_definer_hive_membership_gates_batch2` — fns:compute_adoption_risk,compute_hive_readiness,export_hive_data,store_memory_turn,update_dialog_state
+- `20260607000006_export_hive_data_service_role_only` — (misc DDL/DML)
+- `20260607000007_get_hive_dashboard_pm_overdue_unify` — fns:get_hive_dashboard
+- `20260609000001_readd_hive_readiness_audit_columns` — tables:hive_readiness_audit
+- `20260609000002_fix_community_post_xp_search_path` — fns:handle_community_post_xp
+- `20260609000003_fix_community_xp_helpers_search_path` — fns:handle_community_reaction_xp,increment_community_xp
+- `20260609000004_fix_schedule_item_v1_category_enum` — (misc DDL/DML)
+- `20260609000005_fix_readiness_blocker_summary` — fns:compute_hive_readiness
+- `20260609000006_ai_reply_feedback` — policies:ai_reply_feedback_insert,ai_reply_feedback_read · fns:enforce_ai_reply_feedback_daily_limit · triggers:trg_ai_reply_feedback_daily_limit · tables:ai_reply_feedback
+- `20260610000000_fix_pm_scope_frequency_days` — (misc DDL/DML)
+- `20260610000001_get_pm_compliance_smrp` — fns:get_pm_compliance_smrp
+- `20260610000002_v_marketplace_orders_truth_reviewed_at` — (misc DDL/DML)
+- `20260610000003_parts_spike_factor_nullable` — (misc DDL/DML)
+- `20260610000004_analytics_snapshots` — policies:analytics_snapshots_member_read · tables:analytics_snapshots
+- `20260610000005_retire_shift_handover_cron` — (misc DDL/DML)
+- `20260612000000_persona_knowledge` — fns:match_persona_knowledge · tables:persona_knowledge
+- `20260612000001_persona_knowledge_source_types` — tables:persona_knowledge
+- `20260613000000_embedding_cache` — tables:embedding_cache
+- `20260613000001_persona_knowledge_exact_search` — (misc DDL/DML)
+- `20260616000000_fix_marketplace_active_listings` — (misc DDL/DML)
+- `20260617000000_add_marketplace_disputes_description` — tables:marketplace_disputes
+- `20260618000000_fix_network_benchmarks_upsert` — tables:network_benchmarks
+- `20260619000000_revoke_compute_hive_readiness_authenticated` — (misc DDL/DML)
+- `20260620000000_fix_alert_rpc_definer_tenant_gate` — fns:acknowledge_alert,suppress_alert
+- `20260620000001_fix_definer_tenant_gate_class` — fns:compute_adoption_risk,compute_anomaly_signals,store_memory_turn
+- `20260620000002_rls_drop_legacy_open_group_a` — policies:allow_anon_all,anon,open
+- `20260620000003_rls_harden_hive_members` — policies:allow_anon_all,anon_delete_members,anon_select_members,anon_upsert_members,hive_members_read,hive_members_read_scoped · fns:user_hive_ids
+- `20260620000004_rls_harden_edge_only_tables` — policies:ai_user_rate_limits_own,ai_user_rl_service_all,allow_anon_all,parts_records_hive_rw,wh_traces_service_all
+- `20260620000005_rls_harden_hive_members_insert` — policies:anon_insert_members
+- `20260620000006_rls_enable_api_keys` — policies:api_keys_hive_rw · tables:api_keys
+- `20260620000007_rls_enable_project_family` — policies:if · tables:public
+- `20260620000008_rls_enable_remaining_hive_tables` — policies:if · tables:public
+- `20260620000009_rls_harden_personal_tables` — policies:allow_anon_all
+- `20260620000010_rls_personal_skill_matrix` — policies:allow_anon_all,skill_badges_read,skill_profiles_read
+- `20260620000011_rls_personal_worker_profiles` — policies:profiles,profiles_read_own · fns:check_username_available
+- `20260620000012_truth_views_security_invoker` — (misc DDL/DML)
+- `20260620000013_rls_harden_hive_members_insert_full` — policies:hive_members_insert · fns:hive_has_other_members
+- `20260620000014_rls_harden_hives` — policies:allow_anon_all,anon_select_hives,hives_open_read,hives_read,hives_read_member · fns:find_hive_by_code
+- `20260620000015_rls_personal_worker_achievements` — policies:ach_worker_read,allow_anon_all,worker_achievements_read · fns:user_hive_worker_names · tables:worker_achievements
+- `20260620000016_ai_retrieval_isolation` — fns:compute_hive_readiness,fetch_active_alerts,get_adoption_risk_current,get_hive_readiness_current,semantic_search_kb,semantic_search_kg_facts
+- `20260621000000_account_deactivation` — fns:deactivate_my_account · tables:hive_members,worker_profiles
+- `20260621000001_views_security_invoker_generalize` — (misc DDL/DML)
+- `20260621000002_login_attempt_lockout` — fns:check_login_lockout,clear_login_attempts,record_login_failure · tables:login_attempts
+- `20260621000003_platform_feedback_rls_harden` — policies:anon,feedback · fns:is_platform_admin
+- `20260621000004_realtime_publish_subscribed_tables` — tables:public
+- `20260622000000_fix_hive_members_update_recursion` — policies:hive_members_update · fns:user_supervisor_hive_ids
+- `20260622000001_fix_community_reply_xp_search_path` — fns:handle_community_reply_xp
+- `20260624000000_resilience_dedup_constraints` — (misc DDL/DML)
+- `20260624000001_resilience_inventory_deduct_atomic` — fns:inventory_deduct
+- `20260624000002_episodic_supersedes` — fns:match_procedural_memories · tables:agent_episodic_memory
+- `20260627000000_alert_dismissals` — policies:alert_dismissals_member_delete,alert_dismissals_member_read,alert_dismissals_member_update,alert_dismissals_member_write · tables:alert_dismissals
+- `20260629000000_realtime_publish_risk_schedule` — tables:public
+- `20260630000000_remove_stripe_free_marketplace` — tables:marketplace_orders,marketplace_sellers
+- `20260701000000_regate_match_procedural_memories` — fns:match_procedural_memories
+- `20260702000000_realign_display_count_chip_asset_hub` — (misc DDL/DML)
+- `20260702000001_slo_error_budget_rollup` — fns:slo_error_budget
+- `20260705000000_q0_logbook_quota_pilot` — fns:cap_logbook_text_fields,check_logbook_rate_limit · triggers:trg_logbook_rate_limit,trg_logbook_text_caps · tables:hive_quotas
+- `20260705000001_q2_high_write_daily_caps` — fns:check_daily_row_cap · triggers:trg_daily_cap_asset_nodes,trg_daily_cap_comm_posts,trg_daily_cap_comm_replies,trg_daily_cap_inv_items,trg_daily_cap_inv_tx,trg_daily_cap_pm_comp
+- `20260705000002_q3_server_text_caps` — fns:cap_asset_nodes_text,cap_inventory_items_text,cap_inventory_transactions_text,cap_marketplace_inquiries_text,cap_marketplace_listings_text,cap_marketplace_sellers_text · triggers:trg_text_caps_asset_nodes,trg_text_caps_inv_items,trg_text_caps_inv_tx,trg_text_caps_mkt_inquiries,trg_text_caps_mkt_listings,trg_text_caps_mkt_sellers
+- `20260705000003_q4_daily_ai_ceiling` — fns:cap_pdf_job_size · triggers:trg_cap_pdf_job_size,trg_daily_cap_pdf_jobs · tables:ai_rate_limits,ai_user_rate_limits
+- `20260705000004_full_write_surface_coverage` — fns:cap_engineering_calcs_text,cap_marketplace_saved_searches_text,cap_parts_staged_reservations_text,cap_project_change_orders_text,cap_project_items_text,cap_project_links_text · triggers:trg_daily_cap_eng_calcs,trg_daily_cap_fault_knowledge,trg_daily_cap_pm_assets,trg_daily_cap_pm_scope,trg_daily_cap_project_co,trg_daily_cap_project_items
+- `20260705000005_close_page_audit_gaps` — fns:cap_alert_dismissals_text,cap_community_reactions_text,cap_early_access_emails_text,cap_report_contacts_text · triggers:trg_daily_cap_alert_dismissals,trg_daily_cap_community_reactions,trg_daily_cap_early_access,trg_daily_cap_mkt_watchlist,trg_daily_cap_report_contacts,trg_text_caps_alert_dismissals
+- `20260705000006_q6_global_ai_budget` — fns:consume_ai_global_budget,record_ai_chain_depth · tables:ai_global_budget
+- `20260705000007_q1_enforce_cumulative_quota` — fns:check_hive_quota_ai_reports,check_hive_quota_community,check_hive_quota_inv_tx,check_hive_quota_logbook,check_hive_quota_pm_completions,seed_hive_quota_defaults · triggers:trg_hive_quota_ai_reports,trg_hive_quota_community_posts,trg_hive_quota_inv_tx,trg_hive_quota_logbook,trg_hive_quota_pm_completions,trg_seed_hive_quota_defaults · tables:against,hive_quotas
+- `20260705000008_q5b_retention_embedding_cache` — fns:prune_embedding_cache
+- `20260705000009_q5a_inline_image_guard` — fns:check_inline_image_size,photo_attach_stats · triggers:trg_inline_image_size_inventory,trg_inline_image_size_logbook
+- `20260706000001_marketplace_rls` — policies:mkt_admins_read,mkt_admins_write,mkt_disp_delete,mkt_disp_insert,mkt_disp_read,mkt_disp_update · fns:auth_worker_names,is_marketplace_admin · tables:marketplace_disputes,marketplace_inquiries,marketplace_listings,marketplace_orders,marketplace_platform_admins,marketplace_sellers
+- `20260706000002_marketplace_listings_realtime` — (misc DDL/DML)
+- `20260707000000_supervisor_approval_backstop` — fns:wh_guard_supervisor_approval · triggers:tg_guard_approval
+- `20260707000001_marketplace_watchlist_savedsearch_rls` — policies:mkt_saved_searches_owner_rw,mkt_watchlist_owner_rw · tables:marketplace_saved_searches,marketplace_watchlist
+- `20260707000002_inventory_logbook_approval_backstop` — fns:wh_guard_supervisor_approval · triggers:tg_guard_approval
+- `20260707000003_community_replies_auth_uid` — tables:community_replies
+- `20260707000004_achievement_xp_log_rls` — policies:ach_log_owner_read,ach_log_read · tables:achievement_xp_log
+- `20260707000005_fix_store_memory_turn_notnull` — fns:store_memory_turn · tables:agent_memory
+- `20260707000006_fix_delete_worker_data_audit_hive` — fns:delete_worker_data
+- `20260707000007_fix_hard_delete_expired_soft_deletes` — fns:hard_delete_expired_soft_deletes
+- `20260707000008_fix_agent_memory_read_leak` — policies:agent_memory_read
+- `20260707000009_fix_episodic_and_feedback_read_leak` — policies:aem_read,ai_reply_feedback_read
+- `20260708000000_engdesign_calcs_write_isolation` — policies:engineering_calcs_delete,engineering_calcs_insert,engineering_calcs_update,engineering_calcs_write
+- `20260708000001_inventory_ledger_reconcile_trigger` — fns:inventory_sync_balance_from_ledger · triggers:trg_inventory_sync_balance
+- `20260708000002_fault_knowledge_reembed_on_edit` — (misc DDL/DML)
+- `20260708000003_backfill_logbook_asset_node_link` — (misc DDL/DML)
+- `20260709000000_fix_daily_cap_uuid_ident` — fns:check_daily_row_cap
+- `20260710000000_get_oee_by_machine_good_total_quality` — fns:get_oee_by_machine
+- `20260710000001_integration_configs_supervisor_rls` — policies:integration_configs_hive_rw,integration_configs_supervisor_all
+- `20260710000002_external_sync_workhive_link` — tables:external_sync
+- `20260710000003_hive_board_security_hardening` — policies:anon_insert_hives,hive_audit_log_hive_rw,hive_audit_log_insert_member,hive_audit_log_select_supervisor,inventory_items_write · fns:wh_bind_audit_actor · triggers:wh_bind_audit_actor_trg
+- `20260710000004_find_hive_by_code_require_auth` — (misc DDL/DML)
+- `20260710000005_get_pm_compliance_smrp_weighted` — fns:get_pm_compliance_smrp
+- `20260711000000_community_xp_write_lockdown` — policies:community_xp_read,community_xp_write
+- `20260711000001_community_reputation_bridge` — fns:get_community_reputation
+- `20260711000002_community_marketplace_category` — tables:community_posts
+- `20260711000003_community_best_answer` — fns:set_community_best_answer · tables:community_replies
+- `20260711000004_community_xp_auth_uid` — fns:get_community_reputation_by_auth,increment_community_xp · tables:community_xp
+- `20260711000005_community_trade_peers` — fns:get_hive_trade_peers
+- `20260711000006_marketplace_grid_trust_badges` — fns:get_marketplace_trust_badges
+- `20260711000007_backfill_inquiry_seller_name` — (misc DDL/DML)
+- `20260712000000_marketplace_partsflow_bridge` — tables:marketplace_listings
+- `20260712000001_marketplace_trust_integrity` — policies:mkt_reviews_delete,mkt_reviews_insert,mkt_reviews_read,mkt_reviews_update · fns:guard_marketplace_seller_trust_columns,update_seller_rating,update_seller_tier · triggers:trg_guard_seller_trust · tables:marketplace_reviews
+- `20260712000002_marketplace_storage_lockdown` — policies:Anon,Authed,Owner
+- `20260712000003_marketplace_price_comps` — fns:get_marketplace_price_comps
+- `20260712000004_marketplace_rate_limit_null_hive` — fns:check_listing_rate
+- `20260712000005_marketplace_parts_for_my_assets` — fns:get_marketplace_parts_for_my_assets
+- `20260712000006_marketplace_saved_search_matches` — fns:get_saved_search_matches
+- `20260712000007_register_community_marketplace_canonical_sources` — (misc DDL/DML)
+- `20260712000008_v_community_reputation_truth_contract` — (misc DDL/DML)
+- `20260712000009_v_project_truth_maintenance_nature` — (misc DDL/DML)
+- `20260712000010_logbook_loto_permit` — tables:logbook
+- `20260712000011_inventory_txn_hive_scope_write_guard` — policies:inventory_transactions_write · fns:inventory_sync_balance_from_ledger · tables:inventory_transactions
+- `20260712000012_pm_hive_scope_write_guard` — policies:pm_assets_write,pm_completions_write,pm_scope_items_write
+- `20260712000013_intelligence_write_guard` — policies:asset_nodes_write,asset_risk_scores_delete_locked,asset_risk_scores_hive_rw,asset_risk_scores_insert_locked,asset_risk_scores_read,asset_risk_scores_update_locked
+- `20260712000014_arm_intelligence_crons` — (misc DDL/DML)
+- `20260712000015_skill_profiles_bola_fix` — policies:before,skill_profiles_write
+- `20260712000016_skill_exam_server_grading` — policies:skill_badges_write,skill_exam_attempts_write · fns:grade_skill_exam · tables:skill_exam_keys
+- `20260712000017_schedule_items_source_ref` — tables:schedule_items
+- `20260712000018_achievement_earn_dead_domains` — fns:trg_engcalc_achievement_xp,trg_hivemember_achievement_xp,trg_iron_worker_check,trg_shiftplan_achievement_xp · triggers:trg_engcalc_achievement,trg_hivemember_achievement,trg_iron_worker,trg_shiftplan_achievement
+- `20260712000019_close_xhive_write_holes_inventory_reportcontacts` — policies:inventory_items_write,report_contacts_write
+- `20260712000020_intra_hive_role_gate_apikeys_projectfamily` — policies:api_keys_hive_rw,api_keys_supervisor_all,project_roles_hive_rw,project_roles_supervisor_all · triggers:tg_guard_approval_project_co
+- `20260712000021_cmms_audit_log_append_only` — policies:cmms_audit_log_hive_rw,cmms_audit_log_insert,cmms_audit_log_select
+- `20260713000001_close_xhive_read_leak_truth_views` — policies:community_xp_read
+- `20260713000002_hive_membership_gates` — policies:hive_members_delete,hive_members_insert · fns:join_hive_by_code
+- `20260713000003_hive_defensive_hardening` — fns:bind_asset_nodes_submitter,cap_hive_members_text,cap_hives_text,wh_bind_audit_actor · triggers:trg_bind_submitter_asset_nodes,trg_text_caps_hive_members,trg_text_caps_hives
+- `20260713000004_logbook_attribution_pin` — fns:bind_logbook_submitter · triggers:trg_bind_submitter_logbook
+- `20260713000005_projects_attribution_pin` — fns:bind_projects_submitter · triggers:trg_bind_submitter_projects
+- `20260713000006_community_announcement_role_gate` — fns:guard_community_announcement · triggers:trg_guard_community_announcement
+- `20260713000007_community_attribution_pin` — policies:anon,community_replies_delete,community_replies_insert,community_replies_modify,community_replies_write,so · fns:bind_community_reaction_submitter,bind_community_reply_submitter · triggers:trg_bind_submitter_community_reaction,trg_bind_submitter_community_reply
+- `20260713000008_inventory_restock_rpc` — fns:inventory_restock
+- `20260713000009_marketplace_listing_trust_from_canonical` — (misc DDL/DML)
+- `20260713000010_pm_attribution_pin` — fns:bind_pm_asset_submitter,bind_pm_completion_submitter · triggers:trg_bind_submitter_pm_asset,trg_bind_submitter_pm_completion
+- `20260713000011_post_inventory_attribution_pin` — fns:bind_community_post_submitter,bind_inventory_item_submitter · triggers:trg_bind_submitter_community_post,trg_bind_submitter_inventory_item
+- `20260713000012_calc_parts_voice_attribution_pin` — fns:bind_engineering_calc_submitter,bind_parts_record_submitter,bind_voice_journal_submitter · triggers:trg_bind_submitter_engineering_calc,trg_bind_submitter_parts_record,trg_bind_submitter_voice_journal
+- `20260713000013_index_unindexed_cascade_fks` — (misc DDL/DML)
+- `20260717000001_platform_feedback_attribution_pin` — fns:bind_platform_feedback_submitter · triggers:trg_bind_platform_feedback_submitter
+- `20260717000002_analytics_events_attribution_pin` — fns:bind_analytics_events_submitter · triggers:trg_bind_analytics_events_submitter
+- `20260717000003_community_reputation_membership_or_seller_gate` — fns:get_community_reputation,get_community_reputation_by_auth
+- `20260717000004_marketplace_sellers_authuid_hardening` — fns:get_seller_community_reputation
+- `20260717000005_pm_assets_updated_at_oc` — triggers:tg_pm_assets_touch_updated · tables:pm_assets
+- `20260717000006_marketplace_disputes_updated_at` — triggers:tg_marketplace_disputes_touch_updated · tables:marketplace_disputes
+- `20260717000007_anomaly_signals_forward_status` — fns:anomaly_signals_forward_only_status · triggers:tg_anomaly_signals_forward_status
+- `20260717000008_integration_configs_updated_at_oc` — triggers:tg_integration_configs_touch_updated · tables:integration_configs
+- `20260717000009_shift_plans_forward_status` — fns:shift_plans_forward_only_status · triggers:tg_shift_plans_forward_status
+- `20260717000010_projects_bind_worker_name` — fns:bind_projects_submitter
+- `20260717000011_worker_name_pin_sweep` — fns:bind_worker_name_from_hive · triggers:tg_bind_wname_fault_knowledge,tg_bind_wname_marketplace_sellers,tg_bind_wname_pm_knowledge,tg_bind_wname_project_roles,tg_bind_wname_shared_voice_notes,tg_bind_wname_skill_knowledge
+- `20260717000012_community_posts_updated_at_oc` — triggers:tg_touch_community_posts · tables:community_posts
+- `20260717000013_platform_feedback_updated_at_oc` — triggers:tg_touch_platform_feedback · tables:platform_feedback
+- `20260717000014_alert_attribution_pin` — fns:bind_alert_dismissal_actor,bind_anomaly_signal_attribution · triggers:tg_bind_alert_dismissal_actor,tg_bind_anomaly_signal_attribution
+- `20260717000015_attribution_pin_sweep` — fns:bind_acknowledged_by_from_hive,bind_approved_by_from_hive,bind_assigned_by_from_hive,bind_reviewed_by_from_hive · triggers:tg_bind_acknowledged_by,tg_bind_approved_by,tg_bind_assigned_by,tg_bind_reviewed_by
+- `20260717000016_skill_profiles_bind_worker_name` — fns:bind_skill_profile_worker_name · triggers:tg_bind_skill_profile_worker_name
+- `20260717000017_community_posts_truth_add_updated_at` — (misc DDL/DML)
+- `20260718000001_ops_artifact_metrics` — tables:ops_artifact_metrics
+- `20260718000002_register_ops_seller_canonical_sources` — (misc DDL/DML)
+
+(showing last 200)
+
+Links: [[project_platform_knowledge_substrate]]

@@ -5,32 +5,30 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ## Summary
 
-- Calm-opted-in pages: **15**
-- Fully compliant pages (0 drift + 0 gap): **13** (86%)
-- Canonical reads (✅): **42**
+- Calm-opted-in pages: **13**
+- Fully compliant pages (0 drift + 0 gap): **10** (76%)
+- Canonical reads (✅): **44**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **2**
+- Gap reads (❌ no wrapper exists yet): **3**
 - Allowed reads (legitimate raw): **50**
-- Truth views in registry: **39**
+- Truth views in registry: **40**
 
 ## Per-page conformance
 
 | Page | Canonical | Drift | Gap | Allowed | Chip? | Compliant |
 |---|---:|---:|---:|---:|:---:|:---:|
 | `achievements.html` | 2 | 0 | 0 | 1 | ✓ | ✅ |
-| `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | — | ✅ |
+| `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
 | `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
 | `alert-hub.html` | 5 | 0 | 0 | 6 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 1 | 0 | ✓ | ❌ |
 | `asset-hub.html` | 10 | 0 | 0 | 12 | ✓ | ✅ |
-| `dayplanner.html` | 1 | 0 | 0 | 2 | ✓ | ✅ |
-| `founder-console.html` | 2 | 0 | 0 | 5 | ✓ | ✅ |
+| `dayplanner.html` | 2 | 0 | 0 | 2 | ✓ | ✅ |
+| `founder-console.html` | 4 | 0 | 1 | 6 | ✓ | ❌ |
 | `hive.html` | 10 | 0 | 0 | 9 | ✓ | ✅ |
 | `index.html` | 9 | 0 | 0 | 4 | ✓ | ✅ |
 | `ph-intelligence.html` | 0 | 0 | 0 | 2 | — | ✅ |
 | `plant-connections.html` | 1 | 0 | 0 | 5 | ✓ | ✅ |
-| `platform-health.html` | 0 | 0 | 0 | 1 | — | ✅ |
-| `predictive.html` | 1 | 0 | 0 | 0 | ✓ | ✅ |
 | `shift-brain.html` | 1 | 0 | 0 | 1 | ✓ | ✅ |
 
 ## Top GAP tables (no `v_*_truth` exists — next-build queue)
@@ -39,6 +37,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 |---|---:|---|
 | `ai_reply_feedback` | 1 | `v_ai_reply_feedback_truth` (suggested) |
 | `analytics_snapshots` | 1 | `v_analytics_snapshot_truth` (suggested) |
+| `marketplace_listings` | 1 | `v_marketplace_listing_truth` (suggested) |
 
 ## Top DRIFT tables (wrapper exists, pages still reading raw)
 
@@ -77,13 +76,14 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `dayplanner.html` — ✅ compliant
 
-**Canonical** (1): `v_logbook_truth`
+**Canonical** (2): `v_logbook_truth`, `v_pm_scope_items_truth`
 **Allowed raw** (2): `logbook`, `schedule_items`
 
-### `founder-console.html` — ✅ compliant
+### `founder-console.html` — ❌ not compliant
 
-**Canonical** (2): `v_hive_readiness_truth`, `v_marketplace_orders_truth`
-**Allowed raw** (5): `ai_cost_log`, `analytics_events`, `hive_audit_log`, `marketplace_disputes`, `platform_feedback`
+**Canonical** (4): `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`
+**Gap** (1): `marketplace_listings`
+**Allowed raw** (6): `ai_cost_log`, `analytics_events`, `hive_audit_log`, `marketplace_disputes`, `marketplace_sellers`, `platform_feedback`
 
 ### `hive.html` — ✅ compliant
 
@@ -103,14 +103,6 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 **Canonical** (1): `v_external_sync_truth`
 **Allowed raw** (5): `gateway_audit_log`, `hive_retention_config`, `integration_configs`, `sensor_topic_map`, `sso_configs`
-
-### `platform-health.html` — ✅ compliant
-
-**Allowed raw** (1): `marketplace_platform_admins`
-
-### `predictive.html` — ✅ compliant
-
-**Canonical** (1): `v_risk_truth`
 
 ### `shift-brain.html` — ✅ compliant
 

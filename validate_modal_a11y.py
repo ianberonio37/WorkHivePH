@@ -53,7 +53,10 @@ SKIP_RE = re.compile(r"(\.backup\d*\.html$|-test\.html$|index-v\d|index-hive-tes
 _DIV_OPEN = re.compile(r"<div\b[^>]*>", re.IGNORECASE)
 
 # CSS classes whose rule is a full-screen overlay (position:fixed; inset:0).
-_OVERLAY_CLASS_TOKENS = ("modal-overlay", "sheet-overlay", "drawer-overlay", "dialog-overlay")
+# 2026-07-06 (deep-walk dim 8): added "modal-bg" — project-manager's 8 modals are
+# <div class="modal-bg"> whose full-bleed comes from a CSS `.modal-bg` rule (not inline
+# nor a *-overlay class), so they evaded this ratchet entirely (scope gap the sweep found).
+_OVERLAY_CLASS_TOKENS = ("modal-overlay", "sheet-overlay", "drawer-overlay", "dialog-overlay", "modal-bg")
 # id/class substrings that mark an element as a dialog/sheet (needs a name + a11y bar).
 _DIALOG_TOKENS = ("modal", "sheet", "dialog", "drawer")
 
@@ -87,16 +90,34 @@ def _is_a11y_compliant(tag: str) -> bool:
     return ('role="dialog"' in tag) and ("aria-modal" in tag)
 
 
+def _js_covered_classes(text: str) -> set:
+    """Classes on which the page programmatically sets role="dialog" (a valid, DRY a11y
+    pattern: `querySelectorAll('.cls').forEach(el => el.setAttribute('role','dialog'))` +
+    aria-modal). project-manager sets the dialog contract on ALL `.modal-bg` this way rather
+    than repeating it inline on 8 divs. Only counts a class if BOTH role=dialog AND aria-modal
+    are set via setAttribute somewhere on the page."""
+    if not (re.search(r"setAttribute\(\s*['\"]role['\"]\s*,\s*['\"]dialog['\"]", text)
+            and re.search(r"setAttribute\(\s*['\"]aria-modal['\"]\s*,\s*['\"]true['\"]", text)):
+        return set()
+    return {m.group(1).lower() for m in re.finditer(r"querySelectorAll\(\s*['\"]\.([a-z0-9_-]+)['\"]\s*\)", text)}
+
+
 def scan_page(path: Path) -> dict:
     text = path.read_text(encoding="utf-8", errors="replace")
+    js_covered = _js_covered_classes(text)
     overlays, noncompliant = 0, []
     for tag in _DIV_OPEN.findall(text):
         if not _is_modal_overlay(tag):
             continue
         overlays += 1
-        if not _is_a11y_compliant(tag):
-            mid = re.search(r'id="([^"]*)"', tag)
-            noncompliant.append(mid.group(1) if mid else "(class-only modal)")
+        if _is_a11y_compliant(tag):
+            continue
+        m_cls = re.search(r'class="([^"]*)"', tag)
+        clsv = m_cls.group(1).lower().split() if m_cls else []
+        if any(c in js_covered for c in clsv):   # role/aria set on this class via JS
+            continue
+        mid = re.search(r'id="([^"]*)"', tag)
+        noncompliant.append(mid.group(1) if mid else "(class-only modal)")
     return {"overlays": overlays, "noncompliant": noncompliant}
 
 

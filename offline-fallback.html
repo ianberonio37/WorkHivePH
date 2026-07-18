@@ -16,6 +16,11 @@
     * { box-sizing: border-box; }
     body {
       margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      /* DELIBERATE system stack -- do NOT change to var(--wh-font). This page renders when
+         the network is DOWN, and sw.js serves font requests network-first with a 503
+         fallback, so Poppins is unavailable by definition here. Declaring var(--wh-font)
+         would make the rubric PASS while rendering this exact fallback anyway: a false
+         100. A webfont-free page is correct offline. (rubric S1 exception, 2026-07-15) */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #0f1115; color: #e7e9ee; padding: 24px;
       padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
@@ -34,11 +39,16 @@
     }
     a.surface:hover, a.surface:focus-visible { background: #232733; outline: 2px solid #f59e0b; outline-offset: 2px; }
     button.retry {
-      margin-top: 18px; padding: 12px 20px; min-height: 44px; border-radius: 10px; cursor: pointer;
+      margin-top: 18px; padding: 12px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); cursor: pointer;
       background: #f59e0b; color: #1a1205; border: 0; font-weight: 700; font-size: .95rem;
     }
     .hint { font-size: .8rem; color: #6b7280; margin-top: 16px; }
   </style>
+  <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
+       token source this page cannot CONFORM to the design system even in principle -- the
+       rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
+       render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
+  <link rel="stylesheet" href="tokens.css">
 </head>
 <body>
   <main class="card">
@@ -54,6 +64,7 @@
     <button class="retry" type="button" onclick="location.reload()">Try again</button>
     <p class="hint" id="net-hint">Waiting for a connection…</p>
   </main>
+  <script src="utils.js"></script>
   <script>
     // Auto-reload the moment the device reports it's back online.
     window.addEventListener('online', () => location.reload());

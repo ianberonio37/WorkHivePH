@@ -8,9 +8,7 @@ hammered (failing fast with a clear "temporarily unavailable") instead of 502-in
 every attempt and burning quota/latency.
 
 This gate asserts each live external-dependency fn imports provider-health and uses
-the breaker (isSlotBlocked pre-check + recordSlotFailure/recordSlotSuccess). The
-marketplace Stripe fns are EXCLUDED — they are vestigial (free-platform decision,
-pending the REMOVE-vs-keep fork), so requiring a breaker there would gild dead code.
+the breaker (isSlotBlocked pre-check + recordSlotFailure/recordSlotSuccess).
 
 Exit 0 = live external deps circuit-broken; 1 = one hammers without backoff. Stdlib, $0.
 """

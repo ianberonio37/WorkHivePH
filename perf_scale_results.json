@@ -2943,8 +2943,8 @@
         "B": {
           "applicable": true,
           "status": "pass",
-          "why": "generative token use bounded by the schedule, not per-user fan-out \u2192 free-tier-safe",
-          "measured": "generative AI fn, SERVICE/CRON-only (user JWT 403s): volume bounded by a fixed pg_cron schedule, not user activity"
+          "why": "generative token use bounded by the in-fn rate-limiter (50/hr default) \u2192 free-tier-safe at scale",
+          "measured": "generative AI fn, RATE-GATED (checkAIRateLimit/User/Solo): token+call use capped per hive/hour, within budget::llm-tokens"
         }
       }
     },

@@ -259,5 +259,12 @@ export function renderFactSheet(out: G3ModelOut, sheet: OpsFactSheet): RenderRes
   });
   if (unknown) return { ok: false, prose: filled, reason: "unknown-id" };
   if (_ANY_FACT_LEFT_RE.test(filled)) return { ok: false, prose: filled, reason: "leftover-placeholder" };
-  return { ok: true, prose: filled.replace(/\s+/g, " ").trim() };
+  // A fact's `display` already carries its unit ("88%", "10.1 hours"). The model often ALSO writes
+  // the unit right after the {{FACT}} slot ("...is {{FACT}}%" / "...{{FACT}} hours"), yielding a
+  // doubled unit after slot-fill ("88%%", "10.1 hours hours"). Deterministic post-pass collapses it
+  // (the 8B won't reliably avoid it — same why-deterministic reasoning as the G1 numeric strip).
+  let out2 = filled
+    .replace(/%%+/g, "%")                                            // "88%%" -> "88%"
+    .replace(/\b(hours?|hrs?|days?|mm\/s|mm|°c|c|minutes?|mins?)\s+\1\b/gi, "$1"); // "10.1 hours hours" -> "10.1 hours"
+  return { ok: true, prose: out2.replace(/\s+/g, " ").trim() };
 }

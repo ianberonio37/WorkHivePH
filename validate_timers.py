@@ -68,9 +68,15 @@ LIVE_PAGES = [
     "session-timeout.js",
     # Founder Console — uses setInterval for the Auto-Refresh dropdown
     "founder-console.html",
+    "platform-actions.html",
     "agentic-rag-observability.html",  # Phase 8 placeholder — reads agentic_rag_traces
     # voice-handler T144 presence heartbeat + T135 health-check ping use setInterval
     "voice-handler.js",
+    # offline-queue.js startAutoSync() runs a periodic drain poll (Arc S D-002);
+    # utils.js whPoll() is the realtime-replacement polling helper. Both use
+    # setInterval, so register here to enforce timer hygiene on them.
+    "offline-queue.js",
+    "utils.js",
 ]
 
 # Event types where spawning intervals is dangerous (fires repeatedly)

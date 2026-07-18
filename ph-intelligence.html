@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/ph-intelligence.html" />
   <link rel="manifest" href="manifest.json" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
@@ -55,7 +55,7 @@
 
     /* Failure modes */
     .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .fm-rank { font-size: .65rem; font-weight: 800; color: rgba(255,255,255,0.2); width: 20px; flex-shrink: 0; }
+    .fm-rank { font-size: .65rem; font-weight: 800; color: rgba(255,255,255,0.62); width: 20px; flex-shrink: 0; }
     .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
     .fm-bar-bg { width: 80px; background: rgba(255,255,255,0.05); border-radius: 999px; height: 4px; flex-shrink: 0; }
     .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
@@ -92,7 +92,7 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #ph-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #ph-summary-details.open { display:block; }
@@ -110,9 +110,14 @@
   <!-- Hero -->
   <div class="hero">
     <div class="hero-badge" id="report-period-badge">Loading...</div>
-    <h1>Philippine Industrial<br>Maintenance Intelligence</h1>
+    <h1 translate="no">Philippine Industrial<br>Maintenance Intelligence</h1><!-- publication name: EN by design -->
     <p>Anonymized benchmarking data from manufacturing plants across the Philippines using WorkHive. Published monthly.</p>
   </div>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
+</details>
+<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">Updated monthly &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
@@ -130,22 +135,22 @@
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="ph-card-plants" data-rag-tile="ph-intelligence:plants_in_network" data-rag-label="Plants in network">
-        <div class="sc-label">Plants in network</div>
+        <h2 class="sc-label" style="margin:0;">Plants in network</h2>
         <div class="sc-hero" id="ph-plants-hero">0</div>
         <div class="sc-sub" id="ph-plants-sub">Loading...</div>
-        <span class="sc-tag" id="ph-plants-tag">—</span>
+        <span class="sc-tag" id="ph-plants-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="ph-card-cause" data-rag-tile="ph-intelligence:top_failure_cause" data-rag-label="Top failure cause">
-        <div class="sc-label">Top failure cause</div>
-        <div class="sc-hero" id="ph-cause-hero">—</div>
+        <h2 class="sc-label" style="margin:0;">Top failure cause</h2>
+        <div class="sc-hero" id="ph-cause-hero">-</div>
         <div class="sc-sub" id="ph-cause-sub">Loading...</div>
-        <span class="sc-tag" id="ph-cause-tag">—</span>
+        <span class="sc-tag" id="ph-cause-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="ph-card-fresh" data-rag-tile="ph-intelligence:report_freshness" data-rag-label="Report freshness">
-        <div class="sc-label">Report freshness</div>
-        <div class="sc-hero" id="ph-fresh-hero">—</div>
+        <h2 class="sc-label" style="margin:0;">Report freshness</h2>
+        <div class="sc-hero" id="ph-fresh-hero">-</div>
         <div class="sc-sub" id="ph-fresh-sub">Loading...</div>
-        <span class="sc-tag" id="ph-fresh-tag">—</span>
+        <span class="sc-tag" id="ph-fresh-tag">-</span>
       </div>
     </div>
     <div class="action-card">
@@ -165,7 +170,7 @@
         <li><strong>Report freshness</strong>: days since the report was generated (refreshes monthly).</li>
         <li><strong>Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
     </div>
 
     <!-- Key stats -->
@@ -239,7 +244,10 @@
   <div id="no-report-state" class="card hidden" style="text-align:center; padding:32px;">
     <p style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
     <p style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports are generated monthly once enough hives are contributing data.</p>
-    <button class="btn-gold" onclick="generateReport()">Generate Now</button>
+    <button class="btn-gold" onclick="generateReport()" data-i="generatenow">Generate Now</button>
+    <!-- FCh3: the report BODY is an EN publication by design (masthead translate="no");
+         the CTA is the translatable UI chrome. -->
+    <script>window.WH_FIL_PAGE={generatenow:'I-generate Ngayon'};</script>
   </div>
 
 </div>
@@ -260,22 +268,30 @@
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
       restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
     }
+    // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
+    if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
   let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
 
   // Phase 0.3 of STRATEGIC_ROADMAP — PH Intelligence gates at Stair 3.
   // Peer benchmarks need N>=5 hives in segment AND 30+ days of your own data.
-  (async function maturityGateCheck() {
-    if (!HIVE_ID || !window.checkMaturityGate || !window.renderMaturityHonestEmpty) return;
+  // Returns true if the maturity gate blocked the page (and replaced <main> with the
+  // LOCKED panel). The caller MUST await this before loading the report — otherwise the
+  // async gate-replace races the async report render and the render fns crash on the
+  // now-removed report DOM (report-period-badge / your-plant-card / etc.).
+  async function maturityGateCheck() {
+    if (!HIVE_ID || !window.checkMaturityGate || !window.renderMaturityHonestEmpty) return false;
     const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
     if (gate.blocked) {
       const main = document.querySelector('main') || document.body;
       window.renderMaturityHonestEmpty(main, gate, {
         pageName: 'PH Intelligence',
-        why: 'Peer benchmarking requires both: at least 5 anonymous hives in your industry segment (the N>=5 privacy guard) AND 30+ days of your own logbook history. Showing benchmarks before either threshold is met would compare your plant to a sample too small to mean anything. WorkHive refuses to fake the comparison.',
-        alternateSuggestion: 'use the Analytics Engine descriptive phase (MTBF/MTTR/OEE on your own data) which works at any stair. Cross-hive benchmarking activates the moment both N>=5 + 30-day thresholds are crossed.',
+        why: 'Peer benchmarking needs two things. First, at least 5 anonymous hives in your segment (the privacy guard). Second, 30+ days of your own logbook history. Hit both and this page fills with your segment benchmarks.',
+        alternateSuggestion: 'use the Analytics Engine on your own data (MTBF, MTTR, OEE). It works at any stair. Peer benchmarks unlock when you cross both thresholds.',
       });
+      return true;
     }
-  })();
+    return false;
+  }
 
   async function loadReport() {
     // Gate-aware early-out: if the maturity gate already replaced <main>'s
@@ -285,6 +301,11 @@
     // crashed on the empty-state branch — pageerror surfaced in smoke.
     const loading = document.getElementById('loading-state');
     if (!loading) return;
+
+    // G1 (FF1): canonical skeleton replaces the text-only wait state while the report
+    // query is in flight (#report-content stays hidden until load, so this card IS the
+    // visible loading surface — a skeleton inside the hidden content would show nothing).
+    if (typeof whListSkeleton === 'function') whListSkeleton(loading, 3);
 
     let data, error;
     try {
@@ -298,7 +319,7 @@
       // E2 consistent states: a failed fetch surfaces a toast, distinct from the
       // no-report empty state handled below.
       console.warn('ph-intelligence load failed:', err.message || err);
-      if (typeof showToast === 'function') showToast('Couldn’t load PH Intelligence — please retry.');
+      if (typeof showToast === 'function') showToast('Couldn’t load PH Intelligence. Please retry.');
       error = err;
     }
 
@@ -342,13 +363,13 @@
       plants === 0 ? 'grey' : plants >= 5 ? 'green' : 'amber'
     );
     if (!topCause) {
-      setCard('cause', '—', 'No failure cause data this period', 'NO DATA', 'grey');
+      setCard('cause', '-', 'No failure cause data this period', 'NO DATA', 'grey');
     } else {
       const short = topCause.length > 32 ? topCause.slice(0, 30) + '…' : topCause;
       setCard('cause', short, `${topCount} occurrences across the network`, 'TOP RANK', 'amber');
     }
     if (days == null) {
-      setCard('fresh', '—', 'No report generated yet', 'NO DATA', 'grey');
+      setCard('fresh', '-', 'No report generated yet', 'NO DATA', 'grey');
     } else {
       setCard('fresh',
         `${days}d`,
@@ -364,11 +385,11 @@
       sub  = 'Reports generate monthly once 3+ plants have opted into anonymised data sharing.';
     } else if (plants < 3 || (days != null && days > 90)) {
       tone = 'watch'; label = 'Report is thin or aging';
-      sub  = plants < 3 ? `Only ${plants} plant${plants === 1 ? '' : 's'} contributing — patterns are noisy at this scale.`
-                        : `Report is ${days} days old — next monthly refresh due soon.`;
+      sub  = plants < 3 ? `Only ${plants} plant${plants === 1 ? '' : 's'} contributing, so patterns are noisy at this scale.`
+                        : `Report is ${days} days old; next monthly refresh due soon.`;
     } else {
       tone = 'healthy'; label = `${plants}-plant report${days != null ? ', ' + days + 'd old' : ''}`;
-      sub  = topCause ? `Top failure cause across the network: ${topCause}.` : 'Network in healthy state — explore by category below.';
+      sub  = topCause ? `Top failure cause across the network: ${topCause}.` : 'Network in healthy state. Explore by category below.';
     }
     const vBox = document.getElementById('ph-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -380,13 +401,13 @@
     if (actBox) {
       let text;
       if (plants === 0) {
-        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing — once 3+ plants contribute, monthly benchmarks unlock.';
+        text = 'No regional report yet. Encourage other supervisors in your industry to opt into anonymised data sharing. Once 3+ plants contribute, monthly benchmarks unlock.';
       } else if (plants < 3) {
-        text = `Only ${plants} plant${plants === 1 ? '' : 's'} contributing. Benchmark numbers below are directional only — wait for the network to grow before using them in decisions.`;
+        text = `Only ${plants} plant${plants === 1 ? '' : 's'} contributing. Benchmark numbers below are directional only: wait for the network to grow before using them in decisions.`;
       } else if (days != null && days > 90) {
-        text = `Report is ${days} days old. Either the cron has stopped or the network is dormant — flag the platform admin if this persists.`;
+        text = `Report is ${days} days old. Either the cron has stopped or the network is dormant, so flag the platform admin if this persists.`;
       } else if (topCause) {
-        text = `Top failure cause this period is "${topCause}". Cross-check against your own logbook — if your plant shows the same pattern, that\'s where to focus your next PM cycle.`;
+        text = `Top failure cause this period is "${topCause}". Cross-check against your own logbook: if your plant shows the same pattern, that\'s where to focus your next PM cycle.`;
       } else {
         text = 'Network is healthy. Scroll the rankings + failure modes below for category-level comparisons against your plant.';
       }
@@ -395,11 +416,16 @@
   }
 
   function renderReport(data) {
+    // Maturity-gated / no-report states swap the report scaffold for a LOCKED panel,
+    // so #report-period-badge (and the rest of the report DOM) can be absent here.
+    // Bail cleanly instead of throwing "Cannot set properties of null" on line 402.
+    const badgeEl = document.getElementById('report-period-badge');
+    if (!badgeEl) return;
     const r  = data.report_json  || {};
     const n  = data.narrative    || {};
     const periodLabel = data.period ? 'Report: ' + data.period : 'Latest Report';
 
-    document.getElementById('report-period-badge').textContent = periodLabel;
+    badgeEl.textContent = periodLabel;
     document.getElementById('report-content').classList.remove('hidden');
 
     // Plain-Read summary fires before the rest so cards are populated first.
@@ -408,7 +434,7 @@
     // Stats
     document.getElementById('stats-row')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = [
       { n: data.hive_count    || 0, l: 'Plants' },
-      { n: (data.wo_count || 0).toLocaleString(), l: 'Work Orders' },
+      { n: whFmtNum(data.wo_count || 0), l: 'Work Orders' },
       { n: data.equipment_count || 0, l: 'Equipment' },
       { n: (r.summary?.period_days || 90) + 'd', l: 'Period' },
     ].map(s => `<div class="stat-chip"><span class="sn">${s.n}</span><span class="sl">${s.l}</span></div>`).join('');
@@ -429,7 +455,7 @@
         <div class="mtbf-bar-bg"><div class="mtbf-bar-fill" style="width:${pct}%;"></div></div>
         <div class="mtbf-val">${b.avg_mtbf_days}d</div>
       </div>`;
-    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No benchmark data yet — available once 3+ plants contribute data.</p>';
+    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No benchmark data yet: available once 3+ plants contribute data.</p>';
 
     // Failure modes
     const modes = r.failure_modes || [];
@@ -513,7 +539,12 @@
   // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
   if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
-  loadReport();
+  // Gate FIRST, then load the report only if not blocked — sequencing the two async
+  // flows eliminates the DOM-replace race that crashed renderReport / loadYourPlantCompare.
+  (async function initPhIntelligence() {
+    const blocked = await maturityGateCheck();
+    if (!blocked) loadReport();
+  })();
 
   function showToast(msg, dur = 3000) {
     let t = document.getElementById('toast');
@@ -529,13 +560,13 @@
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
-</main>
 
-<!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
+</main>
+<!-- Calm Dashboard Contract footer moved INSIDE main (A3: the lens roots at main/.page; a page-owned disclosure outside it was invisible to the ruler AND semantically outside the page's landmark) -->
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;
@@ -545,6 +576,12 @@
 </script>
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast (already targets #toast) announces here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>
 

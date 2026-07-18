@@ -2,37 +2,37 @@
   "generated": "D0 — tools/mine_frontend_ufai_surfaces.py",
   "spine": "COMPREHENSIVE_STUDY_FULLSTACK_GATE.md §13.20 (Arc D)",
   "sublayer_count": 25,
-  "page_count": 37,
-  "denominator_N": 852,
-  "na_cells": 73,
+  "page_count": 35,
+  "denominator_N": 805,
+  "na_cells": 70,
   "covered": {
-    "credited_F2": 20,
-    "pending": 832,
-    "covered_pct": 2.3,
-    "U_pass": 242,
-    "measured_covered": 830,
-    "measured_pct": 97.4,
-    "I_pass": 166,
-    "I_attributed": 34,
-    "A_pass": 216,
-    "F_pass": 206,
-    "F_attributed": 28
+    "credited_F2": 19,
+    "pending": 786,
+    "covered_pct": 2.4,
+    "U_pass": 6,
+    "I_pass": 2,
+    "I_attributed": 1,
+    "A_pass": 3,
+    "F_pass": 3,
+    "F_attributed": 0,
+    "measured_covered": 14,
+    "measured_pct": 1.7
   },
   "lens_denominator": {
-    "U": 246,
-    "F": 210,
-    "A": 220,
-    "I": 176
+    "U": 234,
+    "F": 198,
+    "A": 208,
+    "I": 165
   },
   "lens_credited": {
     "U": 0,
-    "F": 20,
+    "F": 19,
     "A": 0,
     "I": 0
   },
   "lens_pct": {
     "U": 0,
-    "F": 9.5,
+    "F": 9.6,
     "A": 0,
     "I": 0
   },
@@ -44,7 +44,7 @@
         "has_text_input": true,
         "has_mutation": true,
         "has_role_gate": true,
-        "has_destructive": false,
+        "has_destructive": true,
         "renders_data": true
       },
       "class": "public",
@@ -63,7 +63,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/26 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/27 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -71,7 +71,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=false, loader=false, aria_live=1"
+          "measured": "toast=false, loader=false, aria_live=3"
         },
         "U4": {
           "lens": "U",
@@ -111,7 +111,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=47, consoleErrors=0"
+          "measured": "mainContent=true, interactive=48, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -135,7 +135,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/25, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/40, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -240,7 +240,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=1, timeEls=1, authorEls=0, textDates=8, byline=true, freshness=true, auditUI=false"
+          "measured": "sourceChips=1, timeEls=1, authorEls=0, textDates=8, byline=true, freshness=true, auditUI=true"
         },
         "I6": {
           "lens": "I",
@@ -259,7 +259,7 @@
           "h1_text": null
         },
         "U2": {
-          "interactive": 73,
+          "interactive": 74,
           "sub44": 20,
           "sub44_pct": 27,
           "sub44_ex": [
@@ -273,7 +273,7 @@
         "U3": {
           "toast": false,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 3
         },
         "U4": {
           "forms": 3,
@@ -317,9 +317,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 26,
+          "clickables": 27,
           "brokenLinks": 0,
-          "linksChecked": 25,
+          "linksChecked": 40,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -334,7 +334,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 26,
+        "tapChecked": 27,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -356,7 +356,7 @@
           "textDates": 8,
           "byline": true,
           "freshness": true,
-          "auditAffordance": false
+          "auditAffordance": true
         },
         "I6": {
           "destructive": 1,
@@ -421,7 +421,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 47,
+          "interactive": 48,
           "primaryCTA": true
         },
         "F3": {
@@ -435,9 +435,9 @@
       "signals": {
         "has_inputs": true,
         "has_text_input": true,
-        "has_mutation": true,
-        "has_role_gate": true,
-        "has_destructive": true,
+        "has_mutation": false,
+        "has_role_gate": false,
+        "has_destructive": false,
         "renders_data": true
       },
       "class": "hive-scoped",
@@ -456,7 +456,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/10 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/13 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -504,7 +504,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=13, consoleErrors=0"
+          "measured": "mainContent=true, interactive=16, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -538,10 +538,9 @@
         "F5": {
           "lens": "F",
           "title": "Data round-trip",
-          "applicable": true,
-          "reason": "has create/edit/delete write path",
-          "status": "pass",
-          "measured": "[structural round-trip, live source] page WRITES user data (insert/upsert/update) AND reads it back; value-correctness not §13-deep-verified for this surface"
+          "applicable": false,
+          "reason": "read-only dashboard: no write path to round-trip",
+          "status": "n/a"
         },
         "F6": {
           "lens": "F",
@@ -611,10 +610,9 @@
         "I2": {
           "lens": "I",
           "title": "Role/permission UI gating",
-          "applicable": true,
-          "reason": "has role-differentiated actions in DOM",
-          "status": "pass",
-          "measured": "[role matrix] 0 privilege-escalation (3P/0F — fails are solo-proxy + headless-not-rendered artifacts, see I1 for the reliable gate)"
+          "applicable": false,
+          "reason": "no role-gated action: nothing to mirror server-side",
+          "status": "n/a"
         },
         "I3": {
           "lens": "I",
@@ -636,10 +634,9 @@
         "I5": {
           "lens": "I",
           "title": "Auditability surfacing",
-          "applicable": true,
-          "reason": "performs control actions that must write+surface audit",
-          "status": "pass",
-          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=6, byline=false, freshness=false, auditUI=true"
+          "applicable": false,
+          "reason": "no control action that requires an audit row",
+          "status": "n/a"
         },
         "I6": {
           "lens": "I",
@@ -650,7 +647,7 @@
           "measured": "[battery] secrets=0; destructive=0, confirmGuard=true"
         }
       },
-      "applicable_count": 25,
+      "applicable_count": 22,
       "U_measured": {
         "U1": {
           "h1_count": 1,
@@ -658,9 +655,9 @@
           "h1_text": "Engineering Design"
         },
         "U2": {
-          "interactive": 39,
+          "interactive": 42,
           "sub44": 12,
-          "sub44_pct": 31,
+          "sub44_pct": 29,
           "sub44_ex": [
             "A:← Back",
             "BUTTON:Search assets, j",
@@ -714,7 +711,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 11,
+          "clickables": 14,
           "brokenLinks": 0,
           "linksChecked": 2,
           "consoleErrors": 0,
@@ -731,14 +728,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 10,
+        "tapChecked": 13,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.705"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -818,7 +813,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 13,
+          "interactive": 16,
           "primaryCTA": true
         },
         "F3": {
@@ -853,7 +848,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/18 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/22 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -861,7 +856,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=4"
         },
         "U4": {
           "lens": "U",
@@ -901,7 +896,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=24, consoleErrors=0"
+          "measured": "mainContent=true, interactive=28, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -1024,7 +1019,7 @@
           "applicable": true,
           "reason": "has text-entry input to validate client-side (UX)",
           "status": "pass",
-          "measured": "validated 0/2 data-entry (2 constrained selects; 8 total inputs, 1 forms)"
+          "measured": "validated 0/0 data-entry (0 constrained selects; 6 total inputs, 1 forms)"
         },
         "I5": {
           "lens": "I",
@@ -1051,9 +1046,9 @@
           "h1_text": "Your Repair Logbook"
         },
         "U2": {
-          "interactive": 50,
+          "interactive": 54,
           "sub44": 12,
-          "sub44_pct": 24,
+          "sub44_pct": 22,
           "sub44_ex": [
             "A:← Back to Basic ",
             "BUTTON:Search assets, j",
@@ -1065,7 +1060,7 @@
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 4
         },
         "U4": {
           "forms": 1,
@@ -1074,7 +1069,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 1,
+          "imgs": 3,
           "imgs_no_alt": 0,
           "headings": 2,
           "heading_skips": 0,
@@ -1107,7 +1102,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 16,
+          "clickables": 22,
           "brokenLinks": 0,
           "linksChecked": 4,
           "consoleErrors": 0,
@@ -1124,19 +1119,21 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 18,
+        "tapChecked": 22,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": []
+        "uDefects": [
+          "CLS>0.1: 0.321"
+        ]
       },
       "I_measured": {
         "I4": {
-          "inputs": 8,
-          "dataEntry": 2,
+          "inputs": 6,
+          "dataEntry": 0,
           "validated": 0,
-          "constrainedSelects": 2,
+          "constrainedSelects": 0,
           "forms": 1
         },
         "I5": {
@@ -1209,7 +1206,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 24,
+          "interactive": 28,
           "primaryCTA": true
         },
         "F3": {
@@ -1236,7 +1233,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "h1_in_dom=true (visible=1) \"Inventory Monitor\""
+          "measured": "h1_in_dom=true (visible=1) \"Spare-Parts Inventory\""
         },
         "U2": {
           "lens": "U",
@@ -1244,7 +1241,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/87 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/92 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -1252,7 +1249,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=3"
         },
         "U4": {
           "lens": "U",
@@ -1292,7 +1289,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=90, consoleErrors=0"
+          "measured": "mainContent=true, interactive=95, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -1447,24 +1444,24 @@
         "U1": {
           "h1_count": 1,
           "h1_in_dom": true,
-          "h1_text": "Inventory Monitor"
+          "h1_text": "Spare-Parts Inventory"
         },
         "U2": {
-          "interactive": 116,
+          "interactive": 121,
           "sub44": 11,
           "sub44_pct": 9,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 3
         },
         "U4": {
           "forms": 0,
@@ -1506,7 +1503,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 87,
+          "clickables": 92,
           "brokenLinks": 0,
           "linksChecked": 2,
           "consoleErrors": 0,
@@ -1523,13 +1520,13 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 87,
+        "tapChecked": 92,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
         "uDefects": [
-          "CLS>0.1: 0.126"
+          "CLS>0.1: 0.125"
         ]
       },
       "I_measured": {
@@ -1610,7 +1607,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 90,
+          "interactive": 95,
           "primaryCTA": true
         },
         "F3": {
@@ -1645,7 +1642,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/22 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/25 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -1653,7 +1650,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=2"
         },
         "U4": {
           "lens": "U",
@@ -1693,7 +1690,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=23, consoleErrors=0"
+          "measured": "mainContent=true, interactive=26, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -1849,21 +1846,21 @@
           "h1_text": "PM Scheduler"
         },
         "U2": {
-          "interactive": 49,
+          "interactive": 52,
           "sub44": 11,
-          "sub44_pct": 22,
+          "sub44_pct": 21,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 2
         },
         "U4": {
           "forms": 0,
@@ -1876,7 +1873,7 @@
           "imgs_no_alt": 0,
           "headings": 1,
           "heading_skips": 0,
-          "no_acc_name": 1,
+          "no_acc_name": 0,
           "lang": "en"
         },
         "U6": {
@@ -1905,7 +1902,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 22,
+          "clickables": 25,
           "brokenLinks": 0,
           "linksChecked": 1,
           "consoleErrors": 0,
@@ -1922,7 +1919,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 22,
+        "tapChecked": 25,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -2007,7 +2004,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 23,
+          "interactive": 26,
           "primaryCTA": true
         },
         "F3": {
@@ -2042,7 +2039,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/38 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/42 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -2090,7 +2087,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=39, consoleErrors=0"
+          "measured": "mainContent=true, interactive=43, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -2119,7 +2116,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -2242,13 +2239,13 @@
           "h1_text": "Voice Journal"
         },
         "U2": {
-          "interactive": 65,
+          "interactive": 69,
           "sub44": 14,
-          "sub44_pct": 22,
+          "sub44_pct": 20,
           "sub44_ex": [
             "BUTTON:Voice On",
-            "BUTTON:🧭 Zaniah · Stra",
-            "BUTTON:🛠️ Hezekiah · T",
+            "BUTTON:Zaniah · Strateg",
+            "BUTTON:Hezekiah · Techn",
             "BUTTON:Talk to your com"
           ],
           "focus_css": true
@@ -2298,9 +2295,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 38,
+          "clickables": 42,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -2315,7 +2312,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 38,
+        "tapChecked": 42,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -2400,7 +2397,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 39,
+          "interactive": 43,
           "primaryCTA": true
         },
         "F3": {
@@ -2435,7 +2432,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/38 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/43 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -2443,7 +2440,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=3"
         },
         "U4": {
           "lens": "U",
@@ -2483,7 +2480,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=37, consoleErrors=0"
+          "measured": "mainContent=true, interactive=43, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -2639,21 +2636,21 @@
           "h1_text": "Maintenance Day Planner: WorkHive"
         },
         "U2": {
-          "interactive": 64,
+          "interactive": 70,
           "sub44": 11,
-          "sub44_pct": 17,
+          "sub44_pct": 16,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 3
         },
         "U4": {
           "forms": 0,
@@ -2695,7 +2692,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 38,
+          "clickables": 43,
           "brokenLinks": 0,
           "linksChecked": 1,
           "consoleErrors": 0,
@@ -2712,7 +2709,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 38,
+        "tapChecked": 43,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -2797,7 +2794,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 37,
+          "interactive": 43,
           "primaryCTA": true
         },
         "F3": {
@@ -2824,7 +2821,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "h1_in_dom=true (visible=1) \"📄 Resume / CV Builder\""
+          "measured": "h1_in_dom=true (visible=1) \"Resume / CV Builder\""
         },
         "U2": {
           "lens": "U",
@@ -2832,7 +2829,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/24 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/27 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -2880,7 +2877,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=31, consoleErrors=0"
+          "measured": "mainContent=true, interactive=34, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -2904,7 +2901,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/0, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -2981,9 +2978,8 @@
           "lens": "I",
           "title": "Role/permission UI gating",
           "applicable": false,
-          "reason": "personal CV builder — HIVE_ROLE is read only for a context display pill (line 1844), never for gating; everyone edits their OWN resume (solo-capable). No role-differentiated controls exist to gate.",
-          "status": "n/a",
-          "measured": "no role-matrix record (add page to PERMISSION_MATRIX + run e2e_roles_runner)"
+          "reason": "personal CV builder — HIVE_ROLE is read only for a context display pill (line 1844), never for gating; everyone edits their OWN resume. No role-differentiated controls exist to gate.",
+          "status": "n/a"
         },
         "I3": {
           "lens": "I",
@@ -3005,8 +3001,7 @@
           "title": "Auditability surfacing",
           "applicable": false,
           "reason": "personal document builder — no who-did-what audit trail to surface (you author your own CV); auditability is not-applicable to a single-author document.",
-          "status": "n/a",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=0, byline=undefined, auditUI=undefined"
+          "status": "n/a"
         },
         "I6": {
           "lens": "I",
@@ -3022,12 +3017,12 @@
         "U1": {
           "h1_count": 1,
           "h1_in_dom": true,
-          "h1_text": "📄 Resume / CV Builder"
+          "h1_text": "Resume / CV Builder"
         },
         "U2": {
-          "interactive": 57,
+          "interactive": 60,
           "sub44": 18,
-          "sub44_pct": 32,
+          "sub44_pct": 30,
           "sub44_ex": [
             "INPUT:",
             "INPUT:",
@@ -3081,9 +3076,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 22,
+          "clickables": 25,
           "brokenLinks": 0,
-          "linksChecked": 0,
+          "linksChecked": 1,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -3098,7 +3093,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 24,
+        "tapChecked": 27,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -3183,7 +3178,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 31,
+          "interactive": 34,
           "primaryCTA": true
         },
         "F3": {
@@ -3218,7 +3213,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/7 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/10 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -3234,7 +3229,7 @@
           "applicable": true,
           "reason": "has text-entry input/destructive action to protect",
           "status": "pass",
-          "measured": "modal=true, validated=8/20"
+          "measured": "modal=true, validated=8/18"
         },
         "U5": {
           "lens": "U",
@@ -3250,7 +3245,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "nav=true, cards=171"
+          "measured": "nav=true, cards=169"
         },
         "U7": {
           "lens": "U",
@@ -3266,7 +3261,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=7, consoleErrors=0"
+          "measured": "mainContent=true, interactive=10, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -3298,7 +3293,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/4, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -3331,7 +3326,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "cards=171, ds-controls=6"
+          "measured": "cards=169, ds-controls=6"
         },
         "A3": {
           "lens": "A",
@@ -3355,7 +3350,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "navHub=true, dataDriven=11, fetchRender=true"
+          "measured": "navHub=true, dataDriven=10, fetchRender=true"
         },
         "A6": {
           "lens": "A",
@@ -3424,14 +3419,14 @@
           "h1_text": "Asset Hub"
         },
         "U2": {
-          "interactive": 33,
+          "interactive": 36,
           "sub44": 11,
-          "sub44_pct": 33,
+          "sub44_pct": 31,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -3442,7 +3437,7 @@
         },
         "U4": {
           "forms": 0,
-          "inputs": 20,
+          "inputs": 18,
           "validated": 8,
           "modal": true
         },
@@ -3457,7 +3452,7 @@
         "U6": {
           "nav": true,
           "nav_via_hub": true,
-          "cards": 171,
+          "cards": 169,
           "bottom_nav": false
         },
         "tapFailClasses": {}
@@ -3480,9 +3475,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 7,
+          "clickables": 10,
           "brokenLinks": 0,
-          "linksChecked": 2,
+          "linksChecked": 4,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -3497,14 +3492,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 7,
+        "tapChecked": 10,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 1.012"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -3539,7 +3532,7 @@
       },
       "A_measured": {
         "A2": {
-          "cards": 171,
+          "cards": 169,
           "dsControls": 6
         },
         "A3": {
@@ -3553,7 +3546,7 @@
         },
         "A5": {
           "navHub": true,
-          "dataDriven": 11
+          "dataDriven": 10
         },
         "A6": {
           "manifest": true
@@ -3584,7 +3577,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 7,
+          "interactive": 10,
           "primaryCTA": true
         },
         "F3": {
@@ -3619,7 +3612,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/37 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/119 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -3667,7 +3660,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=36, consoleErrors=0"
+          "measured": "mainContent=true, interactive=118, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -3697,7 +3690,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/17, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/20, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -3802,7 +3795,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=33, byline=false, freshness=true, auditUI=false"
+          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=38, byline=false, freshness=true, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -3821,14 +3814,14 @@
           "h1_text": "Alert Hub"
         },
         "U2": {
-          "interactive": 62,
+          "interactive": 144,
           "sub44": 11,
-          "sub44_pct": 18,
+          "sub44_pct": 8,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -3877,9 +3870,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 37,
+          "clickables": 119,
           "brokenLinks": 0,
-          "linksChecked": 17,
+          "linksChecked": 20,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -3894,14 +3887,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 37,
+        "tapChecked": 119,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.307"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -3915,7 +3906,7 @@
           "sourceChips": 1,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 33,
+          "textDates": 38,
           "byline": false,
           "freshness": true,
           "auditAffordance": false
@@ -3981,7 +3972,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 36,
+          "interactive": 118,
           "primaryCTA": true
         },
         "F3": {
@@ -4016,7 +4007,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/31 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/45 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -4048,7 +4039,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "nav=true, cards=6"
+          "measured": "nav=true, cards=26"
         },
         "U7": {
           "lens": "U",
@@ -4064,7 +4055,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=30, consoleErrors=0"
+          "measured": "mainContent=true, interactive=50, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -4088,15 +4079,14 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/5, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/6, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
           "title": "Data round-trip",
           "applicable": false,
           "reason": "read-only page (no insert/upsert/update/delete in source) — no user-data round-trip to verify",
-          "status": "n/a",
-          "measured": "[structural round-trip, live source] page WRITES user data (insert/upsert/update) AND reads it back; value-correctness not §13-deep-verified for this surface"
+          "status": "n/a"
         },
         "F6": {
           "lens": "F",
@@ -4120,7 +4110,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "cards=6, ds-controls=3"
+          "measured": "cards=18, ds-controls=3"
         },
         "A3": {
           "lens": "A",
@@ -4186,7 +4176,7 @@
           "applicable": true,
           "reason": "has text-entry input to validate client-side (UX)",
           "status": "pass",
-          "measured": "validated 0/0 data-entry (0 constrained selects; 0 total inputs, 0 forms)"
+          "measured": "validated 0/0 data-entry (0 constrained selects; 4 total inputs, 0 forms)"
         },
         "I5": {
           "lens": "I",
@@ -4194,7 +4184,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=0, byline=false, freshness=false, auditUI=false"
+          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=102, byline=false, freshness=true, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -4213,14 +4203,14 @@
           "h1_text": "Analytics Engine"
         },
         "U2": {
-          "interactive": 56,
-          "sub44": 11,
+          "interactive": 76,
+          "sub44": 15,
           "sub44_pct": 20,
           "sub44_ex": [
-            "BUTTON:Search assets, j",
-            "INPUT:Search tools",
-            "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "INPUT:Filter assets",
+            "INPUT:Filter assets",
+            "INPUT:Filter assets",
+            "INPUT:Filter parts"
           ],
           "focus_css": true
         },
@@ -4246,7 +4236,7 @@
         "U6": {
           "nav": true,
           "nav_via_hub": true,
-          "cards": 6,
+          "cards": 26,
           "bottom_nav": false
         },
         "tapFailClasses": {}
@@ -4269,9 +4259,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 31,
+          "clickables": 45,
           "brokenLinks": 0,
-          "linksChecked": 5,
+          "linksChecked": 6,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -4286,7 +4276,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 31,
+        "tapChecked": 45,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -4295,7 +4285,7 @@
       },
       "I_measured": {
         "I4": {
-          "inputs": 0,
+          "inputs": 4,
           "dataEntry": 0,
           "validated": 0,
           "constrainedSelects": 0,
@@ -4305,9 +4295,9 @@
           "sourceChips": 1,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 0,
+          "textDates": 102,
           "byline": false,
-          "freshness": false,
+          "freshness": true,
           "auditAffordance": false
         },
         "I6": {
@@ -4326,7 +4316,7 @@
       },
       "A_measured": {
         "A2": {
-          "cards": 6,
+          "cards": 18,
           "dsControls": 3
         },
         "A3": {
@@ -4371,7 +4361,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 30,
+          "interactive": 50,
           "primaryCTA": true
         },
         "F3": {
@@ -4406,7 +4396,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/10 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/13 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -4454,7 +4444,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=10, consoleErrors=0"
+          "measured": "mainContent=true, interactive=13, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -4478,7 +4468,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -4583,7 +4573,6 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "dispositioned",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=0, byline=false, freshness=false, auditUI=false",
           "disposition": "print-report generator — data PRESENT (7 analytics_snapshots) + \"report generated <date>\" in markup (3 sites); attempted live measure via the Generate-Report reveal-action, but the compiled doc renders in a print/PDF context the grounded-DOM sweep does not capture = harness ceiling, not a product gap."
         },
         "I6": {
@@ -4603,14 +4592,14 @@
           "h1_text": "Reports"
         },
         "U2": {
-          "interactive": 36,
+          "interactive": 39,
           "sub44": 11,
-          "sub44_pct": 31,
+          "sub44_pct": 28,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -4659,9 +4648,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 10,
+          "clickables": 13,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -4676,14 +4665,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 10,
+        "tapChecked": 13,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.131"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -4763,7 +4750,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 10,
+          "interactive": 13,
           "primaryCTA": true
         },
         "F3": {
@@ -4798,7 +4785,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/32 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/38 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -4846,7 +4833,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=31, consoleErrors=0"
+          "measured": "mainContent=true, interactive=37, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -4875,7 +4862,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/8, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/20, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -4999,14 +4986,14 @@
           "h1_text": "Shift Brain"
         },
         "U2": {
-          "interactive": 57,
+          "interactive": 63,
           "sub44": 11,
-          "sub44_pct": 19,
+          "sub44_pct": 17,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -5055,9 +5042,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 32,
+          "clickables": 38,
           "brokenLinks": 0,
-          "linksChecked": 8,
+          "linksChecked": 20,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -5072,14 +5059,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 32,
+        "tapChecked": 38,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.268"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -5159,403 +5144,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 31,
-          "primaryCTA": true
-        },
-        "F3": {
-          "dataDisplay": true,
-          "inputForm": true
-        }
-      }
-    },
-    "predictive.html": {
-      "tier": "2 Dashboards",
-      "signals": {
-        "has_inputs": false,
-        "has_text_input": false,
-        "has_mutation": false,
-        "has_role_gate": true,
-        "has_destructive": false,
-        "renders_data": true
-      },
-      "class": "hive-scoped",
-      "cells": {
-        "U1": {
-          "lens": "U",
-          "title": "Recognizability & learnability",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "h1_in_dom=true (visible=1) \"Predictive Maintenance\""
-        },
-        "U2": {
-          "lens": "U",
-          "title": "Operability (keyboard/touch)",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "[axe] tap<44:0/38 (textlink-exempt:1), focus-miss:0, input<16:0",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "U3": {
-          "lens": "U",
-          "title": "System-status feedback",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "toast=false, loader=true, aria_live=0"
-        },
-        "U4": {
-          "lens": "U",
-          "title": "User-error protection",
-          "applicable": false,
-          "reason": "read-only display (filter-only): no error-prone input or destructive action",
-          "status": "n/a"
-        },
-        "U5": {
-          "lens": "U",
-          "title": "Inclusivity / accessibility",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "[axe WCAG2.2AA] violations:0 {}"
-        },
-        "U6": {
-          "lens": "U",
-          "title": "Consistency & minimalist aesthetic",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "nav=true, cards=39"
-        },
-        "U7": {
-          "lens": "U",
-          "title": "Mobile / field usability",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "360px scrollW=360 clientW=360 overflow=false"
-        },
-        "F1": {
-          "lens": "F",
-          "title": "Completeness",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "mainContent=true, interactive=8, consoleErrors=0"
-        },
-        "F2": {
-          "lens": "F",
-          "title": "Correctness (Arc A/B/C credit)",
-          "applicable": true,
-          "reason": "renders canonical data (correctness verifiable)",
-          "status": "pass",
-          "source": "Arc C render_sweep.json (render==canonical)",
-          "evidence": [
-            "predictive:risk_ranking"
-          ],
-          "measured": "[attributed: Arc C render_sweep render==canonical 83/83] re-imported into the F frame",
-          "attributed": true
-        },
-        "F3": {
-          "lens": "F",
-          "title": "Appropriateness",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "dataDisplay=true, inputForm=true, garbage=0"
-        },
-        "F4": {
-          "lens": "F",
-          "title": "Navigation & flow integrity",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
-        },
-        "F5": {
-          "lens": "F",
-          "title": "Data round-trip",
-          "applicable": false,
-          "reason": "read-only dashboard: no write path to round-trip",
-          "status": "n/a"
-        },
-        "F6": {
-          "lens": "F",
-          "title": "Degraded states",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "loading=true, empty=true, error=true (source)"
-        },
-        "A1": {
-          "lens": "A",
-          "title": "Responsive/adaptive layout",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "breakpoints 360/768/1280/1920: no overflow"
-        },
-        "A2": {
-          "lens": "A",
-          "title": "Component reuse & design-system",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "cards=39, ds-controls=3"
-        },
-        "A3": {
-          "lens": "A",
-          "title": "Configurability (role/hive/prefs)",
-          "applicable": true,
-          "reason": "UI adapts to role/hive/prefs",
-          "status": "pass",
-          "measured": "ctxPill=false, prefsControl=false, hiveText=false, roleDiff=true, configAware=true",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "A4": {
-          "lens": "A",
-          "title": "State-management discipline",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "loading=true(dom:true/src:true), empty=true(dom:true/src:true)"
-        },
-        "A5": {
-          "lens": "A",
-          "title": "Extensibility / scalability",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "navHub=true, dataDriven=7, fetchRender=true"
-        },
-        "A6": {
-          "lens": "A",
-          "title": "Offline / PWA",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "manifest=true (installable, live); offline-SW=sw.js v154 attributed (headless cannot observe registration)",
-          "disposition": "deprecated page (slated for removal) — not invested",
-          "attributed": true
-        },
-        "I1": {
-          "lens": "I",
-          "title": "Auth gating",
-          "applicable": true,
-          "reason": "authed-only page: must bounce when logged out",
-          "status": "pass",
-          "measured": "[logged-out] BOUNCED→entry (session=false)"
-        },
-        "I2": {
-          "lens": "I",
-          "title": "Role/permission UI gating",
-          "applicable": true,
-          "reason": "has role-differentiated actions in DOM",
-          "status": "pass",
-          "measured": "[role matrix] 0 privilege-escalation (1P/4F — fails are solo-proxy + headless-not-rendered artifacts, see I1 for the reliable gate)",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "I3": {
-          "lens": "I",
-          "title": "Tenancy isolation at render",
-          "applicable": true,
-          "reason": "hive-scoped: must render only this hive's data",
-          "status": "pass",
-          "measured": "[attributed: Pillar-I proven] backend tenant-context scopes every read to verifiedHiveId (validate_gateway_tenancy G0=0, live foreign-hive→403); render shows no secret leak (secrets=0)",
-          "attributed": true
-        },
-        "I4": {
-          "lens": "I",
-          "title": "Client-side input validation",
-          "applicable": false,
-          "reason": "no text-entry input (filter select/radio only): nothing to client-validate",
-          "status": "n/a"
-        },
-        "I5": {
-          "lens": "I",
-          "title": "Auditability surfacing",
-          "applicable": true,
-          "reason": "performs control actions that must write+surface audit",
-          "status": "pass",
-          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=1, byline=false, freshness=true, auditUI=false"
-        },
-        "I6": {
-          "lens": "I",
-          "title": "Safe-by-default / no-bypass",
-          "applicable": true,
-          "reason": "has privileged/destructive/input surface to harden",
-          "status": "pass",
-          "measured": "[battery] secrets=0; destructive=0, confirmGuard=true"
-        }
-      },
-      "applicable_count": 22,
-      "U_measured": {
-        "U1": {
-          "h1_count": 1,
-          "h1_in_dom": true,
-          "h1_text": "Predictive Maintenance"
-        },
-        "U2": {
-          "interactive": 34,
-          "sub44": 12,
-          "sub44_pct": 35,
-          "sub44_ex": [
-            "A:Asset Hub",
-            "BUTTON:Search assets, j",
-            "INPUT:Search tools",
-            "BUTTON:⊞All"
-          ],
-          "focus_css": true
-        },
-        "U3": {
-          "toast": false,
-          "loader": true,
-          "aria_live": 0
-        },
-        "U4": {
-          "forms": 0,
-          "inputs": 4,
-          "validated": 3,
-          "modal": true
-        },
-        "U5": {
-          "imgs": 2,
-          "imgs_no_alt": 0,
-          "headings": 1,
-          "heading_skips": 0,
-          "no_acc_name": 0,
-          "lang": "en"
-        },
-        "U6": {
-          "nav": true,
-          "nav_via_hub": true,
-          "cards": 39,
-          "bottom_nav": false
-        },
-        "tapFailClasses": {}
-      },
-      "U_360": {
-        "scrollW": 360,
-        "clientW": 360,
-        "noOverflow": true
-      },
-      "U_battery": {
-        "ok": true,
-        "iMetrics": {
-          "secretExposures": 0,
-          "destructiveControls": 0,
-          "sourceChips": 1,
-          "identity": {
-            "note": "no window.WHShell seam"
-          }
-        },
-        "fMetrics": {
-          "deadFn": 0,
-          "deadHref": 0,
-          "clickables": 39,
-          "brokenLinks": 0,
-          "linksChecked": 1,
-          "consoleErrors": 0,
-          "prodPathSrc": 0
-        },
-        "cMetrics": {
-          "garbage": 0,
-          "pctBad": 0,
-          "stuckLoaders": 0,
-          "countMiss": 0,
-          "sumMiss": 0
-        },
-        "axeRan": true,
-        "axeViolations": 0,
-        "axeByImpact": {},
-        "tapUnder44": 0,
-        "tapChecked": 38,
-        "textLinkExempt": 1,
-        "focusMissing": 0,
-        "inputUnder16": 0,
-        "axeIds": [],
-        "uDefects": []
-      },
-      "I_measured": {
-        "I4": {
-          "inputs": 0,
-          "dataEntry": 0,
-          "validated": 0,
-          "constrainedSelects": 0,
-          "forms": 0
-        },
-        "I5": {
-          "sourceChips": 1,
-          "timeEls": 0,
-          "authorEls": 0,
-          "textDates": 1,
-          "byline": false,
-          "freshness": true,
-          "auditAffordance": false
-        },
-        "I6": {
-          "destructive": 0,
-          "confirmGuard": true
-        },
-        "revealed": true
-      },
-      "I_metrics": {
-        "secretExposures": 0,
-        "destructiveControls": 0,
-        "sourceChips": 1,
-        "identity": {
-          "note": "no window.WHShell seam"
-        }
-      },
-      "A_measured": {
-        "A2": {
-          "cards": 39,
-          "dsControls": 3
-        },
-        "A3": {
-          "ctxPill": false,
-          "prefsControl": false,
-          "hiveText": false
-        },
-        "A4": {
-          "loader": true,
-          "emptyState": true
-        },
-        "A5": {
-          "navHub": true,
-          "dataDriven": 7
-        },
-        "A6": {
-          "manifest": true
-        }
-      },
-      "A_breakpoints": {
-        "360": {
-          "scrollW": 360,
-          "clientW": 360,
-          "noOverflow": true
-        },
-        "768": {
-          "scrollW": 768,
-          "clientW": 768,
-          "noOverflow": true
-        },
-        "1280": {
-          "scrollW": 1280,
-          "clientW": 1280,
-          "noOverflow": true
-        },
-        "1920": {
-          "scrollW": 1920,
-          "clientW": 1920,
-          "noOverflow": true
-        }
-      },
-      "F_measured": {
-        "F1": {
-          "mainContent": true,
-          "interactive": 8,
+          "interactive": 37,
           "primaryCTA": true
         },
         "F3": {
@@ -5590,7 +5179,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/5 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/8 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -5637,7 +5226,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=4, consoleErrors=0"
+          "measured": "mainContent=true, interactive=7, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -5666,7 +5255,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/3, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -5770,7 +5359,6 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "dispositioned",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=0, byline=undefined, auditUI=undefined",
           "disposition": "aggregate AI-eval dashboard — renders data-empty for the single test hive (no llm-eval rows); auditability is a populated-state property = local data ceiling."
         },
         "I6": {
@@ -5790,12 +5378,12 @@
           "h1_text": "We won't fake this."
         },
         "U2": {
-          "interactive": 30,
+          "interactive": 33,
           "sub44": 11,
-          "sub44_pct": 37,
+          "sub44_pct": 33,
           "sub44_ex": [
             "BUTTON:Talk to your com",
-            "BUTTON:✕",
+            "BUTTON:Close",
             "BUTTON:",
             "TEXTAREA:Message"
           ],
@@ -5846,9 +5434,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 5,
+          "clickables": 8,
           "brokenLinks": 0,
-          "linksChecked": 2,
+          "linksChecked": 3,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -5863,7 +5451,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 5,
+        "tapChecked": 8,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -5948,7 +5536,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 4,
+          "interactive": 7,
           "primaryCTA": true
         },
         "F3": {
@@ -5983,7 +5571,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/4 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/7 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -6030,7 +5618,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=3, consoleErrors=0"
+          "measured": "mainContent=true, interactive=6, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -6054,7 +5642,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/3, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -6158,7 +5746,6 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "dispositioned",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=0, byline=undefined, auditUI=undefined",
           "disposition": "maturity-gated (checkMaturityGate Stair 3) — surfaces freshness when populated (9 toLocale/generated sites in source); renders honest-empty for the test hive = local maturity ceiling."
         },
         "I6": {
@@ -6178,14 +5765,14 @@
           "h1_text": "We won't fake this."
         },
         "U2": {
-          "interactive": 29,
+          "interactive": 32,
           "sub44": 11,
-          "sub44_pct": 38,
+          "sub44_pct": 34,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -6234,9 +5821,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 4,
+          "clickables": 7,
           "brokenLinks": 0,
-          "linksChecked": 2,
+          "linksChecked": 3,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -6251,7 +5838,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 4,
+        "tapChecked": 7,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -6336,7 +5923,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 3,
+          "interactive": 6,
           "primaryCTA": true
         },
         "F3": {
@@ -6371,7 +5958,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/14 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/18 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -6419,7 +6006,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=13, consoleErrors=0"
+          "measured": "mainContent=true, interactive=17, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -6451,7 +6038,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/3, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -6558,7 +6145,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=4, byline=false, freshness=false, auditUI=false"
+          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=0, byline=false, freshness=false, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -6577,11 +6164,11 @@
           "h1_text": "Project Manager"
         },
         "U2": {
-          "interactive": 39,
+          "interactive": 43,
           "sub44": 12,
-          "sub44_pct": 31,
+          "sub44_pct": 28,
           "sub44_ex": [
-            "A:📄 Print Report",
+            "A:Print Report",
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All"
@@ -6600,7 +6187,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 2,
+          "imgs": 0,
           "imgs_no_alt": 0,
           "headings": 1,
           "heading_skips": 0,
@@ -6633,9 +6220,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 14,
+          "clickables": 18,
           "brokenLinks": 0,
-          "linksChecked": 2,
+          "linksChecked": 3,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -6650,7 +6237,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 14,
+        "tapChecked": 18,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -6669,7 +6256,7 @@
           "sourceChips": 1,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 4,
+          "textDates": 0,
           "byline": false,
           "freshness": false,
           "auditAffordance": false
@@ -6735,7 +6322,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 13,
+          "interactive": 17,
           "primaryCTA": true
         },
         "F3": {
@@ -6770,7 +6357,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/5 (textlink-exempt:1), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/8 (textlink-exempt:1), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -6817,7 +6404,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=6, consoleErrors=0"
+          "measured": "mainContent=true, interactive=9, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -6846,15 +6433,14 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
           "title": "Data round-trip",
           "applicable": false,
           "reason": "read-only page (no insert/upsert/update/delete in source) — no user-data round-trip to verify",
-          "status": "n/a",
-          "measured": "no value-verified capture surface in capture_roundtrip.json"
+          "status": "n/a"
         },
         "F6": {
           "lens": "F",
@@ -6926,8 +6512,7 @@
           "title": "Role/permission UI gating",
           "applicable": false,
           "reason": "no role-differentiated controls — report_sections/generate_btn are identical for worker & supervisor (matrix expectations all None).",
-          "status": "n/a",
-          "measured": "[role matrix] page present but no PASS/FAIL assertions (info-only) — add role-differentiated expectations"
+          "status": "n/a"
         },
         "I3": {
           "lens": "I",
@@ -6970,9 +6555,9 @@
           "h1_text": "Project Report"
         },
         "U2": {
-          "interactive": 32,
+          "interactive": 35,
           "sub44": 12,
-          "sub44_pct": 38,
+          "sub44_pct": 34,
           "sub44_ex": [
             "A:Go to Project Ma",
             "BUTTON:Search assets, j",
@@ -7026,9 +6611,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 6,
+          "clickables": 9,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -7043,7 +6628,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 5,
+        "tapChecked": 8,
         "textLinkExempt": 1,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -7128,7 +6713,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 6,
+          "interactive": 9,
           "primaryCTA": true
         },
         "F3": {
@@ -7163,7 +6748,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/18 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/22 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -7210,7 +6795,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=26, consoleErrors=0"
+          "measured": "mainContent=true, interactive=31, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -7241,7 +6826,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/3, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -7362,14 +6947,14 @@
           "h1_text": "Growth"
         },
         "U2": {
-          "interactive": 52,
+          "interactive": 57,
           "sub44": 11,
-          "sub44_pct": 21,
+          "sub44_pct": 19,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -7385,7 +6970,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 2,
+          "imgs": 0,
           "imgs_no_alt": 0,
           "headings": 1,
           "heading_skips": 0,
@@ -7418,9 +7003,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 19,
+          "clickables": 23,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 3,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -7435,7 +7020,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 18,
+        "tapChecked": 22,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -7520,7 +7105,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 26,
+          "interactive": 31,
           "primaryCTA": true
         },
         "F3": {
@@ -7555,7 +7140,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/18 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/22 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -7602,7 +7187,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=4, consoleErrors=0"
+          "measured": "mainContent=true, interactive=8, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -7632,7 +7217,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -7752,14 +7337,14 @@
           "h1_text": "Growth"
         },
         "U2": {
-          "interactive": 30,
+          "interactive": 34,
           "sub44": 11,
-          "sub44_pct": 37,
+          "sub44_pct": 32,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -7808,9 +7393,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 17,
+          "clickables": 21,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -7825,13 +7410,13 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 18,
+        "tapChecked": 22,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
         "uDefects": [
-          "CLS>0.1: 0.323"
+          "CLS>0.1: 0.102"
         ]
       },
       "I_measured": {
@@ -7846,7 +7431,7 @@
           "sourceChips": 1,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 5,
+          "textDates": 10,
           "byline": false,
           "freshness": false,
           "auditAffordance": true
@@ -7912,7 +7497,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 4,
+          "interactive": 8,
           "primaryCTA": true
         },
         "F3": {
@@ -7947,7 +7532,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/27 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/40 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -7995,7 +7580,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=31, consoleErrors=0"
+          "measured": "mainContent=true, interactive=44, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -8064,7 +7649,7 @@
           "applicable": true,
           "reason": "UI adapts to role/hive/prefs",
           "status": "pass",
-          "measured": "ctxPill=true, prefsControl=true, hiveText=true, roleDiff=true, configAware=true"
+          "measured": "ctxPill=true, prefsControl=false, hiveText=true, roleDiff=true, configAware=true"
         },
         "A4": {
           "lens": "A",
@@ -8130,7 +7715,7 @@
           "applicable": true,
           "reason": "the audit surface itself",
           "status": "pass",
-          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=19, byline=false, freshness=true, auditUI=false"
+          "measured": "sourceChips=1, timeEls=0, authorEls=0, textDates=31, byline=false, freshness=true, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -8149,14 +7734,14 @@
           "h1_text": "Audit Log"
         },
         "U2": {
-          "interactive": 57,
+          "interactive": 70,
           "sub44": 11,
-          "sub44_pct": 19,
+          "sub44_pct": 16,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -8205,7 +7790,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 27,
+          "clickables": 40,
           "brokenLinks": 0,
           "linksChecked": 2,
           "consoleErrors": 0,
@@ -8222,14 +7807,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 27,
+        "tapChecked": 40,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.555"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -8243,7 +7826,7 @@
           "sourceChips": 1,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 19,
+          "textDates": 31,
           "byline": false,
           "freshness": true,
           "auditAffordance": false
@@ -8269,7 +7852,7 @@
         },
         "A3": {
           "ctxPill": true,
-          "prefsControl": true,
+          "prefsControl": false,
           "hiveText": true
         },
         "A4": {
@@ -8309,7 +7892,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 31,
+          "interactive": 44,
           "primaryCTA": true
         },
         "F3": {
@@ -8344,7 +7927,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/6 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/9 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -8352,7 +7935,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=2"
         },
         "U4": {
           "lens": "U",
@@ -8392,7 +7975,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=7, consoleErrors=0"
+          "measured": "mainContent=true, interactive=10, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -8416,7 +7999,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/0, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -8522,7 +8105,6 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "dispositioned",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=0, byline=false, freshness=false, auditUI=false",
           "disposition": "AI briefing generator — default view is the setup form; auditability (\"generated daily at 06:00\", 8 freshness sites in source) lives in the GENERATED briefing, which requires a paid AI call the sweep does not trigger = generation ceiling."
         },
         "I6": {
@@ -8542,21 +8124,21 @@
           "h1_text": null
         },
         "U2": {
-          "interactive": 28,
+          "interactive": 31,
           "sub44": 6,
-          "sub44_pct": 21,
+          "sub44_pct": 19,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 2
         },
         "U4": {
           "forms": 0,
@@ -8598,9 +8180,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 6,
+          "clickables": 9,
           "brokenLinks": 0,
-          "linksChecked": 0,
+          "linksChecked": 1,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -8615,14 +8197,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 6,
+        "tapChecked": 9,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.633"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -8702,7 +8282,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 7,
+          "interactive": 10,
           "primaryCTA": true
         },
         "F3": {
@@ -8737,7 +8317,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/39 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/42 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -8745,7 +8325,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=3"
         },
         "U4": {
           "lens": "U",
@@ -8785,7 +8365,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=38, consoleErrors=0"
+          "measured": "mainContent=true, interactive=41, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -8816,7 +8396,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/7, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/15, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -8922,7 +8502,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=7, timeEls=0, authorEls=0, textDates=41, byline=false, freshness=false, auditUI=true"
+          "measured": "sourceChips=7, timeEls=0, authorEls=0, textDates=73, byline=false, freshness=false, auditUI=true"
         },
         "I6": {
           "lens": "I",
@@ -8941,9 +8521,9 @@
           "h1_text": "Hive Board"
         },
         "U2": {
-          "interactive": 64,
+          "interactive": 67,
           "sub44": 17,
-          "sub44_pct": 27,
+          "sub44_pct": 25,
           "sub44_ex": [
             "INPUT:",
             "INPUT:",
@@ -8955,7 +8535,7 @@
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 3
         },
         "U4": {
           "forms": 0,
@@ -8964,11 +8544,11 @@
           "modal": true
         },
         "U5": {
-          "imgs": 3,
+          "imgs": 1,
           "imgs_no_alt": 0,
           "headings": 2,
           "heading_skips": 0,
-          "no_acc_name": 1,
+          "no_acc_name": 0,
           "lang": "en"
         },
         "U6": {
@@ -8997,9 +8577,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 33,
+          "clickables": 36,
           "brokenLinks": 0,
-          "linksChecked": 7,
+          "linksChecked": 15,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -9014,14 +8594,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 39,
+        "tapChecked": 42,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.245"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -9035,7 +8613,7 @@
           "sourceChips": 7,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 41,
+          "textDates": 73,
           "byline": false,
           "freshness": false,
           "auditAffordance": true
@@ -9101,7 +8679,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 38,
+          "interactive": 41,
           "primaryCTA": true
         },
         "F3": {
@@ -9136,7 +8714,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/67 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/72 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -9184,7 +8762,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=82, consoleErrors=0"
+          "measured": "mainContent=true, interactive=87, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -9338,14 +8916,14 @@
           "h1_text": "Community"
         },
         "U2": {
-          "interactive": 108,
-          "sub44": 14,
+          "interactive": 114,
+          "sub44": 15,
           "sub44_pct": 13,
           "sub44_ex": [
+            "DIV:LM\n        Leand",
             "SELECT:General\n      Sa",
             "INPUT:Share publicly w",
-            "SELECT:Harassment or bu",
-            "BUTTON:Search assets, j"
+            "SELECT:Harassment or bu"
           ],
           "focus_css": true
         },
@@ -9361,7 +8939,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 3,
+          "imgs": 1,
           "imgs_no_alt": 0,
           "headings": 4,
           "heading_skips": 0,
@@ -9374,9 +8952,7 @@
           "cards": 24,
           "bottom_nav": false
         },
-        "tapFailClasses": {
-          "summary.": 1
-        }
+        "tapFailClasses": {}
       },
       "U_360": {
         "scrollW": 360,
@@ -9396,7 +8972,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 67,
+          "clickables": 72,
           "brokenLinks": 0,
           "linksChecked": 1,
           "consoleErrors": 0,
@@ -9413,7 +8989,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 67,
+        "tapChecked": 72,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -9498,7 +9074,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 82,
+          "interactive": 87,
           "primaryCTA": true
         },
         "F3": {
@@ -9533,7 +9109,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/3 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/6 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -9580,7 +9156,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=3, consoleErrors=0"
+          "measured": "mainContent=true, interactive=6, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -9720,14 +9296,14 @@
           "h1_text": "What hives are talking about"
         },
         "U2": {
-          "interactive": 29,
+          "interactive": 32,
           "sub44": 11,
-          "sub44_pct": 38,
+          "sub44_pct": 34,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -9743,7 +9319,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 1,
+          "imgs": 3,
           "imgs_no_alt": 0,
           "headings": 1,
           "heading_skips": 0,
@@ -9776,7 +9352,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 3,
+          "clickables": 6,
           "brokenLinks": 0,
           "linksChecked": 1,
           "consoleErrors": 0,
@@ -9793,7 +9369,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 3,
+        "tapChecked": 6,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -9878,7 +9454,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 3,
+          "interactive": 6,
           "primaryCTA": true
         },
         "F3": {
@@ -9913,7 +9489,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/81 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/79 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -9929,7 +9505,7 @@
           "applicable": true,
           "reason": "has text-entry input/destructive action to protect",
           "status": "pass",
-          "measured": "modal=true, validated=16/31"
+          "measured": "modal=true, validated=14/22"
         },
         "U5": {
           "lens": "U",
@@ -9961,7 +9537,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=99, consoleErrors=0"
+          "measured": "mainContent=true, interactive=94, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -9992,7 +9568,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/11, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/12, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -10025,7 +9601,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "cards=16, ds-controls=33"
+          "measured": "cards=16, ds-controls=28"
         },
         "A3": {
           "lens": "A",
@@ -10090,7 +9666,7 @@
           "applicable": true,
           "reason": "has text-entry input to validate client-side (UX)",
           "status": "pass",
-          "measured": "validated 11/15 data-entry (2 constrained selects; 18 total inputs, 5 forms)"
+          "measured": "validated 9/12 data-entry (1 constrained selects; 15 total inputs, 3 forms)"
         },
         "I5": {
           "lens": "I",
@@ -10117,14 +9693,14 @@
           "h1_text": "Marketplace"
         },
         "U2": {
-          "interactive": 125,
-          "sub44": 14,
-          "sub44_pct": 11,
+          "interactive": 120,
+          "sub44": 22,
+          "sub44_pct": 18,
           "sub44_ex": [
+            "INPUT:Search listings.",
+            "INPUT:",
             "SELECT:BearingsSeals & ",
-            "SELECT:New\n          Us",
-            "SELECT:Select a reason…",
-            "BUTTON:Search assets, j"
+            "SELECT:New\n          Us"
           ],
           "focus_css": true
         },
@@ -10134,9 +9710,9 @@
           "aria_live": 1
         },
         "U4": {
-          "forms": 5,
-          "inputs": 31,
-          "validated": 16,
+          "forms": 3,
+          "inputs": 22,
+          "validated": 14,
           "modal": true
         },
         "U5": {
@@ -10173,9 +9749,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 81,
+          "clickables": 79,
           "brokenLinks": 0,
-          "linksChecked": 11,
+          "linksChecked": 12,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -10190,22 +9766,20 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 81,
+        "tapChecked": 79,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.307"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
-          "inputs": 18,
-          "dataEntry": 15,
-          "validated": 11,
-          "constrainedSelects": 2,
-          "forms": 5
+          "inputs": 15,
+          "dataEntry": 12,
+          "validated": 9,
+          "constrainedSelects": 1,
+          "forms": 3
         },
         "I5": {
           "sourceChips": 1,
@@ -10233,7 +9807,7 @@
       "A_measured": {
         "A2": {
           "cards": 16,
-          "dsControls": 33
+          "dsControls": 28
         },
         "A3": {
           "ctxPill": false,
@@ -10277,7 +9851,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 99,
+          "interactive": 94,
           "primaryCTA": true
         },
         "F3": {
@@ -10312,7 +9886,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/14 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/17 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -10360,7 +9934,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=24, consoleErrors=0"
+          "measured": "mainContent=true, interactive=27, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -10416,7 +9990,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "cards=2, ds-controls=10"
+          "measured": "cards=2, ds-controls=8"
         },
         "A3": {
           "lens": "A",
@@ -10440,7 +10014,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "navHub=true, dataDriven=4, fetchRender=true"
+          "measured": "navHub=true, dataDriven=3, fetchRender=true"
         },
         "A6": {
           "lens": "A",
@@ -10508,14 +10082,14 @@
           "h1_text": "Leandro Marquez"
         },
         "U2": {
-          "interactive": 50,
-          "sub44": 13,
-          "sub44_pct": 26,
+          "interactive": 53,
+          "sub44": 17,
+          "sub44_pct": 32,
           "sub44_ex": [
+            "INPUT:",
             "SELECT:",
             "SELECT:New\n          Us",
-            "BUTTON:Search assets, j",
-            "INPUT:Search tools"
+            "INPUT:"
           ],
           "focus_css": true
         },
@@ -10531,7 +10105,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 0,
+          "imgs": 2,
           "imgs_no_alt": 0,
           "headings": 2,
           "heading_skips": 1,
@@ -10564,7 +10138,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 14,
+          "clickables": 17,
           "brokenLinks": 0,
           "linksChecked": 2,
           "consoleErrors": 0,
@@ -10581,14 +10155,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 14,
+        "tapChecked": 17,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.189"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -10624,7 +10196,7 @@
       "A_measured": {
         "A2": {
           "cards": 2,
-          "dsControls": 10
+          "dsControls": 8
         },
         "A3": {
           "ctxPill": false,
@@ -10637,7 +10209,7 @@
         },
         "A5": {
           "navHub": true,
-          "dataDriven": 4
+          "dataDriven": 3
         },
         "A6": {
           "manifest": true
@@ -10668,7 +10240,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 24,
+          "interactive": 27,
           "primaryCTA": true
         },
         "F3": {
@@ -10703,7 +10275,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/10 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/13 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -10750,7 +10322,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=10, consoleErrors=0"
+          "measured": "mainContent=true, interactive=13, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -10774,7 +10346,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/4, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/5, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -10894,14 +10466,14 @@
           "h1_text": "Bryan Garcia"
         },
         "U2": {
-          "interactive": 36,
+          "interactive": 39,
           "sub44": 11,
-          "sub44_pct": 31,
+          "sub44_pct": 28,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
@@ -10917,7 +10489,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 0,
+          "imgs": 2,
           "imgs_no_alt": 0,
           "headings": 3,
           "heading_skips": 0,
@@ -10950,9 +10522,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 10,
+          "clickables": 13,
           "brokenLinks": 0,
-          "linksChecked": 4,
+          "linksChecked": 5,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -10967,7 +10539,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 10,
+        "tapChecked": 13,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -11052,7 +10624,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 10,
+          "interactive": 13,
           "primaryCTA": true
         },
         "F3": {
@@ -11087,7 +10659,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/8 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/11 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -11135,7 +10707,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=9, consoleErrors=0"
+          "measured": "mainContent=true, interactive=12, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -11159,7 +10731,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -11265,7 +10837,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=0, timeEls=0, authorEls=2, textDates=24, byline=false, freshness=false, auditUI=false"
+          "measured": "sourceChips=0, timeEls=0, authorEls=4, textDates=24, byline=false, freshness=false, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -11284,14 +10856,14 @@
           "h1_text": "Marketplace Admin"
         },
         "U2": {
-          "interactive": 35,
-          "sub44": 11,
-          "sub44_pct": 31,
+          "interactive": 38,
+          "sub44": 12,
+          "sub44_pct": 32,
           "sub44_ex": [
+            "INPUT:Search listings ",
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
-            "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:⊞All"
           ],
           "focus_css": true
         },
@@ -11340,9 +10912,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 8,
+          "clickables": 11,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -11357,7 +10929,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 8,
+        "tapChecked": 11,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -11375,7 +10947,7 @@
         "I5": {
           "sourceChips": 0,
           "timeEls": 0,
-          "authorEls": 2,
+          "authorEls": 4,
           "textDates": 24,
           "byline": false,
           "freshness": false,
@@ -11442,7 +11014,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 9,
+          "interactive": 12,
           "primaryCTA": true
         },
         "F3": {
@@ -11477,7 +11049,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/15 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/19 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -11525,7 +11097,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=11, consoleErrors=0"
+          "measured": "mainContent=true, interactive=15, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -11556,7 +11128,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/3, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/4, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -11663,7 +11235,6 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "dispositioned",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=0, byline=false, freshness=false, auditUI=false",
           "disposition": "connection sync-status surface — seeded a connected integration_config (last_sync_at set) + 30 sync-timestamp sites in markup; the \"last synced\" provenance renders in the connected sub-view, not the default catalog the sweep measures = harness ceiling."
         },
         "I6": {
@@ -11683,14 +11254,14 @@
           "h1_text": "Connections"
         },
         "U2": {
-          "interactive": 37,
-          "sub44": 11,
-          "sub44_pct": 30,
+          "interactive": 41,
+          "sub44": 12,
+          "sub44_pct": 29,
           "sub44_ex": [
+            "BUTTON:Next: Upload →",
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
-            "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:⊞All"
           ],
           "focus_css": true
         },
@@ -11739,9 +11310,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 15,
+          "clickables": 19,
           "brokenLinks": 0,
-          "linksChecked": 3,
+          "linksChecked": 4,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -11756,14 +11327,12 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 15,
+        "tapChecked": 19,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.122"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -11843,7 +11412,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 11,
+          "interactive": 15,
           "primaryCTA": true
         },
         "F3": {
@@ -11878,7 +11447,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/6 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/9 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -11925,7 +11494,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=4, consoleErrors=0"
+          "measured": "mainContent=true, interactive=7, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -11949,7 +11518,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -11980,7 +11549,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "cards=12, ds-controls=13"
+          "measured": "cards=12, ds-controls=10"
         },
         "A3": {
           "lens": "A",
@@ -12053,7 +11622,7 @@
           "applicable": true,
           "reason": "performs control actions that must write+surface audit",
           "status": "pass",
-          "measured": "sourceChips=2, timeEls=0, authorEls=0, textDates=1, byline=false, freshness=false, auditUI=false"
+          "measured": "sourceChips=2, timeEls=0, authorEls=0, textDates=0, byline=false, freshness=false, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -12072,12 +11641,12 @@
           "h1_text": "Connections"
         },
         "U2": {
-          "interactive": 30,
+          "interactive": 33,
           "sub44": 11,
-          "sub44_pct": 37,
+          "sub44_pct": 33,
           "sub44_ex": [
             "BUTTON:Talk to your com",
-            "BUTTON:✕",
+            "BUTTON:Close",
             "BUTTON:",
             "TEXTAREA:Message"
           ],
@@ -12128,9 +11697,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 5,
+          "clickables": 8,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -12145,7 +11714,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 6,
+        "tapChecked": 9,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -12164,7 +11733,7 @@
           "sourceChips": 2,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 1,
+          "textDates": 0,
           "byline": false,
           "freshness": false,
           "auditAffordance": false
@@ -12186,7 +11755,7 @@
       "A_measured": {
         "A2": {
           "cards": 12,
-          "dsControls": 13
+          "dsControls": 10
         },
         "A3": {
           "ctxPill": true,
@@ -12230,7 +11799,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 4,
+          "interactive": 7,
           "primaryCTA": true
         },
         "F3": {
@@ -12246,7 +11815,7 @@
         "has_text_input": true,
         "has_mutation": true,
         "has_role_gate": true,
-        "has_destructive": false,
+        "has_destructive": true,
         "renders_data": true
       },
       "class": "hive-scoped",
@@ -12265,7 +11834,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/17 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/20 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -12273,7 +11842,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=true, aria_live=1"
+          "measured": "toast=true, loader=true, aria_live=3"
         },
         "U4": {
           "lens": "U",
@@ -12313,7 +11882,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=20, consoleErrors=0"
+          "measured": "mainContent=true, interactive=23, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -12342,7 +11911,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "brokenLinks=0/1, deadFn=0, deadHref=0"
+          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
         },
         "F5": {
           "lens": "F",
@@ -12467,21 +12036,21 @@
           "h1_text": "Reports"
         },
         "U2": {
-          "interactive": 46,
+          "interactive": 49,
           "sub44": 11,
-          "sub44_pct": 24,
+          "sub44_pct": 22,
           "sub44_ex": [
             "BUTTON:Search assets, j",
             "INPUT:Search tools",
             "BUTTON:⊞All",
-            "BUTTON:🔧Field"
+            "BUTTON:Field"
           ],
           "focus_css": true
         },
         "U3": {
           "toast": true,
           "loader": true,
-          "aria_live": 1
+          "aria_live": 3
         },
         "U4": {
           "forms": 0,
@@ -12490,7 +12059,7 @@
           "modal": true
         },
         "U5": {
-          "imgs": 2,
+          "imgs": 0,
           "imgs_no_alt": 0,
           "headings": 1,
           "heading_skips": 0,
@@ -12523,9 +12092,9 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 19,
+          "clickables": 22,
           "brokenLinks": 0,
-          "linksChecked": 1,
+          "linksChecked": 2,
           "consoleErrors": 0,
           "prodPathSrc": 0
         },
@@ -12540,7 +12109,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 17,
+        "tapChecked": 20,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -12625,7 +12194,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 20,
+          "interactive": 23,
           "primaryCTA": true
         },
         "F3": {
@@ -12660,7 +12229,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/1 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/0 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -12690,8 +12259,8 @@
           "title": "Consistency & minimalist aesthetic",
           "applicable": true,
           "reason": "universal (every rendered page)",
-          "status": "fix",
-          "measured": "nav=true, cards=0"
+          "status": "pass",
+          "measured": "nav=true, cards=1"
         },
         "U7": {
           "lens": "U",
@@ -12744,8 +12313,7 @@
           "title": "Degraded states",
           "applicable": false,
           "reason": "public platform health readout — no async list/data view with loading/empty/error states to discipline (renders /health inline).",
-          "status": "n/a",
-          "measured": "loading=false, empty=false, error=true (source)"
+          "status": "n/a"
         },
         "A1": {
           "lens": "A",
@@ -12760,24 +12328,22 @@
           "title": "Component reuse & design-system",
           "applicable": true,
           "reason": "universal (every rendered page)",
-          "status": "fix",
-          "measured": "cards=0, ds-controls=0"
+          "status": "pass",
+          "measured": "cards=1, ds-controls=0"
         },
         "A3": {
           "lens": "A",
           "title": "Configurability (role/hive/prefs)",
           "applicable": false,
           "reason": "public platform gateway-status page — no hive/role/prefs to configure (not a hive-scoped worker surface).",
-          "status": "n/a",
-          "measured": "ctxPill=false, prefsControl=false, hiveText=false, roleDiff=false"
+          "status": "n/a"
         },
         "A4": {
           "lens": "A",
           "title": "State-management discipline",
           "applicable": false,
           "reason": "minimal platform health readout — no async list/data states to discipline (renders /health inline).",
-          "status": "n/a",
-          "measured": "loading=false(dom:false/src:false), empty=false(dom:false/src:false)"
+          "status": "n/a"
         },
         "A5": {
           "lens": "A",
@@ -12792,9 +12358,7 @@
           "title": "Offline / PWA",
           "applicable": false,
           "reason": "platform status page — not a worker PWA surface (no manifest by design); not installable/offline by intent.",
-          "status": "n/a",
-          "measured": "manifest=false (installable, live); offline-SW=sw.js v154 attributed (headless cannot observe registration)",
-          "attributed": true
+          "status": "n/a"
         },
         "I1": {
           "lens": "I",
@@ -12878,7 +12442,7 @@
         "U6": {
           "nav": true,
           "nav_via_hub": false,
-          "cards": 0,
+          "cards": 1,
           "bottom_nav": false
         },
         "tapFailClasses": {}
@@ -12918,7 +12482,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 1,
+        "tapChecked": 0,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -12958,7 +12522,7 @@
       },
       "A_measured": {
         "A2": {
-          "cards": 0,
+          "cards": 1,
           "dsControls": 0
         },
         "A3": {
@@ -13012,441 +12576,6 @@
         }
       }
     },
-    "platform-health.html": {
-      "tier": "6 System/Admin",
-      "signals": {
-        "has_inputs": false,
-        "has_text_input": false,
-        "has_mutation": true,
-        "has_role_gate": true,
-        "has_destructive": false,
-        "renders_data": true
-      },
-      "class": "cross-hive-admin",
-      "cells": {
-        "U1": {
-          "lens": "U",
-          "title": "Recognizability & learnability",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "h1_in_dom=true (visible=1) \"WorkHive Platform Guardian\""
-        },
-        "U2": {
-          "lens": "U",
-          "title": "Operability (keyboard/touch)",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "dispositioned",
-          "measured": "[axe] tap<44:22/23 (textlink-exempt:1), focus-miss:0, input<16:0",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "U3": {
-          "lens": "U",
-          "title": "System-status feedback",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "toast=false, loader=true, aria_live=0"
-        },
-        "U4": {
-          "lens": "U",
-          "title": "User-error protection",
-          "applicable": false,
-          "reason": "read-only display (filter-only): no error-prone input or destructive action",
-          "status": "n/a"
-        },
-        "U5": {
-          "lens": "U",
-          "title": "Inclusivity / accessibility",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "dispositioned",
-          "measured": "[axe WCAG2.2AA] violations:1 {\"serious\":1}",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "U6": {
-          "lens": "U",
-          "title": "Consistency & minimalist aesthetic",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "dispositioned",
-          "measured": "nav=false, cards=16",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "U7": {
-          "lens": "U",
-          "title": "Mobile / field usability",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "360px scrollW=360 clientW=360 overflow=false"
-        },
-        "F1": {
-          "lens": "F",
-          "title": "Completeness",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "mainContent=true, interactive=20, consoleErrors=0"
-        },
-        "F2": {
-          "lens": "F",
-          "title": "Correctness (Arc A/B/C credit)",
-          "applicable": true,
-          "reason": "renders canonical data (correctness verifiable)",
-          "status": "pass",
-          "measured": "[live correctness floor] garbage=0, out-of-range=0, count-drift=0, sum-drift=0 (no full parity oracle this frame)"
-        },
-        "F3": {
-          "lens": "F",
-          "title": "Appropriateness",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "dataDisplay=true, inputForm=true, garbage=0"
-        },
-        "F4": {
-          "lens": "F",
-          "title": "Navigation & flow integrity",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "brokenLinks=0/2, deadFn=0, deadHref=0"
-        },
-        "F5": {
-          "lens": "F",
-          "title": "Data round-trip",
-          "applicable": false,
-          "reason": "read-only page (no insert/upsert/update/delete in source) — no user-data round-trip to verify",
-          "status": "n/a",
-          "measured": "no value-verified capture surface in capture_roundtrip.json",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "F6": {
-          "lens": "F",
-          "title": "Degraded states",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "loading=true, empty=true, error=true (source)"
-        },
-        "A1": {
-          "lens": "A",
-          "title": "Responsive/adaptive layout",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "breakpoints 360/768/1280/1920: no overflow"
-        },
-        "A2": {
-          "lens": "A",
-          "title": "Component reuse & design-system",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "cards=0, ds-controls=9",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "A3": {
-          "lens": "A",
-          "title": "Configurability (role/hive/prefs)",
-          "applicable": true,
-          "reason": "UI adapts to role/hive/prefs",
-          "status": "pass",
-          "measured": "ctxPill=false, prefsControl=true, hiveText=false, roleDiff=true, configAware=true",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "A4": {
-          "lens": "A",
-          "title": "State-management discipline",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "loading=true(dom:true/src:true), empty=true(dom:true/src:true)"
-        },
-        "A5": {
-          "lens": "A",
-          "title": "Extensibility / scalability",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "navHub=false, dataDriven=0, fetchRender=true",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "A6": {
-          "lens": "A",
-          "title": "Offline / PWA",
-          "applicable": true,
-          "reason": "universal (every rendered page)",
-          "status": "pass",
-          "measured": "manifest=true (installable, live); offline-SW=sw.js v154 attributed (headless cannot observe registration)",
-          "disposition": "deprecated page (slated for removal) — not invested",
-          "attributed": true
-        },
-        "I1": {
-          "lens": "I",
-          "title": "Auth gating",
-          "applicable": true,
-          "reason": "authed-only page: must bounce when logged out",
-          "status": "pass",
-          "measured": "[logged-out] GATE visible (session=false)"
-        },
-        "I2": {
-          "lens": "I",
-          "title": "Role/permission UI gating",
-          "applicable": true,
-          "reason": "has role-differentiated actions in DOM",
-          "status": "pass",
-          "measured": "[role matrix] 0 privilege-escalation (2P/2F — fails are solo-proxy + headless-not-rendered artifacts, see I1 for the reliable gate)",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "I3": {
-          "lens": "I",
-          "title": "Tenancy isolation at render",
-          "applicable": true,
-          "reason": "cross-hive/admin BY DESIGN: must stay admin-gated, no unauthorized leak",
-          "status": "dispositioned",
-          "measured": "[attributed: Pillar-I proven] backend tenant-context scopes every read to verifiedHiveId (validate_gateway_tenancy G0=0, live foreign-hive→403); render shows no secret leak (secrets=1)",
-          "attributed": true,
-          "disposition": "deprecated page (slated for removal) — not invested"
-        },
-        "I4": {
-          "lens": "I",
-          "title": "Client-side input validation",
-          "applicable": false,
-          "reason": "no text-entry input (filter select/radio only): nothing to client-validate",
-          "status": "n/a"
-        },
-        "I5": {
-          "lens": "I",
-          "title": "Auditability surfacing",
-          "applicable": true,
-          "reason": "performs control actions that must write+surface audit",
-          "status": "pass",
-          "measured": "sourceChips=0, timeEls=0, authorEls=0, textDates=2, byline=false, freshness=true, auditUI=false"
-        },
-        "I6": {
-          "lens": "I",
-          "title": "Safe-by-default / no-bypass",
-          "applicable": true,
-          "reason": "has privileged/destructive/input surface to harden",
-          "status": "dispositioned",
-          "measured": "[battery] secrets=1; destructive=0, confirmGuard=true",
-          "disposition": "deprecated page (slated for removal) — not invested"
-        }
-      },
-      "applicable_count": 23,
-      "U_measured": {
-        "U1": {
-          "h1_count": 1,
-          "h1_in_dom": true,
-          "h1_text": "WorkHive Platform Guardian"
-        },
-        "U2": {
-          "interactive": 20,
-          "sub44": 20,
-          "sub44_pct": 100,
-          "sub44_ex": [
-            "A:localhost:5000",
-            "A:Open Tester →",
-            "BUTTON:✕",
-            "BUTTON:▶\n    \n    Valid"
-          ],
-          "focus_css": false
-        },
-        "U3": {
-          "toast": false,
-          "loader": true,
-          "aria_live": 0
-        },
-        "U4": {
-          "forms": 1,
-          "inputs": 2,
-          "validated": 0,
-          "modal": true
-        },
-        "U5": {
-          "imgs": 0,
-          "imgs_no_alt": 0,
-          "headings": 1,
-          "heading_skips": 0,
-          "no_acc_name": 0,
-          "lang": "en"
-        },
-        "U6": {
-          "nav": false,
-          "nav_via_hub": false,
-          "cards": 16,
-          "bottom_nav": false
-        },
-        "tapFailClasses": {
-          "button.action-btn.primary": 2,
-          "span.btn-icon": 9,
-          "button.action-btn.muted": 3,
-          "a.": 1,
-          "button.": 1,
-          "span.refresh-chip": 2,
-          "button.action-btn.fix": 1,
-          "button.action-btn.deploy": 1,
-          "button.action-btn.learn": 1,
-          "button.action-btn.improve": 2,
-          "button.bl-pill.active": 1,
-          "button.bl-pill": 6,
-          "button.bl-show-more": 1,
-          "button.term-close": 1
-        }
-      },
-      "U_360": {
-        "scrollW": 360,
-        "clientW": 360,
-        "noOverflow": true
-      },
-      "U_battery": {
-        "ok": true,
-        "iMetrics": {
-          "secretExposures": 1,
-          "destructiveControls": 0,
-          "sourceChips": 0,
-          "identity": {
-            "note": "no window.WHShell seam"
-          }
-        },
-        "fMetrics": {
-          "deadFn": 0,
-          "deadHref": 0,
-          "clickables": 20,
-          "brokenLinks": 0,
-          "linksChecked": 2,
-          "consoleErrors": 0,
-          "prodPathSrc": 0
-        },
-        "cMetrics": {
-          "garbage": 0,
-          "pctBad": 0,
-          "stuckLoaders": 0,
-          "countMiss": 0,
-          "sumMiss": 0
-        },
-        "axeRan": true,
-        "axeViolations": 1,
-        "axeByImpact": {
-          "serious": 1
-        },
-        "tapUnder44": 22,
-        "tapChecked": 23,
-        "textLinkExempt": 1,
-        "focusMissing": 0,
-        "inputUnder16": 0,
-        "axeIds": [
-          {
-            "id": "axe:color-contrast",
-            "sev": "Major",
-            "m": "7 node(s): .vrow:nth-child(1) > .fail.badge | .gcard.skip:nth-child(2) > .gcard-top > .gca"
-          }
-        ],
-        "uDefects": [
-          "axe:color-contrast: 7 node(s): .vrow:nth-child(1) > .fail.badge | .gcard.skip:nth-child(2) > .gcard-top > .gcard-status | .gcard.skip:nth-child(3) > .gcard-top > .gcard-status",
-          "tap-target<44: 174.2×42.8px",
-          "tap-target<44: 12.4×20px",
-          "tap-target<44: 174.2×42.8px",
-          "tap-target<44: 19.8×20px",
-          "tap-target<44: 111.9×34.7px",
-          "tap-target<44: 29.1×24px",
-          "tap-target<44: 69.6×25.2px",
-          "tap-target<44: 58.5×25.2px",
-          "tap-target<44: 115.2×36.4px",
-          "tap-target<44: 12.4×20px",
-          "tap-target<44: 98.9×36.4px"
-        ]
-      },
-      "I_measured": {
-        "I4": {
-          "inputs": 0,
-          "dataEntry": 0,
-          "validated": 0,
-          "constrainedSelects": 0,
-          "forms": 1
-        },
-        "I5": {
-          "sourceChips": 0,
-          "timeEls": 0,
-          "authorEls": 0,
-          "textDates": 2,
-          "byline": false,
-          "freshness": true,
-          "auditAffordance": false
-        },
-        "I6": {
-          "destructive": 0,
-          "confirmGuard": true
-        },
-        "revealed": true
-      },
-      "I_metrics": {
-        "secretExposures": 1,
-        "destructiveControls": 0,
-        "sourceChips": 0,
-        "identity": {
-          "note": "no window.WHShell seam"
-        }
-      },
-      "A_measured": {
-        "A2": {
-          "cards": 0,
-          "dsControls": 9
-        },
-        "A3": {
-          "ctxPill": false,
-          "prefsControl": true,
-          "hiveText": false
-        },
-        "A4": {
-          "loader": true,
-          "emptyState": true
-        },
-        "A5": {
-          "navHub": false,
-          "dataDriven": 0
-        },
-        "A6": {
-          "manifest": true
-        }
-      },
-      "A_breakpoints": {
-        "360": {
-          "scrollW": 360,
-          "clientW": 360,
-          "noOverflow": true
-        },
-        "768": {
-          "scrollW": 768,
-          "clientW": 768,
-          "noOverflow": true
-        },
-        "1280": {
-          "scrollW": 1280,
-          "clientW": 1280,
-          "noOverflow": true
-        },
-        "1920": {
-          "scrollW": 1920,
-          "clientW": 1920,
-          "noOverflow": true
-        }
-      },
-      "F_measured": {
-        "F1": {
-          "mainContent": true,
-          "interactive": 20,
-          "primaryCTA": true
-        },
-        "F3": {
-          "dataDisplay": true,
-          "inputForm": true
-        }
-      }
-    },
     "founder-console.html": {
       "tier": "6 System/Admin",
       "signals": {
@@ -13454,7 +12583,7 @@
         "has_text_input": true,
         "has_mutation": true,
         "has_role_gate": false,
-        "has_destructive": false,
+        "has_destructive": true,
         "renders_data": true
       },
       "class": "cross-hive-admin",
@@ -13473,7 +12602,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/11 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/13 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -13521,7 +12650,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "mainContent=true, interactive=13, consoleErrors=0"
+          "measured": "mainContent=true, interactive=15, consoleErrors=0"
         },
         "F2": {
           "lens": "F",
@@ -13647,9 +12776,10 @@
         "I5": {
           "lens": "I",
           "title": "Auditability surfacing",
-          "applicable": false,
-          "reason": "no control action that requires an audit row",
-          "status": "n/a"
+          "applicable": true,
+          "reason": "performs control actions that must write+surface audit",
+          "status": "pass",
+          "measured": "sourceChips=5, timeEls=0, authorEls=0, textDates=62, byline=false, freshness=true, auditUI=false"
         },
         "I6": {
           "lens": "I",
@@ -13660,7 +12790,7 @@
           "measured": "[battery] secrets=0; destructive=0, confirmGuard=true"
         }
       },
-      "applicable_count": 23,
+      "applicable_count": 24,
       "U_measured": {
         "U1": {
           "h1_count": 1,
@@ -13668,7 +12798,7 @@
           "h1_text": "WorkHive Founder Console"
         },
         "U2": {
-          "interactive": 14,
+          "interactive": 16,
           "sub44": 0,
           "sub44_pct": 0,
           "sub44_ex": [],
@@ -13719,7 +12849,7 @@
         "fMetrics": {
           "deadFn": 0,
           "deadHref": 0,
-          "clickables": 11,
+          "clickables": 13,
           "brokenLinks": 0,
           "linksChecked": 1,
           "consoleErrors": 0,
@@ -13736,13 +12866,13 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 11,
+        "tapChecked": 13,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
         "uDefects": [
-          "CLS>0.1: 0.497"
+          "CLS>0.1: 0.508"
         ]
       },
       "I_measured": {
@@ -13757,7 +12887,7 @@
           "sourceChips": 5,
           "timeEls": 0,
           "authorEls": 0,
-          "textDates": 30,
+          "textDates": 62,
           "byline": false,
           "freshness": true,
           "auditAffordance": false
@@ -13823,7 +12953,7 @@
       "F_measured": {
         "F1": {
           "mainContent": true,
-          "interactive": 13,
+          "interactive": 15,
           "primaryCTA": true
         },
         "F3": {
@@ -13858,7 +12988,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "[axe] tap<44:0/7 (textlink-exempt:0), focus-miss:0, input<16:0"
+          "measured": "[axe] tap<44:0/2 (textlink-exempt:0), focus-miss:0, input<16:0"
         },
         "U3": {
           "lens": "U",
@@ -13866,7 +12996,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "toast=true, loader=false, aria_live=1"
+          "measured": "toast=true, loader=false, aria_live=2"
         },
         "U4": {
           "lens": "U",
@@ -13960,7 +13090,7 @@
           "applicable": true,
           "reason": "universal (every rendered page)",
           "status": "pass",
-          "measured": "cards=6, ds-controls=6"
+          "measured": "cards=6, ds-controls=1"
         },
         "A3": {
           "lens": "A",
@@ -14059,7 +13189,7 @@
         "U3": {
           "toast": true,
           "loader": false,
-          "aria_live": 1
+          "aria_live": 2
         },
         "U4": {
           "forms": 0,
@@ -14118,7 +13248,7 @@
         "axeViolations": 0,
         "axeByImpact": {},
         "tapUnder44": 0,
-        "tapChecked": 7,
+        "tapChecked": 2,
         "textLinkExempt": 0,
         "focusMissing": 0,
         "inputUnder16": 0,
@@ -14159,7 +13289,7 @@
       "A_measured": {
         "A2": {
           "cards": 6,
-          "dsControls": 6
+          "dsControls": 1
         },
         "A3": {
           "ctxPill": false,
@@ -14434,7 +13564,7 @@
           "sub44": 0,
           "sub44_pct": 0,
           "sub44_ex": [],
-          "focus_css": false
+          "focus_css": true
         },
         "U3": {
           "toast": true,
@@ -14503,9 +13633,7 @@
         "focusMissing": 0,
         "inputUnder16": 0,
         "axeIds": [],
-        "uDefects": [
-          "CLS>0.1: 0.29"
-        ]
+        "uDefects": []
       },
       "I_measured": {
         "I4": {
@@ -14596,63 +13724,51 @@
     }
   },
   "D1_usability": {
-    "ran": "2026-06-21T19:18:46.652Z",
-    "U_applicable": 246,
-    "U_pass": 242,
-    "U_fix": 1,
-    "U_dispositioned": 3,
-    "U_pct": 99.6,
-    "findings_count": 1,
-    "findings": [
-      {
-        "page": "status.html",
-        "sub": "U6",
-        "why": "nav=true, cards=0"
-      }
-    ]
+    "ran": "2026-07-01T11:35:42.496Z",
+    "U_applicable": 6,
+    "U_pass": 6,
+    "U_fix": 0,
+    "U_dispositioned": 0,
+    "U_pct": 2.6,
+    "findings_count": 0,
+    "findings": []
   },
   "D2_internal": {
-    "ran": "2026-06-21T19:18:46.671Z",
-    "I_mined_denom": 176,
-    "I_applicable": 173,
-    "I_pass": 166,
+    "ran": "2026-07-01T11:35:42.506Z",
+    "I_mined_denom": 165,
+    "I_applicable": 2,
+    "I_pass": 2,
     "I_fix": 0,
-    "I_dispositioned": 7,
-    "I_attributed": 34,
+    "I_dispositioned": 0,
+    "I_attributed": 1,
     "I_pct": 100,
-    "I_pct_strict": 79.5,
+    "I_pct_strict": 50,
     "findings_count": 0,
     "findings": []
   },
   "D3_adaptability": {
-    "ran": "2026-06-21T19:18:46.671Z",
-    "A_mined_denom": 220,
-    "A_applicable": 217,
-    "A_pass": 216,
-    "A_fix": 1,
+    "ran": "2026-07-01T11:35:42.506Z",
+    "A_mined_denom": 208,
+    "A_applicable": 3,
+    "A_pass": 3,
+    "A_fix": 0,
     "A_dispositioned": 0,
-    "A_attributed": 36,
-    "A_pct": 99.5,
-    "A_pct_strict": 82.9,
-    "findings_count": 1,
-    "findings": [
-      {
-        "page": "status.html",
-        "sub": "A2",
-        "why": "cards=0, ds-controls=0"
-      }
-    ]
+    "A_attributed": 0,
+    "A_pct": 100,
+    "A_pct_strict": 100,
+    "findings_count": 0,
+    "findings": []
   },
   "D4_functionality": {
-    "ran": "2026-06-21T19:18:46.671Z",
-    "F_mined_denom": 210,
-    "F_applicable": 206,
-    "F_pass": 206,
+    "ran": "2026-07-01T11:35:42.506Z",
+    "F_mined_denom": 198,
+    "F_applicable": 3,
+    "F_pass": 3,
     "F_fix": 0,
     "F_dispositioned": 0,
-    "F_attributed": 28,
+    "F_attributed": 0,
     "F_pct": 100,
-    "F_pct_strict": 86.4,
+    "F_pct_strict": 100,
     "findings_count": 0,
     "findings": []
   }

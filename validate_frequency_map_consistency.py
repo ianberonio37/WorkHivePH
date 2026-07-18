@@ -143,6 +143,11 @@ def static_violations():
                 continue
             for i, line in enumerate(lines, 1):
                 for m in RE_PAIR.finditer(line):
+                    # An INVERTED (days -> freq) dict — {1: "Daily", 7: "Weekly", …} — misparses
+                    # via the comma alternative as 'Daily'->7: the quoted freq there is a dict
+                    # VALUE (preceded by `N:`), not a freq key (prescriptive.py DAYS_TO_FREQ).
+                    if re.search(r"\d\s*:\s*$", line[:m.start()]):
+                        continue
                     freq = m.group(1).lower().replace("semiannual", "semi-annual")
                     got = int(m.group(2))
                     want = CANON.get(freq) or CANON.get(freq.replace("-", ""))

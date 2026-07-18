@@ -219,7 +219,7 @@ The Group 3 Fire and Life Safety calc diagram fixes (commit 5d8959f, May 4) clos
 
 ## 11. The Marketplace (Contact-Only Launch)
 
-The marketplace was the most recent module to land in late April / early May. The original architecture targeted full Stripe Connect escrow, and that code path is built and tested. On May 2, 2026 the launch posture pivoted: payments are gated behind a feature flag, and the public surface ships as a contact-only marketplace (commit 3d7691a). The seller is contacted directly by the buyer through Facebook Messenger (commit ebe03b2) or a JSON-LD/OG-tagged inquiry form, with the inquiry templates and real-time listing quality score driving conversion.
+The marketplace was the most recent module to land in late April / early May. The original architecture targeted full Stripe Connect escrow; on May 2, 2026 the launch posture pivoted to contact-only (payments feature-flagged off, commit 3d7691a), and on **2026-06-30 Stripe was removed entirely** — the marketplace is now permanently FREE and contact-only, with no payment code in the tree. The seller is contacted directly by the buyer through Facebook Messenger (commit ebe03b2) or a JSON-LD/OG-tagged inquiry form, with the inquiry templates and real-time listing quality score driving conversion.
 
 The reason for the pivot, captured in the marketplace go-live roadmap at the project root: DTI registration is not yet complete, and the platform cannot accept escrow funds in WorkHive's name until that step lands. The roadmap is six phases; Phase 1 is the active blocker.
 
@@ -242,12 +242,11 @@ The seller surface added in May:
 
 The page set:
 - `marketplace.html`: buyer-facing browse, search, filter, contact.
-- `marketplace-seller.html`: seller dashboard with listings, inquiries, orders, earnings, analytics.
+- `marketplace-seller.html`: seller dashboard with listings, inquiries, and analytics.
 - `marketplace-seller-profile.html`: public seller profile with badges and listings.
 - `marketplace-admin.html`: platform admin approval queue plus KYB verification (gated behind the `marketplace_platform_admins` role).
 
-The Stripe-driven edge functions remain in the codebase, gated by the feature flag, ready to flip on:
-- `marketplace-checkout`, `marketplace-connect-onboard`, `marketplace-connect-status`, `marketplace-release`, `marketplace-webhook`.
+> **★ Stripe removed entirely (2026-06-30).** The marketplace is FREE and contact-only — no payments. The 5 Stripe edge functions (`marketplace-checkout`, `marketplace-connect-onboard`, `marketplace-connect-status`, `marketplace-release`, `marketplace-webhook`) were **deleted** (not flag-disabled), the `stripe_*` DB columns dropped (migration `20260630000000_remove_stripe_free_marketplace.sql`), and the `PAYMENTS_ENABLED` flag + all checkout/escrow/payout/order UI removed. The buyer action is the **Contact-Seller inquiry** (`marketplace_inquiries`), and sellers are reached via phone/email/Messenger. There is no payment rail to "flip on."
 
 The migrations land the schema in stages: `20260501000005_marketplace.sql` (core tables), `20260501000006_marketplace_scale.sql` (indexes), `20260501000007_seller_dashboard.sql` (denormalized views), `20260501000008_buyer_reviews.sql` (review submission), `20260502000000_seller_messenger.sql`, `20260502000001_marketplace_watchlist.sql`, `20260502000002_marketplace_storage.sql`, `20260502000003_seller_badges.sql`, `20260502000004_listing_view_count.sql`, `20260502000005_saved_searches.sql`, `20260502000006_platform_admins.sql`.
 
@@ -404,8 +403,7 @@ The full edge-function surface as of May 8 (27 functions):
 **CMMS bridge**
 - `cmms-sync`, `cmms-push-completion`, `cmms-webhook-receiver`.
 
-**Marketplace (gated by feature flag for now)**
-- `marketplace-checkout`, `marketplace-connect-onboard`, `marketplace-connect-status`, `marketplace-release`, `marketplace-webhook`.
+**Marketplace** — free + contact-only; the 5 Stripe edge fns were deleted entirely 2026-06-30 (no payment edge fns remain).
 
 **Operations**
 - `scheduled-agents`: pg_cron-driven jobs.
@@ -425,7 +423,7 @@ A May 2026 fix worth noting (commit 2b14129): the semantic-search retrieval was 
 
 **AI.** Claude Sonnet 4.6 as primary. Gemini Flash on the free tier for cheap operations. Groq for latency fallback. Voyage and Jina for semantic-search embeddings. Anthropic prompt caching is on for every Claude path.
 
-**Payments.** Stripe Connect (escrow model) for the marketplace, gated behind a feature flag pending DTI registration.
+**Payments.** None. The marketplace is FREE and contact-only — Stripe was removed entirely on 2026-06-30 (no checkout, escrow, payouts, or webhooks). Buyers and sellers transact off-platform; the platform connects them via the Contact-Seller inquiry + Messenger handle.
 
 **Email.** Resend, with the sending domain pending verification before the weekly digest goes live.
 
@@ -661,7 +659,7 @@ These are the project's house rules, codified in project memory. They are not ad
 - The Day Planner is already built. It is not a future feature.
 - RLS is on. The Supabase Auth migration is deferred but planned.
 - The B2 weekly digest is built but waits on Resend domain verification.
-- The marketplace is contact-only until DTI registration is complete; do not propose enabling Stripe escrow as a standalone task.
+- The marketplace is FREE and contact-only by design (Stripe removed entirely 2026-06-30); never propose adding payments, checkout, escrow, or Stripe — the buyer action is the Contact-Seller inquiry.
 - iOS form inputs render at 16px or larger to avoid Safari auto-zoom.
 
 ---
@@ -722,7 +720,7 @@ Take "the inventory page does not render the qty_after column on a transaction c
 
 **RLS denies a query that should succeed.** The auth_uid is null (the user is on the worker-name fallback) and the policy is checking `auth.uid()`. Two paths: backfill the auth_uid, or extend the policy to accept the worker-name path. Memory entry on the Supabase Auth migration captures the long-term plan.
 
-**The marketplace KYB stalls.** The seller did not complete Stripe Connect, and the Stripe path is gated behind a feature flag pending DTI registration anyway. Until then, sellers connect with buyers through Messenger or the inquiry template. The platform admin sees the pending row in `marketplace-admin.html` and can resend the inquiry link or escalate.
+**The marketplace is contact-only.** There is no payment step at all (Stripe removed entirely 2026-06-30) — sellers connect with buyers through Messenger or the inquiry template, and arrange anything else off-platform. The platform admin sees pending listings/sellers in `marketplace-admin.html` and can approve, verify KYB/certs, or escalate.
 
 **A CMMS sync row is stuck.** The audit log in `cmms_audit_log` has the payload, the response, and the failure reason. The integrations page renders the log inline. Re-run from the page or queue for manual review.
 
@@ -737,7 +735,7 @@ Honest list of what is built, what is partial, and what is planned.
 **Built and live (May 9, 2026):**
 - All daily-work pages (logbook with work-order sign-off and the new Phase E.4 wo_state machine, PM scheduler, inventory with staged-reservation visibility, skill matrix, day planner).
 - The engineering design calculator across six disciplines, with BOM and SOW.
-- The marketplace, end to end, in contact-only mode (Stripe escrow built but feature-flagged).
+- The marketplace, end to end, in free contact-only mode (no payments; Stripe removed entirely 2026-06-30).
 - The Project Manager with CPM scheduling, advanced scope, risk register, change orders, and lessons-learned indexing.
 - The CMMS bridge with sync, push-completion, webhook receive, and audit log.
 - The predictive analytics layer with daily risk scoring, failure-signature matching, pattern alerts, and Phase ML-2 Auto-Staging.
@@ -754,7 +752,7 @@ Honest list of what is built, what is partial, and what is planned.
 - The WorkHive Tester with 5 gates and visual regression.
 
 **Built but waiting on a single dependency:**
-- The marketplace Stripe escrow path. Waiting on DTI registration.
+- (Removed) The marketplace Stripe escrow path was deleted entirely on 2026-06-30 — the marketplace is free + contact-only.
 - The B2 weekly digest. Waiting on Resend domain verification.
 - The full Supabase Auth migration. Foundation laid; cutover deferred.
 
@@ -950,11 +948,7 @@ trigger-ml-retrain             # manual model retrain trigger
 cmms-sync                      # pull upstream CMMS work orders
 cmms-push-completion           # push WorkHive completion to CMMS
 cmms-webhook-receiver          # accept pushed CMMS events
-marketplace-checkout           # Stripe Checkout (feature-flagged)
-marketplace-connect-onboard    # Stripe Connect onboarding (feature-flagged)
-marketplace-connect-status     # KYB status poll
-marketplace-release            # release escrow on confirmation (feature-flagged)
-marketplace-webhook            # Stripe event reconciler
+# (the 5 marketplace Stripe edge fns were deleted 2026-06-30 — marketplace is free + contact-only)
 asset-brain-query              # GraphRAG retrieval for Asset Hub Ask box (May 8, deployed)
 shift-planner-orchestrator     # multi-agent shift planner (May 8, deployed)
 scheduled-agents               # pg_cron-driven jobs
@@ -1061,8 +1055,8 @@ Each validator owns a single JSON report (`<name>_report.json`) at the project r
 - **CPM.** Critical Path Method. The scheduling algorithm in the Project Manager, computed by `networkx` on the Python analytics API.
 - **BOM, SOW.** Bill of Materials, Scope of Work. The dual artifacts the engineering calculator emits.
 - **DILO, WILO, MILO, YILO.** Day, Week, Month, Year In the Life Of. The four time-block modes of the day planner.
-- **KYB.** Know Your Business. The Stripe Connect compliance step for marketplace sellers (gated by feature flag pending DTI).
-- **DTI.** Department of Trade and Industry (Philippines). Registration is the precondition for enabling the marketplace's Stripe escrow path.
+- **KYB.** Know Your Business. The seller-verification step for the marketplace (now a trust/badge signal only — admin-verified `kyb_verified`; no longer tied to any payment onboarding since Stripe was removed 2026-06-30).
+- **DTI.** Department of Trade and Industry (Philippines). Seller registration is a trust signal; it is no longer a precondition for anything (the marketplace is free + contact-only, no payment path to gate).
 - **LOTO.** Lock Out, Tag Out. The isolation procedure detected by regex in shift handover reports.
 - **PWA.** Progressive Web App. The platform installs to the home screen on iOS and Android via `sw.js` and `manifest.json`.
 - **RLS.** Postgres Row Level Security. The mechanism that scopes hive data to its tenant.

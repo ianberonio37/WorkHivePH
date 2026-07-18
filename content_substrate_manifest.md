@@ -1,8 +1,8 @@
-# Content Substrate Manifest — 2026-06-29T10:57:14+00:00
+# Content Substrate Manifest — 2026-07-07T11:16:17+00:00
 
 Aggregates the Platform Catalog + a scan of all four outward surfaces.
 
-- Features: 27 (26 routed) · Articles: 38
+- Features: 27 (26 routed) · Articles: 45
 - Article coverage of active routed features: **100.0%** (26/26)
 - Orphans (claims with no catalog backing): **0**
 - Gaps (under-covered features): **0**
@@ -11,9 +11,9 @@ Aggregates the Platform Catalog + a scan of all four outward surfaces.
 
 | Surface | Signal |
 |---|---|
-| Landing | 10 feature links · 15 FAQs · claims {'guide': [38], 'tool': [33]} |
-| Learn | 38 articles (0 undated) |
-| SEO/GEO | 43 sitemap urls · llms.txt present · featureList absent |
+| Landing | 28 feature links · 15 FAQs · claims {'tool': [33]} |
+| Learn | 45 articles (0 undated) |
+| SEO/GEO | 50 sitemap urls · llms.txt present · featureList present |
 | Video | 11 ideas |
 
 ## How to use

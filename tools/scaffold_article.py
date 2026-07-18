@@ -324,6 +324,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
 </footer>
 
+<script defer src="../../wh-feedback-fab.js"></script>
 </body>
 </html>
 """

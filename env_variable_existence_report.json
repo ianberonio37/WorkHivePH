@@ -1,12 +1,20 @@
 {
   "summary": {
-    "files_scanned": 184,
-    "total_refs": 310,
-    "total_missing": 10,
-    "baseline": 10,
-    "env_names_known": 32
+    "files_scanned": 186,
+    "total_refs": 345,
+    "total_missing": 0,
+    "baseline": 0,
+    "env_names_known": 44
   },
   "per_file": [
+    {
+      "file": "supabase/functions/_shared/action_provenance.test.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/action_provenance.ts",
+      "missing": []
+    },
     {
       "file": "supabase/functions/_shared/ai-chain.ts",
       "missing": []
@@ -64,6 +72,14 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/gutted_reply.test.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/gutted_reply.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/health.ts",
       "missing": []
     },
@@ -88,6 +104,10 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/observability.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/persona-knowledge.ts",
       "missing": []
     },
@@ -101,6 +121,10 @@
     },
     {
       "file": "supabase/functions/_shared/rate-limit.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/redactPII.names.test.ts",
       "missing": []
     },
     {
@@ -173,12 +197,7 @@
     },
     {
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 34718
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/asset-brain-query/index.ts",
@@ -186,12 +205,7 @@
     },
     {
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 13037
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/benchmark-compute/index.ts",
@@ -227,12 +241,7 @@
     },
     {
       "file": "supabase/functions/engineering-calc-agent/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 289775
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/equipment-label-ocr/index.ts",
@@ -264,39 +273,10 @@
     },
     {
       "file": "supabase/functions/login/index.ts",
-      "missing": [
-        {
-          "env": "WH_LOGIN_MAX_ATTEMPTS",
-          "offset": 1593
-        },
-        {
-          "env": "WH_LOGIN_WINDOW_MIN",
-          "offset": 1666
-        },
-        {
-          "env": "WH_LOGIN_LOCKOUT_MIN",
-          "offset": 1740
-        }
-      ]
-    },
-    {
-      "file": "supabase/functions/marketplace-checkout/index.ts",
       "missing": []
     },
     {
-      "file": "supabase/functions/marketplace-connect-onboard/index.ts",
-      "missing": []
-    },
-    {
-      "file": "supabase/functions/marketplace-connect-status/index.ts",
-      "missing": []
-    },
-    {
-      "file": "supabase/functions/marketplace-release/index.ts",
-      "missing": []
-    },
-    {
-      "file": "supabase/functions/marketplace-webhook/index.ts",
+      "file": "supabase/functions/marketplace-listing-assist/index.ts",
       "missing": []
     },
     {
@@ -309,12 +289,7 @@
     },
     {
       "file": "supabase/functions/pf-calculator/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 10097
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/platform-gateway/index.ts",
@@ -330,12 +305,7 @@
     },
     {
       "file": "supabase/functions/project-progress/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 2911
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/resume-extract/index.ts",
@@ -379,12 +349,7 @@
     },
     {
       "file": "supabase/functions/trigger-ml-retrain/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 5723
-        }
-      ]
+      "missing": []
     },
     {
       "file": "supabase/functions/tts-speak/index.ts",
@@ -432,12 +397,7 @@
     },
     {
       "file": "supabase/functions/weibull-fitter/index.ts",
-      "missing": [
-        {
-          "env": "PYTHON_API_KEY",
-          "offset": 9611
-        }
-      ]
+      "missing": []
     },
     {
       "file": "python-api/_auth.py",

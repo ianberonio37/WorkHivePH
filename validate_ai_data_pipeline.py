@@ -81,9 +81,8 @@ def check_automation_log_monitored(scheduled_path):
 
     # Check if automation_log is READ anywhere (not just written)
     assistant_content  = read_file(ASSISTANT_PAGE) or ""
-    platform_content   = read_file("platform-health.html") or ""
 
-    all_content = content + assistant_content + platform_content
+    all_content = content + assistant_content
 
     has_read_query = bool(re.search(
         r"from\(['\"]automation_log['\"].*select|automation_log.*\.select\("

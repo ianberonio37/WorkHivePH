@@ -39,12 +39,15 @@ TILE_LOCKS: dict = {    "analytics:oee": {"page": "analytics", "label": "OEE (av
     "skillmatrix:on_target": {"page": "skillmatrix", "label": "On target workers", "first_seen": "turn 3", "route": "semantic"},
     "skillmatrix:quizzes_available": {"page": "skillmatrix", "label": "Quizzes available", "first_seen": "turn 3", "route": "semantic"},
     "skillmatrix:total_badges": {"page": "skillmatrix", "label": "Total badges earned", "first_seen": "turn 3", "route": "semantic"},
-    "hive:maturity_stair": {"page": "hive", "label": "Hive maturity stair", "first_seen": "turn 3", "route": "semantic"},
-    "hive:adoption_health": {"page": "hive", "label": "Adoption health", "first_seen": "turn 3", "route": "semantic"},
-    "hive:open_issues": {"page": "hive", "label": "Open issues", "first_seen": "turn 3", "route": "semantic"},
-    "predictive:hot_assets": {"page": "predictive", "label": "Hot assets", "first_seen": "turn 17", "route": "semantic"},
-    "predictive:healthy_assets": {"page": "predictive", "label": "Healthy assets", "first_seen": "turn 17", "route": "semantic"},
-    "predictive:earliest_forecast": {"page": "predictive", "label": "Earliest forecast failure", "first_seen": "turn 17", "route": "semantic"},
+    # hive:maturity_stair / :adoption_health / :open_issues tile-locks RETIRED 2026-07-14 —
+    # the Hive Board v4 UFAI redesign (Ian-approved) replaced the 3 health mini-cards in
+    # #supervisor-summary with 3 ACTION tiles (data-rag-tile hive:pm_overdue / hive:low_stock /
+    # hive:open_work). The maturity + adoption numbers still ground via the dedicated
+    # maturity-stairway-card + adoption-card below; the new action tiles carry rag-tile attrs and
+    # the walk re-locks them (checker_passed) via tools/rag_flywheel_processor.py on its own cadence.
+    # predictive:hot_assets / :healthy_assets / :earliest_forecast tile-locks RETIRED 2026-07-01 —
+    # predictive.html was intentionally DELETED (Phase 4 retired page, delisted, rows deep-link
+    # to Asset Hub); Ian removed it to clear the board. The page and its data-rag-tile markup are gone.
     "achievements:xp_this_week": {"page": "achievements", "label": "XP this week", "first_seen": "turn 24", "route": "cold_archive"},
     "achievements:active_domains": {"page": "achievements", "label": "Active domains", "first_seen": "turn 24", "route": "semantic"},
     "achievements:total_level": {"page": "achievements", "label": "Total level", "first_seen": "turn 24", "route": "semantic"},
@@ -82,10 +85,8 @@ TILE_LOCKS: dict = {    "analytics:oee": {"page": "analytics", "label": "OEE (av
     # asset-hub:rcm_edges tile-lock RETIRED 2026-06-30 — the "edges" feature was intentionally
     # CUT in Arc Y (fork#1, 2026-06-27); the data-rag-tile markup was removed with it.
     "pm-scheduler:detail_panel": {"page": "pm-scheduler", "label": "PM detail breakdown", "first_seen": "turn 30", "route": "None"},
-    "predictive:detail_panel": {"page": "predictive", "label": "Predictive detail breakdown", "first_seen": "turn 30", "route": "None"},
-    "predictive:risk_ranking": {"page": "predictive", "label": "Risk ranking table", "first_seen": "turn 30", "route": "None"},
-    "predictive:risk_heatmap": {"page": "predictive", "label": "Risk heatmap", "first_seen": "turn 30", "route": "None"},
-    "predictive:mtbf_trend": {"page": "predictive", "label": "MTBF trend panel", "first_seen": "turn 30", "route": "None"},
+    # predictive:detail_panel / :risk_ranking / :risk_heatmap / :mtbf_trend tile-locks RETIRED
+    # 2026-07-01 with predictive.html (see the predictive block above) — page deleted, markup gone.
     "inventory:detail_panel": {"page": "inventory", "label": "Inventory detail breakdown", "first_seen": "turn 30", "route": "None"},
     "skillmatrix:detail_panel": {"page": "skillmatrix", "label": "Skill matrix detail", "first_seen": "turn 30", "route": "None"},
     "hive:detail_panel": {"page": "hive", "label": "Hive supervisor detail", "first_seen": "turn 30", "route": "None"},

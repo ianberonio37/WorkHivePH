@@ -8,11 +8,12 @@ from .pm import seed_pm
 from .logbook import seed_logbook, link_logbook_to_asset_nodes
 from .inventory import seed_inventory
 from .skill_matrix import seed_skill_matrix
-from .marketplace import seed_marketplace
+from .marketplace import seed_marketplace, seed_marketplace_sellers
 from .community import seed_community
 from .projects import seed_projects
 from .dayplanner import seed_dayplanner
 from .engineering import seed_engineering
+from .companion_memory import seed_companion_memory
 from .fault_knowledge import seed_fault_knowledge
 from .asset_brain import seed_asset_brain
 from .reliability import seed_reliability
@@ -27,6 +28,7 @@ from .sensor_readings import seed_sensor_readings
 from .voice_journal import seed_voice_journal
 from .industry_standards import seed_industry_standards
 from .edge_post_seed import run_post_seed_edges
+from .embed_corpus import run_post_seed_embed
 
 
 # Fixed RNG seed so each full reseed produces the same volume of rows per hive.
@@ -61,9 +63,10 @@ def seed_everything(client, log) -> dict:
     step6  = seed_skill_matrix(client, log, ctx)
     step7  = seed_marketplace(client, log, ctx)
     step8  = seed_community(client, log, ctx)
-    step9  = seed_projects(client, log, ctx)   # Phase 6.5 — projects last so all parents exist
+    seed_companion_memory(client, log, ctx)  # >=1 episodic + agent_memory row so a fresh reseed leaves companion_memory_health_gate GREEN (dead-on-reset fix)
+    step11 = seed_engineering(client, log, ctx)  # before projects: eng-design calcs must exist for the project_links design-basis bundle (PM X-keystone)
+    step9  = seed_projects(client, log, ctx)   # Phase 6.5 — projects after logbook/pm/inventory/engineering so ALL bundle parents exist
     step10 = seed_dayplanner(client, log, ctx)
-    step11 = seed_engineering(client, log, ctx)
     step12 = seed_fault_knowledge(client, log, ctx)  # depends on seeded logbook
     # Phase A onward: graph + intelligence layers (depend on assets being in ctx)
     step12a = seed_asset_brain(client, log, ctx)
@@ -81,6 +84,10 @@ def seed_everything(client, log) -> dict:
     step12e = seed_parts_staging(client, log, ctx)
     step12f = seed_parts_reservations(client, log, ctx)
     seed_achievements(client, log)   # reads hive_members; no ctx, no return dict
+    # Community<->Marketplace bridge: seller profiles LINKED to community reputation
+    # (grants each hive's top voice-of-hive badge + gold seller). Runs AFTER community
+    # + achievements so a seller's community standing already exists.
+    step_ms = seed_marketplace_sellers(client, log, ctx)
     # Wave A+B features (AMC orchestrator + Physical AI). Run after assets +
     # PMs + inventory + workers exist (these seeders read them for context).
     step12g = seed_sensor_readings(client, log, ctx)
@@ -89,6 +96,7 @@ def seed_everything(client, log) -> dict:
     # Day 2 Azure sprint: extend industry_standards beyond the 10 migration-seeded rows
     step12j = seed_industry_standards(client, log)   # hive-agnostic catalog, no ctx needed
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
+    step13b = run_post_seed_embed(client, log, ctx)  # §10.5 co-land: populate RAG index (skips if bge :8901 down)
 
     log("=" * 50)
     log("DONE")
@@ -109,6 +117,7 @@ def seed_everything(client, log) -> dict:
         **step10,
         **step11,
         **step12,
+        **step_ms,
         **step12a,
         **step12a_link,
         **{f"reliability_{k}": v for k, v in step12a2.items()},

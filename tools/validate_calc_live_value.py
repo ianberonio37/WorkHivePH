@@ -222,11 +222,22 @@ def _run_asserts(results: dict, asserts: list, blind: bool):
 
 
 def _run_custom(custom_fn, live_label: str, blind: bool):
-    """Run a custom invariant fn against a live module shim; blind inverts truth."""
+    """Run a custom invariant fn against a live module shim; blind inverts truth.
+
+    A hermetic `custom` that calls a module-PRIVATE helper (mod._foo) instead of .calculate()
+    cannot run through the HTTP shim. Rather than crash the whole live sweep (an AttributeError
+    used to abort every remaining calc), we catch it and surface a single clear FAIL telling the
+    maintainer to add a LIVE_CUSTOM_OVERRIDE for that calc_type. (Arc G2 robustness fix.)"""
     mod = _LiveModule(live_label)
     out = []
-    for (label, ok, detail) in custom_fn(mod):
-        out.append((label, (not ok) if blind else ok, detail))
+    try:
+        for (label, ok, detail) in custom_fn(mod):
+            out.append((label, (not ok) if blind else ok, detail))
+    except AttributeError as e:
+        out.append(("live-custom-unrunnable",
+                    True if blind else False,
+                    f"custom invariant needs a module-internal not on the live shim ({e}); "
+                    f"add a LIVE_CUSTOM_OVERRIDE for '{live_label}' (declarative live oracle)"))
     return out
 
 

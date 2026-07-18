@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="worker-daily" content="1" />  <!-- H1 goal-gradient contract (FAMILY roadmap): this is a daily worker journey page -->
   <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
   <meta name="calm-dashboard" content="1" />
   <title>Maintenance Day Planner: WorkHive</title>
@@ -56,7 +57,7 @@
 
     /* View tabs */
     .view-tabs { display: flex; gap: 0.25rem; background: rgba(22,32,50,0.6); border-radius: 0.75rem; padding: 0.25rem; }
-    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.45); border: none; background: none; }
+    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.62); border: none; background: none; }
     .view-tab:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.05); }
     .view-tab.active { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
 
@@ -72,6 +73,11 @@
     @media (max-width: 640px) {
       .sidebar { width: 48px; min-width: 48px; }
       .sidebar:not(.expanded) #sidebar-title, .sidebar:not(.expanded) #sidebar-hint, .sidebar:not(.expanded) #sidebar-count-label, .sidebar:not(.expanded) #sidebar-items { display: none; }
+      /* WCAG 2.5.8: in the collapsed 48px rail the capacity bar + its injected provenance ⓘ markers
+         have no room — their anchors (#sidebar-count-label/#sidebar-hint) are already hidden, so the
+         two stacked markers collide (overlap < the 24px target-size floor). Hide them too; they return
+         when the user expands the sidebar (full 280px) where they have proper clearance. */
+      .sidebar:not(.expanded) .cap-bar-wrap, .sidebar:not(.expanded) #sidebar-count-label + .wh-prov-btn { display: none; }
     }
 
     /* Sidebar items */
@@ -98,7 +104,7 @@
 
     /* DILO: day timeline */
     .dilo-grid { display: grid; grid-template-columns: 56px 1fr; gap: 0; }
-    .time-label { font-size: 0.7rem; color: rgba(255,255,255,0.3); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
+    .time-label { font-size: 0.7rem; color: rgba(255,255,255,0.62); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
     .time-slot { border-top: 1px solid rgba(255,255,255,0.04); min-height: 56px; position: relative; cursor: pointer; transition: background 0.15s; }
     .time-slot:hover { background: rgba(247,162,27,0.04); }
     .time-slot.droptarget { background: rgba(247,162,27,0.08); border-color: rgba(247,162,27,0.2); }
@@ -117,22 +123,22 @@
 
     /* MILO: month grid */
     .milo-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.4); }
+    .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.62); }
     .milo-cell { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: all 0.15s; position: relative; }
     .milo-cell:hover { border-color: rgba(247,162,27,0.2); background: linear-gradient(145deg, rgba(52,74,108,0.4) 0%, rgba(42,61,88,0.5) 100%); }
     .milo-cell.today { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 1px rgba(247,162,27,0.15); }
     .milo-cell.other-month { opacity: 0.35; }
     .milo-date { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
     .milo-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-    .milo-more { font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .milo-more { font-size: 0.6rem; color: rgba(255,255,255,0.62); margin-top: 2px; }
 
     /* YILO: year grid */
     .yilo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
     .yilo-month { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 0.75rem; }
     .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color: rgba(255,255,255,0.7); }
     .yilo-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .yilo-mini-day-name { text-align: center; font-size: 0.55rem; color: rgba(255,255,255,0.25); padding: 1px 0; }
-    .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: rgba(255,255,255,0.35); cursor: pointer; transition: all 0.15s; position: relative; }
+    .yilo-mini-day-name { text-align: center; font-size: 0.55rem; color: rgba(255,255,255,0.62); padding: 1px 0; }
+    .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: rgba(255,255,255,0.62); cursor: pointer; transition: all 0.15s; position: relative; }
     .yilo-mini-cell:hover { background: rgba(247,162,27,0.15); color: white; }
     .yilo-mini-cell.today { background: var(--wh-orange); color: var(--wh-navy); font-weight: 700; border-radius: 50%; }
     .yilo-mini-cell.has-items { background: rgba(41,182,217,0.2); color: rgba(255,255,255,0.8); border-radius: 50%; }
@@ -140,10 +146,10 @@
     .yilo-month.current-month { border-color: rgba(247,162,27,0.3); }
 
     /* Buttons */
-    .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: 0.625rem; padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: var(--wh-radius-sm); padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
-    .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: 0.625rem; padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-ghost:hover { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:active { background: rgba(255,255,255,0.15); transform: scale(0.97); }
     .btn-icon { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border-radius: 0.5rem; padding: 0.4rem; min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
@@ -154,9 +160,9 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; }
     .modal-overlay.hidden { display: none; }
     .modal-box { background: linear-gradient(145deg, rgba(42,61,88,0.97) 0%, rgba(22,32,50,0.99) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
-    .wh-input { background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .wh-input { background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius-sm); color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.2); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
     select.wh-input option { background: var(--wh-navy-mid); }
 
     /* Badge */
@@ -165,6 +171,25 @@
     /* Capacity bar */
     .cap-bar-wrap { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-top: 4px; }
     .cap-bar { height: 100%; border-radius: 2px; transition: width 0.4s; }
+    /* WCAG 2.5.8 (axe target-size): the injected provenance ⓘ markers (provenance-hover.js) land as
+       siblings of #sidebar-count-bar (inside .cap-bar-wrap) and #sidebar-count-label. The wrap's 3px
+       height + overflow:hidden first clips the marker; then the two stacked markers — only ~16px apart
+       vertically — overlap each other (each carries margin:-10px 0), leaving ~16px of un-obscured
+       clickable space (< the 24px floor). Fix, page-scoped: stop clipping, neutralise the injector's
+       negative vertical margins so a marker's hit box no longer bleeds into its neighbour, give each a
+       real 44×44 box, and add vertical separation between the bar marker and the label marker so they
+       clear 24px. Inline styles on the injected button need !important to override. */
+    .cap-bar-wrap:has(> .wh-prov-btn) { overflow: visible; }
+    .cap-bar-wrap:has(> .wh-prov-btn) > .cap-bar { height: 3px; }
+    .sidebar-header .cap-bar-wrap > .wh-prov-btn {
+      min-width: 44px !important; min-height: 44px !important;
+      padding: 0 !important; margin: -20px 0 0 2px !important;
+    }
+    #sidebar-count-label { margin-top: 26px !important; }
+    .sidebar-header #sidebar-count-label + .wh-prov-btn {
+      min-width: 44px !important; min-height: 44px !important;
+      padding: 0 !important; margin: 0 0 0 2px !important;
+    }
 
     /* Tooltip */
     .tooltip { position: absolute; background: rgba(22,32,50,0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.75rem; z-index: 20; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
@@ -193,7 +218,7 @@
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>Nothing scheduled — tap '+' to plan a task.</div>
+  <div id="empty-state" class="empty-state" hidden>Nothing scheduled: tap '+' to plan a task.</div>
 
 
 
@@ -223,14 +248,14 @@
           </svg>
         </button>
       </div>
-      <p id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.25rem">Click item then click a time slot to schedule</p>
+      <p id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:0.25rem">Click item then click a time slot to schedule</p>
       <div class="cap-bar-wrap" style="margin-top:6px">
         <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,#F7A21B,#FDB94A);width:0%"></div>
       </div>
-      <p id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.3);margin-top:2px">Loading...</p>
+      <p id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.62);margin-top:2px">Loading...</p>
     </div>
     <div class="sidebar-items" id="sidebar-items">
-      <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.2);font-size:0.75rem">
+      <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.62);font-size:0.75rem">
         <svg style="width:32px;height:32px;margin:0 auto 0.5rem;opacity:0.3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         Loading logbook...
       </div>
@@ -243,23 +268,29 @@
     <!-- Top bar -->
     <div class="top-bar">
       <!-- Visually hidden H1 for SEO -->
-      <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Maintenance Day Planner: WorkHive</h1>
+      <h1 data-i="pagetitle" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Maintenance Day Planner: WorkHive</h1>
       <!-- Back + Logo -->
       <a href="index.html" class="btn-icon" title="Back to WorkHive">
         <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
       </a>
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <span id="logo-view" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,#F7A21B,#FDB94A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">DILO</span>
-        <span style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
+        <span id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,#F7A21B,#FDB94A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
+        <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
 
       <!-- View tabs -->
-      <div class="view-tabs">
-        <button class="view-tab active" onclick="switchView('dilo')" id="tab-dilo" title="DILO — Day view (Day In the Life Of)" aria-label="Day view (DILO)">DILO</button>
-        <button class="view-tab" onclick="switchView('wilo')" id="tab-wilo" title="WILO — Week view (Week In the Life Of)" aria-label="Week view (WILO)">WILO</button>
-        <button class="view-tab" onclick="switchView('milo')" id="tab-milo" title="MILO — Month view (Month In the Life Of)" aria-label="Month view (MILO)">MILO</button>
-        <button class="view-tab" onclick="switchView('yilo')" id="tab-yilo" title="YILO — Year view (Year In the Life Of)" aria-label="Year view (YILO)">YILO</button>
+      <div class="view-tabs" role="tablist" aria-label="Planner time span">
+        <!-- Arc P · Wave 3 (P4 plain English): visible labels are the plain words a new
+             worker grasps at a glance (Day/Week/Month/Year); the DILO/WILO/MILO/YILO
+             methodology acronym is kept in the hover title for anyone curious. -->
+        <!-- R3: role=tablist/tab makes this the connected TAB-BAR navigate vocabulary (a view
+             switcher IS a tablist), distinct from the 8px press buttons — was read as select,
+             colliding 8px across two roles. aria-selected is the tab's selected-state (synced below). -->
+        <button class="view-tab active" role="tab" aria-selected="true" onclick="switchView('dilo')" id="tab-dilo" title="Day view (DILO: Day In the Life Of)" aria-label="Day view" data-i="day">Day</button>
+        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('wilo')" id="tab-wilo" title="Week view (WILO: Week In the Life Of)" aria-label="Week view" data-i="week">Week</button>
+        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('milo')" id="tab-milo" title="Month view (MILO: Month In the Life Of)" aria-label="Month view" data-i="month">Month</button>
+        <button class="view-tab" role="tab" aria-selected="false" onclick="switchView('yilo')" id="tab-yilo" title="Year view (YILO: Year In the Life Of)" aria-label="Year view" data-i="year">Year</button>
       </div>
 
       <div style="flex:1"></div>
@@ -269,7 +300,7 @@
         <button class="btn-icon" onclick="navigate(-1)" title="Previous" aria-label="Previous">
           <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
-        <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.4rem 0.75rem">Today</button>
+        <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.4rem 0.75rem" data-i="today">Today</button>
         <button class="btn-icon" onclick="navigate(1)" title="Next" aria-label="Next">
           <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
@@ -278,7 +309,7 @@
       <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.75);min-width:180px;text-align:center"></div>
 
       <!-- Add schedule item -->
-      <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap">
+      <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap" data-i="addschedule">
         + Schedule
       </button>
     </div>
@@ -292,31 +323,33 @@
       <span id="dp-verdict-icon" class="verdict-icon">·</span>
       <div class="verdict-text"><span id="dp-verdict-label">Loading day plan...</span><small id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
     </div>
+    <!-- H1 goal-gradient: today's real done/planned from scheduleItems (whProgressStrip). -->
+    <div id="dp-progress" class="wh-progress-slot"></div>
     <div class="simple-row">
       <div class="simple-card hero tag-grey" id="dp-card-today" data-rag-tile="dayplanner:today_count" data-rag-label="Tasks today">
-        <div class="sc-label">Today</div>
+        <h2 class="sc-label" style="margin:0;" data-i="today">Today</h2>
         <div class="sc-hero" id="dp-today-hero">0</div>
         <div class="sc-sub" id="dp-today-sub">Loading...</div>
-        <span class="sc-tag" id="dp-today-tag">—</span>
+        <span class="sc-tag" id="dp-today-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="dp-card-week" data-rag-tile="dayplanner:week_count" data-rag-label="Tasks this week">
-        <div class="sc-label">This week</div>
+        <h2 class="sc-label" style="margin:0;" data-i="thisweek">This week</h2>
         <div class="sc-hero" id="dp-week-hero">0</div>
         <div class="sc-sub" id="dp-week-sub">Loading...</div>
-        <span class="sc-tag" id="dp-week-tag">—</span>
+        <span class="sc-tag" id="dp-week-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="dp-card-overdue" data-rag-tile="dayplanner:overdue_count" data-rag-label="Overdue tasks">
-        <div class="sc-label">Overdue</div>
+        <h2 class="sc-label" style="margin:0;" data-i="overdue">Overdue</h2>
         <div class="sc-hero" id="dp-overdue-hero">0</div>
         <div class="sc-sub" id="dp-overdue-sub">Loading...</div>
-        <span class="sc-tag" id="dp-overdue-tag">—</span>
+        <span class="sc-tag" id="dp-overdue-tag">-</span>
       </div>
     </div>
     <div class="action-card">
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="dp-action-text">Computing recommendation...</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details">
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="dp-summary-details" role="region" aria-label="Day planner explainer"
@@ -326,7 +359,7 @@
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Today</strong>: items scheduled for today (Philippine time).</li>
         <li><strong>This week</strong>: items in the current Monday-Sunday window.</li>
-        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND not yet done — open work that slipped.</li>
+        <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
         <li><strong>Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
@@ -344,35 +377,35 @@
 <div class="modal-overlay hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
-      <h2 style="font-size:1rem;font-weight:700" id="modal-title">Schedule Item</h2>
-      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0.25rem" aria-label="Close">
+      <h2 style="font-size:1rem;font-weight:700" id="modal-title" data-i="scheduleitem">Schedule Item</h2>
+      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.62);padding:0.25rem" aria-label="Close">
         <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
-        <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Title *</label>
+        <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
         <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
         <div role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label for="m-date" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Date *</label>
+          <label for="m-date" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mdate">Date *</label>
           <input class="wh-input" id="m-date" type="date" oninput="document.getElementById('m-required-error').style.display='none'" />
         </div>
         <div>
-          <label for="m-start" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Start Time</label>
+          <label for="m-start" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mstart">Start Time</label>
           <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.min=s;if(e.value&&e.value<=s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">End Time</label>
+          <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
           <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
           <div role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
-          <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Category</label>
+          <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="category">Category</label>
           <select class="wh-input" id="m-category" data-select-placeholder-allow="default 'PM' is the most common maintenance type">
             <option value="PM">Preventive Maintenance</option>
             <option value="CM">Corrective Maintenance</option>
@@ -385,12 +418,12 @@
         </div>
       </div>
       <div>
-        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem">Notes</label>
+        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="notes">Notes</label>
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->
       <div id="m-status-row" style="display:none;background:rgba(22,32,50,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;padding:0.75rem">
-        <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;font-weight:600">Item Status</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.62);margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
           <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.7rem;font-weight:600;cursor:pointer">
             Upcoming
@@ -398,7 +431,7 @@
           <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:#68D391;font-size:0.7rem;font-weight:600;cursor:pointer">
             Done
           </button>
-          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:#FC5C5C;font-size:0.7rem;font-weight:600;cursor:pointer">
+          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.7rem;font-weight:600;cursor:pointer">
             Missed
           </button>
         </div>
@@ -441,6 +474,7 @@ let currentDate = new Date();
 let logbookItems = [];
 let scheduleItems = [];
 let selectedLogbookItem = null;
+let plantWork = [];  // K2: PMs due/overdue composed from v_pm_scope_items_truth for the PULL rail
 let editingScheduleId = null;
 
 // ─────────────────────────────────────────────
@@ -453,12 +487,12 @@ const catColors = {
   Pneumatic:   { bg: 'rgba(154,230,180,0.2)', text: '#68D391',  border: 'rgba(154,230,180,0.35)' },
   Instrumentation: { bg: 'rgba(183,148,246,0.2)', text: '#B794F6', border: 'rgba(183,148,246,0.35)' },
   Structural:  { bg: 'rgba(252,129,74,0.2)',  text: '#FC814A',  border: 'rgba(252,129,74,0.35)' },
-  Safety:      { bg: 'rgba(252,92,92,0.2)',   text: '#FC5C5C',  border: 'rgba(252,92,92,0.35)' },
+  Safety:      { bg: 'rgba(252,92,92,0.2)',   text: 'var(--wh-red-text)',  border: 'rgba(252,92,92,0.35)' },
   General:     { bg: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.6)', border: 'rgba(255,255,255,0.12)' },
 };
 const schedCatColors = {
   PM:         { bg: 'rgba(41,182,217,0.25)',  text: '#29B6D9' },
-  CM:         { bg: 'rgba(252,92,92,0.25)',   text: '#FC5C5C' },
+  CM:         { bg: 'rgba(252,92,92,0.25)',   text: 'var(--wh-red-text)' },
   Inspection: { bg: 'rgba(247,162,27,0.25)',  text: '#F7A21B' },
   Training:   { bg: 'rgba(154,230,180,0.25)', text: '#68D391' },
   Admin:      { bg: 'rgba(183,148,246,0.25)', text: '#B794F6' },
@@ -491,8 +525,28 @@ function getItemStatus(item) {
 const statusConfig = {
   upcoming: { border: '#29B6D9', bg: null,                   label: 'Upcoming', icon: null },
   done:     { border: '#68D391', bg: 'rgba(104,211,145,0.1)', label: 'Done',     icon: 'M5 13l4 4L19 7' },
-  missed:   { border: '#FC5C5C', bg: 'rgba(252,92,92,0.08)', label: 'Missed',   icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+  missed:   { border: '#FCA5A5', bg: 'rgba(252,92,92,0.08)', label: 'Missed',   icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
 };
+
+// K4 — display-vs-persistence split. The UI works in display terms
+// (upcoming/done/missed), but schedule_items.item_status is bound by the canonical
+// schedule_item_v1 capture contract enum [pending,in_progress,done,blocked,skipped,null].
+// Persisting 'upcoming'/'missed' violated the contract and BLOCKED the save. Convert ONLY at
+// the DB boundary (toDBRow/fromDBRow); all display logic stays in display terms.
+const _CANON_STATUSES   = ['pending','in_progress','done','blocked','skipped'];
+const _DISPLAY_STATUSES = ['upcoming','done','missed'];
+const DP_DISPLAY_TO_CANON = { upcoming: 'pending', done: 'done', missed: 'skipped' };
+const DP_CANON_TO_DISPLAY = { pending: 'upcoming', in_progress: 'upcoming', blocked: 'upcoming', skipped: 'missed', done: 'done' };
+function dpDisplayToCanon(s) {
+  if (s == null) return null;
+  if (DP_DISPLAY_TO_CANON[s]) return DP_DISPLAY_TO_CANON[s];
+  return _CANON_STATUSES.includes(s) ? s : 'pending';
+}
+function dpCanonToDisplay(s) {
+  if (s == null) return null;
+  if (DP_CANON_TO_DISPLAY[s]) return DP_CANON_TO_DISPLAY[s];
+  return _DISPLAY_STATUSES.includes(s) ? s : 'upcoming';
+}
 
 let currentModalStatus = 'upcoming';
 
@@ -542,7 +596,9 @@ function toDBRow(item) {
     category:    item.category,
     notes:       item.notes,
     logbook_ref: item.logbookRef,
-    item_status: item.itemStatus,
+    item_status: dpDisplayToCanon(item.itemStatus),  // K4: persist canonical enum only
+    source_kind: item.sourceKind || null,  // K2: task provenance (pm/risk/alert/shift/logbook/manual)
+    source_ref:  item.sourceRef  || null,  // K2: the source id/tag that motivated the task
   };
 }
 
@@ -556,7 +612,9 @@ function fromDBRow(row) {
     category:   row.category,
     notes:      row.notes,
     logbookRef: row.logbook_ref,
-    itemStatus: row.item_status,
+    itemStatus: dpCanonToDisplay(row.item_status),  // K4: canonical enum -> display term
+    sourceKind: row.source_kind || null,  // K2: task provenance
+    sourceRef:  row.source_ref  || null,
   };
 }
 
@@ -611,10 +669,10 @@ async function syncItemToSupabase(item) {
       }
     }
     const { error } = await db.from('schedule_items').upsert(row);
-    if (error) { console.warn('Schedule sync failed:', error.message); showToast('Save failed — check your connection', 'error'); }
+    if (error) { console.warn('Schedule sync failed:', error.message); showToast('Save failed: check your connection', 'error'); }
   } catch(e) {
     console.warn('Schedule sync error:', e);
-    showToast('Save failed — check your connection', 'error');
+    showToast('Save failed: check your connection', 'error');
   }
 }
 
@@ -622,10 +680,10 @@ async function deleteItemFromSupabase(id) {
   _dpLastLocalWrite = Date.now();
   try {
     const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
-    if (error) { console.warn('Schedule delete failed:', error.message); showToast('Delete failed — check your connection', 'error'); }
+    if (error) { console.warn('Schedule delete failed:', error.message); showToast('Delete failed: check your connection', 'error'); }
   } catch(e) {
     console.warn('Schedule delete error:', e);
-    showToast('Delete failed — check your connection', 'error');
+    showToast('Delete failed: check your connection', 'error');
   }
 }
 
@@ -663,6 +721,76 @@ async function loadLogbook() {
   }
 }
 
+// K2 (Ext-5 spine) — PULL rail: compose PMs due/overdue from the canonical v_pm_scope_items_truth
+// so the dayplanner turns the PM SCHEDULE into your day (was an island reading only its own
+// free-text items; index.html even falsely claimed it "Pulls from PM schedule"). RLS scopes the
+// view to the worker's hive. Each row is one-tap addable as a GROUNDED task (source_kind='pm').
+async function loadPlantWork() {
+  try {
+    const { data, error } = await db.from('v_pm_scope_items_truth')
+      .select('scope_item_id, item_text, asset_name, asset_tag, next_due_date, days_until_due, is_overdue, is_due_soon')
+      .or('is_overdue.eq.true,is_due_soon.eq.true')
+      .order('is_overdue', { ascending: false })
+      .order('next_due_date', { ascending: true })
+      .limit(30);
+    if (error) throw error;
+    plantWork = data || [];
+  } catch (e) {
+    console.warn('Plant PM work load failed:', e.message || e);
+    plantWork = [];
+  }
+  renderSidebar();
+}
+
+function renderPlantWorkSection() {
+  if (!plantWork.length) return '';
+  const e = escHtml;
+  const today = todayYMD();
+  const cards = plantWork.map(pm => {
+    const added = scheduleItems.some(i => i.sourceKind === 'pm' && i.sourceRef === pm.scope_item_id && i.date === today);
+    const badge = pm.is_overdue
+      ? `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">Overdue</span>`
+      : `<span class="badge" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3)">Due soon</span>`;
+    return `
+    <div class="lb-card" style="cursor:default">
+      <div class="lb-card-header">
+        <div class="lb-dot" style="background:var(--wh-blue)"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(pm.item_text || 'PM task')}</div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:1px">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
+        </div>
+        ${badge}
+      </div>
+      <button class="btn-ghost" data-i="addtoday" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem;margin-top:0.5rem" ${added ? 'disabled' : ''}
+        onclick="addPmToDay('${escJsAttr(pm.scope_item_id)}')">
+        ${added ? 'On your day &#10003;' : '+ Add to my day'}
+      </button>
+    </div>`;
+  }).join('');
+  return `
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <svg style="width:14px;height:14px;color:var(--wh-blue)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your plant</span>
+        <span style="font-size:0.6rem;color:rgba(255,255,255,0.62)">${plantWork.length} PM${plantWork.length!==1?'s':''}</span>
+      </div>
+      ${cards}
+    </div>`;
+}
+
+function addPmToDay(scopeItemId) {
+  const pm = plantWork.find(p => p.scope_item_id === scopeItemId);
+  if (!pm) return;
+  addGroundedItem({
+    title: (pm.item_text || 'PM task') + (pm.asset_name ? ' - ' + pm.asset_name : ''),
+    category: 'PM',
+    date: todayYMD(),
+    sourceKind: 'pm',
+    sourceRef: pm.scope_item_id,
+  });
+  renderSidebar();  // reflect the "On your day" state
+}
+
 function renderSidebar() {
   const container = document.getElementById('sidebar-items');
   const label = document.getElementById('sidebar-count-label');
@@ -672,9 +800,9 @@ function renderSidebar() {
   bar.style.width = Math.min(100, total * 10) + '%';
 
   if (total === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.2);font-size:0.75rem">
+    container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.62);font-size:0.75rem">
       <svg style="width:28px;height:28px;margin:0 auto 0.5rem;opacity:0.3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      No open items</div>`;
+      No open items</div>` + renderPlantWorkSection();
     return;
   }
 
@@ -694,7 +822,7 @@ function renderSidebar() {
       schedBadge = `<span class="badge" style="background:rgba(104,211,145,0.15);color:#68D391;border:1px solid rgba(104,211,145,0.3)">
         <svg style="width:9px;height:9px;margin-right:2px;display:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Done</span>`;
     } else if (hasMissed) {
-      schedBadge = `<span class="badge" style="background:rgba(252,92,92,0.15);color:#FC5C5C;border:1px solid rgba(252,92,92,0.3)">
+      schedBadge = `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">
         <svg style="width:9px;height:9px;margin-right:2px;display:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Missed</span>`;
     } else if (hasLinked) {
       schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.3)">
@@ -705,31 +833,31 @@ function renderSidebar() {
     const dimStyle = hasDone ? 'opacity:0.55;' : '';
 
     return `
-    <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}" id="lbc-${item.id}" onclick="selectLogbookItem('${item.id}')" style="${dimStyle}">
+    <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}" id="lbc-${item.id}" onclick="selectLogbookItem('${escJsAttr(item.id)}')" style="${dimStyle}">
       <div class="lb-card-header">
         <div class="lb-dot" style="background:${c.text}"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
-          <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-top:1px">${escHtml(item.date) || ''} &bull; ${escHtml(item.category) || ''}</div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:1px">${escHtml(item.date) || ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
           ${schedBadge}
-          <svg style="width:12px;height:12px;color:rgba(255,255,255,0.25);flex-shrink:0;transition:transform 0.2s" id="lbc-arrow-${item.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <svg style="width:12px;height:12px;color:rgba(255,255,255,0.62);flex-shrink:0;transition:transform 0.2s" id="lbc-arrow-${item.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </div>
       </div>
       <div class="lb-card-body" id="lbc-body-${item.id}">
         <div style="font-size:0.68rem;color:rgba(255,255,255,0.55);margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.5rem">
           <span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${escHtml(item.category)}</span>
-          <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)">${escHtml(item.status) || 'Open'}</span>
+          <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.62)">${escHtml(item.status) || 'Open'}</span>
         </div>
-        ${linked.length ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
-        <button class="btn-primary" style="width:100%;font-size:0.68rem;padding:0.375rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${item.id}')">
+        ${linked.length ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.62);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
+        <button class="btn-ghost" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')">
           + Place on Schedule
         </button>
       </div>
     </div>`;
-  }).join('');
+  }).join('') + renderPlantWorkSection();
 }
 
 function selectLogbookItem(id) {
@@ -780,9 +908,13 @@ function selectAndSchedule(id) {
 function switchView(view) {
   currentView = view;
   ['dilo','wilo','milo','yilo'].forEach(v => {
-    document.getElementById('tab-'+v).classList.toggle('active', v === view);
+    const t = document.getElementById('tab-'+v);
+    t.classList.toggle('active', v === view);
+    t.setAttribute('aria-selected', v === view ? 'true' : 'false');  // R3/a11y: tablist selected-state
   });
-  document.getElementById('logo-view').textContent = view.toUpperCase();
+  // Arc P · Wave 3 (P4): show the plain word in the logo, not the DILO/WILO acronym.
+  const VIEW_LABEL = { dilo: 'Day', wilo: 'Week', milo: 'Month', yilo: 'Year' };
+  document.getElementById('logo-view').textContent = VIEW_LABEL[view] || view.toUpperCase();
   render();
 }
 
@@ -824,15 +956,28 @@ function renderDayplannerSummary() {
 
   const todayCount = scheduleItems.filter(i => i.date === ymdToday).length;
   const weekCount  = scheduleItems.filter(i => i.date >= ymdMon && i.date <= ymdSun).length;
-  // Overdue = past-due AND still open. The canonical item_status enum is
-  // 'done' / 'in_progress' / 'pending' (see schedule_items) — there is NO
-  // 'closed' value, so the old `!== 'closed'` check excluded nothing and counted
-  // already-DONE past items as overdue (grounded MCP sweep 2026-06-07: showed 6
-  // when only 3 were actually open). Exclude the real completed states.
-  const DONE_STATUSES = ['done', 'closed', 'cancelled'];
+  // Overdue = past-due AND not completed. getItemStatus() is the SINGLE source of an item's
+  // effective status (display term 'done'/'missed'/'upcoming'), so the overdue count derives
+  // from it directly — this replaces the old DONE_STATUSES=[done,closed,cancelled] list, which
+  // was a THIRD status vocabulary (closed/cancelled don't exist in the enum) and drifted from
+  // the persisted values. One status function, no vocab drift (K4/U1).
   const overdueCount = scheduleItems.filter(i =>
-    i.date < ymdToday && !DONE_STATUSES.includes((i.itemStatus || '').toLowerCase())
+    i.date < ymdToday && getItemStatus(i) !== 'done'
   ).length;
+
+  // H1 goal-gradient — today's REAL done/planned (skips when nothing is planned:
+  // an empty bar invents a journey). whProgressStrip is the shared utils.js strip.
+  const dpProg = document.getElementById('dp-progress');
+  if (dpProg && typeof whProgressStrip === 'function') {
+    // Fallback chain keeps the gradient REAL: today's plan → this week's → the whole
+    // backlog. Never an invented quota; empty only when no plan items exist at all.
+    const todayItems = scheduleItems.filter(i => i.date === ymdToday);
+    const weekItems  = scheduleItems.filter(i => i.date >= ymdMon && i.date <= ymdSun);
+    const pool = todayItems.length ? todayItems : weekItems.length ? weekItems : scheduleItems;
+    const lbl  = todayItems.length ? "Today's plan done" : weekItems.length ? "This week's plan done" : 'Plan items completed';
+    const done = pool.filter(i => getItemStatus(i) === 'done').length;
+    dpProg.innerHTML = whProgressStrip(lbl, done, pool.length);
+  }
 
   const setCard = (name, hero, sub, tag, tone) => {
     const card = document.getElementById('dp-card-' + name);
@@ -847,7 +992,7 @@ function renderDayplannerSummary() {
   setCard('today',
     String(todayCount),
     todayCount === 0 ? 'No items scheduled for today' : `${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
-    todayCount === 0 ? 'FREE' : todayCount > 6 ? 'BUSY' : 'PLANNED',
+    todayCount === 0 ? 'OPEN' : todayCount > 6 ? 'BUSY' : 'PLANNED',
     todayCount === 0 ? 'green' : todayCount > 6 ? 'amber' : 'green'
   );
   setCard('week',
@@ -868,7 +1013,7 @@ function renderDayplannerSummary() {
     tone = 'attn'; label = `${overdueCount} items overdue`;
     sub  = 'Close them out (mark Closed) or re-schedule so the day plan reflects reality.';
   } else if (overdueCount > 0 || todayCount > 6) {
-    tone = 'watch'; label = 'Day is shaping up — a couple of things to manage';
+    tone = 'watch'; label = 'Day is shaping up, a couple of things to manage';
     const parts = [];
     if (overdueCount > 0) parts.push(`${overdueCount} overdue`);
     if (todayCount > 6)   parts.push(`${todayCount} on today's plan`);
@@ -890,13 +1035,13 @@ function renderDayplannerSummary() {
   if (actBox) {
     let text;
     if (todayCount === 0 && weekCount === 0) {
-      text = 'No items scheduled. Use the + Schedule button to plan your week — even rough placeholders help cluster work by location and asset.';
+      text = 'Nothing planned yet. Tap + Schedule to block out your week. Rough placeholders still help you group work by area.';
     } else if (overdueCount >= 3) {
-      text = `${overdueCount} items overdue. Quickest path: open WILO, drag the still-relevant ones to today/tomorrow, and close out the rest.`;
+      text = `${overdueCount} items overdue. Open the Week view. Drag the ones you still need to today or tomorrow. Close the rest.`;
     } else if (overdueCount > 0) {
       text = `${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Either close them out (if done) or push the date forward so the plan stays honest.`;
     } else if (todayCount > 6) {
-      text = `${todayCount} items on today's plan — that's a heavy day. Open DILO to check the time grid for clashes, then defer anything non-urgent to tomorrow.`;
+      text = `${todayCount} items on today's plan, that's a heavy day. Open DILO to check the time grid for clashes, then defer anything non-urgent to tomorrow.`;
     } else {
       text = 'Day plan is healthy. Open DILO for the time-grid view of today, or WILO to balance the week ahead.';
     }
@@ -968,7 +1113,7 @@ function renderDILO() {
   const isToday = ymd === todayStr;
   document.getElementById('period-label').textContent =
     (isToday ? 'Today, ' : '') +
-    currentDate.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    whFmtDate(currentDate, { long: true, weekday: 'long' }); // FD1a canonical (en-PH + Asia/Manila)
 
   const items = itemsOnDate(ymd);
 
@@ -982,11 +1127,11 @@ function renderDILO() {
   const capColor = capPct > 85 ? '#FC5C5C' : capPct > 60 ? '#F7A21B' : '#68D391';
 
   let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.1em">DILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.25)">Day In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">DILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Day In the Life Of</span>
     <span style="flex:1"></span>
     <div style="display:flex;align-items:center;gap:0.5rem">
-      <span style="font-size:0.7rem;color:rgba(255,255,255,0.3)">Capacity</span>
+      <span style="font-size:0.7rem;color:rgba(255,255,255,0.62)">Capacity</span>
       <div style="width:80px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
         <div style="width:${capPct}%;height:100%;background:${capColor};border-radius:3px"></div>
       </div>
@@ -1001,7 +1146,7 @@ function renderDILO() {
     untimedItems.forEach(item => {
       const c = getSchedColor(item.category);
       html += `<div style="background:${c.bg};color:${c.text};border:1px solid ${c.text}40;border-radius:0.5rem;padding:0.25rem 0.625rem;font-size:0.7rem;font-weight:600;cursor:pointer"
-        onclick="openEditModal('${item.id}')" title="${escHtml(item.title)}">
+        onclick="openEditModal('${escJsAttr(item.id)}')" title="${escHtml(item.title)}">
         ${escHtml(item.title)}
       </div>`;
     });
@@ -1022,7 +1167,7 @@ function renderDILO() {
   html += `<div style="position:relative;height:${totalH}px">`;
   for (let h = 0; h < 24; h++) {
     const label = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
-    html += `<div style="position:absolute;top:${h * SLOT_H - 8}px;right:8px;font-size:0.68rem;color:rgba(255,255,255,0.28);line-height:1;white-space:nowrap">${label}</div>`;
+    html += `<div style="position:absolute;top:${h * SLOT_H - 8}px;right:8px;font-size:0.68rem;color:rgba(255,255,255,0.62);line-height:1;white-space:nowrap">${label}</div>`;
   }
   html += `</div>`;
 
@@ -1083,7 +1228,7 @@ function renderDILO() {
     const blockColor = status === 'done' ? '#68D391' : status === 'missed' ? '#FC5C5C' : c.text;
     const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
 
-    html += `<div onclick="event.stopPropagation();openEditModal('${item.id}')"
+    html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
       title="${escHtml(item.title)}: ${item.startTime}${endLabel} [${sc.label}]"
       style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
              background:${blockBg};color:${blockColor};border:1px solid ${blockBorder}50;border-left:3px solid ${blockBorder};
@@ -1124,19 +1269,19 @@ function renderWILO() {
     days.push(dd);
   }
 
-  const from = days[0].toLocaleDateString('en-US', { month:'short', day:'numeric' });
-  const to = days[6].toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  const from = whFmtDate(days[0], { year: false }); // FD1a canonical
+  const to = whFmtDate(days[6]); // FD1a canonical
   document.getElementById('period-label').textContent = `${from} - ${to}`;
 
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.1em">WILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.25)">Week In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">WILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Week In the Life Of</span>
   </div>`;
 
   html += `<div class="wilo-grid" style="position:sticky;top:0;z-index:3">
-    <div class="wilo-day-header" style="font-size:0.65rem;color:rgba(255,255,255,0.2)">Time</div>`;
+    <div class="wilo-day-header" style="font-size:0.65rem;color:rgba(255,255,255,0.62)">Time</div>`;
   days.forEach(day => {
     const isToday = toYMD(day) === todayStr;
     const ymd = toYMD(day);
@@ -1157,7 +1302,7 @@ function renderWILO() {
   html += `<div style="position:relative;height:${totalH}px;border-right:1px solid rgba(255,255,255,0.05)">`;
   for (let h = 0; h < 24; h++) {
     const label = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
-    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.62rem;color:rgba(255,255,255,0.25);white-space:nowrap;line-height:1">${label}</div>`;
+    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.62rem;color:rgba(255,255,255,0.62);white-space:nowrap;line-height:1">${label}</div>`;
   }
   html += `</div>`;
 
@@ -1173,7 +1318,7 @@ function renderWILO() {
     html += `<div style="position:relative;height:${totalH}px;border-left:1px solid rgba(255,255,255,0.04);${isToday ? 'background:rgba(247,162,27,0.015)' : ''}">`;
 
     // Hour lines
-    const dayLabel = day.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const dayLabel = whFmtDate(day, { weekday: 'short', year: false }); // FD1a canonical
     for (let h = 0; h < 24; h++) {
       const slotH = String(h).padStart(2,'0');
       const slotLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
@@ -1208,7 +1353,7 @@ function renderWILO() {
       if (status === 'missed') { blockBg = 'rgba(252,92,92,0.15)';   blockBorder = '#FC5C5C'; }
       const blockColor = status === 'done' ? '#68D391' : status === 'missed' ? '#FC5C5C' : c.text;
       const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
-      html += `<div onclick="event.stopPropagation();openEditModal('${item.id}')"
+      html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
         title="${escHtml(item.title)}: ${item.startTime}${item.endTime ? ' - '+item.endTime : ''} [${statusConfig[status].label}]"
         style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
                background:${blockBg};color:${blockColor};border-left:2px solid ${blockBorder};
@@ -1241,8 +1386,8 @@ function renderMILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.1em">MILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.25)">Month In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">MILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Month In the Life Of</span>
   </div>`;
 
   html += `<div class="milo-grid">`;
@@ -1254,7 +1399,7 @@ function renderMILO() {
     const ymd = toYMD(prevDate);
     const dayItems = itemsOnDate(ymd);
     html += `<div class="milo-cell other-month" onclick="onMiloClick('${ymd}')">
-      <div class="milo-date" style="color:rgba(255,255,255,0.25)">${prevDate.getDate()}</div>
+      <div class="milo-date" style="color:rgba(255,255,255,0.62)">${prevDate.getDate()}</div>
     </div>`;
   }
 
@@ -1283,7 +1428,7 @@ function renderMILO() {
   for (let i = 1; i <= remainder; i++) {
     const date = new Date(y, m+1, i);
     html += `<div class="milo-cell other-month" onclick="onMiloClick('${toYMD(date)}')">
-      <div class="milo-date" style="color:rgba(255,255,255,0.25)">${i}</div>
+      <div class="milo-date" style="color:rgba(255,255,255,0.62)">${i}</div>
     </div>`;
   }
 
@@ -1309,8 +1454,8 @@ function renderYILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.1em">YILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.25)">Year In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">YILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Year In the Life Of</span>
   </div>`;
 
   const now = new Date();
@@ -1449,6 +1594,8 @@ function saveScheduleItem() {
     notes: document.getElementById('m-notes').value,
     logbookRef: selectedLogbookItem ? selectedLogbookItem.id : (existing ? existing.logbookRef : null),
     itemStatus: editingScheduleId ? currentModalStatus : null, // only save explicit status on edit
+    sourceKind: existing ? (existing.sourceKind || null) : null, // K2: preserve provenance across edits
+    sourceRef:  existing ? (existing.sourceRef  || null) : null,
   };
 
   if (editingScheduleId) {
@@ -1467,10 +1614,17 @@ function saveScheduleItem() {
     db.from('logbook')
       .update({ status: 'Closed' })
       .eq('id', payload.logbookRef)
-      .then(({ error }) => {
+      .select('id')   // K5: return affected rows so a 0-row RLS no-op is detected, not assumed success
+      .then(({ data, error }) => {
         if (error) { console.warn('Logbook sync failed:', error.message); showToast('Item saved, but failed to close the linked logbook entry. Please close it manually.'); }
-        else {
-          // Remove from open items sidebar since it's now closed
+        else if (!data || data.length === 0) {
+          // 0 rows updated: logbook.update RLS is owner-scoped (auth_uid=auth.uid()), so a linked
+          // entry authored by someone else (or an un-backfilled legacy row) matches nothing. The old
+          // code treated no-error as success and hid the item while the DB stayed Open (silent lie).
+          console.warn('Logbook close matched 0 rows — entry may belong to another user or be un-attributed.');
+          showToast('Item saved. The linked logbook entry could not be closed (it may be owned by someone else).');
+        } else {
+          // Remove from open items sidebar since it's now genuinely closed
           logbookItems = logbookItems.filter(i => i.id != payload.logbookRef);
           renderSidebar();
         }
@@ -1481,6 +1635,40 @@ function saveScheduleItem() {
   renderSidebar();
   closeModal();
   render();
+}
+
+// K2 (Ext-5 spine) — create a GROUNDED schedule item that traces to the intelligence that
+// motivated it (a PM due, a risk asset, a shift-plan row, an alert). Used by the ?add= ingest
+// reader (shift-brain / alert-hub / pm-scheduler "Add to my day" emitters) so the dayplanner
+// composes FROM the canonical sources instead of being an island of retyped strings. Dedupes on
+// (sourceKind, sourceRef, date) so a double-tap or re-visit doesn't stack copies.
+const _DP_VALID_CATS = ['PM','CM','Inspection','Training','Admin','Meeting','Other'];
+function addGroundedItem({ title, category, date, startTime, sourceKind, sourceRef }) {
+  const d = date || todayYMD();
+  const kind = sourceKind || 'manual';
+  const cat = _DP_VALID_CATS.includes(category) ? category : 'Other';
+  if (sourceRef) {
+    const dup = scheduleItems.find(i => i.sourceKind === kind && i.sourceRef === sourceRef && i.date === d);
+    if (dup) { showToast('Already on your day for ' + d); return dup; }
+  }
+  const item = {
+    id: uid(),
+    title: (title || 'Task').toString().slice(0, 120),
+    date: d,
+    startTime: startTime || '',
+    endTime: '',
+    category: cat,
+    notes: '',
+    logbookRef: null,
+    itemStatus: null,          // -> canonical 'pending' via toDBRow
+    sourceKind: kind,
+    sourceRef: sourceRef || null,
+  };
+  scheduleItems.push(item);
+  syncItemToSupabase(item);
+  render();
+  showToast('Added to your day');
+  return item;
 }
 
 async function deleteScheduleItem() {
@@ -1512,7 +1700,7 @@ document.addEventListener('keydown', e => {
 // INIT: runs after supabase-js CDN loads (see script block below)
 // ─────────────────────────────────────────────
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script>
@@ -1535,7 +1723,7 @@ document.addEventListener('keydown', e => {
       _dpChip.innerHTML = renderSourceChip({
         freshness: 'Live · refreshed on each view switch',
         source:    'schedule_items + v_logbook_truth',
-        notes:     [
+        method:    [
           'Schedule: DILO / WILO / MILO / YILO views (day / week / month / year)',
           'Logbook context: recent job history cross-referenced with schedule',
         ],
@@ -1544,7 +1732,27 @@ document.addEventListener('keydown', e => {
     // E2 consistent states: skeleton in the logbook sidebar while it fetches so
     // #sidebar-items never flashes blank before open items render (shared whListSkeleton).
     if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('sidebar-items'), 4);
-    await Promise.all([loadLogbook(), loadSchedule()]);
+    await Promise.all([loadLogbook(), loadSchedule(), loadPlantWork()]);
+    if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
+
+    // K2 (Ext-5 spine) — ?add= INGEST: shift-brain / alert-hub / pm-scheduler "Add to my day"
+    // deep-links land here and create a GROUNDED task (carrying its provenance). Runs AFTER
+    // loadSchedule so the dedupe sees existing items. The add params are then stripped from the URL
+    // so a refresh / back-button doesn't re-add. Params: add=1 & title & kind & ref & cat & date.
+    try {
+      const qp = new URLSearchParams(location.search);
+      if (qp.get('add') === '1' && qp.get('title')) {
+        addGroundedItem({
+          title:      qp.get('title'),
+          category:   qp.get('cat'),
+          date:       qp.get('date') || todayYMD(),
+          sourceKind: qp.get('kind') || 'manual',
+          sourceRef:  qp.get('ref') || null,
+        });
+        ['add','title','kind','ref','cat','date'].forEach(k => qp.delete(k));
+        history.replaceState(null, '', location.pathname + (qp.toString() ? '?' + qp.toString() : ''));
+      }
+    } catch (e) { console.warn('[dayplanner] ?add ingest failed:', e.message); }
 
     // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
@@ -1607,7 +1815,7 @@ document.addEventListener('keydown', e => {
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -1618,5 +1826,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+
+<script>window.WH_FIL_PAGE={addtoday:"+ Idagdag sa araw ko"};</script>
 </body>
 </html>

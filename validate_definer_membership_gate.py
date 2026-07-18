@@ -66,6 +66,20 @@ ALLOWLIST: dict[str, str] = {
     "user_can_access_hive":
         "gate primitive: returns a bool about the CALLER's own membership "
         "(self-scoped via user_hive_ids()=auth.uid()); leaks no hive data.",
+    "get_community_reputation":
+        "cross-hive PORTABLE marketplace/person-card reputation bridge: returns "
+        "PUBLIC-scoped aggregate ONLY (public posts/reactions/xp/voice-badge/seller), "
+        "no post content, and its internal WHERE gate returns NO row for purely-private "
+        "workers; deliberately serves cross-hive public data so a per-caller membership "
+        "gate would defeat its purpose (Community PDDA X-axis bridge, "
+        "20260711000001_community_reputation_bridge.sql).",
+    "get_seller_community_reputation":
+        "cross-hive marketplace seller-reputation bridge: auth-gated (auth.uid() required) thin "
+        "wrapper that resolves an OPTED-IN marketplace seller by (worker_name, hive_id) then "
+        "RETURN QUERYs get_community_reputation_by_auth — same PUBLIC-scoped aggregate ONLY "
+        "(xp/public posts/reactions/trust-tier), no post content; returns NO row for a "
+        "non-seller. Deliberately cross-hive (buyers see any seller's reputation on the "
+        "marketplace) so a per-caller membership gate would defeat its purpose.",
 }
 
 DOLLAR = re.compile(r"\$(\w*)\$")

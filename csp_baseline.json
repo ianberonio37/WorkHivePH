@@ -1,0 +1,7 @@
+{
+  "inline_handlers": 46,
+  "inline_scripts": 12,
+  "unnonced_scripts": 12,
+  "csp_present": false,
+  "tailwind_cdn": true
+}

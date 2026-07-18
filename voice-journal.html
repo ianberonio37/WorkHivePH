@@ -45,7 +45,7 @@
         radial-gradient(ellipse 55% 35% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
     }
 
-    .wh-card {
+    .card { /* FC4 dialect: voice-journal gradient variant of the blessed .card */
       background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem;
@@ -62,7 +62,7 @@
       transition: border-color 0.2s;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -83,7 +83,8 @@
     .btn-ghost {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.6);
+      color: rgba(255,255,255,0.72);
+      min-height: 44px; /* WCAG 2.5.8 / F1 */
       font-weight: 500;
       border-radius: 0.75rem;
       padding: 0.5rem 0.9rem;
@@ -93,6 +94,11 @@
       min-height: 36px;
     }
     .btn-ghost:hover  { border-color: rgba(255,255,255,0.25); color: white; }
+    /* R3 one-shape-per-role: the voice toggles are SELECT controls (aria-pressed) — give them
+       the pill silhouette; a page's SELECT vocabulary is pill (persona radios + filter chips),
+       while PRESS actions (speak-again, load-more) take the rect. Keeps 3 shapes for 2 roles. */
+    #tts-toggle, #sov-voice-toggle { border-radius: var(--wh-radius-pill); }
+    .speak-btn { border-radius: var(--wh-radius-sm); }
     .btn-ghost:active { background: rgba(255,255,255,0.08); transform: scale(0.97); }
     @media (max-width: 480px) { .btn-ghost { min-height: 44px; padding: 0.65rem 1rem; } }
 
@@ -118,6 +124,32 @@
       0%, 100% { box-shadow: 0 18px 38px rgba(195,59,59,0.45); }
       50%      { box-shadow: 0 24px 70px rgba(195,59,59,0.78); }
     }
+    /* Processing state (transcribing / composing): a distinct rotating ring so the
+       "I'm working" step reads at a GLANCE, not as a dimmed-idle button. The button is
+       disabled while busy, so this overrides the :disabled dimming and adds the spinner. */
+    .mic-btn.processing,
+    .mic-btn.processing:disabled {
+      opacity: 1; cursor: progress; position: relative;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
+      color: var(--wh-navy);
+      animation: mic-breathe 1.6s ease-in-out infinite;
+    }
+    .mic-btn.processing::after {
+      content: ''; position: absolute; inset: -7px; border-radius: 50%;
+      border: 3px solid transparent; border-top-color: var(--wh-navy);
+      border-right-color: rgba(11,22,40,0.35);
+      animation: mic-spin 0.9s linear infinite;
+    }
+    @keyframes mic-spin  { to { transform: rotate(360deg); } }
+    @keyframes mic-breathe {
+      0%, 100% { box-shadow: 0 18px 42px rgba(247,162,27,0.40); }
+      50%      { box-shadow: 0 22px 60px rgba(247,162,27,0.62); }
+    }
+    /* Reduced-motion: keep a STATIC ring (still a distinct visual state) but no spin/breathe. */
+    @media (prefers-reduced-motion: reduce) {
+      .mic-btn.processing { animation: none; }
+      .mic-btn.processing::after { animation: none; border-color: rgba(11,22,40,0.55); }
+    }
     /* Functional animation: keep on mobile but reduce intensity. */
     @media (max-width: 767px) {
       .mic-btn { width: 116px; height: 116px; }
@@ -142,7 +174,7 @@
       color: rgba(255,255,255,0.92);
       word-break: break-word;
     }
-    .transcript-box.empty { color: rgba(255,255,255,0.35); font-style: italic; }
+    .transcript-box.empty { color: rgba(255,255,255,0.62); font-style: italic; }
 
     .reply-bubble {
       background: linear-gradient(145deg, rgba(247,162,27,0.14), rgba(247,162,27,0.06));
@@ -163,11 +195,11 @@
     .history-entry + .history-entry { margin-top: 0.6rem; }
     .history-day {
       font-size: 0.62rem; letter-spacing: 0.10em; text-transform: uppercase;
-      color: rgba(255,255,255,0.45); margin: 1.1rem 0 0.5rem;
+      color: rgba(255,255,255,0.62); margin: 1.1rem 0 0.5rem;
       font-weight: 700;
     }
     .history-day:first-child { margin-top: 0.25rem; }
-    .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); display: flex; gap: 0.5rem; align-items: center; }
+    .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.62); display: flex; gap: 0.5rem; align-items: center; }
     .history-text { font-size: 0.85rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.35rem; word-break: break-word; }
     .history-reply { font-size: 0.82rem; line-height: 1.5; color: rgba(255,255,255,0.6); margin-top: 0.4rem; padding-left: 0.7rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
 
@@ -175,7 +207,7 @@
       background: rgba(247,162,27,0.18);
       border: 1px solid rgba(247,162,27,0.3);
       color: #ffcc7a;
-      border-radius: 999px;
+      border-radius: var(--wh-radius-sm); /* R3: PRESS action → rect, not the pill worn by the select toggles/chips */
       font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.3rem 0.7rem; cursor: pointer;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
@@ -288,46 +320,56 @@
 
     <!-- Header -->
     <header class="flex items-center justify-between mb-5">
-      <button onclick="history.back()" class="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
+      <button onclick="history.back()" class="flex items-center gap-2 text-white/60 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
         <span>Back</span>
       </button>
       <div class="text-center">
-        <div class="text-[10px] uppercase tracking-widest text-white/40 font-semibold">WorkHive</div>
-        <h1 class="text-base font-bold" style="margin:0;">Voice Journal</h1>
+        <div class="text-[10px] uppercase tracking-widest text-white/60 font-semibold">WorkHive</div>
+        <h1 class="text-base font-bold" style="margin:0;" data-i="vj_title">Voice Journal</h1>
       </div>
       <button id="tts-toggle" class="btn-ghost" aria-pressed="true" title="Toggle voice replies">
         <span id="tts-toggle-label">Voice On</span>
       </button>
+      <button id="sov-voice-toggle" class="btn-ghost" aria-pressed="false" title="On-device sovereign voice (Piper): the branded voice synthesizes locally and the audio never leaves the plant">
+        <span id="sov-voice-label">Cloud voice</span>
+      </button>
     </header>
 
+    <div style="padding:0.5rem 1rem 0;">
+      <details class="wh-help">
+        <summary>How this works</summary>
+        <p>Record or type a note. The assistant turns it into a structured entry. Review it before you save. Use the voice buttons above to control spoken replies. Your past entries stay in the list below.</p>
+      </details>
+    </div>
+
     <!-- Sign-in gate -->
-    <div id="signin-gate" class="wh-card p-5 mb-5 fade-up">
+    <div id="signin-gate" class="card p-5 mb-5 fade-up">
       <div class="text-sm font-semibold text-white mb-1">Sign in to journal</div>
-      <p class="text-xs text-white/55 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
+      <p class="text-xs text-white/60 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
       <a href="index.html?signin=1" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
     </div>
 
     <!-- Live capture panel -->
-    <section id="capture-panel" class="wh-card p-5 mb-5">
-      <div class="text-xs uppercase tracking-widest text-white/40 font-semibold mb-3 text-center">Today, your turn</div>
+    <section id="capture-panel" class="card p-5 mb-5">
+      <div class="text-xs uppercase tracking-widest text-white/60 font-semibold mb-3 text-center">Today, your turn</div>
 
       <!-- Persona picker: who is journaling with you today.
            Choice persists in localStorage and travels to the agent as
            ctx.persona. 2026-05-19 Step D: Zaniah = default (Strategist),
            Hezekiah = Technical. Labels signal the LENS, not just the name. -->
       <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your companion lens">
-        <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold mr-1">Talking with</span>
+        <span class="text-[10px] uppercase tracking-widest text-white/60 font-semibold mr-1">Talking with</span>
         <button id="persona-zaniah" type="button" role="radio" aria-checked="true"
-                class="persona-chip persona-chip-active" data-persona="zaniah"
-                title="Strategist — patterns, priorities, this-week thinking">
+                class="persona-chip persona-chip-active" data-persona="zaniah" translate="no"
+                title="Strategist: patterns, priorities, this-week thinking">
           <span aria-hidden="true">🧭</span> Zaniah <span class="text-[9px] opacity-70">· Strategy</span>
         </button>
         <button id="persona-hezekiah" type="button" role="radio" aria-checked="false"
-                class="persona-chip" data-persona="hezekiah"
-                title="Technical Expert — torque, SOPs, this-asset thinking">
+                class="persona-chip" data-persona="hezekiah" translate="no"
+                title="Technical Expert: torque, SOPs, this-asset thinking">
           <span aria-hidden="true">🛠️</span> Hezekiah <span class="text-[9px] opacity-70">· Technical</span>
         </button>
       </div>
@@ -341,45 +383,45 @@
         </svg>
       </button>
 
-      <div id="mic-state" class="text-center text-sm text-white/55 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
-      <div id="mic-timer" class="text-center text-xs text-white/35 mt-1" style="min-height:1rem;"></div>
+      <div id="mic-state" class="text-center text-sm text-white/60 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
+      <div id="mic-timer" class="text-center text-xs text-white/60 mt-1" style="min-height:1rem;"></div>
 
       <div class="mt-4 space-y-3" id="current-turn" style="display:none;">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold">You said</span>
+          <span class="text-[10px] uppercase tracking-widest text-white/60 font-semibold">You said</span>
           <span id="current-lang" class="lang-pill" style="display:none;"></span>
         </div>
         <div id="current-transcript" class="transcript-box empty">Waiting for voice...</div>
 
         <div class="flex items-center justify-between gap-2 mt-3">
-          <span class="text-[10px] uppercase tracking-widest text-white/40 font-semibold">Journal reply</span>
-          <button id="current-replay" class="speak-btn" style="display:none;" type="button">Speak again</button>
+          <span class="text-[10px] uppercase tracking-widest text-white/60 font-semibold">Journal reply</span>
+          <button id="current-replay" class="speak-btn" style="display:none;" type="button" data-i="speakagain">Speak again</button>
         </div>
         <div id="current-reply" class="reply-bubble" style="display:none;"></div>
-        <div id="current-reply-loading" class="text-xs text-white/40" style="display:none;">Composing reply...</div>
+        <div id="current-reply-loading" class="text-xs text-white/60" style="display:none;">Composing reply...</div>
       </div>
     </section>
 
     <!-- History panel -->
-    <section class="wh-card p-5">
+    <section class="card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold text-white/90">Your journal</h2>
-        <span id="entry-count" class="text-[11px] text-white/40"></span>
+        <h2 class="text-sm font-bold text-white/90" data-i="vj_journal">Your journal</h2>
+        <span id="entry-count" class="text-[11px] text-white/60"></span>
       </div>
 
       <input aria-label="Search your entries..." id="search-input" class="wh-input mb-3" type="search" placeholder="Search your entries..." />
 
       <div id="filter-chips" class="flex flex-wrap gap-1.5 mb-4"></div>
 
-      <div id="history-list">
+      <div id="history-list" style="min-height:420px;">
         <div class="skeleton-row mb-2"></div>
         <div class="skeleton-row mb-2"></div>
         <div class="skeleton-row"></div>
       </div>
-      <div id="history-empty"      class="empty-state text-center text-xs text-white/40 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
-      <div id="history-no-results" class="empty-state text-center text-xs text-white/40 py-6" style="display:none;">No entries match those filters.</div>
+      <div id="history-empty"      class="empty-state text-center text-xs text-white/60 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
+      <div id="history-no-results" class="empty-state text-center text-xs text-white/60 py-6" style="display:none;">No entries match those filters.</div>
       <div id="voice-load-more-wrap" class="hidden mt-1 pb-4">
-        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-lg text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </section>
 
@@ -388,7 +430,7 @@
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
   <script src="utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js" defer></script>
 
@@ -475,7 +517,7 @@
     // History state
     let _entries      = [];       // pairs of { user, agent, lang, ts }
     let _activeFilter = 'all';
-    let _voiceDisplayCount = 30;  // List View Contract: client-side slice pagination
+    let _voiceDisplayCount = 8;  // List View Contract: client-side slice pagination (Arc P Wave 2: glance-first initial slice; Load More reveals +10)
 
     // TTS state
     let _ttsOn = localStorage.getItem(TTS_STORAGE_KEY) !== 'off';
@@ -514,6 +556,69 @@
       if (lbl) lbl.textContent = _ttsOn ? 'Voice On' : 'Voice Off';
       const btn = $('tts-toggle');
       if (btn) btn.setAttribute('aria-pressed', String(_ttsOn));
+    }
+    // Sovereign local voice (V7, NATIVE_AI_ROADMAP #6): the branded persona voice
+    // synthesizes ON-DEVICE via the local Piper server (tools/tts_server.py) so the
+    // audio never leaves the plant. Shares the 'wh_tts_url' localStorage key with
+    // wh-tts.js, so a plant enabling sovereign voice once applies it across the app.
+    const SOV_TTS_KEY = 'wh_tts_url';
+    const SOVEREIGN_TTS_URL = (typeof window.WH_SOVEREIGN_TTS_URL === 'string' && window.WH_SOVEREIGN_TTS_URL)
+      || 'http://127.0.0.1:8903';
+    function sovVoiceUrl() {
+      try { return window.WH_TTS_URL || localStorage.getItem(SOV_TTS_KEY) || ''; }
+      catch (_) { return window.WH_TTS_URL || ''; }
+    }
+    function isSovVoiceOn() { return !!sovVoiceUrl(); }
+    function setSovVoice(url) {
+      try {
+        if (url) { localStorage.setItem(SOV_TTS_KEY, String(url)); window.WH_TTS_URL = String(url); }
+        else { localStorage.removeItem(SOV_TTS_KEY); try { delete window.WH_TTS_URL; } catch (_) { window.WH_TTS_URL = undefined; } }
+      } catch (_) { window.WH_TTS_URL = url ? String(url) : undefined; }
+    }
+    // Piper mis-says the persona proper nouns; respell the SPOKEN text only
+    // (Ian-confirmed) so the on-device voice pronounces them correctly.
+    function _respellPersonaNames(text) {
+      return String(text)
+        .replace(/\bHezekiah\b/gi, 'Hezehkeeyah')
+        .replace(/\bZaniah\b/gi, 'Zah nah yah');
+    }
+    function setSovVoiceButton() {
+      const on = isSovVoiceOn();
+      const lbl = $('sov-voice-label'); if (lbl) lbl.textContent = on ? 'Local voice' : 'Cloud voice';
+      const btn = $('sov-voice-toggle'); if (btn) btn.setAttribute('aria-pressed', String(on));
+    }
+    function toggleSovereignVoice() {
+      const on = isSovVoiceOn();
+      setSovVoice(on ? null : SOVEREIGN_TTS_URL);
+      setSovVoiceButton();
+      showToast(on ? 'Using cloud voice' : 'Using on-device sovereign voice (Piper)');
+    }
+    // Tier 0: on-device Piper (sovereign). WAV bytes → objectURL → <audio>.
+    // Only attempted when the sovereignty toggle is on; fails open to the cloud tiers.
+    async function speakPiper(text, persona) {
+      if (!_ttsOn || !text) return false;
+      const base = sovVoiceUrl();
+      if (!base) return false;
+      try {
+        const resp = await fetch(String(base).replace(/\/+$/, '') + '/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: _respellPersonaNames(String(text)), persona: persona || 'zaniah' }),
+        });
+        if (!resp.ok) return false;
+        const wav = await resp.blob();
+        if (!wav || !wav.size) return false;
+        if (_azureAudio) { try { _azureAudio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
+        _azureAudio = new Audio(URL.createObjectURL(wav));
+        _azureAudio.play().catch(err => {
+          if (err && err.name === 'AbortError') return;
+          console.warn('Piper play failed:', err);
+        });
+        return true;
+      } catch (err) {
+        console.warn('speakPiper failed, falling back:', err);
+        return false;
+      }
     }
     function toggleTts() {
       _ttsOn = !_ttsOn;
@@ -619,6 +724,12 @@
 
     async function speak(text, langCode) {
       if (!_ttsOn || !text) return;
+      // Tier 0: on-device Piper (sovereign) — only when the sovereignty toggle is on.
+      // The audio never leaves the plant; fail-open to the cloud tiers so voice never breaks.
+      if (isSovVoiceOn()) {
+        const piperOk = await speakPiper(text, _persona);
+        if (piperOk) return;
+      }
       // Tier 1: Edge-TTS via python-api. Same Microsoft Neural voices the
       // Video Marketing app uses — natural, free, no auth. This is the
       // path that makes Hezekiah / Zaniah actually sound human.
@@ -722,7 +833,10 @@
     async function loadHistory() {
       const listEl  = $('history-list');
       const emptyEl = $('history-empty');
-      listEl.innerHTML = '<div class="skeleton-row mb-2"></div><div class="skeleton-row mb-2"></div><div class="skeleton-row"></div>';
+      // G1 (FF1): converge the hand-rolled skeleton-rows to the canonical whListSkeleton
+      // (aria-busy/aria-live ship with it); keep the old markup as a no-utils fallback.
+      if (typeof whListSkeleton === 'function') whListSkeleton(listEl, 3);
+      else listEl.innerHTML = '<div class="skeleton-row mb-2"></div><div class="skeleton-row mb-2"></div><div class="skeleton-row"></div>';
       emptyEl.style.display = 'none';
 
       const { data, error } = await db.from('voice_journal_entries')
@@ -757,10 +871,10 @@
       const yest = new Date(now); yest.setDate(now.getDate() - 1);
       if (sameDay) return 'Today';
       if (date.toDateString() === yest.toDateString()) return 'Yesterday';
-      return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      return whFmtDate(date, { weekday: 'short', year: false }); // FD1a canonical
     }
     function timeLabel(d) {
-      return new Date(d).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      return whFmtDate(d, { timeOnly: true }); // FD1a canonical
     }
 
     function renderFilters() {
@@ -777,15 +891,15 @@
       }
       const displays = Object.keys(seenByDisplay).sort((a, b) => seenByDisplay[b] - seenByDisplay[a]);
       const chips = [
-        `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button">All (${_entries.length})</button>`,
+        `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button" aria-pressed="${_activeFilter === 'all' ? 'true' : 'false'}" translate="no">All (${_entries.length})</button>`,
       ].concat(displays.map(d =>
-        `<button class="filter-chip ${_activeFilter === d ? 'active' : ''}" data-filter="${escSafe(d)}" type="button">${escSafe(d)} (${seenByDisplay[d]})</button>`
+        `<button class="filter-chip ${_activeFilter === d ? 'active' : ''}" data-filter="${escSafe(d)}" type="button" aria-pressed="${_activeFilter === d ? 'true' : 'false'}" translate="no">${escSafe(d)} (${seenByDisplay[d]})</button>`
       ));
       root.innerHTML = chips.join('');
       root.querySelectorAll('.filter-chip').forEach(btn => {
         btn.addEventListener('click', () => {
           _activeFilter = btn.getAttribute('data-filter');
-          _voiceDisplayCount = 30;  // reset slice when filter changes
+          _voiceDisplayCount = 8;  // reset slice when filter changes
           renderFilters();
           renderHistory();
           _vjSyncUrl();
@@ -851,7 +965,7 @@
           ? `<span class="lang-pill">${escSafe(langName(p.lang))}</span>`
           : '';
         const replayBtn = p.agent
-          ? `<button class="speak-btn" data-action="replay" data-text="${escSafe(p.agent)}" data-lang="${escSafe(p.lang || 'en')}" type="button">Speak again</button>`
+          ? `<button class="speak-btn" data-action="replay" data-text="${escSafe(p.agent)}" data-lang="${escSafe(p.lang || 'en')}" type="button" data-i="speakagain">Speak again</button>`
           : '';
         return `${dayHeader}
           <div class="history-entry fade-up">
@@ -950,6 +1064,9 @@
       }
       _busy = true;
       $('mic-btn').disabled = true;
+      // Distinct "working" state on the button (rotating ring) — covers both
+      // "Transcribing..." and "Composing reply...". Cleared in the finally on every path.
+      $('mic-btn').classList.add('processing');
       const mime = _recorder?.mimeType || 'audio/webm';
       const blob = new Blob(_chunks, { type: mime });
 
@@ -968,6 +1085,17 @@
           $('current-lang').textContent = langName(clampedLang);
           $('current-lang').classList.toggle('warn', !LANG_TO_BCP47[clampedLang]);
           $('current-lang').style.display = 'inline-flex';
+        }
+
+        // X-FIND (2026-07-12): if the indigenous ASR flagged a LOW-CONFIDENCE (garbled) decode, do NOT
+        // auto-send to the companion. A mis-heard question makes it confabulate (caught live: a garbled
+        // Cebuano transcript got confidently grounded to a real asset). Show the transcript + ask to
+        // re-record instead of grounding a guess. Early-return re-enables the mic via the finally, exactly
+        // like the empty-transcript case above. Non-blocking for clean speech (English/Taglish never trip).
+        if (transcript.lowConfidence) {
+          $('current-transcript').style.borderColor = 'rgba(247,162,27,0.5)';
+          $('mic-state').textContent = 'I am not fully sure I heard that right. Tap the mic to say it again.';
+          return;
         }
 
         $('mic-state').textContent = 'Composing reply...';
@@ -999,6 +1127,7 @@
       } finally {
         _busy = false;
         $('mic-btn').disabled = false;
+        $('mic-btn').classList.remove('processing');
       }
     }
 
@@ -1018,7 +1147,10 @@
       if (!resp.ok) throw new Error(data.error || 'Transcribe failed');
       const text = String(data.text || '').trim().slice(0, MAX_TRANSCRIPT_CHARS);
       const lang = String(data.lang || '').trim().toLowerCase();
-      return { text, lang };
+      // X-FIND (2026-07-12): the indigenous ASR flags a low-confidence (garbled) decode so we CLARIFY
+      // rather than send a mis-heard question to the companion (which confabulates — caught live on a
+      // garbled Cebuano transcript). null/absent (Groq fallback) is never flagged → cloud path unchanged.
+      return { text, lang, lowConfidence: data.low_confidence === true };
     }
 
     async function callJournalAgent(message, lang) {
@@ -1045,12 +1177,14 @@
     // ──────────────── Bootstrap ────────────────
     document.addEventListener('DOMContentLoaded', async () => {
       setTtsButton();
+      setSovVoiceButton();
       setPersonaUI();
       wirePersonaPicker();
       $('tts-toggle').addEventListener('click', toggleTts);
+      $('sov-voice-toggle').addEventListener('click', toggleSovereignVoice);
       $('mic-btn').addEventListener('click', toggleRecord);
-      $('search-input').addEventListener('input', () => { _voiceDisplayCount = 30; renderHistory(); _vjSyncUrl(); });
-      window.loadMoreVoice = () => { _voiceDisplayCount += 30; renderHistory(); };
+      $('search-input').addEventListener('input', () => { _voiceDisplayCount = 8; renderHistory(); _vjSyncUrl(); });
+      window.loadMoreVoice = () => { _voiceDisplayCount += 10; renderHistory(); };
 
       // Arc X A3: restore the language filter + search from the URL before the history
       // first renders, so a reload / leave-and-back keeps the journal's filtered view.
@@ -1080,5 +1214,24 @@
 
 </main>
   <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('vj-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'vj-source-chip'; var host = document.querySelector('.page') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'voice_journal_entries + v_worker_truth + worker_profiles',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE={vj_title:'Voice Journal',vj_journal:'Iyong journal',speakagain:'Magsalita ulit'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

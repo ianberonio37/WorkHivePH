@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="worker-daily" content="1" />  <!-- H1 goal-gradient contract (FAMILY roadmap): this is a daily worker journey page -->
   <title>Digital Maintenance Logbook: WorkHive</title>
   <!-- capture: logbook_add_entry_v1 (form) — anchors the 14-field add-entry form to canonical_capture_contracts → logbook table -->
   <!-- capture: voice_journal_capture_v1 (voice) — anchors the voice-record path to voice_journal_entries -->
@@ -39,6 +40,23 @@
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
+    /* I1 CLS: the 2-col desktop layout + 760px reserve must apply BEFORE the async Tailwind CDN
+       loads, or the grid reflows on CDN-ready (measured 0.33 CLS, the page's dominant shift). This
+       RAW rule (render-blocking in <head>) pre-paints the grid so `lg:grid-cols-5`/`lg:min-h`
+       arriving late changes nothing. Mirrors the Tailwind classes: col-span-2 + col-span-3, gap-6. */
+    @media (min-width: 1024px) {
+      #wh-logbook-grid { display: grid; grid-template-columns: 2fr 3fr; gap: 1.5rem; min-height: 760px; }
+    }
+    /* I1 CLS (measured): the header wraps 60px→120px at ~1.3s when the stat-pills + action buttons
+       finish loading (title on row 1, the pill/button group on row 2). RESERVE the loaded 2-row
+       height so that internal reflow never pushes the grid down (was the dominant 0.33 shift).
+       Pre-paint the row layout too, so the async Tailwind CDN arriving late changes nothing. */
+    @media (min-width: 640px) {
+      #wh-logbook-header { min-height: 116px; }
+      #wh-logbook-header > div { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1rem; }
+    }
+    /* Fixed-pitch stat counts so 0→1,234 async updates never reflow the header. */
+    #total-count, #machine-count, #open-count { font-variant-numeric: tabular-nums; display: inline-block; min-width: 1.2em; text-align: right; }
 
     body {
       background-color: var(--wh-navy);
@@ -94,7 +112,7 @@
       font-family:inherit; font-size:0.8rem; font-weight:600; padding:0.75rem 1rem;
       border-radius:0.75rem; cursor:pointer; transition:all 0.15s;
       background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
-      color:rgba(255,255,255,0.5); min-height:44px;
+      color:rgba(255,255,255,0.62); min-height:44px;
     }
     .step-nav .btn-next {
       font-family:inherit; font-size:0.875rem; font-weight:700; padding:0.75rem 1.5rem;
@@ -107,7 +125,7 @@
       font-family:inherit; font-size:0.75rem; font-weight:600; width:100%;
       padding:0.6rem 1rem; border-radius:0.75rem; cursor:pointer; margin-top:0.5rem;
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.4); transition:all 0.15s; min-height:44px;
+      color:rgba(255,255,255,0.62); transition:all 0.15s; min-height:44px;
       display:flex; align-items:center; justify-content:center; gap:0.5rem;
     }
     .extras-toggle:hover { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); }
@@ -144,7 +162,7 @@
       padding: 0.5rem 0.85rem; border-radius: 999px; cursor: pointer;
       font-size: 0.7rem; font-weight: 600; min-height: 44px;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.55); transition: all 0.15s; user-select: none;
+      color: rgba(255,255,255,0.62); transition: all 0.15s; user-select: none;
     }
     .rc-chip:active  { transform: scale(0.96); }
     .rc-chip.selected { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
@@ -178,7 +196,7 @@
       border-color: rgba(247,162,27,0.5);
       box-shadow: 0 0 0 3px rgba(247,162,27,0.1);
     }
-    .wh-input::placeholder { color: rgba(255,255,255,0.25); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
     textarea.wh-input { resize: vertical; min-height: 90px; }
 
     /* Buttons */
@@ -278,7 +296,7 @@
       font-weight: 700;
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.62);
       user-select: none;
     }
     .status-toggle input { display: none; }
@@ -294,7 +312,7 @@
     /* Empty state */
     /* No container opacity — a <1 opacity multiplies into descendant text alpha and
        breaks AA contrast (e.g. text-white/60 → effective 0.24). Muting now lives in the
-       text colors (text-white/60) + icon (text-white/20). See #team-prompt precedent. */
+       text colors (text-white/60) + icon (text-white/60). See #team-prompt precedent. */
     .empty-state { opacity: 1; }
 
     /* Label */
@@ -304,7 +322,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.62);
       margin-bottom: 0.4rem;
     }
 
@@ -354,7 +372,7 @@
       cursor: pointer;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.62);
       transition: all 0.15s;
       user-select: none;
       text-align: center;
@@ -394,7 +412,7 @@
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
-        <span class="text-xs font-semibold text-white/50 uppercase tracking-widest">Digital Logbook</span>
+        <span class="text-xs font-semibold text-white/60 uppercase tracking-widest">Digital Logbook</span>
       </div>
       <div class="flex items-center gap-3">
         <span id="sync-badge" class="stat-pill text-white/60 hidden">
@@ -414,9 +432,9 @@
         </svg>
       </div>
       <h2 class="font-black text-xl mb-2">Join a WorkHive First</h2>
-      <p class="text-sm mb-6" style="color:rgba(255,255,255,0.45);">The Logbook is a team tool. Create or join a Hive to start logging repairs with your team.</p>
+      <p class="text-sm mb-6" style="color:rgba(255,255,255,0.62);">The Logbook is a team tool. Create or join a Hive to start logging repairs with your team.</p>
       <a href="hive.html" class="btn-primary block text-center mb-3" style="display:block; text-decoration:none; line-height:2.5;">Go to WorkHive Board</a>
-      <p class="text-xs" style="color:rgba(255,255,255,0.25);">You'll be brought back here once you're set up.</p>
+      <p class="text-xs" style="color:rgba(255,255,255,0.62);">You'll be brought back here once you're set up.</p>
     </div>
   </div>
 
@@ -424,11 +442,11 @@
   <main class="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-8">
 
     <!-- Header -->
-    <div class="mb-8">
+    <div id="wh-logbook-header" class="mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Your Repair Logbook</h1>
-          <p class="text-sm text-white/45 mt-1">Every job you log builds your skill profile and plant knowledge base.</p>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight" data-i="pagetitle">Your Repair Logbook</h1>
+          <p class="text-sm text-white/60 mt-1">Every job you log builds your skill profile and plant knowledge base.</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">0</span> <span class="text-white/60">entries</span></span>
@@ -436,7 +454,7 @@
           <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">0</span> <span class="text-white/60">open</span></span>
           <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            Register Asset
+            <span data-i="registerasset">Register Asset</span>
           </button>
           <!-- Phase H.2 (2026-05-12 home streamline): voice-journal removed from
                primary nav; reached from here since the logbook IS the natural
@@ -452,7 +470,11 @@
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-5 gap-6">
+    <!-- I1 CLS: reserve the 2-col grid's desktop height so the async growers (entries list on
+         the right, machine-history + pm-tasks panels on the left) fill WITHIN the reserved
+         area instead of pushing the footer down on load (measured CLS 0.33). lg: only, so the
+         mobile stacked layout keeps its natural height. -->
+    <div id="wh-logbook-grid" class="grid lg:grid-cols-5 gap-6 lg:min-h-[760px]">
 
       <!-- ── LEFT: LOG FORM ── -->
       <div class="lg:col-span-2">
@@ -463,7 +485,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
               </svg>
             </div>
-            <h2 class="font-bold text-base">Log a Repair</h2>
+            <h2 class="font-bold text-base" data-i="logarepair">Log a Repair</h2>
           </div>
 
           <!-- Step indicator -->
@@ -474,7 +496,7 @@
             <div class="step-line" id="sline-2"></div>
             <div class="step-dot" id="sdot-3">3</div>
           </div>
-          <p class="step-label" id="step-label-text">Step 1 — Machine & Type</p>
+          <p class="step-label" id="step-label-text">Step 1: Machine & Type</p>
 
           <form id="log-form">
 
@@ -482,7 +504,7 @@
             <div id="edit-mode-banner" class="hidden mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style="background:rgba(247,162,27,0.12);border:2px solid rgba(247,162,27,0.5);">
               <svg class="w-5 h-5 flex-shrink-0" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               <div class="flex-1 min-w-0">
-                <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">✏ Editing existing entry — not logging a new one</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">✏ Editing existing entry, not logging a new one</p>
                 <p id="edit-mode-machine" class="text-sm font-semibold text-white/80 truncate mt-0.5"></p>
               </div>
               <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:#f87171;font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
@@ -495,7 +517,7 @@
                    describe it once (voice) or snap a photo and AI fills the whole entry. The
                    manual wizard below stays as the fallback (Arc-K drive uses it). -->
               <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
-                <span style="font-size:.78rem; font-weight:800; color:#a78bfa; letter-spacing:.02em;">Fastest — let AI fill it</span>
+                <span style="font-size:.78rem; font-weight:800; color:var(--wh-violet-text); letter-spacing:.02em;">Fastest: let AI fill it</span>
                 <span style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></span>
               </div>
 
@@ -504,11 +526,11 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
                   <div>
                     <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Speak to fill</p>
-                    <p style="font-size:.7rem; color:rgba(255,255,255,0.4); margin-top:2px;">Describe the situation once — AI fills machine, problem, action, type, and more.</p>
+                    <p style="font-size:.7rem; color:rgba(255,255,255,0.62); margin-top:2px;">Describe the situation once: AI fills machine, problem, action, type, and more.</p>
                   </div>
-                  <button type="button" id="voice-fill-btn" onclick="startSmartVoice()" style="padding:10px 16px; min-height:44px; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:9px; font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                  <button type="button" id="voice-fill-btn" onclick="startSmartVoice()" style="padding:10px 16px; min-height:44px; background:rgba(167,139,250,0.15); color:var(--wh-violet-text); border:1px solid rgba(167,139,250,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                    Speak
+                    <span data-i="speak">Speak</span>
                   </button>
                 </div>
                 <!-- Recording state -->
@@ -519,7 +541,7 @@
                   </p>
                 </div>
                 <!-- Processing state -->
-                <div id="vf-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.4);">
+                <div id="vf-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.62);">
                   <span>AI is structuring your work order...</span>
                 </div>
                 <!-- Result preview -->
@@ -531,11 +553,11 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
                   <div>
                     <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Photo defect capture</p>
-                    <p style="font-size:.7rem; color:rgba(255,255,255,0.4); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
+                    <p style="font-size:.7rem; color:rgba(255,255,255,0.62); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
                   </div>
-                  <button id="vdc-capture-btn" type="button" style="padding:10px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid rgba(74,222,128,0.4); border-radius:9px; font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                  <button id="vdc-capture-btn" type="button" style="padding:10px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid rgba(74,222,128,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    Capture
+                    <span data-i="capture">Capture</span>
                   </button>
                 </div>
                 <input id="vdc-file-input" aria-label="Photo of equipment defect" type="file" accept="image/*" capture="environment" style="display:none;" />
@@ -546,11 +568,11 @@
                     <button id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 14px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
                   </div>
                 </div>
-                <div id="vdc-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.4);">
+                <div id="vdc-processing" style="display:none; margin-top:10px; font-size:.75rem; color:rgba(255,255,255,0.62);">
                   <span>AI is analyzing the photo...</span>
                 </div>
                 <div id="vdc-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
-                <div id="vdc-status" style="display:none; margin-top:6px; font-size:.7rem; color:rgba(255,255,255,0.45);"></div>
+                <div id="vdc-status" style="display:none; margin-top:6px; font-size:.7rem; color:rgba(255,255,255,0.62);"></div>
               </div>
 
               <!-- Arc V (EFFORTLESS): the manual wizard is the fallback path, framed below the AI-fill primary. -->
@@ -561,15 +583,15 @@
               </div>
 
               <div>
-                <label class="wh-label">Machine / Equipment <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label class="wh-label"><span data-i="machineequip">Machine / Equipment</span> <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <div style="display:flex; gap:8px; align-items:stretch;">
                   <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px; flex:1;">
-                    <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.25);">Select or search asset...</span>
+                    <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.62);">Select or search asset...</span>
                     <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.6)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                   </button>
                   <!-- Phase E.3d: Scan to find/select an asset by physical tag -->
                   <button type="button" id="logbook-scan-btn" aria-label="Scan equipment tag with camera"
-                          style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:10px; cursor:pointer;">
+                          style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); cursor:pointer;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
                       <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
@@ -582,8 +604,9 @@
 
               <!-- Machine History (Tribal Knowledge Surface — Phase 1.2) -->
               <div id="machine-history-wrap" style="display:none;">
-                <details id="machine-history-details" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.2); border-radius:10px; overflow:hidden;">
-                  <summary style="padding:10px 14px; cursor:pointer; font-size:0.75rem; font-weight:700; color:#29B6D9; list-style:none; display:flex; align-items:center; justify-content:space-between; user-select:none;">
+                <!-- FI1 canonical disclosure; blue tint kept as the machine-sync context variant -->
+                <details id="machine-history-details" class="wh-disclose" style="background:rgba(41,182,217,0.06); border-color:rgba(41,182,217,0.2);">
+                  <summary style="padding:10px 14px; cursor:pointer; font-size:0.75rem; font-weight:700; color:var(--wh-blue-light); list-style:none; display:flex; align-items:center; justify-content:space-between; user-select:none;">
                     <span id="machine-history-title">Past repairs on this machine</span>
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                   </summary>
@@ -595,7 +618,7 @@
                    happened") so step 1 is a SINGLE action — pick the machine — which lets the
                    asset-pick auto-advance be field-safe (nothing else on step 1 to skip). -->
               <div class="step-nav">
-                <button type="button" class="btn-next" onclick="stepGo(2)">What happened? →</button>
+                <button type="button" class="btn-next" onclick="stepGo(2)" data-i="whathappened">What happened? →</button>
               </div>
             </div>
 
@@ -629,7 +652,7 @@
               <div id="wo-state-wrap">
                 <label for="f-wo-state" class="wh-label">Workflow State <span style="color:rgba(255,255,255,0.6);font-size:0.625rem;font-weight:600;text-transform:none;">optional</span></label>
                 <select id="f-wo-state" class="wh-input">
-                  <option value="">— None (use Status only) —</option>
+                  <option value="">None (use Status only)</option>
                   <option value="requested">Requested</option>
                   <option value="approved">Approved</option>
                   <option value="assigned">Assigned</option>
@@ -638,7 +661,7 @@
                   <option value="verified">Verified</option>
                   <option value="rejected">Rejected</option>
                 </select>
-                <p id="f-wo-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:4px;line-height:1.4;">
+                <p id="f-wo-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:4px;line-height:1.4;">
                   Optional 7-state workflow: requested → approved → assigned → in progress → completed → verified. Workers move their own assigned items forward; supervisors approve, assign, and verify.
                 </p>
               </div>
@@ -666,11 +689,11 @@
               <div>
                 <label for="f-problem" class="wh-label">Symptom / What was wrong? <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <div class="relative">
-                  <textarea id="f-problem" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
+                  <textarea id="f-problem" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
                   <button type="button" id="voice-problem" title="Voice input"
                     class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                     style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                    <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
                   </button>
                 </div>
               </div>
@@ -679,7 +702,7 @@
                 <label for="f-root-cause" class="wh-label">Root Cause</label>
                 <!-- History chips — populated when a machine is selected -->
                 <div id="root-cause-chips" class="hidden mb-2">
-                  <p class="text-[10px] text-white/30 mb-1.5 font-semibold uppercase tracking-widest">Common for this machine</p>
+                  <p class="text-[10px] text-white/60 mb-1.5 font-semibold uppercase tracking-widest">Common for this machine</p>
                   <div id="root-cause-chip-list" class="flex flex-wrap gap-1.5"></div>
                 </div>
                 <select id="f-root-cause" class="wh-input">
@@ -711,11 +734,11 @@
               <div>
                 <label for="f-action" class="wh-label">What did you do?</label>
                 <div class="relative">
-                  <textarea id="f-action" class="wh-input pr-10" rows="4" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
+                  <textarea id="f-action" maxlength="2000" class="wh-input pr-10" rows="4" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
                   <button type="button" id="voice-action" title="Voice input"
                     class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                     style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                    <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
                   </button>
                 </div>
               </div>
@@ -728,7 +751,7 @@
 
               <button type="button" class="extras-toggle" id="extras-toggle-btn" onclick="toggleExtras()">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                <span id="extras-toggle-label">Add details — parts, photo, lesson learned</span>
+                <span id="extras-toggle-label">Add details: parts, photo, lesson learned</span>
               </button>
 
               <!-- ── EXTRAS DRAWER (optional) ── -->
@@ -762,11 +785,28 @@
                   <input type="hidden" id="f-consequence" />
                 </div>
 
+                <!-- LOTO / Permit-to-Work — deliberate safety-isolation record (Extension 3;
+                     RA 11058 / DOLE DO 198-18 permit-to-work, ISO 45001 operational control).
+                     First-class field (was regex-inferred free text only). -->
+                <div id="loto-section" class="hidden">
+                  <label class="wh-label flex items-center gap-1.5">
+                    Safety Isolation
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">energy locked/tagged out for this job</span>
+                  </label>
+                  <label for="f-loto" class="flex items-center gap-2 cursor-pointer" style="min-height:44px;">
+                    <input type="checkbox" id="f-loto" class="w-5 h-5" onchange="toggleLotoPermit()" aria-label="LOTO or Permit-to-Work applied" />
+                    <span class="text-sm text-white/85">🔒 LOTO / Permit-to-Work applied</span>
+                  </label>
+                  <input type="text" id="f-permit-ref" class="wh-input hidden mt-2" maxlength="120"
+                         placeholder="Permit-to-Work reference # (optional)" style="font-size:1rem;padding:0.6rem 0.75rem;"
+                         aria-label="Permit-to-Work reference number" />
+                </div>
+
                 <!-- Quick Readings — Breakdown entries only, category-smart -->
                 <div id="readings-section" class="hidden">
                   <label class="wh-label flex items-center gap-1.5">
                     Quick Readings
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks anomaly detection</span>
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">optional: unlocks anomaly detection</span>
                   </label>
                   <div id="readings-fields" class="grid grid-cols-2 gap-2"></div>
                 </div>
@@ -777,35 +817,35 @@
                     <span class="text-orange-wh text-[10px] font-bold bg-orange-wh/10 px-1.5 py-0.5 rounded-full">Most Valuable</span>
                   </label>
                   <div class="relative">
-                    <textarea aria-label="Tips, gotchas, torque specs, watch-outs..." id="f-knowledge" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
+                    <textarea aria-label="Tips, gotchas, torque specs, watch-outs..." id="f-knowledge" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
                     <button type="button" id="voice-knowledge" title="Voice input"
                       class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                       style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                      <svg class="w-3.5 h-3.5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                      <svg class="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label for="f-downtime" class="wh-label">Downtime Hours <span class="text-white/30 font-normal normal-case">(optional)</span></label>
-                  <input aria-label="e.g. 2.5 — how long was the asset offline?" id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5 — how long was the asset offline?" />
+                  <label for="f-downtime" class="wh-label">Downtime Hours <span class="text-white/60 font-normal normal-case">(optional)</span></label>
+                  <input aria-label="e.g. 2.5: how long was the asset offline?" id="f-downtime" type="number" min="0" step="0.5" class="wh-input" placeholder="e.g. 2.5: how long was the asset offline?" />
                 </div>
 
                 <!-- Production Output — Closed Breakdown entries (unlocks OEE Quality + Performance) -->
                 <div id="production-section" class="hidden">
                   <label for="f-good-units" class="wh-label flex items-center gap-1.5">
                     Production this shift
-                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">optional — unlocks OEE</span>
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);font-weight:500;text-transform:none;letter-spacing:0;">optional: unlocks OEE</span>
                   </label>
                   <div class="grid grid-cols-2 gap-2">
                     <div>
-                      <label for="f-good-units" class="block text-[10px] text-white/35 font-semibold mb-1">Good units produced</label>
+                      <label for="f-good-units" class="block text-[10px] text-white/60 font-semibold mb-1">Good units produced</label>
                       <input type="number" id="f-good-units" min="0" step="1" class="wh-input"
                              placeholder="e.g. 1850" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
                              oninput="updateQualityPct()" />
                     </div>
                     <div>
-                      <label for="f-total-units" class="block text-[10px] text-white/35 font-semibold mb-1">Total units attempted</label>
+                      <label for="f-total-units" class="block text-[10px] text-white/60 font-semibold mb-1">Total units attempted</label>
                       <input type="number" id="f-total-units" min="0" step="1" class="wh-input"
                              placeholder="e.g. 2000" style="padding:0.6rem 0.75rem;font-size:0.875rem;"
                              oninput="updateQualityPct()" />
@@ -813,7 +853,7 @@
                   </div>
                   <div id="quality-pct-display" class="hidden mt-2 text-center py-1.5 rounded-lg"
                        style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);">
-                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">OEE Quality: </span>
+                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.62);">OEE Quality: </span>
                     <span id="quality-pct-value" style="font-size:0.9rem;font-weight:800;color:#4ade80;"></span>
                   </div>
                 </div>
@@ -824,8 +864,8 @@
                   <label id="photo-dropzone" for="f-photo"
                     class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
                     style="background: rgba(255,255,255,0.03);">
-                    <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <span class="text-xs text-white/35">Tap to attach photo</span>
+                    <svg class="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="text-xs text-white/60">Tap to attach photo</span>
                   </label>
                   <div id="photo-preview" class="hidden mt-2" style="position: relative;">
                     <img id="photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace photo" alt="" />
@@ -854,7 +894,7 @@
 
             <!-- Parts Used (shown when status = Closed) -->
             <div id="parts-used-section" class="hidden space-y-2">
-              <label class="wh-label">Parts Used <span class="text-white/30 font-normal normal-case">(from your inventory)</span></label>
+              <label class="wh-label">Parts Used <span class="text-white/60 font-normal normal-case">(from your inventory)</span></label>
               <div id="selected-parts-display" class="space-y-1.5"></div>
               <button type="button" id="btn-add-part" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -867,7 +907,7 @@
               <div class="rounded-xl p-3" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.2);">
                 <div class="flex items-center justify-between mb-2">
                   <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">PM Tasks for this Asset</p>
-                  <span id="pm-tasks-count" class="text-[11px] text-white/30"></span>
+                  <span id="pm-tasks-count" class="text-[11px] text-white/60"></span>
                 </div>
                 <p class="text-[11px] text-white/60 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
                 <div id="pm-tasks-list" class="flex flex-col gap-2"></div>
@@ -878,8 +918,8 @@
             <div id="tasklist-ack-section" class="hidden">
               <div class="rounded-xl p-3" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);">
                 <div class="flex items-center justify-between mb-2">
-                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#29B6D9;">Work Tasklist</p>
-                  <button type="button" id="btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:#29B6D9;background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
+                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-blue-light);">Work Tasklist</p>
+                  <button type="button" id="btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:var(--wh-blue-light);background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     View Tasklist
                   </button>
@@ -900,7 +940,7 @@
             <!-- Clear button — always accessible -->
             <div class="mt-2">
               <button type="button" id="clear-form" class="w-full text-xs py-2 rounded-xl transition-colors"
-                style="background:transparent;border:none;color:rgba(255,255,255,0.2);cursor:pointer;min-height:44px;">
+                style="background:transparent;border:none;color:rgba(255,255,255,0.62);cursor:pointer;min-height:44px;" data-i="clearform">
                 Clear form
               </button>
             </div>
@@ -923,8 +963,8 @@
 
         <!-- Team / My Entries toggle (hive only) -->
         <div id="view-toggle-bar" class="hidden mb-3 flex gap-2">
-          <button id="btn-view-mine" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">My Entries</button>
-          <button id="btn-view-team" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.08);">Team Feed</button>
+          <button id="btn-view-mine" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="myentries">My Entries</button>
+          <button id="btn-view-team" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.08);" data-i="teamfeed">Team Feed</button>
         </div>
 
         <!-- Search + Filter -->
@@ -951,7 +991,7 @@
               <option value="Open">Open</option>
               <option value="Closed">Closed</option>
             </select>
-            <button id="btn-export-csv" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+            <button id="btn-export-csv" translate="no" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
               CSV
             </button>
@@ -963,14 +1003,14 @@
             </select>
             <input id="filter-date-from" aria-label="Filter from date" type="date" class="wh-input sm:w-36" />
             <input id="filter-date-to" aria-label="Filter to date" type="date" class="wh-input sm:w-36" />
-            <button id="btn-search-team" onclick="searchTeam()" style="min-height:44px;background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.3);border-radius:0.75rem;padding:0 1.25rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(41,182,217,0.25)'" onmouseout="this.style.background='rgba(41,182,217,0.15)'">Search Team</button>
+            <button id="btn-search-team" onclick="searchTeam()" style="min-height:44px;background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.3);border-radius:0.75rem;padding:0 1.25rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(41,182,217,0.25)'" onmouseout="this.style.background='rgba(41,182,217,0.15)'" data-i="searchteam">Search Team</button>
           </div>
         </div>
 
         <!-- Offline banner -->
         <div id="offline-banner" class="hidden mb-3 rounded-xl px-4 py-2.5 flex items-center gap-2.5" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.3);">
           <svg class="w-4 h-4 flex-shrink-0" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01M8.464 15.536a5 5 0 010-7.072M5.636 18.364a9 9 0 010-12.728"/></svg>
-          <span class="text-xs font-semibold" style="color:#F7A21B;">Offline — new entries will sync when connected</span>
+          <span class="text-xs font-semibold" style="color:#F7A21B;">Offline: new entries will sync when connected</span>
           <span id="offline-queue-count" class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:#F7A21B;"></span>
         </div>
 
@@ -982,10 +1022,12 @@
           style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.35);cursor:pointer;"
           onmouseover="this.style.background='rgba(41,182,217,0.2)'" onmouseout="this.style.background='rgba(41,182,217,0.12)'">
           <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" style="background:#29B6D9;"></span>
-          <span id="logbook-live-badge-text" class="text-xs font-semibold" style="color:#29B6D9;">New team entry</span>
+          <span id="logbook-live-badge-text" class="text-xs font-semibold" style="color:var(--wh-blue-light);">New team entry</span>
           <span class="ml-auto text-[11px] font-bold" style="color:rgba(41,182,217,0.8);">Tap to refresh ↻</span>
         </button>
 
+        <!-- H1 goal-gradient: closed/total of MY loaded entries (whProgressStrip). -->
+        <div id="lb-progress" class="wh-progress-slot"></div>
         <!-- Entries list -->
         <div id="entries-list">
           <!-- JS renders here -->
@@ -999,7 +1041,7 @@
 
         <!-- Empty state -->
         <div id="empty-state" class="text-center py-20 empty-state">
-          <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <svg class="w-12 h-12 mx-auto mb-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
           <p class="text-sm text-white/60 font-medium">No entries yet.</p>
@@ -1009,7 +1051,7 @@
 
         <!-- No results state -->
         <div id="no-results" class="text-center py-16 empty-state hidden">
-          <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <svg class="w-10 h-10 mx-auto mb-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           <p class="text-sm text-white/60">No entries match your search.</p>
@@ -1017,7 +1059,7 @@
 
         <!-- Team prompt: shown in team mode before first search -->
         <div id="team-prompt" class="text-center py-20 empty-state hidden" style="opacity:1;"><!-- opacity:1 cancels .empty-state 0.4 multiplier so prompt text meets AA contrast -->
-          <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <svg class="w-12 h-12 mx-auto mb-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
           </svg>
           <p class="text-sm font-medium" style="color:rgba(255,255,255,0.7);">Search team entries above.</p>
@@ -1059,7 +1101,7 @@
     <!-- Tabs -->
     <div class="flex gap-1 mb-6 p-1 rounded-xl" style="background: rgba(22,32,50,0.8); border: 1px solid rgba(255,255,255,0.08);">
       <button id="asset-tab-register" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Register Asset</button>
-      <button id="asset-tab-manage" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:#29B6D9;display:none"></span></button>
+      <button id="asset-tab-manage" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);display:none"></span></button>
     </div>
 
     <!-- Register view -->
@@ -1073,7 +1115,7 @@
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               <span>Scan nameplate</span>
             </button>
-            <div class="text-[10px] flex-1 leading-snug" style="color: rgba(255,255,255,0.45);">
+            <div class="text-[10px] flex-1 leading-snug" style="color: rgba(255,255,255,0.62);">
               Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below.
               <span id="a-scan-status" class="block mt-0.5" style="color:#F7A21B;"></span>
             </div>
@@ -1107,7 +1149,7 @@
                field that unlocks full OEE (Availability × Performance × Quality).
                When NULL the platform reports the partial form (A × Q). Unit:
                seconds per unit produced (ISO 22400-2 §3.4.18). -->
-          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span class="text-white/60 font-normal normal-case">(seconds per unit — unlocks full OEE)</span></label>
+          <label for="a-ideal-cycle-time" class="wh-label">Ideal Cycle Time <span class="text-white/60 font-normal normal-case">(seconds per unit: unlocks full OEE)</span></label>
           <input aria-label="Seconds per unit at planned ideal cycle. Leave blank if no planned rate." id="a-ideal-cycle-time" name="ideal_cycle_time_seconds" type="number" step="0.01" min="0" class="wh-input" placeholder="e.g. 6 (600 units/hour line)" autocomplete="off" />
         </div>
         <div>
@@ -1227,7 +1269,7 @@
       <button id="detail-tab-faults" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Fault History</button>
     </div>
 
-    <div id="asset-detail-loading" class="py-10 text-center text-white/30 text-sm">Loading...</div>
+    <div id="asset-detail-loading" class="py-10 text-center text-white/60 text-sm">Loading...</div>
     <div id="detail-stocked-view" class="hidden"><div id="detail-stocked-list"></div></div>
     <div id="detail-consumption-view" class="hidden"><div id="detail-consumption-list"></div></div>
     <div id="detail-faults-view" class="hidden"><div id="detail-faults-list"></div></div>
@@ -1240,7 +1282,7 @@
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-sm">Select Asset</h3>
-        <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);" aria-label="Close">
+        <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -1266,7 +1308,7 @@
           <h3 class="font-bold text-sm text-white">Work Tasklist</h3>
           <p id="tasklist-modal-subtitle" class="text-[11px] text-white/60 mt-0.5"></p>
         </div>
-        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);" aria-label="Close">
+        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.62);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -1285,7 +1327,7 @@
     <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-sm">Select Part Used</h3>
-        <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);" aria-label="Close">
+        <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62);" aria-label="Close">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -1301,7 +1343,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script src="wh-tts.js"></script>
@@ -1467,6 +1509,7 @@ function setViewMode(mode) {
     document.getElementById('no-results').classList.add('hidden');
     document.getElementById('logbook-load-more-wrap').classList.add('hidden');
     teamPrompt.classList.remove('hidden');
+    renderTeamProgressStrip();
     loadTeamMembers();
   } else {
     teamRow.classList.add('hidden');
@@ -1477,6 +1520,22 @@ function setViewMode(mode) {
 
 let _allEntries = [];
 let _logbookDisplayCount = 20;
+
+// H1 goal-gradient for the supervisor's team-default state: hive-level closed/total
+// via two head-count queries (no row fetch). Fetched once per load; called from BOTH
+// setViewMode('team') (the init path, which never runs renderEntries) and renderEntries.
+function renderTeamProgressStrip() {
+  const lbTeamProg = document.getElementById('lb-progress');
+  if (!lbTeamProg || typeof whProgressStrip !== 'function' || !HIVE_ID) return;
+  if (renderTeamProgressStrip._done) return;
+  renderTeamProgressStrip._done = true;
+  Promise.all([
+    db.from('logbook').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID),
+    db.from('logbook').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'Closed'),
+  ]).then(([t, c]) => {
+    if (t && t.count) lbTeamProg.innerHTML = whProgressStrip('Team jobs closed out', (c && c.count) || 0, t.count);
+  }).catch(() => { renderTeamProgressStrip._done = false; });
+}
 
 // Team view query state
 let _teamEntries  = [];
@@ -1571,7 +1630,7 @@ async function searchTeam(append = false) {
   const dateTo    = document.getElementById('filter-date-to').value;
 
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .limit(TEAM_PAGE);
@@ -1720,7 +1779,7 @@ async function syncOfflineQueue() {
       ({ error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME));
     } else {
       // Offline new entry — insert
-      ({ error } = await db.from('logbook').insert(rest));
+      ({ error } = await db.from('logbook').insert(rest)); /* attribution-allow: `rest` = queued offline payload built by addEntry() with auth_uid (line ~1809) */
       if (!error) embedFaultEntry({ ...rest });
     }
     if (!error) {
@@ -1738,8 +1797,12 @@ async function syncOfflineQueue() {
 
 async function loadEntries() {
   // Mine-mode only. Team mode uses searchTeam().
+  // G1 (FF1): canonical skeleton while the query is in flight — first load only,
+  // so refresh cycles don't blank an already-rendered list.
+  const _elList = document.getElementById('entries-list');
+  if (_elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4);
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
     .eq('worker_name', WORKER_NAME)
     .order('date', { ascending: false })
     .limit(200); // L2: order+limit on the base chain (server applies them by query-param) so the read is row-bounded; the conditional .or() below is just an extra filter
@@ -1759,7 +1822,7 @@ async function loadEntries() {
     pending = await getPendingEntries();
   } catch (e) {
     console.error('offline queue read failed; showing cloud entries only:', e);
-    showToast('Offline queue unavailable — showing saved entries only.');
+    showToast('Offline queue unavailable, showing saved entries only.');
     pending = [];
   }
   const pendingInserts = pending.filter(p => !p._queueOp || p._queueOp !== 'update');
@@ -1781,6 +1844,8 @@ async function loadEntries() {
         failure_consequence: r.failure_consequence || null,
         readings_json: r.readings_json || null,
         production_output: r.production_output || null,
+        loto_applied: r.loto_applied || false,
+        permit_reference: r.permit_reference || null,
         worker_name: r.worker_name
       };
       if (updateMap[r.id]) return { ...mapped, ...updateMap[r.id], _pending_edit: true };
@@ -1805,6 +1870,8 @@ async function addEntry(entry) {
     failure_consequence: entry.failure_consequence || null,
     readings_json: entry.readings_json || null,
     production_output: entry.production_output || null,
+    loto_applied: entry.loto_applied || false,          // Extension 3: deliberate safety-isolation record
+    permit_reference: entry.permit_reference || null,
     worker_name: WORKER_NAME,
     auth_uid: _authUid || null  // C3: link auth identity on every new entry
   };
@@ -1815,7 +1882,7 @@ async function addEntry(entry) {
     await updateOfflineBadge();
     document.getElementById('sync-badge').classList.remove('hidden');
     if (_viewMode === 'mine') await renderEntries(false);
-    showToast('Saved offline — will sync when connected.');
+    showToast('Saved offline, will sync when connected.');
     return { ok: true, offline: true };
   }
 
@@ -1845,9 +1912,13 @@ async function addEntry(entry) {
     hive_id: payload.hive_id, machine: payload.machine, status: payload.status });
   const { data: insertedData, error } = await db.from('logbook').insert(payload).select();
   if (error) {
-    showToast('Could not save entry: ' + error.message);
+    // Q0 free-tier quota: the per-day rate-limit trigger raises SQLSTATE 54000
+    // with a friendly message ("You have logged today's free limit (200).
+    // Resets at midnight."). Surface that verbatim instead of a generic error.
+    const isQuota = error.code === '54000' || /free limit/i.test(error.message || '');
+    showToast(isQuota ? error.message : ('Could not save entry: ' + error.message));
     console.error('[logbook.insert] FAILED', { error, payload });
-    return { ok: false, reason: 'db_insert', error };
+    return { ok: false, reason: isQuota ? 'quota_daily' : 'db_insert', error };
   }
   console.log('[logbook.insert] success', insertedData);
   writeAuditLog('create_logbook_entry', 'logbook', payload.id, payload.machine || '(no machine)', {
@@ -1899,7 +1970,7 @@ async function _autoLinkLogbookToProject(entry) {
   const linkRows = projs.map(p => ({
     project_id: p.id, hive_id: HIVE_ID,
     link_type: 'logbook', link_id: entry.id,
-    label: `${entry.machine || '?'} — ${(entry.problem || '').slice(0, 60)}`,
+    label: `${entry.machine || '?'}: ${(entry.problem || '').slice(0, 60)}`,
   }));
   const { error: linkErr } = await db.from('project_links').insert(linkRows);
   if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
@@ -1912,9 +1983,14 @@ async function embedFaultEntry(entry) {
   try {
     // 8s ceiling: embed-entry is fire-and-forget telemetry — never block the
     // user's save behind a slow RAG pipeline. Skip silently on timeout.
+    // Forward the USER's session JWT: embed-entry's Pillar I tenancy check
+    // requires a resolvable identity when hive_id is set, else it 401s and the
+    // fault embedding never reaches the RAG index. apikey stays the anon key.
+    const { data: { session: _s } } = await db.auth.getSession();
+    const _tok = _s?.access_token || SUPABASE_KEY;
     await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tok },
       body: JSON.stringify({
         type: 'fault',
         hive_id: HIVE_ID || null,
@@ -1987,6 +2063,7 @@ function _assetToNode(a) {
     worker_name:  a.worker_name || WORKER_NAME,
     status:       a.status || 'approved',
     submitted_by: a.submitted_by || a.worker_name || WORKER_NAME,
+    auth_uid:     a.auth_uid || _authUid || null,  // attribution FK — asset_nodes upsert was dropping it (matches the main logbook insert at line 1809)
   };
   // asset_nodes CHECK constraint accepts low/medium/high/critical.
   if (!['low','medium','high','critical'].includes(out.criticality)) {
@@ -2089,7 +2166,7 @@ function switchAssetTab(tab) {
   const regBtn = document.getElementById('asset-tab-register');
   const manBtn = document.getElementById('asset-tab-manage');
   const activeStyle   = 'background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.05)); border: 1px solid rgba(247,162,27,0.35); color: #F7A21B;';
-  const inactiveStyle = 'background: transparent; border: 1px solid transparent; color: rgba(255,255,255,0.4);';
+  const inactiveStyle = 'background: transparent; border: 1px solid transparent; color: rgba(255,255,255,0.62);';
 
   if (tab === 'register') {
     registerView.classList.remove('hidden');
@@ -2356,7 +2433,7 @@ function renderAssetList() {
   if (assets.length === 0) {
     container.innerHTML = `
       <div class="text-center py-10 empty-state">
-        <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <svg class="w-10 h-10 mx-auto mb-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-4M9 3a2 2 0 002 2h2a2 2 0 002-2M9 3a2 2 0 012-2h2a2 2 0 012 2"/>
         </svg>
         <p class="text-sm text-white/60">No assets registered yet.</p>
@@ -2375,11 +2452,11 @@ function renderAssetList() {
             ${a.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(a.type)}</span>` : ''}
           </div>
           ${a.name ? `<p class="text-xs text-white/60 mb-0.5">${escHtml(a.name)}</p>` : ''}
-          ${a.location ? `<p class="text-[11px] text-white/30">${escHtml(a.location)}</p>` : ''}
+          ${a.location ? `<p class="text-[11px] text-white/60">${escHtml(a.location)}</p>` : ''}
         </div>
         <div class="flex gap-2 flex-shrink-0">
           <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details">View</button>
-          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" style="color:#29B6D9;border-color:rgba(41,182,217,0.3);">Edit</button>` : ''}
+          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-[11px] py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);">Edit</button>` : ''}
           <button onclick="deleteAsset('${a.id}')" class="btn-danger text-[11px] py-1 px-2.5">Remove</button>
         </div>
       </div>
@@ -2401,7 +2478,7 @@ function openAssetDetail(id) {
       ${asset.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(asset.type)}</span>` : ''}
     </div>
     ${asset.name     ? `<p class="text-sm text-white/70">${escHtml(asset.name)}</p>` : ''}
-    ${asset.location ? `<p class="text-xs text-white/35 mt-0.5">${escHtml(asset.location)}</p>` : ''}`;
+    ${asset.location ? `<p class="text-xs text-white/60 mt-0.5">${escHtml(asset.location)}</p>` : ''}`;
 
   document.getElementById('asset-detail-loading').classList.remove('hidden');
   document.getElementById('detail-stocked-view').classList.add('hidden');
@@ -2481,8 +2558,8 @@ function renderDetailStocked(items) {
   const list = document.getElementById('detail-stocked-list');
   if (!items.length) {
     list.innerHTML = `<div class="text-center py-10">
-      <p class="text-sm text-white/30">No parts linked to this asset.</p>
-      <p class="text-xs text-white/20 mt-1">Link parts in Inventory: edit an item and link it to this asset.</p>
+      <p class="text-sm text-white/60">No parts linked to this asset.</p>
+      <p class="text-xs text-white/60 mt-1">Link parts in Inventory: edit an item and link it to this asset.</p>
     </div>`;
     document.getElementById('detail-stocked-view').classList.remove('hidden');
     return;
@@ -2497,10 +2574,10 @@ function renderDetailStocked(items) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(i.part_name)}</p>
           ${i.part_number  ? `<p class="text-[11px] text-white/60">${escHtml(i.part_number)}</p>` : ''}
-          ${i.bin_location ? `<p class="text-[11px] text-white/30 mt-0.5">Bin: ${escHtml(i.bin_location)}</p>` : ''}
+          ${i.bin_location ? `<p class="text-[11px] text-white/60 mt-0.5">Bin: ${escHtml(i.bin_location)}</p>` : ''}
         </div>
         <div class="text-right flex-shrink-0">
-          <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-white/30 font-normal text-xs">${escHtml(i.unit || 'pcs')}</span></p>
+          <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-white/60 font-normal text-xs">${escHtml(i.unit || 'pcs')}</span></p>
           ${qtyLabel ? `<p class="text-[10px] font-semibold" style="color:${qtyColor}">${qtyLabel}</p>` : ''}
         </div>
       </div>
@@ -2516,8 +2593,8 @@ function renderDetailConsumption(txns, itemsList) {
 
   if (!txns.length) {
     list.innerHTML = `<div class="text-center py-10">
-      <p class="text-sm text-white/30">No parts consumed yet.</p>
-      <p class="text-xs text-white/20 mt-1">Appears here when linked parts are auto-deducted on a job save.</p>
+      <p class="text-sm text-white/60">No parts consumed yet.</p>
+      <p class="text-xs text-white/60 mt-1">Appears here when linked parts are auto-deducted on a job save.</p>
     </div>`;
     document.getElementById('detail-consumption-view').classList.remove('hidden');
     return;
@@ -2535,11 +2612,11 @@ function renderDetailConsumption(txns, itemsList) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${name}</p>
           ${jobRef ? `<p class="text-[11px] text-white/60 mt-0.5">Job: ${jobRef}</p>` : ''}
-          ${note   ? `<p class="text-[11px] text-white/30">${note}</p>` : ''}
+          ${note   ? `<p class="text-[11px] text-white/60">${note}</p>` : ''}
         </div>
         <div class="text-right flex-shrink-0">
-          <p class="text-sm font-bold text-white/80">${qty} <span class="text-white/30 font-normal text-xs">${unit}</span></p>
-          <p class="text-[11px] text-white/30">${date}</p>
+          <p class="text-sm font-bold text-white/80">${qty} <span class="text-white/60 font-normal text-xs">${unit}</span></p>
+          <p class="text-[11px] text-white/60">${date}</p>
         </div>
       </div>
     </div>`;
@@ -2551,8 +2628,8 @@ function renderDetailFaultHistory(entries) {
   const list = document.getElementById('detail-faults-list');
   if (!entries.length) {
     list.innerHTML = `<div class="text-center py-10">
-      <p class="text-sm text-white/30">No fault history yet.</p>
-      <p class="text-xs text-white/20 mt-1">Entries appear here when you select this machine from the asset datalist while logging.</p>
+      <p class="text-sm text-white/60">No fault history yet.</p>
+      <p class="text-xs text-white/60 mt-1">Entries appear here when you select this machine from the asset datalist while logging.</p>
     </div>`;
     document.getElementById('detail-faults-view').classList.remove('hidden');
     return;
@@ -2575,7 +2652,7 @@ function renderDetailFaultHistory(entries) {
         <div class="flex items-center gap-1.5 flex-wrap">
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${statusBg};color:${statusTx};">${escHtml(e.status || 'Open')}</span>
           ${e.category ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:${catColor};">${escHtml(e.category)}</span>` : ''}
-          ${e.maintenance_type ? `<span class="text-[10px] text-white/30">${escHtml(e.maintenance_type)}</span>` : ''}
+          ${e.maintenance_type ? `<span class="text-[10px] text-white/60">${escHtml(e.maintenance_type)}</span>` : ''}
         </div>
         <span class="text-[11px] text-white/60 flex-shrink-0">${date}</span>
       </div>
@@ -2587,7 +2664,7 @@ function renderDetailFaultHistory(entries) {
 
 function switchDetailTab(tab) {
   const activeStyle   = 'background:rgba(247,162,27,0.15);color:#F7A21B;';
-  const inactiveStyle = 'background:transparent;color:rgba(255,255,255,0.4);';
+  const inactiveStyle = 'background:transparent;color:rgba(255,255,255,0.62);';
   document.getElementById('detail-tab-stocked').setAttribute('style',     tab === 'stocked'     ? activeStyle : inactiveStyle);
   document.getElementById('detail-tab-consumption').setAttribute('style', tab === 'consumption' ? activeStyle : inactiveStyle);
   document.getElementById('detail-tab-faults').setAttribute('style',      tab === 'faults'      ? activeStyle : inactiveStyle);
@@ -2635,13 +2712,13 @@ function renderAssetPickerList(query) {
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
       <p class="text-sm" style="color:rgba(255,255,255,0.6);">${q ? 'No assets match &quot;' + escHtml(query) + '&quot;' : 'No assets registered yet.'}</p>
-      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.2);">Use the button below to register this asset.</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.62);">Use the button below to register this asset.</p>
     </div>`;
     return;
   }
 
   list.innerHTML = filtered.map(a => {
-    const label = a.name ? escHtml(a.asset_id) + ' <span style="color:rgba(255,255,255,0.5);font-weight:400;">' + escHtml(a.name) + '</span>' : escHtml(a.asset_id);
+    const label = a.name ? escHtml(a.asset_id) + ' <span style="color:rgba(255,255,255,0.62);font-weight:400;">' + escHtml(a.name) + '</span>' : escHtml(a.asset_id);
     return `<button type="button" data-asset-id="${escHtml(a.asset_id)}" data-asset-name="${escHtml(a.name || a.asset_id)}" data-asset-ref="${a.id}"
       class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:pointer;"
       onmouseover="this.style.background='rgba(247,162,27,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
@@ -2720,8 +2797,8 @@ async function loadMachineHistory(machineId) {
         + (r.problem  ? '<p style="color:rgba(255,255,255,0.75); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
         + (r.root_cause ? '<p style="color:#F7A21B; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
         + (r.action   ? '<p style="color:#4ade80; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
-        + (r.knowledge ? '<p style="color:rgba(255,255,255,0.45); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
-        + '<p style="color:rgba(255,255,255,0.2); font-size:0.65rem; margin-top:4px;">'
+        + (r.knowledge ? '<p style="color:rgba(255,255,255,0.62); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
+        + '<p style="color:rgba(255,255,255,0.62); font-size:0.65rem; margin-top:4px;">'
         + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt + '</p>'
         + '</div>';
     }).join('');
@@ -2762,7 +2839,7 @@ function renderRootCauseChips(machineName) {
     .slice(0, 5); // top 5 max
 
   chipList.innerHTML = ranked.map(([cause, count]) => `
-    <button type="button" class="rc-chip" onclick="selectRootCauseChip(this, '${escHtml(cause).replace(/'/g, "&#39;")}')">
+    <button type="button" class="rc-chip" onclick="selectRootCauseChip(this, '${escJsAttr(cause)}')">
       ${escHtml(cause)}
       ${count > 1 ? `<span class="chip-count">${count}×</span>` : ''}
     </button>`).join('');
@@ -2879,7 +2956,7 @@ async function renderReadingsFields(category) {
 
   fields.innerHTML = defs.map(d => `
     <div>
-      <label for="reading-${escHtml(d.key)}" class="block text-[10px] text-white/35 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/20">(${escHtml(d.unit)})</span></label>
+      <label for="reading-${escHtml(d.key)}" class="block text-[10px] text-white/60 font-semibold mb-1">${escHtml(d.label)} <span class="text-white/60">(${escHtml(d.unit)})</span></label>
       <input type="number" step="any" class="wh-input py-2"
              id="reading-${escHtml(d.key)}"
              data-key="${escHtml(d.key)}" data-unit="${escHtml(d.unit)}"
@@ -2889,6 +2966,15 @@ async function renderReadingsFields(category) {
     </div>`).join('');
 
   section.classList.remove('hidden');
+}
+
+// LOTO / Permit-to-Work (Extension 3) — reveal the permit-reference input only when isolation applies.
+function toggleLotoPermit() {
+  const on = document.getElementById('f-loto')?.checked;
+  const ref = document.getElementById('f-permit-ref');
+  if (!ref) return;
+  ref.classList.toggle('hidden', !on);
+  if (!on) ref.value = '';
 }
 
 function collectReadings() {
@@ -2905,10 +2991,16 @@ function collectReadings() {
   return hasValue ? readings : null;
 }
 
-// Wire category change → update readings fields
+// Wire category change → update readings fields (any condition-monitoring kind, not breakdown-only)
 document.getElementById('f-category').addEventListener('change', async function() {
-  const isBreakdown = document.getElementById('f-maint-type').value.includes('Breakdown');
-  if (isBreakdown) await renderReadingsFields(this.value);
+  const typeEl = document.getElementById('f-maint-type');
+  if (kindTakesReadings(typeEl.value)) {
+    await renderReadingsFields(this.value);
+    // Async-race guard: if the kind changed away from a readings-kind while renderReadingsFields
+    // was awaiting (e.g. voice/draft autofill dispatches category+type near-simultaneously),
+    // don't leave the just-un-hidden readings section showing on a non-readings kind.
+    if (!kindTakesReadings(typeEl.value)) document.getElementById('readings-section').classList.add('hidden');
+  }
 });
 
 // ── Production Output (OEE Quality + Performance) ────────────────────────────
@@ -2942,10 +3034,14 @@ function collectProductionOutput() {
 }
 
 function updateProductionVisibility() {
-  const isBreakdown = document.getElementById('f-maint-type').value.includes('Breakdown');
+  // Production output (good/total units → OEE Quality + Performance) is a property of a machine that
+  // RAN and produced — it is orthogonal to the maintenance kind. The prior gate (isBreakdown && isClosed)
+  // hid it from exactly the Preventive/Inspection runs where OEE output actually originates and pinned it
+  // to breakdowns (where a down machine produces little). Gate on isClosed only — a strict, data-safe
+  // broadening (never hides/clears production for existing breakdown entries on edit).
   const isClosed    = document.querySelector('input[name="f-status"]:checked')?.value === 'Closed';
   const section     = document.getElementById('production-section');
-  if (isBreakdown && isClosed) {
+  if (isClosed) {
     section.classList.remove('hidden');
   } else {
     section.classList.add('hidden');
@@ -2960,12 +3056,23 @@ document.querySelectorAll('input[name="f-status"]').forEach(r =>
   r.addEventListener('change', updateProductionVisibility)
 );
 
-// Show/hide consequence + readings based on maintenance type
+// Entry-KIND field-shaping (LOGBOOK arc, 2026-07-12): route each kind's fields to the RIGHT kind.
+// READINGS (condition monitoring: temp/vibration/pressure) belong to any kind where the machine's
+// state is observed — Inspection (definitionally reading-taking), Preventive (condition during PM),
+// and Corrective (condition at failure) — NOT Breakdown-only. The prior code gated readings on
+// isBreakdown alone, so an Inspection could never capture a reading (0/645 inspection entries had
+// readings — the data mirrored the broken UI). Project Work (build/install) has no condition data.
+// FAILURE CONSEQUENCE + its 'required' badge stay a corrective-only property (a failure has a
+// consequence; a routine inspection does not).
+function kindTakesReadings(t){ return /breakdown|corrective|inspection|preventive/i.test(t || ''); }
+
 document.getElementById('f-maint-type').addEventListener('change', async function() {
-  const isBreakdown = this.value.includes('Breakdown') || this.value.includes('Corrective');
+  const type = this.value;
+  const isBreakdown = type.includes('Breakdown') || type.includes('Corrective');
   const consequenceEl = document.getElementById('consequence-section');
   const readingsEl    = document.getElementById('readings-section');
 
+  // ── Failure consequence — corrective/breakdown only ──
   if (isBreakdown) {
     consequenceEl.classList.remove('hidden');
     // Arc V (EFFORTLESS): the impact field is required for Breakdown entries but lives
@@ -2973,20 +3080,29 @@ document.getElementById('f-maint-type').addEventListener('change', async functio
     // badge the moment the type is chosen, so the requirement is signposted UP FRONT — not
     // drip-fed as a surprise toast at the final Save click (P1 Marielle persona finding).
     document.getElementById('consequence-required-badge').classList.remove('hidden');
-    await renderReadingsFields(document.getElementById('f-category').value);
-    // Auto-open extras drawer
-    const drawer = document.getElementById('extras-drawer');
-    if (!drawer.classList.contains('open')) {
-      drawer.classList.add('open');
-      document.getElementById('extras-toggle-label').textContent = 'Hide extra details';
-    }
   } else {
     consequenceEl.classList.add('hidden');
-    readingsEl.classList.add('hidden');
     document.getElementById('f-consequence').value = '';
     document.getElementById('consequence-required-badge').classList.add('hidden');
     document.querySelectorAll('.consequence-btn').forEach(b => b.classList.remove('selected'));
   }
+
+  // ── Readings + Safety Isolation (LOTO) — hands-on kinds (Inspection/Preventive/Corrective) ──
+  const lotoEl = document.getElementById('loto-section');
+  if (kindTakesReadings(type)) {
+    await renderReadingsFields(document.getElementById('f-category').value);
+    if (lotoEl) lotoEl.classList.remove('hidden');  // isolation is relevant to any hands-on work
+    // Auto-open extras drawer so the readings (and consequence, when corrective) are visible up front
+    const drawer = document.getElementById('extras-drawer');
+    if (drawer && !drawer.classList.contains('open')) {
+      drawer.classList.add('open');
+      document.getElementById('extras-toggle-label').textContent = 'Hide extra details';
+    }
+  } else {
+    readingsEl.classList.add('hidden');
+    if (lotoEl) lotoEl.classList.add('hidden');
+  }
+
   updateProductionVisibility();
 });
 
@@ -2996,7 +3112,7 @@ document.getElementById('asset-picker-btn').addEventListener('click', openAssetP
 // Phase E.3d: Scan equipment tag — finds matching asset and selects it,
 // or pre-fills the picker search if no match found.
 document.getElementById('logbook-scan-btn')?.addEventListener('click', function () {
-  if (!window.WHQRScanner) { showToast('Scanner not loaded — try again in a moment'); return; }
+  if (!window.WHQRScanner) { showToast('Scanner not loaded, try again in a moment'); return; }
   window.WHQRScanner.open({
     title: 'Scan equipment tag',
     onResult: function (text) {
@@ -3154,9 +3270,10 @@ function highlight(text, query) {
 }
 
 function formatDate(iso) {
+  // FD1a: date part = canonical whFmtDate (en-PH + Asia/Manila); the ' · time' layout is kept.
   const d = new Date(iso);
-  return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
-    + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  const datePart = (typeof whFmtDate === 'function') ? whFmtDate(iso) : d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  return datePart + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
 }
 
 // Header stat pills ("Your Repair Logbook") always reflect the worker's OWN
@@ -3195,12 +3312,17 @@ async function renderEntries(reload = true) {
       document.getElementById('empty-state').classList.add('hidden');
       document.getElementById('no-results').classList.add('hidden');
       document.getElementById('logbook-load-more-wrap').classList.add('hidden');
+      renderTeamProgressStrip();
       return;
     }
     teamPrompt.classList.add('hidden');
   } else {
     teamPrompt.classList.add('hidden');
     if (reload || !_allEntries.length) {
+      // G1: shared whListSkeleton while the entries query is in flight (first load only —
+      // a re-filter with entries on screen must not flash a skeleton over them)
+      const _lbList = document.getElementById('entries-list');
+      if (_lbList && !_allEntries.length && typeof whListSkeleton === 'function') whListSkeleton(_lbList, 4);
       await loadEntries();
       // Load synced machine sources once after entries reload (fire-and-forget)
       if (!Object.keys(_syncedMachineSource).length) loadSyncedMachines();
@@ -3208,6 +3330,14 @@ async function renderEntries(reload = true) {
   }
 
   const entries      = _viewMode === 'team' ? _teamEntries : _allEntries;
+  // H1 goal-gradient — closing out open jobs is the logbook journey. Own view only
+  // (a team-wide bar isn't MY goal); hidden when no entries are loaded.
+  const lbProg = document.getElementById('lb-progress');
+  if (lbProg) {
+    const closed = _allEntries.filter(en => en.status === 'Closed').length;
+    lbProg.innerHTML = (_viewMode !== 'team' && typeof whProgressStrip === 'function')
+      ? whProgressStrip('Jobs closed out', closed, _allEntries.length) : '';
+  }
   const query        = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter    = document.getElementById('filter-category').value;
   const statusFilter = document.getElementById('filter-status').value;
@@ -3258,7 +3388,7 @@ async function renderEntries(reload = true) {
   if (_viewMode === 'team') {
     wrap.classList.toggle('hidden', !_teamHasMore);
     lbl.textContent = _teamHasMore
-      ? `Showing ${visible.length} entries — load more below`
+      ? `Showing ${visible.length} entries (load more below)`
       : `${visible.length} entries found`;
   } else {
     wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
@@ -3281,24 +3411,24 @@ async function renderEntries(reload = true) {
             ${catBadge(e.category)}
             ${statusBadge(e.status || 'Open')}
             ${woStateBadge(e.wo_state, e.wo_assigned_to)}
-            ${_syncedMachineSource[e.machine] ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
+            ${_syncedMachineSource[e.machine] ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
             ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
-          <span class="text-[11px] text-white/30">${formatDate(e.date)}</span>
-          ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:#29B6D9;">${escHtml(e.worker_name)}</span>` : ''}
+          <span class="text-[11px] text-white/60">${formatDate(e.date)}</span>
+          ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
         </div>
-        <svg class="w-4 h-4 text-white/20 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <svg class="w-4 h-4 text-white/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </div>
 
       ${e.problem ? `
       <div class="mb-2">
-        <span class="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Problem</span>
+        <span class="text-[10px] text-white/60 uppercase tracking-widest font-semibold">Problem</span>
         <p class="text-xs text-white/65 mt-0.5 leading-relaxed line-clamp-2">${problem}</p>
       </div>` : ''}
 
       ${e.action ? `
       <div class="mb-2">
-        <span class="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Action Taken</span>
+        <span class="text-[10px] text-white/60 uppercase tracking-widest font-semibold">Action Taken</span>
         <p class="text-xs text-white/65 mt-0.5 leading-relaxed line-clamp-2">${action}</p>
       </div>` : ''}
 
@@ -3336,26 +3466,26 @@ async function openModal(id) {
       ${woStateBadge(entry.wo_state, entry.wo_assigned_to)}
     </div>
     <div class="flex flex-wrap gap-2 mb-4">
-      ${entry.maintenance_type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:#29B6D9;border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
+      ${entry.maintenance_type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
       ${entry.downtime_hours != null ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
     </div>
-    <p class="text-xs text-white/30 mb-5">${formatDate(entry.date)}</p>
+    <p class="text-xs text-white/60 mb-5">${formatDate(entry.date)}</p>
 
     ${entry.problem ? `
     <div class="mb-4">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Symptom</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-1.5">Symptom</p>
       <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.problem)}</p>
     </div>` : ''}
 
     ${entry.root_cause ? `
     <div class="mb-4">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Root Cause</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-1.5">Root Cause</p>
       <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.root_cause)}</p>
     </div>` : ''}
 
     ${entry.action ? `
     <div class="mb-5">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-1.5">Action taken</p>
       <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.action)}</p>
     </div>` : ''}
 
@@ -3370,19 +3500,19 @@ async function openModal(id) {
 
     ${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? `
     <div class="mb-5">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Photo</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-2">Photo</p>
       <img src="${escHtml(entry.photo)}" alt="Logbook entry photo (full size)" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
     </div>` : ''}
 
     ${entry.parts_used && entry.parts_used.length ? `
     <div class="mb-5">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Parts Used</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-2">Parts Used</p>
       <div class="space-y-1.5">
         ${entry.parts_used.map(p => `
           <div class="flex items-center justify-between rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
             <div>
               <span class="text-xs font-semibold text-white/80">${escHtml(p.partName || '')}</span>
-              ${p.partNumber ? `<span class="text-[10px] text-white/35 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
+              ${p.partNumber ? `<span class="text-[10px] text-white/60 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
             </div>
             <span class="text-xs font-bold text-white/60">${p.qty} ${escHtml(p.unit || 'pcs')}</span>
           </div>`).join('')}
@@ -3420,12 +3550,12 @@ function renderEditParts() {
   // gid-allow: edit-modal scaffold — HTML form pending; guard returns when absent
   const el = document.getElementById('e-parts-display');
   if (!el) return;
-  if (!_editPartsUsed.length) { el.innerHTML = '<p class="text-xs text-white/30 py-1">No parts added yet.</p>'; return; }
+  if (!_editPartsUsed.length) { el.innerHTML = '<p class="text-xs text-white/60 py-1">No parts added yet.</p>'; return; }
   el.innerHTML = _editPartsUsed.map((p, i) => `
     <div class="flex items-center gap-2 rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
       <div class="flex-1 min-w-0">
         <span class="text-xs font-semibold text-white/80">${escHtml(p.partName)}</span>
-        ${p.partNumber ? `<span class="text-[10px] text-white/35 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
+        ${p.partNumber ? `<span class="text-[10px] text-white/60 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
       </div>
       <input type="number" min="0.1" step="0.1" value="${p.qty}" aria-label="Quantity used" class="wh-input w-16 text-center px-1 py-1" style="font-size:1rem;"
         onchange="_editPartsUsed[${i}].qty = parseFloat(this.value) || 1" />
@@ -3501,6 +3631,15 @@ async function openEditModal(id) {
     document.querySelectorAll('.consequence-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.dataset.value === entry.failure_consequence);
     });
+  }
+
+  // ── LOTO / Permit-to-Work (Extension 3) ──
+  if (entry.loto_applied || entry.permit_reference) {
+    document.getElementById('loto-section').classList.remove('hidden');
+    const lotoBox = document.getElementById('f-loto');
+    if (lotoBox) { lotoBox.checked = !!entry.loto_applied; }
+    document.getElementById('f-permit-ref').value = entry.permit_reference || '';
+    toggleLotoPermit();
   }
 
   // ── Production output ──
@@ -3692,6 +3831,8 @@ async function saveEditFromForm() {
     failure_consequence:   document.getElementById('f-consequence').value  || existing?.failure_consequence  || null,
     readings_json:         collectReadings()                               || existing?.readings_json         || null,
     production_output:     collectProductionOutput()                       || existing?.production_output      || null,
+    loto_applied:          !!document.getElementById('f-loto')?.checked,
+    permit_reference:      (document.getElementById('f-permit-ref')?.value || '').trim() || null,
     tasklist_acknowledged: document.getElementById('tasklist-ack-check').checked,
     tasklist_note:         _tasklistNote || existing?.tasklist_note || null,
   };
@@ -3722,7 +3863,7 @@ async function saveEditFromForm() {
     await updateOfflineBadge();
     cancelEditMode();
     if (_viewMode === 'mine') await renderEntries(false);
-    showToast('Edit saved offline — will sync when connected.');
+    showToast('Edit saved offline, will sync when connected.');
     return;
   }
   // ── Online path ─────────────────────────────────────────────────────
@@ -3749,7 +3890,7 @@ async function saveEditFromForm() {
   // Guard: 0 rows updated means either worker mismatch OR stale data (concurrent edit).
   // Do NOT deduct parts — the update didn't land.
   if (updatedRows !== null && updatedRows !== undefined && updatedRows.length === 0) {
-    showToast('Entry was modified by someone else — reload to see the latest version.', '⚠️');
+    showToast('Entry was modified by someone else, reload to see the latest version.', '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Update Entry';
     return;
@@ -3882,8 +4023,12 @@ async function loadPMTasksForAsset() {
 }
 
 function renderPMTasksPanel() {
-  const freqMap = { Monthly: 'M', Quarterly: 'Q', 'Semi-Annual': 'SA', Yearly: 'Y' };
-  const freqCls = { Monthly: 'rgba(41,182,217,0.15);color:#29B6D9', Quarterly: 'rgba(167,139,250,0.15);color:#a78bfa', 'Semi-Annual': 'rgba(251,191,36,0.15);color:#fbbf24', Yearly: 'rgba(247,162,27,0.15);color:#F7A21B' };
+  // Canonical PM frequency badge — case/synonym-robust so Weekly/Annual/Semi-annual from the
+  // seeder/CMMS import render a proper pill, not a raw-text gray fallback (PM PDDA cross-page
+  // consistency; mirrors pm-scheduler.html's FREQ registry).
+  const _cf = s => { s = String(s || '').toLowerCase().trim(); if (s === 'yearly') s = 'annual'; if (s === 'semiannual' || s === 'semi annual') s = 'semi-annual'; if (s === 'biweekly' || s === 'fortnightly') s = 'weekly'; return s; };
+  const freqMap = { daily: 'D', weekly: 'W', monthly: 'M', quarterly: 'Q', 'semi-annual': 'SA', annual: 'Y' };
+  const freqCls = { daily: 'rgba(244,114,182,0.15);color:#f9a8d4', weekly: 'rgba(56,189,248,0.15);color:#7dd3fc', monthly: 'rgba(41,182,217,0.15);color:var(--wh-blue-light)', quarterly: 'rgba(167,139,250,0.15);color:var(--wh-violet-text)', 'semi-annual': 'rgba(251,191,36,0.15);color:#fbbf24', annual: 'rgba(247,162,27,0.15);color:#F7A21B' };
 
   const needsAttention = _pmItemsForAsset.filter(i => i.status === 'overdue' || i.status === 'duesoon' || i.status === 'nodata');
   const onTrack        = _pmItemsForAsset.filter(i => i.status === 'ontrack');
@@ -3895,10 +4040,10 @@ function renderPMTasksPanel() {
   function daysLabel(item) {
     if (item.status === 'overdue')  return `<span style="color:#f87171;font-size:10px;">${Math.abs(item.diff)} day${Math.abs(item.diff) === 1 ? '' : 's'} overdue</span>`;
     if (item.status === 'duesoon')  return `<span style="color:#fbbf24;font-size:10px;">due in ${item.diff} day${item.diff === 1 ? '' : 's'}</span>`;
-    if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.25);font-size:10px;">no history</span>`;
+    if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.62);font-size:10px;">no history</span>`;
     if (item.nextDue) {
       const d = item.nextDue;
-      return `<span style="color:rgba(255,255,255,0.25);font-size:10px;">next: ${d.toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>`;
+      return `<span style="color:rgba(255,255,255,0.62);font-size:10px;">next: ${d.toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>`;
     }
     return '';
   }
@@ -3918,7 +4063,7 @@ function renderPMTasksPanel() {
         <div class="flex-1 min-w-0">
           <p class="text-sm text-white/80 leading-snug">${escHtml(item.item_text)}</p>
           <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.4)'};">${freqMap[item.frequency] || item.frequency}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.62)'};">${freqMap[item.frequency] || item.frequency}</span>
             ${daysLabel(item)}
           </div>
         </div>
@@ -3991,6 +4136,8 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const failureConsequence = document.getElementById('f-consequence').value || null;
   const readingsJson       = collectReadings();
   const productionOutput   = collectProductionOutput();
+  const lotoApplied        = !!document.getElementById('f-loto')?.checked;
+  const permitRef          = (document.getElementById('f-permit-ref')?.value || '').trim() || null;
   const photo              = currentPhotoData;
   const status             = document.querySelector('input[name="f-status"]:checked').value;
 
@@ -4081,6 +4228,23 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const tasklistAcknowledged = !tasklistSection.classList.contains('hidden') && tasklistCheck.checked;
   const tasklistNote         = _tasklistNote;
 
+  // DI-2 FK-linkage source-fix (deep-walk 2026-07-08): if the asset was NOT resolved
+  // via the picker (a free-text machine, OR the voice pre-fill path that set only the
+  // machine STRING while discarding the router-resolved asset_id), but `machine`
+  // EXACTLY names a registered asset (tag or name), resolve the asset_node_id FK here.
+  // Otherwise the entry lands unlinked and v_asset_truth.lifetime_logbook_entries +
+  // asset-brain + analytics UNDERCOUNT the asset's history (2700 rows were unlinked
+  // platform-wide before backfill 20260708000000). Exact-match only (mirrors the scan
+  // matcher), so a free-text note that names no real asset stays unlinked (no mislink).
+  let _resolvedAssetNodeId = _pendingAssetRefId;
+  if (!_resolvedAssetNodeId && machine) {
+    const _m = String(machine).trim().toLowerCase();
+    const _hit = (_assets || []).find(a =>
+      (a.asset_id && String(a.asset_id).toLowerCase() === _m) ||
+      (a.name && String(a.name).toLowerCase() === _m));
+    if (_hit) _resolvedAssetNodeId = _hit.id || null;
+  }
+
   const entry = {
     id: Date.now().toString(),
     date: new Date().toISOString(),
@@ -4089,7 +4253,9 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     failure_consequence: failureConsequence,
     readings_json: readingsJson,
     production_output: productionOutput,
-    photo, status, asset_node_id: _pendingAssetRefId,
+    loto_applied: lotoApplied,
+    permit_reference: permitRef,
+    photo, status, asset_node_id: _resolvedAssetNodeId,
     parts_used: _partsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
     tasklist_acknowledged: tasklistAcknowledged,
     tasklist_note: tasklistNote,
@@ -4124,6 +4290,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
       scope_item_id: cb.dataset.itemId,
       hive_id:       HIVE_ID || null,
       worker_name:   WORKER_NAME,
+      auth_uid:      _authUid || null,  // attribution FK — checked-PM cross-write was dropping it (matches the main logbook insert at line 1809)
       status:        'done',
       notes:         `Logged via Logbook: ${machine}`,
       completed_at:  entry.date,
@@ -4164,7 +4331,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   if (pmSaved > 0)       _fx.push(`${pmSaved} PM task${pmSaved > 1 ? 's' : ''} → PM Scheduler compliance`);
   if (partsDeducted > 0) _fx.push(`${partsDeducted} part${partsDeducted > 1 ? 's' : ''} → Inventory + stock alerts`);
   if (_isFault && _machine) _fx.push(`risk score for ${_machine} (next scoring)`);
-  showToast(`✓ Logged — updated ${_fx.join(' · ')}`, _fx.length > 1 ? 6000 : 2800);
+  showToast(`✓ Logged: updated ${_fx.join(' · ')}`, _fx.length > 1 ? 6000 : 2800);
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Entry';
 });
@@ -4175,9 +4342,9 @@ document.getElementById('clear-form').addEventListener('click', clearForm);
 
 let _currentStep = 1;
 const STEP_LABELS = {
-  1: 'Step 1 — Machine & Type',
-  2: 'Step 2 — What Happened',
-  3: 'Step 3 — What You Did',
+  1: 'Step 1: Machine & Type',
+  2: 'Step 2: What Happened',
+  3: 'Step 3: What You Did',
 };
 
 function stepGo(n) {
@@ -4238,7 +4405,7 @@ function toggleExtras() {
   const isOpen = drawer.classList.toggle('open');
   label.textContent = isOpen
     ? 'Hide extra details'
-    : 'Add details — parts, photo, lesson learned';
+    : 'Add details: parts, photo, lesson learned';
 }
 
 // Reset step to 1 when form is cleared
@@ -4251,7 +4418,11 @@ function clearForm() {
   // Reset step flow back to step 1
   stepGo(1);
   document.getElementById('extras-drawer').classList.remove('open');
-  document.getElementById('extras-toggle-label').textContent = 'Add details — parts, photo, lesson learned';
+  document.getElementById('extras-toggle-label').textContent = 'Add details: parts, photo, lesson learned';
+  // LOTO / Permit-to-Work (Extension 3): form.reset() clears the values but not the section/permit
+  // visibility — re-hide so a fresh entry starts clean (the maint-type handler re-shows on demand).
+  document.getElementById('loto-section')?.classList.add('hidden');
+  document.getElementById('f-permit-ref')?.classList.add('hidden');
   const preview = document.getElementById('photo-preview');
   preview.classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
@@ -4308,6 +4479,20 @@ document.getElementById('f-photo').addEventListener('change', function() {
       canvas.height = Math.round(img.height * scale);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
       currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+      // Q0 free-tier guard: ≤1 photo/entry (single `photo` column) + a post-
+      // compression size assert. 800px/0.7 yields ~50-150 KB normally; if a
+      // pathological image still exceeds ~700 KB, re-encode harder once, then
+      // reject rather than inline a huge base64 blob into the row (DB budget).
+      const _b64bytes = (s) => Math.ceil((s.length - (s.indexOf(',') + 1)) * 0.75);
+      if (_b64bytes(currentPhotoData) > 700_000) {
+        currentPhotoData = canvas.toDataURL('image/jpeg', 0.5);
+      }
+      if (_b64bytes(currentPhotoData) > 700_000) {
+        currentPhotoData = null;
+        showToast('Photo is too large even after compression. Try a smaller or simpler image.');
+        document.getElementById('f-photo').value = '';
+        return;
+      }
       document.getElementById('photo-thumb').src = currentPhotoData;
       document.getElementById('photo-dropzone').classList.add('hidden');
       const preview = document.getElementById('photo-preview');
@@ -4443,15 +4628,15 @@ function applySmartVoiceFill(e, transcript) {
   let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} fields: ${filled.join(', ')}</p>`;
 
   if (e.loto_detected) {
-    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:#f87171; font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} — add to LOTO notes</div>`;
+    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:#f87171; font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
   }
 
   if (e.parts_mentioned?.length) {
-    html += `<p style="color:rgba(247,162,27,0.8); font-size:.72rem; margin-bottom:4px;">🔧 Parts mentioned: ${e.parts_mentioned.map(p => escHtml(p)).join(', ')} — check inventory</p>`;
+    html += `<p style="color:rgba(247,162,27,0.8); font-size:.72rem; margin-bottom:4px;">🔧 Parts mentioned: ${e.parts_mentioned.map(p => escHtml(p)).join(', ')} (check inventory)</p>`;
   }
 
   if (e.supervisor_alert) {
-    html += `<p style="color:#29B6D9; font-size:.72rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
+    html += `<p style="color:var(--wh-blue-light); font-size:.72rem;">📢 Supervisor note: ${escHtml(e.supervisor_alert)}</p>`;
   }
 
   html += `<button onclick="document.getElementById('vf-result').style.display='none';" style="margin-top:8px; font-size:.68rem; color:rgba(255,255,255,0.6); background:none; border:none; cursor:pointer; font-family:inherit;">Dismiss</button>`;
@@ -4459,7 +4644,7 @@ function applySmartVoiceFill(e, transcript) {
   resultDiv.innerHTML = html;
   resultDiv.style.display = 'block';
   saveDraft();
-  showToast('Form filled from voice — review and adjust before submitting.');
+  showToast('Form filled from voice, review and adjust before submitting.');
 }
 
 
@@ -4673,7 +4858,7 @@ function vdcApplyDraft(payload) {
                     : sev === 'medium'  ? '#facc15'
                                         : 'rgba(255,255,255,0.5)';
     const tagLine = draft.asset_tag_extracted
-      ? `<p style="color:rgba(255,255,255,0.55); font-size:.7rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${matched ? ' (matched in hive)' : ' (no hive match)'}</p>`
+      ? `<p style="color:rgba(255,255,255,0.62); font-size:.7rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${matched ? ' (matched in hive)' : ' (no hive match)'}</p>`
       : '';
     resultDiv.innerHTML =
       `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:6px;">` +
@@ -4852,12 +5037,19 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
     : (_allEntries.length ? _allEntries : await loadEntries());
   if (!entries.length) { showToast('No entries to export.'); return; }
 
-  const cols = ['Date','Machine','Category','Maintenance Type','Problem','Root Cause','Action Taken','Knowledge','Downtime (hrs)','Status'];
+  // Audit-grade columns (DOLE/ISO trail — Extension 3): WHO (Worker) + WHEN signed off (Closed At)
+  // are compliance-critical and were missing, making the old export a field-dump rather than an
+  // auditable record of who did what, to which asset, when it was signed off.
+  const cols = ['Date Logged','Worker','Machine/Asset','Category','Maintenance Type','Problem','Root Cause','Action Taken','Failure Consequence','LOTO Applied','Permit Ref','Knowledge','Downtime (hrs)','Status','Signed Off (Closed At)'];
   const esc  = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
   const rows = entries.map(e => [
-    e.date ? new Date(e.date).toLocaleDateString() : '',
+    e.date ? whFmtDate(e.date, { time: true }) : '',
+    e.worker_name || '',
     e.machine, e.category, e.maintenance_type, e.problem,
-    e.root_cause, e.action, e.knowledge, e.downtime_hours ?? '', e.status
+    e.root_cause, e.action, e.failure_consequence,
+    e.loto_applied ? 'Yes' : 'No', e.permit_reference || '',
+    e.knowledge, e.downtime_hours ?? '', e.status,
+    e.closed_at ? whFmtDate(e.closed_at, { time: true }) : ''
   ].map(esc).join(','));
 
   const csv  = [cols.map(esc).join(','), ...rows].join('\r\n');
@@ -4976,7 +5168,7 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   document.getElementById('tasklist-modal-subtitle').textContent = `${key}: ${category}`;
   document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
     `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.25);">${String(i + 1).padStart(2, '0')}</span>
+      <span class="text-[11px] font-black flex-shrink-0 mt-0.5" style="color:rgba(255,255,255,0.62);">${String(i + 1).padStart(2, '0')}</span>
       <span class="text-sm text-white/80 leading-snug">${escHtml(t)}</span>
     </div>`
   ).join('');
@@ -5138,11 +5330,17 @@ document.addEventListener('change', function(e) {
 let _partsUsed = []; // { partId, partName, partNumber, qty, unit }
 let _inventoryItems = [];
 
+// Reuse discipline (Inventory PDDA, 2026-07-12): the parts-picker COMPOSES FROM the
+// canonical inventory item (v_inventory_items_truth, security_invoker) — same source as
+// the pm/project pickers — instead of re-reading the raw table. This inherits the derived
+// stock-state flags (is_low_stock / is_critical_low) so a tech sees when they're consuming
+// a scarce part on a fault, and carries linked_asset_node_ids for the asset-BOM prioritization.
+const _PICKER_COLS = 'id, part_name, part_number, qty_on_hand, unit, bin_location, min_qty, is_low_stock, is_critical_low, linked_asset_node_ids';
 async function loadInventoryForPicker() {
   if (HIVE_ID) {
     const [myRes, hiveRes] = await Promise.allSettled([
-      db.from('inventory_items').select('id, part_name, part_number, qty_on_hand, unit, bin_location').eq('worker_name', WORKER_NAME).limit(2000), // L2: parts picker; inventory bounded-by-nature
-      db.from('inventory_items').select('id, part_name, part_number, qty_on_hand, unit, bin_location').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(2000) // L2: parts picker; inventory bounded-by-nature
+      db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('worker_name', WORKER_NAME).limit(2000), // L2: parts picker; inventory bounded-by-nature
+      db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(2000) // L2: parts picker; inventory bounded-by-nature
     ]);
     const seen = new Set();
     const merged = [];
@@ -5151,7 +5349,7 @@ async function loadInventoryForPicker() {
     }
     _inventoryItems = merged;
   } else {
-    const { data } = await db.from('inventory_items').select('id, part_name, part_number, qty_on_hand, unit, bin_location').eq('worker_name', WORKER_NAME).limit(2000); // L2: parts picker; inventory bounded-by-nature
+    const { data } = await db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('worker_name', WORKER_NAME).limit(2000); // L2: parts picker; inventory bounded-by-nature
     _inventoryItems = data || [];
   }
 }
@@ -5192,15 +5390,30 @@ function renderPartsPickerList(query) {
   if (filtered.length === 0) {
     list.innerHTML = `<div class="text-center py-8">
       <p class="text-sm" style="color:rgba(255,255,255,0.6);">${q ? 'No parts match &quot;' + escHtml(query) + '&quot;' : 'No inventory items yet.'}</p>
-      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.2);">Use the button below to register this part in Inventory.</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.62);">Use the button below to register this part in Inventory.</p>
     </div>`;
     return;
   }
 
-  list.innerHTML = filtered.map(i => {
+  // Asset-BOM prioritization (Inventory PDDA, 2026-07-12): when this fault is on a
+  // registered asset, float the parts that FIT that asset (via linked_asset_node_ids)
+  // to the top + chip them, so the tech reaches for the right spare for THIS equipment.
+  const faultAsset = (typeof _pendingAssetRefId !== 'undefined' && _pendingAssetRefId) ? _pendingAssetRefId : null;
+  const fitsAsset  = (i) => !!(faultAsset && Array.isArray(i.linked_asset_node_ids) && i.linked_asset_node_ids.includes(faultAsset));
+  const ordered = faultAsset
+    ? [...filtered].sort((a, b) => (fitsAsset(b) ? 1 : 0) - (fitsAsset(a) ? 1 : 0))  // stable: BOM parts first
+    : filtered;
+
+  list.innerHTML = ordered.map(i => {
     const alreadyAdded = _partsUsed.some(p => p.partId === i.id);
-    const isOut = i.qty_on_hand <= 0;
-    const qtyColor = isOut ? '#f87171' : '#4ade80';
+    const isOut  = i.qty_on_hand <= 0;
+    // Stock-state chip from the canonical derived flags — so the tech sees when they are
+    // about to consume a scarce part on this fault (critical = below half its minimum).
+    const isCrit = i.is_critical_low === true && !isOut;
+    const isLow  = i.is_low_stock === true && !isCrit && !isOut;
+    const qtyColor  = isOut ? '#f87171' : isCrit ? 'rgb(251,113,133)' : isLow ? 'rgb(247,162,27)' : '#4ade80';
+    const stockChip = isOut ? 'OUT' : isCrit ? 'CRITICAL' : isLow ? 'LOW' : '';
+    const fits = fitsAsset(i);
     return `<button type="button" data-part-id="${i.id}" data-part-name="${escHtml(i.part_name)}" data-part-number="${escHtml(i.part_number || '')}" data-unit="${escHtml(i.unit || 'pcs')}"
       class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors ${alreadyAdded ? 'opacity-40' : ''}"
       style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:${alreadyAdded ? 'not-allowed' : 'pointer'};"
@@ -5210,9 +5423,11 @@ function renderPartsPickerList(query) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${escHtml(i.part_name)}</p>
           ${i.part_number ? '<p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">' + escHtml(i.part_number) + '</p>' : ''}
+          ${fits ? '<p class="text-[10px] font-bold mt-0.5" style="color:rgb(41,182,217);">● Fits this asset</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0">
           <p class="text-sm font-bold" style="color:${qtyColor}">${i.qty_on_hand} <span class="text-xs font-normal" style="color:rgba(255,255,255,0.6);">${escHtml(i.unit || 'pcs')}</span></p>
+          ${stockChip ? '<p class="text-[10px] font-bold" style="color:' + qtyColor + ';">' + stockChip + '</p>' : ''}
           ${alreadyAdded ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.6);">Added</p>' : ''}
         </div>
       </div>
@@ -5247,12 +5462,12 @@ function renderSelectedParts() {
         ${p.partNumber ? '<p class="text-[10px]" style="color:rgba(255,255,255,0.6);">' + escHtml(p.partNumber) + '</p>' : ''}
       </div>
       <div class="flex items-center gap-1.5 flex-shrink-0">
-        <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">Qty:</span>
+        <span class="text-[10px]" style="color:rgba(255,255,255,0.62);">Qty:</span>
         <input type="number" min="1" value="${p.qty}" inputmode="numeric" aria-label="Quantity used"
           onchange="_partsUsed[${idx}].qty = Math.max(1, parseInt(this.value)||1)"
           class="text-xs text-center rounded-lg px-1 font-semibold"
           style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:44px; font-size:16px;" />
-        <span class="text-[10px]" style="color:rgba(255,255,255,0.4);">${escHtml(p.unit)}</span>
+        <span class="text-[10px]" style="color:rgba(255,255,255,0.62);">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
           style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove">
@@ -5297,7 +5512,7 @@ function renderOpenJobs(entries) {
       <div class="flex items-center justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(e.machine || 'Unknown machine')}</p>
-          ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:rgba(255,255,255,0.4);">' + escHtml(e.problem) + '</p>' : ''}
+          ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:rgba(255,255,255,0.62);">' + escHtml(e.problem) + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0 ml-2">
           <p class="text-[10px]" style="color:rgba(255,255,255,0.6);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
@@ -5417,7 +5632,7 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     // misleading 0 even for a worker with thousands of own entries. Load the
     // personal set once here so the header counts are honest; the team feed
     // itself stays search-gated.
-    loadEntries().then(updateStatPills);
+    loadEntries().then(updateStatPills).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3): stamp only AFTER the load completed
   }
   updateStatusToggle('f-status');
 
@@ -5429,6 +5644,16 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
       const openDeep = () => openModal(deepId);
       if (_allEntries && _allEntries.length) openDeep();
       else loadEntries().then(openDeep);
+    }
+    // Deep-link via ?new=1 (hive "Log your first job" CTA + onboarding first_log/first_photo
+    // step link here to START an entry; without this reader the param was dead).
+    if (new URLSearchParams(window.location.search).get('new')) {
+      const lf = document.getElementById('log-form');
+      if (lf) {
+        lf.scrollIntoView({ behavior: 'smooth' });
+        const first = lf.querySelector('input:not([type=hidden]), select, textarea');
+        if (first) first.focus({ preventScroll: true });
+      }
     }
   } catch (_) { /* empty-catch-allow: best-effort deep-link; list view still renders */ }
 })();
@@ -5463,6 +5688,21 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
       // Resolve machine name: prefer asset_resolution.primary tag/name over the spoken string.
       const primary = assetResolution && assetResolution.primary;
       const machine = (primary && (primary.tag || primary.name)) || p.machine || '';
+
+      // DI-2 FK-linkage (deep-walk 2026-07-08): the router already RESOLVED the asset
+      // (primary.asset_id is the asset_node uuid). Set the FK via the picker's
+      // selectAsset(tag, name, nodeUuid) so the saved entry LINKS to the asset --
+      // previously this handler set only the machine STRING and discarded the id, so
+      // every voice-logged entry landed asset_node_id NULL and undercounted the asset's
+      // history in v_asset_truth / asset-brain / analytics. selectAsset also fills
+      // f-machine, so the _setVal below is the no-primary (free-text) fallback.
+      if (primary && primary.asset_id && typeof selectAsset === 'function') {
+        // AWAIT: selectAsset resolves the FK asynchronously (resolveAssetNodeId),
+        // so _pendingAssetRefId is only set once it completes. Await so the link is
+        // in place deterministically before the worker reviews + taps Save.
+        try { await selectAsset(primary.tag || machine, primary.name || machine, primary.asset_id); }
+        catch (_) { /* empty-catch-allow: FK resolve failed; fall through to the string pre-fill below */ }
+      }
 
       _setVal('f-machine', machine);
       _setVal('f-maint-type', p.maintenance_type || '');
@@ -5511,5 +5751,33 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   <script defer src="session-timeout.js"></script>
   <script defer src="form-autosave.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('lb-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'lb-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'logbook + asset_nodes + v_inventory_items_truth',
+    });
+  });
+</script>
+
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    pagetitle: 'Ang Iyong Repair Logbook',
+    logarepair: 'Mag-log ng Repair',
+    registerasset: 'Irehistro ang Asset',
+    whathappened: 'Ano ang nangyari? →',
+    myentries: 'Aking Mga Entry',
+    teamfeed: 'Feed ng Team',
+    searchteam: 'Hanapin sa Team',
+    speak: 'Magsalita',
+    capture: 'Kumuha',
+    machineequip: 'Makina / Kagamitan',
+    clearform: 'I-clear ang form',
+  };
+</script>
 </body>
 </html>

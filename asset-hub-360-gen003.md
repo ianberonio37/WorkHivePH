@@ -1,0 +1,304 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#wh-main-content"
+  - main [ref=e3]:
+    - alert: Saved.
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Back" [ref=e6] [cursor=pointer]:
+          - /url: "#"
+        - generic [ref=e9]:
+          - heading "Asset Detail" [level=1] [ref=e291]
+          - generic [ref=e11]: Tap back to return to the list
+          - paragraph [ref=e12]:
+            - paragraph [ref=e13]: Live + daily snapshot · Based on your asset records, risk scores, logbook, failure analysis & reliability analysis · Click any asset for its full 360 (timeline, neighbours, reliability)
+      - generic [ref=e292]:
+        - generic [ref=e293]:
+          - generic [ref=e294]:
+            - generic [ref=e295]:
+              - generic [ref=e296]: GEN-003
+              - generic [ref=e297]: MTU 16V4000 G83L
+            - status [ref=e298]:
+              - generic [ref=e300]: live
+          - generic [ref=e301]:
+            - generic [ref=e302]: high
+            - generic [ref=e303]: equipment
+            - button "Where did this come from? Show data source." [ref=e304] [cursor=pointer]: ⓘ
+            - generic [ref=e305]: Warehouse
+            - button "Print a scannable QR tag for this asset" [ref=e306] [cursor=pointer]: ⤓ Print QR tag
+        - generic [ref=e307]:
+          - generic [ref=e308]:
+            - generic [ref=e309]: Logbook entries
+            - generic [ref=e310]: "35"
+          - generic [ref=e311]:
+            - generic [ref=e312]: PM completed
+            - generic [ref=e313]: "31"
+          - generic [ref=e314]:
+            - generic [ref=e315]: Last failure
+            - generic [ref=e316]: 10d ago
+        - generic [ref=e317]:
+          - generic [ref=e318]:
+            - generic [ref=e319]: Risk Profile
+            - generic [ref=e320]: Rules Engine v1
+          - paragraph [ref=e321]: "This is the asset's one headline risk: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it."
+          - paragraph [ref=e322]:
+            - paragraph [ref=e323]: Daily snapshot at 13:00 PHT · Based on your risk scores
+            - group [ref=e324]:
+              - generic "ⓘ How this is computed" [ref=e325] [cursor=pointer]
+          - generic [ref=e326]:
+            - generic [ref=e327]:
+              - generic [ref=e328]: 90%
+              - button "Where did this come from? Show data source." [ref=e329] [cursor=pointer]: ⓘ
+              - generic [ref=e330]: CRITICAL
+            - generic [ref=e331]:
+              - generic [ref=e332]:
+                - 'generic "ISO 14224:2016 §9.3 partial: calendar time, not operating time" [ref=e333]':
+                  - generic [ref=e334]: MTBF (partial · cal-time)
+                  - text: 7d
+                - generic [ref=e335]:
+                  - generic [ref=e336]: Days to Failure
+                  - text: 1d
+                  - button "Where did this come from? Show data source." [ref=e337] [cursor=pointer]: ⓘ
+                - generic [ref=e338]:
+                  - generic [ref=e339]: Generated
+                  - text: 14h ago
+              - generic [ref=e340]:
+                - generic [ref=e341]: pm overdue
+                - generic [ref=e342]: repeat fault
+                - generic [ref=e343]: high fault freq
+        - generic [ref=e344]:
+          - generic [ref=e345]:
+            - generic [ref=e346]: Recommended Parts to Stage
+            - generic [ref=e347]: confidence 68%
+          - paragraph [ref=e348]: Risk score 0.90 on GEN-003. 3 parts appear in 55%+ of past corrective fixes for this asset. Stage now to prevent unplanned downtime.
+          - generic [ref=e349]:
+            - button "Stage selected" [ref=e350] [cursor=pointer]
+            - button "Dismiss" [ref=e351] [cursor=pointer]
+        - button [ref=e352] [cursor=pointer]:
+          - img "wrench" [ref=e353]
+          - text: Show Reliability Workbench (engineer view)
+        - generic [ref=e355]:
+          - generic [ref=e356]: Timeline
+          - generic [ref=e357]:
+            - generic [ref=e358]:
+              - generic [ref=e359]: 1d ago · Logbook
+              - generic [ref=e360]: "Preventive Maintenance: Quarterly thermal scan"
+            - generic [ref=e361]:
+              - generic [ref=e362]: 1d ago · PM
+              - generic [ref=e363]: PM completed by Dennis Aquino
+            - generic [ref=e364]:
+              - generic [ref=e365]: 3d ago · PM
+              - generic [ref=e366]: PM completed by Ricardo Morales
+            - generic [ref=e367]:
+              - generic [ref=e368]: 3d ago · PM
+              - generic [ref=e369]: PM completed by Emma Velasquez
+            - generic [ref=e370]:
+              - generic [ref=e371]: 4d ago · PM
+              - generic [ref=e372]: PM completed by Pablo Aguilar
+            - generic [ref=e373]:
+              - generic [ref=e374]: 4d ago · Logbook
+              - generic [ref=e375]: "Inspection: Boundary inspection (visual)"
+            - generic [ref=e376]:
+              - generic [ref=e377]: 5d ago · PM
+              - generic [ref=e378]: PM completed by David Velasco
+            - generic [ref=e379]:
+              - generic [ref=e380]: 5d ago · PM
+              - generic [ref=e381]: PM completed by Pablo Aguilar
+            - generic [ref=e382]:
+              - generic [ref=e383]: 5d ago · PM
+              - generic [ref=e384]: PM completed by Ricardo Morales
+            - generic [ref=e385]:
+              - generic [ref=e386]: 5d ago · PM
+              - generic [ref=e387]: PM completed by Emma Velasquez
+            - generic [ref=e388]:
+              - generic [ref=e389]: 7d ago · PM
+              - generic [ref=e390]: PM completed by Emma Velasquez
+            - generic [ref=e391]:
+              - generic [ref=e392]: 8d ago · Logbook
+              - generic [ref=e393]: "Preventive Maintenance: Routine PM as scheduled"
+            - generic [ref=e394]:
+              - generic [ref=e395]: 8d ago · PM
+              - generic [ref=e396]: PM completed by David Velasco
+            - generic [ref=e397]:
+              - generic [ref=e398]: 10d ago · Logbook
+              - generic [ref=e399]: "Breakdown / Corrective: High exhaust temperature alarm at 75% load"
+            - generic [ref=e400]:
+              - generic [ref=e401]: 12d ago · PM
+              - generic [ref=e402]: PM completed by Dennis Aquino
+            - generic [ref=e403]:
+              - generic [ref=e404]: 13d ago · Logbook
+              - generic [ref=e405]: "Breakdown / Corrective: Loss of synchronization with grid"
+            - generic [ref=e406]:
+              - generic [ref=e407]: 16d ago · Logbook
+              - generic [ref=e408]: "Breakdown / Corrective: Coolant temperature exceeded 95°C alarm"
+            - generic [ref=e409]:
+              - generic [ref=e410]: 17d ago · PM
+              - generic [ref=e411]: PM completed by Ricardo Morales
+            - generic [ref=e412]:
+              - generic [ref=e413]: 18d ago · PM
+              - generic [ref=e414]: PM completed by Dennis Aquino
+            - generic [ref=e415]:
+              - generic [ref=e416]: 21d ago · PM
+              - generic [ref=e417]: PM completed by Emma Velasquez
+            - generic [ref=e418]:
+              - generic [ref=e419]: 22d ago · Logbook
+              - generic [ref=e420]: "Preventive Maintenance: Monthly oil change due"
+            - generic [ref=e421]:
+              - generic [ref=e422]: 23d ago · PM
+              - generic [ref=e423]: PM completed by David Velasco
+            - generic [ref=e424]:
+              - generic [ref=e425]: 24d ago · Logbook
+              - generic [ref=e426]: "Breakdown / Corrective: High exhaust temperature alarm at 75% load"
+            - generic [ref=e427]:
+              - generic [ref=e428]: 25d ago · PM
+              - generic [ref=e429]: PM completed by David Velasco
+            - generic [ref=e430]:
+              - generic [ref=e431]: 25d ago · PM
+              - generic [ref=e432]: PM completed by Pablo Aguilar
+            - generic [ref=e433]:
+              - generic [ref=e434]: 25d ago · Logbook
+              - generic [ref=e435]: "Inspection: Spare parts shelf audit"
+            - generic [ref=e436]:
+              - generic [ref=e437]: 25d ago · Logbook
+              - generic [ref=e438]: "Inspection: Spare parts shelf audit"
+            - generic [ref=e439]:
+              - generic [ref=e440]: 27d ago · PM
+              - generic [ref=e441]: PM completed by Emma Velasquez
+            - generic [ref=e442]:
+              - generic [ref=e443]: 29d ago · PM
+              - generic [ref=e444]: PM completed by Pablo Aguilar
+            - generic [ref=e445]:
+              - generic [ref=e446]: Jun 12, 2026 · Logbook
+              - generic [ref=e447]: "Preventive Maintenance: Vibration trending check"
+        - generic [ref=e448]:
+          - generic [ref=e449]: Ask Asset Brain
+          - generic [ref=e450]: Grounded in this asset's logbook, PMs, neighbors, and peers in the same equipment class.
+          - generic [ref=e451]:
+            - textbox "When did this asset last fail? Why?" [ref=e452]
+            - button "Ask" [ref=e453] [cursor=pointer]
+    - group [ref=e52]:
+      - generic "▸ About this dashboard's data sources" [ref=e53] [cursor=pointer]
+  - button "Connectivity status" [ref=e54] [cursor=pointer]:
+    - generic [ref=e56]: Online
+  - generic [ref=e57]:
+    - button "Open navigation hub" [ref=e58] [cursor=pointer]:
+      - generic: WorkHive
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: WorkHive
+      - button "Open global search":
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All" [selected]:
+          - generic: ⊞
+          - text: All
+        - tab "wrench Field":
+          - generic:
+            - img "wrench"
+          - text: Field
+        - tab "user Supervisor":
+          - generic:
+            - img "user"
+          - text: Supervisor
+        - tab "gear Engineer":
+          - generic:
+            - img "gear"
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+          - link "Logbook":
+            - /url: logbook.html
+          - link "Inventory":
+            - /url: inventory.html
+          - link "Day":
+            - /url: dayplanner.html
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+        - link "Inventory":
+          - /url: inventory.html
+        - link "Day Planner":
+          - /url: dayplanner.html
+        - paragraph: Your Team
+        - link "WorkHive":
+          - /url: hive.html
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+        - link "Community":
+          - /url: community.html
+        - paragraph: Intelligence
+        - link "Analytics":
+          - /url: analytics.html
+        - link "AI Assistant":
+          - /url: assistant.html
+        - link "Asset Hub":
+          - /url: asset-hub.html
+        - link "Alert Hub":
+          - /url: alert-hub.html
+        - paragraph: Build & Projects
+        - link "Eng. Design":
+          - /url: engineering-design.html
+        - link "Project Manager":
+          - /url: project-manager.html
+        - paragraph: Grow
+        - link "Growth":
+          - /url: skillmatrix.html
+        - link "Resume Builder":
+          - /url: resume.html
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+        - link "Connections":
+          - /url: integrations.html
+  - button "Send feedback to WorkHive" [ref=e59] [cursor=pointer]:
+    - img "chat" [ref=e60]
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Zaniah":
+          - img "Zaniah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Zaniah":
+            - img "Zaniah"
+        - generic:
+          - strong: Zaniah
+          - text: Asset Hub
+        - button "Close":
+          - img "x"
+      - generic:
+        - text: "Context:"
+        - strong: Asset Hub
+      - log "Assistant conversation":
+        - generic:
+          - text: Hi! I'm WorkHive AI. You're on the
+          - strong: WorkHive Home
+          - text: page. Ask me anything about the platform or industrial maintenance. What do you need?
+        - generic: What did I log in the logbook last week? Give me the exact entries.
+        - generic: I can see the most recent logbook entries in the snapshot, but it doesn't specify a date range like "last week." The snapshot shows entries for CR-001, MILL-001, RC-001, and BF-001. For the exact entries from last week, you'd want to check the Logbook page directly.
+      - generic:
+        - button "Voice command"
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send"
+  - generic [ref=e62]:
+    - 'link "Read the guide: Building an Asset Register from Scratch (Zero-Budget, ISO 14224)" [ref=e63] [cursor=pointer]':
+      - /url: /learn/building-asset-register-zero-budget/
+      - generic [ref=e68]:
+        - generic [ref=e69]: New to this page?
+        - generic [ref=e70]: Read the guide
+    - button "Dismiss guide link" [ref=e71] [cursor=pointer]: ×

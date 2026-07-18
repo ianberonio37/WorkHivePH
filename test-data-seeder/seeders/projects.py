@@ -86,6 +86,50 @@ PROJECT_FLAVOURS = [
 ]
 
 
+# X-keystone (PROJECT_MANAGER_DEEP_ARC Phase 3): which source systems each project
+# flavour BUNDLES via project_links, so the seeded WORKED state actually demonstrates
+# the connectivity fabric instead of an island. (link_type, count) per flavour type.
+# Mirrors the schema's design intent (the WO WBS literally says "link logbook entries").
+FLAVOUR_BUNDLE = {
+    "workorder":  [("logbook", 2), ("inventory_item", 1), ("pm_completion", 1)],  # reactive/breakdown bundle
+    "shutdown":   [("pm_completion", 1), ("logbook", 1), ("inventory_item", 2)],  # outage: PM campaign + parts
+    "capex":      [("engineering_calc", 1), ("inventory_item", 2)],               # design basis + BOM
+    "contractor": [("engineering_calc", 1), ("inventory_item", 2)],               # vendor scope + BOM
+}
+
+
+def _hive_sample(client, table: str, hive_id, cols: list, limit: int, log) -> list:
+    """Fetch up to `limit` rows of a source system for one hive (for project_links).
+    Fail-soft: a missing table / empty system just yields no links, never a crash."""
+    try:
+        res = client.table(table).select(",".join(cols)).eq("hive_id", hive_id).limit(limit).execute()
+        return res.data or []
+    except Exception as e:
+        log(f"  warn: could not sample {table} for hive ({e})")
+        return []
+
+
+def _link_label(link_type: str, row: dict) -> str:
+    if link_type == "logbook":
+        return f"{row.get('machine') or '?'}: {(row.get('problem') or '')[:50]}"
+    if link_type == "pm_completion":
+        d = (row.get("completed_at") or "")[:10]
+        return f"PM {d}".strip()
+    if link_type == "inventory_item":
+        return row.get("part_name") or row.get("part_number") or "part"
+    if link_type == "engineering_calc":
+        return f"{row.get('calc_type') or 'calc'}: {row.get('project_name') or ''}".strip().rstrip(":")
+    return str(row.get("id"))
+
+
+_SYS_COLS = {
+    "logbook":         ("logbook", ["id", "machine", "problem"]),
+    "pm_completion":   ("pm_completions", ["id", "asset_id", "completed_at"]),
+    "inventory_item":  ("inventory_items", ["id", "part_name", "part_number"]),
+    "engineering_calc":("engineering_calcs", ["id", "calc_type", "project_name"]),
+}
+
+
 def seed_projects(client, log, ctx: dict) -> dict:
     hives = ctx["hives"]
     workers = ctx["workers"]
@@ -123,6 +167,11 @@ def seed_projects(client, log, ctx: dict) -> dict:
         supervisors = [w for w in hive_workers if w["role"] == "supervisor"]
         owner = supervisors[0]["worker_name"] if supervisors else hive_workers[0]["worker_name"]
         hive_assets = [a for a in assets if a.get("hive_id") == hive["id"]]
+        # X-keystone: sample each source system ONCE per hive so projects can BUNDLE
+        # real logbook/PM/inventory/eng-design rows (not just an asset).
+        hive_sys = {}
+        for _lt, (_tbl, _cols) in _SYS_COLS.items():
+            hive_sys[_lt] = _hive_sample(client, _tbl, hive["id"], _cols, 6, log)
 
         for idx, flavour in enumerate(PROJECT_FLAVOURS):
             project_id = str(uuid.uuid4())
@@ -194,16 +243,25 @@ def seed_projects(client, log, ctx: dict) -> dict:
                 })
                 prev_id = ids[i_idx]
 
-            # Link to a sample asset
+            # Link a sample asset + BUNDLE the flavour's source systems (the X fabric):
+            # logbook (reactive), pm_completions (preventive), inventory_items (BOM),
+            # engineering_calcs (design basis). This is the connective tissue Ian's arc targets.
+            links_this_project = []
             if hive_assets:
                 asset = random.choice(hive_assets)
+                links_this_project.append(("asset", str(asset["id"]),
+                    asset.get("name") or asset.get("asset_id") or "linked asset"))
+            for link_type, n in FLAVOUR_BUNDLE.get(flavour["type"], []):
+                for row in hive_sys.get(link_type, [])[:n]:
+                    links_this_project.append((link_type, str(row["id"]), _link_label(link_type, row)))
+            for _lt, _lid, _label in links_this_project:
                 link_rows.append({
                     "id": str(uuid.uuid4()),
                     "project_id": project_id,
                     "hive_id": hive["id"],
-                    "link_type": "asset",
-                    "link_id": asset["id"],
-                    "label": asset.get("name") or asset.get("asset_id") or "linked asset",
+                    "link_type": _lt,
+                    "link_id": _lid,
+                    "label": _label,
                     "created_at": to_iso(start),
                 })
 

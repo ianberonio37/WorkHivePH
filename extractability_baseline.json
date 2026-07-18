@@ -1,9 +1,9 @@
 {
   "checks": {
-    "answer_first": 6,
+    "answer_first": 5,
     "has_statistic": 0,
     "has_citation": 0
   },
   "established": "2026-06-29T19:09:32+00:00",
-  "last_run": "2026-06-29T19:10:48+00:00"
+  "last_run": "2026-07-18T05:01:43+00:00"
 }

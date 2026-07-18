@@ -67,7 +67,8 @@
       "evidence": [
         "L2302: column 'cause_text' := fmea-cause",
         "L2313: rcm_fmea_modes.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "asset-hub",
@@ -79,7 +80,8 @@
       "evidence": [
         "L2303: column 'consequence_class' := fmea-consequence",
         "L2313: rcm_fmea_modes.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "asset-hub",
@@ -103,7 +105,8 @@
       "evidence": [
         "L2301: column 'effect_text' := fmea-effect",
         "L2313: rcm_fmea_modes.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "asset-hub",
@@ -517,7 +520,8 @@
       "evidence": [
         "L1171: column 'category' := f-category",
         "L1259: inventory_items.upsert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "inventory",
@@ -529,7 +533,8 @@
       "evidence": [
         "L1175: column 'bin_location' := f-location",
         "L1259: inventory_items.upsert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "inventory",
@@ -553,7 +558,8 @@
       "evidence": [
         "L1183: column 'notes' := f-notes",
         "L1259: inventory_items.upsert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "inventory",
@@ -613,7 +619,8 @@
       "evidence": [
         "L1172: column 'unit' := f-unit",
         "L1259: inventory_items.upsert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "inventory",
@@ -720,7 +727,8 @@
       "evidence": [
         "L2163: column 'location' := a-location",
         "L2181: asset_nodes.upsert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -756,7 +764,8 @@
       "evidence": [
         "L2161: column 'name' := a-name",
         "L2181: asset_nodes.upsert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -792,6 +801,10 @@
       "evidence": [
         "L2162: column 'type' := a-type",
         "L2181: asset_nodes.upsert()"
+      ],
+      "table_verified": "needs_round_trip",
+      "column_owner_hints": [
+        "inventory_transactions"
       ]
     },
     {
@@ -888,7 +901,8 @@
       "evidence": [
         "L3588: column 'action' := f-action",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -900,7 +914,8 @@
       "evidence": [
         "L3692: column 'failure_consequence' := f-consequence",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -912,7 +927,9 @@
       "evidence": [
         "L5332: column 'downtime' := f-downtime",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "needs_round_trip",
+      "column_owner_hints": []
     },
     {
       "surface": "logbook",
@@ -936,7 +953,8 @@
       "evidence": [
         "L3589: column 'knowledge' := f-knowledge",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -960,7 +978,8 @@
       "evidence": [
         "L3584: column 'maintenance_type' := f-maint-type",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -984,7 +1003,8 @@
       "evidence": [
         "L3586: column 'problem' := f-problem",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -996,7 +1016,8 @@
       "evidence": [
         "L3587: column 'root_cause' := f-root-cause",
         "L3620: logbook.update()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "logbook",
@@ -1114,6 +1135,10 @@
       "evidence": [
         "L3695: column 'tasklist_acknowledged' := tasklist-ack-check",
         "L4131: pm_completions.insert()"
+      ],
+      "table_verified": "needs_round_trip",
+      "column_owner_hints": [
+        "logbook"
       ]
     },
     {
@@ -1714,7 +1739,8 @@
       "evidence": [
         "L2530: column 'cost_impact_php' := co-cost",
         "L2526: project_change_orders.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1726,7 +1752,8 @@
       "evidence": [
         "L2531: column 'schedule_impact_days' := co-days",
         "L2526: project_change_orders.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1738,7 +1765,8 @@
       "evidence": [
         "L2529: column 'reason' := co-reason",
         "L2526: project_change_orders.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1774,7 +1802,8 @@
       "evidence": [
         "L1783: column 'budget_php' := f-budget",
         "L1810: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1786,7 +1815,8 @@
       "evidence": [
         "L1784: column 'description' := f-desc",
         "L1810: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1798,7 +1828,8 @@
       "evidence": [
         "L1782: column 'end_date' := f-end",
         "L1810: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1822,7 +1853,8 @@
       "evidence": [
         "L1780: column 'owner_name' := f-owner",
         "L1810: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1834,7 +1866,8 @@
       "evidence": [
         "L1779: column 'priority' := f-priority",
         "L1810: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1846,7 +1879,8 @@
       "evidence": [
         "L1781: column 'start_date' := f-start",
         "L1810: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1954,7 +1988,8 @@
       "evidence": [
         "L2310: column 'blockers' := p-blockers",
         "L2312: project_progress_logs.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1966,7 +2001,8 @@
       "evidence": [
         "L2306: column 'log_date' := p-date",
         "L2312: project_progress_logs.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1978,7 +2014,8 @@
       "evidence": [
         "L2308: column 'hours_worked' := p-hours",
         "L2312: project_progress_logs.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -1990,7 +2027,8 @@
       "evidence": [
         "L2309: column 'notes' := p-notes",
         "L2312: project_progress_logs.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2002,7 +2040,8 @@
       "evidence": [
         "L2307: column 'pct_complete' := p-pct",
         "L2312: project_progress_logs.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2014,7 +2053,8 @@
       "evidence": [
         "L2452: column 'notes' := r-notes",
         "L2448: project_roles.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2050,7 +2090,8 @@
       "evidence": [
         "L2122: column 'estimated_hours' := s-est",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2062,7 +2103,8 @@
       "evidence": [
         "L2148: column 'notes' := s-notes",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2074,7 +2116,8 @@
       "evidence": [
         "L2118: column 'owner_name' := s-owner",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2086,7 +2129,8 @@
       "evidence": [
         "L2121: column 'planned_end' := s-pend",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2098,7 +2142,8 @@
       "evidence": [
         "L2124: column 'notes' := s-phase",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2122,7 +2167,8 @@
       "evidence": [
         "L2120: column 'planned_start' := s-pstart",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2158,7 +2204,8 @@
       "evidence": [
         "L2117: column 'wbs_code' := s-wbs",
         "L2141: project_items.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2170,7 +2217,8 @@
       "evidence": [
         "L1640: column 'budget_php' := wiz-budget",
         "L1643: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2182,7 +2230,8 @@
       "evidence": [
         "L1641: column 'description' := wiz-desc",
         "L1643: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2194,7 +2243,8 @@
       "evidence": [
         "L1639: column 'end_date' := wiz-end",
         "L1643: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2218,7 +2268,8 @@
       "evidence": [
         "L1637: column 'owner_name' := wiz-owner",
         "L1643: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2230,7 +2281,8 @@
       "evidence": [
         "L1636: column 'priority' := wiz-priority",
         "L1643: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "project-manager",
@@ -2242,7 +2294,8 @@
       "evidence": [
         "L1638: column 'start_date' := wiz-start",
         "L1643: projects.insert()"
-      ]
+      ],
+      "table_verified": "db_confirmed"
     },
     {
       "surface": "report-sender",
@@ -2352,5 +2405,11 @@
         "L1874: addEventListener('input @Δ0 (filter/render context)"
       ]
     }
-  ]
+  ],
+  "schema_verification": {
+    "checked_pairs": 46,
+    "db_confirmed": 43,
+    "needs_round_trip": 3,
+    "note": "db_confirmed = the payload key IS a real column of the written table (schema-consistent; the field lands in table.column). needs_round_trip = the static key did not match the claimed table (transform-mapped payload via a mapper like logbook _assetToNode, or a generic key) — the live round-trip names the exact column; we only HINT candidate owners, never assert them. This step verifies the TERMINUS exists; VALUE-correctness is the final round-trip pass."
+  }
 }

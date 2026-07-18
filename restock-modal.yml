@@ -1,0 +1,441 @@
+- generic [ref=f35e1]:
+  - link "Skip to main content" [ref=f35e2] [cursor=pointer]:
+    - /url: "#wh-main-content"
+  - navigation [ref=f35e3]:
+    - generic [ref=f35e4]:
+      - generic [ref=f35e5]:
+        - link "WorkHive home" [ref=f35e6] [cursor=pointer]:
+          - /url: index.html
+          - img "WorkHive" [ref=f35e7]
+        - generic [ref=f35e9]: Inventory Monitor
+      - link "← Back to Basic Worker" [ref=f35e10] [cursor=pointer]:
+        - /url: index.html#evolution
+  - main [ref=f35e11]:
+    - generic [ref=f35e13]:
+      - generic [ref=f35e14]:
+        - heading "Spare-Parts Inventory" [level=1] [ref=f35e15]
+        - paragraph [ref=f35e16]: Track spare parts stock, link parts to assets, and know before you run out.
+        - paragraph [ref=f35e80]:
+          - paragraph [ref=f35e81]: Live · refreshed on load · Based on your inventory & stock movements
+          - group [ref=f35e82]:
+            - generic "ⓘ How this is computed" [ref=f35e83] [cursor=pointer]
+      - generic [ref=f35e17]:
+        - generic [ref=f35e18]:
+          - text: "27"
+          - button "Where did this come from? Show data source." [ref=f35e19] [cursor=pointer]: ⓘ
+          - text: parts
+        - generic [ref=f35e20]: 3 low
+        - generic [ref=f35e21]: 1 out
+        - button "Add Part" [ref=f35e22] [cursor=pointer]:
+          - img [ref=f35e23]
+          - text: Add Part
+    - generic [ref=f35e25]:
+      - img "warning" [ref=f35e84]
+      - generic [ref=f35e27]:
+        - text: 1 part out of stock
+        - button "Where did this come from? Show data source." [ref=f35e28] [cursor=pointer]: ⓘ
+        - generic [ref=f35e29]: "Restock these before the next job: Use is locked at qty 0."
+    - generic [ref=f35e30]:
+      - generic [ref=f35e31]:
+        - generic [ref=f35e32]: Out of stock
+        - generic [ref=f35e33]: "1"
+        - generic [ref=f35e34]: 1 of 27 parts at zero quantity
+        - generic [ref=f35e35]: RESTOCK NOW
+      - generic [ref=f35e36]:
+        - generic [ref=f35e37]: Low stock
+        - generic [ref=f35e38]: "3"
+        - generic [ref=f35e39]: 3 of 27 parts at or below min_qty
+        - generic [ref=f35e40]: PLAN RESTOCK
+      - generic [ref=f35e41]:
+        - generic [ref=f35e42]: Pending parts
+        - generic [ref=f35e43]: "0"
+        - generic [ref=f35e44]: Nothing awaiting supervisor sign-off
+        - generic [ref=f35e45]: CLEAR
+    - generic [ref=f35e46]:
+      - generic [ref=f35e47]: What to do next
+      - generic [ref=f35e48]: Filter to "Out of stock" using the chip below and restock these 1 part first. Every job that needs them is blocked.
+      - link "Do the recommended next action" [ref=f35e86] [cursor=pointer]:
+        - /url: "#"
+        - text: Restock 1 out-of-stock →
+    - button "Show details" [ref=f35e49] [cursor=pointer]
+    - generic [ref=f35e87]:
+      - img [ref=f35e88]
+      - generic [ref=f35e90]: "1 part out of stock · 3 parts running low: restock before the next job."
+    - generic [ref=f35e51]:
+      - generic [ref=f35e52]:
+        - img [ref=f35e53]
+        - textbox "Search part name, number, or linked asset..." [ref=f35e55]
+      - combobox "Filter parts by category" [ref=f35e56]
+      - combobox "Filter parts by stock level" [ref=f35e57]:
+        - option "All stock" [selected]
+        - option "Out of stock"
+        - option "Low stock"
+        - option "In stock"
+    - generic [ref=f35e91]:
+      - generic [ref=f35e94]:
+        - generic [ref=f35e95]:
+          - generic [ref=f35e96]:
+            - generic [ref=f35e97]: PSV-SPARE
+            - generic [ref=f35e98]: Mechanical
+            - generic [ref=f35e99]: Out of Stock
+          - button "Open item details" [ref=f35e100] [cursor=pointer]:
+            - img [ref=f35e101]
+        - paragraph [ref=f35e103]: PSV spare assembly
+        - generic [ref=f35e105]:
+          - img [ref=f35e106]
+          - text: Bin 2-A
+        - generic [ref=f35e109]:
+          - generic [ref=f35e110]:
+            - generic [ref=f35e111]: "0"
+            - generic [ref=f35e112]: pcs
+            - generic [ref=f35e113]: "Min: 1"
+          - generic [ref=f35e114]:
+            - button "Use" [ref=f35e115] [cursor=pointer]:
+              - img [ref=f35e116]
+              - text: Use
+            - button "Restock" [ref=f35e117] [cursor=pointer]:
+              - img [ref=f35e118]
+              - text: Restock
+      - generic [ref=f35e122]:
+        - generic [ref=f35e123]:
+          - generic [ref=f35e124]:
+            - generic [ref=f35e125]: BRG-6310
+            - generic [ref=f35e126]: Bearings
+            - generic [ref=f35e127]: Low Stock
+          - button "Open item details" [ref=f35e128] [cursor=pointer]:
+            - img [ref=f35e129]
+        - paragraph [ref=f35e131]: Bearing 6310 C3
+        - generic [ref=f35e133]:
+          - img [ref=f35e134]
+          - text: Bin 4-A
+        - generic [ref=f35e137]:
+          - generic [ref=f35e138]:
+            - generic [ref=f35e139]: "2"
+            - generic [ref=f35e140]: pcs
+            - generic [ref=f35e141]: "Min: 4"
+            - generic "Pre-staged for predicted asset failures via Auto-Staging" [ref=f35e142]: 1 reserved
+          - generic [ref=f35e143]:
+            - button "Use" [ref=f35e144] [cursor=pointer]:
+              - img [ref=f35e145]
+              - text: Use
+            - button "Restock" [ref=f35e146] [cursor=pointer]:
+              - img [ref=f35e147]
+              - text: Restock
+      - generic [ref=f35e151]:
+        - generic [ref=f35e152]:
+          - generic [ref=f35e153]:
+            - generic [ref=f35e154]: LOCT-567
+            - generic [ref=f35e155]: Consumables
+            - generic [ref=f35e156]: Low Stock
+          - button "Open item details" [ref=f35e157] [cursor=pointer]:
+            - img [ref=f35e158]
+        - paragraph [ref=f35e160]: Loctite 567 thread sealant
+        - generic [ref=f35e162]:
+          - img [ref=f35e163]
+          - text: Bin 8-B
+        - generic [ref=f35e166]:
+          - generic [ref=f35e167]:
+            - generic [ref=f35e168]: "2"
+            - generic [ref=f35e169]: tubes
+            - generic [ref=f35e170]: "Min: 4"
+          - generic [ref=f35e171]:
+            - button "Use" [ref=f35e172] [cursor=pointer]:
+              - img [ref=f35e173]
+              - text: Use
+            - button "Restock" [ref=f35e174] [cursor=pointer]:
+              - img [ref=f35e175]
+              - text: Restock
+      - generic [ref=f35e179]:
+        - generic [ref=f35e180]:
+          - generic [ref=f35e181]:
+            - generic [ref=f35e182]: FLT-FUEL-S
+            - generic [ref=f35e183]: Filters
+            - generic [ref=f35e184]: Low Stock
+          - button "Open item details" [ref=f35e185] [cursor=pointer]:
+            - img [ref=f35e186]
+        - paragraph [ref=f35e188]: Secondary fuel filter
+        - generic [ref=f35e190]:
+          - img [ref=f35e191]
+          - text: Bin 6-C
+        - generic [ref=f35e194]:
+          - generic [ref=f35e195]:
+            - generic [ref=f35e196]: "2"
+            - generic [ref=f35e197]: pcs
+            - generic [ref=f35e198]: "Min: 4"
+          - generic [ref=f35e199]:
+            - button "Use" [ref=f35e200] [cursor=pointer]:
+              - img [ref=f35e201]
+              - text: Use
+            - button "Restock" [ref=f35e202] [cursor=pointer]:
+              - img [ref=f35e203]
+              - text: Restock
+      - generic [ref=f35e207]:
+        - generic [ref=f35e208]:
+          - generic [ref=f35e209]:
+            - generic [ref=f35e210]: FLT-AIR
+            - generic [ref=f35e211]: Filters
+            - generic [ref=f35e212]: In Stock
+          - button "Open item details" [ref=f35e213] [cursor=pointer]:
+            - img [ref=f35e214]
+        - paragraph [ref=f35e216]: Air filter element
+        - generic [ref=f35e218]:
+          - img [ref=f35e219]
+          - text: Bin 2-C
+        - generic [ref=f35e222]:
+          - generic [ref=f35e223]:
+            - generic [ref=f35e224]: "17"
+            - generic [ref=f35e225]: pcs
+            - generic [ref=f35e226]: "Min: 6"
+          - generic [ref=f35e227]:
+            - button "Use" [ref=f35e228] [cursor=pointer]:
+              - img [ref=f35e229]
+              - text: Use
+            - button "Restock" [ref=f35e230] [cursor=pointer]:
+              - img [ref=f35e231]
+              - text: Restock
+      - generic [ref=f35e235]:
+        - generic [ref=f35e236]:
+          - generic [ref=f35e237]:
+            - generic [ref=f35e238]: BAT-12V100
+            - generic [ref=f35e239]: Electrical
+            - generic [ref=f35e240]: In Stock
+          - button "Open item details" [ref=f35e241] [cursor=pointer]:
+            - img [ref=f35e242]
+        - paragraph [ref=f35e244]: Battery 12V 100Ah
+        - generic [ref=f35e246]:
+          - img [ref=f35e247]
+          - text: Bin 6-C
+        - generic [ref=f35e250]:
+          - generic [ref=f35e251]:
+            - generic [ref=f35e252]: "9"
+            - generic [ref=f35e253]: pcs
+            - generic [ref=f35e254]: "Min: 2"
+          - generic [ref=f35e255]:
+            - button "Use" [ref=f35e256] [cursor=pointer]:
+              - img [ref=f35e257]
+              - text: Use
+            - button "Restock" [ref=f35e258] [cursor=pointer]:
+              - img [ref=f35e259]
+              - text: Restock
+      - generic [ref=f35e263]:
+        - generic [ref=f35e264]:
+          - generic [ref=f35e265]:
+            - generic [ref=f35e266]: BRG-6313
+            - generic [ref=f35e267]: Bearings
+            - generic [ref=f35e268]: In Stock
+          - button "Open item details" [ref=f35e269] [cursor=pointer]:
+            - img [ref=f35e270]
+        - paragraph [ref=f35e272]: Bearing 6313 C3
+        - generic [ref=f35e274]:
+          - img [ref=f35e275]
+          - text: Bin 6-B
+        - generic [ref=f35e278]:
+          - generic [ref=f35e279]:
+            - generic [ref=f35e280]: "5"
+            - generic [ref=f35e281]: pcs
+            - generic [ref=f35e282]: "Min: 3"
+          - generic [ref=f35e283]:
+            - button "Use" [ref=f35e284] [cursor=pointer]:
+              - img [ref=f35e285]
+              - text: Use
+            - button "Restock" [ref=f35e286] [cursor=pointer]:
+              - img [ref=f35e287]
+              - text: Restock
+      - generic [ref=f35e291]:
+        - generic [ref=f35e292]:
+          - generic [ref=f35e293]:
+            - generic [ref=f35e294]: CABLE-25MM
+            - generic [ref=f35e295]: Electrical
+            - generic [ref=f35e296]: In Stock
+          - button "Open item details" [ref=f35e297] [cursor=pointer]:
+            - img [ref=f35e298]
+        - paragraph [ref=f35e300]: Cable gland 25mm IP68
+        - generic [ref=f35e302]:
+          - img [ref=f35e303]
+          - text: Bin 2-B
+        - generic [ref=f35e306]:
+          - generic [ref=f35e307]:
+            - generic [ref=f35e308]: "18"
+            - generic [ref=f35e309]: pcs
+            - generic [ref=f35e310]: "Min: 6"
+          - generic [ref=f35e311]:
+            - button "Use" [ref=f35e312] [cursor=pointer]:
+              - img [ref=f35e313]
+              - text: Use
+            - button "Restock" [ref=f35e314] [cursor=pointer]:
+              - img [ref=f35e315]
+              - text: Restock
+    - generic [ref=f35e317]:
+      - button "Load More" [ref=f35e318] [cursor=pointer]
+      - paragraph [ref=f35e319]: Showing 8 of 27 parts
+      - button "Where did this come from? Show data source." [ref=f35e320] [cursor=pointer]: ⓘ
+  - dialog "Restock" [ref=f35e321]:
+    - generic [ref=f35e322]:
+      - button "Close" [ref=f35e323] [cursor=pointer]:
+        - img [ref=f35e324]
+      - heading "Restock" [level=2] [ref=f35e326]
+      - paragraph [ref=f35e327]: "BRG-6310: Bearing 6310 C3"
+      - generic [ref=f35e328]:
+        - generic [ref=f35e329]:
+          - generic [ref=f35e330]: Quantity Added
+          - spinbutton "Quantity Added" [active] [ref=f35e331]: "1"
+        - generic [ref=f35e332]:
+          - generic [ref=f35e333]: Note (optional)
+          - textbox "Note (optional)" [ref=f35e334]:
+            - /placeholder: e.g. From supplier, Emergency purchase
+        - generic [ref=f35e335]:
+          - button "Confirm Restock" [ref=f35e336] [cursor=pointer]
+          - button "Cancel" [ref=f35e337] [cursor=pointer]
+  - button "Connectivity status" [ref=f35e64] [cursor=pointer]:
+    - generic [ref=f35e66]: Online
+  - generic [ref=f35e67]:
+    - button "Open navigation hub" [ref=f35e68] [cursor=pointer]:
+      - generic: Inventory
+      - img
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: Inventory
+      - button "Open global search":
+        - img
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - generic:
+          - img
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All":
+          - generic: ⊞
+          - text: All
+        - tab "wrench Field" [selected]:
+          - generic:
+            - img "wrench"
+          - text: Field
+        - tab "user Supervisor":
+          - generic:
+            - img "user"
+          - text: Supervisor
+        - tab "gear Engineer":
+          - generic:
+            - img "gear"
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+            - generic:
+              - img
+            - generic: Home
+          - link "Logbook":
+            - /url: logbook.html
+            - generic:
+              - img
+            - generic: Logbook
+          - link "Inventory":
+            - /url: inventory.html
+            - generic:
+              - img
+            - generic: Inventory
+          - link "Day":
+            - /url: dayplanner.html
+            - generic:
+              - img
+            - generic: Day
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+          - generic:
+            - img
+          - generic: Home
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+          - generic:
+            - img
+          - generic: Logbook
+        - link "Inventory":
+          - /url: inventory.html
+          - generic:
+            - img
+          - generic: Inventory
+        - link "Day Planner":
+          - /url: dayplanner.html
+          - generic:
+            - img
+          - generic: Day Planner
+        - paragraph: Your Team
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+          - generic:
+            - img
+          - generic: PM Scheduler
+        - link "Community":
+          - /url: community.html
+          - generic:
+            - img
+          - generic: Community
+        - paragraph: Intelligence
+        - link "AI Assistant":
+          - /url: assistant.html
+          - generic:
+            - img
+          - generic: AI Assistant
+        - paragraph: Grow
+        - link "Growth":
+          - /url: skillmatrix.html
+          - generic:
+            - img
+          - generic: Growth
+        - link "Resume Builder":
+          - /url: resume.html
+          - generic:
+            - img
+          - generic: Resume Builder
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+          - generic:
+            - img
+          - generic: Marketplace
+  - generic:
+    - button "Back to previous page" [ref=f35e69] [cursor=pointer]:
+      - img [ref=f35e70]
+      - generic [ref=f35e72]: Back
+    - navigation "breadcrumb" [ref=f35e73]:
+      - link "Home" [ref=f35e74] [cursor=pointer]:
+        - /url: index.html
+      - generic [ref=f35e75]: ›
+      - generic [ref=f35e76]: "Spare-Parts Inventory: WorkHive"
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Zaniah":
+          - img "Zaniah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Zaniah":
+            - img "Zaniah"
+        - generic:
+          - strong: Zaniah
+          - text: WorkHive Board
+        - button "Close":
+          - img "x"
+      - generic:
+        - img
+        - text: "Context:"
+        - strong: WorkHive Board
+      - generic:
+        - button "Voice command":
+          - img
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send":
+          - img
+  - button "Send feedback to WorkHive" [ref=f35e77] [cursor=pointer]:
+    - img "chat" [ref=f35e78]

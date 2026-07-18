@@ -1,10 +1,10 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_handlers": 996,
+    "pages_scanned": 28,
+    "total_handlers": 1007,
     "total_orphans": 0,
     "baseline": 0,
-    "shared_fns_known": 523
+    "shared_fns_known": 565
   },
   "per_page": [
     {
@@ -72,10 +72,6 @@
       "orphans": []
     },
     {
-      "page": "platform-health.html",
-      "orphans": []
-    },
-    {
       "page": "project-manager.html",
       "orphans": []
     },
@@ -89,10 +85,6 @@
     },
     {
       "page": "project-report.html",
-      "orphans": []
-    },
-    {
-      "page": "predictive.html",
       "orphans": []
     },
     {

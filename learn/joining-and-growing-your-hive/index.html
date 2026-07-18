@@ -57,7 +57,7 @@
           { "@type": "Question", "name": "Can I use WorkHive solo, without a plant hive?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Solo mode lets an individual worker (a freelance maintenance engineer, an OFW-track new graduate building a portfolio, a contractor between gigs) use the full WorkHive toolset (Logbook, Engineering Design, Skill Matrix, AI Assistant, Day Planner) without joining any plant. Solo data stays private to that worker. When the worker joins a hive later, they can choose what solo history to import or keep separate." } },
           { "@type": "Question", "name": "How does joining a plant hive work?", "acceptedAnswer": { "@type": "Answer", "text": "Three steps: (1) the worker creates an account or signs in; (2) the worker enters the plant's hive code or search the directory and request to join; (3) the plant's supervisor approves the request. Approval typically takes minutes; the supervisor sees who is requesting and assigns the appropriate role (field, supervisor, engineer). The new joiner gets immediate access to the hive's data and tools." } },
           { "@type": "Question", "name": "What roles exist within a hive?", "acceptedAnswer": { "@type": "Answer", "text": "Four primary roles: field (technician or operator with logbook + asset access), supervisor (everything plus PM approval, skill matrix edits, work assignment), engineer (everything plus engineering design, analytics deep-dives, integration config), and plant manager (everything plus AI quality dashboard, full audit log, financial views). Roles control what each worker sees and can do; nobody sees a tool they cannot act on." } },
-          { "@type": "Question", "name": "How is plant data kept private from other hives?", "acceptedAnswer": { "@type": "Answer", "text": "Data isolation is enforced at the database row level using Supabase Row-Level Security (RLS). Every query the WorkHive UI makes is automatically scoped to the joined hive's data. There is no path through the UI or the API for a worker in Hive A to see Hive B's data. Contractors and suppliers who need cross-hive access get explicit scoped permissions; nothing else crosses the boundary." } },
+          { "@type": "Question", "name": "How is plant data kept private from other hives?", "acceptedAnswer": { "@type": "Answer", "text": "Data isolation is enforced at the database row level itself. Every query the WorkHive app makes is automatically scoped to the joined hive's data. There is no path through the UI or the API for a worker in Hive A to see Hive B's data. Contractors and suppliers who need cross-hive access get explicit scoped permissions; nothing else crosses the boundary." } },
           { "@type": "Question", "name": "What about multi-site operations (a company with several plants)?", "acceptedAnswer": { "@type": "Answer", "text": "Each site is its own hive. The parent company can create a hive group that lets the corporate maintenance director see roll-up KPIs across all child hives without seeing operational detail. Each child hive remains independent for day-to-day operations. This is the pattern for Filipino conglomerates running 3 to 20 plants across the country who want benchmarking without violating per-site autonomy." } }
         ]
       },
@@ -219,9 +219,9 @@
       <a href="/">Home</a><span>/</span><a href="/learn/">Learn</a><span>/</span><span>Joining and growing your hive</span>
     </div>
 
-    <p class="pill pill-orange mb-4">Hive · Multi-tenant guide</p>
+    <p class="pill pill-orange mb-4">Hive · Team workspace guide</p>
     <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">
-      Joining and growing your WorkHive hive <span class="text-white/55 font-bold">(multi-tenant guide)</span>
+      Joining and growing your WorkHive hive <span class="text-white/55 font-bold">(your team's private workspace)</span>
     </h1>
 
     <div class="flex items-center gap-4 text-sm text-white/45 mb-8 flex-wrap">
@@ -268,7 +268,7 @@
     <div class="prose-wh">
 
       <h2 id="what-is-hive">What a hive is, in concrete terms</h2>
-      <p>The hive is WorkHive's multi-tenant container. One plant equals one hive. Inside the hive:</p>
+      <p>The hive is WorkHive's team workspace: a private space for one plant's team. One plant equals one hive. Inside the hive:</p>
       <ul>
         <li><strong>People:</strong> every worker who has joined this hive with their role and skill matrix</li>
         <li><strong>Assets:</strong> the canonical asset register in Asset Hub</li>
@@ -323,7 +323,7 @@
       <p>Multi-tenancy in industrial software is hard because the consequences of leakage are severe. A competitor seeing your fault history, a supplier seeing your consumption forecast, a contractor seeing your cost data: any of these is grounds for losing the platform's trust.</p>
       <p>WorkHive enforces isolation at three layers:</p>
       <ul>
-        <li><strong>Database row-level security (RLS):</strong> every query the UI makes is automatically scoped to the joined hive's ID via Supabase RLS policies. There is no "view all" backdoor.</li>
+        <li><strong>Automatic per-hive data isolation:</strong> every query the app makes is scoped to your hive's ID on the database server itself, so one hive can never read another's records. There is no "view all" backdoor.</li>
         <li><strong>API token scope:</strong> integration tokens are bound to a single hive. A leaked token for Hive A cannot retrieve Hive B's data.</li>
         <li><strong>AI assistant context:</strong> the AI's vector store and retrieval index are partitioned per hive. The AI literally cannot answer a question with another hive's data because it cannot read it.</li>
       </ul>
@@ -351,14 +351,14 @@
 
       <details class="faq-item"><summary>What roles exist within a hive?</summary><div class="faq-answer">Four primary roles: field (technician or operator with logbook + asset access), supervisor (everything plus PM approval, skill matrix edits, work assignment), engineer (everything plus engineering design, analytics deep-dives, integration config), and plant manager (everything plus AI quality dashboard, full audit log, financial views). Roles control what each worker sees and can do; nobody sees a tool they cannot act on.</div></details>
 
-      <details class="faq-item"><summary>How is plant data kept private from other hives?</summary><div class="faq-answer">Data isolation is enforced at the database row level using Supabase Row-Level Security (RLS). Every query the WorkHive UI makes is automatically scoped to the joined hive's data. There is no path through the UI or the API for a worker in Hive A to see Hive B's data. Contractors and suppliers who need cross-hive access get explicit scoped permissions; nothing else crosses the boundary.</div></details>
+      <details class="faq-item"><summary>How is plant data kept private from other hives?</summary><div class="faq-answer">Data isolation is enforced at the database row level itself. Every query the WorkHive app makes is automatically scoped to the joined hive's data. There is no path through the UI or the API for a worker in Hive A to see Hive B's data. Contractors and suppliers who need cross-hive access get explicit scoped permissions; nothing else crosses the boundary.</div></details>
 
       <details class="faq-item"><summary>What about multi-site operations (a company with several plants)?</summary><div class="faq-answer">Each site is its own hive. The parent company can create a hive group that lets the corporate maintenance director see roll-up KPIs across all child hives without seeing operational detail. Each child hive remains independent for day-to-day operations. This is the pattern for Filipino conglomerates running 3 to 20 plants across the country who want benchmarking without violating per-site autonomy.</div></details>
 
       <h2 id="sources">Sources</h2>
       <ul>
         <li>Supabase, <strong>Row Level Security documentation</strong>. The PostgreSQL feature WorkHive uses to enforce hive isolation at the database layer.</li>
-        <li>WorkHive platform positioning, "Four Gaps One Hive" with the hive as the multi-tenant boundary. <a href="/">workhiveph.com</a></li>
+        <li>WorkHive platform positioning, "Four Gaps One Hive" with the hive as the per-plant boundary. <a href="/">workhiveph.com</a></li>
         <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook rollout</a> · <a href="/learn/skill-matrix-for-maintenance-technicians/">Skill matrix</a></li>
       </ul>
 

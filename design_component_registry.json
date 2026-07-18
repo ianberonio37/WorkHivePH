@@ -1,0 +1,648 @@
+{
+  "_doc": "Design Component Registry: Layer F (Frontend) canonical library. SSOT for FULLSTACK_COMPONENT_LIBRARY_ROADMAP.md §2.2. Shape follows W3C DTCG spirit (name/type/description/deprecated) + NN/g entry anatomy (name·description·attributes·states·code) + GOV.UK when-to-use contract. Adoption is MEASURED by tools/component_adoption_census.py (never asserted here); the forward-only floors live in component_adoption_baseline.json.",
+  "version": 1,
+  "layer": "F",
+  "family_source": "family_rubric_baseline.json",
+  "need_rules": {
+    "family": "every family page",
+    "async-data": "page reads the DB or invokes an edge fn (.from('…') / functions.invoke): union adopters",
+    "renders-date": "page constructs/renders dates (new Date( / toLocaleDate…): union adopters",
+    "renders-number": "page formats numerals (toFixed( / toLocaleString(): union adopters",
+    "peso": "page renders ₱ amounts: union adopters",
+    "destructive": "page has destructive actions (.delete( / native confirm(): union adopters",
+    "wide-table": "page renders a <table>: union adopters",
+    "interactive": "page has <button> controls: union adopters",
+    "kpi-cards": "page uses the .simple-card KPI vocabulary: union adopters",
+    "census-only": "optional vocabulary: count usage, no % (no page is 'missing' it)"
+  },
+  "components": [
+    {
+      "id": "FT1",
+      "class": "FT Tokens",
+      "name": "brand color + contrast tints",
+      "type": "token-group",
+      "api": "var(--wh-steel-bright|--wh-red-text|--wh-violet-text|--wh-blue-light|--wh-text-muted…)",
+      "defined_in": "tokens.css",
+      "satisfies": "C2",
+      "detect": [
+        {
+          "kind": "delegated",
+          "gate": "validate_design_tokens.py (rawhex census)"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "hive.html",
+      "when_to_use": "any colored/secondary text: always via token",
+      "when_not": "never hardcode hex/rgba on a page",
+      "status": "built"
+    },
+    {
+      "id": "FT2",
+      "class": "FT Tokens",
+      "name": "spacing scale",
+      "type": "token-group",
+      "api": "var(--wh-space-*)",
+      "defined_in": "tokens.css",
+      "satisfies": "R1",
+      "detect": [
+        {
+          "kind": "delegated",
+          "gate": "validate_design_tokens.py"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "hive.html",
+      "when_to_use": "every layout gap snaps to the scale",
+      "when_not": "off-scale px gaps",
+      "status": "built"
+    },
+    {
+      "id": "FT3",
+      "class": "FT Tokens",
+      "name": "radii + type scale (S1 fingerprint)",
+      "type": "token-group",
+      "api": "var(--wh-radius|type tokens)",
+      "defined_in": "tokens.css",
+      "satisfies": "S1",
+      "detect": [
+        {
+          "kind": "delegated",
+          "gate": "validate_design_tokens.py L4 (32/32 locked)"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "hive.html",
+      "when_to_use": "all containers/type",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FT4",
+      "class": "FT Tokens",
+      "name": ".wh-tap / .wh-tap-h",
+      "type": "css-utility",
+      "api": "class=\"wh-tap\" | \"wh-tap-h\" (min 44px via --wh-control-h)",
+      "defined_in": "tokens.css:121",
+      "satisfies": "F1",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "wh-tap"
+        },
+        {
+          "kind": "css-class",
+          "class": "wh-tap-h"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "tokens.css",
+      "when_to_use": "any interactive control below the 44px floor",
+      "when_not": "elements already sized by a canonical component",
+      "status": "built",
+      "governance_note": "forward-vocabulary row: existing pages' inline values are already token-conformant and regression-gated by frontend_ufai U-lens + validate_design_tokens L3; this utility is the SANCTIONED pattern for new/edited code. Census tracks usage; no page is 'missing' it retroactively."
+    },
+    {
+      "id": "FT5",
+      "class": "FT Tokens",
+      "name": ".wh-text-muted / .wh-text-faint",
+      "type": "css-utility",
+      "api": "class=\"wh-text-muted\" | \"wh-text-faint\"",
+      "defined_in": "tokens.css:105",
+      "satisfies": "C2",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "wh-text-muted"
+        },
+        {
+          "kind": "css-class",
+          "class": "wh-text-faint"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "tokens.css",
+      "when_to_use": "secondary/tertiary text (AA floor kept by the token)",
+      "when_not": "inline rgba(255,255,255,0.5) strays: promote them",
+      "status": "built",
+      "governance_note": "forward-vocabulary row: existing pages' inline values are already token-conformant and regression-gated by frontend_ufai U-lens + validate_design_tokens L3; this utility is the SANCTIONED pattern for new/edited code. Census tracks usage; no page is 'missing' it retroactively."
+    },
+    {
+      "id": "FT6",
+      "class": "FT Tokens",
+      "name": ".wh-num",
+      "type": "css-utility",
+      "api": "class=\"wh-num\" (tabular figures)",
+      "defined_in": "tokens.css:109",
+      "satisfies": "C4",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "wh-num"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "tokens.css",
+      "when_to_use": "numeric columns, KPI digits, anything that ticks",
+      "when_not": "prose numbers",
+      "status": "built",
+      "governance_note": "forward-vocabulary row: existing pages' inline values are already token-conformant and regression-gated by frontend_ufai U-lens + validate_design_tokens L3; this utility is the SANCTIONED pattern for new/edited code. Census tracks usage; no page is 'missing' it retroactively."
+    },
+    {
+      "id": "FC1",
+      "class": "FC Containers",
+      "name": ".simple-card / .action-card / .tile",
+      "type": "css-component",
+      "api": "class=\"simple-card\" (.sc-label/.sc-hero/.sc-sub/.sc-tag)",
+      "defined_in": "components.css",
+      "satisfies": "R3",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "simple-card"
+        },
+        {
+          "kind": "css-class",
+          "class": "action-card"
+        },
+        {
+          "kind": "css-class",
+          "class": "tile"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "hive.html",
+      "when_to_use": "card-shaped content: KPIs, actions, summaries",
+      "when_not": "bespoke one-off containers: converge or justify",
+      "status": "built",
+      "note": "shape consistency owned by survey_component_consistency.py (① battery). FORK RESOLVED (Ian 2026-07-17): .card is BLESSED as the second sanctioned container dialect (FC4) with when-to-use boundaries; .wh-card converged into it. FC1 measures the tile-family breadth; FC1+FC4 together are the container vocabulary."
+    },
+    {
+      "id": "FC2",
+      "class": "FC Containers",
+      "name": ".sum-card",
+      "type": "css-component",
+      "api": "class=\"sum-card\" (.sn/.sl)",
+      "defined_in": "components.css (promoted 2026-07-17 from 2 page-local twins)",
+      "satisfies": "R3",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "sum-card"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "agentic-rag-observability.html",
+      "when_to_use": "count-chip summaries",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FC3",
+      "class": "FC Containers",
+      "name": ".wh-scroll-x",
+      "type": "css-utility",
+      "api": "class=\"wh-scroll-x\" (overflow-x wrapper for wide tables)",
+      "defined_in": "tokens.css (built 2026-07-17)",
+      "satisfies": "R2",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "wh-scroll-x"
+        }
+      ],
+      "need": "wide-table",
+      "reference_impl": "status.html",
+      "when_to_use": "any table/board wider than the mobile viewport (the wrapper scrolls, the page never does)",
+      "when_not": "content that should reflow instead",
+      "status": "built"
+    },
+    {
+      "id": "FC4",
+      "class": "FC Containers",
+      "name": ".card (dashboard panel)",
+      "type": "css-component",
+      "api": "class=\"card\" (panel: surface bg + border + radius + 16px padding)",
+      "defined_in": "components.css (promoted 2026-07-17; page locals converge over time)",
+      "satisfies": "R3",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "card"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "agentic-rag-observability.html",
+      "when_to_use": "report/panel SECTIONS on dashboard-style pages (Ian 2026-07-17: the second sanctioned container dialect)",
+      "when_not": "KPI/count tiles (those are .simple-card / .sum-card territory)",
+      "status": "built"
+    },
+    {
+      "id": "FI1",
+      "class": "FI Interactive",
+      "name": "canonical disclosure (.wh-disclose / .wh-help / wireDetailToggle)",
+      "type": "css+js",
+      "api": "<details class=\"wh-disclose\"> (ops detail) / <details class=\"wh-help\"> (inline help; CSS self-injected from utils.js) / wireDetailToggle()",
+      "defined_in": "components.css:86 + utils.js (whHelpCSS + :1220)",
+      "satisfies": "A3",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "wh-disclose"
+        },
+        {
+          "kind": "css-class",
+          "class": "wh-help"
+        },
+        {
+          "kind": "js-call",
+          "name": "wireDetailToggle"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "hive.html (disclose) · public-feed.html (help)",
+      "when_to_use": "long feeds, benchmarks, logs, secondary detail, how-this-page-works help: defer complexity",
+      "when_not": "primary answer-first content (never hide the answer); bespoke styled accordions (landing FAQ) stay page-owned",
+      "exempt": [
+        "promo-poster.html"
+      ],
+      "exempt_reason": "poster generator: single answer-first canvas, no secondary detail to defer",
+      "status": "built"
+    },
+    {
+      "id": "FI2",
+      "class": "FI Interactive",
+      "name": "whConfirm / whPrompt",
+      "type": "js-modal",
+      "api": "whConfirm(message, opts) / whPrompt(message, opts)",
+      "defined_in": "utils.js:1785",
+      "satisfies": "J2",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whConfirm"
+        },
+        {
+          "kind": "js-call",
+          "name": "whPrompt"
+        }
+      ],
+      "need": "destructive",
+      "reference_impl": "logbook.html",
+      "when_to_use": "any destructive or consequential action",
+      "when_not": "native confirm()/prompt(): those are the strays to replace",
+      "status": "built"
+    },
+    {
+      "id": "FI3",
+      "class": "FI Interactive",
+      "name": "chips / pills / tabs vocabulary",
+      "type": "css-component",
+      "api": ".filter-chip .pill .view-tab .phase-tab .shift-pill .stepper",
+      "defined_in": "components.css",
+      "satisfies": "R3",
+      "detect": [
+        {
+          "kind": "css-class",
+          "class": "filter-chip"
+        },
+        {
+          "kind": "css-class",
+          "class": "view-tab"
+        },
+        {
+          "kind": "css-class",
+          "class": "pill"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "marketplace.html",
+      "when_to_use": "filters and view switches",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FF1",
+      "class": "FF Feedback",
+      "name": "canonical skeletons (whListSkeleton / whCardSkeleton)",
+      "type": "js-renderer",
+      "api": "whListSkeleton(el, rows) | whCardSkeleton(el, count, {variant:'grid'|'row'}): aria-busy/aria-live",
+      "defined_in": "utils.js",
+      "satisfies": "G1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whListSkeleton"
+        },
+        {
+          "kind": "js-call",
+          "name": "whCardSkeleton"
+        }
+      ],
+      "need": "async-data",
+      "reference_impl": "hive.html (list) · marketplace.html (grid) · marketplace-admin.html (row)",
+      "when_to_use": "any async container while its query is in flight: list shape for lists, card shape for grids",
+      "when_not": "instant static content; never hand-roll a page-local skeleton (2 copies were lifted 2026-07-17)",
+      "status": "built"
+    },
+    {
+      "id": "FF2",
+      "class": "FF Feedback",
+      "name": "whOhBadge / whProgressStrip",
+      "type": "js-renderer",
+      "api": "whOhBadge(lvl, text) / whProgressStrip(label, done, total, opts)",
+      "defined_in": "utils.js:968 / :599",
+      "satisfies": "G1/C1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whOhBadge"
+        },
+        {
+          "kind": "js-call",
+          "name": "whProgressStrip"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "utils.js",
+      "when_to_use": "status levels and progress toward a total",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FD1a",
+      "class": "FD Data display",
+      "name": "whFmtDate",
+      "type": "js-formatter",
+      "api": "whFmtDate(d, opts)",
+      "defined_in": "utils.js:930",
+      "satisfies": "N1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whFmtDate"
+        }
+      ],
+      "need": "renders-date",
+      "reference_impl": "utils.js",
+      "when_to_use": "every rendered date/time",
+      "when_not": "raw new Date().toLocaleDateString() strays: replace",
+      "status": "built"
+    },
+    {
+      "id": "FD1b",
+      "class": "FD Data display",
+      "name": "whFmtNum",
+      "type": "js-formatter",
+      "api": "whFmtNum(n, dp)",
+      "defined_in": "utils.js:925",
+      "satisfies": "N1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whFmtNum"
+        }
+      ],
+      "need": "renders-number",
+      "reference_impl": "utils.js",
+      "when_to_use": "every rendered numeral",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FD1c",
+      "class": "FD Data display",
+      "name": "whFmtPeso",
+      "type": "js-formatter",
+      "api": "whFmtPeso(n, opts)",
+      "defined_in": "utils.js:918",
+      "satisfies": "N1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whFmtPeso"
+        }
+      ],
+      "need": "peso",
+      "reference_impl": "marketplace.html",
+      "when_to_use": "every dynamic ₱ amount (canonical symbol is ₱, not 'PHP ')",
+      "when_not": "static marketing copy amounts",
+      "exempt": [
+        "index.html"
+      ],
+      "exempt_reason": "₱ appears only in static landing prose (₱800K-₱2.4M), no dynamic amounts rendered",
+      "status": "built"
+    },
+    {
+      "id": "FD1d",
+      "class": "FD Data display",
+      "name": "whFmtDuration",
+      "type": "js-formatter",
+      "api": "whFmtDuration(value, unit)",
+      "defined_in": "utils.js:938",
+      "satisfies": "N1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whFmtDuration"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "utils.js",
+      "when_to_use": "durations (MTTR, runtimes)",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FD1e",
+      "class": "FD Data display",
+      "name": "whFmtAgo",
+      "type": "js-formatter",
+      "api": "whFmtAgo(d): 'just now' / Nm / Nh / Nd ago",
+      "defined_in": "utils.js (lifted 2026-07-17 from 8 page-local copies)",
+      "satisfies": "S1/N1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whFmtAgo"
+        }
+      ],
+      "need": "relative-time",
+      "reference_impl": "hive.html (timeAgo delegates)",
+      "when_to_use": "every relative timestamp; page-local timeAgo/whenAgo/fmtRelative DELEGATE here",
+      "when_not": "absolute dates/times (whFmtDate); freshness VERDICT labels with their own semantics",
+      "exempt": [
+        "plant-connections.html"
+      ],
+      "exempt_reason": "freshness() is a sync-health verdict ('d stale' / 'never synced' with min-1h rounding), not a timestamp render",
+      "status": "built"
+    },
+    {
+      "id": "FD2",
+      "class": "FD Data display",
+      "name": "renderKpiTile",
+      "type": "js-renderer",
+      "api": "renderKpiTile(opts)",
+      "defined_in": "utils.js:1349",
+      "satisfies": "C1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "renderKpiTile"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "hive.html",
+      "when_to_use": "EXPANDABLE verdict-KPI cards: toggle + detail body + green/yellow/red status pill (analytics pattern)",
+      "when_not": "static KPI tiles: those are FC1 .simple-card territory; never convert one canonical into the other",
+      "status": "built",
+      "governance_note": "re-scoped 2026-07-17: the kpi-cards need heuristic mislabeled .simple-card pages as gap; .simple-card IS the canonical static KPI tile (FC1). renderKpiTile is canonical only for the expandable/verdict pattern (1 page today)."
+    },
+    {
+      "id": "FD3",
+      "class": "FD Data display",
+      "name": "renderSourceChip",
+      "type": "js-renderer",
+      "api": "renderSourceChip(opts)",
+      "defined_in": "utils.js:620",
+      "satisfies": "E3",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "renderSourceChip"
+        }
+      ],
+      "need": "async-data",
+      "reference_impl": "analytics.html",
+      "when_to_use": "any AI/DB-sourced display (provenance)",
+      "when_not": "conversational surfaces (per-reply grounding) and multi-source rollups that cite per-panel inline",
+      "exempt": [
+        "assistant.html",
+        "ph-intelligence.html"
+      ],
+      "exempt_reason": "assistant grounds per-reply (chat provenance model); ph-intelligence's own dashboard-allow header: each panel cites its source inline, a page-level chip would mislead",
+      "status": "built"
+    },
+    {
+      "id": "FD4",
+      "class": "FD Data display",
+      "name": "canonical strips (risk/pmDue/parts/actionBrief)",
+      "type": "js-renderer",
+      "api": "renderRiskStrip / renderPmDueStrip / renderPartsStrip / renderActionBrief",
+      "defined_in": "utils.js",
+      "satisfies": "cross-page reuse",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "renderRiskStrip"
+        },
+        {
+          "kind": "js-call",
+          "name": "renderPmDueStrip"
+        },
+        {
+          "kind": "js-call",
+          "name": "renderPartsStrip"
+        },
+        {
+          "kind": "js-call",
+          "name": "renderActionBrief"
+        }
+      ],
+      "need": "census-only",
+      "reference_impl": "hive.html",
+      "when_to_use": "ops surfaces sharing the canonical strips",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "FCh1",
+      "class": "FCh Chrome",
+      "name": "nav-hub.js (+ learn-link, freshness chips)",
+      "type": "shared-script",
+      "api": "<script src=\"nav-hub.js\">",
+      "defined_in": "nav-hub.js",
+      "satisfies": "S1/G1",
+      "detect": [
+        {
+          "kind": "script-src",
+          "file": "nav-hub.js"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "index.html",
+      "when_to_use": "every product family page",
+      "when_not": "internal/founder-only, poster, and status surfaces (chrome-less by design)",
+      "exempt": [
+        "agentic-rag-observability.html",
+        "promo-poster.html",
+        "status.html"
+      ],
+      "exempt_reason": "founder-only internal dashboard / poster generator / public status page: product chrome intentionally absent (accepted state in every family sweep)",
+      "status": "built"
+    },
+    {
+      "id": "FCh2",
+      "class": "FCh Chrome",
+      "name": "companion-launcher.js",
+      "type": "shared-script",
+      "api": "<script src=\"companion-launcher.js\">",
+      "defined_in": "companion-launcher.js",
+      "satisfies": "S1",
+      "detect": [
+        {
+          "kind": "script-src",
+          "file": "companion-launcher.js"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "hive.html",
+      "when_to_use": "every signed-in interactive family page",
+      "when_not": "the assistant page itself (recursive), signed-out landing, internal/poster/status surfaces",
+      "exempt": [
+        "assistant.html",
+        "index.html",
+        "agentic-rag-observability.html",
+        "promo-poster.html",
+        "status.html"
+      ],
+      "exempt_reason": "assistant IS the companion surface; index is the signed-out landing (ops-home launcher = future enhancement); others are chrome-less by design",
+      "status": "built"
+    },
+    {
+      "id": "FCh3",
+      "class": "FCh Chrome",
+      "name": "i18n floor (whI18nApply + WH_FIL_PAGE / _t)",
+      "type": "js-engine",
+      "api": "whI18nApply(dict) + window.WH_FIL_PAGE = {…} (static labels) · _t(en, fil) (JS-render-time): both canonical in utils.js",
+      "defined_in": "utils.js:573",
+      "satisfies": "N1",
+      "detect": [
+        {
+          "kind": "js-call",
+          "name": "whI18nApply"
+        },
+        {
+          "kind": "js-ident",
+          "name": "WH_FIL_PAGE"
+        },
+        {
+          "kind": "js-call",
+          "name": "_t",
+          "allow_redefine": true,
+          "note": "utils.js defines _t as a FLOOR (if not already defined); analytics/hive/index install richer page versions by sanctioned design (utils.js:26 comment)"
+        }
+      ],
+      "need": "family",
+      "reference_impl": "index.html",
+      "when_to_use": "every page's static labels",
+      "when_not": "internal/founder/poster/status surfaces (EN-only by design)",
+      "status": "built",
+      "exempt": [
+        "agentic-rag-observability.html",
+        "promo-poster.html",
+        "status.html"
+      ],
+      "exempt_reason": "founder-only internal / poster generator / status page: EN-only by design (same chrome-less basis as FCh1/2)"
+    }
+  ]
+}

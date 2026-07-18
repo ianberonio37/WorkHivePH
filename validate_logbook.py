@@ -561,6 +561,174 @@ def check_edit_in_place(content, page):
     return issues
 
 
+def check_entry_kind_readings_shaping(content, page):
+    """
+    LOGBOOK arc (2026-07-12) — entry-KIND field-shaping must route READINGS to every
+    condition-monitoring kind (Inspection / Preventive / Corrective), NOT breakdown-only.
+    The prior code gated readings on `isBreakdown` alone, so an Inspection could never
+    capture a reading — 0/645 seeded Inspection entries had readings, the data mirroring
+    the broken UI. Readings (temp/vibration/pressure) are the DEFINING field of an
+    inspection and a normal part of a PM. Failure consequence stays corrective-only;
+    production output is decoupled from breakdown (any Closed run can record OEE output).
+    RATCHET so a regression to isBreakdown-only cannot silently return:
+      (1) a kindTakesReadings() helper exists and covers Inspection + Preventive;
+      (2) the old `if (isBreakdown) ... renderReadingsFields` gate is GONE (readings are
+          driven by kindTakesReadings);
+      (3) updateProductionVisibility() no longer gates on isBreakdown.
+    """
+    issues = []
+
+    # (1) helper exists and covers the two kinds the old code missed
+    m = re.search(r"function\s+kindTakesReadings\s*\([^)]*\)\s*\{([^}]*)\}", content)
+    if not m:
+        issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                       "reason": "kindTakesReadings() helper missing — readings must be gated by a kind-set that includes Inspection + Preventive, not isBreakdown alone (an Inspection is definitionally reading-taking)."})
+    else:
+        low = m.group(1).lower()
+        if "inspection" not in low or "preventive" not in low:
+            issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                           "reason": "kindTakesReadings() does not include both Inspection and Preventive — both must render readings (an inspection IS reading-taking; a PM records condition)."})
+
+    # (2) the old breakdown-only readings gate must not return
+    if re.search(r"if\s*\(\s*isBreakdown\s*\)\s*(await\s+)?renderReadingsFields", content):
+        issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                       "reason": "readings are gated on `if (isBreakdown) renderReadingsFields` — this hides readings from Inspection/Preventive. Drive readings off kindTakesReadings() instead."})
+    if "kindTakesReadings" not in content or "renderReadingsFields" not in content:
+        issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                       "reason": "readings rendering is not driven by kindTakesReadings() — regression risk to breakdown-only shaping."})
+
+    # (3) production must not be re-coupled to isBreakdown (strip // comments first — the
+    #     rationale comment legitimately names the retired `isBreakdown && isClosed` gate)
+    m2 = re.search(r"function\s+updateProductionVisibility\s*\(\)\s*\{(.*?)\n\}", content, re.S)
+    prod = re.sub(r"//[^\n]*", "", m2.group(1)) if m2 else ""
+    if re.search(r"isBreakdown|includes\(['\"]Breakdown", prod):
+        issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                       "reason": "updateProductionVisibility() gates production on isBreakdown — production output (OEE Quality/Performance) is orthogonal to breakdown and belongs to any Closed run (Preventive/Inspection are where OEE output originates). Gate on isClosed."})
+
+    return issues
+
+
+def check_audit_trail_wiring(content, page):
+    """
+    LOGBOOK arc Extension 3 (2026-07-12) — the logbook IS the DOLE/ISO audit trail: every
+    create + amendment of an entry must leave an actor-attributed, hive-scoped `hive_audit_log`
+    record (who did what, when), and an edit must capture the status transition (prev->new) so
+    a closed/signed-off entry's amendments are tamper-evident. This LOCKS the wiring so a refactor
+    can't silently drop the audit call (a dropped audit = a silent compliance-trail hole — the same
+    silent-failure class as the cron/checkProactive dead-path bugs).
+    RATCHET:
+      (1) writeAuditLog() sets actor + hive_id;
+      (2) the create path logs `create_logbook_entry` on target_type 'logbook';
+      (3) the edit path logs `edit_logbook_entry` AND records prev_status/new_status (the amendment).
+    """
+    issues = []
+    # (1) the audit helper attributes an actor + is hive-scoped
+    m = re.search(r"function\s+writeAuditLog\s*\([^)]*\)\s*\{(.*?)\n\}", content, re.S)
+    body = m.group(1) if m else ""
+    if not m or "actor:" not in body or "hive_id:" not in body:
+        issues.append({"check": "audit_trail_wiring", "page": page,
+                       "reason": "writeAuditLog() missing or does not set actor + hive_id — the DOLE/ISO audit trail must attribute who did what, hive-scoped."})
+    # (2) create is audited
+    if not re.search(r"writeAuditLog\(\s*['\"]create_logbook_entry['\"]", content):
+        issues.append({"check": "audit_trail_wiring", "page": page,
+                       "reason": "the create path does not writeAuditLog('create_logbook_entry', ...) — new entries leave no audit-trail record."})
+    # (3) edit is audited AND records the status transition (tamper-evident amendment)
+    me = re.search(r"writeAuditLog\(\s*['\"]edit_logbook_entry['\"][^;]*?\{(.*?)\}\s*\)", content, re.S)
+    if not me:
+        issues.append({"check": "audit_trail_wiring", "page": page,
+                       "reason": "the edit path does not writeAuditLog('edit_logbook_entry', ...) — amendments to a (possibly closed) entry leave no audit record."})
+    elif not re.search(r"prev_status", me.group(1)) or not re.search(r"new_status", me.group(1)):
+        issues.append({"check": "audit_trail_wiring", "page": page,
+                       "reason": "the edit audit does not record prev_status + new_status — a closed/signed-off entry's status amendment must be tamper-evident (capture the before->after transition)."})
+    # (4) the CSV export must be audit-GRADE — carry WHO (Worker) + WHEN-signed-off (Closed At),
+    #     or it is a field-dump, not a DOLE/ISO trail. Guard the export column set + row projection.
+    mc = re.search(r"const\s+cols\s*=\s*\[([^\]]*)\]", content)
+    cols = mc.group(1) if mc else ""
+    if "Worker" not in cols or "Closed At" not in cols:
+        issues.append({"check": "audit_trail_wiring", "page": page,
+                       "reason": "the logbook CSV export omits Worker (WHO) and/or Signed Off (Closed At) columns — an audit trail must record who did the work and when it was signed off. Include worker_name + closed_at."})
+    if not re.search(r"e\.worker_name", content) or not re.search(r"e\.closed_at", content):
+        issues.append({"check": "audit_trail_wiring", "page": page,
+                       "reason": "the CSV export row projection does not emit e.worker_name / e.closed_at — the audit columns are headers without data."})
+    return issues
+
+
+def check_loto_first_class(content, page):
+    """
+    LOGBOOK arc Extension 3 (2026-07-12) — LOTO / Permit-to-Work is a FIRST-CLASS field, not
+    regex-inferred free text. Safety- + compliance-critical (RA 11058 / DOLE DO 198-18 PTW; ISO
+    45001). RATCHET the full capture->persist->export chain so it can't silently drop:
+      (1) the create payload persists loto_applied + permit_reference;
+      (2) the form reads f-loto (checkbox) + f-permit-ref;
+      (3) the loadEntries cache carries loto_applied (else edit rehydration loses it);
+      (4) the audit CSV export includes the LOTO column (compliance record).
+    """
+    issues = []
+    # (1) persisted in the insert payload
+    if not re.search(r"loto_applied:\s*entry\.loto_applied", content) or \
+       not re.search(r"permit_reference:\s*entry\.permit_reference", content):
+        issues.append({"check": "loto_first_class", "page": page,
+                       "reason": "the addEntry payload does not persist loto_applied + permit_reference — LOTO/permit-to-work must be a stored field, not regex-inferred."})
+    # (2) read from the form
+    if "'f-loto'" not in content and '"f-loto"' not in content:
+        issues.append({"check": "loto_first_class", "page": page,
+                       "reason": "the capture form has no #f-loto control — LOTO must be a deliberate first-class input."})
+    if "f-permit-ref" not in content:
+        issues.append({"check": "loto_first_class", "page": page,
+                       "reason": "no #f-permit-ref permit-reference input — the permit-to-work authorization is part of the compliance record."})
+    # (3) cache shape carries it (edit rehydration)
+    if not re.search(r"loto_applied:\s*r\.loto_applied", content):
+        issues.append({"check": "loto_first_class", "page": page,
+                       "reason": "the loadEntries cache shape omits loto_applied — editing from cache would silently drop the safety-isolation flag."})
+    # (4) audit export includes LOTO
+    if "LOTO Applied" not in content or not re.search(r"e\.loto_applied", content):
+        issues.append({"check": "loto_first_class", "page": page,
+                       "reason": "the CSV audit export omits the LOTO column — the DOLE/ISO trail must record whether the asset was locked/tagged out."})
+    # (5) the fetch .select() column lists must include loto_applied — an explicit column list that
+    #     omits it means the field is NEVER fetched, so the cache/export/edit silently show it as
+    #     false even when the DB row is true (the exact trap this arc hit + fixed). Every explicit
+    #     logbook column-select must carry it.
+    for m in re.finditer(r"\.select\(\s*'(id, date, machine[^']*)'\s*\)", content):
+        cols = m.group(1)
+        # only the FULL-entry selects (they carry failure_consequence + feed the cache/export) must
+        # include loto; narrow selects (e.g. the asset fault-history panel) legitimately omit it.
+        if "failure_consequence" not in cols:
+            continue
+        if "loto_applied" not in cols:
+            issues.append({"check": "loto_first_class", "page": page,
+                           "reason": "a logbook .select() column list omits loto_applied — the LOTO flag will not be fetched, so it renders false everywhere regardless of the stored value. Add loto_applied + permit_reference to every explicit entry select."})
+            break
+    return issues
+
+
+def check_pm_mirror_asset_lineage(pm_content):
+    """
+    LOGBOOK arc reuse Extension 2 (2026-07-12) — when a PM completion mirrors into the
+    logbook (the default-ON "Also save to Logbook" path in pm-scheduler.html), the
+    mirrored entry must be ASSET-LINEAGED and machine-consistent, or it is orphaned from
+    the asset's equipment history (v_asset_truth counts on asset_node_id) and inconsistent
+    with every other logbook row (machine is the TAG platform-wide).
+    RATCHET:
+      (1) the mirror must NOT hard-code `asset_node_id: null` — it must resolve the FK;
+      (2) machine must come from the tag (currentAsset.tag_id), not the display asset_name.
+    """
+    issues = []
+    if not pm_content:
+        return issues
+    # locate the PM->logbook mirror payload block
+    m = re.search(r"pm_completion_id:\s*compData\.id", pm_content)
+    if not m:
+        return issues  # mirror path absent/renamed — other checks own that
+    window = pm_content[max(0, m.start() - 900): m.end() + 200]
+    if re.search(r"asset_node_id:\s*null", window):
+        issues.append({"check": "pm_mirror_asset_lineage", "page": PM_PAGE,
+                       "reason": "PM->logbook mirror sets `asset_node_id: null` — the mirrored entry is orphaned from v_asset_truth equipment history. Resolve the asset_nodes.id via pm_asset_id."})
+    if re.search(r"machine:\s*currentAsset\.asset_name\b", window):
+        issues.append({"check": "pm_mirror_asset_lineage", "page": PM_PAGE,
+                       "reason": "PM->logbook mirror sets machine from currentAsset.asset_name (the display name); machine is the TAG platform-wide. Use currentAsset.tag_id (fall back to asset_name)."})
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -584,6 +752,14 @@ CHECK_NAMES = [
     "optimistic_lock_on_edit",
     # L3 — Arc V persona-walk (EFFORTLESS)
     "required_field_signposting",
+    # L1 — LOGBOOK arc entry-KIND field-shaping (2026-07-12)
+    "entry_kind_readings_shaping",
+    # L2 — LOGBOOK arc reuse Extension 2: PM->logbook mirror lineage (2026-07-12)
+    "pm_mirror_asset_lineage",
+    # L2 — LOGBOOK arc Extension 3: DOLE/ISO audit-trail wiring (2026-07-12)
+    "audit_trail_wiring",
+    # L1 — LOGBOOK arc Extension 3: LOTO / Permit-to-Work first-class (2026-07-12)
+    "loto_first_class",
 ]
 
 CHECK_LABELS = {
@@ -622,6 +798,14 @@ CHECK_LABELS = {
     "optimistic_lock_on_edit":      "L3  saveEditFromForm has updated_at OC guard (no silent last-write-wins)",
     # L3 — Arc V persona-walk EFFORTLESS (2026-06-25)
     "required_field_signposting":   "L3  Required fields signposted + validated at their own step (no Save-time drip-bounce)",
+    # L1 — LOGBOOK arc entry-KIND field-shaping (2026-07-12)
+    "entry_kind_readings_shaping":  "L1  Readings shape to Inspection/Preventive/Corrective (not breakdown-only); production decoupled from breakdown",
+    # L2 — LOGBOOK arc reuse Extension 2 (2026-07-12)
+    "pm_mirror_asset_lineage":      "L2  PM->logbook mirror is asset-lineaged (resolves asset_node_id, machine=tag not name)",
+    # L2 — LOGBOOK arc Extension 3 (2026-07-12)
+    "audit_trail_wiring":           "L2  Audit trail wired (create+edit -> hive_audit_log, actor-attributed, edit records prev->new status)",
+    # L1 — LOGBOOK arc Extension 3 (2026-07-12)
+    "loto_first_class":             "L1  LOTO/Permit-to-Work is first-class (persisted loto_applied+permit_reference, form input, cached, in audit export)",
 }
 
 
@@ -677,6 +861,18 @@ def main():
 
     # L3 — Arc V persona-walk (EFFORTLESS)
     all_issues += check_required_field_signposting(logbook, LOGBOOK_PAGE)
+
+    # L1 — LOGBOOK arc entry-KIND field-shaping (2026-07-12)
+    all_issues += check_entry_kind_readings_shaping(logbook, LOGBOOK_PAGE)
+
+    # L2 — LOGBOOK arc reuse Extension 2: PM->logbook mirror lineage (2026-07-12)
+    all_issues += check_pm_mirror_asset_lineage(pm)
+
+    # L2 — LOGBOOK arc Extension 3: DOLE/ISO audit-trail wiring (2026-07-12)
+    all_issues += check_audit_trail_wiring(logbook, LOGBOOK_PAGE)
+
+    # L1 — LOGBOOK arc Extension 3: LOTO / Permit-to-Work first-class (2026-07-12)
+    all_issues += check_loto_first_class(logbook, LOGBOOK_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

@@ -5,6 +5,51 @@
 // Loaded before page scripts on every page.
 // ─────────────────────────────────────────────
 
+
+// ============================================================================
+// i18n LOCALE FLOOR (rubric N1) -- the shared half of the design system
+// ============================================================================
+// NN/g: a design system is "a style guide PLUS a component library ... reducing
+// REDUNDANCY and creating a SHARED LANGUAGE across pages". We had the style guide
+// (tokens.css) and NOT the component library -- which is measurably why 29 of 32 family
+// pages fail N1. The i18n ENGINE was pasted inline FOUR times (analytics / hive / index /
+// analytics-report) while the SHARED chrome stayed English-only: nav-hub.js reaches 31
+// pages, this file 35, and neither could translate a single word.
+//
+// Hoisting the locale STATE + translator here gives every utils.js page the mechanics for
+// free -- the same lever this file already uses for the focus ring ("without editing 40+
+// pages individually"). Concretely: a worker who picks Filipino on the home dashboard now
+// keeps it across the whole platform's chrome instead of it snapping back to English on
+// the next page.
+//
+// DEFENSIVE BY DESIGN -- this FILLS A GAP, it never clobbers. A page with its own engine
+// (analytics/hive/index) defines _t/WH_LANG later in the body and still wins; both read the
+// same `wh_lang` key, so they agree. Pages with no engine get a working pass-through
+// instead of a ReferenceError.
+// [external-design-system-adoption-scale-consistency-across-, external-atomic-design-...]
+(function whLocaleFloor() {
+  try {
+    if (typeof window.WH_LANG === 'undefined') {
+      window.WH_LANG = (localStorage.getItem('wh_lang') === 'fil') ? 'fil' : 'en';
+    }
+  } catch (_) { /* empty-catch-allow: locale persistence is best-effort (private mode) */
+    if (typeof window.WH_LANG === 'undefined') window.WH_LANG = 'en';
+  }
+  if (typeof window._t !== 'function') {
+    // _t(en, fil) -- the platform's translator signature. Falls back to EN when a phrase
+    // has no FIL yet, so a partial dictionary can never blank a label.
+    window._t = function _t(en, fil) {
+      return (window.WH_LANG === 'fil' && fil) ? fil : en;
+    };
+  }
+  // <html lang> must follow the locale or a screen reader pronounces Filipino with English
+  // phonemes (WCAG 3.1.1). Pages with their own engine set this too; same value, no fight.
+  try {
+    document.documentElement.lang = (window.WH_LANG === 'fil') ? 'fil' : 'en';
+  } catch (_) { /* empty-catch-allow: documentElement always exists; guard is belt-and-braces */ }
+})();
+
+
 // ─────────────────────────────────────────────
 // a11y floor — global keyboard focus ring (WCAG 2.4.11 / SC 2.4.7 focus-visible)
 // ─────────────────────────────────────────────
@@ -262,7 +307,7 @@
     if (mo) try { mo.observe(document.body, { childList: true, subtree: true }); } catch (e) { /* empty-catch-allow: observe is best-effort UI enhancement */ }
   }
   // run on DOMContentLoaded (+setTimeout so it follows page-init handlers that read textContent),
-  // NOT `load` — `load` waits on all images and can land after first interaction / a probe window.
+  // NOT `load`-`load` waits on all images and can land after first interaction / a probe window.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
   // sizing/baseline CSS for inline icons (id-guarded).
@@ -316,7 +361,25 @@ window.getDb = function(url, key) {
   };
   window._whSupabaseClient = window.supabase.createClient(url, key, {
     global: { fetch: _timeoutFetch },
+    // Finding #6 (idle/expired-session robustness, 2026-07-06): make the refresh contract
+    // explicit. autoRefreshToken keeps the access token fresh; persistSession restores it on
+    // reload. The gap this addresses: a tab left idle for hours (its scheduled refresh timer
+    // never fired while backgrounded) would fire its first authed read on the STALE token and
+    // silently 401, leaving a broken "signed-in" dashboard. The visibilitychange handler below
+    // refreshes on wake, before the user's next action.
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true },
   });
+  // Finding #6: proactively refresh the session when the tab returns to the foreground after
+  // being hidden — covers the "woke from hours of idle" case where the background refresh timer
+  // didn't run, so queries after wake use a fresh token instead of 401-ing on the expired one.
+  try {
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && window._whSupabaseClient) {
+        // getSession() refreshes an expired access token when a valid refresh token exists.
+        window._whSupabaseClient.auth.getSession().catch(function () { /* best-effort */ });
+      }
+    });
+  } catch (_) { /* empty-catch-allow: visibilitychange unsupported */ }
   // Arc S D-lens (D-004): expose the project URL so the connectivity widget can
   // health-ping the backend (every page reaches the backend through getDb, so this
   // is the one reliable place to publish it).
@@ -332,6 +395,27 @@ function escHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// escJsAttr — XSS-safe for a value placed inside a JS STRING LITERAL that itself
+// sits inside an HTML attribute, e.g.  onclick="fn('${escJsAttr(v)}')".
+// escHtml ALONE is WRONG here: the HTML parser decodes &#39; back to ' BEFORE the
+// handler compiles, so a value like  ' ),alert(1),('  breaks out of the string arg
+// and runs — a stored, privilege-escalating XSS (Hive board, confirmed 2026-07-10).
+// Fix = JS-escape FIRST (\ ' newlines) so the post-HTML-decode text is a valid JS
+// string, THEN HTML-escape so the attribute stays well-formed and its entities
+// decode back to exactly the JS-safe text. The IDEAL is event-delegation + dataset
+// (no user data in code at all); use this when an inline handler must stay.
+function escJsAttr(str) {
+  return String(str == null ? '' : str)
+    .replace(/\\/g, '\\\\')   // JS: backslash first (must precede the quote escape)
+    .replace(/'/g, "\\'")      // JS: single quote → escaped quote
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/&/g, '&amp;')    // HTML: keep the attribute well-formed; these decode
+    .replace(/</g, '&lt;')     // back to chars that are harmless inside a '…' JS string
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // ─────────────────────────────────────────────
@@ -453,20 +537,110 @@ function _whFriendlySource(src) {
   return out.slice(0, -1).join(', ') + ' & ' + out[out.length - 1];
 }
 
+// ─────────────────────────────────────────────
+// whI18nApply — ONE shared [data-i] swapper (N1)
+// ─────────────────────────────────────────────
+// Pages WITHOUT their own i18n engine (index/hive/analytics keep theirs) tag static
+// labels with data-i and declare `window.WH_FIL_PAGE = { key: 'Filipino', … }`.
+// utils.js already supplies WH_LANG + _t; this closes the loop for static markup.
+// EN is the markup itself, so applying is one-way (fil) — a reload restores EN.
+// WH_FIL_COMMON — the SHARED Filipino dictionary for labels that repeat on every page
+// (N1 accelerator, 2026-07-16). A page tags a common control `data-i="cancel"` and it is
+// translated from HERE — no per-page dict entry needed. Only genuinely page-UNIQUE labels
+// go in that page's WH_FIL_PAGE. This is the centralized lever (METHOD LAW) for N1's common
+// half: one edit here fixes the shared vocabulary across all pages; a page dict overrides
+// per key where the local wording differs. Natural Taglish (English domain terms kept).
+window.WH_FIL_COMMON = {
+  cancel: 'Kanselahin', save: 'I-save', saved: 'Na-save', back: 'Bumalik', next: 'Susunod',
+  more: 'Higit pa', less: 'Bawas', show: 'Ipakita', hide: 'Itago', showall: 'Ipakita Lahat',
+  close: 'Isara', open: 'Buksan', search: 'Maghanap', searchteam: 'Hanapin sa Team',
+  export: 'I-export', exportcsv: 'I-export sa CSV', edit: 'I-edit', 'delete': 'Burahin',
+  remove: 'Alisin', add: 'Magdagdag', submit: 'Isumite', send: 'Ipadala', confirm: 'Kumpirmahin',
+  refresh: 'I-refresh', filter: 'I-filter', filters: 'Mga Filter', clear: 'I-clear',
+  clearform: 'I-clear ang form', clearfilters: 'I-clear ang mga filter', apply: 'Ilapat',
+  done: 'Tapos', retry: 'Subukan Muli', viewall: 'Tingnan Lahat', settings: 'Mga Setting',
+  help: 'Tulong', why: 'Bakit?', learnmore: 'Alamin Pa', getstarted: 'Magsimula',
+  signin: 'Mag-sign In', signout: 'Mag-sign Out', myentries: 'Aking Mga Entry',
+  teamfeed: 'Feed ng Team', loading: 'Naglo-load', today: 'Ngayon', thisweek: 'Ngayong Linggo',
+  overdue: 'Lumipas na', duesoon: 'Malapit nang sumapit', ontrack: 'Nasa tamang landas',
+  register: 'Irehistro', registerasset: 'Irehistro ang Asset', generate: 'I-generate',
+  publish: 'I-publish', archive: 'I-archive', addcontact: 'Magdagdag ng Kontak',
+  logwork: 'I-log ang trabaho', schedule: 'I-iskedyul', restock: 'Mag-restock',
+  approve:"Aprubahan", reject:"Tanggihan", restore:"Ibalik", release:"I-release", refund:"I-refund", view:"Tingnan", showdetails: 'Ipakita ang detalye', hidedetails: 'Itago ang detalye', loadmore: 'Mag-load pa',
+  viewinforum: 'Tingnan sa forum', route: 'Ruta', window: 'Window', status: 'Status',
+  // Shared maturity-gate headings (maturity-gate.js renders these on every gated surface).
+  mg_unlocks_at: 'bubukas sa Stair', mg_hive_now: 'Ang hive mo ngayon',
+};
+
+function whI18nApply(dict) {
+  if (typeof window !== 'undefined' && window.WH_LANG !== 'fil') return;
+  // Page dict overrides the shared common dict per key.
+  var merged = Object.assign({}, (typeof window !== 'undefined' && window.WH_FIL_COMMON) || {}, dict || {});
+  if (!Object.keys(merged).length) return;
+  document.querySelectorAll('[data-i]').forEach(function (el) {
+    var k = el.getAttribute('data-i');
+    if (merged[k] != null) el.textContent = merged[k];
+  });
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', function () {
+    // Apply whenever FIL is active — even a page with NO page dict gets its common labels
+    // translated from WH_FIL_COMMON (that is the whole point of the shared dict).
+    if (window.WH_FIL_PAGE || window.WH_FIL_COMMON) whI18nApply(window.WH_FIL_PAGE || {});
+  });
+}
+
+// ─────────────────────────────────────────────
+// whProgressStrip — ONE shared goal-gradient strip (H1, worker-daily pages)
+// ─────────────────────────────────────────────
+// Goal-gradient (Laws of UX): people accelerate toward a visible goal. Worker-daily
+// pages (meta[name="worker-daily"]) show TODAY's real progress — never an invented
+// quota. done/total MUST come from live page data; callers skip the strip when
+// total===0 (an empty bar invents a journey — the A3 nothing-to-disclose error).
+// Track+fill markup + role=progressbar keep it honest to AT and the rubric lens.
+function whProgressStrip(label, done, total, opts) {
+  opts = opts || {};
+  if (!total || total < 0) return '';
+  var e = escHtml;
+  var _tt = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+  var k = Math.max(0, Math.min(done || 0, total));
+  var pct = Math.round((k / total) * 100);
+  var fillCol = pct >= 100 ? '#86EFAC' : 'linear-gradient(90deg, var(--wh-orange), var(--wh-orange-light))';
+  return '<div class="wh-progress-strip" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + k + '"'
+    + ' aria-label="' + e(_tt(label)) + ': ' + k + ' of ' + total + '"'
+    + ' style="margin:0 0 12px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">'
+    +   '<span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.62);">' + e(_tt(label)) + '</span>'
+    +   '<span style="font-size:.72rem;font-weight:800;color:#F4F6FA;font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.62);">' + e(_tt('of')) + ' ' + total + '</span></span>'
+    + '</div>'
+    + '<div class="wh-progress-track" style="height:6px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;">'
+    +   '<div class="wh-progress-fill" style="width:' + pct + '%;height:100%;border-radius:999px;background:' + fillCol + ';transition:width .4s;"></div>'
+    + '</div>'
+    + '</div>';
+}
+
 function renderSourceChip(opts) {
   opts = opts || {};
+  // N1 safe _t fallback: pages without an i18n layer get the EN string unchanged,
+  // so this shared renderer can translate without breaking them.
+  var _tt = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
   var source    = opts.source    || '';
   var freshness = opts.freshness || '';
   var win       = opts.window    || '';
   var notes     = Array.isArray(opts.notes) ? opts.notes : [];
+  var method    = Array.isArray(opts.method) ? opts.method : [];
 
   var parts = [];
   if (freshness) parts.push(escHtml(freshness));
   if (source) {
     var friendly = _whFriendlySource(source);
     if (friendly) {
-      var prefix = /^your\b/.test(friendly) ? 'Based on ' : 'Based on your ';
-      parts.push(prefix + escHtml(friendly));
+      // One whole template per locale with a single slot, rather than gluing a
+      // prefix onto a noun -- the possessive sits differently in Filipino (N1).
+      var f = escHtml(friendly);
+      parts.push(/^your\b/.test(friendly)
+        ? _tt('Based on ' + f,      'Batay sa ' + f)
+        : _tt('Based on your ' + f, 'Batay sa iyong ' + f));
     }
   }
   if (win) parts.push(escHtml(win));
@@ -478,10 +652,33 @@ function renderSourceChip(opts) {
   // through the empty source-chip slot + the shared <main>/.page scaffold, translating the whole
   // page down ~12px at first data-render (proven on predictive.html). padding never collapses;
   // with no background the 3px gap is visually identical.
-  return '<p class="wh-source-chip" '
+  // G1 (Nielsen #1 "visibility of system status"): this in-content provenance/freshness chip IS the
+  // page's system-status region ("Live · Based on your … · updated …"). role=status + aria-live make
+  // it a genuine live region so the rubric's G1 finds it on EVERY page that renders a source chip
+  // (central fix — pages whose only status affordance was this chip were failing G1 as bare <p>s).
+  var chipHtml = '<p class="wh-source-chip" role="status" aria-live="polite" '
     + 'style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
+
+  // Arc P · FUSION 5 (P1/P5): methodology clauses collapse behind ONE plain-language
+  // <details> disclosure instead of extending the grey meta-caption wall inline, so the
+  // visible chip stays a single glance-first line. Real <details> = tap-openable on mobile
+  // (mobile-maestro: never a hover/title tooltip). escHtml every clause — preserves the
+  // callers' xss-allow invariant. Collapsed height ~0 beyond the reserved chip slot (CLS-safe).
+  if (method.length) {
+    var mItems = '';
+    for (var j = 0; j < method.length; j++) {
+      if (method[j]) mItems += '<li>' + escHtml(String(method[j])) + '</li>';
+    }
+    if (mItems) {
+      chipHtml += '<details class="wh-method">'
+        + '<summary>' + escHtml(_tt('How this is computed', 'Paano ito kinalkula')) + '</summary>'
+        + '<ul>' + mItems + '</ul>'
+        + '</details>';
+    }
+  }
+  return chipHtml;
 }
 
 // ─────────────────────────────────────────────
@@ -501,6 +698,235 @@ function whListSkeleton(el, rows) {
   html += '</div>';
   el.innerHTML = html;
 }
+
+// ─────────────────────────────────────────────
+// whCardSkeleton — canonical CARD-shaped loading state (FF1 sibling of whListSkeleton)
+// ─────────────────────────────────────────────
+// Lifted 2026-07-17 from the page-local showSkeletons() copies in marketplace.html
+// (grid listing card) and marketplace-admin.html (thumb-left row card) — the §10
+// promote-up-a-layer move: the same pattern hand-rolled on page 2 gets lifted, never
+// copied a third time. Use for card GRIDS where whListSkeleton's row shape would lie
+// about the incoming layout. Self-injects its CSS once (zero setup on any page;
+// no components.css dependency), aria-busy/aria-live like its sibling.
+//   whCardSkeleton(gridEl, 8)                    // 'grid': image-top listing card
+//   whCardSkeleton(areaEl, 4, { variant: 'row' })// 'row': thumb-left card w/ action bar
+// ─────────────────────────────────────────────
+// .wh-help — canonical inline-help disclosure (FI1 sibling of .wh-disclose)
+// ─────────────────────────────────────────────
+// Promoted 2026-07-17 from 9 byte-identical <details class="wh-help" style="…"> inline
+// copies (assistant, marketplaces, ph-intelligence, project-report, public-feed,
+// report-sender, status) — the §10 lift: same pattern on page 2+ becomes ONE shared rule.
+// Self-injects (utils.js is the 31/32 shared surface; components.css is only linked on 11).
+(function whHelpCSS() {
+  if (typeof document === 'undefined' || document.getElementById('wh-help-css')) return;
+  var st = document.createElement('style');
+  st.id = 'wh-help-css';
+  st.textContent =
+    '.wh-help{margin:0.5rem 0 1rem;font-size:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.1rem 0.8rem 0.45rem}' +
+    '.wh-help>summary{cursor:pointer;font-weight:700;color:rgba(255,255,255,0.72);min-height:44px;display:inline-flex;align-items:center}' +
+    '.wh-help>p{margin:0.25rem 0 0.2rem;color:rgba(255,255,255,0.72);line-height:1.5}';
+  (document.head || document.documentElement).appendChild(st);
+})();
+
+function whCardSkeleton(el, count, opts) {
+  if (!el) return;
+  count = count || 4;
+  var variant = (opts && opts.variant) === 'row' ? 'row' : 'grid';
+  if (!document.getElementById('wh-cardskel-css')) {
+    var st = document.createElement('style');
+    st.id = 'wh-cardskel-css';
+    st.textContent =
+      '.wh-cardskel{display:contents}' +
+      '.wh-cardskel .wh-cs{background:rgba(255,255,255,0.07);border-radius:6px;animation:whCsPulse 1.4s ease-in-out infinite}' +
+      '.wh-cardskel-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:var(--wh-radius,12px);overflow:hidden}' +
+      '.wh-cardskel-row{display:flex;flex-direction:column;gap:10px;padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:var(--wh-radius,12px)}' +
+      '@keyframes whCsPulse{0%,100%{opacity:.55}50%{opacity:1}}' +
+      '@media (prefers-reduced-motion: reduce){.wh-cardskel .wh-cs{animation:none;opacity:.7}}';
+    document.head.appendChild(st);
+  }
+  var card;
+  if (variant === 'row') {
+    card = '<div class="wh-cardskel-row">'
+      + '<div style="display:flex;gap:12px;align-items:flex-start;">'
+      + '<div class="wh-cs" style="width:72px;height:72px;border-radius:10px;flex-shrink:0;"></div>'
+      + '<div style="flex:1;">'
+      + '<div class="wh-cs" style="height:14px;width:65%;margin-bottom:8px;"></div>'
+      + '<div class="wh-cs" style="height:11px;width:80%;margin-bottom:8px;"></div>'
+      + '<div class="wh-cs" style="height:10px;width:40%;"></div>'
+      + '</div></div>'
+      + '<div style="display:flex;gap:8px;">'
+      + '<div class="wh-cs" style="flex:1;height:34px;border-radius:8px;"></div>'
+      + '<div class="wh-cs" style="flex:1;height:34px;border-radius:8px;"></div>'
+      + '</div></div>';
+  } else {
+    card = '<div class="wh-cardskel-card">'
+      + '<div class="wh-cs" style="height:160px;border-radius:0;"></div>'
+      + '<div style="padding:0.875rem;">'
+      + '<div class="wh-cs" style="height:13px;width:80%;margin-bottom:8px;"></div>'
+      + '<div class="wh-cs" style="height:11px;width:50%;margin-bottom:12px;"></div>'
+      + '<div style="display:flex;justify-content:space-between;">'
+      + '<div class="wh-cs" style="height:22px;width:55px;border-radius:999px;"></div>'
+      + '<div class="wh-cs" style="height:26px;width:55px;border-radius:8px;"></div>'
+      + '</div></div></div>';
+  }
+  var html = '<div class="wh-cardskel" aria-busy="true" aria-live="polite">';
+  for (var i = 0; i < count; i++) html += card;
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// whFreshnessChip — the SYSTEM-STATUS component (rubric G1), extracted 2026-07-15
+// ─────────────────────────────────────────────────────────────────────────────
+// Rubric G1 (visibility of system status) failed on 28/32 family pages, and the ruler
+// was over-reporting it: `[class*="status"]` matched `.status-badge` (an ASSET's status,
+// i.e. DATA), so pages "passed" for rendering "Overdue". Real G1 = telling the user how
+// FRESH what they're looking at is — analytics' "Updated 6 min ago" bar was the only
+// genuine instance. This EXTRACTS that pattern so any page adopts it in one call, instead
+// of the family re-inventing 28 freshness bars (the §10 component-adoption thesis, applied).
+//
+//   whFreshnessChip('#my-anchor', tsMillis)   // or pass the element
+//
+// role="status" + aria-live="polite" make it announce to a screen reader WITHOUT stealing
+// focus; the dot goes amber past an hour (stale). i18n via the shared _t. Self-contained —
+// no page CSS needed. Call again on each refresh to re-stamp the time.
+function whFreshnessChip(target, tsMillis, opts) {
+  opts = opts || {};
+  var el = (typeof target === 'string') ? document.querySelector(target) : target;
+  if (!el) return;
+  var _tt = (typeof window._t === 'function') ? window._t : function (en) { return en; };
+  if (!tsMillis) { el.textContent = ''; el.removeAttribute('role'); return; }
+  // ★THE CHIP MUST TICK OR IT LIES. A page that fetches once at open and never re-stamps
+  // would show "Updated just now" forever — false after an hour. Each stamped element
+  // remembers its timestamp and ONE shared 60s interval re-renders all of them, so the
+  // text ("6 min ago") and the stale dot stay TRUE without any page writing a loop.
+  // Pages with a real refresh cycle (alert-hub's 60s loadAll) simply re-stamp: the new
+  // timestamp overwrites the old and the tick keeps counting from there.
+  el.__whFreshTs = tsMillis;
+  el.__whFreshOpts = { suffix: opts.suffix };
+  if (!window.__whFreshTick) {
+    window.__whFreshTick = setInterval(function () {
+      var chips = document.querySelectorAll('[role="status"]');
+      for (var i = 0; i < chips.length; i++) {
+        if (chips[i].__whFreshTs) whFreshnessChip(chips[i], chips[i].__whFreshTs, chips[i].__whFreshOpts);
+      }
+    }, 60000);
+  }
+  // getTime() is used instead of Date.now() so the caller controls "now" (testable, and
+  // the workflow-script Date.now() ban never bites a page — pages may use it freely, but
+  // keeping the arithmetic caller-supplied makes this unit-testable).
+  var nowMs = (typeof opts.nowMs === 'number') ? opts.nowMs : new Date().getTime();
+  var mins = Math.round((nowMs - tsMillis) / 60000);
+  var when = mins < 1 ? _tt('just now', 'ngayon lang')
+    : mins < 60 ? _tt(mins + ' min ago', mins + ' min ang nakalipas')
+    : _tt(Math.round(mins / 60) + 'h ago', Math.round(mins / 60) + ' oras ang nakalipas');
+  var stale = mins > 60;
+  // opts.suffix lets a page keep its own trailing note (e.g. "· Auto-refresh every minute")
+  // while still routing freshness through this component for role=status + i18n + the dot.
+  // escHtml it — a page might pass user-influenced text — reusing the shared escaper.
+  var esc = (typeof window.escHtml === 'function') ? window.escHtml : function (x) { return x; };
+  var suffix = opts.suffix ? ' <span class="wh-fresh-suffix">' + esc(opts.suffix) + '</span>' : '';
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+  el.innerHTML =
+    '<span class="wh-fresh-dot" aria-hidden="true" style="width:8px;height:8px;border-radius:50%;'
+    + 'display:inline-block;margin-right:6px;background:' + (stale ? 'var(--wh-orange)' : '#4ade80') + ';"></span>'
+    + '<span class="wh-fresh-txt" style="font-size:0.72rem;color:rgba(255,255,255,0.6);">'
+    + _tt('Updated', 'Na-update') + ' ' + when + suffix + '</span>';
+}
+if (typeof window !== 'undefined') window.whFreshnessChip = whFreshnessChip;
+
+// whFreshnessFooter — the ONE-LINE adoption path for the family (roadmap F3).
+// Creates (once) a right-aligned footer meta line at the end of .page and stamps it via
+// whFreshnessChip. A page adopts G1 by calling this at the END of its real data-load —
+// never at DOMContentLoaded, which would claim "Updated just now" even when the fetch
+// FAILED (a lying chip is worse than no chip; same honesty bar as the tick).
+// Re-calling on a refresh cycle re-stamps. Uniform placement = family resemblance (class R).
+function whFreshnessFooter(opts) {
+  var host = document.querySelector('.page') || document.querySelector('main') || document.body;
+  if (!host) return;
+  var el = document.getElementById('wh-fresh-footer');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'wh-fresh-footer';
+    el.style.cssText = 'font-size:.62rem;text-align:right;margin-top:16px;';
+    host.appendChild(el);
+  }
+  whFreshnessChip(el, new Date().getTime(), opts || {});
+}
+if (typeof window !== 'undefined') window.whFreshnessFooter = whFreshnessFooter;
+
+// whCapRows — progressive disclosure for long tables (rubric A3, FAMILY roadmap F3).
+// A3 failed on 31/32 pages for the same reason: every long table renders ALL rows at
+// once (Miller/Hick: the reader pays for every row whether they need it or not). This
+// caps a table at `max` rows behind a "Show all N" toggle — the analytics show-all
+// pattern extracted as a shared organism. HONESTY BAR: call it only on tables whose
+// rows are REAL overflow (the component no-ops under max+3 rows so a 9-row table isn't
+// hidden behind a pointless click — a disclosure with nothing to disclose is decoration).
+// aria-expanded mirrors state (same WCAG 4.1.2 rule as the analytics toggles).
+function whCapRows(tableEl, max) {
+  if (!tableEl) return;
+  max = max || 8;
+  var rows = tableEl.querySelectorAll('tbody tr');
+  if (rows.length <= max + 2) return;             // not real overflow — no-op
+  if (tableEl.__whCapped) return;                 // idempotent across re-renders
+  tableEl.__whCapped = true;
+  var _tt = (typeof window._t === 'function') ? window._t : function (en) { return en; };
+  for (var i = max; i < rows.length; i++) rows[i].hidden = true;
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'showall-toggle';
+  btn.setAttribute('aria-expanded', 'false');
+  btn.style.cssText = 'display:block;width:100%;margin-top:8px;min-height:44px;background:rgba(255,255,255,0.04);'
+    + 'border:1px solid rgba(255,255,255,0.1);border-radius:var(--wh-radius-sm);color:rgba(255,255,255,0.7);'
+    + 'font-family:inherit;font-size:0.75rem;font-weight:600;cursor:pointer;';
+  var more = rows.length - max;
+  var labelAll  = _tt('Show all ' + rows.length + ' ↓', 'Ipakita lahat ng ' + rows.length + ' ↓');
+  var labelLess = _tt('Show less ↑', 'Ipakita ang mas kaunti ↑');
+  btn.textContent = labelAll;
+  btn.addEventListener('click', function () {
+    var open = btn.getAttribute('aria-expanded') === 'true';
+    for (var i = max; i < rows.length; i++) rows[i].hidden = open;
+    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    btn.textContent = open ? labelAll : labelLess;
+  });
+  tableEl.insertAdjacentElement('afterend', btn);
+}
+if (typeof window !== 'undefined') window.whCapRows = whCapRows;
+
+// AUTO-STAMP on successful data reads (G1 at family scale). Per-page call-site
+// archaeology proved unreliable — pages boot through heterogeneous paths (an IIFE, a
+// DOMContentLoaded handler, a tab switch, a restore flow), and stamping the wrong one
+// means the chip never renders (measured: 5 of 19 first-pass adoptions missed the real
+// boot path). Every page's data DOES flow through fetch() to the Supabase REST API, so
+// ONE wrapper stamps on any SUCCESSFUL data response:
+//   - fires only on response.ok  -> a failed fetch never claims "Updated" (the honesty bar);
+//   - debounced 800ms            -> a burst of parallel reads stamps once;
+//   - "last successful read" IS the freshness fact the chip reports — true by construction.
+// Explicit per-page whFreshnessFooter() calls still work and simply re-stamp the same el.
+(function whFreshnessAutoStamp() {
+  if (typeof window === 'undefined' || !window.fetch || window.__whFreshHooked) return;
+  window.__whFreshHooked = true;
+  var origFetch = window.fetch;
+  var t = null;
+  window.fetch = function () {
+    var p = origFetch.apply(this, arguments);
+    try {
+      var url = String(arguments[0] && arguments[0].url || arguments[0] || '');
+      if (/\/rest\/v1\/|\/functions\/v1\/|supabase/.test(url)) {
+        p.then(function (res) {
+          if (res && res.ok) {
+            clearTimeout(t);
+            t = setTimeout(function () {
+              try { whFreshnessFooter(); } catch (_) { /* empty-catch-allow: stamp is best-effort chrome */ }
+            }, 800);
+          }
+        }).catch(function () { /* empty-catch-allow: observer only — never affect the caller's promise */ });
+      }
+    } catch (_) { /* empty-catch-allow: URL parse is best-effort */ }
+    return p;
+  };
+})();
 function whListError(el, message, onRetry) {
   if (!el) return;
   var e = escHtml;
@@ -538,6 +964,26 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
   (document.head || document.documentElement).appendChild(whListStatesCss);
 }
 
+// Arc P · FUSION 5: the .wh-method disclosure emitted by renderSourceChip() (methodology
+// collapsed under a "How this is computed" toggle). Injected here so it reaches EVERY page
+// that loads utils.js — components.css is <link>-ed on only ~12 pages, so a CSS-file-only
+// rule would miss the Tailwind pages (pm-scheduler/inventory/skillmatrix). ONE source of truth.
+if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')) {
+  var whMethodCss = document.createElement('style');
+  whMethodCss.id = 'wh-method-css';
+  whMethodCss.textContent =
+    '.wh-method{margin:2px 0 0;font-size:.62rem;line-height:1.4}' +
+    // 44px-tall tap zone (mobile-maestro floor) but visually a single small caption line;
+    // marker hidden, replaced by an ⓘ so it reads as an info toggle, not a code affordance.
+    '.wh-method>summary{display:flex;align-items:center;gap:5px;min-height:44px;cursor:pointer;list-style:none;color:rgba(255,255,255,0.6);font-weight:600;user-select:none}' +
+    '.wh-method>summary::-webkit-details-marker{display:none}' +
+    '.wh-method>summary::before{content:"\\24D8";font-weight:400;opacity:.75}' +
+    '.wh-method>summary:hover,.wh-method[open]>summary{color:rgba(255,255,255,0.85)}' +
+    '.wh-method>ul{margin:0 0 6px;padding:0 0 0 18px;color:rgba(255,255,255,0.55);line-height:1.5}' +
+    '.wh-method>ul>li{margin:1px 0}';
+  (document.head || document.documentElement).appendChild(whMethodCss);
+}
+
 // STREAMLINE E4: the brand palette is NOT injected from JS — it lives in
 // tokens.css, which every page <link>s in <head> (directly, or via components.css
 // which @imports it). A static render-blocking <link> can't FOUC the way a late
@@ -565,22 +1011,40 @@ function whFmtNum(n, dp) {
 }
 function whFmtDate(d, opts) {
   var dt = (d instanceof Date) ? d : new Date(d);
-  if (isNaN(dt.getTime())) return '—';
+  if (isNaN(dt.getTime())) return '-';
   opts = opts || {};
   var fmt = { year: 'numeric', month: opts.long ? 'long' : 'short', day: 'numeric', timeZone: 'Asia/Manila' };
+  if (opts.year === false) delete fmt.year; // compact variant: same-week/shift contexts where the year is noise
+  if (opts.weekday) fmt.weekday = opts.weekday; // 'short' | 'long'
   if (opts.time) { fmt.hour = '2-digit'; fmt.minute = '2-digit'; }
+  if (opts.timeOnly) fmt = { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }; // clock-only variant
+  if (opts.hour12 != null) fmt.hour12 = opts.hour12;
   return dt.toLocaleString('en-PH', fmt);
 }
 function whFmtDuration(value, unit) {
   var v = Number(value);
-  if (!isFinite(v)) return '—';
+  if (!isFinite(v)) return '-';
   unit = unit || 'days';
   var singular = (Math.abs(v) === 1) ? unit.replace(/s$/, '') : unit;
   return whFmtNum(v) + ' ' + singular;
 }
+// whFmtAgo — canonical relative time ("just now" / Nm / Nh / Nd ago). Lifted 2026-07-17
+// from 8 byte-equivalent page-local copies (hive/marketplace×4/audit-log/achievements/
+// agentic-rag/alert-hub/asset-hub timeAgo·whenAgo·fmtRelative) — FULLSTACK_COMPONENT_LIBRARY
+// FD1e. Page locals now DELEGATE here; keep their names, one source of truth for the math.
+function whFmtAgo(d) {
+  var dt = (d instanceof Date) ? d : new Date(d);
+  if (!d || isNaN(dt.getTime())) return '';
+  var s = (Date.now() - dt.getTime()) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago';
+}
 if (typeof window !== 'undefined') {
   window.whFmtPeso = whFmtPeso; window.whFmtNum = whFmtNum;
   window.whFmtDate = whFmtDate; window.whFmtDuration = whFmtDuration;
+  window.whFmtAgo = whFmtAgo;
 }
 
 // ─────────────────────────────────────────────
@@ -597,9 +1061,27 @@ if (typeof window !== 'undefined') {
 //          - title set  -> returns a titled .oh-card with an "All assets →" link
 //          - title unset -> returns the bare rows (for embedding in an existing card)
 // Returns an HTML string (caller assigns to el.innerHTML), like renderSourceChip.
+// Severity badge for the shared strips. The class alone was emitted for months with
+// NO stylesheet anywhere defining it, so the chips inherited the parent <a>'s UA
+// link-blue (rgb(0,0,238) — 1.24:1 on the card). Styles live inline like the rest
+// of these renderers; text colors are the -300 tints that clear WCAG AA on dark.
+function whOhBadge(lvl, text) {
+  var c = {
+    critical: ['rgba(252,165,165,0.16)', '#FECACA'],
+    high:     ['rgba(253,186,116,0.16)', '#FDBA74'],
+    medium:   ['rgba(253,224,71,0.14)',  '#FDE047'],
+    low:      ['rgba(134,239,172,0.14)', '#86EFAC'],
+  }[String(lvl || '').toLowerCase()] || ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.75)'];
+  return '<span class="oh-badge oh-badge-' + escHtml(String(lvl || '')) + '" style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .45rem;border-radius:999px;background:' + c[0] + ';color:' + c[1] + ';white-space:nowrap;">' + escHtml(String(text == null ? lvl : text)) + '</span>';
+}
+
 function renderRiskStrip(rows, opts) {
   opts = opts || {};
   var e = escHtml;
+  // N1 i18n: safe translator — uses the host page's window._t when present (home/hive have the
+  // EN/FIL toggle), else a pass-through so the ~18 pages without i18n never break. risk_level
+  // badges + MTBF stay as standard technical terms (acceptable in EN, like the plain-language gate).
+  var _tt = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
   var limit = opts.limit || 3;
   var list = (rows || []).slice(0, limit);
   if (!list.length) return '';
@@ -610,7 +1092,7 @@ function renderRiskStrip(rows, opts) {
     var lvl  = String(r.risk_level || '').toLowerCase();
     return '<a href="' + e(href) + '" class="wh-risk-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
-      +     '<span class="oh-badge oh-badge-' + e(lvl) + '">' + e(r.risk_level) + '</span>'
+      +     whOhBadge(lvl, r.risk_level)
       +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(r.asset_name) + '</span>'
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
@@ -624,7 +1106,7 @@ function renderRiskStrip(rows, opts) {
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #f87171;">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
     +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#f87171;margin:0;">' + e(opts.title) + '</p>'
-    +     '<a href="asset-hub.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">All assets &#8594;</a>'
+    +     '<a href="asset-hub.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
     +   '</div>' + inner + '</div>';
 }
 if (typeof window !== 'undefined') window.renderRiskStrip = renderRiskStrip;
@@ -662,12 +1144,12 @@ function renderPmDueStrip(rows, opts) {
     var href = 'pm-scheduler.html?asset=' + encodeURIComponent(name);
     return '<a href="' + e(href) + '" class="wh-pmdue-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
-      +     '<span class="oh-badge oh-badge-' + e(badge) + '">' + (over ? 'OVERDUE' : 'DUE') + '</span>'
+      +     whOhBadge(badge, over ? 'OVERDUE' : 'DUE')
       +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
       +     (crit ? '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(crit) + '</span>' : '')
-      +     '<span style="font-size:.68rem;font-weight:700;color:' + (over ? '#f87171' : '#F7A21B') + ';white-space:nowrap;">' + e(status) + '</span>'
+      +     '<span style="font-size:.68rem;font-weight:700;color:' + (over ? '#FCA5A5' : '#FDB94A') + ';white-space:nowrap;">' + e(status) + '</span>'
       +   '</div>'
       + '</a>';
   }).join('');
@@ -685,6 +1167,34 @@ function renderPmDueStrip(rows, opts) {
 if (typeof window !== 'undefined') window.renderPmDueStrip = renderPmDueStrip;
 
 // ─────────────────────────────────────────────
+// whStockSeverity — ONE canonical stock-state classifier (ASSET_ALERT_SHIFT reuse discipline)
+// ─────────────────────────────────────────────
+// Single source of truth for "how at-risk is this inventory row", reading the CANONICAL
+// v_inventory_items_truth flags (is_out_of_stock / is_critical_low / is_low_stock) that
+// migration 20260510000003 built expressly "so the same threshold logic does not get
+// reimplemented across 10+ pages". Falls back to qty/reorder arithmetic only when the flags
+// are absent (a non-canonical row). renderPartsStrip AND alert-hub's stock composer both call
+// this so the low-stock band can never drift between the shift-brain strip and the alert inbox.
+//   row : inventory-shaped; reads is_out_of_stock/is_critical_low/is_low_stock, qty_on_hand,
+//         reorder_point (or min_qty as fallback).
+//   returns { state:'out'|'critical_low'|'low'|'ok', severity:'critical'|'high'|'medium'|null,
+//             label:'OUT'|'LOW'|null, atRisk:bool }
+function whStockSeverity(row) {
+  row = row || {};
+  var qty = Number(row.qty_on_hand);
+  var rpRaw = (row.reorder_point != null) ? row.reorder_point : row.min_qty;
+  var rp = Number(rpRaw);
+  var hasRp = !isNaN(rp) && rp > 0;
+  var out  = (row.is_out_of_stock === true) || (!isNaN(qty) && qty <= 0);
+  var crit = (row.is_critical_low === true) || (hasRp && !isNaN(qty) && qty <= rp / 2);
+  var low  = (row.is_low_stock === true) || (hasRp && !isNaN(qty) && qty <= rp);
+  if (out)  return { state: 'out',          severity: 'critical', label: 'OUT', atRisk: true };
+  if (crit) return { state: 'critical_low', severity: 'high',     label: 'LOW', atRisk: true };
+  if (low)  return { state: 'low',          severity: 'medium',   label: 'LOW', atRisk: true };
+  return { state: 'ok', severity: null, label: null, atRisk: false };
+}
+if (typeof window !== 'undefined') window.whStockSeverity = whStockSeverity;
+
 // renderPartsStrip — ONE shared parts-action list (STREAMLINE F3)
 // ─────────────────────────────────────────────
 // One renderer for an urgency-ranked parts list (out-of-stock first, then low /
@@ -710,9 +1220,12 @@ function renderPartsStrip(rows, opts) {
   if (!list.length) return '';
   var rowsHtml = list.map(function (r) {
     var qty = Number(r.qty_on_hand) || 0, mn = Number(r.min_qty) || 0;
-    var out = (r.is_out_of_stock === true) || qty <= 0;
+    // Canonical-reuse: classify through the shared whStockSeverity (same source alert-hub uses),
+    // so the parts band can't diverge between this strip and the alert inbox.
+    var st = whStockSeverity(r);
+    var out = st.state === 'out';
     var badge = out ? 'critical' : 'high';
-    var label = out ? 'OUT' : 'LOW';
+    var label = st.label || (out ? 'OUT' : 'LOW');
     var name = r.part_name || 'part';
     var meta = 'on hand ' + qty + ' / min ' + mn;
     // Arc X A1: deep-link to the NAMED part (inventory.html reads ?q= -> filters +
@@ -720,7 +1233,7 @@ function renderPartsStrip(rows, opts) {
     var href = 'inventory.html?q=' + encodeURIComponent(r.part_name || '');
     return '<a href="' + e(href) + '" class="wh-parts-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
-      +     '<span class="oh-badge oh-badge-' + e(badge) + '">' + label + '</span>'
+      +     whOhBadge(badge, label)
       +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
       +   '</div>'
       +   '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0;">' + e(meta) + '</span>'
@@ -939,7 +1452,7 @@ function renderKpiTile(opts) {
     green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: '#4ade80',  label: '✓ Healthy'  },
     yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: '#F7A21B',  label: '⚠ Watch'    },
     red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: '#f87171',  label: '✗ Critical' },
-    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.4)', label: '— No data' },
+    grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.6)', label: 'No data' },
   };
   const c   = COLORS[opts.color] || COLORS.grey;
   const id  = opts.tileId || `kpi-${_whKpiTileId++}`;
@@ -947,27 +1460,41 @@ function renderKpiTile(opts) {
   const detail = opts.detail || '';
   const legend = opts.legend || '';
 
+  // The tile's title is the card's HEADING: without it a screen-reader user has no
+  // way to navigate a page of KPI cards (and axe cannot catch this -- heading-order
+  // has nothing to fail on when there are no headings at all). An <h2> may not live
+  // INSIDE a <button> (phrasing content only), so the heading WRAPS the button --
+  // the ARIA Authoring Practices accordion pattern. Margins zeroed = pixel-identical.
   return `<div class="card" style="border-left:3px solid ${c.border};margin-bottom:1rem;">
+    <h2 style="margin:0;font:inherit;color:inherit;">
     <button class="kpi-toggle" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="min-height:${detail ? '72px' : '0'};">
       <div style="flex:1;text-align:left;">
-        <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
+        <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
           ${escHtml(opts.title || '')} <span style="font-size:0.58rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
         </div>
         <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.15rem;">
-          <span style="font-size:1.9rem;font-weight:800;line-height:1;color:${c.text};">${escHtml(String(opts.value === undefined ? '—' : opts.value))}</span>
-          <span style="font-size:0.78rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit || '')}</span>
+          <!-- 1.5rem == the canonical KPI tier (.sc-hero in components.css). This tile
+               rendered 1.9rem, a THIRD size for the same concept, which inverted the
+               hierarchy on analytics: the DETAIL card values (30px) shouted louder than
+               the SUMMARY roll-up (24px) and the page h1 (22px) -- "biggest = most
+               important" backwards, and 3 "big" sizes where the rule allows 2. A KPI
+               number is ONE tier whether it sits in a summary tile or a result card;
+               .simple-card.hero is the deliberate second tier for the ONE key metric. -->
+          <span style="font-size:1.5rem;font-weight:800;line-height:1.15;color:${c.text};font-variant-numeric:tabular-nums;">${escHtml(String(opts.value === undefined ? '-' : opts.value))}</span>
+          <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">${escHtml(opts.unit || '')}</span>
         </div>
-        ${opts.sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.38);">${escHtml(opts.sublabel)}</div>` : ''}
+        ${opts.sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.6);">${escHtml(opts.sublabel)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;margin-left:0.75rem;">
         <span style="font-size:0.63rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;">${c.label}</span>
         ${detail ? `<span class="kpi-chevron${autoOpen ? ' open' : ''}" id="${id}-chevron">▼</span>` : ''}
       </div>
     </button>
+    </h2>
     ${detail ? `
       <div class="kpi-detail${autoOpen ? ' open' : ''}" id="${id}" style="border-top:1px solid rgba(255,255,255,0.06);">
         ${detail}
-        ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
+        ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
       </div>` : ''}
   </div>`;
 }
@@ -1017,7 +1544,7 @@ function renderCompactStat(opts) {
       `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.6);">${escHtml(opts.label || '')}</span>` +
       `<span style="display:flex;align-items:baseline;gap:0.25rem;">` +
         (opts.icon ? `<span style="font-size:0.85rem;">${escHtml(opts.icon)}</span>` : '') +
-        `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '—' : opts.value))}</span>` +
+        `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '-' : opts.value))}</span>` +
         (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit)}</span>` : '') +
       `</span>` +
       (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.6);">${escHtml(opts.sublabel)}</span>` : '') +
@@ -1177,6 +1704,47 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),' +
                   'select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
+  // ─────────────────────────────────────────────
+  // whToggleAria — canonical toggle-state announcer (Arc U, WCAG 4.1.2)
+  // ─────────────────────────────────────────────
+  // Toggleable filter/tab buttons flip an `.active` class but say nothing to a
+  // screen reader — `aria-pressed` is what announces "pressed/not pressed". Rather
+  // than hand-add it to every button on every page, this ONE shared helper (utils.js
+  // is the 31/32 shared surface) sets aria-pressed from `.active` at init AND observes
+  // class changes so a toggle stays announced. Genuinely correct: a screen reader
+  // reads the RUNTIME DOM. Managed classes = the ones the a11y gate knows as toggleables.
+  window.WH_TOGGLE_CLASSES = ['filter-chip', 'tab-btn', 'reaction-btn', 'phase-tab', 'view-tab'];
+  function whToggleAria(root) {
+    if (typeof document === 'undefined') return;
+    root = root || document;
+    var sel = window.WH_TOGGLE_CLASSES.map(function (c) { return 'button.' + c + ', .' + c + '[role="button"]'; }).join(', ');
+    var btns = root.querySelectorAll(sel);
+    if (!btns.length) return;
+    var sync = function (el) {
+      // radio-style tabs use aria-selected; toggle chips use aria-pressed. Default to pressed.
+      var attr = (el.getAttribute('role') === 'tab') ? 'aria-selected' : 'aria-pressed';
+      el.setAttribute(attr, el.classList.contains('active') ? 'true' : 'false');
+    };
+    btns.forEach(sync);
+    // observe .active flips so the announced state tracks the visual state
+    if (!window.__whToggleObs) {
+      window.__whToggleObs = new MutationObserver(function (muts) {
+        muts.forEach(function (m) {
+          if (m.type === 'attributes' && m.attributeName === 'class') {
+            var el = m.target;
+            if (window.WH_TOGGLE_CLASSES.some(function (c) { return el.classList && el.classList.contains(c); })) sync(el);
+          }
+        });
+      });
+      window.__whToggleObs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+  }
+  window.whToggleAria = whToggleAria;
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { whToggleAria(); });
+    else whToggleAria();
+  }
+
   window.whModalA11y = function whModalA11y(modalEl, opts) {
     if (!modalEl || modalEl.__whModalA11y) return null;   // null el or already wired
     opts = opts || {};
@@ -1190,14 +1758,20 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     var lastFocus = null, keyBound = false;
 
     function isOpen() {
-      if (modalEl.classList.contains('hidden')) return false;
+      var cs = window.getComputedStyle(modalEl);
+      // A retained `.hidden` class means CLOSED only when the COMPUTED style agrees.
+      // logbook's 7 hand-rolled modals open via an inline `style.display:flex` that
+      // OVERRIDES a `.hidden` class they never remove — visually open, but keying off
+      // the class ALONE false-negatived isOpen(), so the ESC-close + Tab focus-trap +
+      // focus-restore never armed (the retrofit silently no-op'd). Gate the class on the
+      // computed display so an inline-override is correctly seen as open. (2026-07-13)
+      if (modalEl.classList.contains('hidden') && cs.display === 'none') return false;
       // .sheet content panels (marketplace/community) slide via transform and
       // toggle a .open class; when closed they stay display:block + pointer-
       // events:auto (just translated off-screen), so the generic checks below
       // can't see "closed". Treat a transform-slide .sheet without .open as
       // closed, else whModalA11y would trap focus on page load. (2026-06-09)
       if (modalEl.classList.contains('sheet') && !modalEl.classList.contains('open')) return false;
-      var cs = window.getComputedStyle(modalEl);
       if (cs.display === 'none' || cs.visibility === 'hidden') return false;
       // Opacity/pointer-events open pattern (skillmatrix .modal-overlay,
       // marketplace/community .sheet-overlay, founder-console .fb-drawer-backdrop):
@@ -1226,7 +1800,12 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
         try { closer = modalEl.querySelector('[data-wh-close],[aria-label="Close" i],.modal-close,.sheet-close'); }
         catch (_) { /* empty-catch-allow: querySelector case-flag unsupported */ }
         if (closer) closer.click();
-        else modalEl.classList.add('hidden');
+        // No close affordance (e.g. a sheet whose content — and its Close button —
+        // is injected on open, opened here while empty): close by the overlay's OWN
+        // open-state class so it can't get stuck open. .sheet-overlay opens via
+        // `.open`; some modals via `.active`/`.show`; display-toggle modals via
+        // `.hidden`. Strip the open-state classes AND add .hidden — universal close.
+        else { modalEl.classList.remove('open', 'active', 'show'); modalEl.classList.add('hidden'); }
       } else if (e.key === 'Tab') {
         var f = focusables();
         if (!f.length) return;
@@ -1261,6 +1840,48 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     if (isOpen()) activate();   // already-open at wire time
     return { activate: activate, deactivate: deactivate };
   };
+
+  // ─────────────────────────────────────────────
+  // whSheetA11y — auto-wire the shared modal a11y to every bottom-sheet / overlay
+  // ─────────────────────────────────────────────
+  // The sheet/overlay focus-trap + Escape-close + focus-restore behaviour is ONE
+  // shared primitive (whModalA11y above). Rather than each page calling it per
+  // overlay, this finds every `.sheet-overlay` / `.modal-overlay` and wires it once,
+  // and watches for overlays injected later. Idempotent — whModalA11y guards with
+  // __whModalA11y, and only arms the trap when the overlay is actually open. This is
+  // the Arc-U (WCAG 2.1.2 No-Keyboard-Trap-escape / 2.4.3 Focus-Order) shared lever.
+  function whSheetA11y(root) {
+    if (typeof document === 'undefined' || !window.whModalA11y) return;
+    root = root || document;
+    var els = root.querySelectorAll('.sheet-overlay, .modal-overlay');
+    Array.prototype.forEach.call(els, function (el) {
+      try { window.whModalA11y(el); } catch (_) { /* empty-catch-allow */ }
+    });
+  }
+  window.whSheetA11y = whSheetA11y;
+  if (typeof document !== 'undefined') {
+    var _wireSheets = function () {
+      whSheetA11y();
+      if (!window.__whSheetObs && document.body) {
+        window.__whSheetObs = new MutationObserver(function (muts) {
+          for (var i = 0; i < muts.length; i++) {
+            var added = muts[i].addedNodes;
+            for (var j = 0; j < added.length; j++) {
+              var n = added[j];
+              if (!n || n.nodeType !== 1) continue;
+              if (n.matches && n.matches('.sheet-overlay, .modal-overlay')) {
+                try { window.whModalA11y(n); } catch (_) { /* empty-catch-allow */ }
+              }
+              if (n.querySelectorAll) whSheetA11y(n);
+            }
+          }
+        });
+        window.__whSheetObs.observe(document.body, { childList: true, subtree: true });
+      }
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _wireSheets);
+    else _wireSheets();
+  }
 })();
 
 // The modal mounts on document.body (so it works on any page without
@@ -1528,6 +2149,8 @@ function logEvent(db, eventName, props) {
     };
     // Try to attach auth_uid if a session exists - non-blocking.
     const insert = function () {
+      /* attribution-allow: auth_uid is set dynamically at payload.auth_uid = session.user.id
+         (getSession callback below) before this insert fires; statically invisible to the gate. */
       db.from('analytics_events').insert(payload).then(function (r) {
         if (r && r.error) console.warn('logEvent:', r.error.message);
       });
@@ -1602,13 +2225,16 @@ async function isPlatformAdmin(db) {
 // Achievement tier system
 // ─────────────────────────────────────────────
 
+// tier.color is used as small TEXT ("Iron Technician" chip) as well as ring/tint —
+// each value must clear WCAG AA 4.5:1 on the dark tints. Iron #7B8794 measured
+// 3.08 and Bronze #CD7F32 2.6–3.3 as text (2026-07-16); lightened same-hue.
 const ACHIEVEMENT_TIERS = [
   { id: 'legend',   min: 91, color: '#F7A21B', label: 'Legend'   },
-  { id: 'platinum', min: 76, color: '#29B6D9', label: 'Platinum' },
+  { id: 'platinum', min: 76, color: '#5FCCE8', label: 'Platinum' },
   { id: 'gold',     min: 51, color: '#F7A21B', label: 'Gold'     },
   { id: 'silver',   min: 26, color: '#94A3B8', label: 'Silver'   },
-  { id: 'bronze',   min: 11, color: '#CD7F32', label: 'Bronze'   },
-  { id: 'iron',     min:  0, color: '#7B8794', label: 'Iron'     },
+  { id: 'bronze',   min: 11, color: '#E8B27A', label: 'Bronze'   },
+  { id: 'iron',     min:  0, color: '#A9B6C4', label: 'Iron'     },
 ];
 
 function getWorkerTier(topLevel) {
@@ -1828,3 +2454,140 @@ function whPoll(loadFn, intervalMs, opts) {
   };
 }
 if (typeof window !== 'undefined') { window.whPoll = whPoll; }
+
+// ── whRealtimeSubscribe — Q5 (2026-07-05): per-client channel CAP + graceful poll degrade ──
+// GROUNDED (Step 0, VERIFIED not memory): Supabase FREE tier = **200 concurrent realtime
+// connections PLATFORM-WIDE** — far tighter than the ~10K the whPoll note assumed. That 200 is
+// shared across ALL users (like the LLM org-pool), so one heavy client opening many channels
+// eats a disproportionate slice. This wrapper (a) bounds channels PER CLIENT (default 5 — a
+// single user rarely needs more live surfaces at once), and (b) gracefully DEGRADES overflow —
+// and offline — to whPoll, so a surface ALWAYS updates: live when there's headroom, polled when
+// there isn't. Composes the two existing primitives: rtConn (silent-freeze guard) + whPoll.
+// `buildChannel()` must return an UNSUBSCRIBED channel (e.g. supabase.channel(x).on(...)); this
+// calls .subscribe() so it can wrap the state callback.
+//   const h = whRealtimeSubscribe('alerts',
+//               () => supabase.channel('alerts:'+hive).on('postgres_changes', {...}, reload),
+//               reload, { pollMs: 20000 });
+//   // teardown: h.stop();
+var WH_MAX_CLIENT_CHANNELS = 5;   // per-client concurrent realtime cap (window/opts override)
+function whRealtimeSubscribe(name, buildChannel, reloadFn, opts) {
+  opts = opts || {};
+  var max = opts.max
+    || (typeof window !== 'undefined' && window.WH_MAX_CLIENT_CHANNELS)
+    || WH_MAX_CLIENT_CHANNELS;
+  var pollMs = opts.pollMs || 30000;
+  var reg = (typeof window !== 'undefined')
+    ? (window.__whChannels || (window.__whChannels = new Set()))
+    : (whRealtimeSubscribe._reg || (whRealtimeSubscribe._reg = new Set()));
+
+  function degradeToPoll(reason) {
+    var ph = whPoll(reloadFn, pollMs, { immediate: opts.immediate });
+    return { mode: 'poll', reason: reason, stop: function () { ph.stop(); }, refresh: ph.refresh };
+  }
+
+  // (a) per-client channel cap reached, or no builder -> poll (graceful degrade, surface still live-ish)
+  if (reg.size >= max) return degradeToPoll('cap');
+  if (typeof buildChannel !== 'function') return degradeToPoll('no-builder');
+
+  var channel, pollHandle = null;
+  try {
+    channel = buildChannel();
+    reg.add(channel);
+    // (b) offline -> spin up a poll fallback; recovered -> stop polling. rtConn guards the
+    // silent-freeze case where subscribe() never fires any status.
+    channel.subscribe(rtConn(function (state) {
+      if (state === 'offline' && !pollHandle) {
+        pollHandle = whPoll(reloadFn, pollMs, { immediate: false });
+      } else if (state === 'live' && pollHandle) {
+        pollHandle.stop(); pollHandle = null;
+      }
+      if (opts.onState) opts.onState(state);
+    }));
+  } catch (_e) {
+    if (channel) reg.delete(channel);
+    return degradeToPoll('subscribe-error');
+  }
+
+  return {
+    mode: 'realtime',
+    stop: function () {
+      reg.delete(channel);                       // free the per-client slot
+      if (pollHandle) { pollHandle.stop(); pollHandle = null; }
+      try {
+        if (typeof window !== 'undefined' && window.supabase && window.supabase.removeChannel) {
+          window.supabase.removeChannel(channel);
+        } else if (channel && channel.unsubscribe) {
+          channel.unsubscribe();
+        }
+      } catch (_e) { /* empty-catch-allow: teardown best-effort, never throw on cleanup */ }
+    },
+  };
+}
+if (typeof window !== 'undefined') {
+  window.whRealtimeSubscribe = whRealtimeSubscribe;
+  // Telemetry / graceful-429 signal: how many live channels this client currently holds.
+  window.__whChannelCount = function () { return (window.__whChannels && window.__whChannels.size) || 0; };
+}
+
+// ── Keyboard-a11y polyfill for mouse-only clickables (dim-8) ─────────────────────────────────
+// A `<div|span|li onclick=...>` with no role=button / no keyboard path is mouse-only: keyboard +
+// screen-reader users can't reach or activate it. Rather than retrofit dozens of elements by hand,
+// this upgrades EVERY such element (static + dynamically-rendered) to keyboard-operable: focusable,
+// announced as a button, and activated by Enter/Space. Progressive enhancement — it only matters
+// when JS is running, and the onclick it mirrors also needs JS, so keyboard reaches parity with mouse.
+(function whClickableKbdA11y() {
+  if (typeof document === 'undefined') return;
+  var CLICKABLE = 'div[onclick],span[onclick],li[onclick]';
+  var SKIP_ROLE = /^(button|tab|menuitem|link|checkbox|switch|option|radio|combobox)$/;
+  function enhance(el) {
+    if (!el || el.__whKbd || el.nodeType !== 1) return;
+    if (!el.hasAttribute('onclick')) return;
+    var role = el.getAttribute('role');
+    if (role && SKIP_ROLE.test(role)) return;                 // already an interactive role
+    if (el.hasAttribute('tabindex') && el.hasAttribute('onkeydown')) return; // author already handled it
+    // Skip containers whose real action is an INNER interactive control (adding role=button here
+    // would nest interactives + the inner control is already keyboard-accessible).
+    if (el.querySelector('a[href],button,input,select,textarea,[role="button"],[role="link"],[tabindex]')) return;
+    el.__whKbd = true;
+    el.classList.add('wh-kbd-a11y');   // gets the injected focus-visible ring (WCAG 2.4.7)
+    if (!role) el.setAttribute('role', 'button');
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    el.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target === el) { e.preventDefault(); el.click(); }
+    });
+  }
+  function injectFocusStyle() {
+    // Keyboard-focusable is only useful if focus is VISIBLE (WCAG 2.4.7). Guarantee a focus ring on
+    // the elements we upgrade, scoped to them (:focus-visible = keyboard focus only, not mouse click).
+    try {
+      if (document.getElementById('wh-kbd-a11y-style')) return;
+      var s = document.createElement('style');
+      s.id = 'wh-kbd-a11y-style';
+      s.textContent = '.wh-kbd-a11y:focus-visible{outline:2px solid var(--wh-orange,#F7A21B);outline-offset:2px;border-radius:4px;}';
+      (document.head || document.documentElement).appendChild(s);
+    } catch (_) { /* empty-catch-allow: best-effort a11y style injection; page works without it */ }
+  }
+  function scan(root) {
+    try { (root.querySelectorAll ? root.querySelectorAll(CLICKABLE) : []).forEach(enhance); } catch (_) { /* empty-catch-allow: best-effort a11y enhancement; never block a render */ }
+  }
+  function boot() {
+    injectFocusStyle();
+    scan(document);
+    try {
+      new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          var added = muts[i].addedNodes;
+          for (var j = 0; j < added.length; j++) {
+            var n = added[j];
+            if (n.nodeType !== 1) continue;
+            if (n.matches && n.matches(CLICKABLE)) enhance(n);
+            scan(n);
+          }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    } catch (_) { /* empty-catch-allow: MutationObserver unsupported; the initial scan still covers static markup */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  if (typeof window !== 'undefined') window.whEnhanceClickableA11y = scan;  // pages can re-scan after a manual render
+})();

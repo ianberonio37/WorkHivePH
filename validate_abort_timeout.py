@@ -3,7 +3,7 @@ AbortSignal Timeout Coverage -- WorkHive Platform
 ==================================================
 Catches outbound `fetch()` calls in edge functions that lack a timeout
 signal. Without `signal: AbortSignal.timeout(N)`, a slow / hung third
-party (OpenAI, Anthropic, Stripe, Resend) holds the edge function open
+party (OpenAI, Anthropic, Resend) holds the edge function open
 indefinitely. The function then times out at the platform level (60s for
 Supabase Edge), but during those 60 seconds it consumes a slot, blocks
 queue progress, and a frontend `await db.functions.invoke(...)` keeps
@@ -55,8 +55,6 @@ EXTERNAL_HOSTS = [
     r"api\.openai\.com",
     r"api\.anthropic\.com",
     r"api\.groq\.com",
-    r"api\.stripe\.com",
-    r"connect\.stripe\.com",
     r"api\.cerebras\.ai",
     r"api\.deepseek\.com",
     r"api\.resend\.com",

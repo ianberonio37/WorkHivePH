@@ -8,6 +8,21 @@
    gate FAILS if any token here is missing or re-valued. Pages reference these as
    var(--wh-orange) etc.; raw brand hex on the glass is ratcheted down by L3.
    ============================================================================ */
+/* ── Form-control typeface inheritance ──────────────────────────────────────
+   Browsers do NOT inherit font-family into form controls: the UA stylesheet hands
+   <button>/<input>/<select>/<textarea> its own default (Arial on Chrome/Windows).
+   So a page could load Poppins, render every heading in Poppins, and still draw
+   EVERY BUTTON in Arial -- measured live on alert-hub (40/40 buttons = Arial while
+   document.fonts.check('16px Poppins') === true), and the same root cause behind
+   analytics (7) and asset-hub (3). Nothing declared Arial anywhere; it is inherited
+   from the UA, which is why grepping the source finds nothing.
+   This lives in tokens.css because it is the ONE file every page reaches -- ~21 link
+   it directly in <head> and components.css @imports it for the other 11. Fixing it
+   per-page would be 47 edits that drift apart again, which is the very problem.
+   NN/g Heuristic #4: internal consistency across a family of products.
+   [external-consistency-and-standards-heuristic-internal-ext] */
+button, input, select, textarea, optgroup { font-family: inherit; }
+
 :root {
   --wh-orange:       #F7A21B;
   --wh-orange-dark:  #D88A0E;
@@ -19,5 +34,111 @@
   --wh-navy-mid:     #1F2E45;
   --wh-navy-light:   #2A3D58;
   --wh-steel:        #7B8794;
+  /* Muted label for DARK surfaces. --wh-steel is 3.3–3.9:1 on the wh-card
+     gradient (fails WCAG AA small-text); this value clears 4.5:1 on the
+     gradient's LIGHTEST stop while staying visibly quieter than --wh-cloud.
+     Keep --wh-steel itself for light surfaces (resume.html) where it passes. */
+  --wh-steel-bright: #A9B6C4;
+  /* Danger TEXT on dark tints. The #f87171/#FC5C5C family measures 3.4–4.3:1 on
+     the red-tinted card chips (fails AA small-text); red-300 clears 4.5:1 on
+     every dark tint in use. Borders/backgrounds keep the stronger reds. */
+  --wh-red-text:     #FCA5A5;
+  /* Violet accent TEXT on dark tints — #a78bfa measures 3.4–4.1:1 there. */
+  --wh-violet-text:  #C4B5FD;
   --wh-cloud:        #F4F6FA;
+
+  /* ── Brand RGB triplets — for rgba(var(--wh-*-rgb), a) ─────────────────── */
+  --wh-orange-rgb:   247, 162, 27;
+  --wh-blue-rgb:     41, 182, 217;
+
+  /* ── SHAPE vocabulary (moved up from components.css :root, 2026-07-15) ───
+     WHY THIS MOVED: colour was extracted here for the rebrand, but the SHAPE
+     tokens were left behind in components.css — which only 11 of 47 pages link
+     (6 inline their primitives instead). Measured live: hive, index, analytics
+     and pm-scheduler all resolved --wh-radius to EMPTY, so every one of them
+     hardcoded its own radii (analytics rendered SIX: 0/8/10/12/16/pill vs hive's
+     three). Conformance was structurally impossible — there was no token to
+     reference. tokens.css is <link>ed render-blocking by ~21 pages and @imported
+     by components.css, so it is the only reachable home for a platform-wide
+     vocabulary. NN/g Heuristic #4 (internal consistency across a family of
+     products) is enforceable only once every page can SEE the same vocabulary.
+     [external-consistency-and-standards-heuristic-internal-ext] */
+  /* Spacing — 8px grid (NN/g dashboard grid) */
+  --wh-space-1: 4px;  --wh-space-2: 8px;  --wh-space-3: 12px;
+  --wh-space-4: 16px; --wh-space-6: 24px; --wh-space-8: 32px;
+  /* Radius — the ONLY legal corner vocabulary; a pill uses 999px by SHAPE intent. */
+  --wh-radius-sm: 8px; --wh-radius: 12px; --wh-radius-lg: 16px; --wh-radius-pill: 999px;
+  /* Type */
+  --wh-font: 'Poppins', system-ui, -apple-system, sans-serif;
+  /* Control heights — one shape per control ROLE (rubric R3). */
+  --wh-control-h: 44px;
+  /* Elevation (Arc W · W1) — soft dark-mode shadows, black-based so they layer anywhere. */
+  --wh-shadow-1: 0 1px 2px rgba(0,0,0,0.20), 0 2px 6px rgba(0,0,0,0.16);
+  --wh-shadow-2: 0 4px 10px rgba(0,0,0,0.24), 0 8px 24px rgba(0,0,0,0.18);
+  --wh-shadow-3: 0 12px 32px rgba(0,0,0,0.34), 0 4px 12px rgba(0,0,0,0.22);
+  /* Surface-tint ladder (Material-3 tonal elevation: higher layer = lighter surface). */
+  --wh-elev-0: var(--wh-navy);       /* page base */
+  --wh-elev-1: var(--wh-navy-mid);   /* raised card / panel */
+  --wh-elev-2: var(--wh-navy-light); /* popover / menu floating above a card */
+  /* Card surface — measured drift: hive rgba(255,255,255,0.03) vs analytics
+     rgba(22,32,50,0.7) vs asset-hub rgb(31,46,69). One token, one surface. */
+  --wh-surface-card: rgba(255, 255, 255, 0.03);
+  /* z-scale — one ladder so overlays/modals/toasts stack predictably. */
+  --wh-z-base: 1; --wh-z-sticky: 100; --wh-z-overlay: 1000; --wh-z-modal: 1100; --wh-z-toast: 1200;
+
+  /* Muted TEXT on dark surfaces — the recurring "secondary label" colour. Measured
+     floor: alpha >= 0.62 clears WCAG AA on the wh-card gradient. This is the ONE home
+     for it; a page must reference the token / .wh-text-muted, never hardcode an alpha.
+     (2026-07-16: it had been hand-set inline on 19 pages before this token existed.) */
+  --wh-text-muted:  rgba(255, 255, 255, 0.62);
+  --wh-text-faint:  rgba(255, 255, 255, 0.72); /* slightly brighter — hints, captions on darker tints */
+
+}
+
+/* ── UTILITY CLASSES (2026-07-16) — the component layer the METHOD LAW mandates ─────
+   These retire per-page grind: a recurring pattern gets ONE class here instead of an
+   inline style hand-repeated across pages. tokens.css is the widest-reach stylesheet
+   (28 pages <link> it), so utilities live HERE, not in components.css (17 pages).
+   Adopt the class; never re-hardcode the value. See FAMILY_UFAI_ROADMAP.md THE METHOD LAW. */
+
+/* C2 — muted secondary text on dark surfaces (was inline on 19 pages). */
+.wh-text-muted { color: var(--wh-text-muted); }
+.wh-text-faint { color: var(--wh-text-faint); }
+
+/* C4 — tabular figures so digits sit on a fixed pitch in any column (was inline on 16 pages). */
+.wh-num { font-variant-numeric: tabular-nums; }
+
+/* R2 — no horizontal page scroll from off-screen decorations. The shared feedback FAB
+   panel hides via transform:translateX(100%) (off-screen right); on pages that don't set
+   their own overflow-x (inventory, audit-log) that extended document scrollWidth and failed
+   R2. `clip` (not hidden) clips the axis WITHOUT creating a scroll container, so it never
+   breaks position:sticky. One rule here protects all 28 tokens.css pages. */
+html, body { overflow-x: clip; }
+
+/* F1 / WCAG 2.5.8 — the tap-target floor. Both axes, because F1 fails on the MIN dim
+   (was inline min-height:44px hand-added on 12 pages). Inline-flex so short labels still
+   centre. Use on any control that renders below 44px from tight padding. */
+/* FC3 (FULLSTACK_COMPONENT_LIBRARY): canonical wide-content scroll wrapper — R2 overflow.
+   Wrap any table/board wider than a phone viewport; the WRAPPER scrolls, the page never does. */
+.wh-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+
+.wh-tap { min-height: var(--wh-control-h); min-width: var(--wh-control-h); display: inline-flex; align-items: center; justify-content: center; }
+/* height-only variant for full-width controls where min-width would break the layout. */
+.wh-tap-h { min-height: var(--wh-control-h); display: inline-flex; align-items: center; }
+
+/* I1 CLS — reserve the async goal-gradient strip's height so its 0->filled render
+   doesn't push content down (measured: it caused logbook 0.34 / inventory 0.20 CLS).
+   whProgressStrip settles at ~58px; reserving it is the shared CLS-stability fix. */
+.wh-progress-slot { min-height: 58px; }
+
+/* A2 (NN/g "chunking" / scannability) — the ONE shared section-heading style. Pages that
+   label their content regions only with tabs/captions read as one undifferentiated block;
+   a real <h2 class="wh-section-title"> gives each region a visible, semantic heading. The
+   STYLE lives here (centralised, no per-page drift — Ian's design-system thesis); only the
+   heading TEXT is per-page content, which is inherent. Eyebrow scale so it orients without
+   competing with the page <h1>. Was the ad-hoc sc-label/"Online now" caption on ~6 pages. */
+.wh-section-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  /* 0.5rem/8px bottom gap: on the 8-pt grid (R1). 0.6rem=9.6px rounds to 10px = off-scale. */
+  color: var(--wh-text-faint); margin: 0 0 0.5rem; line-height: 1.3;
 }

@@ -47,7 +47,11 @@ if sys.platform == "win32":
 ROOT = Path(__file__).resolve().parent.parent
 BASE = "http://127.0.0.1:54321"
 PYAPI = "http://127.0.0.1:8000"   # FastAPI compute API (TTS for the H4/F transcription round-trip)
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+# HIVE must be the hive the CREDS persona is an ACTIVE member of, else ai-gateway et al reject the
+# claimed hive_id with 403 tenancy_denied (index.ts ~L799). The seeder re-assigns memberships, so
+# this is derived, not guessed: leandromarquez is active supervisor of c19a6094 "Baguio Textile
+# Mills" (verified via hive_members 2026-07-08). A stale HIVE here 403s EVERY live probe.
+HIVE = "c19a6094-a0b7-44b4-b18d-05fdbcfe78fe"
 CREDS = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234"}
 REPORT = ROOT / "ai_live_invoke_results.json"
 
@@ -78,6 +82,33 @@ def _jwt(key: str):
             data=json.dumps(CREDS).encode(),
             headers={"Content-Type": "application/json", "apikey": key}, method="POST")
         return json.loads(urllib.request.urlopen(req, timeout=15).read())["access_token"]
+    except Exception:
+        return None
+
+
+def _derive_hive(key: str, jwt: str):
+    """Anti-seesaw: the persona's ACTUAL active hive (RLS-scoped via the JWT), not a hardcoded guess.
+    The seeder re-assigns memberships; a stale HIVE constant 403s every probe (tenancy_denied).
+    Deriving it at runtime makes the battery survive a reseed. Returns None → fall back to HIVE."""
+    try:
+        req = urllib.request.Request(
+            f"{BASE}/rest/v1/hive_members?select=hive_id&status=eq.active&limit=1",
+            headers={"apikey": key, "Authorization": f"Bearer {jwt}"}, method="GET")
+        rows = json.loads(urllib.request.urlopen(req, timeout=15).read())
+        return rows[0]["hive_id"] if rows and isinstance(rows, list) else None
+    except Exception:
+        return None
+
+
+def _first_asset(key: str, jwt: str, hive: str):
+    """A real asset_id in the persona's hive (RLS-scoped, derived not hardcoded — anti-seesaw, same
+    lesson as _derive_hive). Used by asset-scoped probes (asset-brain-query requires a valid asset_id)."""
+    try:
+        req = urllib.request.Request(
+            f"{BASE}/rest/v1/asset_nodes?hive_id=eq.{hive}&select=id&limit=1",
+            headers={"apikey": key, "Authorization": f"Bearer {jwt}"}, method="GET")
+        rows = json.loads(urllib.request.urlopen(req, timeout=15).read())
+        return rows[0]["id"] if rows and isinstance(rows, list) else None
     except Exception:
         return None
 
@@ -114,19 +145,90 @@ def main() -> int:
     jwt = _jwt(key)
     if not jwt:
         return _skip("GoTrue/seeder unreachable for JWT (run the seeder + supabase start)")
+    global HIVE
+    _dh = _derive_hive(key, jwt)
+    if _dh and _dh != HIVE:
+        print(f"\033[90m  hive derived from membership: {_dh} (constant was {HIVE})\033[0m")
+        HIVE = _dh
 
     cells = {}      # cell -> {"live": bool, "evidence": str}
     breaches = []   # genuine FAILs (property violated live) — these fail the gate
+
+    def _ckpt():
+        # Incremental checkpoint: persist after EVERY probe so a slow/hanging later probe (e.g. a
+        # multi-agent synthesis fn) can't discard completed cells. The last full run still overwrites.
+        try:
+            REPORT.write_text(json.dumps({"validator": "ai_live_invoke", "base": BASE, "hive": HIVE,
+                              "live_cells": sum(1 for c in cells.values() if c["live"]),
+                              "breaches": breaches, "cells": cells, "partial": True}, indent=2),
+                              encoding="utf-8")
+        except Exception:
+            pass
 
     def record(cell, live, evidence):
         cells[cell] = {"live": bool(live), "evidence": evidence}
         mark = "\033[92m✓ LIVE\033[0m" if live else "\033[93m· skip\033[0m"
         print(f"  {mark}  {cell:7} {evidence[:88]}")
+        _ckpt()
 
     def fail(cell, why):
         cells[cell] = {"live": False, "evidence": f"BREACH: {why}"}
         breaches.append(f"{cell}: {why}")
         print(f"  \033[91m✗ FAIL {cell:7} {why[:88]}\033[0m")
+        _ckpt()
+
+    # ── H15/F — intelligence-report NARRATIVE GROUNDING (D13, self-contained consistency invariant for a
+    #    report GENERATOR that has NO no-signal short-circuit — it always emits). Its report.wo_count /
+    #    hive_count / equipment_count are computed DETERMINISTICALLY from the DB (not the LLM); the LLM writes
+    #    the narrative PROMPTED with those exact numbers. Anti-fabrication invariant: the executive_summary must
+    #    CITE the deterministic counts (grounded), not invent different ones. SELF-CONTAINED — compares the prose
+    #    to the report's OWN computed numbers (no external DB / service-role needed). The write is an IDEMPOTENT
+    #    per-period upsert (regenerates the report the cron would anyway) → benign, no cleanup. Word-boundary
+    #    match so hive_count "3" is not a spurious substring of "3694". Runs FIRST (fresh rate-limit bucket) so
+    #    this single-shot generator probe isn't starved at the tail; the cells it displaces are already banked. ──
+    irc, irb = _invoke("intelligence-report", {"period_type": "monthly"}, key, jwt)
+    if irc == "RL":
+        record("H15/F", False, "intelligence-report AI rate-limit — re-run after reset")
+    elif irc == 200 and isinstance(irb, dict):
+        rep = irb.get("report")
+        if not isinstance(rep, dict):
+            rep = (irb.get("data") or {}).get("report") if isinstance(irb.get("data"), dict) else irb
+        rep = rep if isinstance(rep, dict) else {}
+        nums = {k: rep.get(k) for k in ("wo_count", "hive_count", "equipment_count")}
+        nar = rep.get("narrative") if isinstance(rep.get("narrative"), dict) else {}
+        es = str(nar.get("executive_summary") or "")
+        if es.strip():
+            def _cited(n):
+                # A number is "cited" if its DIGIT form (bare or comma-grouped) appears on a word boundary.
+                # wo_count (thousands) + equipment_count are always digit-form; only tiny counts risk being
+                # spelled out ("three plants"), so hive_count also accepts the English word form.
+                if not isinstance(n, int) or n <= 0:
+                    return True
+                if re.search(rf"\b{n}\b", es) or re.search(rf"\b{n:,}\b", es):
+                    return True
+                words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+                         "nine", "ten", "eleven", "twelve"]
+                return n < len(words) and re.search(rf"\b{words[n]}\b", es, re.I) is not None
+            # The fabrication-CRITICAL figure is the wo_count HEADLINE — the number most at risk of
+            # hallucination and the one the fn's prompt/fallback template always leads with. equipment_count
+            # and hive_count are SUPPORTING (the LLM cites them variably / spells them out), so they're
+            # reported but not required. The anti-fabrication assertion: the narrative grounds its headline in
+            # the REAL computed wo_count — a hallucinating model would cite a DIFFERENT work-order figure, and
+            # the exact 3694 would not appear. (Don't over-assert on OTHER large integers — a legit year like
+            # "Q1 2023" or an MTBF/day value is not a fabrication, so gating on those false-positives.)
+            wo = nums.get("wo_count")
+            if _cited(wo):
+                support = [f"{k}={nums[k]}" for k in ("equipment_count", "hive_count") if _cited(nums.get(k))]
+                record("H15/F", True, f"intelligence-report narrative grounding LIVE: exec-summary cites the "
+                       f"deterministic wo_count={wo} verbatim — headline grounded in real data, not a "
+                       f"hallucinated figure (supporting cited: {', '.join(support) or 'headline only'})")
+            else:
+                record("H15/F", False, f"intelligence-report narrative did not cite the real wo_count={wo} "
+                       f"(computed {nums}) — re-runnable grounding slip")
+        else:
+            record("H15/F", False, "intelligence-report empty executive_summary (deterministic-fallback path)")
+    else:
+        record("H15/F", False, f"intelligence-report unavailable (HTTP {irc}) — env/transport")
 
     # ── H1/U — ai-gateway persona envelope (voice-journal launcher) ──
     code, body = _invoke("ai-gateway", {"agent": "voice-journal", "message": "What is OEE?",
@@ -165,6 +267,10 @@ def main() -> int:
             fail("H2/I", f"rogue agent executed: {rogue}")
     else:
         fail("H2/I", f"orchestrator HTTP {code}")
+    # NB: an ai-orchestrator SYNTHESIS fabrication probe (D13) was tried but the full multi-agent+synthesis
+    # round is too slow (>2min) → it prevented the whole battery from completing. Left as a future probe
+    # via a lighter path (single-agent mode); the faster RAG fns (asset-brain-query H9/F, temporal-rag H10/F)
+    # already cover the D13 grounded-answer faithfulness surface live.
 
     # ── H3/U — RAG completeness: semantic-search returns the {results,context} envelope ──
     # ── H3/F — retrieval relevance: similarities in [0,1], ranked desc, faults tenant-scoped ──
@@ -398,6 +504,98 @@ def main() -> int:
         record("H1/F", False, f"probabilistic fabrication residual (named §5 ceiling): {fabbed_on}/{answered} probes "
                f"emitted a specific value (no_fab={no_fab}, abstained={abstained}) — re-runnable, not a deterministic breach")
 
+    # ── H1/M — MULTI-TURN RECALL live (D26). ai-gateway auto-loads the (worker,agent) last-10-turns
+    #    memory + persists each turn. Turn 1 states a distinctive fact; Turn 2 (same persona+agent) asks
+    #    it back → the answer must RECALL it (not re-ask, not fabricate). Proves the memory read+write loop
+    #    end-to-end. record()-only (a probabilistic miss is re-runnable, not a gate breach). ──
+    # "assistant" is in EPISODIC_MEMORY_AGENTS (loads the 10-turn working memory) — the recall path;
+    # voice-journal is a journal agent (semantic-recall of entries, not conversational last-N-turns).
+    _AG = {"agent": "assistant", "hive_id": HIVE, "context": {}}
+    r1c, _ = _invoke("ai-gateway", {**_AG, "message": "Please remember this for later: pump PX-7 failed "
+                                    "because of a cracked impeller on the north line."}, key, jwt)
+    r2c, r2b = ("skip", None)
+    if r1c == 200:
+        r2c, r2b = _invoke("ai-gateway", {**_AG, "message": "What specific failure did I just tell you "
+                                          "about pump PX-7? Answer only from what I said."}, key, jwt)
+    if r1c == "RL" or r2c == "RL":
+        record("H1/M", False, "ai-gateway AI rate-limit on recall probe — re-run after reset")
+    elif r2c == 200 and isinstance(r2b, dict):
+        rec_ans = (r2b.get("data", {}) or {}).get("answer", "") if isinstance(r2b, dict) else ""
+        recalled = isinstance(rec_ans, str) and re.search(r"cracked impeller|impeller|north line", rec_ans, re.I)
+        if recalled:
+            record("H1/M", True, f"multi-turn recall LIVE: turn-2 recalled the turn-1 fact "
+                   f"('impeller'/'north line') from (worker,agent) memory · ans={len(rec_ans)}ch")
+        else:
+            record("H1/M", False, f"recall miss (re-runnable): turn-2 didn't surface the turn-1 fact · "
+                   f"ans={len(rec_ans)}ch")
+    else:
+        record("H1/M", False, f"ai-gateway recall probe unavailable (t1={r1c} t2={r2c}) — env/transport")
+    # NB: a recall probe on the asset-brain agent was tried + removed — asset-brain-query is a DB-GROUNDED
+    # asset Q&A fn, so it (correctly) answers from v_asset_state_truth and does NOT parrot a user-injected
+    # conversational "fact". The recall invariant fits conversational agents (assistant); a DB-grounded fn
+    # needs a grounding/injection-resistance invariant instead. Finding logged, not a live recall surface.
+
+    # ── H9/F — asset-brain-query RAG FAITHFULNESS live (D13 fabrication on the grounded-answer path).
+    #    Its system prompt: "If the context lacks the answer, say so plainly. Never invent values." Ask
+    #    for unknowable specifics on a NONEXISTENT asset → assert the grounded answer emits ZERO fabricated
+    #    currency/date values (hard no-invent invariant) and abstains. Reuses the H1/F _FAB/_ABSTAIN
+    #    detectors; record() (never fail()) so a probabilistic slip is re-runnable, not a gate breach. ──
+    _asset = _first_asset(key, jwt, HIVE)
+    # NB: the question must NOT itself contain a currency/date literal — the _FAB detector would flag
+    # the answer echoing it as a false positive (the H1/F lesson: keep unknowable-specific probes literal-free).
+    abc, abb = _invoke("asset-brain-query",
+                       {"question": "State the exact original purchase price in pesos, the manufacturer "
+                        "serial number, and the last recorded vibration reading in millimetres per second "
+                        "for this asset. Give the specific numeric values.",
+                        "asset_id": _asset or "00000000-0000-0000-0000-000000000000",
+                        "hive_id": HIVE}, key, jwt) if _asset else ("NOASSET", None)
+    if abc == "NOASSET":
+        record("H9/F", False, "no asset in hive to probe — reseed asset_nodes")
+    elif abc == "RL":
+        record("H9/F", False, "asset-brain-query AI rate-limit — re-run after reset")
+    elif abc == 200 and isinstance(abb, dict):
+        ab_ans = (abb.get("answer") or (abb.get("data", {}) or {}).get("answer")
+                  or abb.get("summary") or "")
+        if isinstance(ab_ans, str) and ab_ans.strip():
+            fabbed = bool(_FAB.search(ab_ans))
+            if not fabbed and _ABSTAIN.search(ab_ans):
+                record("H9/F", True, f"asset-brain-query RAG faithfulness LIVE: nonexistent-asset query → abstained + "
+                       f"0 fabricated currency/date values (never-invent invariant held) · ans={len(ab_ans)}ch")
+            elif not fabbed:
+                record("H9/F", False, f"asset-brain-query answered w/o explicit abstention but 0 fabricated specifics "
+                       f"(soft residual) · ans={len(ab_ans)}ch")
+            else:
+                record("H9/F", False, "asset-brain-query fabrication residual: a specific value on a nonexistent "
+                       "asset (re-runnable probabilistic slip, not a deterministic breach)")
+        else:
+            record("H9/F", False, f"asset-brain-query returned no answer field (HTTP {abc})")
+    else:
+        record("H9/F", False, f"asset-brain-query unavailable (HTTP {abc}) — env/transport, re-run after reset")
+
+    # ── H10/F — temporal-rag-orchestrator FAITHFULNESS live (D13 fabrication on the time-RAG answer path).
+    #    Same literal-free unknowable-specific invariant as H9/F; {question, hive_id} contract. ──
+    tc, tb = _invoke("temporal-rag-orchestrator",
+                     {"question": "State the exact number of unplanned breakdowns and the precise total "
+                      "downtime in hours that occurred in this hive during the third week of the year the "
+                      "plant first opened. Give the specific numbers.", "hive_id": HIVE}, key, jwt)
+    if tc == "RL":
+        record("H10/F", False, "temporal-rag-orchestrator AI rate-limit — re-run after reset")
+    elif tc == 200 and isinstance(tb, dict):
+        t_ans = (tb.get("answer") or (tb.get("data", {}) or {}).get("answer") or tb.get("summary") or "")
+        if isinstance(t_ans, str) and t_ans.strip():
+            if not _FAB.search(t_ans) and _ABSTAIN.search(t_ans):
+                record("H10/F", True, f"temporal-rag faithfulness LIVE: unknowable time-window query → abstained + "
+                       f"0 fabricated currency/date values · ans={len(t_ans)}ch")
+            elif not _FAB.search(t_ans):
+                record("H10/F", False, f"temporal-rag answered w/o explicit abstention, 0 fabricated specifics "
+                       f"(soft) · ans={len(t_ans)}ch")
+            else:
+                record("H10/F", False, "temporal-rag fabrication residual (re-runnable slip)")
+        else:
+            record("H10/F", False, f"temporal-rag no answer field (HTTP {tc})")
+    else:
+        record("H10/F", False, f"temporal-rag-orchestrator unavailable (HTTP {tc}) — env/transport")
+
     # ── H8/F + H8/U — EVAL/GOVERNANCE apparatus runs LIVE. Invoke ai-eval-runner with {limit:1}: it
     #    forwards a canonical fixture through the gateway, LLM-judge-scores it, and returns the structured
     #    governance summary. H8/F = the eval loop produces a real correctness VERDICT live; H8/U = the
@@ -485,9 +683,141 @@ def main() -> int:
     except Exception as e:
         record("H4/F", False, f"TTS→transcribe round-trip unavailable: {type(e).__name__} (needs compute-API /tts + GROQ key)")
 
+    # ── H11/F — hierarchical-summarizer FABRICATION on an EMPTY period (D13, bespoke grounding invariant
+    #    for a summariser — it has no Q&A abstention surface). Its DIGEST_SYSTEM rule: "If failure_count is
+    #    0, write a brief note that the period was clean." Request a far-PAST week (no data) → the digest
+    #    must signal CLEAN/no-activity, NOT fabricate failures. (Own _EMPTY detector, not _FAB — a summary
+    #    legitimately cites the period boundary like "1990", which _FAB must not flag.) ──
+    hsc, hsb = _invoke("hierarchical-summarizer",
+                       {"hive_id": HIVE, "level": "week",
+                        "period_start": "1990-01-01", "period_end": "1990-01-07"}, key, jwt)
+    _EMPTY = re.compile(r"clean|no (failure|activity|maintenance|breakdown|event|incident|record|data|"
+                        r"significant)|nothing|quiet|uneventful|without incident|0 failure|no reported", re.I)
+    if hsc == "RL":
+        record("H11/F", False, "hierarchical-summarizer AI rate-limit — re-run after reset")
+    elif hsc == 200 and isinstance(hsb, dict):
+        dig = hsb.get("summary_text") or (hsb.get("data", {}) or {}).get("summary_text") or ""
+        if not (isinstance(dig, str) and dig.strip()):
+            # empty far-past period → the fn SHORT-CIRCUITS with no digest = honest (it did NOT hallucinate
+            # a period narrative for zero data), which is exactly the anti-fabrication property we assert.
+            record("H11/F", True, "summariser grounding LIVE: empty far-past period → 200 with NO fabricated "
+                   "digest (short-circuited on zero data, no hallucinated activity)")
+        elif _EMPTY.search(dig):
+            record("H11/F", True, f"summariser grounding LIVE: empty period → honest clean/no-activity digest "
+                   f"(no fabricated failures) · dig={len(dig)}ch")
+        else:
+            record("H11/F", False, f"summariser fabrication residual: substantive digest on an empty period "
+                   f"(re-runnable slip) · dig={len(dig)}ch")
+    else:
+        record("H11/F", False, f"hierarchical-summarizer unavailable (HTTP {hsc}) — env/transport")
+
+    # ── H13/F — fmea-populator FABRICATION on a NO-SIGNAL asset (D13, bespoke grounding invariant for a
+    #    generator that MINES failure modes from logbook root-cause clusters). Its structural rule: a cluster
+    #    must have >= MIN_CLUSTER_SIZE corrective entries before it is ever classified. Invoke against a real
+    #    asset with an EMPTY recent window (since_days=1) → it must return suggestions_inserted=0 + an honest
+    #    "no cluster" note, NOT fabricate FMEA modes/RPN from nothing. This is a STRUCTURAL anti-fabrication
+    #    guarantee: it short-circuits BEFORE the LLM runs, so an invented failure mode is not even possible,
+    #    and it WRITES NOTHING on this path (no rcm_fmea_modes insert → no cleanup needed). ──
+    fmc, fmb = _invoke("fmea-populator",
+                       {"hive_id": HIVE, "asset_id": _asset, "since_days": 1}, key, jwt) \
+        if _asset else ("NOASSET", None)
+    if fmc == "NOASSET":
+        record("H13/F", False, "no asset in hive to probe — reseed asset_nodes")
+    elif fmc == "RL":
+        record("H13/F", False, "fmea-populator AI rate-limit — re-run after reset")
+    elif fmc == 200 and isinstance(fmb, dict):
+        ins = fmb.get("suggestions_inserted")
+        note = str(fmb.get("note") or "")
+        if ins == 0 and re.search(r"no .*cluster|>= ?\d+ occurrence", note, re.I):
+            record("H13/F", True, f"fmea-populator grounding LIVE: no-signal window → 0 suggestions + honest "
+                   f"no-cluster note (no fabricated failure mode; short-circuits before the LLM, 0 writes)")
+        elif ins == 0:
+            record("H13/F", True, f"fmea-populator grounding LIVE: 0 suggestions on a no-signal window "
+                   f"(no fabricated FMEA row) · clusters_seen={fmb.get('clusters_seen')}")
+        else:
+            record("H13/F", False, f"fmea-populator inserted {ins} suggestion(s) on a 1-day window — unexpected "
+                   f"(re-runnable); verify grounded, not fabricated")
+    else:
+        record("H13/F", False, f"fmea-populator unavailable (HTTP {fmc}) — env/transport")
+
+    # ── H14/F — semantic-fact-extractor FABRICATION on a NO-SIGNAL window (D13, bespoke grounding invariant
+    #    for a generator that mines knowledge-graph TRIPLES from logbook entries). Structural rule: it extracts
+    #    ONLY from candidate rows with a substantive field, and short-circuits (line ~198) when there are none.
+    #    Invoke with a far-FUTURE `since` → 0 candidate rows → it must return facts_extracted=0 + an honest
+    #    "no new entries" reason, NOT fabricate triples. Structural anti-fabrication: short-circuits BEFORE the
+    #    LLM extraction runs (no invented fact possible) and WRITES NOTHING to knowledge_graph_facts. ──
+    sfc, sfb = _invoke("semantic-fact-extractor",
+                       {"hive_id": HIVE, "since": "2099-01-01T00:00:00Z"}, key, jwt)
+    if sfc == "RL":
+        record("H14/F", False, "semantic-fact-extractor AI rate-limit — re-run after reset")
+    elif sfc == 200 and isinstance(sfb, dict):
+        d = sfb.get("data", sfb) if isinstance(sfb.get("data"), dict) else sfb
+        facts = d.get("facts_extracted", d.get("written"))
+        reason = str(d.get("reason") or "")
+        if facts == 0 and re.search(r"no new|nothing|no .*entr|no .*extract", reason, re.I):
+            record("H14/F", True, "semantic-fact-extractor grounding LIVE: no-signal window → 0 facts extracted "
+                   "+ honest 'no new entries' reason (no fabricated triple; short-circuits before the LLM, 0 writes)")
+        elif facts == 0:
+            record("H14/F", True, f"semantic-fact-extractor grounding LIVE: 0 facts on a no-signal window "
+                   f"(no fabricated triple) · reason={reason[:40]!r}")
+        else:
+            record("H14/F", False, f"semantic-fact-extractor extracted {facts} fact(s) on a future-since window — "
+                   f"unexpected (re-runnable); verify grounded, not fabricated")
+    else:
+        record("H14/F", False, f"semantic-fact-extractor unavailable (HTTP {sfc}) — env/transport")
+
+    # ── H12/F — voice-semantic-rag RETRIEVAL grounding live (D10/D13): a semantic search over the worker's
+    #    voice journal must return REAL rows (valid shape, similarity∈[0,1]) or an honest empty set — never a
+    #    fabricated entry. Read-only (no write side-effect, unlike the generator fns). ──
+    vsc, vsb = _invoke("voice-semantic-rag",
+                       {"query_text": "compressor bearing vibration trend last month", "limit": 5}, key, jwt)
+    if vsc == "RL":
+        record("H12/F", False, "voice-semantic-rag AI rate-limit — re-run after reset")
+    elif vsc == 200 and isinstance(vsb, dict):
+        res = vsb.get("results")
+        if isinstance(res, list):
+            shape_ok = all(isinstance(r, dict) and isinstance(r.get("similarity"), (int, float))
+                           and 0.0 <= r["similarity"] <= 1.0 and ("transcript" in r or "reply" in r)
+                           for r in res)
+            if shape_ok:
+                record("H12/F", True, f"voice-semantic-rag retrieval grounding LIVE: {len(res)} real journal row(s), "
+                       f"all similarity∈[0,1] w/ transcript (honest empty ok) — no fabricated entries")
+            else:
+                record("H12/F", False, f"voice-semantic-rag result shape off: {json.dumps(res)[:70]}")
+        else:
+            record("H12/F", False, f"voice-semantic-rag no results array (HTTP {vsc})")
+    else:
+        record("H12/F", False, f"voice-semantic-rag unavailable (HTTP {vsc}) — env/transport")
+
+    # ── H2/F — ai-orchestrator SYNTHESIS FAITHFULNESS (D13). Placed LAST because the full multi-agent+
+    #    synthesis round is slow (~2min): with incremental checkpointing the 25 fast cells are already
+    #    persisted, so if this times out nothing is lost. Literal-free unknowable-specific → no fabrication. ──
+    oc2, ob2 = _invoke("ai-orchestrator",
+                       {"question": "State the exact peso cost of every spare part consumed last quarter and "
+                        "the precise serial number of the pump that failed most often. Give specific values.",
+                        "hive_id": HIVE, "mode": "chat"}, key, jwt)
+    if oc2 == "RL":
+        record("H2/F", False, "ai-orchestrator AI rate-limit — re-run after reset")
+    elif oc2 == 200 and isinstance(ob2, dict):
+        o_ans = (ob2.get("answer") or ob2.get("synthesis") or (ob2.get("data", {}) or {}).get("answer") or "")
+        if isinstance(o_ans, str) and o_ans.strip():
+            if not _FAB.search(o_ans) and _ABSTAIN.search(o_ans):
+                record("H2/F", True, f"ai-orchestrator synthesis faithfulness LIVE: unknowable-specific query → "
+                       f"abstained + 0 fabricated currency/date values · ans={len(o_ans)}ch")
+            elif not _FAB.search(o_ans):
+                record("H2/F", False, f"ai-orchestrator answered w/o explicit abstention, 0 fabricated (soft) · "
+                       f"ans={len(o_ans)}ch")
+            else:
+                record("H2/F", False, "ai-orchestrator fabrication residual (re-runnable slip)")
+        else:
+            record("H2/F", False, f"ai-orchestrator no answer field (HTTP {oc2})")
+    else:
+        record("H2/F", False, f"ai-orchestrator unavailable (HTTP {oc2}) — env/transport")
+
     live_n = sum(1 for c in cells.values() if c["live"])
     REPORT.write_text(json.dumps({"validator": "ai_live_invoke", "base": BASE, "hive": HIVE,
-                                  "live_cells": live_n, "breaches": breaches, "cells": cells}, indent=2), encoding="utf-8")
+                                  "live_cells": live_n, "breaches": breaches, "cells": cells,
+                                  "partial": False}, indent=2), encoding="utf-8")
     print("-" * 60)
     print(f"  live cells: {live_n}   breaches: {len(breaches)}")
     if breaches:

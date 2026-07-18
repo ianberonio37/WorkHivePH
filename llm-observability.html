@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>WorkHive — LLM Observability</title>
+  <title>WorkHive: LLM Observability</title>
   <meta name="description" content="Per-task model routing, cache hit rate, provider fallback rate, and per-hive token budget burn for the WorkHive LLM chain.">
   <link rel="manifest" href="manifest.json" /><!-- PWA-installable, consistent with agentic-rag-observability (A6) -->
   <script>
@@ -88,8 +88,27 @@
       table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
   </style>
+  <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
+       token source this page cannot CONFORM to the design system even in principle -- the
+       rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
+       render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
+  <link rel="stylesheet" href="tokens.css">
 </head>
 <body>
+<!-- RETIRED (Operator-Console → Grafana arc P3, 2026-07-18): all 7 LLM KPIs (calls, cache-hit, fallback,
+     error, p50 latency, tokens, per-hive burn) are now Founder-Ops Grafana panels (17/18 + cost-by-provider 14).
+     Admin-only operator page. Reversible: delete this overlay div. rgba-only, 0 design-token debt; content preserved. -->
+<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+  <div style="max-width:560px;">
+    <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">LLM Observability has moved to Grafana</h1>
+    <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Calls, cache-hit rate, fallback &amp; error rate, p50 latency, token burn, per-hive burn and cost-by-provider are all live panels on the Founder / Platform Ops dashboard — never stale.</p>
+    <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(52,211,153,0.14); color:rgba(52,211,153,0.95); border:1px solid rgba(52,211,153,0.4); text-decoration:none; font-weight:700; min-height:44px;">📊 Founder Ops dashboard →</a>
+    </div>
+    <p style="color:rgba(244,246,250,0.35); font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+  </div>
+</div>
   <header>
     <h1>LLM Observability</h1>
     <div class="sub" id="meta">Loading <code>ai_cost_log</code> + <code>ai_cache</code> rollups...</div>
@@ -108,18 +127,18 @@
 
     <!-- Top-line KPIs -->
     <div class="grid">
-      <div class="card" id="kpi-total"><h3>Total calls</h3><div class="big">—</div><div class="delta">↑ window-over-window</div></div>
-      <div class="card" id="kpi-cache"><h3>Cache hit rate</h3><div class="big">—</div><div class="delta">vs LLM-served calls</div></div>
-      <div class="card" id="kpi-fallback"><h3>Fallback rate</h3><div class="big">—</div><div class="delta">non-primary provider</div></div>
-      <div class="card" id="kpi-tokens"><h3>Tokens used</h3><div class="big">—</div><div class="delta">in + out (estimated)</div></div>
-      <div class="card" id="kpi-latency"><h3>p50 latency</h3><div class="big">—</div><div class="delta">ms (LLM-served only)</div></div>
-      <div role="alert" aria-live="assertive" class="card" id="kpi-error"><h3>Error rate</h3><div class="big">—</div><div class="delta">fallback or schema fail</div></div>
+      <div class="card" id="kpi-total"><h3>Total calls</h3><div class="big">-</div><div class="delta">↑ window-over-window</div></div>
+      <div class="card" id="kpi-cache"><h3>Cache hit rate</h3><div class="big">-</div><div class="delta">vs LLM-served calls</div></div>
+      <div class="card" id="kpi-fallback"><h3>Fallback rate</h3><div class="big">-</div><div class="delta">non-primary provider</div></div>
+      <div class="card" id="kpi-tokens"><h3>Tokens used</h3><div class="big">-</div><div class="delta">in + out (estimated)</div></div>
+      <div class="card" id="kpi-latency"><h3>p50 latency</h3><div class="big">-</div><div class="delta">ms (LLM-served only)</div></div>
+      <div role="alert" aria-live="assertive" class="card" id="kpi-error"><h3>Error rate</h3><div class="big">-</div><div class="delta">fallback or schema fail</div></div>
     </div>
 
     <!-- Per-task routing -->
     <h2 style="font-size: 14px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em;">Per-task routing</h2>
     <table id="by-task" aria-label="Per-task routing">
-      <caption class="visually-hidden" style="position:absolute;left:-9999px;">Per-task LLM routing — calls, cache hit rate, p50 latency, provider mix</caption>
+      <caption class="visually-hidden" style="position:absolute;left:-9999px;">Per-task LLM routing: calls, cache hit rate, p50 latency, provider mix</caption>
       <thead><tr><th>Task / Fn</th><th>Calls</th><th>Cache %</th><th>p50 ms</th><th>Provider mix</th></tr></thead>
       <tbody><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
     </table>
@@ -127,20 +146,20 @@
     <!-- Per-hive budget -->
     <h2 style="font-size: 14px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 28px;">Per-hive budget burn</h2>
     <table id="by-hive" aria-label="Per-hive budget burn">
-      <caption class="visually-hidden" style="position:absolute;left:-9999px;">Per-hive LLM budget burn — calls in window vs limit, last activity</caption>
+      <caption class="visually-hidden" style="position:absolute;left:-9999px;">Per-hive LLM budget burn: calls in window vs limit, last activity</caption>
       <thead><tr><th>Hive</th><th>Calls (window)</th><th>Limit/hr</th><th>Budget burn</th><th>Last call</th></tr></thead>
       <tbody><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
     </table>
   </main>
 
 <!-- Use existing Supabase singleton from the app -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 (async function () {
   const escHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  function pct(n) { return n == null ? '—' : (n * 100).toFixed(1) + '%'; }
-  function num(n) { return n == null ? '—' : n.toLocaleString(); }
+  function pct(n) { return n == null ? '-' : (n * 100).toFixed(1) + '%'; }
+  function num(n) { return n == null ? '-' : n.toLocaleString(); }
   function setCard(id, big, klass) {
     const el = document.getElementById(id);
     el.querySelector('.big').textContent = big;
@@ -163,7 +182,7 @@
       supabase = window.getDb(SUPABASE_URL, SUPABASE_KEY);
     } catch (_) { /* fall through */ void 0; }
     if (!supabase) {
-      document.getElementById('meta').textContent = 'Supabase client not initialized — open via /workhive/llm-observability.html with utils.js loaded.';
+      document.getElementById('meta').textContent = 'Supabase client not initialized. Open via /workhive/llm-observability.html with utils.js loaded.';
       return;
     }
 
@@ -196,11 +215,11 @@
     const p50 = liveLatencies.length ? liveLatencies[Math.floor(liveLatencies.length / 2)] : null;
 
     setCard('kpi-total',     num(total));
-    setCard('kpi-cache',     liveCount + cacheCount ? pct(cacheCount / total) : '—', cacheCount / Math.max(total,1) > 0.2 ? 'good' : '');
-    setCard('kpi-fallback',  total ? pct(fallbacks / total) : '—', fallbacks / Math.max(total,1) > 0.1 ? 'warn' : '');
+    setCard('kpi-cache',     liveCount + cacheCount ? pct(cacheCount / total) : '-', cacheCount / Math.max(total,1) > 0.2 ? 'good' : '');
+    setCard('kpi-fallback',  total ? pct(fallbacks / total) : '-', fallbacks / Math.max(total,1) > 0.1 ? 'warn' : '');
     setCard('kpi-tokens',    num(tokensIn + tokensOut));
-    setCard('kpi-latency',   p50 == null ? '—' : (p50 + ' ms'), p50 > 2000 ? 'warn' : (p50 > 800 ? '' : 'good'));
-    setCard('kpi-error',     total ? pct(errors / total) : '—', errors / Math.max(total,1) > 0.05 ? 'bad' : '');
+    setCard('kpi-latency',   p50 == null ? '-' : (p50 + ' ms'), p50 > 2000 ? 'warn' : (p50 > 800 ? '' : 'good'));
+    setCard('kpi-error',     total ? pct(errors / total) : '-', errors / Math.max(total,1) > 0.05 ? 'bad' : '');
 
     // Per-task aggregate
     const byTask = {};
@@ -221,7 +240,7 @@
         const provMix = Object.entries(t.providers).sort((a,b)=>b[1]-a[1]).slice(0, 3)
           .map(([p, n]) => `<span class="pill ${p === 'ai_cache' ? 'cache' : 'live'}">${escHtml(p)} ${n}</span>`)
           .join(' ');
-        return `<tr><td><span class="id">${escHtml(fn)}</span></td><td>${num(t.calls)}</td><td>${pct(t.cache / t.calls)}</td><td>${p50t == null ? '—' : p50t + ' ms'}</td><td>${provMix}</td></tr>`;
+        return `<tr><td><span class="id">${escHtml(fn)}</span></td><td>${num(t.calls)}</td><td>${pct(t.cache / t.calls)}</td><td>${p50t == null ? '-' : p50t + ' ms'}</td><td>${provMix}</td></tr>`;
       })
       .join('');
     document.querySelector('#by-task tbody').innerHTML = taskRows || '<tr><td colspan="5" class="empty">No calls in window.</td></tr>';

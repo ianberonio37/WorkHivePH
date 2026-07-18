@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D7
 """
 validate_sast_owasp_complete.py - Arc R (S-lens, OWASP A09 meta): the SAST posture map must
 cover the FULL OWASP Top-10, and every mapped scanner must exist.
@@ -39,7 +40,7 @@ def _resolve(v: str):
 
 def _check(owasp: dict) -> list[str]:
     fails = []
-    present_codes = {k.split()[0] for k in owasp}
+    present_codes = {k.split()[0].split(":")[0] for k in owasp}  # "A01:2025 Broken..." -> "A01" (OWASP 2025 relabel); also handles "A01 x"
     for code in REQUIRED:
         if code not in present_codes:
             fails.append(f"OWASP {code} is ABSENT from the SAST map")

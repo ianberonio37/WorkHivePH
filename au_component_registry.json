@@ -1,0 +1,79 @@
+{
+  "_doc": "AU Component Registry: Layer AU (Auth) canonical primitives (FULLSTACK_COMPONENT_LIBRARY_ROADMAP §1, opened 2026-07-17). Adoption measured by the AU-P0 census (to build, per the §1 template) over family pages + auth-touching edge functions. Write-side attribution is ALREADY governed at Layer D (D3 auth_uid ownership 26/26 + bind_* pins): this layer owns the SESSION/IDENTITY floor on the client and the auth entry points.",
+  "version": 1,
+  "layer": "AU",
+  "surfaces": "family pages (client auth floor) · login fn · RLS helper fns",
+  "components": [
+    {
+      "id": "AU1",
+      "class": "AUC Client floor",
+      "name": "restoreIdentityFromSession",
+      "api": "await restoreIdentityFromSession(db): rebuilds wh_last_worker/wh_active_hive_id from the live session on a fresh device",
+      "defined_in": "utils.js",
+      "satisfies": "no silent identity loss on new devices (C4 class)",
+      "need": "signed-in family pages",
+      "when_to_use": "every page init that reads WORKER_NAME/HIVE_ID",
+      "when_not": "signed-out-only surfaces",
+      "status": "built",
+      "recon": "26/32 pages at opening",
+      "exempt": [
+        "agentic-rag-observability.html"
+      ],
+      "exempt_reason": "founder-only internal page: its admin boot-gate (isPlatformAdmin via getUser) settles the session and owns identity before any content script runs: the worker identity floor does not apply"
+    },
+    {
+      "id": "AU2",
+      "class": "AUC Client floor",
+      "name": "session-settled reads (auth.getUser/getSession before RLS-gated queries)",
+      "api": "await db.auth.getUser(): settles the JWT attach before count/read on cold load",
+      "defined_in": "supabase-js + the cold-load-401 fix pattern",
+      "satisfies": "no cold-load 401 → silent empty states",
+      "need": "pages issuing RLS-gated reads at init",
+      "when_to_use": "before the first gated read on any fresh-device path",
+      "when_not": "-",
+      "status": "built",
+      "recon": "16/32 pages at opening",
+      "exempt": [
+        "agentic-rag-observability.html"
+      ],
+      "exempt_reason": "founder-only internal page: its admin boot-gate (isPlatformAdmin via getUser) settles the session and owns identity before any content script runs: the worker identity floor does not apply"
+    },
+    {
+      "id": "AU3",
+      "class": "AUE Entry points",
+      "name": "login lockout RPCs",
+      "api": "check_login_lockout(identifier, ip) → 423 · record_login_failure · clear_login_attempts",
+      "defined_in": "mig 20260621000002 + login fn",
+      "satisfies": "brute-force protection with no attacker oracle",
+      "need": "the login entry point",
+      "when_to_use": "every credential-checking path",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "AU4",
+      "class": "AUE Entry points",
+      "name": "supervisor-reset-password flow",
+      "api": "active-supervisor check → same-hive worker target → tight rate bucket → admin reset + audit log",
+      "defined_in": "supervisor-reset-password fn (verify_jwt=TRUE: deploys separately per runbook)",
+      "satisfies": "field-tech password recovery without email",
+      "need": "the reset entry point",
+      "when_to_use": "-",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "AU5",
+      "class": "AUR Role checks",
+      "name": "role floor: wh_hive_role hint + SERVER re-check",
+      "api": "localStorage wh_hive_role (UI hint only) + v_worker_truth role/hive_status re-check server-side",
+      "defined_in": "pages + RLS helper fns (user_supervisor_hive_ids())",
+      "satisfies": "UI-only approval gates are bypassable (feedback_ui_only_approval_gate_is_bypassable)",
+      "need": "role-gated surfaces",
+      "when_to_use": "every supervisor/admin gate: UI hint for UX, server check for truth",
+      "when_not": "-",
+      "status": "built",
+      "verified_note": "AU5 audit 2026-07-17: all 16 role-gated pages verified. 11 carry a server-recheck idiom (v_worker_truth.role / isPlatformAdmin / mkt_admin); the 5 client-hint-only pages (alert-hub, analytics, audit-log, integrations, plant-connections) are enforced by RLS regardless: every backing table is rules-engine SCOPED (hive_audit_log even carries the user_supervisor_hive_ids SELECT policy). ZERO privilege-escalation holes; the client hints are UX over real enforcement: the correct architecture per this row's contract."
+    }
+  ]
+}

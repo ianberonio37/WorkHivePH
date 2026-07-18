@@ -79,10 +79,10 @@
     var hint = document.createElement('button');
     hint.type = 'button';
     hint.className = 'wh-impact-hint';
-    hint.setAttribute('aria-label', 'Saving updates ' + info.page_count + ' pages — tap for the list');
+    hint.setAttribute('aria-label', 'Saving updates ' + info.page_count + ' pages: tap for the list');
     hint.title = info.headline;
     hint.innerHTML = '<span aria-hidden="true">↗</span> Saving updates <b>' + info.page_count + ' pages</b> across the platform · <span style="text-decoration:underline;">what</span>';
-    hint.style.cssText = 'display:block;width:100%;text-align:left;margin:0 0 8px 0;padding:7px 10px;min-height:36px;'
+    hint.style.cssText = 'display:block;width:100%;text-align:left;margin:0 0 8px 0;padding:7px 10px;min-height:44px;box-sizing:border-box;'
       + 'background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.25);border-radius:8px;'
       + 'color:rgba(247,162,27,0.95);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;';
     hint.addEventListener('click', function (e) {

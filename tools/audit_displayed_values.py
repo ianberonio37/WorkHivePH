@@ -1,3 +1,4 @@
+# DEEPWALK-CELL: * D1
 """
 Displayed Values Audit (Tier S coverage — Layer -1.5).
 ======================================================

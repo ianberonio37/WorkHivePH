@@ -122,6 +122,9 @@ PAGE_RAW_OWNERS: dict[str, dict[str, str]] = {
     "shift-brain.html": {
         "shift_plans": "shift-brain is the canonical owner of shift_plans CRUD (create/edit/approve)",
     },
+    "founder-console.html": {
+        "marketplace_sellers": "founder-console is the marketplace moderation surface: writes KYB/cert verification transitions on marketplace_sellers; the dashboard read path already uses v_marketplace_sellers_truth",
+    },
 }
 
 LEGITIMATE_RAW = {

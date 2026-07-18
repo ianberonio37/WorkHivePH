@@ -23,13 +23,9 @@ npx supabase functions deploy voice-report-intent --no-verify-jwt
 npx supabase functions deploy voice-transcribe --no-verify-jwt
 npx supabase functions deploy voice-journal-agent --no-verify-jwt
 npx supabase functions deploy ai-gateway --no-verify-jwt
+npx supabase functions deploy marketplace-listing-assist --no-verify-jwt
 npx supabase functions deploy semantic-search --no-verify-jwt
 npx supabase functions deploy embed-entry --no-verify-jwt
-npx supabase functions deploy marketplace-checkout --no-verify-jwt
-npx supabase functions deploy marketplace-webhook --no-verify-jwt
-npx supabase functions deploy marketplace-connect-onboard --no-verify-jwt
-npx supabase functions deploy marketplace-release --no-verify-jwt
-npx supabase functions deploy marketplace-connect-status --no-verify-jwt
 npx supabase functions deploy project-progress --no-verify-jwt
 npx supabase functions deploy project-orchestrator --no-verify-jwt
 npx supabase functions deploy batch-risk-scoring --no-verify-jwt

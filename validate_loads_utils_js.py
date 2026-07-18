@@ -70,6 +70,7 @@ EXCLUDE_PATTERNS = [
 # starts loading utils.js.
 ALLOWLIST: dict[str, str] = {
     "status.html":           "self-contained platform STATUS page -- by design does not load utils.js (own inline fetchWithTimeout, see its header comment). Renders only platform-controlled /health probe data (fn names, latency, status codes), no hive/user input -> no shared escHtml dependency.",
+    "promo-poster.html":     "brochure-only marketing poster generator -- renders a static promo graphic from hardcoded copy (BananaTrak-style), no DB calls, no hive/user-data rendering, no shared escHtml dependency. Self-contained by design.",
     "architecture.html":     "static architecture brochure -- no DB calls, no user-data rendering",
     "symbol-gallery.html":   "static reference page (drawing symbols only)",
     "parts-tracker.html":    "RETIRED STUB (2026-05-18 review) -- 38-line redirect page to inventory.html#usage-history. No DB, no user data, no script rendering. <meta refresh> + setTimeout JS redirect. SAFE.",

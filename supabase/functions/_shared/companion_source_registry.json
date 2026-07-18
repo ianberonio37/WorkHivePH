@@ -2,7 +2,7 @@
   "_comment": "THE SOURCES GATEWAY (Ian 2026-06-14). Single declarative registry of every platform data source the AI Companion can read. The companion's ops-snapshot fetcher (ai-gateway buildOpsSnapshot) and the fabrication grader's ground_truth() BOTH read this so they never drift; validate_companion_source_coverage.py (Layer 0 ratchet) enforces that EVERY v_*_truth view is triaged here (served, or served:false with a reason). Add a new source = add an entry here. status: served=wired into the always-on snapshot; candidate=worker-relevant, queued for Pillar R on-demand fetch; out_of_scope=not a worker-companion concern.",
   "version": 2,
   "created": "2026-06-14",
-  "_engine": "served entries may carry an `engine` spec (declarative fetch+aggregate+render) run by ai-gateway buildFromRegistry() — register, don't wire. Entries with only `helper` still use a hand-coded fn (being migrated to specs). Aggregation kinds: count, count_where{any:[flags]}, avg_of{field}, list_where{any:[flags],item,join,limit}, top_n_by{field,dir,n,item,join}.",
+  "_engine": "served entries may carry an `engine` spec (declarative fetch+aggregate+render) run by ai-gateway buildFromRegistry() — register, don't wire. Entries with only `helper` still use a hand-coded fn (being migrated to specs). Aggregation kinds: count, count_where{any:[flags]|eq:[field,value]|gte:[field,n] — AND-combined, each optional}, avg_of{field}, list_where{any:[flags],item,join,limit}, top_n_by{field,dir,n,item,join}, take{n,item,join}, count_distinct{field}, distinct_list{field,limit,join}.",
   "scopes": {
     "worker": "things a maintenance worker/engineer asks the companion in conversation",
     "marketplace": "buying/selling surface — separate product, not worker-maintenance chat",
@@ -212,11 +212,26 @@
         "render": "Maintenance contracts (from v_amc_truth): {n} on record. {contracts}."
       } },
 
-    { "source": "v_marketplace_listings_truth",  "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "buying/selling, not worker-maintenance conversation" },
+    { "source": "v_marketplace_listings_truth",  "domain": "marketplace", "status": "served_on_demand", "scope": "marketplace", "ground_truth_keys": ["marketplace_listings"],
+      "match": ["marketplace", "for sale", "listed for sale", "listing", "listings", "surplus", "second hand", "second-hand", "selling", "parts for sale", "on the marketplace", "market place", "buy parts", "used parts", "spare for sale"],
+      "engine": {
+        "select": "section,title,status,is_published,is_sold",
+        "aggregate": [
+          { "kind": "count", "as": "total" },
+          { "kind": "count_where", "any": ["is_published"], "as": "published" },
+          { "kind": "count_where", "eq": ["section", "parts"], "any": ["is_published"], "as": "parts_pub" },
+          { "kind": "count_where", "eq": ["section", "jobs"], "any": ["is_published"], "as": "jobs_pub" },
+          { "kind": "count_where", "eq": ["section", "training"], "any": ["is_published"], "as": "training_pub" },
+          { "kind": "count_where", "any": ["is_sold"], "as": "sold" },
+          { "kind": "list_where", "any": ["is_published"], "limit": 5, "item": "{title} ({section})", "join": "; ", "as": "sample" }
+        ],
+        "render": "Marketplace listings for this hive (from v_marketplace_listings_truth): {published} published of {total} total, plus {sold} already sold. Published by type: {parts_pub} parts, {jobs_pub} jobs, {training_pub} training. Now listed: {sample}."
+      } },
     { "source": "v_marketplace_orders_truth",    "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "orders — marketplace product surface" },
     { "source": "v_marketplace_sellers_truth",   "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "sellers — marketplace product surface" },
     { "source": "v_marketplace_inquiries_truth", "domain": "marketplace", "status": "out_of_scope", "scope": "marketplace", "reason": "inquiries — marketplace product surface" },
     { "source": "v_community_posts_truth",  "domain": "community",     "status": "out_of_scope", "scope": "admin",  "reason": "forum posts — community surface, not ops chat" },
+    { "source": "v_community_reputation_truth", "domain": "community",  "status": "out_of_scope", "scope": "admin",  "reason": "community reputation/leaderboard (XP, trust tier, voice-of-hive) — community surface, not worker-maintenance ops chat; served on the Community page" },
     { "source": "v_hives_truth",            "domain": "hive_admin",    "status": "out_of_scope", "scope": "admin",  "reason": "cross-hive registry — admin, not a single worker's ops question" },
     { "source": "v_hive_readiness_truth",   "domain": "hive_admin",    "status": "out_of_scope", "scope": "admin",  "reason": "onboarding/readiness metric — admin/founder" },
     { "source": "v_adoption_truth",         "domain": "hive_admin",    "status": "out_of_scope", "scope": "admin",  "reason": "adoption metric — admin/founder analytics" },

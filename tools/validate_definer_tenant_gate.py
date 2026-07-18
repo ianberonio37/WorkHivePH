@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D8
 """validate_definer_tenant_gate.py — Arc G G1 keystone gate: DEFINER fns must self-gate tenancy.
 
 THE BUG CLASS (found by the Arc G per-DEFINER sweep, 2026-06-20): a SECURITY DEFINER function runs

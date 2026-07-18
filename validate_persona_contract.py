@@ -123,9 +123,16 @@ PERSONA_INTENTIONALLY_ABSENT = {
 # script surfaces (assistant.html) we look for window.getCompanionBlock().
 # For shared client modules (companion-launcher.js) we look for the same call.
 
+# K1 (2026-07-12): assistant.html was REMOVED from this matrix. It used to prepend
+# window.getCompanionBlock() only in its Step-2 fallback that POSTed a client-built
+# system prompt to a public Cloudflare Worker. That bypass was retired — assistant.html
+# now routes 100% through ai-gateway (Step-1 agent 'assistant', fallback agent
+# 'voice-journal'), and the gateway injects the persona SERVER-side from
+# worker_profiles.preferred_persona (this validator's L4, which PASSES) + the
+# voice-journal agent applies it (L2). So the client-side prepend is obsolete, not lost;
+# a client getCompanionBlock here would now be dead code. Persona is gateway-owned.
 CLIENT_PERSONA_ADOPTION = {
     "companion-launcher.js":  "getCompanionBlock",
-    "assistant.html":  "getCompanionBlock",
 }
 
 
@@ -636,6 +643,11 @@ def check_domain_differentiation() -> list[dict]:
 VOICE_JOURNAL_AGENT_TS = os.path.join(
     "supabase", "functions", "voice-journal-agent", "index.ts"
 )
+# Family R also applies to the assistant/orchestrator surface (deep-walk 2026-07-07: it deflected
+# "order 5 + pay" with a misleading "not enough data" instead of an honest capability disclaimer).
+AI_ORCHESTRATOR_TS = os.path.join(
+    "supabase", "functions", "ai-orchestrator", "index.ts"
+)
 
 
 def check_conversation_recall() -> list[dict]:
@@ -885,6 +897,28 @@ def check_capability_bounds() -> list[dict]:
     if not any(p in low for p in ("draft", "point them", "point you", "right page", "right person")):
         issues.append({"check": "capability_bounds",
                        "reason": "CAPABILITY BOUNDS clause must offer the real alternative (draft the text / point to the right page or person), not just refuse."})
+
+    # Family R also on the assistant/orchestrator surface (deep-walk 2026-07-07): a capability
+    # request must get an honest disclaimer + alternative, NOT the generic no-agents "not enough
+    # data" fallback. The orchestrator guards this with a deterministic pre-check (WAT).
+    orch = read_file(AI_ORCHESTRATOR_TS)
+    if orch is None:
+        issues.append({"check": "capability_bounds_orchestrator",
+                       "reason": f"{AI_ORCHESTRATOR_TS} missing — cannot verify assistant capability bounds."})
+    else:
+        olow = orch.lower()
+        if "capability_re" not in olow or "capability_disclaimer" not in olow:
+            issues.append({
+                "check": "capability_bounds_orchestrator",
+                "reason": (
+                    "ai-orchestrator has no CAPABILITY_RE/CAPABILITY_DISCLAIMER pre-check — the assistant "
+                    "deflects an out-of-scope action ('order 5 + pay') with a misleading 'not enough data' "
+                    "instead of an honest capability disclaimer + alternative (Family R). Restore the guard."
+                ),
+            })
+        elif not any(p in olow for p in ("draft", "point you", "inventory page", "supervisor")):
+            issues.append({"check": "capability_bounds_orchestrator",
+                           "reason": "ai-orchestrator CAPABILITY_DISCLAIMER must offer the real alternative (draft / point to page or person)."})
     return issues
 
 

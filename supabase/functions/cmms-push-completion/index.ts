@@ -8,7 +8,8 @@
  * POST body: { hive_id, machine, worker_name, actual_hours, closed_at, logbook_id }
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -17,8 +18,12 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads/writes.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // Arc R (A10): tenant-controlled endpoint_url must be SSRF-guarded before fetch.
 import { safeFetch } from "../_shared/ssrf-guard.ts";
+// F3: push the CMMS's OWN status code (SAP I0045 / Maximo COMP), not the literal "Closed".
+import { toCmmsStatus } from "../_shared/mappings.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -31,7 +36,12 @@ const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
   : null;
 void _whWarmClient;
 
-serve(async (req) => {
+serveObserved("cmms-push-completion", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "cmms-push-completion", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "cmms-push-completion");  // I6 observability
@@ -62,6 +72,11 @@ serve(async (req) => {
             { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
+      
+        // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req));
       }
     }
 
@@ -90,25 +105,45 @@ serve(async (req) => {
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // Find the external_sync row for this machine (most recent work order)
-    const { data: syncRows } = await db.from("v_external_sync_truth")
-      .select("external_id, status")
-      .eq("hive_id", hive_id)
-      .eq("entity_type", "work_order")
-      .contains("sync_payload", { machine })
-      .order("last_synced_at", { ascending: false })
-      .limit(1);
-
-    const extId = syncRows?.[0]?.external_id;
+    // F1005: resolve the EXACT work order to close. Prefer the logbook_id → workhive_id link
+    // (set by cmms-sync / cmms-webhook-receiver when the WO was imported) so a machine with
+    // several OPEN work orders closes the RIGHT AUFNR/WONUM instead of "the most-recently-
+    // synced one for this machine" (which corrupted the customer's CMMS). Fall back to
+    // machine+newest only for legacy rows imported before the link existed.
+    let extId: string | undefined;
+    if (logbook_id) {
+      // canonical-allow: this IS the sync engine resolving its own link row (workhive_id -> external_id)
+      // for the outbound push. v_external_sync_truth is a display view; the engine needs the raw link.
+      const { data: linked } = await db.from("external_sync")
+        .select("external_id")
+        .eq("hive_id", hive_id)
+        .eq("entity_type", "work_order")
+        .eq("workhive_id", logbook_id)
+        .limit(1);
+      extId = linked?.[0]?.external_id as string | undefined;
+    }
+    if (!extId) {
+      const { data: syncRows } = await db.from("v_external_sync_truth")
+        .select("external_id, status")
+        .eq("hive_id", hive_id)
+        .eq("entity_type", "work_order")
+        .contains("sync_payload", { machine })
+        .order("last_synced_at", { ascending: false })
+        .limit(1);
+      extId = syncRows?.[0]?.external_id as string | undefined;
+    }
     if (!extId) {
       // edge-status-allow: soft no-op — nothing to push back for this machine.
       return new Response(JSON.stringify({ ok: false, reason: "No external_sync record found for machine " + machine }),
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // Build push payload
+    // Build push payload. F3: send BOTH WorkHive's canonical "Closed" (back-compat) AND the
+    // target CMMS's own status code (SAP I0045 / Maximo COMP / generic "closed") so the
+    // external system actually accepts the completion instead of rejecting an unknown status.
     const pushPayload = {
       WH_STATUS:        "Closed",
+      CMMS_STATUS:      toCmmsStatus(systemType, "Closed"),
       WH_ACTUAL_HOURS:  actual_hours ?? 0,
       WH_CLOSED_AT:     closed_at ?? new Date().toISOString(),
       WH_COMPLETED_BY:  worker_name ?? "WorkHive",
@@ -139,10 +174,19 @@ serve(async (req) => {
 
     const pushOk = pushRes.ok;
 
-    // Mark external_sync as completed
+    // Mark external_sync as completed (success) or FAILED (durable, retryable).
     if (pushOk) {
       await db.from("external_sync")
         .update({ status: "Closed", last_synced_at: new Date().toISOString(), sync_status: "active" })
+        .eq("hive_id", hive_id)
+        .eq("external_id", extId);
+    } else {
+      // F3: durable failure marker. The old code only wrote automation_log and returned
+      // ok:false to a fire-and-forget caller, so a transient CMMS outage silently lost the
+      // completion. Leave the row in sync_status='failed' so a retry (cron / next sync) can
+      // re-attempt it instead of dropping it.
+      await db.from("external_sync")
+        .update({ last_synced_at: new Date().toISOString(), sync_status: "failed" })
         .eq("hive_id", hive_id)
         .eq("external_id", extId);
     }
@@ -161,8 +205,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "cmms-push-completion", "cmms_push_completion_error", err);
   }
 });

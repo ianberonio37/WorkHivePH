@@ -17,6 +17,31 @@
 
   const PERSONA_STORAGE_KEY = 'wh_voice_journal_persona';
   const TTS_STORAGE_KEY     = 'wh_voice_journal_tts';
+  const TTS_URL_STORAGE_KEY = 'wh_tts_url';   // V7 Sovereignty toggle: a plant's local Piper server URL
+
+  // V7 (NATIVE_AI_ROADMAP.md #6): restore a persisted SOVEREIGN-voice URL on load so the on-device
+  // branded Piper voice (WH_TTS_URL -> speakPiper) stays enabled across page loads once a worker/plant
+  // turns it on. Page config may also set window.WH_TTS_URL directly (deployment); this only fills it
+  // from localStorage when it is not already set, so a deployment default always wins. Additive + safe.
+  try {
+    if (typeof window !== 'undefined' && !window.WH_TTS_URL) {
+      const _saved = localStorage.getItem(TTS_URL_STORAGE_KEY);
+      if (_saved) window.WH_TTS_URL = _saved;
+    }
+  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+
+  // Toggle the sovereign local voice: pass a Piper server URL to enable (persisted), or a falsy value
+  // to fall back to the cloud/browser voice. Returns the new enabled state.
+  function setSovereignVoice(url) {
+    try {
+      if (url) { localStorage.setItem(TTS_URL_STORAGE_KEY, String(url)); window.WH_TTS_URL = String(url); }
+      else { localStorage.removeItem(TTS_URL_STORAGE_KEY); try { delete window.WH_TTS_URL; } catch (_) { window.WH_TTS_URL = undefined; } }
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+    return !!url;
+  }
+  function isSovereignVoiceOn() {
+    try { return !!(window.WH_TTS_URL || localStorage.getItem(TTS_URL_STORAGE_KEY)); } catch (_) { return false; }
+  }
 
   // Edge-TTS via python-api (optional, local dev only).
   // Set window.WH_TTS_EDGE_URL = 'http://localhost:8000' when running
@@ -107,6 +132,48 @@
     }
   }
 
+  // Sovereign local neural TTS (Piper) path (NATIVE_AI_ROADMAP.md #6, V-axis V2 / the "download the
+  // voice" gap). When a plant sets WH_TTS_URL to its own Piper server, the companion speaks in ONE
+  // branded, consistent, OFFLINE Hezekiah/Zaniah voice and the audio never leaves the plant, instead
+  // of the device OS voice (speechSynthesis). Env-gated + additive exactly like WH_ASR_URL /
+  // BGE_EMBED_URL: unset in production today, so this returns false and the existing chain runs
+  // UNCHANGED. Returns true on success, false when unset or on any failure (then browser TTS runs).
+  function getPiperTtsBase() {
+    const u = (typeof window !== 'undefined') ? window.WH_TTS_URL : null;
+    return u ? String(u).replace(/\/+$/, '') : null;
+  }
+  async function speakPiper(text, persona) {
+    const base = getPiperTtsBase();
+    if (!base) return false;   // sovereignty mode off -> skip to the existing chain (prod default)
+    try {
+      const fetcher = (typeof window.fetchWithTimeout === 'function')
+        ? window.fetchWithTimeout
+        : (u, o) => fetch(u, o);
+      const resp = await fetcher(base + '/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: String(text), persona }),
+      }, 15000);
+      if (!resp || !resp.ok) return false;
+      // Piper returns raw audio bytes (WAV/OGG). Play via a revocable blob URL.
+      const buf = await resp.arrayBuffer();
+      if (!buf || !buf.byteLength) return false;
+      const type = (resp.headers && resp.headers.get && resp.headers.get('Content-Type')) || 'audio/wav';
+      const blobUrl = URL.createObjectURL(new Blob([buf], { type }));
+      if (_audio) { try { _audio.pause(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } }
+      _audio = new Audio(blobUrl);
+      _audio.onended = () => { try { URL.revokeObjectURL(blobUrl); } catch (_) { /* empty-catch-allow */ } };
+      _audio.play().catch(err => {
+        if (err && err.name === 'AbortError') return;
+        console.warn('wh-tts piper play failed:', err);
+      });
+      return true;
+    } catch (err) {
+      console.warn('wh-tts piper fetch failed:', err);
+      return false;
+    }
+  }
+
   async function speakAzure(text, persona) {
     const { url, key } = getEnv();
     if (!url || !key) return false;
@@ -180,6 +247,17 @@
       out = out.replace(re, spelled);
     });
     return out;
+  }
+
+  // Persona-name pronunciation fix (Ian-confirmed 2026-07-12): every TTS engine (Piper, edge-tts,
+  // browser speechSynthesis) mis-says the uncommon proper nouns. Respell them phonetically so the
+  // companion says its OWN name right. Applied to the SPOKEN text only; the on-screen text is
+  // untouched. Hezekiah -> "Hezehkeeyah" (he-ze-kee-yah); Zaniah -> "Zah nah yah" (zah-nah-yah).
+  function _respellPersonaNames(text) {
+    if (!text) return text;
+    return String(text)
+      .replace(/\bHezekiah\b/gi, 'Hezehkeeyah')
+      .replace(/\bZaniah\b/gi, 'Zah nah yah');
   }
 
   // Pre-load voices on page load (browsers populate this async)
@@ -271,7 +349,14 @@
     // PM / RPN / etc. so TTS reads them as letters. Asset tags like
     // "P-203" already pronounce correctly because the digit+hyphen
     // pattern forces letter pronunciation in every TTS engine we use.
-    const spoken = _spellOutAcronyms(text);
+    const spoken = _respellPersonaNames(_spellOutAcronyms(text));
+
+    // Sovereignty path (NATIVE_AI_ROADMAP.md #6, V2): a plant-local Piper server (WH_TTS_URL) FIRST
+    // so the branded voice is offline and the audio never leaves the plant. Env-gated + additive:
+    // unset in production today, so this no-ops straight to the existing chain below (prod unchanged).
+    if (window.WH_TTS_URL && await speakPiper(spoken, persona)) {
+      return true;
+    }
 
     // Local dev mode: if WH_TTS_EDGE_URL is set, try Edge-TTS first (better quality).
     if (window.WH_TTS_EDGE_URL && await speakEdge(spoken, persona)) {
@@ -311,4 +396,6 @@
   });
   window.toggleTts        = toggleTts;
   window.isTtsOn          = isTtsOn;
+  window.setSovereignVoice   = setSovereignVoice;   // V7: enable/disable the on-device Piper voice
+  window.isSovereignVoiceOn  = isSovereignVoiceOn;
 })();

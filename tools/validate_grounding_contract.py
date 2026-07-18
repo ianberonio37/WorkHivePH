@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: ai:* D10
 """validate_grounding_contract.py — §13.15 A6: artifact-agent grounding field-contract (static).
 ================================================================================
 The recurring value-drift class (§13.15): an LLM BOM/SOW agent reads `results.<field>`
@@ -61,20 +62,63 @@ CALC_MODE_VARIANTS = {
 ALLOWLIST: set[str] = set()
 
 
+# The host port 8000 is often UNMAPPED on the local stack (the python-api runs inside the
+# `workhive_python_api` container binding 0.0.0.0:8000 with no host publish). So a direct HTTP
+# POST from the host fails even though the API is healthy. Mirror python_api_live_invoke.py: if
+# the HTTP transport can't connect, fall back to POSTing from INSIDE the container via
+# `docker exec`. This makes the grounding ratchet PASS whenever the API container is up (the
+# normal local state) instead of SKIPping on a host-port quirk. Returns the parsed JSON dict,
+# "HTTP_ERROR" (calc needs valid inputs → treat as unresolvable), or "DOWN" (truly unreachable).
+_API_CONTAINER = "workhive_python_api"
+
+
+def _post_calculate(body: dict):
+    payload = json.dumps(body).encode()
+    req = urllib.request.Request(f"{PY_API}/calculate", data=payload,
+                                 headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read().decode())
+    except urllib.error.HTTPError:
+        return "HTTP_ERROR"
+    except Exception:
+        pass  # host transport failed → try the in-container fallback
+    # docker exec fallback: POST to localhost:8000 from inside the API container.
+    import subprocess
+    script = (
+        "import sys,json,urllib.request,urllib.error\n"
+        "b=sys.stdin.buffer.read()\n"
+        "req=urllib.request.Request('http://127.0.0.1:8000/calculate',data=b,"
+        "headers={'Content-Type':'application/json'},method='POST')\n"
+        "try:\n"
+        "    import urllib.request as u\n"
+        "    r=u.urlopen(req,timeout=30); sys.stdout.write(r.read().decode())\n"
+        "except urllib.error.HTTPError as e:\n"
+        "    sys.stdout.write('__HTTP_ERROR__')\n"
+    )
+    try:
+        p = subprocess.run(["docker", "exec", "-i", _API_CONTAINER, "python", "-c", script],
+                           input=payload, capture_output=True, timeout=45)
+        out = p.stdout.decode(errors="replace").strip()
+        if out == "__HTTP_ERROR__":
+            return "HTTP_ERROR"
+        if not out:
+            return "DOWN"
+        return json.loads(out)
+    except Exception:
+        return "DOWN"
+
+
 def _calc_keys_one(calc_type: str, extra: dict | None = None) -> set[str] | str | None:
     """Live top-level result key-set for ONE input variant. None = unresolvable; 'DOWN' = api down."""
     inputs = dict(CALC_MIN_INPUTS.get(calc_type, {}))
     if extra:
         inputs.update(extra)
     body = {"calc_type": calc_type, "inputs": inputs}
-    req = urllib.request.Request(f"{PY_API}/calculate", data=json.dumps(body).encode(),
-                                 headers={"Content-Type": "application/json"}, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            j = json.loads(r.read().decode())
-    except urllib.error.HTTPError:
+    j = _post_calculate(body)
+    if j == "HTTP_ERROR":
         return None
-    except Exception:
+    if j == "DOWN" or not isinstance(j, dict):
         return "DOWN"  # sentinel: api unreachable
     res = j.get("results")
     if not isinstance(res, dict):

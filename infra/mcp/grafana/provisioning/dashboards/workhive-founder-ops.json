@@ -1,0 +1,158 @@
+{
+  "uid": "workhive-founder-ops",
+  "title": "WorkHive Founder / Platform Ops",
+  "tags": ["workhive", "founder", "operator", "ops"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": { "from": "now-30d", "to": "now" },
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Active workers (range)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(distinct worker_name) as value from analytics_events where worker_name is not null and $__timeFilter(created_at)" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Listings awaiting review",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from marketplace_listings where status = 'draft'" } ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Sellers awaiting KYB",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from marketplace_sellers where kyb_verified is not true" } ]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Open disputes",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from marketplace_disputes where status = 'open'" } ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Platform usage (events / day)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 40 }, "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": false } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select $__timeGroup(created_at,'1d') as time, count(*) as events from analytics_events where $__timeFilter(created_at) group by 1 order by 1" } ]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "AI cost (USD / day)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line", "fillOpacity": 15 }, "unit": "currencyUSD", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": false } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select $__timeGroup(created_at,'1d') as time, coalesce(sum(cost_usd),0) as cost_usd from ai_cost_log where $__timeFilter(created_at) group by 1 order by 1" } ]
+    },
+    {
+      "id": 7, "type": "table", "title": "Top surfaces (feature heatmap)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(nullif(page,''), event_name, '(unknown)') as surface, count(*) as events from analytics_events where $__timeFilter(created_at) group by 1 order by 2 desc limit 15" } ]
+    },
+    {
+      "id": 8, "type": "barchart", "title": "Hive maturity (stair distribution)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": false }, "xField": "stair" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select 'Stair ' || coalesce(current_stair, 0) as stair, count(*) as hives from (select distinct on (hive_id) hive_id, current_stair from hive_readiness order by hive_id, snapshot_date desc nulls last) s group by 1 order by 1" } ]
+    },
+    {
+      "id": 9, "type": "table", "title": "Recent admin activity",
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 20 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select created_at as \"time\", actor, action, target_type, coalesce(target_name, target_id) as target from hive_audit_log order by created_at desc limit 25" } ]
+    },
+    {
+      "id": 10, "type": "table", "title": "Power users (range)",
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 20 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select worker_name, count(*) as events from analytics_events where worker_name is not null and $__timeFilter(created_at) group by 1 order by 2 desc limit 10" } ]
+    },
+    {
+      "id": 11, "type": "stat", "title": "Feedback (range)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 29 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from platform_feedback where $__timeFilter(created_at)" } ]
+    },
+    {
+      "id": 12, "type": "stat", "title": "Companion Eval — pass score",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 29 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "orange", "value": 60 }, { "color": "green", "value": 70 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select (metrics->>'pass_score')::float as value from ops_artifact_metrics where artifact = 'companion_eval' order by captured_at desc limit 1" } ]
+    },
+    {
+      "id": 13, "type": "table", "title": "Memento memory cache",
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 29 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select headline, (metrics->>'chunks_indexed')::bigint as chunks_indexed, (metrics->>'files_indexed')::bigint as files_indexed, (metrics->>'vocab_terms')::bigint as vocab_terms, captured_at from ops_artifact_metrics where artifact = 'memento_health' order by captured_at desc limit 1" } ]
+    },
+    {
+      "id": 14, "type": "barchart", "title": "AI cost by provider (range)",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 34 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "unit": "currencyUSD", "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "options": { "orientation": "horizontal", "xField": "provider", "legend": { "showLegend": false }, "tooltip": { "mode": "single" } },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(provider,'unknown') as provider, sum(cost_usd) as cost from ai_cost_log where $__timeFilter(created_at) group by 1 order by 2 desc" } ]
+    },
+    {
+      "id": 15, "type": "table", "title": "AI reply feedback (ratings)",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 34 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(agent,'?') as agent, count(*) as replies, count(*) filter (where rating > 0) as up, count(*) filter (where rating < 0) as down from ai_reply_feedback where $__timeFilter(created_at) group by 1 order by 2 desc limit 20" } ]
+    },
+    {
+      "id": 16, "type": "stat", "title": "RAG traces (range)",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 34 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none", "textMode": "value_and_name" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as \"traces\", coalesce(round(avg(latency_ms)),0) as \"avg ms\", count(*) filter (where grader_passed) as \"grader passed\" from agentic_rag_traces where $__timeFilter(created_at)" } ]
+    },
+    {
+      "id": 17, "type": "table", "title": "LLM chain metrics (range)",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 42 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as calls, round(100.0 * count(*) filter (where provider ilike '%ai_cache%') / nullif(count(*),0), 1) as cache_hit_pct, round(100.0 * count(*) filter (where status = 'fallback') / nullif(count(*),0), 1) as fallback_pct, round(100.0 * count(*) filter (where status = 'fallback' or schema_compliance = false) / nullif(count(*),0), 1) as error_pct, round(percentile_cont(0.5) within group (order by case when provider not ilike '%ai_cache%' then latency_ms end)) as p50_latency_ms, sum(coalesce(prompt_tokens,0) + coalesce(output_tokens,0)) as total_tokens from ai_cost_log where $__timeFilter(created_at)" } ]
+    },
+    {
+      "id": 18, "type": "table", "title": "LLM token burn by hive (range)",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 42 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(hive_id::text, '(no hive)') as hive, count(*) as calls, sum(coalesce(prompt_tokens,0) + coalesce(output_tokens,0)) as tokens from ai_cost_log where $__timeFilter(created_at) group by 1 order by 3 desc limit 20" } ]
+    },
+    {
+      "id": 19, "type": "table", "title": "RAG traces detail (range)",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 48 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as traces, count(*) filter (where grader_passed) as grader_pass, count(*) filter (where checker_passed) as checker_pass, round(avg(citation_count),1) as avg_citations, round(avg(retries),1) as avg_retries, round(avg(latency_ms)) as avg_latency_ms, coalesce(sum(total_tokens),0) as total_tokens from agentic_rag_traces where $__timeFilter(created_at)" } ]
+    }
+  ]
+}

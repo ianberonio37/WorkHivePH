@@ -86,7 +86,6 @@ CRITICAL_TABLES = {
     "marketplace_orders":     "Money movement — every status change is reportable",
     "marketplace_disputes":   "Buyer/seller disputes — admin actions must be audited",
     "marketplace_listings":   "Listing publish/remove affects buyer trust",
-    "marketplace_sellers":    "Seller verification + Stripe Connect changes",
     # Access / identity
     "hive_members":      "Membership + role changes (kick / promote)",
     "worker_profiles":   "Identity changes",
@@ -131,13 +130,6 @@ AUDIT_WRITER_EXEMPT_FILES = {
     "supabase\\functions\\cmms-sync\\index.ts":           "Writes cmms_audit_log directly",
     "supabase\\functions\\cmms-push-completion\\index.ts": "Writes automation_log on every push",
     "supabase\\functions\\cmms-webhook-receiver\\index.ts": "Writes external_sync (sync trail) + automation_log on each event",
-    # Marketplace edge fns that write to marketplace_orders themselves —
-    # the orders.status state machine + escrow_release_at IS the trail
-    "supabase\\functions\\marketplace-checkout\\index.ts":         "Order state machine is the audit; release timer is the verifiable record",
-    "supabase\\functions\\marketplace-release\\index.ts":          "Same",
-    "supabase\\functions\\marketplace-webhook\\index.ts":          "Same — Stripe webhook is the upstream record",
-    "supabase\\functions\\marketplace-connect-onboard\\index.ts":  "Stripe Connect events are the upstream record",
-    "supabase\\functions\\marketplace-connect-status\\index.ts":   "Read-mostly; status check, no critical writes",
     # AI / project orchestrators that write to project tables but the project
     # state machine itself is the audit
     "supabase\\functions\\project-orchestrator\\index.ts": "Writes to projects/items but each row's status transition is the audit",

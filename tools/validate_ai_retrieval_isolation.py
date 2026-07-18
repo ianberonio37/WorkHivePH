@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: ai:* D24
 """validate_ai_retrieval_isolation.py — Arc H H1 keystone: AI retrieval RPCs must not bypass tenancy.
 
 THE BUG CLASS (OWASP LLM08 Vector & Embedding Weaknesses + the Arc-G DEFINER bypass on the READ path):
@@ -38,6 +39,7 @@ SAFE_BY_DESIGN = {
     "semantic_search_platform_kg_facts":  "reads the GLOBAL platform knowledge graph — shared, no hive param",
     "rerank_kb_chunks":                   "pure reranker over caller-supplied chunk ids — no hive-scoped read",
     "match_persona_knowledge":            "global persona KB, security_invoker (RLS applies), no hive param",
+    "get_seller_community_reputation":    "SELLER-SCOPED (Arc R 2026-07-17): returns reputation ONLY when (worker,hive) resolves to an actual marketplace_sellers row (empty otherwise) — sellers opt into public cross-hive marketplace visibility (the sanctioned reputation-bridge surface); resolves auth_uid server-side + delegates to the already-tenancy-gated get_community_reputation_by_auth. Purpose-built to REMOVE the client auth_uid exposure (mig 20260717000004).",
 }
 
 
@@ -90,7 +92,8 @@ def has_self_gate(body: str) -> bool:
     return bool(re.search(r"user_can_access_hive\s*\(", nc)
                 or re.search(r"user_hive_ids\s*\(", nc)
                 or (re.search(r"hive_members", nc) and re.search(r"auth\.uid\(\)", nc))
-                or re.search(r"auth\.uid\(\)\s*=\s*\w*auth_uid", nc))
+                or re.search(r"auth\.uid\(\)\s*=\s*\w*auth_uid", nc)
+                or re.search(r"\w*auth_uid\s*=\s*auth\.uid\(\)", nc))  # both operand orders (2026-07-17)
 
 
 def evaluate(defs):

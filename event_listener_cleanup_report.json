@@ -1,6 +1,6 @@
 {
   "summary": {
-    "pages_scanned": 31,
+    "pages_scanned": 29,
     "risky_pages": 0,
     "baseline": 0
   },
@@ -37,7 +37,7 @@
     },
     {
       "page": "analytics.html",
-      "add": 1,
+      "add": 2,
       "remove": 0,
       "risky": false
     },
@@ -55,7 +55,7 @@
     },
     {
       "page": "community.html",
-      "add": 13,
+      "add": 16,
       "remove": 1,
       "risky": false
     },
@@ -97,7 +97,7 @@
     },
     {
       "page": "assistant.html",
-      "add": 2,
+      "add": 3,
       "remove": 0,
       "risky": false
     },
@@ -108,20 +108,14 @@
       "allowed": true
     },
     {
-      "page": "platform-health.html",
-      "add": 0,
-      "remove": 0,
-      "allowed": true
-    },
-    {
       "page": "project-manager.html",
-      "add": 7,
+      "add": 8,
       "remove": 0,
       "risky": false
     },
     {
       "page": "integrations.html",
-      "add": 4,
+      "add": 5,
       "remove": 0,
       "risky": false
     },
@@ -133,31 +127,25 @@
     },
     {
       "page": "project-report.html",
-      "add": 0,
-      "remove": 0,
-      "risky": false
-    },
-    {
-      "page": "predictive.html",
-      "add": 3,
+      "add": 1,
       "remove": 0,
       "risky": false
     },
     {
       "page": "ai-quality.html",
-      "add": 0,
+      "add": 1,
       "remove": 0,
       "risky": false
     },
     {
       "page": "plant-connections.html",
-      "add": 0,
+      "add": 1,
       "remove": 0,
       "risky": false
     },
     {
       "page": "achievements.html",
-      "add": 1,
+      "add": 2,
       "remove": 0,
       "risky": false
     },
@@ -169,7 +157,7 @@
     },
     {
       "page": "shift-brain.html",
-      "add": 6,
+      "add": 7,
       "remove": 0,
       "risky": false
     },
@@ -187,7 +175,7 @@
     },
     {
       "page": "voice-journal.html",
-      "add": 7,
+      "add": 9,
       "remove": 0,
       "risky": false
     }

@@ -1,16 +1,16 @@
 {
   "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
   "totals": {
-    "anchors": 106,
-    "chrome_excluded": 41,
-    "data_anchors": 65,
-    "resolved": 65,
-    "resolved_pct": 100.0,
-    "resolved_pct_of_all": 61.3,
+    "anchors": 101,
+    "chrome_excluded": 37,
+    "data_anchors": 64,
+    "resolved": 62,
+    "resolved_pct": 96.9,
+    "resolved_pct_of_all": 61.4,
     "resolved_by_formula_or_kpi": 0,
-    "resolved_by_js_heuristic": 1,
-    "resolved_by_verified_bind": 64,
-    "needs_js_parse": 0
+    "resolved_by_js_heuristic": 4,
+    "resolved_by_verified_bind": 58,
+    "needs_js_parse": 2
   },
   "anchors": [
     {
@@ -34,6 +34,19 @@
             "unit": null
           }
         ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "audit-log-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "hive_audit_log",
+        "source_kind": "table/view",
+        "confidence": "medium"
       }
     },
     {
@@ -87,6 +100,19 @@
             "unit": null
           }
         ]
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "roster-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "v_logbook_truth",
+        "source_kind": "table/view",
+        "confidence": "high"
       }
     },
     {
@@ -170,6 +196,14 @@
         "source_kind": "table/view",
         "confidence": "high"
       }
+    },
+    {
+      "page": "hive.html",
+      "id": "ss-sticky-label",
+      "token": "ss-sticky-label",
+      "bucket": "unknown",
+      "status": "NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "logbook.html",
@@ -881,36 +915,16 @@
       }
     },
     {
-      "page": "marketplace-seller.html",
-      "id": "ps-earned",
-      "token": "earned",
-      "bucket": "contracted",
-      "status": "RESOLVED_VERIFIED",
+      "page": "marketplace.html",
+      "id": "post-ai-assist-label",
+      "token": "post-ai-assist-label",
+      "bucket": "unknown",
+      "status": "RESOLVED_JS",
       "source": {
-        "via": "verified_bind",
-        "reads": "v_marketplace_orders_truth",
-        "rung": "descriptive",
-        "chain": [
-          {
-            "name": "Seller's total PHP earned: sum of (price * 0.95, i.e. net of 5% platform fee) over orders with status 'released'.",
-            "reads": "v_marketplace_orders_truth",
-            "view": "v_marketplace_orders_truth",
-            "table": null,
-            "rpc": null,
-            "standard_cite": null,
-            "unit": null
-          }
-        ]
-      }
-    },
-    {
-      "page": "marketplace-seller.html",
-      "id": "pstat-earned",
-      "token": "earned",
-      "bucket": "contracted",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
+        "via": "js_parse_heuristic",
+        "source": "marketplace-listing-assist",
+        "source_kind": "edge_fn",
+        "confidence": "high"
       }
     },
     {
@@ -1043,105 +1057,6 @@
       }
     },
     {
-      "page": "platform-health.html",
-      "id": "health-label",
-      "token": "health",
-      "bucket": "contracted",
-      "status": "RESOLVED_VERIFIED",
-      "source": {
-        "via": "verified_bind",
-        "reads": "platform_health.json",
-        "rung": "diagnostic",
-        "chain": [
-          {
-            "name": "Health band label (Healthy / Review / Action) derived from the composite score.",
-            "reads": "platform_health.json",
-            "view": null,
-            "table": null,
-            "rpc": null,
-            "standard_cite": null,
-            "unit": null
-          }
-        ]
-      }
-    },
-    {
-      "page": "platform-health.html",
-      "id": "health-num",
-      "token": "health",
-      "bucket": "contracted",
-      "status": "RESOLVED_VERIFIED",
-      "source": {
-        "via": "verified_bind",
-        "reads": "platform_health.json",
-        "rung": "diagnostic",
-        "chain": [
-          {
-            "name": "Composite platform health score (0-100) shown as the big number in the header ring.",
-            "reads": "platform_health.json",
-            "view": null,
-            "table": null,
-            "rpc": null,
-            "standard_cite": null,
-            "unit": null
-          }
-        ]
-      }
-    },
-    {
-      "page": "platform-health.html",
-      "id": "health-score",
-      "token": "health",
-      "bucket": "contracted",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
-      "page": "platform-health.html",
-      "id": "streak-num",
-      "token": "streak",
-      "bucket": "raw",
-      "status": "RESOLVED_VERIFIED",
-      "source": {
-        "via": "verified_bind",
-        "reads": "wh_guard_hist (localStorage validator run history)",
-        "rung": "descriptive",
-        "chain": [
-          {
-            "name": "Consecutive clean validator runs (0 FAIL, 0 regressions)",
-            "reads": "wh_guard_hist (localStorage validator run history)",
-            "view": null,
-            "table": null,
-            "rpc": null,
-            "standard_cite": null,
-            "unit": null
-          }
-        ]
-      }
-    },
-    {
-      "page": "platform-health.html",
-      "id": "action-bar",
-      "token": "action-bar",
-      "bucket": "unknown",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
-      "page": "platform-health.html",
-      "id": "sticky-bar",
-      "token": "sticky-bar",
-      "bucket": "unknown",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
       "page": "project-manager.html",
       "id": "pm-verdict-label",
       "token": "-verdict-label",
@@ -1257,62 +1172,6 @@
             "view": null,
             "table": "ph_intelligence_reports",
             "rpc": null,
-            "standard_cite": null,
-            "unit": null
-          }
-        ]
-      }
-    },
-    {
-      "page": "predictive.html",
-      "id": "panel-trend",
-      "token": "trend",
-      "bucket": "raw",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
-      "page": "predictive.html",
-      "id": "pr-verdict-label",
-      "token": "-verdict-label",
-      "bucket": "raw",
-      "status": "RESOLVED_VERIFIED",
-      "source": {
-        "via": "verified_bind",
-        "reads": "v_risk_truth",
-        "rung": "predictive",
-        "chain": [
-          {
-            "name": "Plain-Read verdict headline (e.g. 'Fleet risk is high' / 'Fleet is healthy')",
-            "reads": "v_risk_truth",
-            "view": "v_risk_truth",
-            "table": null,
-            "rpc": null,
-            "standard_cite": null,
-            "unit": null
-          }
-        ]
-      }
-    },
-    {
-      "page": "predictive.html",
-      "id": "trend-label",
-      "token": "trend",
-      "bucket": "raw",
-      "status": "RESOLVED_VERIFIED",
-      "source": {
-        "via": "verified_bind",
-        "reads": "analytics-orchestrator",
-        "rung": "predictive",
-        "chain": [
-          {
-            "name": "MTBF/failure-trend caption text under the weekly failure bars",
-            "reads": "analytics-orchestrator",
-            "view": null,
-            "table": null,
-            "rpc": "analytics-orchestrator",
             "standard_cite": null,
             "unit": null
           }
@@ -1689,6 +1548,16 @@
     },
     {
       "page": "alert-hub.html",
+      "id": "ah-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "alert-hub.html",
       "id": "amc-stat-assets",
       "token": "amc-stat",
       "bucket": "raw",
@@ -1801,6 +1670,14 @@
           }
         ]
       }
+    },
+    {
+      "page": "voice-journal.html",
+      "id": "sov-voice-label",
+      "token": "sov-voice-label",
+      "bucket": "unknown",
+      "status": "NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "voice-journal.html",

@@ -1,0 +1,16 @@
+# Auto-provisioned at Grafana boot. Loads repo-committed dashboards from this
+# same directory (mounted at /etc/grafana/provisioning/dashboards). Arc T/T5.
+apiVersion: 1
+
+providers:
+  - name: WorkHive
+    orgId: 1
+    folder: WorkHive
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

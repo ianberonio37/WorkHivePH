@@ -4,8 +4,8 @@ Documented rules from `C:/Users/ILBeronio/.claude/skills/<skill>/SKILL.md` files
 mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 - Rules evaluated: **57**
-- Critical / high-severity violations: **4**
-- Promotion candidates (drift band): **8**
+- Critical / high-severity violations: **7**
+- Promotion candidates (drift band): **17**
 - Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=50
 
 ## Per-skill roll-up
@@ -13,112 +13,139 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | Skill | Rules | Avg conformance | Total violators |
 |---|---:|---:|---:|
 | architect | 2 | 100% | 0 |
-| data-engineer | 1 | 96% | 1 |
-| designer | 7 | 98% | 4 |
-| frontend | 20 | 93% | 45 |
-| mobile-maestro | 7 | 85% | 4 |
-| qa-tester | 6 | 98% | 3 |
-| security | 14 | 97% | 1 |
+| data-engineer | 1 | 93% | 2 |
+| designer | 7 | 85% | 22 |
+| frontend | 20 | 91% | 53 |
+| mobile-maestro | 7 | 82% | 7 |
+| qa-tester | 6 | 96% | 9 |
+| security | 14 | 95% | 6 |
 
 ## Critical / high-severity violations -- act immediately
 
+### `mobile_viewport_fit_cover` (high)  -- mobile-maestro :: viewport-fit=cover is required before safe areas work
+- **Rule:** Every HTML page's viewport meta must include viewport-fit=cover
+- **Conformance:** 92%  (39 / 42)
+- **Violators (3):** llm-observability.html, promo-poster.html, validator-catalog.html
+- **Why it matters:** env(safe-area-inset-*) returns 0 unless viewport-fit=cover is set -- iPhone notch + home indicator overlap content.
+
 ### `qa_utils_js_loads_before_inline_script` (high)  -- qa-tester :: utils.js must load BEFORE the main script block
 - **Rule:** Pages that call escHtml/getDb must load utils.js before the main inline <script> block
-- **Conformance:** 92%  (36 / 39)
+- **Conformance:** 91%  (34 / 37)
 - **Violators (3):** architecture.html, symbol-gallery.html, validator-catalog.html
 - **Why it matters:** If utils.js loads AFTER the inline script that calls escHtml/getDb, the call throws ReferenceError and silently kills the entire <script> block.
 
-### `mobile_viewport_fit_cover` (high)  -- mobile-maestro :: viewport-fit=cover is required before safe areas work
-- **Rule:** Every HTML page's viewport meta must include viewport-fit=cover
-- **Conformance:** 94%  (37 / 39)
-- **Violators (2):** llm-observability.html, validator-catalog.html
-- **Why it matters:** env(safe-area-inset-*) returns 0 unless viewport-fit=cover is set -- iPhone notch + home indicator overlap content.
-
-### `security_voice_transcript_length_cap` (high)  -- security :: Auto-Mineable Rules
-- **Rule:** Edge fns passing user voice transcripts to AI must `.slice(0, N)` to prevent prompt injection
-- **Conformance:** 66%  (2 / 3)
-- **Violators (1):** ai-gateway
-- **Why it matters:** An attacker speaking a long prompt could override the system prompt. Always cap before passing to callAI(). Reference: April 2026 Report Sender lessons.
+### `frontend_eschtml_imported_not_inline` (high)  -- frontend :: escHtml from utils.js
+- **Rule:** Pages must use escHtml() (from utils.js) -- either direct call `escHtml(` or canonical alias `const e = escHtml` + e( calls
+- **Conformance:** 94%  (35 / 37)
+- **Violators (2):** platform-actions.html, status.html
+- **Why it matters:** Any page that uses innerHTML to render user data must escape it. Two canonical idioms are accepted: direct escHtml() calls, or the `const e = escHtml` alias (memory rule -- shortens template literals in renderer functions).
 
 ### `data_engineer_restore_identity_from_session` (high)  -- data-engineer :: Auth identity restoration
 - **Rule:** Pages reading localStorage worker_name must also call restoreIdentityFromSession(db) to sync with Supabase Auth
-- **Conformance:** 96%  (31 / 32)
-- **Violators (1):** agentic-rag-observability.html
+- **Conformance:** 93%  (28 / 30)
+- **Violators (2):** agentic-rag-observability.html, platform-actions.html
 - **Why it matters:** Identity migration (C1-C4) replaced string localStorage with Supabase Auth sessions. Any page still reading the localStorage worker_name must call restoreIdentityFromSession(db) on load or it diverges from the canonical auth.uid() identity. Surfaced by AI extraction 2026-05-18, manually reviewed.
+
+### `mobile_decorative_anim_has_mobile_kill` (high)  -- mobile-maestro :: Auto-Mineable Rules
+- **Rule:** Pages with DECORATIVE infinite CSS animations include a @media (max-width: 767px) animation:none kill
+- **Conformance:** 88%  (8 / 9)
+- **Violators (1):** voice-journal.html
+- **Why it matters:** iOS WebKit kills tabs with too many simultaneous infinite animations -- 'A problem repeatedly occurred'. Only DECORATIVE animations need a mobile kill -- functional ones (skeleton loaders, spinners, blink/pulse status indicators, mic-pulse, dot-pulse) are whitelisted per the skill's explicit guidance. Trigger uses a negative lookahead to exclude the whitelist.
+
+### `security_voice_transcript_length_cap` (high)  -- security :: Auto-Mineable Rules
+- **Rule:** Edge fns passing user voice transcripts to AI must `.slice(0, N)` to prevent prompt injection
+- **Conformance:** 50%  (1 / 2)
+- **Violators (1):** ai-gateway
+- **Why it matters:** An attacker speaking a long prompt could override the system prompt. Always cap before passing to callAI(). Reference: April 2026 Report Sender lessons.
+
+### `mobile_toast_has_aria_live` (high)  -- mobile-maestro :: Toast containers need ARIA -- mobile screen readers depend on this
+- **Rule:** Toast containers must have role="alert" aria-live="polite"
+- **Conformance:** 96%  (29 / 30)
+- **Violators (1):** platform-actions.html
+- **Why it matters:** VoiceOver/TalkBack rely on aria-live for toast announcements. Without it, save confirmations are completely silent on mobile.
 
 ## Promotion candidates (documented rules with measurable drift)
 
 | Rule | Skill | Severity | Conformance | Violators |
 |---|---|---|---:|---|
-| `data_engineer_restore_identity_from_session` | data-engineer | high | 96% | agentic-rag-observability.html |
-| `mobile_viewport_fit_cover` | mobile-maestro | high | 94% | llm-observability.html, validator-catalog.html |
+| `qa_no_alert_call` | qa-tester | medium | 98% | index.html |
+| `qa_no_innerhtml_plus_equals` | qa-tester | medium | 97% | design-system.html |
+| `mobile_toast_has_aria_live` | mobile-maestro | high | 96% | platform-actions.html |
+| `frontend_list_view_has_error_state` | frontend | medium | 96% | status.html |
+| `designer_poppins_font` | designer | info | 95% | llm-observability.html, validator-catalog.html |
 | `frontend_no_em_dash_in_prompt_template` | frontend | medium | 94% | ai-gateway, analytics-orchestrator, voice-journal-agent |
-| `designer_uses_canonical_orange` | designer | info | 94% | llm-observability.html, validator-catalog.html |
-| `designer_poppins_font` | designer | info | 94% | llm-observability.html, validator-catalog.html |
-| `frontend_list_view_has_empty_state` | frontend | medium | 93% | resume.html, validator-catalog.html |
-| `qa_utils_js_loads_before_inline_script` | qa-tester | high | 92% | architecture.html, symbol-gallery.html, validator-catalog.html |
-| `frontend_calm_dashboard_declares_source_chip` | frontend | medium | 80% | agentic-rag-observability.html, ph-intelligence.html, platform-health.html |
+| `frontend_eschtml_imported_not_inline` | frontend | high | 94% | platform-actions.html, status.html |
+| `data_engineer_restore_identity_from_session` | data-engineer | high | 93% | agentic-rag-observability.html, platform-actions.html |
+| `mobile_viewport_fit_cover` | mobile-maestro | high | 92% | llm-observability.html, promo-poster.html, validator-catalog.html |
+| `frontend_calm_dashboard_declares_source_chip` | frontend | medium | 92% | ph-intelligence.html |
+| `frontend_list_view_has_loading_state` | frontend | medium | 92% | platform-actions.html, status.html |
+| `migration_grant_when_rls_enabled` | security | medium | 92% | 20260620000007_rls_enable_project_family.sql, 20260620000008_rls_enable_remaining_hive_tables.sql, 20260707000001_marketplace_watchlist_savedsearch_rls.sql, 20260707000004_achievement_xp_log_rls.sql, 20260718000001_ops_artifact_metrics.sql |
+| `qa_utils_js_loads_before_inline_script` | qa-tester | high | 91% | architecture.html, symbol-gallery.html, validator-catalog.html |
+| `a11y_main_landmark_present` | qa-tester | medium | 90% | design-system.html, platform-actions.html, promo-poster.html, status.html |
+| `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | high | 88% | voice-journal.html |
+| `frontend_list_view_has_empty_state` | frontend | medium | 83% | design-system.html, platform-actions.html, resume.html, status.html, validator-catalog.html |
+| `designer_uses_canonical_orange` | designer | info | 77% | agentic-rag-observability.html, ai-quality.html, design-system.html, llm-observability.html, offline-fallback.html ... |
 
 ## All rules (full conformance ranking)
 
 | Rule | Skill | Conformance | Scope | Polarity |
 |---|---|---:|---|---|
 | `mobile_pdf_pagebreak_covers_p` | mobile-maestro | 0% (0/2) | html_pages | convention |
-| `frontend_classlist_over_classname` | frontend | 46% (18/39) | html_pages | anti_pattern |
-| `frontend_no_innerhtml_in_foreach` | frontend | 59% (23/39) | html_pages | anti_pattern |
-| `security_voice_transcript_length_cap` | security | 66% (2/3) | edge_fns | convention |
-| `frontend_calm_dashboard_declares_source_chip` | frontend | 80% (12/15) | html_pages | convention |
-| `qa_utils_js_loads_before_inline_script` | qa-tester | 92% (36/39) | html_pages | convention |
-| `frontend_list_view_has_empty_state` | frontend | 93% (28/30) | html_pages | convention |
-| `designer_poppins_font` | designer | 94% (34/36) | html_pages | convention |
-| `designer_uses_canonical_orange` | designer | 94% (35/37) | html_pages | convention |
-| `mobile_viewport_fit_cover` | mobile-maestro | 94% (37/39) | html_pages | convention |
-| `frontend_no_em_dash_in_prompt_template` | frontend | 94% (56/59) | edge_fns | anti_pattern |
-| `data_engineer_restore_identity_from_session` | data-engineer | 96% (31/32) | html_pages | convention |
-| `designer_btn_primary_canonical_gradient` | designer | 100% (15/15) | html_and_js | convention |
-| `designer_dialog_has_aria_modal_true` | designer | 100% (9/9) | html_pages | convention |
-| `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 100% (8/8) | html_pages | convention |
+| `designer_btn_primary_canonical_gradient` | designer | 26% (4/15) | html_and_js | convention |
+| `security_voice_transcript_length_cap` | security | 50% (1/2) | edge_fns | convention |
+| `frontend_classlist_over_classname` | frontend | 52% (22/42) | html_pages | anti_pattern |
+| `frontend_no_innerhtml_in_foreach` | frontend | 59% (25/42) | html_pages | anti_pattern |
+| `frontend_currency_uses_shared_formatter` | frontend | 66% (4/6) | html_pages | convention |
+| `designer_uses_canonical_orange` | designer | 77% (31/40) | html_pages | convention |
+| `frontend_list_view_has_empty_state` | frontend | 83% (25/30) | html_pages | convention |
+| `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 88% (8/9) | html_pages | convention |
+| `a11y_main_landmark_present` | qa-tester | 90% (38/42) | html_pages | convention |
+| `qa_utils_js_loads_before_inline_script` | qa-tester | 91% (34/37) | html_pages | convention |
+| `migration_grant_when_rls_enabled` | security | 92% (58/63) | migrations | convention |
+| `frontend_list_view_has_loading_state` | frontend | 92% (24/26) | html_pages | convention |
+| `frontend_calm_dashboard_declares_source_chip` | frontend | 92% (12/13) | html_pages | convention |
+| `mobile_viewport_fit_cover` | mobile-maestro | 92% (39/42) | html_pages | convention |
+| `data_engineer_restore_identity_from_session` | data-engineer | 93% (28/30) | html_pages | convention |
+| `frontend_eschtml_imported_not_inline` | frontend | 94% (35/37) | html_pages | convention |
+| `frontend_no_em_dash_in_prompt_template` | frontend | 94% (54/57) | edge_fns | anti_pattern |
+| `designer_poppins_font` | designer | 95% (38/40) | html_pages | convention |
+| `frontend_list_view_has_error_state` | frontend | 96% (27/28) | html_pages | convention |
+| `mobile_toast_has_aria_live` | mobile-maestro | 96% (29/30) | html_pages | convention |
+| `qa_no_innerhtml_plus_equals` | qa-tester | 97% (41/42) | html_pages | anti_pattern |
+| `qa_no_alert_call` | qa-tester | 98% (78/79) | html_and_js | anti_pattern |
+| `designer_dialog_has_aria_modal_true` | designer | 100% (8/8) | html_pages | convention |
 | `security_inventory_status_approved_scope` | security | 100% (1/1) | html_pages | convention |
 | `security_inline_onclick_role_check_inside_fn` | security | 100% (3/3) | html_pages | convention |
-| `security_no_inline_eschtml` | security | 100% (39/39) | html_pages | anti_pattern |
-| `security_no_service_role_key_frontend` | security | 100% (70/70) | html_and_js | anti_pattern |
-| `security_no_eval_user_input` | security | 100% (70/70) | html_and_js | anti_pattern |
-| `security_no_stripe_secret_in_frontend` | security | 100% (70/70) | html_and_js | anti_pattern |
-| `security_no_static_cors_origin_edge_fn` | security | 100% (59/59) | edge_fns | anti_pattern |
-| `mobile_no_text_sm_on_wh_input` | mobile-maestro | 100% (39/39) | html_pages | anti_pattern |
-| `mobile_no_avoid_all_in_pdf_pagebreak` | mobile-maestro | 100% (39/39) | html_pages | anti_pattern |
-| `mobile_toast_has_aria_live` | mobile-maestro | 100% (20/20) | html_pages | convention |
+| `security_no_inline_eschtml` | security | 100% (42/42) | html_pages | anti_pattern |
+| `security_no_service_role_key_frontend` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `security_no_eval_user_input` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `security_no_stripe_secret_in_frontend` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `security_no_static_cors_origin_edge_fn` | security | 100% (57/57) | edge_fns | anti_pattern |
+| `mobile_no_text_sm_on_wh_input` | mobile-maestro | 100% (42/42) | html_pages | anti_pattern |
+| `mobile_no_avoid_all_in_pdf_pagebreak` | mobile-maestro | 100% (42/42) | html_pages | anti_pattern |
 | `mobile_sw_cache_name_present` | mobile-maestro | 100% (0/0) | js_modules | convention |
-| `designer_no_off_brand_orange_e8920a` | designer | 100% (70/70) | html_and_js | anti_pattern |
-| `designer_no_wrong_input_bg_rgba_black` | designer | 100% (39/39) | html_pages | anti_pattern |
+| `designer_no_off_brand_orange_e8920a` | designer | 100% (79/79) | html_and_js | anti_pattern |
+| `designer_no_wrong_input_bg_rgba_black` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `qa_supabase_cdn_when_createclient_used` | qa-tester | 100% (0/0) | html_pages | convention |
-| `qa_no_innerhtml_plus_equals` | qa-tester | 100% (39/39) | html_pages | anti_pattern |
-| `qa_no_alert_call` | qa-tester | 100% (70/70) | html_and_js | anti_pattern |
-| `frontend_eschtml_imported_not_inline` | frontend | 100% (37/37) | html_pages | convention |
-| `frontend_writeAuditLog_called` | frontend | 100% (3/3) | html_pages | convention |
-| `edge_fn_uses_get_cors_headers` | security | 100% (58/58) | edge_fns | convention |
-| `edge_fn_handles_options_preflight` | security | 100% (59/59) | edge_fns | convention |
-| `migration_grant_when_rls_enabled` | security | 100% (51/51) | migrations | convention |
-| `migration_function_sets_search_path` | security | 100% (44/44) | migrations | convention |
-| `security_no_function_constructor` | security | 100% (70/70) | html_and_js | anti_pattern |
-| `security_no_token_in_localstorage` | security | 100% (70/70) | html_and_js | anti_pattern |
-| `designer_card_radius_not_125rem` | designer | 100% (39/39) | html_pages | anti_pattern |
-| `a11y_main_landmark_present` | qa-tester | 100% (39/39) | html_pages | convention |
-| `a11y_img_has_alt` | qa-tester | 100% (39/39) | html_pages | anti_pattern |
+| `frontend_writeAuditLog_called` | frontend | 100% (2/2) | html_pages | convention |
+| `edge_fn_uses_get_cors_headers` | security | 100% (57/57) | edge_fns | convention |
+| `edge_fn_handles_options_preflight` | security | 100% (57/57) | edge_fns | convention |
+| `migration_function_sets_search_path` | security | 100% (103/103) | migrations | convention |
+| `security_no_function_constructor` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `security_no_token_in_localstorage` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
+| `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (219/219) | migrations | anti_pattern |
-| `frontend_list_view_has_loading_state` | frontend | 100% (25/25) | html_pages | convention |
-| `frontend_list_view_has_error_state` | frontend | 100% (26/26) | html_pages | convention |
-| `frontend_currency_uses_shared_formatter` | frontend | 100% (3/3) | html_pages | convention |
-| `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (18/18) | html_pages | convention |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (351/351) | migrations | anti_pattern |
+| `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |
 | `frontend_filter_tabs_have_aria_roles` | frontend | 100% (6/6) | html_pages | convention |
-| `frontend_calm_dashboard_has_verdict` | frontend | 100% (15/15) | html_pages | convention |
-| `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (15/15) | html_pages | convention |
-| `frontend_phantom_capture_allow_has_reason` | frontend | 100% (39/39) | html_pages | anti_pattern |
-| `frontend_kpi_page_no_local_truth_math` | frontend | 100% (23/23) | html_pages | anti_pattern |
-| `frontend_calm_dashboard_filters_zero_kpis` | frontend | 100% (15/15) | html_pages | convention |
+| `frontend_calm_dashboard_has_verdict` | frontend | 100% (13/13) | html_pages | convention |
+| `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (13/13) | html_pages | convention |
+| `frontend_phantom_capture_allow_has_reason` | frontend | 100% (42/42) | html_pages | anti_pattern |
+| `frontend_kpi_page_no_local_truth_math` | frontend | 100% (26/26) | html_pages | anti_pattern |
+| `frontend_calm_dashboard_filters_zero_kpis` | frontend | 100% (13/13) | html_pages | convention |
 | `frontend_search_resets_pagination` | frontend | 100% (8/8) | html_pages | convention |
 
 ## Allowlisted suppressions (documented-legit divergences)
@@ -128,11 +155,9 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `designer_uses_canonical_orange` | `analytics-report.html` | Intentional purple-themed analytics report builder (uses #a78bfa as the accent palette). The page is a PDF-export surface, not a normal hive-facing page; the purple framing visually separates report mode from operational mode. |
 | `designer_uses_canonical_orange` | `architecture.html` | Intentional dark-themed technical architecture viewer (uses #1c2128 + neutral grays). Renders a static system diagram, not an operational surface; brand orange would distract from the architecture content. |
 | `designer_poppins_font` | `architecture.html` | Technical architecture viewer. Uses system fonts (-apple-system, Segoe UI) + monospace for diagram labels. Brand font would clash with the technical-content framing. |
-| `designer_poppins_font` | `platform-health.html` | Admin health dashboard. Intentional Segoe UI + Consolas mono for terminal-style readability of health checks and timestamps. |
 | `designer_poppins_font` | `symbol-gallery.html` | Static P&ID symbol library. Uses Segoe UI + mono for engineering-drawing context. Reference page, not operational. |
 | `frontend_eschtml_imported_not_inline` | `architecture.html` | Static-content page: innerHTML only ever assigned literal strings from a frozen catalog (no user data flows through it). Confirmed 2026-05-19 by grep of innerHTML sites. |
 | `frontend_eschtml_imported_not_inline` | `symbol-gallery.html` | Static-content page: renders a fixed P&ID symbol library; innerHTML carries no user input. Confirmed 2026-05-19 by grep of innerHTML sites. |
-| `edge_fn_uses_get_cors_headers` | `marketplace-webhook` | Stripe webhook receiver: Stripe servers do not send a browser Origin header and require a wildcard or absent ACAO. Using the dynamic helper would echo back a non-Stripe origin on misrouted traffic. Verified 2026-05-19 against the Stripe webhook signature flow. |
 | `migration_grant_when_rls_enabled` | `20260430000000_community_tables.sql` | RLS enabled on community_posts / community_replies / community_reactions. GRANTs added in sibling 20260430000001_community_grants.sql (grep confirmed 2026-05-20). |
 | `migration_grant_when_rls_enabled` | `20260516000001_agent_memory_phase2.sql` | RLS enabled on agent_memory. GRANTs added in earlier sibling 20260511000001_agent_memory.sql (grep confirmed 2026-05-20). |
 | `migration_grant_when_rls_enabled` | `20260516000002_dialog_state_phase4.sql` | RLS enabled on dialog_state. GRANTs added in 20260519000020_security_hardening_pass.sql (grep confirmed 2026-05-20). |
@@ -156,15 +181,12 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_list_view_has_loading_state` | `index.html` | Marketing landing + operational-home dashboard; tiles render from a fixed set, governed by the Calm Dashboard Contract. |
 | `frontend_list_view_has_loading_state` | `integrations.html` | Multi-step CSV import wizard; the .map() renders preview rows of in-progress data, not a fetched list. |
 | `frontend_list_view_has_loading_state` | `marketplace-admin.html` | Platform-staff approval/KYB queue gated behind the marketplace_platform_admins role — internal moderation surface, not a customer-facing product list. |
-| `frontend_list_view_has_loading_state` | `platform-health.html` | Internal dev/observability dashboard — gate/health telemetry from local JSON in a data table for operators, not a customer-facing product list. Same dev-tooling surface class as validator-catalog. |
 | `frontend_list_view_has_loading_state` | `report-sender.html` | Report-builder form; the .map() renders recipient chips, not a fetched list. |
 | `frontend_list_view_has_loading_state` | `validator-catalog.html` | Internal dev/observability dashboard — renders the validator catalog from a local platform_health.json into a dense data table for operators, not a customer-facing product list. Table-tbody surface where the div-based whListSkeleton doesn't fit; governed by dev-tooling conventions, not the user-facing List View Contract (cf. the E1 internal-dashboard exemption). |
 | `frontend_list_view_has_error_state` | `agentic-rag-observability.html` | Internal AI-ops observability dashboard — RAG retrieval/flywheel telemetry for operators, not a customer-facing product list. Dev-tooling surface, not the List View Contract. |
 | `frontend_list_view_has_error_state` | `assistant.html` | Chat interface, not a list view; reply errors surface inline in the conversation. |
 | `frontend_list_view_has_error_state` | `index.html` | Marketing landing + operational-home dashboard; governed by the Calm Dashboard Contract. |
 | `frontend_list_view_has_error_state` | `integrations.html` | Multi-step CSV import wizard; import errors surface in the wizard step, not a list. |
-| `frontend_list_view_has_error_state` | `platform-health.html` | Internal dev/observability dashboard — gate/health telemetry from local JSON in a data table for operators, not a customer-facing product list. Same dev-tooling surface class as validator-catalog. |
-| `frontend_list_view_has_error_state` | `predictive.html` | Retired/delisted page (nav entry removed, its sole product link repointed to Asset Hub 360 which now owns the v_risk_truth risk surface) — not a reachable customer surface, kept on disk only. Its ranking is a <tbody> the div-based whListError doesn't fit, and the page has no showToast to credit honestly. |
 | `frontend_list_view_has_error_state` | `report-sender.html` | Report-builder form; send errors surface on the form, not a list. |
 | `frontend_list_view_has_error_state` | `validator-catalog.html` | Internal dev/observability dashboard — renders the validator catalog from a local platform_health.json into a dense data table for operators, not a customer-facing product list; already logs a load failure to console + shows a 'not found' row. Dev-tooling surface, not the user-facing List View Contract (cf. the E1 internal-dashboard exemption). |
 | `frontend_currency_uses_shared_formatter` | `engineering-design.html` | The only ₱ is the static input-unit label '₱/kWh' (electricity-tariff suffix on a number field) — a constant unit, not a runtime currency value. whFmtPeso would be the wrong tool here. |

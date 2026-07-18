@@ -1,0 +1,48 @@
+{
+  "_doc": "Layer AV adoption baseline. Floors forward-only.",
+  "generated": "2026-07-18T04:41:23.558190+00:00",
+  "rows": [
+    {
+      "id": "AV1",
+      "mode": "measured",
+      "adopters_n": 29,
+      "need_n": 29,
+      "pct": 100,
+      "adopters": [
+        "achievements.html",
+        "ai-quality.html",
+        "alert-hub.html",
+        "analytics.html",
+        "asset-hub.html",
+        "assistant.html",
+        "audit-log.html",
+        "community.html",
+        "dayplanner.html",
+        "engineering-design.html",
+        "hive.html",
+        "index.html",
+        "integrations.html",
+        "inventory.html",
+        "logbook.html",
+        "marketplace-admin.html",
+        "marketplace-seller-profile.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "ph-intelligence.html",
+        "plant-connections.html",
+        "pm-scheduler.html",
+        "project-manager.html",
+        "project-report.html",
+        "public-feed.html",
+        "report-sender.html",
+        "shift-brain.html",
+        "skillmatrix.html",
+        "voice-journal.html"
+      ],
+      "gap": []
+    }
+  ],
+  "floors": {
+    "AV1": 29
+  }
+}

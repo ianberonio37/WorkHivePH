@@ -235,6 +235,57 @@ def check_function_existence(jobs: list[dict]) -> list[dict]:
     return issues
 
 
+# ── Layer 5: cron-honesty — a function that CLAIMS a cron must have one ───────
+# The reverse of Layer 1. A function whose header comment asserts a pg_cron trigger
+# must have a matching cron.schedule in a migration; otherwise it silently never runs
+# and its output ages as if fresh. Found in the Asset/Alert/Shift PDDA arc (2026-07-12):
+# amc-orchestrator + failure-signature-scan claimed crons that lived only in the manual
+# enable_amc_cron.sql (hard-coded prod URL), so every fresh env left them unarmed
+# (F12/F13). Armed via 20260712000014_arm_intelligence_crons.sql.
+CRON_CLAIM_RE = re.compile(
+    r"(called by pg_cron|triggered by pg_cron|pg_cron (daily|weekly|nightly|hourly)|"
+    r"cron[- ]scheduled|scheduled by pg_cron|runs (daily|nightly|weekly) via (pg_)?cron)",
+    re.IGNORECASE,
+)
+# A header that also documents manual/on-demand invocation resolves the ambiguity (exempt).
+CRON_MANUAL_OK_RE = re.compile(
+    r"(manual(ly)?[- ]only|on[- ]demand|invoked manually|or manually via|client[- ]invoked)",
+    re.IGNORECASE,
+)
+
+
+def check_cron_claim_armed(jobs: list[dict]) -> list[dict]:
+    """Every edge function whose header claims a cron trigger must be scheduled by a migration."""
+    issues: list[dict] = []
+    scheduled_targets = {j.get("url_path") for j in jobs if j.get("url_path")}
+    if not os.path.isdir(FUNCTIONS_DIR):
+        return issues
+    for entry in sorted(os.listdir(FUNCTIONS_DIR)):
+        idx = os.path.join(FUNCTIONS_DIR, entry, "index.ts")
+        if not os.path.isfile(idx):
+            continue
+        header = "\n".join(_read(idx).splitlines()[:60])
+        if not CRON_CLAIM_RE.search(header):
+            continue
+        if CRON_MANUAL_OK_RE.search(header):
+            continue  # claim describes intended ops; fn is legitimately invoked another way
+        if entry in scheduled_targets:
+            continue
+        issues.append({
+            "check": "cron_claim_armed",
+            "job":   entry,
+            "file":  f"supabase/functions/{entry}/index.ts",
+            "reason": (
+                f"Function '{entry}' header claims a pg_cron trigger, but NO migration "
+                f"schedules /functions/v1/{entry}. It will silently never run and its output "
+                f"ages as if fresh (cron-honesty gap, F13 class). Add a cron.schedule in a "
+                f"migration using the portable current_setting('app.supabase_functions_url') "
+                f"pattern, or update the header if the function is manual/on-demand only."
+            ),
+        })
+    return issues
+
+
 # ── Layer 2: scheduled-agents fan-out routing ────────────────────────────────
 
 RUNNERS_RE = re.compile(
@@ -405,19 +456,21 @@ CHECK_NAMES = [
     "scheduled_agents_routing",
     "cron_config_drift",
     "schedule_sanity",
+    "cron_claim_armed",
 ]
 CHECK_LABELS = {
     "cron_function_exists":     "L1  Every cron URL targets a deployed edge function",
     "scheduled_agents_routing": "L2  Every cron report_type is registered in scheduled-agents runners",
     "cron_config_drift":        "L3  No hardcoded project host or placeholder bearer in cron blocks  [WARN]",
     "schedule_sanity":          "L4  Cron expressions are 5-field, no duplicate names, no sub-minute  [WARN]",
+    "cron_claim_armed":         "L5  Every fn that CLAIMS a cron trigger is scheduled by a migration",
 }
 
 
 def main() -> None:
     def bold(s: str) -> str:
         return f"\033[1m{s}\033[0m"
-    print(bold("\nCron Schedule Integrity Validator (4-layer)"))
+    print(bold("\nCron Schedule Integrity Validator (5-layer)"))
     print("=" * 60)
 
     jobs = _extract_cron_jobs()
@@ -428,6 +481,7 @@ def main() -> None:
     all_issues += check_scheduled_agents_routing(jobs)
     all_issues += check_cron_config_drift(jobs)
     all_issues += check_schedule_sanity(jobs)
+    all_issues += check_cron_claim_armed(jobs)
 
     # Per-check pass/warn/fail formatting (mirror the validator family idiom)
     by_check: dict[str, list[dict]] = defaultdict(list)

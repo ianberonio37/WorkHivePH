@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -24,10 +24,14 @@
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    /* Same defect as alert-hub: this page <link>s Poppins above and then rendered
+       system-ui anyway -- all 41 of its text elements measured as a NON-Poppins typeface
+       (rubric S1 / NN/g #4 internal consistency). The font was downloaded and discarded.
+       var(--wh-font) resolves from tokens.css, linked above. */
+    body { font-family: var(--wh-font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
 
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
     .page-sub { font-size: .7rem; color: var(--muted); margin-top: 2px; }
     .hive-pill { font-size: .65rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
@@ -63,12 +67,12 @@
     .filter-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-export {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; background: rgba(74,222,128,0.12);
-      color: var(--green); border: 1px solid rgba(74,222,128,0.3);
+      padding: 8px 14px; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
+      color: var(--wh-navy); border: none;
       border-radius: 8px; font-size: .75rem; font-weight: 700;
       cursor: pointer; min-height: 44px;
     }
-    .btn-export:hover { background: rgba(74,222,128,0.18); }
+    .btn-export:hover { opacity: .9; }
     .btn-clear {
       padding: 8px 14px; background: transparent;
       color: var(--muted); border: 1px solid var(--border);
@@ -114,9 +118,12 @@
     }
     .entry-target {
       font-size: .82rem; color: rgba(255,255,255,0.7);
+      /* R2: a long target (path/id/JSON) must WRAP, not push the row past the viewport
+         (measured span was 1769px wide -> horizontal page scroll). */
+      overflow-wrap: anywhere; word-break: break-word; min-width: 0;
     }
     .entry-target-type {
-      font-size: .55rem; color: var(--muted); text-transform: uppercase;
+      font-size: .55rem; color: var(--muted); text-transform: capitalize;
       letter-spacing: .05em;
     }
     .entry-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
@@ -156,7 +163,7 @@
       border-radius: 14px; margin-top: 40px;
     }
     .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
-    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 20px; }
+    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
     .gate-btn {
       display: inline-block; padding: 10px 24px;
       background: rgba(41,182,217,0.15); color: var(--blue);
@@ -178,12 +185,17 @@
 
   <div class="page-header">
     <div>
-      <h1 class="page-title" style="margin:0;">Audit Log</h1>
-      <p class="page-sub">Every supervisor and worker action recorded for your hive — for compliance review and team transparency.</p>
+      <h1 class="page-title" style="margin:0;" data-i="al_title">Audit Log</h1>
+      <p class="page-sub">Every supervisor and worker action in your hive, on the record. Use it for compliance checks and team transparency.</p>
       <p id="audit-source-chip" style="margin-top:3px;"></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
   </div>
+
+  <details class="wh-help">
+    <summary>How this log works</summary>
+    <p>Actions inside your hive (approvals, role changes, edits, deletions) are recorded here automatically with who did what and when. Entries are read-only; use the filters to narrow by person or action, and Show details on any row for the full record.</p>
+  </details>
 
   <!-- Hive gate (no HIVE_ID) -->
   <div id="gate-no-hive" class="gate-card" style="display:none;">
@@ -221,13 +233,14 @@
       </div>
       <div class="filter-row">
         <div class="filter-actions">
-          <button id="btn-export" class="btn-export" type="button" aria-label="Export filtered entries to CSV">⬇ Export CSV</button>
-          <button id="btn-clear" class="btn-clear" type="button" aria-label="Clear all filters">Clear filters</button>
+          <button id="btn-export" class="btn-export" type="button" aria-label="Export filtered entries to CSV" data-i="exportcsv">⬇ Export CSV</button>
+          <button id="btn-clear" class="btn-clear" type="button" aria-label="Clear all filters" data-i="clearfilters">Clear filters</button>
         </div>
         <div id="filter-summary" class="filter-summary"></div>
       </div>
     </div>
 
+    <h2 style="margin:0 0 8px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);" data-i="al_activity">Activity</h2>
     <div id="feed" class="feed">
       <div class="loading">Loading audit log...</div>
     </div>
@@ -242,7 +255,7 @@
       <div class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -270,6 +283,7 @@
                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                   || localStorage.getItem('workerName') || '';
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 
   const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
@@ -313,6 +327,28 @@
   let _expanded    = new Set();
   let _realtimeSub = null;
   let _auditDisplayCount = 30;  // List View Contract: client-side slice pagination
+
+  // Arc P · P4 (internal-voice → worker-voice): humanize the snake_case audit target-type
+  // badge (rcm_strategies → "RCM Strategy") and keep raw UUID target names out of the
+  // scannable row (they surface in Show-details instead). Declared here at module-state
+  // scope (NOT beside renderFeed) so they're initialized before the init() → loadEntries()
+  // → renderFeed() call below — a const beside renderFeed hit a TDZ ReferenceError. The CSV
+  // export stays raw (technical compliance artifact); the filter datalist stays raw too so
+  // filtering still matches the underlying target_type value.
+  const TARGET_TYPE_LABELS = {
+    alert:'Alert', asset_nodes:'Asset', assets:'Asset', rcm_fmea_modes:'FMEA Mode',
+    rcm_strategies:'RCM Strategy', hive_members:'Member', inventory_items:'Inventory Item',
+    logbook:'Logbook Entry', pm_assets:'PM Asset', pm_completions:'PM Completion',
+    marketplace_listings:'Marketplace Listing', marketplace_sellers:'Marketplace Seller',
+    marketplace_orders:'Marketplace Order', marketplace_disputes:'Marketplace Dispute',
+    worker_profiles:'Worker Profile', worker_profile:'Worker Profile', worker:'Worker', hive:'Hive'
+  };
+  function humanizeTargetType(t){
+    if(!t) return '';
+    if(TARGET_TYPE_LABELS[t]) return TARGET_TYPE_LABELS[t];
+    return String(t).replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   // ── Auto-refresh — Arc L scale-out (1M realtime decision: reduce + poll-fallback) ──
   // The audit feed is NOT safety-critical, so a 30s visibility-aware poll replaces the
@@ -404,6 +440,16 @@
     });
   }
   await loadEntries();
+  if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
+  // E3 provenance (FAMILY F3): sources verified from this page's own reads.
+  (function () {
+    var el = document.getElementById('al-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'al-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f ? / f ||) */ (f ? f.parentElement : document.querySelector('.page')).insertBefore(el, f || null); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load + realtime',
+      source: 'hive_audit_log (every CRUD, approval and permission change)',
+    });
+  })();
   subscribeRealtime();
 
   // ── Data load ──────────────────────────────────────────────────────────────
@@ -433,7 +479,7 @@
         feedEl.innerHTML =
           '<div class="loading" style="color:var(--red);">Failed to load: ' + escHtml(error.message || error) + '</div>';
       }
-      if (typeof showToast === 'function') showToast('Audit log failed to load — tap Retry.', 'warn');
+      if (typeof showToast === 'function') showToast('Audit log failed to load. Tap Retry.', 'warn');
       return;
     }
     _entries = data || [];
@@ -449,7 +495,7 @@
     const e = escHtml;
     document.getElementById('date-filters').innerHTML = RANGES.map(r => {
       const active = r.id === _activeRange ? ' active' : '';
-      return '<button class="chip' + active + '" data-range="' + e(r.id) + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '">' + e(r.label) + '</button>';
+      return '<button class="chip' + active + '" data-range="' + e(r.id) + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" translate="no">' + e(r.label) + '</button>';
     }).join('');
     document.querySelectorAll('#date-filters .chip').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -525,9 +571,14 @@
       const actionClass = classifyAction(en.action);
       const icon  = iconForAction(en.action);
       const meta  = (en.meta && typeof en.meta === 'object') ? en.meta : null;
-      const hasMeta = meta && Object.keys(meta).length > 0;
       const expanded = _expanded.has(en.id);
       const prettyAction = (en.action || '').replace(/_/g, ' ');
+      // P4: a raw UUID target_name (RCM/FMEA writers pass the id as the name too) is
+      // dropped from the scannable row and surfaced in Show-details instead, so the
+      // audit trail stays complete without a "58f0bf52-…" wall in the feed.
+      const nameIsUuid = !!(en.target_name && UUID_RE.test(en.target_name));
+      const detail = Object.assign({}, meta || {}, nameIsUuid ? { id: en.target_id || en.target_name } : {});
+      const hasDetail = Object.keys(detail).length > 0;
 
       return '<div class="entry action-' + e(actionClass) + '">'
            +   '<div class="entry-icon">' + e(icon) + '</div>'
@@ -535,15 +586,15 @@
            +     '<div class="entry-head">'
            +       '<span class="entry-actor">' + e(en.actor || 'unknown') + '</span>'
            +       '<span class="entry-action">' + e(prettyAction) + '</span>'
-           +       (en.target_name ? '<span class="entry-target">' + e(en.target_name) + '</span>' : '')
-           +       (en.target_type ? '<span class="entry-target-type">(' + e(en.target_type) + ')</span>' : '')
+           +       (en.target_name && !nameIsUuid ? '<span class="entry-target">' + e(en.target_name) + '</span>' : '')
+           +       (en.target_type ? '<span class="entry-target-type">(' + e(humanizeTargetType(en.target_type)) + ')</span>' : '')
            +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
            +     '</div>'
-           +     (hasMeta
-                  ? '<button class="entry-meta-toggle" data-id="' + e(en.id) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '">'
+           +     (hasDetail
+                  ? '<button class="entry-meta-toggle" data-id="' + e(en.id) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '" data-i="showdetails">'
                     + (expanded ? '▾ Hide details' : '▸ Show details')
                     + '</button>'
-                    + (expanded ? '<pre class="entry-meta">' + e(JSON.stringify(meta, null, 2)) + '</pre>' : '')
+                    + (expanded ? '<pre class="entry-meta">' + e(JSON.stringify(detail, null, 2)) + '</pre>' : '')
                   : '')
            +   '</div>'
            + '</div>';
@@ -624,16 +675,9 @@
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  function fmtRelative(iso) {
-    if (!iso) return '';
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
-  }
+  function fmtRelative(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
   function fmtTime(d) {
-    return d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+    return (typeof whFmtDate === 'function') ? whFmtDate(d, { timeOnly: true }) : d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }); // FD1a canonical
   }
 
 })();
@@ -642,5 +686,13 @@
 </main>
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
+
+<script>window.WH_FIL_PAGE={al_title:'Audit Log',al_activity:'Aktibidad'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

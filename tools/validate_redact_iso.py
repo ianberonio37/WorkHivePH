@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: ai:* D25
 r"""
 validate_redact_iso.py — regression guard for the PII-redaction ISO-timestamp
 carve-out in supabase/functions/_shared/redactPII.ts.

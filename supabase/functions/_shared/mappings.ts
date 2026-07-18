@@ -140,3 +140,41 @@ export function normaliseStatus(systemType: string, rawStatus: string): string {
 export function normaliseType(systemType: string, rawType: string): string {
   return TYPE_MAP[systemType]?.[rawType] ?? rawType ?? "Breakdown / Corrective";
 }
+
+// ---------------------------------------------------------------------------
+// Reverse status map — WorkHive canonical status -> the CMMS's OWN status code,
+// for cmms-push-completion (WorkHive -> CMMS). The push must send the code the
+// external system expects (SAP I0045 / Maximo COMP), not the literal "Closed",
+// or the CMMS rejects/ignores it. One canonical code per WorkHive status per
+// system (inverting STATUS_MAP is ambiguous — several CMMS codes map to "Open").
+// ---------------------------------------------------------------------------
+
+export const REVERSE_STATUS_MAP: Record<string, Record<string, string>> = {
+  sap_pm:  { Open: "I0001", Closed: "I0045", Cancelled: "I0076" },
+  maximo:  { Open: "APPR",  Closed: "COMP",  Cancelled: "CAN"   },
+  generic: { Open: "open",  Closed: "closed", Cancelled: "cancelled" },
+};
+
+/** WorkHive status -> the CMMS system's own status code (falls back to the input). */
+export function toCmmsStatus(systemType: string, whStatus: string): string {
+  return REVERSE_STATUS_MAP[systemType]?.[whStatus] ?? whStatus;
+}
+
+// ---------------------------------------------------------------------------
+// Inventory (SAP MM / material master) field maps — MATNR is the dedup key.
+// Used by cmms-sync when entity_type = "inventory". WorkHive inventory_items
+// canonical: part_number, qty_on_hand, min_qty, name.
+// ---------------------------------------------------------------------------
+
+export interface InventoryFieldMap {
+  part_number?: string;
+  qty_on_hand?: string;
+  min_qty?:     string;
+  name?:        string;
+}
+
+export const DEFAULT_INVENTORY_FIELD_MAPS: Record<string, InventoryFieldMap> = {
+  sap_pm:  { part_number: "MATNR", qty_on_hand: "MENGE", min_qty: "MINBE", name: "MAKTX" },
+  maximo:  { part_number: "ITEMNUM", qty_on_hand: "CURBAL", min_qty: "MINLEVEL", name: "DESCRIPTION" },
+  generic: { part_number: "part_number", qty_on_hand: "qty_on_hand", min_qty: "min_qty", name: "name" },
+};

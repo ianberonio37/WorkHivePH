@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D3
 """
 validate_reactivity_wiring.py  --  Phase D anti-rot for INTERACTIVE_LINEAGE_ROADMAP.
 
@@ -25,6 +26,14 @@ import os
 import re
 import sys
 
+# Windows cp1252 consoles crash encoding the checkmark/arrow glyphs we print (a fail message
+# echoes a receipt marker that contains a Unicode tick). Force UTF-8 with a safe fallback so
+# the gate reports its verdict instead of dying with a UnicodeEncodeError (a false FAIL).
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLAST = os.path.join(ROOT, "field_blast_radius.json")
 IMPACT = os.path.join(ROOT, "field_impact_preview.json")
@@ -34,7 +43,7 @@ IMPACT_JS = os.path.join(ROOT, "impact-preview.js")
 # toast (verified present in <surface>.html). Each names the downstream ripple in plain
 # user-voice. Extend when a new write surface gains cross-page fan-out.
 RECEIPT_PRESENT = {
-    "logbook":         "✓ Logged — updated",                         # `✓ Logged — updated ${_fx...}`
+    "logbook":         "✓ Logged: updated",                          # `✓ Logged: updated ${_fx...}` (colon, no em-dash per no-em-dash gate)
     "inventory":       "Alert Hub stock alert",                                # OUT OF STOCK / restock -> alert + analytics
     "pm-scheduler":    "PM compliance recomputed",                            # `✓ PM done → PM compliance recomputed...`
     "asset-hub":       "feeds this asset",                                    # FMEA + Weibull -> risk score -> predictive/alert-hub/analytics
@@ -56,7 +65,8 @@ RECEIPT_FREE = set()
 D4_FRESH_OWNERS = {
     "analytics":   "recompute",            # analytics_snapshots: re-run via analytics-orchestrator
     "hive":        "computeBenchmarkNow",  # hive_benchmarks / network_benchmarks: recompute
-    "predictive":  "risk-feed:",           # asset_risk_scores: realtime channel (+ recompute btn)
+    # predictive.html removed 2026-07-06 (folded into asset-hub); its asset_risk_scores freshness
+    # ownership survives on asset-hub below ("updated live"), so the KPI is not orphaned.
     "asset-hub":   "updated live",          # asset_risk_scores: realtime risk gauge "Risk score updated live"
     "alert-hub":   ".channel(",            # amc_briefings / anomaly_signals: realtime
 }

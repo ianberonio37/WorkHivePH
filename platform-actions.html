@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Platform Actions · WorkHive</title>
+  <style>
+    :root { --navy:#0b0f1a; --navy-mid:#141b2d; --card:#1a2337; --border:rgba(255,255,255,0.08);
+            --gold:#F7A21B; --blue:#29b6d9; --green:#34d399; --red:#f87171; --muted:rgba(255,255,255,0.55); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Poppins',system-ui,sans-serif; background:linear-gradient(160deg,var(--navy) 0%,var(--navy-mid) 100%);
+           color:#fff; min-height:100vh; padding:1.2rem; }
+    .wrap { max-width:960px; margin:0 auto; }
+    .hdr { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+    h1 { font-size:1.4rem; font-weight:800; margin:0; }
+    .sub { color:var(--muted); font-size:0.85rem; margin-top:0.25rem; max-width:52ch; }
+    .to-grafana { display:inline-flex; align-items:center; gap:0.4rem; padding:0.55rem 0.9rem; border-radius:0.6rem;
+                  background:rgba(52,211,153,0.12); color:var(--green); border:1px solid rgba(52,211,153,0.35);
+                  text-decoration:none; font-weight:700; font-size:0.82rem; min-height:44px; }
+    .to-grafana:hover { background:rgba(52,211,153,0.2); }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:0.9rem; padding:1rem 1.1rem; margin-bottom:1rem; }
+    .card-hdr { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.75rem; }
+    .card-hdr h2 { font-size:1rem; font-weight:700; margin:0; }
+    .count { font-size:0.75rem; font-weight:700; padding:0.15rem 0.55rem; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--muted); }
+    .count.warn { background:rgba(247,162,27,0.18); color:var(--gold); }
+    .count.fail { background:rgba(248,113,113,0.18); color:var(--red); }
+    .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.6rem 0;
+               border-top:1px solid var(--border); flex-wrap:wrap; }
+    .mod-row:first-child { border-top:0; }
+    .mod-main { min-width:0; flex:1; }
+    .mod-main strong { display:block; font-size:0.9rem; }
+    .mod-sub { display:block; color:var(--muted); font-size:0.78rem; margin-top:0.15rem; }
+    .mod-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .mod-btn { padding:0.5rem 0.8rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;
+               border:1px solid var(--border); background:rgba(255,255,255,0.05); color:#fff; min-height:44px; }
+    .mod-btn.ok { background:rgba(52,211,153,0.14); color:var(--green); border-color:rgba(52,211,153,0.35); }
+    .mod-btn.no { background:rgba(248,113,113,0.12); color:var(--red); border-color:rgba(248,113,113,0.3); }
+    .mod-btn:disabled { opacity:0.5; cursor:default; }
+    .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
+    .updated { color:var(--muted); font-size:0.72rem; }
+    .gate { max-width:520px; margin:12vh auto; text-align:center; background:var(--card); border:1px solid var(--border);
+            border-radius:1rem; padding:2rem; }
+    .gate a { color:var(--blue); }
+    #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; }
+    .toast-msg { background:#1f2937; color:#fff; padding:0.7rem 1.1rem; border-radius:0.6rem; font-size:0.85rem;
+                 border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
+    .toast-msg.success { border-color:rgba(52,211,153,0.5); }
+    .toast-msg.error { border-color:rgba(248,113,113,0.5); }
+    .row-controls { display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
+    .refresh-btn { padding:0.5rem 0.9rem; border-radius:0.5rem; background:rgba(41,182,217,0.12); color:var(--blue);
+                   border:1px solid rgba(41,182,217,0.3); font-weight:700; font-size:0.8rem; cursor:pointer; min-height:44px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <script src="utils.js"></script>
+</head>
+<body>
+  <!-- Gate: not signed in or not admin -->
+  <div id="no-access-gate" class="gate" hidden>
+    <h2>Platform Actions</h2>
+    <p>This surface is restricted to platform admins. If you should have access, ask the current admin to grant you via <code>marketplace_platform_admins</code>.</p>
+    <a href="index.html" class="btn">Back to WorkHive</a>
+  </div>
+  <div id="checking-gate" class="gate">Checking access…</div>
+
+  <div id="actions" class="wrap" hidden>
+    <div class="hdr">
+      <div>
+        <h1>Platform Actions</h1>
+        <div class="sub">Governance actions only: approve/verify/resolve. Every metric (health, usage, growth, marketplace volumes) lives in Grafana. Open this page only when a queue has something waiting.</div>
+      </div>
+      <a class="to-grafana" href="http://127.0.0.1:3001/d/workhive-founder-ops" target="_blank" rel="noopener noreferrer">📊 Founder Ops dashboard →</a>
+    </div>
+
+    <div class="row-controls">
+      <button id="refresh-btn" class="refresh-btn">↻ Refresh queues</button>
+      <span id="last-sync" class="updated">—</span>
+    </div>
+
+    <div class="card" id="sec-mkt-mod">
+      <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">—</span></div>
+      <div id="mkt-listings-content"><div class="mod-empty">Loading…</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><h2>Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">—</span></div>
+      <div id="mkt-sellers-content"><div class="mod-empty">Loading…</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><h2>Open disputes</h2><span id="mkt-disputes-count" class="count">—</span></div>
+      <div id="mkt-disputes-content"><div class="mod-empty">Loading…</div></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+    const db = getDb(SUPABASE_URL, SUPABASE_KEY);
+    const e = (typeof escHtml === 'function') ? escHtml : (s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+
+    // Minimal toast (founder-console keeps its own; this page is standalone).
+    function showToast(msg, kind) {
+      const box = document.getElementById('toast');
+      const el = document.createElement('div');
+      el.className = 'toast-msg' + (kind ? ' ' + kind : '');
+      el.textContent = msg;
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    // Minimal audit-log write (best-effort; RLS + auth_uid attribution enforced server-side).
+    async function writeAuditLog(action, targetType, targetId, targetName, meta) {
+      try {
+        // hive_id + actor are NOT NULL, and the INSERT policy requires hive_id IN user_hive_ids()
+        // (the operator's own home hive). actor is REBOUND server-authoritatively by
+        // wh_bind_audit_actor() (mig 20260713000003 P4-03), so the client value is a NOT-NULL
+        // placeholder only, never trusted for attribution.
+        const { error } = await db.from('hive_audit_log').insert({
+          hive_id: localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id'),
+          actor: localStorage.getItem('wh_last_worker') || 'operator',
+          action, target_type: targetType, target_id: targetId, target_name: targetName, meta: meta || {}
+        });
+        if (error) console.debug('audit write failed (best-effort):', error.message); // capture PostgREST {error} (not thrown), keep non-blocking
+      } catch (_) { /* empty-catch-allow: best-effort, never block the action on the audit write */ }
+    }
+
+    async function fetchMktModeration() {
+      try {
+        const [drafts, sellers, disputes] = await Promise.all([
+          db.from('v_marketplace_listings_truth')
+            .select('id,title,section,category,price,seller_name,created_at')
+            .eq('status', 'draft').order('created_at', { ascending: true }).limit(50),
+          db.from('v_marketplace_sellers_truth')
+            .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
+            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).limit(50),
+          db.from('marketplace_disputes')
+            .select('id,order_id,listing_id,opened_by,seller_name,reason,status,created_at')
+            .in('status', ['open', 'seller_responded']).order('created_at', { ascending: true }).limit(50),
+        ]);
+        return {
+          drafts: drafts.data || [], sellers: sellers.data || [], disputes: disputes.data || [],
+          _error: (drafts.error || sellers.error || disputes.error) ? (drafts.error || sellers.error || disputes.error).message : null,
+        };
+      } catch (err) { return { _error: err && err.message || 'fetch failed' }; }
+    }
+
+    function setCount(id, n, level) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = n;
+      el.className = 'count' + (n > 0 && level ? ' ' + level : '');
+    }
+
+    // dashboard-allow: platform-actions is a governance ACTION-QUEUE console (approve/verify/resolve),
+    // NOT a canonical KPI dashboard. It reads v_marketplace_listings_truth etc. only to build
+    // moderation WORKLISTS; the counts shown are queue sizes ("N awaiting review"), not reported
+    // canonical metrics. By explicit design (see the header sub-copy) EVERY metric lives in Grafana,
+    // so the per-tile source-chip provenance pattern (provenance for a reported number) does not apply.
+    function renderMktModeration(m) {
+      m = m || {};
+      // Listings awaiting review
+      const lc = document.getElementById('mkt-listings-content');
+      if (lc) {
+        if (m._error) lc.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`;
+        else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">No listings waiting: all clear.</div>`;
+        else lc.innerHTML = m.drafts.map(l => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e(l.title || 'Untitled')}</strong>
+              <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${l.price != null ? '₱' + Number(l.price).toLocaleString() : 'price n/a'} · ${e(l.seller_name || '—')}</span></div>
+            <div class="mod-actions">
+              <button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>
+              <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}">Reject</button>
+            </div>
+          </div>`).join('');
+      }
+      setCount('mkt-listings-count', (m.drafts || []).length, 'warn');
+
+      // Sellers awaiting verification
+      const sc = document.getElementById('mkt-sellers-content');
+      let sellerCount = 0;
+      if (sc) {
+        if (m._error) sc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
+        else {
+          const rows = (m.sellers || []).map(s => {
+            const parts = [];
+            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}">Verify ID</button>`);
+            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}">Verify certs</button>`);
+            if (!parts.length) return '';
+            sellerCount++;
+            return `
+            <div class="mod-row">
+              <div class="mod-main"><strong>${e(s.worker_name)}</strong>
+                <span class="mod-sub">${e(s.tier || 'bronze')} · ${s.active_listings_count || 0} listing(s)${s.certifications ? ' · has certs' : ''}</span></div>
+              <div class="mod-actions">${parts.join('')}</div>
+            </div>`;
+          }).join('');
+          sc.innerHTML = rows || `<div class="mod-empty">Every seller is verified.</div>`;
+        }
+      }
+      setCount('mkt-sellers-count', sellerCount, 'warn');
+
+      // Open disputes
+      const dc = document.getElementById('mkt-disputes-content');
+      if (dc) {
+        if (m._error) dc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
+        else if (!(m.disputes || []).length) dc.innerHTML = `<div class="mod-empty">No open disputes.</div>`;
+        else dc.innerHTML = m.disputes.map(d => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e((d.reason || 'Dispute').slice(0, 60))}</strong>
+              <span class="mod-sub">${e(d.opened_by || 'buyer')} vs ${e(d.seller_name || 'seller')} · ${e(d.status || '')}</span></div>
+            <div class="mod-actions">
+              <button class="mod-btn ok" data-mkt-act="dispute-buyer" data-id="${e(d.id)}">Refund buyer</button>
+              <button class="mod-btn no" data-mkt-act="dispute-seller" data-id="${e(d.id)}">Side seller</button>
+            </div>
+          </div>`).join('');
+      }
+      setCount('mkt-disputes-count', (m.disputes || []).length, 'fail');
+    }
+
+    async function refreshQueues() {
+      renderMktModeration(await fetchMktModeration());
+      document.getElementById('last-sync').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    }
+
+    // One delegated listener for all moderation action buttons (data-attrs = XSS-safe).
+    let _mktModWired = false;
+    function wireMktModeration() {
+      if (_mktModWired) return; _mktModWired = true;
+      document.getElementById('sec-mkt-mod').addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-mkt-act]');
+        if (!btn) return;
+        const act = btn.dataset.mktAct;
+        btn.disabled = true;
+        try {
+          if (act === 'approve-listing' || act === 'reject-listing') {
+            const newStatus = act === 'approve-listing' ? 'published' : 'removed';
+            const { error } = await db.from('marketplace_listings')
+              .update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', btn.dataset.id);
+            if (error) throw error;
+            writeAuditLog(act === 'approve-listing' ? 'approve_listing' : 'reject_listing', 'marketplace_listings', btn.dataset.id, btn.dataset.id, { new_status: newStatus });
+            showToast(act === 'approve-listing' ? 'Listing approved: now live to buyers.' : 'Listing rejected.', act === 'approve-listing' ? 'success' : 'info');
+          } else if (act === 'verify-kyb' || act === 'verify-cert') {
+            const nowIso = new Date().toISOString();
+            const upd = act === 'verify-kyb'
+              ? { kyb_verified: true, kyb_verified_at: nowIso, updated_at: nowIso }
+              : { cert_verified: true, cert_verified_at: nowIso, updated_at: nowIso };
+            const { error } = await db.from('marketplace_sellers').update(upd).eq('worker_name', btn.dataset.name);
+            if (error) throw error;
+            writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
+            showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
+          } else if (act === 'dispute-buyer' || act === 'dispute-seller') {
+            const decision = act === 'dispute-buyer' ? 'refund_buyer' : 'side_seller';
+            const nowIso = new Date().toISOString();
+            // Optimistic lock: only resolve an UNresolved dispute so a concurrent admin can't overwrite a decision.
+            const { data: dResolved, error } = await db.from('marketplace_disputes')
+              .update({ status: 'resolved', admin_decision: decision, admin_decided_at: nowIso, resolved_at: nowIso })
+              .eq('id', btn.dataset.id).neq('status', 'resolved').select('id');
+            if (error) throw error;
+            if (!dResolved || !dResolved.length) {
+              showToast('That dispute was already resolved by another admin.', 'error');
+            } else {
+              writeAuditLog('resolve_dispute', 'marketplace_disputes', btn.dataset.id, btn.dataset.id, { decision });
+              showToast('Dispute resolved.', 'success');
+            }
+          }
+          await refreshQueues();
+        } catch (err) {
+          showToast('Action failed. Try again.', 'error');
+          btn.disabled = false;
+        }
+      });
+    }
+
+    // ── Admin gate (localhost bypass for the founder's own machine; server RLS still gates writes) ──
+    // Runs LAST so every function + `let` above is fully initialized before it fires.
+    const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
+    (async () => {
+      const ok = IS_LOCAL_FOUNDER || (typeof isPlatformAdmin === 'function' && await isPlatformAdmin(db));
+      document.getElementById('checking-gate').hidden = true;
+      if (!ok) { document.getElementById('no-access-gate').hidden = false; return; }
+      document.getElementById('actions').hidden = false;
+      if (typeof logPageView === 'function') logPageView(db, { page: 'platform-actions' });
+      wireMktModeration();
+      await refreshQueues();
+      document.getElementById('refresh-btn').addEventListener('click', refreshQueues);
+      const _refreshTimer = setInterval(refreshQueues, 60000);
+      window.addEventListener('pagehide', () => clearInterval(_refreshTimer), { once: true }); // stop polling when the page is backgrounded/navigated (no leaked interval)
+    })();
+  </script>
+</body>
+</html>

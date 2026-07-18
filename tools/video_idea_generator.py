@@ -8,6 +8,7 @@ Usage:
     python tools/video_idea_generator.py list                -- list all ideas with status
     python tools/video_idea_generator.py script <id>         -- generate full production script
     python tools/video_idea_generator.py flagship <id>       -- generate a FlagshipSpec JSON for render_flagship.py
+    python tools/video_idea_generator.py explainer [concept] -- grounded "WorkHive Explains" spec (default: overview; e.g. oee)
     python tools/video_idea_generator.py mark <id> <status>  -- update status
     python tools/video_idea_generator.py help                -- show this message
 
@@ -67,8 +68,12 @@ SCREEN_CATALOG = {
     "wh_inventory_clean.png": "Spare-Parts Inventory: parts count, low-stock + out-of-stock tiles, reorder. Use for: spare parts, stockouts, reorder-before-breakdown, inventory control.",
     "wh_skillmatrix_clean.png": "Skill Matrix: disciplines on-target, quizzes available, badges. Use for: skills, training, certifications, career growth, who-is-qualified.",
     "wh_alerthub_clean.png": "Alert Hub: high-severity alert count, anomaly signals, Critical TX-001 feed with filter chips. Use for: alerts, alert overload, anomaly, prioritization, what-needs-attention.",
-    "wh_assistant_clean.png": "AI Work Assistant: chat greeting 'I can see your job records', Ask-anything input. Use for: AI assistant, ask questions, work buddy, guidance, knowledge.",
+    "wh_assistant_clean.png": "AI Companion chat (Hezekiah/Zaniah): 'Try asking' starter chips with real maintenance questions (troubleshoot a hot motor bearing, PM interval for a centrifugal pump, MTBF vs MTTR) + Ask-anything composer + Chat/Journal tabs. Use for: AI companion, ask anything, two experts, answers from your own records, voice, maximize the AI.",
     "wh_engdesign_clean.png": "Engineering Calculators: 53 calculations across 6 disciplines (HVAC, Mechanical, Electrical, Plumbing, Fire Protection, Machine Design), PEC/ASHRAE/NFPA anchored. Use for: engineering design, calculations, sizing, standards, design-with-confidence.",
+    "wh_resume_clean.png": "Resume / CV Builder: 'Build a professional resume from your WorkHive experience' + Auto-fill from my WorkHive data, Save, My Resumes, Preview & Export. Use for: resume, CV, ATS, job application, OFW portfolio, proving experience, career growth.",
+    "wh_shiftbrain_clean.png": "Shift Brain: 'Autonomous shift planner for your hive' + the 06-14 Morning / 14-22 Afternoon / 22-06 Night shift blocks. Use for: shift planning, shift handover, what-to-fix-first, autonomous plan, morning scramble, supervisor brief.",
+    "wh_assethub_clean.png": "Asset Hub / Asset Brain 360: '360 view of any equipment in your hive', live + daily snapshot from asset records, risk scores, logbook, failure and reliability analysis; click any asset for its full 360 (timeline, neighbours, reliability). Use for: asset history, one machine's memory, QR scan, per-asset risk, breakdown-prevention.",
+    "wh_analyticsreport_clean.png": "Analytics Report: standards-grade, print-ready, save as PDF for client delivery; period (30/90/180/365d) and audience selector, Analytics report + Send/schedule. Use for: signed report, management report, ISO/DOLE, print-ready deliverable, one-click report.",
 }
 
 # Shape the spec-generator must emit (mirrors FlagshipSpec / DEFAULT_SPEC in FlagshipReel.tsx).
@@ -694,6 +699,309 @@ Return ONLY valid JSON (no markdown fences, no commentary), in EXACTLY this shap
     print(f"  python tools/render_flagship.py --spec {out_file} --name {idea_id} --desktop")
 
 
+# ── Command: explainer (concept -> grounded ExplainerSpec for explainer_render.py) ─
+#
+# The educational "WorkHive Explains" lane (CONTENT_CREATION_ROADMAP.md). The AI
+# writes the NARRATION and short on-screen CAPTIONS; everything that must be TRUE
+# (the cited standard, the beat structure, the worked-example arithmetic, the
+# locked end card) is set DETERMINISTICALLY here, not trusted to the LLM. This is
+# the FB4 lesson: when a free-tier model can fabricate, guard the output with code
+# rather than hoping the prompt suppresses it.
+
+EXPLAINER_SPECS = Path(".tmp/explainer_specs")
+
+# The teachable-concept bank (roadmap sec 5). Each pillar carries its cited
+# standard and a VERIFIED worked example so the fact gate always has ground truth.
+CONCEPT_PILLARS = {
+    "oee": {
+        "concept": "OEE", "title": "OEE",
+        "subtitle": "Overall Equipment Effectiveness",
+        "standard": "ISO 22400-2",
+        "formula": "Availability x Performance x Quality",
+        "factor_labels": ["Availability", "Performance", "Quality"],
+        "worked": {"plant": "a Laguna bottling line",
+                    "asset": "Filler CT-001, Laguna bottling line",
+                    "availability": 0.90, "performance": 0.95, "quality": 0.99,
+                    "band": "World Class is 85%"},
+        "teach_gist": "OEE is Availability times Performance times Quality. Availability is uptime, Performance is speed, Quality is good parts.",
+        "learn": "/learn/oee/", "tool": "Analytics",
+    },
+}
+
+_EXPLAINER_BEATS = [
+    ("hook",      None,           "a sharp one-line hook: a real plant moment or a pointed question. NO answer yet."),
+    ("rationale", None,           "why this concept matters on a Philippine plant floor (downtime cost / a shift lost). The part promo skips."),
+    ("teach",     "oee_formula",  "explain the ONE concept plainly, naming each factor. Build it up, do not just state the acronym."),
+    ("worked",    "oee_bars",     "walk the WORKED example out loud using the exact numbers given. State the factors then the result."),
+    ("takeaway",  None,           "one 'do this Monday' action the viewer can apply immediately."),
+    ("tie_in",    None,           "one soft line: WorkHive shows this for free. No hard sell."),
+]
+
+
+def _num(v, default):
+    try:
+        f = float(v)
+        return f if 0 < f <= 1 else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_explainer_spec(raw: dict, pillar: dict) -> dict:
+    """Take the AI's narration/captions but LOCK structure + standard + arithmetic.
+    The worked-example OEE is RECOMPUTED (A*P*Q) here so it is correct by
+    construction, whatever the model wrote."""
+    w = pillar["worked"]
+    A = _num((raw.get("workedExample") or {}).get("availability"), w["availability"])
+    P = _num((raw.get("workedExample") or {}).get("performance"), w["performance"])
+    Q = _num((raw.get("workedExample") or {}).get("quality"), w["quality"])
+    oee = round(A * P * Q, 3)   # deterministic fact: never trust the LLM's multiply
+
+    raw_beats = {b.get("kind"): b for b in raw.get("beats", []) if isinstance(b, dict)}
+    beats = []
+    for kind, viz, _hint in _EXPLAINER_BEATS:
+        src = raw_beats.get(kind, {})
+        narr = str(src.get("narration") or "").strip()
+        cap = str(src.get("caption") or "").strip()
+        beat = {"kind": kind, "narration": narr[:240]}
+        if cap:
+            beat["caption"] = cap[:52]
+        if viz:
+            beat["viz"] = viz
+        if kind == "tie_in":
+            beat["learn"] = pillar.get("learn", "/learn/")
+            beat["tool"] = pillar.get("tool", "")
+        beats.append(beat)
+
+    return {
+        "concept": pillar["concept"], "title": pillar["title"],
+        "subtitle": pillar["subtitle"], "standard": pillar["standard"],
+        "series": "WorkHive Explains", "formula": pillar["formula"],
+        "workedExample": {
+            "plant": w["plant"], "asset": w["asset"],
+            "availability": A, "performance": P, "quality": Q,
+            "oee": oee, "band": w["band"],
+        },
+        "beats": beats,
+        # Locked brand closer (never AI-varied), same discipline as cmd_flagship.
+        "endTagline": "Built for the plant floor.",
+        "endSub": "Free. Mobile-first. Philippines.",
+        "endCta": "workhiveph.com · start free",
+    }
+
+
+def _explainer_prompt(pillar: dict) -> str:
+    w = pillar["worked"]
+    beat_lines = "\n".join(
+        f'  {i+1}. {kind}: {hint}' for i, (kind, _v, hint) in enumerate(_EXPLAINER_BEATS))
+    return f"""{PLATFORM_CONTEXT}
+
+You are a maintenance educator scripting ONE short "WorkHive Explains" video that
+TEACHES a single concept to Philippine industrial workers. Value first, not a sales pitch.
+
+CONCEPT: {pillar['concept']} ({pillar['subtitle']}). Cited standard: {pillar['standard']}.
+CORE IDEA (teach this, do not contradict it): {pillar['teach_gist']}
+WORKED EXAMPLE (use THESE exact numbers, do not invent others):
+  {pillar['formula']} on {w['plant']}: Availability {w['availability']*100:.0f}%,
+  Performance {w['performance']*100:.0f}%, Quality {w['quality']*100:.0f}%.
+
+Write 6 beats. For EACH beat give a spoken NARRATION line (1-2 short sentences, plain
+spoken English) and a short on-screen CAPTION (2-5 words, mute-readable):
+{beat_lines}
+
+HARD RULES:
+- Plain simple English only. No Tagalog, no Taglish, no code-switching.
+- NO em dashes. Use periods, commas, colons, or the middot.
+- Teach ONE concept only. Do not list other tools or features.
+- The 'worked' beat must say the factor numbers above and lead to the OEE result.
+- No banned marketing cliches (no "are you tired of", "discover how", "unlock", "game-changer", etc).
+- Conversational and concrete, like explaining to a technician on the floor.
+
+Return ONLY valid JSON (no markdown fences, no commentary):
+{{
+  "beats": [
+    {{"kind": "hook", "narration": "...", "caption": "..."}},
+    {{"kind": "rationale", "narration": "...", "caption": "..."}},
+    {{"kind": "teach", "narration": "...", "caption": "..."}},
+    {{"kind": "worked", "narration": "...", "caption": "..."}},
+    {{"kind": "takeaway", "narration": "...", "caption": "..."}},
+    {{"kind": "tie_in", "narration": "...", "caption": "..."}}
+  ]
+}}"""
+
+
+def _overview_prompt(tools: list) -> str:
+    tool_list = "\n".join(f"  - {t}" for t in tools)
+    return f"""{PLATFORM_CONTEXT}
+
+You are scripting ONE short "WorkHive" platform-overview video for Philippine
+industrial workers. It introduces the WHOLE platform: what WorkHive is, who it is
+for, its main tools, and the payoff. Value first, warm and plain, not a hard sell.
+
+WorkHive's REAL tools (name ONLY these, do NOT invent any other tool or capability):
+{tool_list}
+
+Write 6 beats. For EACH give a spoken NARRATION line (1-2 short sentences, plain
+spoken English) and a short on-screen CAPTION (2-5 words, mute-readable):
+  1. hook: a real plant-floor pain, no answer yet.
+  2. what_it_is: one line that literally says "WorkHive is ..." (free industrial intelligence tools for Philippine maintenance teams).
+  3. tour: name the tools by what they DO (log repairs, plan PM, track OEE and MTBF, watch spare parts, catch alerts, grow skills, ask the AI assistant, size equipment).
+  4. value: the concrete payoff (less downtime, longer asset life, lower cost, free, runs on any phone).
+  5. who: who it is built for (technicians, supervisors, engineers on the floor).
+  6. tie_in: one soft line, start free at workhiveph.com.
+
+HARD RULES:
+- Plain simple English only. No Tagalog, no Taglish, no code-switching.
+- NO em dashes. Use periods, commas, colons, or the middot.
+- Do NOT invent tools, numbers, or capabilities beyond the list above.
+- No banned marketing cliches (no "are you tired of", "discover how", "unlock", "game-changer", "revolutionize", "leverage").
+
+Return ONLY valid JSON (no markdown fences, no commentary):
+{{"beats": [
+  {{"kind": "hook", "narration": "...", "caption": "..."}},
+  {{"kind": "what_it_is", "narration": "...", "caption": "..."}},
+  {{"kind": "tour", "narration": "...", "caption": "..."}},
+  {{"kind": "value", "narration": "...", "caption": "..."}},
+  {{"kind": "who", "narration": "...", "caption": "..."}},
+  {{"kind": "tie_in", "narration": "...", "caption": "..."}}
+]}}"""
+
+
+_OVERVIEW_BEATS = ["hook", "what_it_is", "tour", "value", "who", "tie_in"]
+
+
+def _coerce_overview_spec(raw: dict, tools: list) -> dict:
+    """Take the AI's narration/captions but LOCK kind, the real tool list, and the
+    brand closer. The 'tour' beat always carries the feature-grid viz."""
+    from tools.explainer_render import overview_spec
+    base = overview_spec()
+    raw_beats = {b.get("kind"): b for b in raw.get("beats", []) if isinstance(b, dict)}
+    beats = []
+    for kind in _OVERVIEW_BEATS:
+        src = raw_beats.get(kind, {})
+        narr = str(src.get("narration") or "").strip()
+        cap = str(src.get("caption") or "").strip()
+        beat = {"kind": kind, "narration": narr[:240]}
+        if cap:
+            beat["caption"] = cap[:52]
+        if kind == "tour":
+            beat["viz"] = "feature_grid"
+        if kind == "tie_in":
+            beat["learn"] = "/"
+        beats.append(beat)
+    base["beats"] = beats
+    base["features"] = list(tools)
+    return base
+
+
+def cmd_explainer(concept_key: str = "oee"):
+    """Generate a grounded ExplainerSpec (teach concept) OR a WorkHive platform
+    overview for the educational lane."""
+    if concept_key.lower() == "overview":
+        return _cmd_overview()
+    pillar = CONCEPT_PILLARS.get(concept_key.lower())
+    if not pillar:
+        print(f"\nERROR: unknown concept '{concept_key}'. Available: overview, {', '.join(CONCEPT_PILLARS)}")
+        return
+
+    print(f"\nGenerating ExplainerSpec for '{pillar['concept']}' ({pillar['standard']})...")
+    print("(AI writes narration + captions; structure, standard + arithmetic are locked here)")
+    spec = None
+    try:
+        raw = ai_call(_explainer_prompt(pillar), high_quality=True)
+        m = re.search(r"\{.*\}", raw, re.DOTALL)
+        if m:
+            spec = _coerce_explainer_spec(json.loads(m.group()), pillar)
+            # If the model returned mostly-empty narration, treat as failure.
+            if sum(1 for b in spec["beats"] if b.get("narration")) < 4:
+                print("  WARNING: AI narration too sparse — using the verified baked spec.")
+                spec = None
+    except Exception as exc:  # noqa: BLE001
+        print(f"  WARNING: AI generation failed ({str(exc)[:100]}) — using the verified baked spec.")
+
+    if spec is None:
+        # Verified, hand-authored fallback so the pipeline always produces a video.
+        from tools.explainer_render import demo_spec
+        spec = demo_spec()
+
+    EXPLAINER_SPECS.mkdir(parents=True, exist_ok=True)
+    out_file = EXPLAINER_SPECS / f"{concept_key.lower()}.json"
+    out_file.write_text(json.dumps(spec, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # Fact + pedagogy + language gate (warn-only here; the render still proceeds).
+    try:
+        from tools.video_quality_gate import score_explainer, print_explainer
+        result = score_explainer(spec)
+        print_explainer(result)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  (gate unavailable: {str(exc)[:100]})")
+
+    # Auto-derive the social caption pack from the spec (grounded, no AI call), so
+    # the video is publish-ready the moment it renders (closes the flywheel).
+    try:
+        from tools.explainer_pack import write_pack
+        pack_path = write_pack(spec, f"explainer_{concept_key.lower()}")
+        print(f"Auto-pack (publish-ready): {pack_path}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  (auto-pack skipped: {str(exc)[:100]})")
+
+    print(f"\nSpec saved: {out_file}")
+    print("\nRender it end to end (James narration + kinetic captions -> mp4):")
+    print(f"  python tools/explainer_render.py build --spec {out_file} "
+          f"--out .tmp/explainer_out/{concept_key.lower()}.mp4")
+
+
+def _cmd_overview():
+    """Generate a grounded WorkHive platform-overview ExplainerSpec."""
+    from tools.explainer_render import WORKHIVE_TOOLS, overview_spec
+    print("\nGenerating a WorkHive platform-overview ExplainerSpec...")
+    print("(AI writes narration + captions; the real tool list + structure are locked here)")
+    spec, from_ai = None, False
+    try:
+        raw = ai_call(_overview_prompt(WORKHIVE_TOOLS), high_quality=True)
+        m = re.search(r"\{.*\}", raw, re.DOTALL)
+        if m:
+            cand = _coerce_overview_spec(json.loads(m.group()), WORKHIVE_TOOLS)
+            if sum(1 for b in cand["beats"] if b.get("narration")) >= 4 and \
+               any("workhive is" in (b.get("narration", "").lower()) for b in cand["beats"]):
+                spec, from_ai = cand, True
+            else:
+                print("  WARNING: AI overview too sparse or missing 'WorkHive is' — using the verified baked spec.")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  WARNING: AI generation failed ({str(exc)[:100]}) — using the verified baked spec.")
+
+    if spec is None:
+        spec = overview_spec()
+
+    EXPLAINER_SPECS.mkdir(parents=True, exist_ok=True)
+    out_file = EXPLAINER_SPECS / "workhive_overview.json"
+    out_file.write_text(json.dumps(spec, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    try:
+        from tools.video_quality_gate import score_explainer, print_explainer
+        result = score_explainer(spec)
+        print_explainer(result)
+        # Never ship an AI overview that fails the gate — fall back to the baked spec.
+        if result["verdict"] == "BLOCK" and from_ai:
+            print("  AI overview BLOCKED by the gate — falling back to the verified baked spec.")
+            spec = overview_spec()
+            out_file.write_text(json.dumps(spec, ensure_ascii=False, indent=2), encoding="utf-8")
+            print_explainer(score_explainer(spec))
+    except Exception as exc:  # noqa: BLE001
+        print(f"  (gate unavailable: {str(exc)[:100]})")
+
+    # Auto-derive the publish-ready social pack from the spec (grounded, no AI call).
+    try:
+        from tools.explainer_pack import write_pack
+        pack_path = write_pack(spec, "explainer_overview")
+        print(f"Auto-pack (publish-ready): {pack_path}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  (auto-pack skipped: {str(exc)[:100]})")
+
+    print(f"\nSpec saved: {out_file}")
+    print("\nRender it end to end (James narration + kinetic captions -> mp4):")
+    print(f"  python tools/explainer_render.py build --spec {out_file} --out .tmp/explainer_out/workhive_overview.mp4")
+
+
 # ── Command: mark ─────────────────────────────────────────────────────────────
 
 def cmd_mark(idea_id: str, status: str):
@@ -744,6 +1052,10 @@ def main():
             print("Usage: python tools/video_idea_generator.py flagship <idea_id>")
         else:
             cmd_flagship(args[1])
+
+    elif cmd == "explainer":
+        concept = args[1] if len(args) > 1 else "overview"
+        cmd_explainer(concept)
 
     elif cmd == "mark":
         if len(args) < 3:

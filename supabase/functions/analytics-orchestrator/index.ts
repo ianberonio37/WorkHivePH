@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
 // capability: ai_analytics_synthesis
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
@@ -180,8 +180,12 @@ async function fetchDescriptiveData(
   // from a local frequency map (P5/P6 — read-don't-recompute; keeps the PM Due
   // Calendar identical to pm-scheduler + home).
   const scopeQ = db.from("v_pm_scope_items_truth")
-    .select("id, asset_id, frequency, frequency_days, item_text, next_due_date, days_until_due, is_overdue, is_due_soon, last_completed_at");
+    .select("id, asset_id, frequency, frequency_days, item_text, next_due_date, days_until_due, is_overdue, is_due_soon, last_completed_at")
+    .limit(dynLimit(periodDays, Math.max(assetIds.length, 1), 5000));
   if (assetIds.length) scopeQ.in("asset_id", assetIds);
+  // v_pm_scope_items_truth is RLS-disabled (scoped by an explicit filter). When a hive has no assets
+  // the asset filter above is skipped, so bind to the hive to avoid a cross-tenant read (mirrors oeeQ).
+  if (hiveId) scopeQ.eq("hive_id", hiveId);
 
   // OEE: only needs production_output + downtime_hours (small select)
   const oeeQ = db.from("v_logbook_truth")     // canonical: logbook_truth
@@ -450,10 +454,27 @@ The analytics data covers all 4 ISO/SMRP phases:
   • Predictive: what's coming. forecasted next failure dates, anomaly readings, stockout risk
   • Prescriptive: what to do. priority ranking, PM optimisation, technician assignment, parts reorder, training gaps
 
-Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recommendations. Examples of phase-linked reasoning:
-  • "Pump P-103 has the highest failure rate (descriptive) AND its top root cause is bearing wear (diagnostic), so tighten its quarterly bearing inspection (prescriptive)."
-  • "Compressor AC-002 is forecast to fail by next Tuesday (predictive), and we have only 1 spare seal kit (prescriptive reorder), so order 2 more this week."
-  • "Mechanical category has 3.2h higher MTTR than the team average (diagnostic), so schedule the L4 mechanical tech to mentor L1-L2 workers on bearing replacement procedures."
+WRITING RULES — the platform's readability standard (rubric B3). This plan renders on an
+operator's phone RIGHT BESIDE deterministic cards held to the same bar, so it must not read
+like a different product. Measured 2026-07-15: the synthesis emitted a 32-word sentence at
+reading grade 17.5 ("Reassign David Velasco to GEN-003 instrumentation checks...") while
+every hand-written card on the page passed. The examples below previously ran to 24 words
+each and TAUGHT that style — few-shot examples outweigh instructions, so they now model the
+target instead of contradicting it.
+  • ONE idea per sentence. Hard cap 20 words. Split rather than use a semicolon. [GOV.UK]
+  • ACTIVE voice: "Order 2 seal kits", never "2 seal kits should be ordered". [NN/g]
+  • Lead with the ACTION, then the evidence. The reader may stop after sentence one.
+  • Plain words at ~grade 8. Standards vocabulary (MTBF, ISO 14224, SMRP) is expected and
+    exempt; corporate filler is not. Never write "it is important to note", "in order to",
+    "leverage", "utilise", "facilitate".
+  • Name the asset and the action. A recommendation must recommend a CHANGE, never restate
+    the status quo.
+
+Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recommendations.
+Examples of phase-linked reasoning (note the length — match it):
+  • "Pump P-103 fails most often (descriptive). Bearing wear is the cause (diagnostic). Tighten its bearing inspection to monthly (prescriptive)."
+  • "AC-002 is forecast to fail by Tuesday (predictive). Only 1 spare seal kit is in stock. Order 2 more this week."
+  • "Mechanical MTTR runs 3.2h above the team average (diagnostic). Ask the L4 tech to mentor L1-L2 on bearing replacement."
 
 CANONICAL RISK RULE (Phase 2.2): When the input has a non-empty canonical_risk
 array, that array IS the platform's source of truth for "which assets are at
@@ -507,20 +528,28 @@ Format as JSON:
       top_downtime: (desc.downtime_pareto as Record<string, unknown>)?.pareto?.slice?.(0,3),
       top_mtbf:     (desc.mtbf as Record<string, unknown>)?.mtbf_by_asset?.slice?.(0,3),
       top_mttr:     (desc.mttr as Record<string, unknown>)?.mttr_by_asset?.slice?.(0,3),
-      oee_avg:      (desc.oee  as Record<string, unknown>)?.note ? null
-                  : ((desc.oee as Record<string, unknown>)?.average_oee_pct),
+      // descriptive.py emits no `average_oee_pct` — derive the avg from oee_by_asset
+      // (non-null oee_pct), mirroring the page hero, so the AI sees a real OEE number.
+      oee_avg:      (() => {
+        const rows = ((desc.oee as Record<string, unknown>)?.oee_by_asset as Array<Record<string, unknown>>) ?? [];
+        const vals = rows.map(r => r.oee_pct).filter((v): v is number => typeof v === "number");
+        return vals.length ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null;
+      })(),
     } : null,
     diagnostic: diag ? {
       top_failure_modes: (diag.failure_mode_distribution as Record<string, unknown>)?.distribution?.slice?.(0,3),
       pm_failure_corr:   diag.pm_failure_correlation,
-      repeat_failures:   (diag.repeat_failures as Record<string, unknown>)?.repeat_failures?.slice?.(0,3),
+      // Python key is `repeat_failure_clustering` (sub: systemic_issues) — NOT `repeat_failures`.
+      repeat_failures:   (diag.repeat_failure_clustering as Record<string, unknown>)?.systemic_issues?.slice?.(0,3),
       skill_mttr:        (diag.skill_mttr_correlation as Record<string, unknown>)?.by_discipline?.slice?.(0,3),
     } : null,
     predictive: pred ? {
-      next_failures:    (pred.next_failure_forecast as Record<string, unknown>)?.predictions?.slice?.(0,3)
-                     ?? (pred.failure_forecast       as Record<string, unknown>)?.forecasts?.slice?.(0,3),
-      anomalies:        (pred.anomaly_detection as Record<string, unknown>)?.anomalies?.slice?.(0,3),
-      stockout_risk:    (pred.stockout_forecast as Record<string, unknown>)?.at_risk?.slice?.(0,3),
+      // Real predictive.py top-level keys (see PHASE_CONTRACTS below): next_failure_dates / anomaly_baseline
+      // / parts_stockout. The prior keys (next_failure_forecast / anomaly_detection / stockout_forecast)
+      // never existed → the AI action plan got ZERO predictive grounding while the prompt demanded it.
+      next_failures:    (pred.next_failure_dates as Record<string, unknown>)?.predictions?.slice?.(0,3),
+      anomalies:        (pred.anomaly_baseline as Record<string, unknown>)?.anomalies?.slice?.(0,3),
+      stockout_risk:    (pred.parts_stockout as Record<string, unknown>)?.stockout_risk?.slice?.(0,3),
     } : null,
     prescriptive: pres ? {
       top_priority:      (pres.priority_ranking as Record<string, unknown>)?.ranking?.slice?.(0,3),
@@ -688,7 +717,7 @@ async function callPythonAnalytics(phase: string, inputs: Record<string, unknown
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("analytics-orchestrator", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -1076,10 +1105,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("analytics-orchestrator error:", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "analytics-orchestrator", "analytics_orchestrator_error", err);
   }
 });

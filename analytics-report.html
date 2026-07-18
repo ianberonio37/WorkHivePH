@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -27,6 +27,25 @@
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
+    /* renderSourceChip() is authored for the DARK app shell: it inlines
+       color:rgba(255,255,255,0.6) on its <p> and .wh-method. Dropped onto this WHITE print
+       document that is white-on-white — measured 1:1, i.e. INVISIBLE (the lens caught it the
+       run after I added the chip; the same trap as .doc-logo's brand lilac at 2.6:1).
+       Re-ink the shared component for THIS surface instead of forking it: #555 is the shade
+       this document already uses for muted meta (~7.4:1 on white) and it survives a
+       greyscale printer. (C2, 2026-07-15) */
+    .doc-panel .ar-provenance p,
+    .doc-panel .ar-provenance .wh-source-chip,
+    .doc-panel .ar-provenance summary,
+    .doc-panel .ar-provenance li { color: #555 !important; }
+    .doc-panel .ar-provenance .wh-method summary { color: #7c3aed !important; }
+
+    /* This page LOADS short (a generator form) and GROWS tall when the report renders, so
+       the scrollbar appears mid-flight -> the viewport narrows ~15px -> the fixed .aurora
+       reflows and .aurora-blob-2 (anchored right:-100px) slides sideways. That decorative
+       slide was the page's ENTIRE CLS (0.12 = FAIL; 0 on load, 0.12 on Generate).
+       Reserving the gutter up-front means the scrollbar's arrival costs no reflow. (I1) */
+    html { scrollbar-gutter: stable; }
     .aurora { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
     .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
     .aurora-blob-1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -100px; }
@@ -152,7 +171,11 @@
     .doc-panel .doc-title-block { flex: 1 1 220px; }
     .doc-panel .doc-logo {
       font-weight: 800; font-size: 1rem;
-      color: #a78bfa; letter-spacing: 0.04em;
+      /* The brand lilac (#a78bfa) is tuned for the dark app shell; on this doc's WHITE
+         print surface it measures ~2.6:1 and fails SC 1.4.3 (bold 16px still needs 4.5).
+         #7c3aed is the same brand purple, darker step, ~5.8:1 on white -- and it also
+         survives a greyscale office printer. (C2, 2026-07-15) */
+      color: #7c3aed; letter-spacing: 0.04em;
     }
     .doc-panel .doc-subtitle {
       font-size: 0.78rem; color: #555; margin-top: 0.2rem;
@@ -172,7 +195,7 @@
 
     /* Tables — print-safe, scrollable on small screens */
     .doc-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0.5rem 0 0.75rem; }
-    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 0; }
+    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 0; font-variant-numeric: tabular-nums; }
     .doc-panel th {
       background: #f0f0f0; text-align: left; padding: 0.4rem 0.55rem;
       border: 1px solid #ccc; font-weight: 600; font-size: 0.74rem;
@@ -189,7 +212,12 @@
     .doc-panel .rag-green  { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
     .doc-panel .rag-amber  { background: #fffbeb; border-color: #fde68a; color: #78350f; }
     .doc-panel .rag-red    { background: #fef2f2; border-color: #fecaca; color: #7f1d1d; }
-    .doc-panel .rag-tile-num   { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    /* C1: .rag-tile-num (1.5rem) and .kpi-value (1.45rem) are the SAME THING -- a KPI number --
+       rendered 1px apart, which is meaningless variation, not hierarchy: the page showed THREE
+       display tiers (24/23/20) where the rule allows <=2. Unified onto the .kpi-value tier, and
+       given the tabular-nums it was missing so RAG counts align in their row like every other
+       KPI on the platform. (2026-07-15, found by the A-R rubric lens.) */
+    .doc-panel .rag-tile-num   { font-size: 1.45rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
     .doc-panel .rag-tile-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.3rem; font-weight: 600; }
     .doc-panel .rag-tile-note  { font-size: 0.7rem; margin-top: 0.4rem; opacity: 0.85; line-height: 1.4; }
 
@@ -410,8 +438,9 @@
     .doc-panel .kpi-cell.warn { background: #fffbeb; border-color: #fde68a; }
     .doc-panel .kpi-cell.bad  { background: #fef2f2; border-color: #fecaca; }
     .doc-panel .kpi-cell.good { background: #f0fdf4; border-color: #bbf7d0; }
-    .doc-panel .kpi-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; font-weight: 700; }
-    .doc-panel .kpi-value { font-size: 1.45rem; font-weight: 800; color: #1a1132; line-height: 1.1; margin-top: 0.2rem; }
+    /* #6b7280 fell under 4.5:1 on the .bad tint (#fef2f2); #4b5563 clears it on white AND on every KPI tint (C2). */
+    .doc-panel .kpi-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; color: #4b5563; font-weight: 700; }
+    .doc-panel .kpi-value { font-size: 1.45rem; font-weight: 800; color: #1a1132; line-height: 1.1; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
     .doc-panel .kpi-unit  { font-size: 0.72rem; color: #6b7280; margin-left: 0.25rem; font-weight: 500; }
 
     /* Donut chart container (SVG sized intrinsically) */
@@ -469,15 +498,15 @@
     <header class="ar-header">
       <div>
         <h1>Reports</h1>
-        <p>Standards-grade. Print-ready. Save as PDF for client delivery.</p>
+        <p data-i="arsub">Standards-grade. Print-ready. Save as PDF for client delivery.</p>
         <!-- STREAMLINE F6: analytics-report + report-sender are ONE "Reports" surface
              (same supervisor audience: GENERATE an analytics report, then SEND/schedule
              it). project-report is deliberately NOT tabbed here — it is a PER-PROJECT
              print document (needs a project_id, reached from project-manager), a
              different job; fusing it would land users on an empty report. -->
         <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
-          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Analytics report</span>
-          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Send / schedule &rarr;</a>
+          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);"><span data-i="artab1">Analytics report</span></span>
+          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);"><span data-i="artab2">Send / schedule &rarr;</span></a>
         </div>
       </div>
       <span class="ar-badge">BETA</span>
@@ -485,20 +514,20 @@
 
     <!-- Toolbar ───────────────────────────────────────── -->
     <div class="ar-toolbar" id="ar-toolbar">
-      <span class="toolbar-label">Period</span>
+      <span class="toolbar-label" data-i="arperiod">Period</span>
       <button type="button" class="pill-btn period-btn" data-days="30"  onclick="setPeriod(30)">30d</button>
       <button type="button" class="pill-btn period-btn active" data-days="90"  onclick="setPeriod(90)">90d</button>
       <button type="button" class="pill-btn period-btn" data-days="180" onclick="setPeriod(180)">180d</button>
       <button type="button" class="pill-btn period-btn" data-days="365" onclick="setPeriod(365)">365d</button>
 
-      <span class="toolbar-label" style="margin-left: 0.5rem;">Audience</span>
-      <button type="button" class="pill-btn role-btn active" id="role-supervisor" onclick="setRole('supervisor')">Supervisor</button>
-      <button type="button" class="pill-btn role-btn" id="role-worker" onclick="setRole('worker')">Worker</button>
+      <span class="toolbar-label" style="margin-left: 0.5rem;" data-i="araud">Audience</span>
+      <button type="button" class="pill-btn role-btn active" id="role-supervisor" onclick="setRole('supervisor')"><span data-i="arsup">Supervisor</span></button>
+      <button type="button" class="pill-btn role-btn" id="role-worker" onclick="setRole('worker')"><span data-i="arwork">Worker</span></button>
 
       <span class="toolbar-spacer"></span>
 
-      <button type="button" class="btn-action btn-generate" id="generate-btn" onclick="generateReport()">Generate Report</button>
-      <button type="button" class="btn-action btn-pdf" id="pdf-btn" onclick="saveAsPdf()" disabled>Save as PDF</button>
+      <button type="button" class="btn-action btn-generate" id="generate-btn" onclick="generateReport()"><span data-i="argen">Generate Report</span></button>
+      <button type="button" class="btn-action btn-pdf" id="pdf-btn" onclick="saveAsPdf()" disabled><span data-i="arpdf">Save as PDF</span></button>
     </div>
 
   </main>
@@ -714,11 +743,11 @@
                     (bits ? ' ' + topP1.machine + ': ' + bits + '.' : '');
       } else if (counts.p2 > 0) {
         heroCls = 'hero-finding amber'; heroLabel = '⚠ HEADLINE';
-        heroText = counts.p2 + ' asset' + (counts.p2 === 1 ? '' : 's') + ' on the watch list — no Critical findings.';
+        heroText = counts.p2 + ' asset' + (counts.p2 === 1 ? '' : 's') + ' on the watch list, no Critical findings.';
         heroSub  = 'No P1 priorities this period. Address the P2 watch list before any escalate.';
       } else {
         heroCls = 'hero-finding green'; heroLabel = '✓ HEADLINE';
-        heroText = 'Fleet healthy — no Critical or At-Risk priorities this period.';
+        heroText = 'Fleet healthy: no Critical or At-Risk priorities this period.';
         heroSub  = 'Good baseline. Use this report to confirm current cadence and refresh PM intervals where warranted.';
       }
 
@@ -739,6 +768,24 @@
           // heading-allow: report cover section, primary heading of the export
           '<h1>Maintenance Analytics Report</h1>' +
           '<p style="color:#555;margin-bottom:0.25rem;">A standards-grade view of what happened, why, what is coming, and what to do next.</p>' +
+
+          // E3 (trust/provenance): this document is HANDED TO A CLIENT, and it carried no
+          // statement of where its numbers came from -- the one artifact that leaves the
+          // platform was the one with no provenance. Reuse the canonical renderSourceChip()
+          // (utils.js, already loaded) so the wording matches every in-app surface; the
+          // safe fallback keeps the report rendering if utils ever fails to load.
+          // (2026-07-15, found by the A-R rubric lens: E3 0%.)
+          (typeof renderSourceChip === 'function'
+            ? '<div class="ar-provenance" style="margin:0.35rem 0 0.5rem;">' +
+                renderSourceChip({
+                  freshness: 'Recomputed when this report was generated',
+                  source:    'v_logbook_truth via Postgres RPCs', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
+                  window:    'Period: last ' + _period + ' days',
+                  method:    ['MTBF / MTTR / OEE / PM compliance computed per ISO 14224 + SMRP definitions',
+                              'Risk and predictive figures come from the daily risk snapshot, refreshed on demand'],
+                }) +
+              '</div>'
+            : '') +
 
           // Hero finding — the one thing the reader sees first
           '<div class="' + heroCls + '">' +
@@ -878,6 +925,20 @@
 
     // Stacked bar — single-row bar with multiple colored segments
     // segs: [{label, value, color}]
+    // The in-bar % label sits ON the segment colour, so its ink cannot be a constant.
+    // The CSS hard-coded `color:white`, which fails WCAG on every light segment (amber/
+    // yellow measured under 4.5:1). Pick the ink from the segment's own luminance instead
+    // — white on dark fills, near-black on light ones — so contrast holds for ANY palette
+    // the caller passes, today or later. (C2, 2026-07-15)
+    function _segInk(hex){
+      var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(hex || '').trim());
+      if (!m) return '#fff';
+      var lin = function(v){ v = parseInt(v, 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      var L = 0.2126 * lin(m[1]) + 0.7152 * lin(m[2]) + 0.0722 * lin(m[3]);
+      // contrast vs white = 1.05/(L+0.05); vs near-black(#111827, L~0.0105) = (L+0.05)/0.0605
+      return (1.05 / (L + 0.05)) >= ((L + 0.05) / 0.0605) ? '#fff' : '#111827';
+    }
+
     function stackedBar(segs){
       if (!segs || !segs.length) return '';
       var total = segs.reduce(function(s, x){ return s + (Number(x.value) || 0); }, 0);
@@ -885,7 +946,7 @@
       var bar = '<div class="stack-bar">' + segs.map(function(s){
         var pct = (Number(s.value) / total) * 100;
         if (pct < 0.5) return '';
-        return '<div style="width:' + pct.toFixed(1) + '%; background:' + s.color + ';" title="' +
+        return '<div style="width:' + pct.toFixed(1) + '%; background:' + s.color + '; color:' + _segInk(s.color) + ';" title="' +
           escHtml(safeText(s.label + ': ' + s.value)) + '">' +
           (pct >= 8 ? Math.round(pct) + '%' : '') +
         '</div>';
@@ -984,11 +1045,11 @@
         '<div class="kpi-strip">' +
           '<div class="kpi-cell' + pmKpiCls + '">' +
             '<div class="kpi-label">PM Compliance</div>' +
-            '<div class="kpi-value">' + (compliance != null ? Number(compliance).toFixed(0) : '—') + '<span class="kpi-unit">%</span></div>' +
+            '<div class="kpi-value">' + (compliance != null ? Number(compliance).toFixed(0) : '-') + '<span class="kpi-unit">%</span></div>' +
           '</div>' +
           '<div class="kpi-cell">' +
             '<div class="kpi-label">Fleet MTBF</div>' +
-            '<div class="kpi-value">' + (mtbfDays != null ? Number(mtbfDays).toFixed(0) : '—') + '<span class="kpi-unit">days</span></div>' +
+            '<div class="kpi-value">' + (mtbfDays != null ? Number(mtbfDays).toFixed(0) : '-') + '<span class="kpi-unit">days</span></div>' +
           '</div>' +
           '<div class="kpi-cell' + (totalFailures > 100 ? ' warn' : '') + '">' +
             '<div class="kpi-label">Total Failures</div>' +
@@ -1007,7 +1068,7 @@
         insights.push(insightCard({
           color: 'red', icon: '🚨',
           head: 'Act this week on ' + p1 + ' Critical asset' + (p1 === 1 ? '' : 's'),
-          body: 'Top: ' + topP1.machine + ' (' + (topP1.criticality || 'Critical') + ') — ' +
+          body: 'Top: ' + topP1.machine + ' (' + (topP1.criticality || 'Critical') + '): ' +
                 topP1.failure_count + ' failures, ' +
                 Number(topP1.total_downtime_h || 0).toFixed(0) + ' hrs downtime.',
           action: 'See §3 Action Plan',
@@ -1050,7 +1111,7 @@
         insights.push(insightCard({
           color: 'green', icon: '🔮',
           head: 'No high-risk forecasts',
-          body: 'No asset is currently flagged for near-term failure. This may reflect short history — re-check next period.',
+          body: 'No asset is currently flagged for near-term failure. This may reflect short history, so re-check next period.',
         }));
       }
 
@@ -1102,9 +1163,12 @@
         }).join('') + '</tr>';
       }).join('') + '</tbody>';
       var more = rows.length > topN
-        ? '<p style="font-size:0.7rem;color:#888;margin-top:0.25rem;">Showing top ' + topN + ' of ' + rows.length + '. Full list in §7 Drilldowns.</p>'
+        ? '<p style="font-size:0.7rem;color:#555;margin-top:0.25rem;">Showing top ' + topN + ' of ' + rows.length + '. Full list in §7 Drilldowns.</p>'
         : '';
-      return '<h3>' + escHtml(title) + '</h3><div class="table-wrap"><!-- table-name-allow: maintenance analytics report data table --> <table>' + thead + tbody + '</table></div>' + more;
+      // role=group + tabindex="0" makes the horizontally-scrollable wrapper reachable by
+      // keyboard (axe scrollable-region-focusable, SC 2.1.1) -- a mouse user can drag it, a
+      // keyboard user could not scroll it at all without this.
+      return '<h3>' + escHtml(title) + '</h3><div class="table-wrap" role="group" tabindex="0" aria-label="' + escHtml(title) + ' (scrollable table)"><!-- table-name-allow: maintenance analytics report data table --> <table>' + thead + tbody + '</table></div>' + more;
     }
 
     // ─── AR-FINDINGS (revamped: charts + asset cards) ────────
@@ -1136,7 +1200,7 @@
       if (!failFreq.length && !modeDist.length && !rcmDist.length) {
         return '' +
           '<section id="ar-findings"><h2>2. Findings</h2>' +
-            '<p style="color:#888;font-size:0.78rem;">No descriptive or diagnostic data this period. Seed activity (logbook entries) before re-running.</p>' +
+            '<p style="color:#555;font-size:0.78rem;">No descriptive or diagnostic data this period. Seed activity (logbook entries) before re-running.</p>' +
           '</section>';
       }
 
@@ -1158,9 +1222,9 @@
                 (dt != null ? ' · <b>' + Number(dt).toFixed(0) + 'h</b> downtime' : '') +
                 (rk.criticality ? ' · ' + rk.criticality : '');
               var why = '';
-              if (rk.priority === 'P1') why = 'Top-tier risk this period — escalate.';
+              if (rk.priority === 'P1') why = 'Top-tier risk this period: escalate.';
               else if (rk.avg_downtime_h && Number(rk.avg_downtime_h) > 5) why = 'High average downtime per failure: each event hurts.';
-              else why = 'Frequent failures — recurring problem worth investigating.';
+              else why = 'Frequent failures, a recurring problem worth investigating.';
               return assetCard({
                 name:  a.machine,
                 chip:  rk.priority ? chip(rk.priority, rk.priority) : (a.failure_count >= maxFail * 0.8 ? chip('high', 'High freq') : ''),
@@ -1173,20 +1237,34 @@
 
       // ── 2.2 Failure mode distribution (donut) ──────────
       if (modeDist.length) {
-        var modeColors = ['#a78bfa','#f59e0b','#ef4444','#10b981','#3b82f6','#ec4899','#84cc16','#f97316','#06b6d4','#8b5cf6','#facc15','#94a3b8'];
-        var topModesForDonut = modeDist.slice(0, 8).map(function(m, i){
-          return { label: m.root_cause || 'Unknown', value: Number(m.count) || 0, color: modeColors[i % modeColors.length] };
-        });
+        // E1: root-cause distribution is a QUANTITY comparison, so it must encode with
+        // LENGTH + 2D position (bars) -- "never gauges/pie (area/angle)". This rendered a
+        // real donut (<svg><circle stroke-dasharray>), which makes the reader compare arc
+        // angles: the least accurate channel there is, and the hardest to rank when two
+        // causes are close. It also assigned hues by CYCLING a 12-colour list
+        // (modeColors[i % len]) -- the "never cycle categorical hues" anti-pattern, and
+        // pure decoration once length carries the value. hbarChart() is the E1-correct
+        // form and already lives in this file: sorted bars, one hue, value labelled.
+        // (2026-07-15, found by the A-R rubric lens.)
         var topMode = modeDist[0];
         var topPctTxt = topMode && topMode.pct_of_total != null ? Number(topMode.pct_of_total).toFixed(0) + '%' : '';
         var totalFailMode = modeDist.reduce(function(s, m){ return s + (Number(m.count) || 0); }, 0);
+        var topModeRows = modeDist.slice(0, 8).map(function(m){
+          return { label: m.root_cause || 'Unknown', value: Number(m.count) || 0 };
+        });
         html +=
-          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.2 Why It Broke — Top Root Causes</h3>' +
-          donutChart(topModesForDonut, { size: 150, centerLabel: String(totalFailMode), centerSub: 'failures' }) +
+          '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.2 Why It Broke: Top Root Causes</h3>' +
+          '<p style="font-size:0.7rem;color:#555;margin:0 0 0.35rem;font-variant-numeric:tabular-nums;">' +
+            escHtml(String(totalFailMode)) + ' failures by root cause (top ' + topModeRows.length + ')</p>' +
+          hbarChart(topModeRows, {
+            fmt: function(v){
+              return totalFailMode ? v + ' (' + Math.round((v / totalFailMode) * 100) + '%)' : String(v);
+            }
+          }) +
           (topMode
             ? '<div class="chart-caption"><b>What this means:</b> ' + escHtml(topMode.root_cause || 'top cause') +
               ' is responsible for ' + topPctTxt + ' of all breakdowns. Targeting this single cause ' +
-              'has the biggest payoff — review your PM tasks specific to this failure mode.</div>'
+              'has the biggest payoff, so review your PM tasks specific to this failure mode.</div>'
             : '');
       }
 
@@ -1215,7 +1293,7 @@
           stackedBar(segs) +
           '<div class="chart-caption"><b>What this means:</b> ' +
             (bits ? bits + ' this period. ' : '') +
-            'Stopped + safety bars are your highest-priority categories — RCM ranks these above the others.' +
+            'Stopped + safety bars are your highest-priority categories: RCM ranks these above the others.' +
           '</div>';
       }
 
@@ -1227,17 +1305,17 @@
         html +=
           '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.4 Top Parts Consumed</h3>' +
           hbarChart(topParts) +
-          '<div class="chart-caption"><b>What this means:</b> Make sure these parts have safety stock above ' +
-            'expected monthly consumption — running out forces unplanned downtime.</div>';
+          '<div class="chart-caption"><b>What this means:</b> Keep safety stock above monthly use. ' +
+            'Running out forces unplanned downtime.</div>';
       }
 
       // ── 2.5 PM ↔ failure correlation (single-row insight) ──
       if (pmCorr && (pmCorr.correlation != null || pmCorr.interpretation)) {
-        var rVal = pmCorr.correlation != null ? Number(pmCorr.correlation).toFixed(2) : '—';
-        var pVal = pmCorr.p_value != null ? Number(pmCorr.p_value).toFixed(3) : '—';
+        var rVal = pmCorr.correlation != null ? Number(pmCorr.correlation).toFixed(2) : '-';
+        var pVal = pmCorr.p_value != null ? Number(pmCorr.p_value).toFixed(3) : '-';
         var sig  = pmCorr.p_value != null && Number(pmCorr.p_value) < 0.05 && Math.abs(Number(pmCorr.correlation || 0)) >= 0.5;
         var sigCls = sig ? 'red' : 'gray';
-        var interp = pmCorr.interpretation || (sig ? 'Significant relationship — investigate.' : 'Not statistically significant.');
+        var interp = pmCorr.interpretation || (sig ? 'Significant relationship: investigate.' : 'Not statistically significant.');
         html +=
           '<h3 style="margin-top:1rem;font-size:0.84rem;color:#1a1132;">2.5 Are PMs Preventing Failures?</h3>' +
           '<div style="display:flex;gap:0.75rem;align-items:center;margin:0.4rem 0 0.4rem;flex-wrap:wrap;">' +
@@ -1247,7 +1325,7 @@
           '</div>' +
           '<div class="chart-caption"><b>Plain English:</b> ' +
             (sig
-              ? 'PM gaps and failures are statistically related — your PM schedule isn\'t catching what it should.'
+              ? 'PM gaps and failures are statistically related: your PM schedule isn\'t catching what it should.'
               : 'PM gaps and failure counts are NOT linked in this dataset. Either PMs are doing their job, or the dataset is too small to tell.') +
           '</div>';
       }
@@ -1265,7 +1343,7 @@
       if (!preds.length && !health.length) {
         return '' +
           '<section id="ar-predictive"><h2>3. What\'s Next - Predictive Outlook</h2>' +
-            '<p style="color:#888;font-size:0.78rem;">No predictive signal yet. Models need at least 3 failure events per asset.</p>' +
+            '<p style="color:#555;font-size:0.78rem;">No predictive signal yet. Models need at least 3 failure events per asset.</p>' +
           '</section>';
       }
 
@@ -1383,7 +1461,7 @@
 
       // 2) Top P1 priorities — always show as a table for accountability
       var p1Rows = ranking.filter(function(r){ return r.priority === 'P1'; });
-      var p1Table = tableSection('Critical priorities (P1) — act this week', p1Rows, [
+      var p1Table = tableSection('Critical priorities (P1): act this week', p1Rows, [
         { label: 'Asset',        get: function(r){ return r.machine || ''; } },
         { label: 'Criticality',  get: function(r){ return r.criticality || ''; } },
         { label: 'Risk score',   get: function(r){ return r.risk_score != null ? Number(r.risk_score).toFixed(0) : ''; } },
@@ -1418,26 +1496,35 @@
         pmTable =
           '<p style="font-size:0.78rem;color:#444;margin:0.25rem 0 0.5rem;">' +
             'Across ' + pmIntervals.length + ' assets: ' + summaryBits + '. ' +
-            'The 6 assets below have the biggest gap between their current PM interval and their measured MTBF — fix these first.' +
+            'The 6 assets below have the biggest gap between their current PM interval and their measured MTBF: fix these first.' +
           '</p>' +
           '<div class="asset-card-grid">' +
             topAdjust.map(function(r){
               var cur = Number(r.current_interval_d) || 0;
               var sug = Number(r.recommended_days) || 0;
               var mtbf = Number(r.mtbf_days) || 0;
-              var actCls = (r.action || '').toUpperCase().indexOf('INCREASE') >= 0 ? 'red' : 'amber';
+              var act = (r.action || '').toUpperCase();
+              var isRoot = act.indexOf('ROOT CAUSE') >= 0;
+              var actCls = (isRoot || act.indexOf('INCREASE') >= 0) ? 'red' : 'amber';
+              // "7d -> 7d" is the no-op the old max(7, ...) floor produced. When PM
+              // frequency is not the lever, say the interval STAYS and name the real fix
+              // instead of printing an arrow to the same number.
               return assetCard({
                 name:  r.machine_code || r.asset_name || '',
                 chip:  '<span class="sev-chip ' + actCls + '">' + (r.action || '') + '</span>',
-                stats:
-                  '<b>' + cur.toFixed(0) + 'd → ' + sug.toFixed(0) + 'd</b> ' +
-                  '(MTBF ' + mtbf.toFixed(1) + 'd) &middot; ' +
-                  escHtml(r.asset_name || ''),
-                why: 'Failures hitting more often than the current PM cadence catches.',
+                stats: isRoot
+                  ? '<b>stays ' + cur.toFixed(0) + 'd</b> (MTBF ' + mtbf.toFixed(1) + 'd) &middot; ' +
+                    escHtml(r.asset_name || '')
+                  : '<b>' + cur.toFixed(0) + 'd → ' + sug.toFixed(0) + 'd</b> ' +
+                    '(MTBF ' + mtbf.toFixed(1) + 'd) &middot; ' +
+                    escHtml(r.asset_name || ''),
+                why: isRoot
+                  ? 'Already at the tightest schedulable interval and still failing early: inspecting more often cannot help.'
+                  : 'Failures hitting more often than the current PM cadence catches.',
               });
             }).join('') +
           '</div>' +
-          '<p style="font-size:0.7rem;color:#888;font-style:italic;margin-top:0.4rem;">' +
+          '<p style="font-size:0.7rem;color:#555;font-style:italic;margin-top:0.4rem;">' +
             'Full list (' + pmIntervals.length + ' rows) in <b>Appendix A2</b>.' +
           '</p>';
       }
@@ -1445,13 +1532,13 @@
       // Build sub-sections in order, numbering only those that actually render.
       var subSections = [];
       if (aiClausesBody) subSections.push({ title: 'Recommended Actions (AI Synthesis)', body: aiClausesBody });
-      if (p1Table)       subSections.push({ title: 'Critical Priorities (P1) — act this week', body: p1Table });
+      if (p1Table)       subSections.push({ title: 'Critical Priorities (P1): act this week', body: p1Table });
       if (pmTable)       subSections.push({ title: 'PM Interval Adjustments', body: pmTable });
 
       if (!subSections.length) {
         return '' +
           '<section id="ar-action"><h2>4. Action Plan</h2>' +
-            '<p style="color:#888;font-size:0.78rem;">No prescriptive actions yet. Run the analytics engine end-to-end (logbook → PMs → priorities) to populate this section.</p>' +
+            '<p style="color:#555;font-size:0.78rem;">No prescriptive actions yet. Run the analytics engine end-to-end (logbook → PMs → priorities) to populate this section.</p>' +
           '</section>';
       }
 
@@ -1461,19 +1548,32 @@
       var topP1s = ranking.filter(function(r){ return r.priority === 'P1'; }).slice(0, 2);
       topP1s.forEach(function(r){
         thisWeekActions.push(
-          '<b>Schedule corrective work on ' + escHtml(r.machine) + '</b> (' + escHtml(r.criticality || 'Critical') + ') — ' +
+          '<b>Schedule corrective work on ' + escHtml(r.machine) + '</b> (' + escHtml(r.criticality || 'Critical') + '): ' +
           r.failure_count + ' failures, ' + Number(r.total_downtime_h || 0).toFixed(0) + ' hrs downtime so far.'
         );
       });
-      // Top 1 PM interval adjustment if it shortens cadence (most urgent)
+      // Top 1 PM interval action. ROOT CAUSE ranks ABOVE a cadence tightening: an asset
+      // failing faster than ANY schedulable inspection is the more urgent signal, and it
+      // used to be dropped from this list entirely because the filter only read INCREASE.
+      var pmRootCause = pmIntervals.filter(function(r){
+        return r.action && r.action.toUpperCase().indexOf('ROOT CAUSE') >= 0;
+      })[0];
       var pmTopUrgent = pmIntervals.filter(function(r){
         return r.action && r.action.toUpperCase().indexOf('INCREASE') >= 0;
       })[0];
-      if (pmTopUrgent) {
+      if (pmRootCause) {
         thisWeekActions.push(
-          '<b>Tighten PM cadence on ' + escHtml(pmTopUrgent.machine_code || pmTopUrgent.asset_name) + '</b> — ' +
+          '<b>Investigate ' + escHtml(pmRootCause.machine_code || pmRootCause.asset_name) + '</b>: ' +
+          'MTBF ' + Number(pmRootCause.mtbf_days || 0).toFixed(1) + 'd is shorter than its ' +
+          (pmRootCause.current_interval_d || '?') + 'd PM, already the tightest schedulable interval. ' +
+          'Tightening the schedule cannot help: find the failure mode.'
+        );
+      } else if (pmTopUrgent) {
+        thisWeekActions.push(
+          '<b>Tighten PM cadence on ' + escHtml(pmTopUrgent.machine_code || pmTopUrgent.asset_name) + '</b>: ' +
           'change from ' + (pmTopUrgent.current_interval_d || '?') + 'd to ' +
-          (pmTopUrgent.recommended_days || '?') + 'd. Failures are slipping past the current interval.'
+          (pmTopUrgent.recommended_frequency || ((pmTopUrgent.recommended_days || '?') + 'd')) +
+          '. Failures are slipping past the current interval.'
         );
       }
 
@@ -1481,7 +1581,7 @@
       if (thisWeekActions.length) {
         thisWeekBox =
           '<div class="this-week-box">' +
-            '<div class="this-week-head">⚡ This Week — Top Priorities</div>' +
+            '<div class="this-week-head">⚡ This Week: Top Priorities</div>' +
             '<ul class="this-week-list">' +
               thisWeekActions.map(function(a){ return '<li>' + a + '</li>'; }).join('') +
             '</ul>' +
@@ -1495,8 +1595,8 @@
       return '' +
         '<section id="ar-action"><h2>4. Action Plan</h2>' +
           '<p style="color:#555;font-size:0.78rem;">' +
-            'Action items below follow <i>ISO 55000:2014</i> + <i>SAE JA1011</i> RCM. Clauses are SOW-format ' +
-            'so you can copy-paste into a work order or contractor brief.' +
+            'Action items follow <i>ISO 55000:2014</i> + <i>SAE JA1011</i> RCM. ' +
+            'Copy any clause straight into a work order or contractor brief.' +
           '</p>' +
           thisWeekBox +
           subBody +
@@ -1542,10 +1642,10 @@
       if (!any) return '';
 
       return '' +
-        '<section id="ar-appendix" class="appendix-section"><h2>Appendix — Reference Data</h2>' +
+        '<section id="ar-appendix" class="appendix-section"><h2>Appendix: Reference Data</h2>' +
           '<div class="appendix-note">' +
-            'The body of this report is summarised. The tables below are the complete underlying data — ' +
-            'use them when you need the full picture for CMMS exports, work-order planning, or audit trails.' +
+            'The report above summarises. These tables hold the full data. ' +
+            'Use them for CMMS exports, work-order planning, or audit trails.' +
           '</div>' +
           fullPriority +
           fullPm +
@@ -1563,17 +1663,17 @@
             '<div>' +
               '<div class="sig-line"></div>' +
               'Prepared by' +
-              '<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">Maintenance / Reliability Lead</div>' +
+              '<div style="font-size:0.7rem;color:#555;margin-top:0.2rem;">Maintenance / Reliability Lead</div>' +
             '</div>' +
             '<div>' +
               '<div class="sig-line"></div>' +
               'Reviewed by' +
-              '<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">Operations / Engineering Manager</div>' +
+              '<div style="font-size:0.7rem;color:#555;margin-top:0.2rem;">Operations / Engineering Manager</div>' +
             '</div>' +
             '<div>' +
               '<div class="sig-line"></div>' +
               'Approved by' +
-              '<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">Plant / Site Manager</div>' +
+              '<div style="font-size:0.7rem;color:#555;margin-top:0.2rem;">Plant / Site Manager</div>' +
             '</div>' +
           '</div>' +
           // Compliance footnote — folds the old Standards section into a one-liner
@@ -1584,7 +1684,7 @@
             'SAE JA1011 (RCM evaluation) · ' +
             'ISO 55000:2014 (asset management priority).' +
           '</p>' +
-          '<p style="font-size:0.66rem;color:#888;margin-top:0.6rem;text-align:center;">' +
+          '<p style="font-size:0.66rem;color:#555;margin-top:0.6rem;text-align:center;">' +
             'Generated by WorkHive Analytics Engine on ' + escHtml(generated) + ' · workhiveph.com' +
           '</p>' +
         '</section>';
@@ -1657,6 +1757,39 @@
       // Slight delay so the styleEl mounts before print sees it
       setTimeout(function(){ window.print(); }, 50);
     };
+
+    // ── N1 i18n ────────────────────────────────────────────────────────────
+    // wh_lang is persisted PLATFORM-WIDE, so a user who picks FIL on analytics.html
+    // and clicks through to Reports was landing on English chrome -- the cross-page
+    // mixed-locale bug (the same class as the home dashboard's sync-on-load miss).
+    // This page honours the stored locale on load; the toggle itself lives on
+    // analytics.html, so there is no switch to duplicate here.
+    //
+    // Deliberately EN in FIL: the REPORT BODY. It is a standards-grade client
+    // deliverable citing ISO 14224 / SMRP / SAE JA1011, and its narrative is
+    // AI-generated -- translating the chrome around an English document would produce
+    // a WORSE mixed artifact, not a better one. Chrome (the controls you drive) is
+    // what localises; the deliverable stays in the technical lingua franca.
+    window.WH_LANG = window.WH_LANG || (function(){ try { return localStorage.getItem('wh_lang') === 'fil' ? 'fil' : 'en'; } catch(_){ /* empty-catch-allow: localStorage blocked -> default to EN */ return 'en'; } })();
+    window._t = window._t || function _t(en, fil){ return (window.WH_LANG === 'fil' && fil) ? fil : en; };
+    window._arFIL = {
+      arsub:'Standards-grade. Print-ready. I-save bilang PDF para sa client delivery.',
+      artab1:'Analytics report', artab2:'Ipadala / iskedyul &rarr;',
+      arperiod:'Panahon', araud:'Audience',
+      arsup:'Superbisor', arwork:'Manggagawa',
+      argen:'Bumuo ng Ulat', arpdf:'I-save bilang PDF',
+    };
+    window._arEnCap = null;
+    window.setLang = function setLang(l){
+      window.WH_LANG = (l === 'fil') ? 'fil' : 'en';
+      try { localStorage.setItem('wh_lang', window.WH_LANG); } catch(_){ /* empty-catch-allow: locale persistence is best-effort */ }
+      var els = document.querySelectorAll('[data-i]');
+      if (!window._arEnCap) { window._arEnCap = {}; els.forEach(function(e){ window._arEnCap[e.dataset.i] = e.innerHTML; }); }
+      var dict = (window.WH_LANG === 'fil') ? window._arFIL : window._arEnCap;
+      els.forEach(function(e){ if (dict[e.dataset.i] != null) e.innerHTML = dict[e.dataset.i]; });
+      document.documentElement.lang = (window.WH_LANG === 'fil') ? 'fil' : 'en';
+    };
+    if (window.WH_LANG === 'fil') window.setLang('fil');
 
   })();
   </script>

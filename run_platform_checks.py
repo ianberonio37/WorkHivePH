@@ -130,16 +130,20 @@ VALIDATORS = [
     },
     {
         "id":      "interactive-lineage",
-        "script":  "validate_interactive_lineage.py",
+        "script":  "tools/validate_interactive_lineage.py",
         "args":    [],
         "label":   "Interactive Lineage Axis (forward-only: per-field downstream blast-radius dead-ends, display-anchor resolution, and redundancy verdicts don't regress — INTERACTIVE_LINEAGE_ROADMAP Phase F)",
         "group":   "Platform",
         "skip_if_fast": True,
-        "severity": "warn",
+        # Promoted warn -> fail (2026-07-08, Ian: "drive to 100%"): this D22 deep-interaction ratchet
+        # PASSES with real coverage (5 dead-end + 38 cascade fields, 59 anchors resolved, 0 pending) —
+        # locking it makes the 40 D22 page cells ✅ and blocks any future regression, per the deepwalk
+        # flywheel's forward-only floor. It was advisory only while the axis was still being built.
+        "severity": "fail",
     },
     {
         "id":      "causal-cascade-coverage",
-        "script":  "validate_causal_cascade_coverage.py",
+        "script":  "tools/validate_causal_cascade_coverage.py",
         "args":    [],
         "label":   "Causal Cascade Coverage (Phase A anti-rot: both legs — every DB-trigger AND every edge-fn cross-table data write is mapped in causal_cascades.json — surfaces a new unmapped cascade for review)",
         "group":   "Platform",
@@ -148,12 +152,456 @@ VALIDATORS = [
     },
     {
         "id":      "reactivity-wiring",
-        "script":  "validate_reactivity_wiring.py",
+        "script":  "tools/validate_reactivity_wiring.py",
         "args":    [],
         "label":   "Reactivity Wiring (Phase D anti-rot: every write surface with cross-page fan-out emits a cross-surface receipt [D1], and every high-blast surface has impact-preview.js + a live save-button anchor [D2] — a new silent write surface FAILs)",
         "group":   "Platform",
         "skip_if_fast": True,
+        # Promoted warn -> fail (2026-07-08, Ian: "drive to 100%"): this D3 cross-surface-receipt
+        # ratchet PASSES (7/7 write surfaces have a verified receipt, 4/4 high-blast wired, 4/4
+        # snapshot-KPI owners fresh) — locking it makes the 40 D3 page cells ✅ and blocks a new
+        # silent write surface. Advisory only while the receipt wiring was still being rolled out.
+        "severity": "fail",
+    },
+    {
+        "id":      "attribution",
+        "script":  "tools/validate_attribution.py",
+        "args":    [],
+        "label":   "Attribution integrity (every CLIENT insert/upsert into an auth_uid-no-default table must set auth_uid — locks the auth_uid-drop bug class found live 2026-07-06 on inventory_transactions/pm-scheduler/logbook/integrations/marketplace-seller/asset-hub; unresolvable payloads need an attribution-allow marker)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "client-singleton",
+        "script":  "tools/validate_client_singleton.py",
+        "args":    [],
+        "label":   "Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + timeout fetch and does not spawn a 2nd GoTrueClient — locks the raw-createClient idle-401 class found live 2026-07-06 on voice-handler.js/search-overlay.js; standalone public pages carry a singleton-exempt marker; dim-14)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "embed-auth",
+        "script":  "tools/validate_embed_auth.py",
+        "args":    [],
+        "label":   "Embed-auth / tenancy-gated edge-fn JWT forwarding (every browser fetch to embed-entry forwards the user session JWT as Bearer so its Pillar I tenancy check resolves — locks the client-drops-JWT 401 class found live 2026-07-07 on skillmatrix/logbook/pm-scheduler/voice-handler; without it the write lands but the skill/fault/PM embedding is silently dropped from the RAG index; dim-4)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "voice-journal-single-write",
+        "script":  "tools/validate_voice_journal_single_write.py",
+        "args":    [],
+        "label":   "Voice-journal single-write (the companion agent:'voice-journal' gateway call already persists the turn server-side via persistJournalEntry with an embedding — so NO client _saveJournalTurn/insert may run on its success or clarify path; locks the double-write class found+proven-live 2026-07-07 on voice-handler.js where every companion voice turn was journaled twice, one copy embedding-less; client saves belong only on non-gateway paths [shortcuts / RAG short-circuit / offline catch]; dim-4)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "agent-memory-persist-complete",
+        "script":  "tools/validate_agent_memory_persist_complete.py",
+        "args":    [],
+        "label":   "agent_memory persist-complete (the store_memory_turn RPC's INSERT names every NOT NULL column [worker_name/agent_id/kind] + sets kind to a CHECK-allowed literal — locks the class found live 2026-07-07 where the RPC omitted 3 NOT NULL cols and failed 100% silently, killing the companion's session-memory layer [voice-handler _storeTurn -> _fetchRecentMemory]; dim-4/dim-13)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "logbook-asset-linkage",
+        "script":  "tools/validate_logbook_asset_linkage.py",
+        "args":    [],
+        "label":   "Logbook->asset linkage (LIVE: 0 logbook entries whose `machine` EXACTLY matches a registered asset tag may be asset_node_id NULL — locks the asset-history fragmentation class found live 2026-07-08 [deep-walk CL1], where 2700 entries [46% in Baguio] named a real tag yet were unlinked, so v_asset_truth.lifetime_logbook_entries + asset-brain + analytics UNDERCOUNT an asset's history [PB-001: 18 shown vs 37 real]. Backfill migration 20260708000000 fixed existing rows; this is a fix-to-ZERO down-ratchet. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "inventory-ledger-reconciled",
+        "script":  "tools/validate_inventory_ledger_reconciled.py",
+        "args":    [],
+        "label":   "Inventory balance<->ledger reconciliation (LIVE: qty_on_hand must == the ledger's newest qty_after AND the ledger must chain [qty_after = prev + qty_change] — locks the stock-level seesaw found live 2026-07-08 [ARC DI §10.5], where 77/82 items' stored balance drifted from the transaction ledger [seeder wrote an OPENING balance + random-order txns]. Migration 20260708000001 added a reconcile trigger [balance mirrors the ledger on every movement] + backfill; the seeder is now born-consistent; this is a fix-to-ZERO down-ratchet. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "inventory-txn-isolation",
+        "script":  "tools/validate_inventory_txn_isolation.py",
+        "args":    [],
+        "label":   "Inventory ledger-write hive isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a hive-A member CANNOT insert an inventory_transaction against a hive-B item [42501] — locks the cross-tenant ledger-tamper hole live-exploited 2026-07-12 [Inventory PDDA], where `inventory_transactions_write` WITH CHECK was only `auth.uid() IS NOT NULL` so a foreign-item txn's bogus qty_after was mirrored onto that item's stored qty_on_hand by the SECURITY DEFINER sync trigger [78->88888 cross-hive]. Migration 20260712000011 scoped the write policy to hive_members membership + item-hive match, hive-guarded the trigger, and added a qty_after>=0 CHECK [negative-stock tamper]. Also asserts a legit in-hive insert still succeeds [no regression]. Actors picked dynamically = reseed-robust. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "pm-write-isolation",
+        "script":  "tools/validate_pm_write_isolation.py",
+        "args":    [],
+        "label":   "PM-write hive isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a hive-A member CANNOT [42501] inject a pm_scope_item onto a hive-B asset, a pm_completion into hive B [compliance poisoning of v_pm_compliance_truth -> analytics/shift-planner/hive-health/predictive], nor a phantom pm_asset into hive B — the same child/ledger-table WITH-CHECK class as the inventory ledger tamper, THREE holes live-exploited 2026-07-12 [PM Scheduler PDDA]: pm_scope_items_write WITH CHECK was `auth.uid() IS NOT NULL` only; pm_completions_write + pm_assets_write had WITH CHECK=null so INSERT fell back to a USING with no hive gate [completions] / an `auth_uid=self OR member` OR [assets]. Migration 20260712000012 membership-joins the parent/own-hive in every WITH CHECK. Also asserts a legit in-hive completion still succeeds [no regression]. Actors picked dynamically = reseed-robust. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "display-correctness-fixes",
+        "script":  "tools/validate_display_correctness_fixes.py",
+        "args":    [],
+        "label":   "Display-correctness fix regression gate (STATIC: asserts the 2026-07-13 bug-hunt render-logic fixes are still present — a revert removes the marker and this FAILs, catching what a DB probe can't see. Locks: achievements 'XP this week' summed from a dedicated 7-day query not the .limit(30) list [limit-as-aggregate undercount] + init surfaces whListError on a query error not a fake 'No achievements yet'; asset-hub 'Total assets'/'Critical' via count:'exact' not the .limit(200) list length; ai-quality loadCostLog/loadReplyFeedback throw on {error} instead of swallowing it as [] + dropped the unused user_feedback column; inventory supervisor fetches the full pending approval queue + stock counts exclude non-approved; hive adoption card shows a neutral 'No data yet' tier when there's no snapshot not a green 'Healthy' + PM-overdue count/banner reset on hive-switch. Complements the LIVE validate_hive_write_isolation.py)",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
+        "id":      "hive-write-isolation",
+        "script":  "tools/validate_hive_write_isolation.py",
+        "args":    [],
+        "label":   "Hive-write isolation for the sibling tables the 2026-07-12 sweep MISSED (LIVE two-tenant, rolled-back: asserts a hive-A member CANNOT [42501] inject a phantom inventory_items part into hive B, nor a report_contact into hive B [cross-tenant recipient exfil], and a WORKER CANNOT mint an api_key [supervisor-only] — three holes live-exploited 2026-07-13 [platform bug-hunt]: inventory_items_write WITH CHECK owner branch `auth_uid=self` had no hive gate [status<>approved dodges the approval trigger]; report_contacts_write WITH CHECK was `auth.uid() IS NOT NULL` only; api_keys_hive_rw had no role gate [worker minted a hive credential]. Migrations 20260712000019 [hive-gate inventory_items+report_contacts WITH CHECK] + 000020 [supervisor-scope api_keys/project_roles, approval-trigger project_change_orders]. Also asserts a legit in-hive part add + a supervisor api_key mint still succeed [no regression]. Actors picked dynamically = reseed-robust. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "hive-isolation",
+        "script":  "tools/validate_hive_isolation.py",
+        "args":    [],
+        "label":   "Hive cross-tenant READ + MEMBERSHIP + ATTRIBUTION + ROLE isolation (LIVE two-tenant, rolled-back — bug-hunt 2026-07-13/14, migs 20260713000001-012). 25 invariants as a real authenticated member (+engineering_calcs/parts_records/voice_journal authorship pin [mig 012: eng_calc_attr_pin + parts_rec_attr_pin + voice_j_attr_pin — substrate closure-pass siblings; parts_records has no auth_uid so worker_name is its only attribution; project_items.owner_name deliberately NOT pinned = it's an assignment field not authorship] +community_posts + inventory_items attribution [mig 011: comm_post_attr_pin + inv_item_attr_pin — a spoofed author_name/registrant on a community_posts/inventory_items INSERT is server-pinned to the caller via bind_community_post_submitter/bind_inventory_item_submitter; substrate-found siblings of the mig-007/010 sweep], +pm-scheduler attribution [mig 010: pm_asset_attr_pin + pm_completion_attr_pin — a spoofed registrant/completer on a pm_assets/pm_completions INSERT is server-pinned to the caller via bind_pm_*_submitter], +marketplace listing trust-forge sourced from canonical [mig 009], credential/gamification server-mediated forge-block [skill_badges/worker_achievements], logbook owner-scoped edit; 13/14 = community_replies attribution: comm_reply_attr_pin [a spoofed auth_uid/author_name on a reply INSERT is server-pinned to the caller] + comm_reply_hijack_block [a member cannot UPDATE another member's reply; author-or-supervisor-only]; mig 007 bind_community_reply_submitter + author-scoped write policies, closing the within-hive forge + cross-author BOLA on community.html): (1) read_logbook_xhive + (2) read_cxp_xhive — a FOREIGN hive's v_logbook_truth / community_xp return 0 rows [mig 001: v_logbook_truth/v_project_truth/v_marketplace_listings_truth were missing security_invoker so the view ran as superuser and BYPASSED base RLS — a non-member read 1105 rows of another tenant's logbook LIVE; +community_xp_read was auth.uid()-only, leaking every hive's roster/XP/UUIDs]; (3) mem_selfjoin [P5-01: self-join any hive_id] + (4) mem_kickrestore [P5-02: DELETE-then-reINSERT un-bans a kicked worker] — closed by mig 002 (server-verified join_hive_by_code RPC + founder-only INSERT + sticky-kicked DELETE); (5) asset_attr_pin + (6) logbook_attr_pin + (7) projects_attr_pin — a spoofed auth_uid/worker_name on INSERT is server-pinned to the caller [migs 003/004/005 bind_*_submitter triggers]; (8) comm_announce_gate — a WORKER cannot post a category='announcement' [UI-only-gate BOLA closed by mig 006]; (9) audit_actor_bind [P4-03: forged hive_audit_log.actor rebound] + (10) text_caps_present [P4-02: hives/hive_members cap triggers] [mig 003]; (11) join_rpc_ok + (12) founder_create_ok — no-regression. Actors + a data-rich foreign hive chosen dynamically = reseed-robust. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "hive-battery",
+        "script":  "tools/validate_hive_battery.py",
+        "args":    [],
+        "label":   "hive.html LIVE per-page battery — PER_PAGE_BUGHUNT_ROADMAP Tier-1 (P1 Smoke / P2 Console+Network / P8 Visual). Headless Playwright signs in as the REAL Baguio supervisor (leandromarquez / hive 636cf7e8) and asserts, on the live board load: P1 — renders REAL data [no undefined/NaN/[object Object]], NOT the no-hive empty state, the primary anchor stats #stat-open == v_logbook_truth open-WO count and #stat-members == hive_members active count [rendered==DB truth], and ZERO console errors; P2 — every Supabase REST/RPC/auth/functions response is <400 [no silent 4xx/5xx / swallowed error]; P8 — no horizontal overflow at 390px [mobile] or 1280px [desktop]. Re-drive: node tools/validate_hive_battery.mjs [--headed]. Skips cleanly if node or the local stack [Flask :5000 / Supabase :54321] is absent; a render-drift / console-error / 4xx-5xx / overflow regression is a FAIL)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "page-battery",
+        "script":  "tools/validate_page_battery.py",
+        "args":    [],
+        "label":   "Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 interactive pages. Locks the page-agnostic phases so a regression FAILs: P1 Smoke (every page loads signed-in, renders a non-blank body, NO error-state banner ['failed to load'/'unexpected error'], ZERO console errors on load); P2 Console/Network (no 5xx response during load = no silent server error); P4 Inputs (the SAFE reflected-XSS probe: typing an <img src=x onerror> payload into every visible input NEVER executes [window flag stays unset] NOR reflects as a live <img onerror> node - locks the reflected-DOM-XSS invariant across every page's inputs; submit-path P4 stays MCP-interactive per the roadmap); P8 Visual (no horizontal overflow at 390px [mobile-first invariant] on any page). Complements the DEEP per-page truth gate validate_hive_battery.py (asserts rendered==DB for hive.html). Re-drive: WH_TEST_HIVE=636cf7e8-431a-4907-8a9f-43dd4cc216d6 node tools/page_battery.mjs --gate [--headed]. Skips cleanly if node or the local stack (Flask :5000 / Supabase :54321) is absent)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "page-crud",
+        "script":  "tools/validate_page_crud.py",
+        "args":    [],
+        "label":   "Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). For each attribution-pinned entity (voice_journal_entries/engineering_calcs/community_posts/pm_assets) runs a round-trip through the page's authed db client: INSERT with a FORGED display name -> assert it PERSISTED (create works) BUT the name is PINNED to the caller (bind_*_submitter, migs 010/011/012) -> owner-scoped DELETE -> assert cleaned. Locks the 2026-07-14 per-page P3 frontier: a regression (create fails / attribution leaks the forged name / delete broken) FAILs. Skips cleanly (exit 0) if the local stack/sign-in is absent.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "read-battery",
+        "script":  "tools/validate_read_battery.py",
+        "args":    [],
+        "label":   "Per-page P3 read-correctness + P7 empty-vs-error gate (LIVE headless Playwright, real Baguio supervisor). For 8 READ-heavy pages compares what the page RENDERS to the DB truth (docker-psql admin) for the signed-in hive: audit-log #feed child-count == count(hive_audit_log) [EXACT rendered==DB]; integrations/plant-connections DB==0 -> empty-state + hero counters read 0 (error NOT swallowed as empty) [P7]; public-feed/project-report/shift-brain/analytics render real rows when DB>0; ai-quality renders #content OR its intentional maturity gate (feedback_platform_intentional_blank_states). Complements validate_hive_battery.py (hive.html deep render==DB) + truth-view-read-isolation (DATA/RLS layer). A regression (stale/dropped/mangled render, error swallowed as empty, stuck skeleton) FAILs. Every expectation derived from a LIVE DB count = reseed-robust. Re-drive: node tools/validate_read_battery.mjs [--headed]. Skips cleanly if node or the local stack is absent.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "truth-view-read-isolation",
+        "script":  "tools/validate_truth_view_read_isolation.py",
+        "args":    [],
+        "label":   "Cross-hive READ isolation across ALL truth views (LIVE, rolled-back - batch generalization of the security_invoker read-leak class, mig 001). As a real authenticated member of hive A, reads EVERY hive-scoped v_*_truth view filtered to hive B and asserts 0 rows - so a future view shipped without security_invoker (or a base-table SELECT-RLS regression) leaks a foreign tenant's data and FAILs here. 31 hive-private truth views covered (covering every page's reads); the 4 cross-hive-PUBLIC-by-design views are excluded (marketplace listings/sellers, public community posts, public reputation). Actors + a data-rich foreign hive picked dynamically = reseed-robust. Skips if DB / a two-hive fixture is absent.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "no-client-counter-write",
+        "script":  "tools/validate_no_client_counter_write.py",
+        "args":    [],
+        "label":   "P6 lost-update regression gate (STATIC): asserts NO page HTML writes a value-integrity counter (qty_on_hand/xp_total/total_sales/rating_avg/votes/points/balance/...) via client .update()/.upsert() with a client-computed absolute value - every such mutation must go through an atomic server RPC (inventory_deduct/inventory_restock FOR-UPDATE, increment_*, grade_*) that serialises the read-modify-write under a row lock. Locks the class fixed by mig 20260713000008; the 2026-07-14 live sweep found 0 client counter-writes and this keeps it at 0. Static (no DB) so it runs in --fast and never flakes.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "substrate-freshness",
+        "script":  "tools/validate_substrate_freshness.py",
+        "args":    [],
+        "label":   "Platform Knowledge Substrate freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md). The substrate/ chunk index (tools/build_substrate.py: metadata-prefixed .md chunks over pages / edge-fns / table-RLS / DEFINER-RPCs / skills / docs) lets a task RETRIEVE the relevant slice (a ~1KB page map) instead of a Workflow fan-out re-reading the whole platform (logbook.html 301KB, etc.) every run - the token-sustainability fix (Ian 2026-07-13: fan-out burned 0.5-3M tokens/run). This gate anchors every chunk to its source by a source_sha (file-content hash for page/edge-fn/skill/doc; live DB introspection for table-rls/rpc) and FAILs if any chunk DRIFTED (source changed but the chunk was not rebuilt) - treats the substrate as code, the doc-drift CI model. FIX on FAIL: python tools/build_substrate.py. DB-dependent chunks skip cleanly if docker absent; file-based always checked; fast (file hashing + one introspection pass).",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "memory-cache-coverage",
+        "script":  "tools/memory_cache.py",
+        "args":    ["--check"],
+        "label":   "PKS P3 memory retrieval cache - coverage + budget (PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP L3). The SQLite FTS5+TF-IDF cache (Memento memory.db - project_memento_local_memory_cache P0-P10, already built) delivers the prompt-matched memory slice (<2.5K tokens) per prompt; so MEMORY.md is kept a slim DOCTRINE-CORE + recent refs, with older reference/project pointers RETRIEVAL-ONLY (surfaced on demand, not loaded whole). This gate asserts (a) every durable reference/project memory file on disk is INDEXED in memory.db (FTS5-retrievable - so a pointer-light MEMORY.md loses nothing), and (b) MEMORY.md is under the 24.4KB native hard load cap (FAIL over cap = entries silently truncating). FIX: re-run the Memento indexer (coverage gap) or `python tools/memory_cache.py --slim --apply` (over budget). Ends the whole-MEMORY.md-load budget pressure that climbed to the cap this session (Ian 2026-07-13).",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "night-crawler-freshness",
+        "script":  "tools/validate_night_crawler_freshness.py",
+        "args":    [],
+        "label":   "Night Crawler external-substrate freshness (NIGHT_CRAWLER — the on-demand web crawler tools/night_crawler.py that distills external sources into substrate/external/*.md so the agent RETRIEVES the ~2KB distilled chunk instead of re-crawling + re-understanding raw HTML every session = the token-waste fix, the automation of the PKS L4 reference-distillation tier). Unlike the INTERNAL substrate whose source_sha re-derives from local files, an external chunk's source lives on the public web and drifts SILENTLY; this gate reports every external chunk whose age exceeds its own ttl_days (default 30) so staleness is surfaced, then hands the fix: python tools/night_crawler.py --refresh-stale. NON-BLOCKING BY DESIGN — external staleness is expected and must never break a commit, so the gate ALWAYS exits 0 (reports, never fails). SKIPs cleanly if substrate/external/ is unseeded.",
+        "group":   "Platform",
+        "skip_if_fast": True,
         "severity": "warn",
+    },
+    {
+        "id":      "night-crawler-selftest",
+        "script":  "tools/night_crawler.py",
+        "args":    ["--selftest"],
+        "label":   "Night Crawler distill quality guard self-test (tools/night_crawler.py --selftest — deterministic, no network/AI, instant). The crawler's distiller now EVALUATES its output before bagging it (distill_quality, an Evaluator-Optimizer step): a thin / link-inflated / all-provenance / boilerplate distill is REFUSED not written, and a soft-404 / bot-wall error page is skipped BEFORE distilling (is_error_page) — so a nav/link-index or dead-URL page can't pollute substrate/external/. Born 2026-07-17 from the 12-Factor README distilling to license mush + 2 NN/g chunks the old harvest distilled from 404 pages. This gate runs the guard's fixtures (link_density + distill_quality + is_error_page: a good chunk passes; mush / 404 / all-provenance / NO_DURABLE_CONTENT fail) so a regression in the quality heuristics breaks the build. FIX on FAIL: the guard logic in tools/night_crawler.py changed — restore the fixtures' invariants.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "file-upload-safety",
+        "script":  "tools/validate_file_upload_safety.py",
+        "args":    [],
+        "label":   "File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from().upload()); files are read client-side (resume->AI-extract, logbook photo->data-URI) and discarded, so classic unrestricted-upload/path-traversal (CWE-434/22) are low/N/A. The REAL residual on every <input type=file> surface is client-side: an accept= type allowlist AND a file.size cap (a huge file OOMs FileReader/canvas/the AI extractor = DoS). This gate asserts BOTH per surface; heuristic v1 (regex, so 'guarded'=references a byte-magnitude file.size, may display-not-enforce — refine to parse an actual cap comparison). Current: 9 surfaces, 2 gaps (integrations.html, inventory.html). ADVISORY / non-blocking (always exits 0) — surfaces the gap while per-page size-cap fixes land, then ratchets guarded-only. Self-test: --selftest (deterministic).",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        "id":      "oc-updated-at-backed",
+        "script":  "tools/validate_oc_updated_at_backed.py",
+        "args":    [],
+        "label":   "Optimistic-concurrency backing (LIVE) — every client `updated_at` write must be backed by a real column (bug-hunt roadmap P6, 2026-07-17). Scans client pages for `.from('T')...update({...updated_at...})` and asserts table T has an updated_at column in the DB. A write to a column-less table = a DEAD optimistic-concurrency guard + a phantom-column write (lost-update race + a likely 400 on the edit) — static analysis sees 'OC present' and misses it; only the live DB reveals the missing column. Born from pm_assets (pm-scheduler asset-edit OC was a dead no-op) + immediately caught the sibling marketplace_disputes (dispute-resolution admin flow). FIX: ADD COLUMN updated_at timestamptz DEFAULT now() + reuse the canonical touch_updated_at() trigger. Skips cleanly if docker/DB unreachable. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "attribution-pinned",
+        "script":  "tools/validate_attribution_pinned.py",
+        "args":    [],
+        "label":   "Attribution-forge lock (LIVE) — every hive-scoped ACTION-attribution column (actor, approved_by, acknowledged_by, resolved_by, reviewed_by, assigned_by, submitted_by, dismissed_by, closed_by, rejected_by, completed_by, sent_by) must be pinned to the caller's hive_members identity by a bind trigger (bug-hunt roadmap P3/P5, 2026-07-18). RLS gates the ROLE (member/supervisor of the hive) but NOT the NAME — without a pin a caller stamps ANOTHER person's name on an approval/ack/assignment (intra-hive impersonation of an accountability record). Found live: alert_dismissals.actor + anomaly_signals.acknowledged_by/resolved_by (mig 000014) + 10 more approved_by/acknowledged_by/reviewed_by/assigned_by (mig 000015), all forge-probe verified. Same class as the worker_name sweep (migs 010/011) but different column names. Locks those pins against a dropped trigger AND catches any NEW unpinned attribution column. Skips if docker/DB unreachable. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "readonly-p6-no-edit",
+        "script":  "tools/validate_readonly_p6_no_edit.py",
+        "args":    [],
+        "label":   "Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no concurrent-edit race possible). This gate asserts they STAY edit-free; if one gains a .update/.upsert its covered-by-nature basis is void → FAIL, forcing a real P6 hunt + re-score (bug-hunt roadmap, 2026-07-17). Forward-only, fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "anomaly-status-forward",
+        "script":  "tools/validate_anomaly_status_forward.py",
+        "args":    [],
+        "label":   "Anomaly status forward-only machine (LIVE) — anomaly_signals must keep the BEFORE UPDATE OF status trigger that makes resolved/expired TERMINAL (bug-hunt alert-hub P6, 2026-07-17). Without it, a stale/concurrent Acknowledge regresses a resolved alert back to acknowledged (lost-update on the state machine; live-verified). Asserts trigger tg_anomaly_signals_forward_status + fn anomaly_signals_forward_only_status exist and still guard terminal states. Skips if docker/DB unreachable. FIX: re-apply mig 20260717000007. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "i18n-coverage",
+        "script":  "tools/validate_i18n_coverage.py",
+        "args":    [],
+        "label":   "i18n coverage — P11 EN/FIL adoption of the shared data-i/_t localization system (bug-hunt denominator v2, 2026-07-17). Counts i18n markers (data-i= + _t( + whT() per USER-FACING page and classifies adoption (covered>=25 / partial / thin / none); internal-admin/dev/utility surfaces exempt. Current: 31 user-facing pages, 25 i18n-adopted (81%), 6 gaps (resume.html=0 worst). The P5 lever-ladder fix is adopting the SHARED system on the gaps, not per-page translation. Heuristic v1 (marker COUNT is an adoption proxy, not exact translated/total %). ADVISORY / non-blocking (always exits 0), ratchets. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        "id":      "intelligence-jsonb-shape",
+        "script":  "tools/validate_intelligence_jsonb_shape.py",
+        "args":    [],
+        "label":   "Intelligence-layer JSONB shape (LIVE: asserts every jsonb column the Asset/Alert/Shift pages read as an array/object is actually stored as that jsonb type, never a double-encoded JSON *string* scalar. A seeder/producer doing `json.dumps(list)` into a jsonb column yields jsonb_typeof='string', which the consumers' `Array.isArray(x)?x:[]` guard silently reads as EMPTY — the staging card showed 0 parts while the rationale said '3 parts', and alert-hub printed '0 parts recommended … 3 parts appear'. Found+fixed 2026-07-12 [Asset/Alert/Shift PDDA F1]: seeders parts_staging.py + shift_plans.py did json.dumps; this LIVE type-shape gate caught a SECOND instance [shift_plans.payload 3/5 rows string] that static key-drift analysis cannot see. Covers parts_staging_recommendations.parts, anomaly_signals.top_reasons, shift_plans.payload, asset_risk_scores.top_factors. Skips per-column if empty/absent, whole gate if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "intelligence-write-isolation",
+        "script":  "tools/validate_intelligence_write_isolation.py",
+        "args":    [],
+        "label":   "Intelligence-layer write isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a member CANNOT fabricate [INSERT] nor overwrite [UPDATE] an asset_risk_scores row — the nightly-batch-owned risk cache feeding asset-hub/alert-hub/shift-brain/analytics — nor insert an asset_node into a foreign hive, while their own-hive risk READ still works. Locks F11 [live-exploited 2026-07-12, Asset/Alert/Shift PDDA]: asset_risk_scores was a FOR ALL policy open to any active member, so a worker could inject a phantom 'critical' or bury a real one as 'low'; now service-role-only writes [matching sensor_readings/anomaly_signals]. + F10 defense-in-depth: asset_nodes_write USING owner-branch now hive-gated. Migration 20260712000013. Actors picked dynamically = reseed-robust. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "growth-write-isolation",
+        "script":  "tools/validate_growth_write_isolation.py",
+        "args":    [],
+        "label":   "Growth-layer write isolation (LIVE, rolled-back: simulates a real authenticated member and asserts a member CANNOT self-mint a skill_badge [competence + 250 XP forgery] nor write a forged skill_exam_attempt nor write a skill_profile attributed to another worker [BOLA], that grade_skill_exam() exists + is SECURITY DEFINER [the only server-graded earn path], and that own-badge READ still works. Locks K1 [live-exploited 2026-07-12, Dayplanner/Growth PDDA]: skill_badges/skill_exam_attempts were client-writable + the exam was client-scored, so a worker could console-mint any badge; now client writes are locked + the exam is graded server-side vs the write-locked skill_exam_keys. + K6: skill_profiles WITH CHECK now pins auth_uid. Migrations 20260712000015/16. Actors picked dynamically = reseed-robust. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "reliability-kpi-faithfulness",
+        "script":  "tools/validate_reliability_kpi_faithfulness.py",
+        "args":    [],
+        "label":   "Reliability-KPI faithfulness (LIVE: precomputed `asset_risk_scores.mtbf_days` must mirror the live canonical `get_mtbf_by_machine` engine — a divergence is allowed ONLY when a logbook event postdates the score's generated_at [bounded staleness the next cron folds in]. A divergence with NO newer source = a methodology fork / silent wrong reliability number = the temporal seesaw [ARC DI §10.5]. Measured live 2026-07-08: 90 machines, 1 bounded-stale, 0 unexplained. + a structural guard that batch-risk-scoring still sources mtbf from the canonical RPC. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "benchmark-rollup-faithfulness",
+        "script":  "tools/validate_benchmark_rollup_faithfulness.py",
+        "args":    [],
+        "label":   "Cross-hive benchmark rollup faithfulness (LIVE: every `network_benchmarks` cross-tenant rollup must == the EXACT aggregate of the current per-hive `hive_benchmarks` in its segment [avg=mean, p25/p75=percentile_disc, sample_hives=distinct-hive count], sample_hives>=3 for privacy, no orphan rollup with no inputs — locks the cross-tenant seesaw [ARC DI §10.5]: a per-hive change that doesn't propagate benchmarks a hive against a stale/forked peer number. Measured live 2026-07-08: 5 rollups, 0 unfaithful/privacy/orphan; teeth-proven [a per-hive mutation was DETECTED]. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "embedding-no-stale-duplicates",
+        "script":  "tools/validate_embedding_no_stale_duplicates.py",
+        "args":    [],
+        "label":   "Embedding re-embed-on-edit (LIVE: each logbook source entry must carry exactly ONE fault_knowledge embedding — a logbook edit-in-place re-calls embed-entry, which used to `.insert()` a SECOND embedding [no unique key on logbook_id], leaving a STALE duplicate in the RAG index [semantic search could return pre-edit text; ARC DI §10.5 embedding seesaw]. Migration 20260708000002 adds a UNIQUE index on fault_knowledge(logbook_id) + embed-entry now UPSERTs on it [re-embed REPLACES]. fix-to-ZERO. Skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "edge-observed-coverage",
+        "script":  "tools/validate_edge_observed_coverage.py",
+        "args":    [],
+        "label":   "Edge observability coverage (fix-to-ZERO: every AI edge fn in ai_seams_catalog.ai_fns has serveObserved in its index.ts — the Arc-T net that lands a wh_traces error row on any unhandled throw must COVER every AI surface; a new AI fn shipped without the wrapper is an observability hole and blocks CI. Static fast half; the LIVE fire-proof is observability_fault_walk.py. Binds deep-walk D21 for the AI sub-grid).",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "frontend-floor-cells",
+        "script":  "tools/validate_frontend_floor_cells.py",
+        "args":    [],
+        "label":   "Frontend floor cells (fix-to-ZERO ratchet over the live-mined F-lens in frontend_ufai_results.json: F1 consoleErrors==0 [D17 SMOKE — page loads clean] + F6 loading/empty/error present [D15 honest degraded states], on every production page the sweep covers. Fast half of the two-tool pattern [mine_frontend_ufai_surfaces.mjs probes, this ratchets]; a page that starts throwing a console error or drops a degraded state blocks CI. SKIPs if the artifact is absent).",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "deepwalk-flywheel",
+        "script":  "tools/deepwalk_flywheel.py",
+        "args":    [],
+        "label":   "PLATFORM deep-walk FLYWHEEL v2 (Ian 2026-07-08): the WHOLE-platform quality ruler — GLOB-discovers the grid each cycle (40 pages × 13 oracle dims + 33 AI edge fns × 8 AI dims = ~784 cells → deepwalk_grid.json), EVIDENCE-BINDS every cell to an on-disk validator via its `# DEEPWALK-CELL: <surface> <dim>` self-tag (auto-joins a new validator with zero edits), derives ✅ (locked gate green) / 🟡 (oracle exists, unratcheted) / ⬜ (no oracle = the frontier), runs the DISCOVERED gate-floor (every tagged+registered-blocking validator), and names the lowest-coverage cell as the next --drive target. MEASURED %, not eyeballed; folds the DI §10.2 grid (100%) in as one sub-report. Exit 1 only if a locked gate regresses; coverage <100 is reported, not failed. Baseline 2026-07-08: 36.3% (page 28.7% · AI 50.8%).",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        "id":      "rpc-write-integrity",
+        "script":  "tools/validate_rpc_write_integrity.py",
+        "args":    [],
+        "label":   "RPC write-integrity (LIVE: every public plpgsql function's INSERT covers its target's NOT NULL columns + only writes tables that EXIST — locks two silent-100%-fatal classes found live 2026-07-07: NOT-NULL-omission [store_memory_turn] and stale-table-reference [delete_worker_data still UPDATEd the dropped `assets`]; both made a GDPR erasure / companion memory fail on every call behind a swallowed error; skips cleanly if the local DB is down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "cron-health",
+        "script":  "tools/validate_cron_health.py",
+        "args":    [],
+        "label":   "Cron health (LIVE: no active pg_cron job's latest run failed with a CODE error — locks the unattended-silent-failure class found live 2026-07-07, where the soft-delete retention cron [hard_delete_expired_soft_deletes] errored 'column deleted_at does not exist' on 28 straight runs and nothing surfaced; excludes transient startup-timeouts + the local-only app.supabase_functions_url GUC; skips if pg_cron/DB absent)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "private-memory-isolation",
+        "script":  "tools/validate_private_memory_isolation.py",
+        "args":    [],
+        "label":   "Private-memory isolation (LIVE: the per-worker AI-companion conversation tables [agent_memory/voice_journal_entries/dialog_state] must have OWNER-only SELECT policies — no hive_members read branch — locks the privacy leak found+proven-live 2026-07-07 where agent_memory_read let any hive member read another worker's private companion turns; dim-3; skips if DB down)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "leave-audit-ordering",
+        "script":  "tools/validate_leave_audit_ordering.py",
+        "args":    [],
+        "label":   "Leave-audit ordering (hive.html writeAuditLog is awaitable + performLeave AWAITS the member_left audit BEFORE the hive_members self-delete — locks the race found live 2026-07-07 where fire-and-forget audit + awaited delete silently lost the audit trail once the delete committed first and RLS [hive_id IN user_hive_ids()] rejected the late insert; dim-6 destructive-action audit-trail)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "axe-live-authed",
+        "script":  "tools/validate_axe_live.py",
+        "args":    [],
+        "label":   "Axe a11y — AUTHENTICATED write surfaces (LIVE: password-grants a seeded supervisor + scans the 9 Tier-1 write pages [hive/inventory/logbook/pm-scheduler/skillmatrix/community/dayplanner/marketplace/project-manager] through axe-core WCAG 2.2 AA @390px — the auth-gated pages the static axe_scan.js SKIPS, i.e. the highest-a11y-risk forms/modals/destructive surfaces. Integrity-at-zero: baseline 0, any NEW violation FAILs; proven 0 live 2026-07-07 [dim-8]. Skips cleanly if node/local-stack absent)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "assistant-recall",
+        "script":  "tools/validate_assistant_recall.py",
+        "args":    [],
+        "label":   "Assistant multi-turn recall (ai-orchestrator's 0-agents 'not enough data' deflection must stay MEMORY-AWARE — guarded by memoryBlock + RECALL_RE — so a 'what did I just tell you?' recall question answers from the working buffer instead of deflecting; locks the CL5 defect found+fixed+live-verified 2026-07-08 where the Work Assistant had ZERO multi-turn recall while voice-journal recalled fine; dim-13)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "persona-echo-live",
+        "script":  "tools/validate_persona_echo_live.py",
+        "args":    [],
+        "label":   "CL9 persona-echo LIVE (the floating companion's persona SELECTION must reach the backend: ai-gateway agent=voice-journal with context.persona=hezekiah|zaniah must echo data.persona back as the same value. Locks the fix for the live-caught bug where companion-launcher read an undefined getCurrentPersona + wrong key 'wh_persona' → the widget ALWAYS sent 'zaniah' while the avatar showed the real pick. Live-tier: GoTrue-auths a seeded worker, skips cleanly if the local stack is down; teeth-proven. 2026-07-08; dim-13)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "faithfulness-rail",
+        "script":  "tools/validate_faithfulness_rail.py",
+        "args":    [],
+        "label":   "CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTION fabrication — 'Updated maintenance record'/'Log entry added' claims of writes it can't do [verified 0 logbook rows / 0 followups], stripped by _shared/action_provenance.ts; (2) ungrounded-KPI — token-accurate grounding + the no-provenance 'Your split is X%' hedge. Asserts both rails imported, token-accurate, committed-tested, and wired before the synthesis return; teeth-proven. Found+fixed+live-verified 2026-07-08; dim-13)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "clickable-keyboard-a11y",
+        "script":  "tools/validate_clickable_keyboard_a11y.py",
+        "args":    [],
+        "label":   "Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboard-operable — focusable + role=button + Enter/Space activation, incl. dynamic renders. Gate asserts the polyfill is present + every active clickable-bearing page loads utils.js/fixes inline. Found+FIXED live 2026-07-07 platform-wide, not baselined)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "arc-u-focus-trap",
+        "script":  "tools/validate_arc_u_focus_trap.py",
+        "args":    [],
+        "label":   "Arc U modal focus-trap + focus-restore (WCAG 2.1.2 No Keyboard Trap + 2.4.3 Focus Order — axe is STATIC and cannot see a focus trap. LIVE headless probe [tools/arc_u_focus_trap_probe.mjs, reuses FB2 programmatic sign-in, not the thrash-prone MCP browser] opens the marketplace Post modal [representative of all 9 sheets wired via wireSheetA11y->whModalA11y], Tab-walks 40x -> asserts focus-escapes=0 + Escape closes + focus returns to the opener #fab-post. Locks whModalA11y against regression. Verified clean 2026-07-11 [Arc U]. Skips cleanly if node/local-stack absent)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "plain-language",
+        "script":  "tools/validate_plain_language.py",
+        "args":    [],
+        "label":   "Plain language (no consumer-tech jargon [KYB/IDOR/RLS], internal terms, or removed-payment vestige [escrow/2307/GMV] in user-facing static copy — audience is EVERY Filipino worker, not just engineers; Ian 2026-07-06. Industrial acronyms MTBF/OEE/RCM are WARN-only, expand on first use; marketplace marketing articles rewritten free/contact-only)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "supervisor-approval-backstop",
+        "script":  "tools/validate_supervisor_approval_backstop.py",
+        "args":    [],
+        "label":   "Supervisor-approval backstop (approval-gated tables asset_nodes/rcm_fmea_modes/rcm_strategies carry the tg_guard_approval trigger so a worker cannot self-approve or delete signed-off work via direct PostgREST — locks the UI-only-gate privilege-escalation class found + exploited live 2026-07-07; dim-2)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
     },
     {
         "id":      "deeplink-param-contracts",
@@ -272,6 +720,40 @@ VALIDATORS = [
         "label":   "Calm Dashboard Canonical-Wiring Audit (per-tile classify: canonical/drift/gap/allowed)",
         "group":   "Platform",
         "report":  "calm_canonical_audit_report.json",
+        "skip_if_fast": False,
+        "severity": "blocker",
+    },
+    {
+        # Arc P (Pareto Page Revamp) content gate. Forward-only ratchet on the ONE
+        # signal Ian named: DISPLAYED defensive-copy count = 0 platform-wide ("kill
+        # 'we won't fake this'"). Scans HTML visible text + maturity-gate-consumer
+        # inline JS + shared DOM-renderer .js, stripping comments / JSON-LD / AI
+        # system prompts first (the R0 3x-over-count lesson). Baseline auto-tightens
+        # DOWN (Rule B); FAILS only on a NEW defensive phrase. Wave 0 drives 10 -> 0.
+        "id":      "pareto-content",
+        "script":  "validate_pareto_content.py",
+        "args":    ["--gate"],
+        "label":   "Pareto Content Gate (Arc P: displayed defensive-copy ratchet -> 0; per-page P1/P3 metrics)",
+        "group":   "Platform",
+        "report":  "pareto_content_report.json",
+        "skip_if_fast": False,
+        "severity": "blocker",
+    },
+    {
+        # Arc P P4 lens: NO EM DASH in displayed copy (the standing no-em-dash rule).
+        # Prose em dashes hide in dynamically-rendered strings the empty-state walks miss
+        # (found 11 on ph-intelligence/ai-quality only after walking them populated).
+        # Forward-only ratchet (Rule B): FAILS only when the displayed em-dash count RISES
+        # above the frozen baseline; auto-tightens DOWN as pages are cleaned. Scans HTML
+        # visible text + title/aria/placeholder attrs + inline JS display strings + content
+        # .js, excluding comments / non-display harness JS. Baseline seeded at the honest
+        # current count; the sweep drives it toward 0 over sessions.
+        "id":      "no-em-dash",
+        "script":  "validate_no_em_dash.py",
+        "args":    ["--gate"],
+        "label":   "No-Em-Dash Gate (Arc P: displayed em-dash ratchet, forward-only toward 0)",
+        "group":   "Platform",
+        "report":  "no_em_dash_report.json",
         "skip_if_fast": False,
         "severity": "blocker",
     },
@@ -523,6 +1005,76 @@ VALIDATORS = [
         "label":   "Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)",
         "group":   "Platform",
         "report":  "design_tokens_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-07-16 (FULLSTACK_COMPONENT_LIBRARY_ROADMAP §2.3 F-P2) — FAMILY_UFAI
+        # §10 proved dims fail exactly where canonical components sit unadopted
+        # (whListSkeleton, .wh-disclose, whFmt*…). This ratchet recomputes adoption
+        # LIVE per design_component_registry.json row over the 32 family pages and
+        # fails any drop below the component_adoption_baseline.json floor;
+        # rises auto-tighten. Also fails registry/floor orphans + inline
+        # redefinitions of canonical utils.js functions.
+        "id":      "component-adoption",
+        "script":  "validate_component_adoption.py",
+        "args":    [],
+        "label":   "Component Adoption (canonical design-library adoption per registry row; forward-only floors, auto-tighten; no inline redefinitions)",
+        "group":   "Platform",
+        "report":  "component_adoption_gate_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-07-17 (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer A, A-P2) — the Layer-A
+        # sibling of component-adoption: canonical _shared/ module adoption per
+        # api_component_registry.json row, recomputed live over every edge function's
+        # index.ts. A function dropping its cors/envelope/rate-limit/tenant-context
+        # import fails; rises auto-tighten. Exemptions documented in the registry
+        # (voice-model-call orphan; fixed-endpoint outbound fns).
+        "id":      "api-adoption",
+        "script":  "validate_api_adoption.py",
+        "args":    [],
+        "label":   "API Adoption (canonical _shared/ module adoption per edge function; forward-only floors, auto-tighten)",
+        "group":   "Platform",
+        "report":  "api_adoption_gate_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-07-17 (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer D, D-P2) — canonical DB
+        # PATTERN adoption over the substrate's live-DB-derived chunks: RLS on tenant
+        # tables, hive-membership scoping, auth_uid ownership policies, security_invoker
+        # views. A view/table dropping its pattern fails; rises auto-tighten. Source
+        # chunks are freshness-gated by validate_substrate_freshness.py.
+        "id":      "db-adoption",
+        "script":  "validate_db_adoption.py",
+        "args":    [],
+        "label":   "DB Adoption (canonical RLS/policy/invoker pattern adoption per table/view; forward-only floors, auto-tighten)",
+        "group":   "Platform",
+        "report":  "db_adoption_gate_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-07-17 (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer AU, AU-P2) — the client
+        # session/identity floor: restoreIdentityFromSession + session-settled reads
+        # (the cold-load-401 class) per family page. A page dropping either regresses.
+        "id":      "au-adoption",
+        "script":  "validate_au_adoption.py",
+        "args":    [],
+        "label":   "AU Adoption (client auth floor: identity restore + session-settled reads per page; forward-only floors)",
+        "group":   "Platform",
+        "report":  "au_adoption_gate_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # 2026-07-17 (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer AV) — the offline canonical
+        # set (banner/queue/connectivity/session-timeout/device-fingerprint) ships as ONE
+        # unit on every non-exempt family page (29/29 at wave completion). A page dropping
+        # any of the five, or carrying a partial set, fails.
+        "id":      "av-adoption",
+        "script":  "validate_av_adoption.py",
+        "args":    [],
+        "label":   "AV Adoption (offline canonical set per page: full 5-script unit; forward-only floor + no-partial rule)",
+        "group":   "Platform",
+        "report":  "av_adoption_gate_report.json",
         "skip_if_fast": False,
     },
     {
@@ -2481,7 +3033,7 @@ VALIDATORS = [
         "id":      "admin-gates",
         "script":  "validate_admin_gates.py",
         "args":    [],
-        "label":   "Admin Gate Enforcement (founder-console, marketplace-admin, platform-health must verify admin)",
+        "label":   "Admin Gate Enforcement (founder-console, marketplace-admin must verify admin)",
         "group":   "Platform",
         "report":  "admin_gates_report.json",
         "skip_if_fast": False,
@@ -2561,6 +3113,39 @@ VALIDATORS = [
     {"id": "hive-quota", "script": "validate_hive_quota.py", "args": [],
      "label": "Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)",
      "group": "Platform", "report": "hive_quota_report.json", "skip_if_fast": False},
+    {"id": "logbook-quota", "script": "tools/validate_logbook_quota.py", "args": [],
+     "label": "Q0 Logbook Quota Pilot (per-day rate-limit trigger + server text caps + friendly UX + photo size assert; the Q2-replication template)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "quota-coverage", "script": "tools/validate_quota_coverage.py", "args": [],
+     "label": "Q2/Q5 Quota Coverage Ratchet (every high-write table has a per-day cap on a REAL timestamp column; FAILs if a new surface ships uncapped)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "text-cap-coverage", "script": "tools/validate_text_cap_coverage.py", "args": [],
+     "label": "Q3 Text+Upload Cap Ratchet (server-side text-cap trigger per high-write table + upload size/duration caps; no unbounded user input)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "quota-board", "script": "tools/quota_board.py", "args": ["--check"],
+     "label": "Q5 Unified Quota Board (aggregates all quota dimensions into one measured board; FAILs if any bound is red)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "quota-page-audit", "script": "tools/quota_page_audit.py", "args": ["--check"],
+     "label": "Per-Page Quota Audit (EVERY production feature page's write tables are capped or documented-excluded; FAILs on any uncapped page write)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "global-ai-budget", "script": "tools/validate_global_ai_budget.py", "args": [],
+     "label": "Q6 Global LLM Budget Guard (the org-shared-pool layer above per-tenant caps: atomic row-locked consume RPC + daily circuit-breaker + per-minute burst smoother that sheds background/passes interactive + fail-open + wired at the gateway; FAILs if any regress)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "cumulative-quota-enforce", "script": "tools/validate_cumulative_quota_enforcement.py", "args": [],
+     "label": "Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative triggers ATTACHED + status-fixed RAISE 54000; catches the trigger-drift + 'warn'-status bug classes)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "embedding-retention", "script": "tools/validate_embedding_retention.py", "args": [],
+     "label": "Q5-b Embedding/Growth Retention (embedding_cache LRU auto-prune cron + prune fn; canonical big tables via the safe DRY-RUN-default, double-gated cold_archive_prune step-3 whose safety gate provably never deletes without a verified Parquet snapshot)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "realtime-channel-cap", "script": "tools/validate_realtime_channel_cap.py", "args": [],
+     "label": "Q5 Realtime Cap + Graceful-429 (whRealtimeSubscribe bounds channels PER CLIENT against the verified 200-concurrent free-tier wall + degrades overflow/offline to visibility-aware polling + frees the slot on stop; scope-aware 429 UX maps each gateway body (burst/platform/daily/hourly) to the right hint; C5+C6 run Node behavioural tests as real teeth)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "inline-image-guard", "script": "tools/validate_inline_image_guard.py", "args": [],
+     "label": "Q5-a Inline Image Detector-Guard (server-side base64 photo size cap on logbook+inventory_items backstopping the <=700KB client compression + photo_attach_stats() telemetry; the right-sized move since measured attach-rate is 0% — full Storage-offload stays deferred until the rate climbs)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
+    {"id": "ai-daily-ceiling", "script": "tools/validate_ai_daily_ceiling.py", "args": [],
+     "label": "Q4 AI Daily Ceiling (per-day AI window on ai_rate_limits+ai_user_rate_limits denies scope='day' at the daily cap; the deno-gated live-runtime 429 is proven via a Node local-substitute that drives the REAL checkAIRateLimit/checkSoloRateLimit decision — deploy Ian-gated)",
+     "group": "Platform", "report": None, "skip_if_fast": False},
     {"id": "data-retention", "script": "validate_data_retention.py", "args": [],
      "label": "Data Retention / Right-to-Erasure (4-layer: delete path + helper + PII inventory + retention)",
      "group": "Platform", "report": "data_retention_report.json", "skip_if_fast": False},
@@ -3203,6 +3788,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "ops-snapshot-agents",
+        "script":  "validate_ops_snapshot_agents.py",
+        "args":    [],
+        "label":   "Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "ai-attribution",
         "script":  "validate_ai_attribution.py",
         "args":    [],
@@ -3318,6 +3912,22 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # Article<->Page taxonomy consistency (2026-07-05): a feature /learn/ article's
+        # stated taxonomy-noun counts (disciplines/calculators/templates/tabs/...) must
+        # match its OWN linked feature page. Catches the class content_grounding's
+        # capability_drift misses: the eng-calculators article claimed "6 disciplines /
+        # 30+ calculators" vs the page's 6 real disciplines + 53 calcs; skill-matrix says
+        # "4 of 6 disciplines" vs the page's "5 disciplines". Prose-only, deterministic,
+        # offline (~1s) → runs even in --fast. Forward-only ratchet.
+        "id":      "article-taxonomy",
+        "script":  "tools/validate_article_taxonomy.py",
+        "args":    [],
+        "label":   "Content Grounding: Article<->Page Taxonomy Consistency (forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "article_taxonomy.json",
+        "skip_if_fast": False,
+    },
+    {
         # SEO Technical Gate (SEO/AEO/GEO Arc P1) — the on-page technical levers
         # validate_seo.py lacks: exactly-one-H1, <img> alt, JSON-LD VALIDITY (parses,
         # not just present), and no NEW retired FAQ/HowTo rich-result schema (Google
@@ -3359,6 +3969,68 @@ VALIDATORS = [
         "label":   "Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)",
         "group":   "AI Validation",
         "report":  "landing_extractability_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # Landing + Home-Dashboard Deep Arc gate (LANDING_DASHBOARD_DEEP_ARC.md) —
+        # locks the confirmed front-door defects the arc fixed so they cannot
+        # regress: (G6/F4) og:title + twitter:title must equal <title> (the arc
+        # found the social cards silently dropped "Filipino"); (AI3) no fabricated
+        # "NN% precision/accuracy" metric in the marketing copy (found "98%
+        # precision" on AI worker-matching with zero source behind
+        # v_worker_assignment_truth); (F4) every landing subdir carries a
+        # twitter:card (feedback/ shipped without one). Static, offline (~1s) →
+        # runs even in --fast. Forward-only ratchet.
+        "id":      "landing-deep",
+        "script":  "tools/validate_landing.py",
+        "args":    [],
+        "label":   "Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "landing_validation.json",
+        "skip_if_fast": False,
+    },
+    {
+        # CSP Hardening ratchet (CSP_HARDENING_ARC.md, Landing arc I6a). Ian chose the
+        # STRICT + nonce path (a multi-phase build: server nonce + inline-handler removal +
+        # Tailwind-CDN->built-CSS + strict CSP). Until it lands, this FREEZES the inline-
+        # handler + un-nonced-script debt on index.html (baseline 46 handlers / 12 scripts):
+        # the counts may only SHRINK, never grow (a new onclick= makes the eventual strict
+        # CSP strictly harder). Also reports the measured distance to strict-CSP-done. Flip
+        # STRICT_ENFORCED=True in the script when the build completes. Static, offline (~1s).
+        "id":      "csp-ratchet",
+        "script":  "tools/validate_csp.py",
+        "args":    [],
+        "label":   "CSP Hardening Ratchet (index.html inline-handler/un-nonced-script debt frozen; forward-only toward strict CSP)",
+        "group":   "AI Validation",
+        "report":  "csp_baseline.json",
+        "skip_if_fast": False,
+    },
+    {
+        # Orphan / click-depth (SEO/AEO/GEO Arc, Crawl-index cell) — every public surface
+        # must have >=1 crawlable inbound <a href> (no orphans) AND be reachable from
+        # index.html in <=3 clicks. Builds the internal-link graph from the SCRIPT-STRIPPED
+        # DOM (crawler view) over the catalog-derived public surfaces; BFS from the homepage.
+        # Pure-code, ratcheted forward-only. ~1s offline.
+        "id":      "orphan-depth",
+        "script":  "tools/orphan_depth_gate.py",
+        "args":    [],
+        "label":   "Orphan / Click-Depth Gate (P1: 0 orphaned public pages + every page <=3 clicks from index.html; crawl-graph over script-stripped DOM; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "orphan_depth_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # Core Web Vitals (SEO/AEO/GEO Arc, P3 CWV cell) — the FAST half of a two-tool scorer:
+        # tools/cwv_probe.mjs drives headless mobile Chromium across the public surfaces (warm-
+        # median LCP/INP/CLS, written to cwv_measurements.json), and THIS gate ratchets the
+        # measurements (LCP<=2500/INP<=200/CLS<=0.1 + a coverage check). Sub-second (reads JSON);
+        # the heavy browser sweep is on-demand. Forward-only ratchet. ~0.1s offline.
+        "id":      "cwv",
+        "script":  "tools/cwv_gate.py",
+        "args":    [],
+        "label":   "Core Web Vitals Gate (P3: warm-median mobile LCP/INP/CLS over public surfaces vs 2026 thresholds + coverage; reads cwv_measurements.json; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "cwv_report.json",
         "skip_if_fast": True,
     },
     {
@@ -3558,10 +4230,95 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "engdesign_registry",
+        "script":  "tools/validate_engdesign_registry.py",
+        "args":    [],
+        "label":   "Deep-arc P1: Engineering-Design registry SSOT (counts derive from CALC_TYPES_UI; no drift/orphans)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "engdesign_write_isolation",
+        "script":  "tools/validate_engdesign_write_isolation.py",
+        "args":    [],
+        "label":   "Deep-arc P2/I-2: engineering_calcs WRITE-side isolation (foreign auth_uid insert blocked, self allowed) — LIVE",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,   # needs the local supabase_db_workhive container
+    },
+    {
+        "id":      "engdesign_a11y",
+        "script":  "tools/validate_engdesign_a11y.py",
+        "args":    [],
+        "label":   "Deep-arc P3: Engineering-Design report a11y (contrast U-1/U-4, 44px U-6, label/announce passes U-2/U-3/U-8)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "engdesign_xss",
+        "script":  "tools/validate_engdesign_xss.py",
+        "args":    [],
+        "label":   "Deep-arc P4: Engineering-Design XSS/output-encoding (no row-into-onclick I-7, no raw narrative I-6, validateBeforeSave I-5)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "engdesign_ai",
+        "script":  "tools/validate_engdesign_ai.py",
+        "args":    [],
+        "label":   "Deep-arc P5: Engineering-Design AI egress integrity (timeout AI-4, honest copy AI-5, disclosure AI-7, friendly errors AI-8, narration grounding AI-1)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "engdesign_ai_citations",
+        "script":  "tools/validate_engdesign_ai_citations.py",
+        "args":    [],
+        "label":   "Deep-arc P5/AI-6: Engineering-Design AI citation grounding (fabricated-standard detector w/ teeth; live narratives cite only real standard families)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,   # live tier needs the edge runtime up; hermetic teeth run regardless
+    },
+    {
+        "id":      "engdesign_silent_zero",
+        "script":  "tools/validate_engdesign_silent_zero.py",
+        "args":    [],
+        "label":   "Deep-arc P7/F-5: Engineering-Design silent-zero ratchet (result `|| 0` alias-chains can't grow past baseline)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "engdesign_units",
+        "script":  "tools/validate_engdesign_units.py",
+        "args":    [],
+        "label":   "Deep-arc P6/A-6: Engineering-Design scoped SI/IP units toggle (engine normalized to SI; universal/ambiguous units excluded)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "analytics_correctness",
         "script":  "tools/validate_analytics_correctness.py",
         "args":    [],
         "label":   "AI Self-Improvement: Analytics Engine Value Accuracy",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Anti-drift lock for ANALYTICS_UFAI_ROADMAP.md's 97.2% scoreboard: re-asserts the
+        # code-side invariant behind every dim driven to 100% (CLS reserves, 44px targets,
+        # tabular nums, reduced-motion, i18n wiring, h2 headings, Pareto encoding, and the
+        # ISO8601 date parse that stopped a silent 99.4% row loss). A doc drifts; a gate does not.
+        "id":      "analytics_ufai_scoreboard",
+        "script":  "tools/validate_analytics_ufai_scoreboard.py",
+        "args":    [],
+        "label":   "UFAI: Analytics Engine scoreboard invariants (anti-drift lock)",
         "group":   "AI Validation",
         "report":  None,
         "skip_if_fast": False,
@@ -3779,12 +4536,50 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Arc R (Z, OWASP A01) — a security lock must not silently RE-OPEN. Once a migration explicitly
+        # revokes anon/authenticated EXECUTE on a fn (a deliberate app-role lock-out), no LATER migration
+        # may re-grant it to public/anon/authenticated without a `-- regrant-approved` marker. Catches the
+        # exact C2.1 regression (20260624 episodic_supersedes re-granted match_procedural_memories that
+        # 20260620 had locked → cross-tenant retrieval IDOR). Static/offline; teeth (self-test).
+        "id":      "migration_grant_regression",
+        "script":  "tools/validate_migration_grant_regression.py",
+        "args":    [],
+        "label":   "Arc R: migration grant-regression (a revoked lock not silently re-granted; A01)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Arc R (Z, OWASP A01/BFLA) — a verify_jwt=false edge fn that WRITES on the service-role client
+        # must enforce an auth/cron/signature gate. Sibling of public_fn_authz (LLM-proxy subset) for the
+        # WRITE surface. Caught pdf-ingest = anon-triggerable all-hives drainer (R2, 2026-07-01). Static; teeth.
+        "id":      "public_fn_write_authz",
+        "script":  "tools/validate_public_fn_write_authz.py",
+        "args":    [],
+        "label":   "Arc R: public-fn write authZ (no anon-triggerable service-role writer; A01/BFLA)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # Arc R (X, OWASP A03) — no UNESCAPED worker-writable DB free-text field interpolated into
         # an HTML template (the stored-XSS class validate_xss's presence check misses). Baseline 0; teeth.
         "id":      "dom_xss_fields",
         "script":  "tools/validate_dom_xss_fields.py",
         "args":    [],
         "label":   "Arc R: DOM-XSS DB-field escaping (DB free-text in HTML must be escHtml; A03)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Hive Board Deep Arc (PDDA 2026-07-10) — locks this arc's structural fixes:
+        # no write to the DROPPED `assets` table, the #supervisor-summary CLS reserve is
+        # role-scoped (no worker void), and the RLS-hardening migration is present.
+        "id":      "hive_board",
+        "script":  "tools/validate_hive_board.py",
+        "args":    [],
+        "label":   "Hive Board: asset write on asset_nodes + role-scoped reserve + RLS migration",
         "group":   "AI Validation",
         "report":  None,
         "skip_if_fast": False,
@@ -4132,6 +4927,64 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # Analytics Engine arc I3/I6 — EXECUTE send-report-email buildEmailHtml on XSS payloads
+        # injected into hiveName / r.type / r.summary, assert escaping (no raw tag survives).
+        # Hermetic (node), so runs in --fast.
+        "id":      "report_email_escaping",
+        "script":  "tools/validate_report_email_escaping.py",
+        "args":    [],
+        "label":   "Analytics I3/I6: send-report-email HTML-injection (every email sink escaped)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Analytics Engine arc AI2/F5 — assert the AI action-plan synthesis reads only REAL
+        # 4-phase output keys (no stale key → ungrounded prompt → fabrication). Static, --fast-safe.
+        "id":      "analytics_synthesis_grounding",
+        "script":  "tools/validate_analytics_synthesis_grounding.py",
+        "args":    [],
+        "label":   "Analytics AI2/F5: action-plan synthesis reads real phase keys (no ungrounded AI)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Analytics Engine arc page invariants — chart CLS reserve (A4), ISO-55001 honest
+        # composite label (AI3), no rendered em-dash (A6). Static, --fast-safe.
+        "id":      "analytics_page",
+        "script":  "tools/validate_analytics_page.py",
+        "args":    [],
+        "label":   "Analytics A4/AI3/A6: page invariants (chart CLS reserve, honest label, no em-dash)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Analytics arc F1b — the canonical get_oee_by_machine RPC must derive Quality from
+        # good_units/total_units (not quality_pct-only), or report/asset-hub OEE diverges from
+        # the analytics page. Static (reads the migration SQL) → --fast-safe.
+        "id":      "oee_quality_derivation",
+        "script":  "tools/validate_oee_quality_derivation.py",
+        "args":    [],
+        "label":   "Analytics F1b: canonical OEE quality = good/total (report matches page)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Analytics arc F1d — canonical PM compliance overall_pct = WEIGHTED (SMRP 2.1.1
+        # Σcompleted/Σscheduled), not the unweighted mean that contradicts the N-of-M count.
+        # Static (migration SQL + descriptive.py) → --fast-safe.
+        "id":      "pm_compliance_weighted",
+        "script":  "tools/validate_pm_compliance_weighted.py",
+        "args":    [],
+        "label":   "Analytics F1d: PM compliance is SMRP-weighted (hero matches its count)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # Arc I — LIVE data-layer auth proofs via docker psql (synthetic-email isolation, non-active
         # member exclusion, server-derived tenancy, auth-migration backfill trigger). Needs the local
         # DB up, so skip in --fast (mirrors the rls_tenant_isolation / definer_tenant_gate live gates).
@@ -4199,6 +5052,45 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # CMMS Integrations PDDA I1/I2/I3 — live authz gate. Real supervisor+worker JWTs vs the
+        # served edge + PostgREST: a supervisor CANNOT sync a FOREIGN hive's config_id (BOLA),
+        # a worker CANNOT read the plaintext auth_token or repoint a config's endpoint_url, and
+        # the supervisor's OWN-config path still works (no over-block). Needs seeder+edge; skip --fast.
+        "id":      "integration_configs_authz_live",
+        "script":  "tools/validate_integration_configs_authz_live.py",
+        "args":    [],
+        "label":   "CMMS: live integration_configs authz (config_id BOLA closed; worker token-read/write blocked)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        # CMMS Integrations PDDA F1004/I6/F1-b — live webhook hardening gate. A validly-signed
+        # webhook with an OLD/FAR-FUTURE timestamp is REJECTED (replay window ±300s), a malformed
+        # body → 400 (not 500), wrong-sig → 401, fresh → 200. Complements the F5 idempotency gate.
+        # Needs edge + docker psql; skip --fast.
+        "id":      "cmms_webhook_security_live",
+        "script":  "tools/validate_cmms_webhook_security_live.py",
+        "args":    [],
+        "label":   "CMMS: live webhook security (replay window + malformed 400 + wrong-sig 401 + fresh 200)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        # CMMS Integrations PDDA F1/F2 — live entity-sync gate. The webhook's asset.updated /
+        # inventory.updated / pm.overdue handlers were silent no-ops; this drives real signed
+        # webhooks and asserts the DB effect (external_sync asset/inventory/pm_schedule rows +
+        # inventory_items, idempotent qty update). Self-contained, reseed-resilient. Skip --fast.
+        "id":      "cmms_entity_sync_live",
+        "script":  "tools/verify_cmms_entity_sync_live.py",
+        "args":    [],
+        "label":   "CMMS: live entity sync (asset/inventory/pm.overdue webhook handlers land in DB, idempotent)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # Arc H H8/I — prompt-injection posture (LLM01): no AI fn interpolates untrusted input INTO the
         # system prompt (role separation). Static; baseline 0. The probabilistic jailbreak residual is
         # the live fabrication/Family-E sweep, not this gate.
@@ -4207,6 +5099,185 @@ VALIDATORS = [
         "args":    [],
         "label":   "Arc H: AI prompt-injection posture (untrusted input out of system prompt; LLM01)",
         "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # D25 PII-egress floor: the shared _shared/redactPII.ts scrubber (which every AI fn's
+        # answer routes through via the ai-gateway) must not regress its ISO-timestamp carve-out —
+        # a loose PHONE_RE once ate the YYYY-MM-DD head of ISO datetimes, leaking `<phone>T..`
+        # into asset-brain answers. Deterministic ($0, no deno/DB/model): re-runs the carve-out
+        # from the .ts regex sources — ISO survives, real phones/emails still redact. Tagged
+        # `# DEEPWALK-CELL: ai:* D25` → locks the D25 egress cell across every AI fn.
+        "id":      "redact_iso",
+        "script":  "tools/validate_redact_iso.py",
+        "args":    [],
+        "label":   "Arc H: PII-egress redaction ISO carve-out (D25, shared redactPII.ts, deterministic)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # K2 multi-turn PII egress (2026-07-12, live-caught): the current-turn message is fully
+        # redacted, but an email/phone a worker stated in a PRIOR turn is carried raw in the
+        # agent_memory turn_text + semantic journal recall — the forwarded memory_block AND the
+        # summariser transcript were scrubbed only by redactKnownNames (NAMES), so those emails/
+        # phones reached the model provider raw (proven: pii.leak.test@plant.ph survived twice).
+        # Fix = redactMemoryText (names + email/phone via scrubExceptISO) wired into BOTH egress
+        # sites. Deterministic ($0, no deno/DB/model): structural (both sites use redactMemoryText,
+        # neither regresses to bare redactKnownNames; the helper still scrubs email/phone) +
+        # behavioral (re-runs the scrub from the .ts regex sources: email/phone die, ISO survives).
+        # Tagged `# DEEPWALK-CELL: ai:* D25` → locks the multi-turn half of the D25 egress cell.
+        "id":      "memory_pii_redaction",
+        "script":  "tools/validate_memory_pii_redaction.py",
+        "args":    [],
+        "label":   "Arc H: multi-turn PII egress rail (K2, memory_block + summariser, redactMemoryText)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # K1 gateway-bypass floor (2026-07-12, live-caught): assistant.html's Step-2 fallback
+        # POSTed the full system prompt + chat history + KB context to a PUBLIC Cloudflare Worker
+        # (workhive-assistant.*.workers.dev) — no auth / no PII redaction / no rate-limit / no
+        # memory — whenever the slow orchestrator path timed out. Fixed by routing the fallback
+        # through ai-gateway 'voice-journal'. This gate locks the whole class forward-only:
+        # scans every root *.html for a browser network call to a BANNED external model endpoint
+        # (*.workers.dev / api.groq/openai/anthropic / openrouter / gemini / mistral / cerebras /
+        # /chat/completions / /v1/messages). Ext-1 "gateway-route EVERY AI call". Deterministic.
+        # Tagged `# DEEPWALK-CELL: ai:* D26` → locks the AI-gateway-reuse cell across every page.
+        "id":      "no_ai_gateway_bypass",
+        "script":  "tools/validate_no_ai_gateway_bypass.py",
+        "args":    [],
+        "label":   "Arc H: no browser page bypasses ai-gateway with a direct external-model call (K1, Ext-1)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # K4 companion-context PII floor (2026-07-12): companion-launcher only transmits a page's
+        # setContext summary to the LLM when piiSafe:true. The gateway's context redaction scrubs
+        # email/phone but NOT a name in prose — so a piiSafe summary interpolating owner_name/
+        # display_name/etc. ships a person's name to the model. project-manager/report shipped that
+        # shape (flag omitted → summary dropped → grounding dead); K4 set piiSafe:true + stripped
+        # the names + added an asset-hub asset context. This gate locks the invariant forward-only:
+        # a piiSafe:true summary interpolating a *_name person field FAILs. Deterministic ($0).
+        # Tagged `# DEEPWALK-CELL: ai:* D25` → the client half of the D25 egress cell.
+        "id":      "setcontext_pii_safe",
+        "script":  "tools/validate_setcontext_pii_safe.py",
+        "args":    [],
+        "label":   "Arc H: piiSafe companion context carries no person-name (K4, page_context egress)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # X-FIND ASR-confidence clarify-gate (2026-07-12, live-caught): a garbled voice transcript
+        # (Cebuano 40% fidelity) was sent to the companion, which CONFABULATED a grounded answer on the
+        # garble. Fix = a 4-layer additive chain surfacing the indigenous ASR's avg_logprob so the
+        # voice-journal page CLARIFIES ("say it again") below a floor instead of grounding a mis-heard
+        # question. This gate asserts every link (asr_server avg_logprob -> audio-chain passthrough ->
+        # voice-transcribe low_confidence -> voice-journal.html early-return gate) so the signal can't
+        # silently stop flowing. Deterministic ($0). Tagged `# DEEPWALK-CELL: ai:* D27`.
+        "id":      "asr_confidence_gate",
+        "script":  "tools/validate_asr_confidence_gate.py",
+        "args":    [],
+        "label":   "Arc H: ASR-confidence clarify-gate intact (X-FIND, garbled voice does not confabulate)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # V-axis V6 SOVEREIGNTY ratchet (NATIVE_AI_ROADMAP.md #6): every AI capability that touches a hot
+        # path must keep BOTH a LOCAL-FIRST env-gated slot (so a plant runs inference in-house + its data
+        # never leaves the plant) AND a FALLBACK (so no single external provider — or a local outage — can
+        # take the feature down). Asserts it across all 4: Embeddings (BGE_EMBED_URL), ASR (WH_ASR_URL),
+        # TTS (WH_TTS_URL, built this session), LLM (WH_LLM_URL, built this session). A future edit that
+        # drops a local slot or a fallback FAILs. Deterministic ($0). Tagged `# DEEPWALK-CELL: ai:* D28`.
+        "id":      "indigenous_stack",
+        "script":  "tools/validate_indigenous_stack.py",
+        "args":    [],
+        "label":   "Arc H/V: indigenous stack keeps local-first + fallback (data sovereignty, no hard external dep)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # AI Companion arc (2026-07-13): voice_family_probe caught the companion leaking its
+        # persona/chain-of-thought scaffold verbatim ("We need to respond as Zaniah, strategist...
+        # the worker says:...") — an UNTAGGED reasoning leak the <think>-tag strip missed. Case 3
+        # in _shared/ai-chain.ts stripReasoningBlocks (+ both Python mirrors) returns "" so callAI
+        # falls to the next model. This gate is the teeth: strips the leak corpus, spares real
+        # answers, and asserts the TS + both Python mirrors keep the Case-3 signature (no drift).
+        "id":      "reasoning_scaffold_strip",
+        "script":  "validate_reasoning_scaffold_strip.py",
+        "args":    [],
+        "label":   "AI Companion: reasoning/persona-scaffold leak strip (untagged CoT never reaches the reply)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # D13 action-faithfulness (CL10 fabrication class): the advisory read-only brain must not
+        # claim a COMPLETED system write it didn't make ("Log entry added", "Updated maintenance
+        # record"). Asserts the shared rail (_shared/action_provenance.ts) is intact, the ai-gateway
+        # centralizes it over EVERY advisory route (a new uncovered advisory route FAILs), and every
+        # generative AI fn resolves to a fabrication guard. Deterministic ($0, no deno/DB/model).
+        # Tagged `# DEEPWALK-CELL: ai:* D13` → locks the D13 fabrication cell across every AI fn.
+        "id":      "ai_fabrication_contract",
+        "script":  "tools/validate_ai_fabrication_contract.py",
+        "args":    [],
+        "label":   "Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Deepwalk D18 — destructive-safety: delete/reset flows are gated by the SHARED whConfirm
+        # modal (a real cancellable gate, loaded platform-wide, guarding 26 destructive call-sites).
+        # A regression that strips confirms below the floor FAILs. Deterministic ($0, static).
+        "id":      "destructive_safety",
+        "script":  "tools/validate_destructive_safety.py",
+        "args":    [],
+        "label":   "Deepwalk D18: destructive-safety (delete/reset confirm-gated via shared whConfirm)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Deepwalk D19 — idle-session robustness: the singleton Supabase client auto-refreshes +
+        # persists the session and refreshes on tab-wake (visibilitychange) so an idle tab never
+        # fires a stale-token 401; no surface opts out. Deterministic ($0, static).
+        "id":      "session_resilience",
+        "script":  "tools/validate_session_resilience.py",
+        "args":    [],
+        "label":   "Deepwalk D19: idle-session robustness (autoRefreshToken + wake-refresh, no stale 401)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Deepwalk D20 — client resilience: every client request is AbortController-timeout-bounded
+        # (no infinite spinner on a hung backend) + the offline-banner/connectivity widgets exist.
+        # Deterministic ($0, static).
+        "id":      "client_resilience",
+        "script":  "tools/validate_client_resilience.py",
+        "args":    [],
+        "label":   "Deepwalk D20: client resilience (timeout-bounded fetch + offline/connectivity UX)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        # Deepwalk content-surface fold — the 45 static /learn articles' presentation floor across
+        # D4 (a11y: lang/single-h1/heading-order-honoring-aria-level/img-alt), D5 (responsive
+        # viewport), D7 (no dynamic-HTML sink on a static page), D17 (structurally whole). Caught +
+        # fixed a real h2→h4 heading skip on the platform-overview guide. Deterministic ($0, static).
+        "id":      "content_page_hygiene",
+        "script":  "tools/validate_content_page_hygiene.py",
+        "args":    [],
+        "label":   "Deepwalk content fold: /learn article presentation floor (D4/D5/D7/D17)",
+        "group":   "Platform",
         "report":  None,
         "skip_if_fast": False,
     },
@@ -4414,12 +5485,19 @@ VALIDATORS = [
     {"id": "rate-limit-adoption",          "script": "validate_rate_limit_adoption.py",          "args": [], "label": "Rate-Limit Adoption (every callAI fn calls checkAIRateLimit/checkUserRateLimit/checkRouteRateLimit)",                "group": "P1 Roadmap", "report": "rate_limit_adoption_report.json",          "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "llm-cache-adoption",           "script": "validate_llm_cache_adoption.py",           "args": [], "label": "LLM Cache Adoption (count of fns using cached() from _shared/cache.ts; floor ratchet)",                              "group": "P1 Roadmap", "report": "llm_cache_adoption_report.json",           "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
     {"id": "structured-log-adoption",      "script": "validate_structured_log_adoption.py",      "args": [], "label": "Structured Log Adoption (count of fns importing + calling log.* from _shared/logger.ts; floor ratchet)",            "group": "P1 Roadmap", "report": "structured_log_adoption_report.json",      "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
+    {"id": "edge-error-capture",           "script": "validate_edge_error_capture.py",           "args": [], "label": "Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper-integrity + L2 forward-only adoption floor; live fault-inject-proven)", "group": "P1 Roadmap", "report": "edge_error_capture_report.json",          "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "observability-fault-walk",     "script": os.path.join("tools", "observability_fault_walk.py"), "args": [], "label": "Observability Fault-Inject Walk (Arc T/T2 LIVE proof: injects an unhandled throw via the auth-gated chaos hook -> asserts a wh_traces error row lands with the same trace_id + a non-leaky 500 envelope + anon cannot inject; SKIPs cleanly if local Supabase is down)", "group": "P1 Roadmap", "report": "observability_fault_walk_report.json", "skip_if_fast": True,  "severity": "regression", "parallel_safe": False},
+    {"id": "slo-rollup",                   "script": "validate_slo_rollup.py",                   "args": [], "label": "SLO Error-Budget Rollup Gate (Arc T/T3: v_wh_traces_slo view + slo_error_budget() RPC exist AND compute correctly - per-route error counts excl. 401/403/429 policy rejections, windowed 28d/6h/1h, burn = error_rate / 1% SLO budget; proven by a seeded rolled-back self-test; SKIPs if local DB down)", "group": "P1 Roadmap", "report": "slo_rollup_report.json", "skip_if_fast": True,  "severity": "regression", "parallel_safe": False},
+    {"id": "grafana-slo-dashboard",        "script": "validate_grafana_slo_dashboard.py",        "args": [], "label": "Grafana SLO Provisioning Gate (Arc T/T5+T4: the repo-provisioned golden-signal dashboard workhive-slo-arct - 6 panels over wh_traces/v_wh_traces_slo on the supabase_local datasource - AND the alert routing (rule wh_slo_edge_errors + contact point + policy) exist, parse, and stay wired; static, no running Grafana needed)", "group": "P1 Roadmap", "report": "grafana_slo_dashboard_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "grafana-reader-reads",         "script": "validate_grafana_reader_reads.py",         "args": [], "label": "Grafana-Reader Read-Path Gate (Operator-Console->Grafana: LIVE-queries every dashboard-dependency table AS grafana_reader and fails if a read errors or is RLS-partially-blinded - catches the silent-blindness class that dark'd the SLO alert + founder-console observe tables; SKIPs if local DB down)", "group": "P1 Roadmap", "report": "grafana_reader_reads_report.json", "skip_if_fast": True,  "severity": "regression", "parallel_safe": False},
     {"id": "reproducible-build-pin",       "script": "validate_reproducible_build_pin.py",       "args": [], "label": "Reproducible Build Pin (L1 .tool-versions + L2 package-lock + L3 engines.node agreement)",                        "group": "P1 Roadmap", "report": "reproducible_build_pin_report.json",       "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "live-page-journeys",           "script": "validate_live_page_journeys.py",           "args": [], "label": "Arc K Live-Page Journeys Ratchet (live-as-a-user JTBDs never regress non-live + deterministic floor never grows; reads live_page_journeys_results.json vs baseline)", "group": "Arc K", "report": "live_page_journeys_check_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "arc-v-effortless",             "script": "validate_arc_v_effort.py",                "args": [], "label": "Arc V EFFORTLESS 3-Lens Ratchet (E: total click-hops CEILING - any new friction fails + excess-click debt never grows; L: cognitive-load floor never grows - Miller >7-choice/>40 walls/competing CTAs; F: Doherty flow floor never grows - slow-and-silent actions + dead-ends; reads arc_v_results.json vs baseline)", "group": "Arc V", "report": "arc_v_effort_check_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "arc-v-capstone",               "script": "validate_arc_v_capstone.py",              "args": [], "label": "Arc V EFFORTLESS Family-Capstone Ratchet (cross-page JOBS stay effortless: continuity never breaks - no hop bounces to sign-in / loses hive context; cumulative hop-cost never exceeds ideal; reads arc_v_capstone_results.json vs baseline)", "group": "Arc V", "report": "arc_v_capstone_check_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "arc-w-visual",                 "script": "validate_arc_w_visual.py",                "args": [], "label": "Arc W VISUAL UI/UX 9-Lens Ratchet (D depth/H focal/W whitespace/G grouping/C consistency/V dashboard/T color-type/M-S motion-state/I icon - every per-lens violation floor is a forward-only CEILING so visual quality can't rot; + M/S control-state CSS-rule floor :active/:focus-visible can't drop; reads arc_w_results.json vs baseline)", "group": "Arc W", "report": "arc_w_visual_check_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "arc-y-intuition",              "script": "validate_arc_y_intuition.py",             "args": [], "label": "Arc Y INTUITION GRADIENT Ratchet (per-page 5-lens novice floor never drops: L1 jargon-without-gloss can't grow / L3 first-paint overwhelm ceiling / L4 displayed-value-vs-DB-truth can't go silent / L5 in-app BACK can't disappear / L6 dead-links+unlabeled can't grow; 3-persona gradient measured by intuition_gradient_harness.mjs; reads intuition_gradient_report.json vs intuition_gradient_baseline.json)", "group": "Arc Y", "report": "arc_y_intuition_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "fb2-browser-ci-persona",       "script": "validate_browser_ci_persona.py",          "args": [], "label": "FB2 Browser-CI Multi-Persona Live Floor Ratchet (every page walked HEADLESS as field-tech/supervisor/new-worker/admin = role x viewport x hive; the persona-delta live floor - per-persona runtime/security/serious-a11y breakage a single-identity sweep can't see - never falls + every persona's sign-in holds; reads browser_ci_persona_board.json vs baseline; full re-drive = node tools/browser_ci_persona_walk.mjs --accept)", "group": "Forward-Build", "report": "browser_ci_persona_check_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "fb4-grounding-eval",           "script": os.path.join("tools", "fb4_grounding_eval.py"), "args": ["--accept"], "label": "FB4 Live-LLM Grounding/Fabrication Eval (invokes the served LLM edge fns with DIVERSE ASKER PERSONAS - earnest/edge-case/adversarial-injection/Tagalog - and grades answer-named asset-tags subset-of the hive DB truth = no fabrication; adversarial must not leak a secret; Tagalog must still get a grounded answer; free-tier $0 single invokes; forward-only pass ratchet vs fb4_grounding_baseline.json)", "group": "Forward-Build", "report": "fb4_grounding_results.json", "skip_if_fast": True, "severity": "regression", "parallel_safe": False},
     {"id": "mine-rls-policies",            "script": os.path.join("tools", "mine_rls_policies.py"), "args": [], "label": "RLS Policy Substrate Miner (L-1.5: USING(true) / WITH CHECK(true) / missing TO clause)",                     "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
     {"id": "mine-cache-name-drift",        "script": os.path.join("tools", "mine_cache_name_drift.py"), "args": [], "label": "Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)",            "group": "P1 Roadmap", "report": "cache_name_drift_report.json",             "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
     {"id": "rls-strict",                   "script": "validate_rls_strict.py",                   "args": [], "label": "RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)",         "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "regression", "parallel_safe": True},

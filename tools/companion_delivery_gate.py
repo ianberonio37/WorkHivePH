@@ -132,6 +132,11 @@ _FLAT_READ = re.compile(r"(?<![.\w])data\.answer\b")
 _NESTED_READ = re.compile(r"\bdata\.data\.answer\b")
 _DATA_ASSIGN = re.compile(r"\b(?:const|let|var)\s*(?:\{\s*[^}]*\bdata\b|data\s*=)|^\s*data\s*=")
 _UNWRAP_SIGNAL = re.compile(r"_unwrap|data\.data\b|\.data\.answer\b|env\.data\b|\?\.data\?\.")
+# A DIRECT invoke of a specialist that returns a FLAT { answer, cited, ... } body (NOT the enveloped
+# ai-gateway) — so reading `data.answer` off it is CORRECT, not a missing unwrap. Evidence: asset-hub's
+# fallback path calls asset-brain-query directly (returns jsonResponse({answer,cited,narration}) — flat).
+# Without this the gate false-positives on a correct fallback read (2026-07-08 audit: RED-gate-inaccuracy).
+_FLAT_FN_SIGNAL = re.compile(r"functions\.invoke\(\s*['\"]asset-brain-query['\"]")
 
 
 def _gateway_unwrap_violations_in(text: str, fname: str) -> list[dict]:
@@ -151,6 +156,8 @@ def _gateway_unwrap_violations_in(text: str, fname: str) -> list[dict]:
         window = "\n".join(lines[start:i + 1])
         if _UNWRAP_SIGNAL.search(window):
             continue  # the data feeding this read was unwrapped — safe
+        if _FLAT_FN_SIGNAL.search(window):
+            continue  # `data` is from a direct flat-shape specialist (asset-brain-query) — data.answer correct
         out.append({
             "file": fname,
             "line": i + 1,
@@ -183,6 +190,11 @@ def check_gateway_unwrap() -> dict:
 # and why every 👍/👎 no-oped. The fix is to read the real client the page
 # already builds (`window._whSupabaseClient`, assigned by getDb() in utils.js).
 _CLIENT_USE = re.compile(r"window\.([A-Z_][A-Z0-9_]*)\s*\.\s*(?:functions\b|from\s*\()")
+# Also catch the INDIRECT form — `const db = window.WH_DB; ... db.from(...)` — that the direct
+# regex above misses. checkProactive() used exactly this (`const db = window.WH_DB`) and its
+# client-peek nudge was 100% dead (WH_DB assigned nowhere) until it was routed through _whClient()
+# (2026-07-08, CL8 live-caught). Capture the local var + the never-assigned global it reads.
+_CLIENT_ASSIGN = re.compile(r"(?:const|let|var)\s+(\w+)\s*=\s*[^;\n]*?window\.([A-Z_][A-Z0-9_]*)\b")
 
 
 def _client_assigned_anywhere(name: str) -> bool:
@@ -217,6 +229,23 @@ def check_client_wiring() -> dict:
                     "code": f"window.{name}.functions/.from — client global never assigned",
                     "why": f"window.{name} is used as a client but assigned nowhere → dead path "
                            f"(authed invoke + feedback write never run)",
+                })
+        # INDIRECT form: `const db = window.GLOBAL; ... db.from(...)` — flag when GLOBAL is never
+        # assigned AND the local var is later used as a client (.from/.functions). (CL8 checkProactive.)
+        for m in _CLIENT_ASSIGN.finditer(text):
+            local, name = m.group(1), m.group(2)
+            key = f"{local}={name}"
+            if key in seen or name in seen:
+                continue
+            seen.add(key)
+            uses_local = re.search(r"\b" + re.escape(local) + r"\s*\.\s*(?:functions\b|from\s*\()", text)
+            if uses_local and not _client_assigned_anywhere(name):
+                line = text[:m.start()].count("\n") + 1
+                violations.append({
+                    "file": p.name, "line": line,
+                    "code": f"const {local} = window.{name}; {local}.from/.functions — client global never assigned",
+                    "why": f"window.{name} is read into `{local}` and used as a client but assigned nowhere "
+                           f"→ dead path (the client-peek / invoke branch never runs)",
                 })
     return {
         "count": len(violations),
@@ -305,12 +334,51 @@ def check_single_mount() -> dict:
     }
 
 
+# ── Check 5: persona_resolution ──────────────────────────────────────────────
+# The floating launcher must send the persona the worker actually SELECTED. CL9 live-caught
+# (2026-07-08): companion-launcher.js resolved persona via `window.getCurrentPersona` (a function
+# NEVER defined — wh-persona.js exposes getPersonaKey), then fell back to localStorage `wh_persona`
+# (the WRONG key; the real key is `wh_voice_journal_persona`). Net: the widget ALWAYS sent
+# persona='zaniah' — a worker who picked Hezekiah got Zaniah answers while the avatar (which uses the
+# correct getPersonaKey) showed Hezekiah, and ai_reply_feedback.persona was mis-stamped. This asserts
+# the launcher resolves persona via getPersonaKey() and reads the canonical key, never the dead ones.
+_DEAD_PERSONA_FN = re.compile(r"window\.getCurrentPersona\b")
+_WRONG_PERSONA_KEY = re.compile(r"getItem\(\s*['\"]wh_persona['\"]")
+
+
+def check_persona_resolution() -> dict:
+    p = ROOT / _LAUNCHER
+    violations: list[dict] = []
+    if p.exists():
+        code = _strip_js_comments(p.read_text(encoding="utf-8", errors="ignore"))
+        for m in _DEAD_PERSONA_FN.finditer(code):
+            violations.append({
+                "file": _LAUNCHER, "line": code[:m.start()].count("\n") + 1,
+                "code": "window.getCurrentPersona — never defined",
+                "why": "persona resolver calls an undefined fn → always falls through to the default 'zaniah'; "
+                       "use window.getPersonaKey() (wh-persona.js)",
+            })
+        for m in _WRONG_PERSONA_KEY.finditer(code):
+            violations.append({
+                "file": _LAUNCHER, "line": code[:m.start()].count("\n") + 1,
+                "code": "localStorage.getItem('wh_persona') — wrong key",
+                "why": "the canonical persona key is 'wh_voice_journal_persona'; 'wh_persona' is never set → "
+                       "always 'zaniah', so the worker's Hezekiah/Zaniah selection is ignored by the backend",
+            })
+    return {
+        "count": len(violations),
+        "violations": violations,
+        "fix": "resolve persona via window.getPersonaKey() with a 'wh_voice_journal_persona' fallback",
+    }
+
+
 # ── Check registry (grows one at a time) ─────────────────────────────────────
 CHECKS = {
     "gateway_unwrap": check_gateway_unwrap,
     "client_wiring": check_client_wiring,
     "feedback_sink": check_feedback_sink,
     "single_mount": check_single_mount,
+    "persona_resolution": check_persona_resolution,
 }
 
 

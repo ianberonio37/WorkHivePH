@@ -2,65 +2,65 @@
   "phase": "B-verified",
   "spine": "BACKEND_UFAI_ROADMAP.md",
   "overall": {
-    "applicable": 1199,
-    "covered": 1199,
-    "verified": 1199,
-    "live": 1056,
-    "covered_pct": 100.0,
-    "verified_pct": 100.0,
-    "live_pct": 88.1
+    "applicable": 1115,
+    "covered": 1113,
+    "verified": 1113,
+    "live": 965,
+    "covered_pct": 99.8,
+    "verified_pct": 99.8,
+    "live_pct": 86.5
   },
   "per_lens": {
     "U": {
-      "total": 419,
+      "total": 384,
       "na": 0,
-      "applicable": 419,
-      "covered": 419,
-      "verified": 419,
-      "live": 384,
+      "applicable": 384,
+      "covered": 384,
+      "verified": 384,
+      "live": 359,
       "fix": 0,
       "covered_pct": 100.0,
       "verified_pct": 100.0,
-      "live_pct": 91.6,
+      "live_pct": 93.5,
       "floor": 95
     },
     "F": {
-      "total": 360,
-      "na": 112,
-      "applicable": 248,
-      "covered": 248,
-      "verified": 248,
-      "live": 180,
+      "total": 330,
+      "na": 107,
+      "applicable": 223,
+      "covered": 223,
+      "verified": 223,
+      "live": 170,
       "fix": 0,
       "covered_pct": 100.0,
       "verified_pct": 100.0,
-      "live_pct": 72.6,
+      "live_pct": 76.2,
       "floor": 88
     },
     "A": {
-      "total": 360,
-      "na": 59,
-      "applicable": 301,
-      "covered": 301,
-      "verified": 301,
-      "live": 272,
+      "total": 330,
+      "na": 47,
+      "applicable": 283,
+      "covered": 283,
+      "verified": 283,
+      "live": 265,
       "fix": 0,
       "covered_pct": 100.0,
       "verified_pct": 100.0,
-      "live_pct": 90.4,
+      "live_pct": 93.6,
       "floor": 86
     },
     "I": {
-      "total": 360,
-      "na": 129,
-      "applicable": 231,
-      "covered": 231,
-      "verified": 231,
-      "live": 220,
-      "fix": 0,
-      "covered_pct": 100.0,
-      "verified_pct": 100.0,
-      "live_pct": 95.2,
+      "total": 330,
+      "na": 105,
+      "applicable": 225,
+      "covered": 223,
+      "verified": 223,
+      "live": 171,
+      "fix": 2,
+      "covered_pct": 99.1,
+      "verified_pct": 99.1,
+      "live_pct": 76.0,
       "floor": 96
     }
   },
@@ -241,9 +241,9 @@
       "fn": "ai-gateway",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E1 Edge Gateway",
@@ -466,9 +466,9 @@
       "fn": "platform-gateway",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E1 Edge Gateway",
@@ -691,9 +691,9 @@
       "fn": "ai-orchestrator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -916,9 +916,9 @@
       "fn": "agentic-rag-loop",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -1141,9 +1141,9 @@
       "fn": "temporal-rag-orchestrator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -1366,9 +1366,9 @@
       "fn": "voice-action-router",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -1510,9 +1510,9 @@
       "fn": "project-orchestrator",
       "lens": "F",
       "cell": "F4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "grounding LIVE-PROVEN: validate_narrative_grounding GREEN \u2014 this fn's narrative surface cites only true DB numbers (deterministic set-membership; 9 surfaces, 0 fabricated)"
+      "status": "attributed",
+      "tier": "attributed",
+      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -1591,9 +1591,9 @@
       "fn": "project-orchestrator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -1816,9 +1816,9 @@
       "fn": "shift-planner-orchestrator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -2041,9 +2041,9 @@
       "fn": "amc-orchestrator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -2185,9 +2185,9 @@
       "fn": "analytics-orchestrator",
       "lens": "F",
       "cell": "F4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "grounding LIVE-PROVEN: validate_narrative_grounding GREEN \u2014 this fn's narrative surface cites only true DB numbers (deterministic set-membership; 9 surfaces, 0 fabricated)"
+      "status": "attributed",
+      "tier": "attributed",
+      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -2266,9 +2266,9 @@
       "fn": "analytics-orchestrator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E2 AI Orchestration",
@@ -2491,9 +2491,9 @@
       "fn": "voice-transcribe",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -2716,9 +2716,9 @@
       "fn": "voice-model-call",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -2941,9 +2941,9 @@
       "fn": "voice-logbook-entry",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -3166,9 +3166,9 @@
       "fn": "voice-report-intent",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -3391,9 +3391,9 @@
       "fn": "voice-journal-agent",
       "lens": "I",
       "cell": "I1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no auth surface (public/cron)"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -3607,18 +3607,18 @@
       "fn": "voice-embeddings",
       "lens": "A",
       "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
+      "status": "live",
+      "tier": "live",
+      "evidence": "429 degrade signal; adoption validator green incl. exemptions"
     },
     {
       "row": "E3 Voice & Multimodal",
       "fn": "voice-embeddings",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -4066,9 +4066,9 @@
       "fn": "equipment-label-ocr",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -4291,189 +4291,189 @@
       "fn": "visual-defect-capture",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "visual-defect-capture",
-      "lens": "I",
-      "cell": "I2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "direct foreign-hive POST -> 403 (live BOLA test)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "visual-defect-capture",
-      "lens": "I",
-      "cell": "I3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "rate-limit adoption+binding validators (0 exploitable, incl. gateway/internal exemptions)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "visual-defect-capture",
-      "lens": "I",
-      "cell": "I4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "20k over-long input handled, no 500 (live adversarial)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "visual-defect-capture",
-      "lens": "I",
-      "cell": "I5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "pii-egress validator PASS (redact or opt-in exempt)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "visual-defect-capture",
-      "lens": "I",
-      "cell": "I6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live structured observability: fn emits a greppable {route,msg:request_start,method} log line in the runtime (logRequestStart adopted)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "envelope ok/fail + response-format validator"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live POST {} -> 400 structured error"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live POST {} -> 400 (missing-field validation)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live semantic status (OPTIONS 200, POST 400)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-coverage validator (routed/catalogued)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "U",
-      "cell": "U7",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live structured error body = predictable shape proven"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "F",
-      "cell": "F1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "valid-payload happy-path -> 200 with real data (live effect)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "F",
-      "cell": "F2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live happy-path 200 produced a real value at runtime (full effect) + \u00a713 value-oracle (calc 58/58 / capture 16/16)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "F",
-      "cell": "F3",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no DB write"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "F",
-      "cell": "F4",
-      "status": "attributed",
-      "tier": "attributed",
-      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "F",
-      "cell": "F5",
-      "status": "na",
-      "tier": "na",
-      "evidence": "sync request / idempotent upsert \u2014 no at-least-once surface"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "F",
-      "cell": "F6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "resilience validator (partial-failure)"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "A",
-      "cell": "A1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "provider-health/fallback code-proof"
-    },
-    {
-      "row": "E3 Voice & Multimodal",
-      "fn": "walkthrough-analyzer",
-      "lens": "A",
-      "cell": "A2",
       "status": "proof",
       "tier": "proof",
-      "evidence": "no config to externalize (code-proof)"
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "visual-defect-capture",
+      "lens": "I",
+      "cell": "I2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "direct foreign-hive POST -> 403 (live BOLA test)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "visual-defect-capture",
+      "lens": "I",
+      "cell": "I3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "rate-limit adoption+binding validators (0 exploitable, incl. gateway/internal exemptions)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "visual-defect-capture",
+      "lens": "I",
+      "cell": "I4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "20k over-long input handled, no 500 (live adversarial)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "visual-defect-capture",
+      "lens": "I",
+      "cell": "I5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "pii-egress validator PASS (redact or opt-in exempt)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "visual-defect-capture",
+      "lens": "I",
+      "cell": "I6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live structured observability: fn emits a greppable {route,msg:request_start,method} log line in the runtime (logRequestStart adopted)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "envelope ok/fail + response-format validator"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST {} -> 400 structured error"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U3",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U4",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live POST {} -> 400 (missing-field validation)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U5",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live semantic status (OPTIONS 200, POST 400)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "gateway-coverage validator (routed/catalogued)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "U",
+      "cell": "U7",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live structured error body = predictable shape proven"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "F",
+      "cell": "F1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "valid-payload happy-path -> 200 with real data (live effect)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "F",
+      "cell": "F2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "live happy-path 200 produced a real value at runtime (full effect) + \u00a713 value-oracle (calc 58/58 / capture 16/16)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "F",
+      "cell": "F3",
+      "status": "na",
+      "tier": "na",
+      "evidence": "no DB write"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "F",
+      "cell": "F4",
+      "status": "attributed",
+      "tier": "attributed",
+      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "F",
+      "cell": "F5",
+      "status": "na",
+      "tier": "na",
+      "evidence": "sync request / idempotent upsert \u2014 no at-least-once surface"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "F",
+      "cell": "F6",
+      "status": "live",
+      "tier": "live",
+      "evidence": "resilience validator (partial-failure)"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "A",
+      "cell": "A1",
+      "status": "live",
+      "tier": "live",
+      "evidence": "provider-health/fallback code-proof"
+    },
+    {
+      "row": "E3 Voice & Multimodal",
+      "fn": "walkthrough-analyzer",
+      "lens": "A",
+      "cell": "A2",
+      "status": "live",
+      "tier": "live",
+      "evidence": "env-config + integration-security validator"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -4516,9 +4516,9 @@
       "fn": "walkthrough-analyzer",
       "lens": "I",
       "cell": "I1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no auth surface (public/cron)"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E3 Voice & Multimodal",
@@ -4741,9 +4741,9 @@
       "fn": "semantic-search",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -4966,9 +4966,9 @@
       "fn": "semantic-fact-extractor",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -5191,9 +5191,9 @@
       "fn": "embed-entry",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -5416,9 +5416,9 @@
       "fn": "voice-semantic-rag",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -5866,9 +5866,9 @@
       "fn": "hierarchical-summarizer",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -6091,9 +6091,9 @@
       "fn": "agent-memory-store",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -6316,9 +6316,9 @@
       "fn": "data-fabric-normalizer",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E4 RAG & Semantic",
@@ -6541,9 +6541,9 @@
       "fn": "engineering-calc-agent",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -6685,9 +6685,9 @@
       "fn": "engineering-bom-sow",
       "lens": "F",
       "cell": "F4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "grounding LIVE-PROVEN: validate_grounding_contract GREEN (55 BOM/SOW agents, 544/544 reads resolve to real calc keys) + validate_bom_sow_grounding GREEN (BOM cites the calc's sized values)"
+      "status": "attributed",
+      "tier": "attributed",
+      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -6766,9 +6766,9 @@
       "fn": "engineering-bom-sow",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -6991,9 +6991,9 @@
       "fn": "pf-calculator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -7216,9 +7216,9 @@
       "fn": "weibull-fitter",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -7441,9 +7441,9 @@
       "fn": "fmea-populator",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -7666,9 +7666,9 @@
       "fn": "failure-signature-scan",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -7891,9 +7891,9 @@
       "fn": "benchmark-compute",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -8532,7 +8532,7 @@
       "cell": "A3",
       "status": "proof",
       "tier": "proof",
-      "evidence": "backing keys/URLs via Deno.env = attached resource (code-proof)"
+      "evidence": "backing via _shared abstraction / env-URL client (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -8566,9 +8566,9 @@
       "fn": "trigger-ml-retrain",
       "lens": "I",
       "cell": "I1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no auth surface (public/cron)"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -8791,9 +8791,9 @@
       "fn": "project-progress",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -9466,9 +9466,9 @@
       "fn": "ai-eval-runner",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -9610,9 +9610,9 @@
       "fn": "asset-brain-query",
       "lens": "F",
       "cell": "F4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "grounding LIVE-PROVEN: validate_narrative_grounding GREEN \u2014 this fn's narrative surface cites only true DB numbers (deterministic set-membership; 9 surfaces, 0 fabricated)"
+      "status": "attributed",
+      "tier": "attributed",
+      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -9691,9 +9691,9 @@
       "fn": "asset-brain-query",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E5 Domain Compute / Calc",
@@ -9739,1131 +9739,6 @@
       "status": "live",
       "tier": "live",
       "evidence": "live GET /health -> {ok:true} + dep checks"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "envelope ok/fail + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "structured error + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U4",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "validated error path code-proof (money/webhook: OPTIONS-only by safety)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live semantic status (OPTIONS 200, POST None)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-coverage validator (routed/catalogued)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "U",
-      "cell": "U7",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "contract = predictable shape (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "F",
-      "cell": "F1",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "live-reachable (OPTIONS 200, POST None) \u2014 request path + input-handling exercised; value via F2 oracle"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "F",
-      "cell": "F2",
-      "status": "oracle",
-      "tier": "oracle",
-      "evidence": "\u00a713 calc 58/58 / capture 16/16 oracle-verified"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "F",
-      "cell": "F3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "error checked before success return (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "F",
-      "cell": "F4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "F",
-      "cell": "F5",
-      "status": "attributed",
-      "tier": "attributed",
-      "evidence": "marketplace/webhook idempotency validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "F",
-      "cell": "F6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "resilience validator (partial-failure)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "A",
-      "cell": "A1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI/provider fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "A",
-      "cell": "A2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "env-config + integration-security validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "A",
-      "cell": "A3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "backing via _shared abstraction / env-URL client (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "A",
-      "cell": "A4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "edge-import-exports validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "A",
-      "cell": "A5",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "no module-level mutable state (static scan)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "A",
-      "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "I",
-      "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "I",
-      "cell": "I2",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no client-hive read surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "I",
-      "cell": "I3",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no paid/AI resource surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "I",
-      "cell": "I4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no user-text->LLM surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "I",
-      "cell": "I5",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no AI prompt surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-checkout",
-      "lens": "I",
-      "cell": "I6",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "structured logger/trace hooks wired (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "envelope ok/fail + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "structured error + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U4",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "validated error path code-proof (money/webhook: OPTIONS-only by safety)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live semantic status (OPTIONS 200, POST None)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-coverage validator (routed/catalogued)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "U",
-      "cell": "U7",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "contract = predictable shape (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "F",
-      "cell": "F1",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "live-reachable (OPTIONS 200, POST None) \u2014 request path + input-handling exercised; value via F2 oracle"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "F",
-      "cell": "F2",
-      "status": "oracle",
-      "tier": "oracle",
-      "evidence": "\u00a713 calc 58/58 / capture 16/16 oracle-verified"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "F",
-      "cell": "F3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "error checked before success return (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "F",
-      "cell": "F4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "F",
-      "cell": "F5",
-      "status": "attributed",
-      "tier": "attributed",
-      "evidence": "marketplace/webhook idempotency validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "F",
-      "cell": "F6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "resilience validator (partial-failure)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "A",
-      "cell": "A1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI/provider fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "A",
-      "cell": "A2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "env-config + integration-security validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "A",
-      "cell": "A3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "backing keys/URLs via Deno.env = attached resource (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "A",
-      "cell": "A4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "edge-import-exports validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "A",
-      "cell": "A5",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "no module-level mutable state (static scan)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "A",
-      "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "I",
-      "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "I",
-      "cell": "I2",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no client-hive read surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "I",
-      "cell": "I3",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no paid/AI resource surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "I",
-      "cell": "I4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no user-text->LLM surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "I",
-      "cell": "I5",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no AI prompt surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-release",
-      "lens": "I",
-      "cell": "I6",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "structured logger/trace hooks wired (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "envelope ok/fail + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "structured error + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U4",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "validated error path code-proof (money/webhook: OPTIONS-only by safety)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live semantic status (OPTIONS 200, POST None)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-coverage validator (routed/catalogued)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "U",
-      "cell": "U7",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "contract = predictable shape (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "F",
-      "cell": "F1",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "live-reachable (OPTIONS 200, POST None) \u2014 request path + input-handling exercised; value via F2 oracle"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "F",
-      "cell": "F2",
-      "status": "oracle",
-      "tier": "oracle",
-      "evidence": "\u00a713 calc 58/58 / capture 16/16 oracle-verified"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "F",
-      "cell": "F3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "error checked before success return (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "F",
-      "cell": "F4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "F",
-      "cell": "F5",
-      "status": "attributed",
-      "tier": "attributed",
-      "evidence": "marketplace/webhook idempotency validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "F",
-      "cell": "F6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "resilience validator (partial-failure)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "A",
-      "cell": "A1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI/provider fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "A",
-      "cell": "A2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "env-config + integration-security validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "A",
-      "cell": "A3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "backing keys/URLs via Deno.env = attached resource (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "A",
-      "cell": "A4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "edge-import-exports validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "A",
-      "cell": "A5",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "no module-level mutable state (static scan)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "A",
-      "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "I",
-      "cell": "I1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no auth surface (public/cron)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "I",
-      "cell": "I2",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no client-hive read surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "I",
-      "cell": "I3",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no paid/AI resource surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "I",
-      "cell": "I4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no user-text->LLM surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "I",
-      "cell": "I5",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no AI prompt surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-webhook",
-      "lens": "I",
-      "cell": "I6",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "structured logger/trace hooks wired (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "envelope ok/fail + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "structured error + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U4",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "validated error path code-proof (money/webhook: OPTIONS-only by safety)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live semantic status (OPTIONS 200, POST None)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-coverage validator (routed/catalogued)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "U",
-      "cell": "U7",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "contract = predictable shape (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "F",
-      "cell": "F1",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "live-reachable (OPTIONS 200, POST None) \u2014 request path + input-handling exercised; value via F2 oracle"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "F",
-      "cell": "F2",
-      "status": "oracle",
-      "tier": "oracle",
-      "evidence": "\u00a713 calc 58/58 / capture 16/16 oracle-verified"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "F",
-      "cell": "F3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "seller upsert + Stripe wrapped in try/catch with log.error"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "F",
-      "cell": "F4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "F",
-      "cell": "F5",
-      "status": "attributed",
-      "tier": "attributed",
-      "evidence": "marketplace/webhook idempotency validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "F",
-      "cell": "F6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "resilience validator (partial-failure)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "A",
-      "cell": "A1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI/provider fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "A",
-      "cell": "A2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "env-config + integration-security validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "A",
-      "cell": "A3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "backing keys/URLs via Deno.env = attached resource (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "A",
-      "cell": "A4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "edge-import-exports validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "A",
-      "cell": "A5",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "no module-level mutable state (static scan)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "A",
-      "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "I",
-      "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "I",
-      "cell": "I2",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no client-hive read surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "I",
-      "cell": "I3",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no paid/AI resource surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "I",
-      "cell": "I4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no user-text->LLM surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "I",
-      "cell": "I5",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no AI prompt surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-onboard",
-      "lens": "I",
-      "cell": "I6",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "structured logger/trace hooks wired (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "envelope ok/fail + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "structured error + response-format validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U3",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live OPTIONS 200 echoes Access-Control-Allow-Origin"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U4",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "validated error path code-proof (money/webhook: OPTIONS-only by safety)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U5",
-      "status": "live",
-      "tier": "live",
-      "evidence": "live semantic status (OPTIONS 200, POST None)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-coverage validator (routed/catalogued)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "U",
-      "cell": "U7",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "contract = predictable shape (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "F",
-      "cell": "F1",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "live-reachable (OPTIONS 200, POST None) \u2014 request path + input-handling exercised; value via F2 oracle"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "F",
-      "cell": "F2",
-      "status": "oracle",
-      "tier": "oracle",
-      "evidence": "\u00a713 calc 58/58 / capture 16/16 oracle-verified"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "F",
-      "cell": "F3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "error checked before success return (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "F",
-      "cell": "F4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "F",
-      "cell": "F5",
-      "status": "attributed",
-      "tier": "attributed",
-      "evidence": "marketplace/webhook idempotency validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "F",
-      "cell": "F6",
-      "status": "live",
-      "tier": "live",
-      "evidence": "resilience validator (partial-failure)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "A",
-      "cell": "A1",
-      "status": "na",
-      "tier": "na",
-      "evidence": "not an AI/provider fn"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "A",
-      "cell": "A2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "env-config + integration-security validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "A",
-      "cell": "A3",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "backing keys/URLs via Deno.env = attached resource (code-proof)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "A",
-      "cell": "A4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "edge-import-exports validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "A",
-      "cell": "A5",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "no module-level mutable state (static scan)"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "A",
-      "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "I",
-      "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "I",
-      "cell": "I2",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no client-hive read surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "I",
-      "cell": "I3",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no paid/AI resource surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "I",
-      "cell": "I4",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no user-text->LLM surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "I",
-      "cell": "I5",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no AI prompt surface"
-    },
-    {
-      "row": "E6 Marketplace & Payments",
-      "fn": "marketplace-connect-status",
-      "lens": "I",
-      "cell": "I6",
-      "status": "proof",
-      "tier": "proof",
-      "evidence": "structured logger/trace hooks wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -11041,9 +9916,9 @@
       "fn": "cmms-sync",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -11266,9 +10141,9 @@
       "fn": "cmms-push-completion",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -11500,9 +10375,9 @@
       "fn": "cmms-webhook-receiver",
       "lens": "I",
       "cell": "I2",
-      "status": "live",
-      "tier": "live",
-      "evidence": "gateway-tenancy validator (ran live): 0 unverified readers"
+      "status": "fix",
+      "tier": "fix",
+      "evidence": "reads hive ctx, tenancy validator FAIL"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -11716,9 +10591,9 @@
       "fn": "sensor-readings-ingest",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -11941,9 +10816,9 @@
       "fn": "platform-scraper",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -12166,9 +11041,9 @@
       "fn": "cold-archive-query",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -12391,9 +11266,9 @@
       "fn": "intelligence-api",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -12841,9 +11716,9 @@
       "fn": "export-hive-data",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E7 Integrations & Data Fabric",
@@ -12985,9 +11860,9 @@
       "fn": "scheduled-agents",
       "lens": "F",
       "cell": "F4",
-      "status": "live",
-      "tier": "live",
-      "evidence": "grounding LIVE-PROVEN: validate_narrative_grounding GREEN \u2014 this fn's narrative surface cites only true DB numbers (deterministic set-membership; 9 surfaces, 0 fabricated)"
+      "status": "attributed",
+      "tier": "attributed",
+      "evidence": "\u00a70.8 grounding eval (~0/0 fab)"
     },
     {
       "row": "E8 Notifications & Scheduled",
@@ -13066,9 +11941,9 @@
       "fn": "scheduled-agents",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E8 Notifications & Scheduled",
@@ -13282,18 +12157,18 @@
       "fn": "send-report-email",
       "lens": "A",
       "cell": "A6",
-      "status": "na",
-      "tier": "na",
-      "evidence": "no rate-limit surface"
+      "status": "live",
+      "tier": "live",
+      "evidence": "429 degrade signal; adoption validator green incl. exemptions"
     },
     {
       "row": "E8 Notifications & Scheduled",
       "fn": "send-report-email",
       "lens": "I",
       "cell": "I1",
-      "status": "live",
-      "tier": "live",
-      "evidence": "identity/JWT resolver + tenant-boundary validator"
+      "status": "proof",
+      "tier": "proof",
+      "evidence": "getUser/resolveIdentity wired (code-proof)"
     },
     {
       "row": "E8 Notifications & Scheduled",
@@ -13347,7 +12222,7 @@
       "cell": "U\u00b7infra",
       "status": "live",
       "tier": "live",
-      "evidence": "34 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
+      "evidence": "35 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
     },
     {
       "row": "E9 Shared Infra",
@@ -13356,7 +12231,7 @@
       "cell": "F\u00b7infra",
       "status": "live",
       "tier": "live",
-      "evidence": "34 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
+      "evidence": "35 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
     },
     {
       "row": "E9 Shared Infra",
@@ -13365,7 +12240,7 @@
       "cell": "A\u00b7infra",
       "status": "live",
       "tier": "live",
-      "evidence": "34 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
+      "evidence": "35 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
     },
     {
       "row": "E9 Shared Infra",
@@ -13374,7 +12249,7 @@
       "cell": "I\u00b7infra",
       "status": "live",
       "tier": "live",
-      "evidence": "34 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
+      "evidence": "35 modules (envelope/cors/rate-limit/tenant-context/trace-store)"
     },
     {
       "row": "D1 Schema & Constraints",
@@ -13410,7 +12285,7 @@
       "cell": "I\u00b7db",
       "status": "live",
       "tier": "live",
-      "evidence": "148 tables introspected"
+      "evidence": "149 tables introspected"
     },
     {
       "row": "D2 RLS Completeness",
@@ -13446,7 +12321,7 @@
       "cell": "I\u00b7db",
       "status": "live",
       "tier": "live",
-      "evidence": "124 RLS-enabled, 0 orphan-RLS, 257 policies"
+      "evidence": "125 RLS-enabled, 0 orphan-RLS, None policies"
     },
     {
       "row": "D3 RPC / DEFINER",
@@ -13480,9 +12355,9 @@
       "fn": null,
       "lens": "I",
       "cell": "I\u00b7db",
-      "status": "live",
-      "tier": "live",
-      "evidence": "DEFINER: 17/17 gated + 0 missing search_path"
+      "status": "fix",
+      "tier": "fix",
+      "evidence": "DEFINER gate/search_path gap"
     },
     {
       "row": "D4 Migrations & Idempotency",
@@ -13584,11 +12459,6 @@
     "intelligence-api",
     "intelligence-report",
     "login",
-    "marketplace-checkout",
-    "marketplace-connect-onboard",
-    "marketplace-connect-status",
-    "marketplace-release",
-    "marketplace-webhook",
     "parts-staging-recommender",
     "pdf-ingest",
     "pf-calculator",
@@ -13653,6 +12523,7 @@
     "resume-taxonomy.ts",
     "semantic-facts.ts",
     "skill-library.ts",
+    "ssrf-guard.ts",
     "tenant-context.ts",
     "trace-store.ts",
     "validate-contract.ts",
@@ -13661,22 +12532,22 @@
     "voice-router-core.ts"
   ],
   "db_introspection": {
-    "public_tables": "148",
-    "rls_enabled": "124",
+    "public_tables": "149",
+    "rls_enabled": "125",
     "rls_no_policy": "0",
     "fk_type_mismatch": "0",
     "views_truth": "38",
     "definer_no_searchpath": "0",
-    "total_policies": "257"
+    "total_policies": null
   },
   "validator_folds": {
     "validate_gateway_tenancy": {
       "ran": true,
-      "ok": true
+      "ok": false
     },
     "validate_definer_membership_gate": {
       "ran": true,
-      "ok": true
+      "ok": false
     },
     "validate_policy_hive_binding": {
       "ran": true,
@@ -13692,7 +12563,7 @@
     },
     "validate_tenant_boundary": {
       "ran": true,
-      "ok": true
+      "ok": false
     },
     "validate_gateway_coverage": {
       "ran": true,
@@ -13724,15 +12595,15 @@
     },
     "validate_narrative_grounding": {
       "ran": true,
-      "ok": true
+      "ok": false
     },
     "validate_bom_sow_grounding": {
       "ran": true,
-      "ok": true
+      "ok": false
     },
     "validate_grounding_contract": {
       "ran": true,
-      "ok": true
+      "ok": false
     },
     "validate_rpc_return_shape": {
       "ran": true,

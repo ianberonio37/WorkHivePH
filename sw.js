@@ -3,7 +3,12 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v157';  // bump 2026-06-25 (Arc W W1 elevation + W3 hero + W5 icons): components.css + utils.js (both SHELL_FILEs). components.css: --wh-shadow-*/--wh-elev-*/--wh-z-* tokens + global card/panel/overlay box-shadow + :active/:focus-visible + .simple-card.hero. utils.js: wh-elevation :where() injection (depth on non-components.css pages) + window.whIcon + an emoji->inline-SVG replacer (one icon system platform-wide). Without this bump PWA users keep the stale flat/coplanar CSS + emoji glyphs. Re-prime cache.
+const CACHE_NAME  = 'workhive-shell-v160';  // bump 2026-07-15 (rubric class S): offline-fallback.html gains the
+                                            // tokens.css <link> -- a SHELL_FILE changed, so the old cached copy
+                                            // must not be served. tokens.css itself is already precached (L67).
+// const CACHE_NAME  = 'workhive-shell-v159';  // bump 2026-07-03 (Arc P turn 2): SHELL portrait precache fixed — legacy james-256.jpg/rosa-256.jpg (404, never existed, failed SW install addAll) → real hezekiah.png/zaniah.png; PLUS the em-dash P4 sweep (685 displayed em dashes → colon/comma/parens across 43 files incl. utils.js + worker-critical SHELL HTML) + FUSION 5 meta-caption disclosure. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v158';  // bump 2026-07-02 (Arc P Wave 1 — Pareto revamp): components.css gains .ac-cta (shared "one primary action" button) + .wh-disclose (shared progressive-disclosure) — both SHELL_FILEs. hive.html: verdict hoisted above presence/focus + ss-action CTA + 6 ghost buttons → overflow menu + Network-Benchmark/Pattern-Alerts/Activity-Feed/Supervisor-Log collapsed (8.5→3.2 screens). pm-scheduler/analytics/shift-brain/inventory/alert-hub/asset-hub: "What to do next" now ends in a primary CTA button. index.html: home first role-action = solid primary + Secure-account nudge demoted. Wave 2: skillmatrix radar chart layout.padding fix + grammar/clarity copy; shift-brain carry-forward list capped + "Show all"; voice-journal + inventory initial list slice cut to 8 (glance-first, Load More); analytics OEE table → top-8 "Show all" helper. Wave 3: skillmatrix radar layout.padding + grammar; assistant empty-chat starter-prompt chips; resume AI-helpers card hidden until non-empty; index mobile hero logo 260→150px (headline/CTA above fold). Without this bump PWA users keep the stale flat/dense markup + missing shared CSS. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v157';  // bump 2026-06-25 (Arc W W1 elevation + W3 hero + W5 icons): components.css + utils.js (both SHELL_FILEs). components.css: --wh-shadow-*/--wh-elev-*/--wh-z-* tokens + global card/panel/overlay box-shadow + :active/:focus-visible + .simple-card.hero. utils.js: wh-elevation :where() injection (depth on non-components.css pages) + window.whIcon + an emoji->inline-SVG replacer (one icon system platform-wide). Without this bump PWA users keep the stale flat/coplanar CSS + emoji glyphs. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v156';  // bump 2026-06-24 (Arc S D-lens D-003): precache /offline-fallback.html + SW navigation fallback so a non-precached page opened offline shows a branded "you're offline" shell instead of a blank tab. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v155';  // bump 2026-06-21: SHELL_FILEs changed since v154 — voice-handler.js (in-flight) + index.html (login fetch now fetchWithTimeout-bounded + auth-copy em-dash scrub). Without this bump PWA users keep the stale cached login JS/markup. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v153';  // bump 2026-06-17: re-prime after SHELL_FILE changes committed since v152 (voice-handler.js + alert-hub.html escHtml-scope fix) — without this, PWA users keep the stale cached JS/markup.
@@ -82,12 +87,11 @@ const SHELL_FILES = [
   '/wh-tts.js',
   // Voice Companion handler (Phase 1-11 orchestrator)
   '/voice-handler.js',
-  // Companion Streamline Step B: persona portraits (compressed JPEGs;
-  // 12KB each; full-res source PNGs are at /brand_assets/{James,Rosa}.png).
-  // Filenames retain the original "james"/"rosa" suffixes after the
-  // 2026-05-20 Hezekiah/Zaniah rename — same artwork, same files.
-  '/brand_assets/james-256.jpg',
-  '/brand_assets/rosa-256.jpg',
+  // Companion persona portraits. 2026-07-03: the legacy james-256.jpg / rosa-256.jpg
+  // precache entries 404'd (those files never existed), which fails the SW install
+  // addAll. Point at the real renamed portraits that DO exist in brand_assets.
+  '/brand_assets/hezekiah.png',
+  '/brand_assets/zaniah.png',
   // Worker-critical pages (offline-capable on cached page-shell)
   '/logbook.html',
   '/inventory.html',

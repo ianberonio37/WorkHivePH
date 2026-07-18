@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: ai:* D11
 """validate_ai_prompt_injection.py — Arc H H8/I: AI fns must keep untrusted input OUT of the system prompt.
 
 OWASP LLM01 Prompt Injection — the primary STRUCTURAL defense is role separation: trusted instructions go in

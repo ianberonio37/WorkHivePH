@@ -12,6 +12,9 @@ USAGE: python validate_perf_scale.py                  # gate (exit 1 on regressi
 """
 from __future__ import annotations
 import json, os, sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(ROOT, "perf_scale_results.json")

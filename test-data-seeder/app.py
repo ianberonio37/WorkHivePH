@@ -3205,6 +3205,24 @@ def workhive_file(filename):
     return send_from_directory(WORKHIVE_ROOT, filename)
 
 
+@app.route("/<filename>")
+def root_file_alias(filename):
+    """Production (Netlify) serves pages at the root (e.g. /resume.html); locally they live
+    under /workhive/. Alias single-segment root-absolute file links to the /workhive/ mount so
+    landing-page links (resume, report-sender, analytics-report, project-report, public-feed,
+    marketplace-seller, ...) resolve locally too. Deep-walk finding #2 (2026-07-06). Only fires
+    for a bare `foo.ext` that EXISTS under the workhive root; specific routes always win, and a
+    non-existent file still 404s exactly as before."""
+    if "." not in filename:
+        abort(404)
+    try:
+        if not (WORKHIVE_ROOT / filename).resolve().is_file():
+            abort(404)
+    except (OSError, ValueError):
+        abort(404)
+    return workhive_file(filename)
+
+
 # ── Phase 1: CMMS Integration Tester ─────────────────────────────────────────
 # Generates dual-state CMMS datasets and exports them as CSV for Tier 1 testing.
 # The generated dataset lives in CMMS_STATE for the lifetime of the Flask process.

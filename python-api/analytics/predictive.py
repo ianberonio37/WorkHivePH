@@ -32,9 +32,16 @@ def _to_df(records: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+# format="ISO8601" is REQUIRED, not cosmetic: pandas >=2.0 infers ONE format from
+# the first element and coerces every non-matching value to NaT. Postgres emits
+# mixed precision in the same column -- real user writes carry microseconds
+# ("...:40.422439+00:00") while seeded/whole-second rows do not -- so inference
+# locked onto microseconds and silently dropped 308 of 310 rows (99.4%). Every
+# date-based metric then computed on 2 rows and reported it with full confidence.
+# ISO8601 parses any valid ISO precision. (2026-07-15)
 def _parse_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
     if col in df.columns:
-        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
+        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce", format="ISO8601")
     return df
 
 
@@ -198,7 +205,7 @@ def calc_pm_due_calendar(
             # v_pm_scope_items_truth — the SAME frequency-aware next_due_date /
             # is_overdue / is_due_soon pm-scheduler + home read. Recomputing here
             # let the calendar drift from the truth view (and from the stale map).
-            next_due   = pd.to_datetime(baked_next, utc=True, errors="coerce")
+            next_due   = pd.to_datetime(baked_next, utc=True, errors="coerce", format="ISO8601")
             bd         = item.get("days_until_due")
             if bd is not None and pd.notna(bd):
                 days_until = float(bd)
@@ -398,8 +405,14 @@ def calc_failure_trend(logbook_entries: list[dict], period_days: int = 90) -> di
     if len(x) >= 2:
         slope, intercept = np.polyfit(x, y, 1)
         slope = float(slope)
+        intercept = float(intercept)
     else:
+        # The >= 4 guard above counts raw entries, but the fit runs on weekly
+        # resampled buckets — 4+ failures inside one calendar week leave a
+        # single point, which polyfit cannot fit. A zero-slope fit's intercept
+        # is the mean, so the forecast holds that week's level flat.
         slope = 0.0
+        intercept = float(y.mean()) if len(y) else 0.0
 
     if slope > 0.1:
         direction = "INCREASING"
@@ -520,6 +533,9 @@ def calc_health_scores(
             repeat_map = repeats.to_dict()
 
     # ── Score each machine ────────────────────────────────────────────────────
+    # Minimum in-period corrective faults for a machine to earn a confident health
+    # verdict; below this it is flagged "Insufficient Data" (see the guard in-loop).
+    MIN_FAULTS_FOR_HEALTH = 3
     all_machines = set(mtbf_map) | set(recent_failures)
     scores = []
 
@@ -566,7 +582,18 @@ def calc_health_scores(
             1
         )
 
-        if health >= 80:
+        # ── Insufficient-data guard (analytics-engineer skill: "All Green Is a Data
+        # Problem"). A machine with < 3 corrective faults IN THE PERIOD lacks the history
+        # for a reliable verdict — the missing PM/time/fault components default to neutral
+        # (pm 50, time 50, fault 85-for-1-fault) above, which would otherwise GREEN-LIGHT an
+        # asset the engine knows almost nothing about (the false-green calibration bug). Flag
+        # it "Insufficient Data" (grey), NEVER a confident HEALTHY/WATCH/AT-RISK. ──────────
+        n_period_faults = int(failures)
+        data_sufficient = n_period_faults >= MIN_FAULTS_FOR_HEALTH
+        if not data_sufficient:
+            status = "INSUFFICIENT DATA"
+            color  = "grey"
+        elif health >= 80:
             status = "HEALTHY"
             color  = "green"
         elif health >= 60:
@@ -581,6 +608,8 @@ def calc_health_scores(
             "health_score":      health,
             "status":            status,
             "color":             color,
+            "data_sufficient":   data_sufficient,
+            "fault_sample":      n_period_faults,
             "mtbf_days":         round(mtbf, 1) if mtbf else None,
             "recent_failures":   failures,
             "repeat_faults":     repeat_count,
@@ -599,6 +628,7 @@ def calc_health_scores(
         "at_risk_count": sum(1 for s in scores if s["status"] == "AT RISK"),
         "watch_count":   sum(1 for s in scores if s["status"] == "WATCH"),
         "healthy_count": sum(1 for s in scores if s["status"] == "HEALTHY"),
+        "insufficient_count": sum(1 for s in scores if s["status"] == "INSUFFICIENT DATA"),
         "weights": {
             "pm_overdue":        "30%",
             "fault_frequency":   "30%",

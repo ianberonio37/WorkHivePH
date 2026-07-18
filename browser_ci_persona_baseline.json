@@ -1,0 +1,24 @@
+{
+  "live": 140,
+  "pass": 140,
+  "gated": 0,
+  "per_persona": {
+    "field-tech": {
+      "pass": 35,
+      "gated": 0
+    },
+    "supervisor": {
+      "pass": 35,
+      "gated": 0
+    },
+    "new-worker": {
+      "pass": 35,
+      "gated": 0
+    },
+    "admin": {
+      "pass": 35,
+      "gated": 0
+    }
+  },
+  "set": "2026-07-01T08:43:14.280Z"
+}

@@ -281,6 +281,36 @@ def check_channel_naming(pages: list[str]) -> tuple[list[dict], list[dict]]:
     return issues, report
 
 
+# -- Layer 1c: Compound (multi-predicate) filter = silently-dead feed [FAIL] --
+
+def check_compound_filter(pages: list[str]) -> tuple[list[dict], list[dict]]:
+    """Supabase Realtime accepts EXACTLY ONE predicate per postgres_changes listener.
+    A compound '&'-joined filter string (e.g. 'status=eq.published&section=eq.parts') is a
+    single MALFORMED predicate whose value is the literal 'published&section=eq.parts' — it
+    matches no WAL row, so the feed is silently dead. Found live on marketplace.html:2478
+    (deep-walk dim-11, 2026-07-06): the "New listing just posted" toast/prepend never fired.
+    Fix = a single predicate + re-check the rest of the conditions in the callback."""
+    issues: list[dict] = []
+    report: list[dict] = []
+    for path in pages:
+        src = read_file(path) or ""
+        for sub in find_subscriptions(src):
+            if "&" in sub.get("filter_text", ""):
+                report.append({"path": path, "table": sub["table"], "filter": sub["filter_text"]})
+                issues.append({
+                    "check": "compound_filter",
+                    "reason": (
+                        f"{path}: db.channel({sub['name']}).on('postgres_changes', "
+                        f"{{ table: '{sub['table']}', filter: '{sub['filter_text']}' }}) uses a "
+                        f"COMPOUND '&'-joined filter. Supabase Realtime allows exactly ONE predicate "
+                        f"per listener, so the '&' string matches no row and the feed is silently "
+                        f"dead. Use one predicate (e.g. 'section=eq.X') and re-check the other "
+                        f"conditions inside the callback."
+                    ),
+                })
+    return issues, report
+
+
 # -- Layer 3: Subscription distribution (informational) -------------------
 
 def check_distribution(
@@ -328,12 +358,14 @@ def check_page_density(pages: list[str]) -> tuple[list[dict], list[dict]]:
 # -- Runner ---------------------------------------------------------------
 
 CHECK_NAMES = [
+    "compound_filter",
     "missing_filter",
     "channel_naming",
     "distribution",
     "page_density",
 ]
 CHECK_LABELS = {
+    "compound_filter": "L1c Realtime filter is a SINGLE predicate (no '&'-joined compound = dead feed) [FAIL]",
     "missing_filter":  "L1  Hive-scoped table subscription has hive_id filter or HIVE_ID name [WARN]",
     "channel_naming":  "L2  Channel name with `hive-` prefix includes HIVE_ID variable        [WARN]",
     "distribution":    "L3  Per-table subscription scoped/unscoped distribution (info)        [INFO]",
@@ -352,12 +384,13 @@ def main():
     print(f"  {len(hive_tables)} hive-scoped table(s); "
           f"{len(pages)} page(s) scanned.\n")
 
+    l1c_issues, l1c_report = check_compound_filter(pages)
     l1_issues, l1_report = check_missing_filter(pages, hive_tables)
     l2_issues, l2_report = check_channel_naming(pages)
     l3_issues, l3_report = check_distribution(pages, hive_tables)
     l4_issues, l4_report = check_page_density(pages)
 
-    all_issues = l1_issues + l2_issues + l3_issues + l4_issues
+    all_issues = l1c_issues + l1_issues + l2_issues + l3_issues + l4_issues
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
     if l3_report:
@@ -381,6 +414,7 @@ def main():
         "warned":         n_warn,
         "failed":         n_fail,
         "n_hive_tables":  len(hive_tables),
+        "compound_filter": l1c_report,
         "missing_filter": l1_report,
         "channel_naming": l2_report,
         "distribution":   l3_report,

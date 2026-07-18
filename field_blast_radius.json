@@ -4,7 +4,7 @@
     "persisted_fields_analyzed": 101,
     "dead_end_fields": 5,
     "fields_with_causal_cascade": 38,
-    "avg_display_fanout": 2.73,
+    "avg_display_fanout": 3.22,
     "max_display_fanout": 8
   },
   "per_page": {
@@ -40,7 +40,7 @@
       "fields": 15,
       "persisted": 8,
       "dead_end": 0,
-      "fanout_sum": 48,
+      "fanout_sum": 56,
       "max_depth": 3
     },
     "logbook": {
@@ -54,7 +54,7 @@
       "fields": 29,
       "persisted": 19,
       "dead_end": 0,
-      "fanout_sum": 65,
+      "fanout_sum": 89,
       "max_depth": 3
     },
     "pm-scheduler": {
@@ -68,7 +68,7 @@
       "fields": 46,
       "persisted": 37,
       "dead_end": 5,
-      "fanout_sum": 44,
+      "fanout_sum": 61,
       "max_depth": 3
     },
     "report-sender": {
@@ -944,7 +944,7 @@
       "surface": "inventory",
       "field": "f-category",
       "terminus": "inventory_items.category",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -952,6 +952,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -962,6 +963,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -974,7 +976,7 @@
       "surface": "inventory",
       "field": "f-location",
       "terminus": "inventory_items.bin_location",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -982,6 +984,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -992,6 +995,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1004,7 +1008,7 @@
       "surface": "inventory",
       "field": "f-notes",
       "terminus": "inventory_items.notes",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -1012,6 +1016,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -1022,6 +1027,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1034,7 +1040,7 @@
       "surface": "inventory",
       "field": "f-unit",
       "terminus": "inventory_items.unit",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -1042,6 +1048,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -1052,6 +1059,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1064,7 +1072,7 @@
       "surface": "inventory",
       "field": "restock-note",
       "terminus": "inventory_items",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -1072,6 +1080,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -1082,6 +1091,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1094,7 +1104,7 @@
       "surface": "inventory",
       "field": "restock-qty",
       "terminus": "inventory_items",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -1102,6 +1112,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -1112,6 +1123,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1124,7 +1136,7 @@
       "surface": "inventory",
       "field": "use-job-ref",
       "terminus": "inventory_items",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -1132,6 +1144,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -1142,6 +1155,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1154,7 +1168,7 @@
       "surface": "inventory",
       "field": "use-qty",
       "terminus": "inventory_items",
-      "display_fanout": 6,
+      "display_fanout": 7,
       "display_depth": 3,
       "displayed_on_pages": [
         "alert-hub",
@@ -1162,6 +1176,7 @@
         "hive",
         "integrations",
         "logbook",
+        "marketplace",
         "project-manager"
       ],
       "displayed_via_views": [
@@ -1172,6 +1187,7 @@
         "ai-orchestrator",
         "analytics-orchestrator",
         "batch-risk-scoring",
+        "cmms-webhook-receiver",
         "intelligence-report",
         "parts-staging-recommender",
         "platform-scraper",
@@ -1200,8 +1216,10 @@
       "read_by_edge_fns": [
         "agentic-rag-loop",
         "ai-gateway",
+        "ai-orchestrator",
         "asset-brain-query",
         "batch-risk-scoring",
+        "embed-entry",
         "equipment-label-ocr",
         "fmea-populator",
         "pf-calculator",
@@ -1209,6 +1227,7 @@
         "sensor-readings-ingest",
         "visual-defect-capture",
         "voice-action-router",
+        "voice-transcribe",
         "weibull-fitter"
       ],
       "causal_cascades": [],
@@ -1234,8 +1253,10 @@
       "read_by_edge_fns": [
         "agentic-rag-loop",
         "ai-gateway",
+        "ai-orchestrator",
         "asset-brain-query",
         "batch-risk-scoring",
+        "embed-entry",
         "equipment-label-ocr",
         "fmea-populator",
         "pf-calculator",
@@ -1243,6 +1264,7 @@
         "sensor-readings-ingest",
         "visual-defect-capture",
         "voice-action-router",
+        "voice-transcribe",
         "weibull-fitter"
       ],
       "causal_cascades": [],
@@ -1268,8 +1290,10 @@
       "read_by_edge_fns": [
         "agentic-rag-loop",
         "ai-gateway",
+        "ai-orchestrator",
         "asset-brain-query",
         "batch-risk-scoring",
+        "embed-entry",
         "equipment-label-ocr",
         "fmea-populator",
         "pf-calculator",
@@ -1277,6 +1301,7 @@
         "sensor-readings-ingest",
         "visual-defect-capture",
         "voice-action-router",
+        "voice-transcribe",
         "weibull-fitter"
       ],
       "causal_cascades": [],
@@ -2912,7 +2937,7 @@
       "displayed_on_pages": [
         "founder-console",
         "marketplace-admin",
-        "marketplace-seller"
+        "platform-actions"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2928,7 +2953,7 @@
       "displayed_on_pages": [
         "founder-console",
         "marketplace-admin",
-        "marketplace-seller"
+        "platform-actions"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2944,7 +2969,7 @@
       "displayed_on_pages": [
         "founder-console",
         "marketplace-admin",
-        "marketplace-seller"
+        "platform-actions"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2960,7 +2985,7 @@
       "displayed_on_pages": [
         "founder-console",
         "marketplace-admin",
-        "marketplace-seller"
+        "platform-actions"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2976,7 +3001,7 @@
       "displayed_on_pages": [
         "founder-console",
         "marketplace-admin",
-        "marketplace-seller"
+        "platform-actions"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -3055,21 +3080,22 @@
       "surface": "marketplace",
       "field": "post-condition",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3094,21 +3120,22 @@
       "surface": "marketplace",
       "field": "post-contact",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3133,21 +3160,22 @@
       "surface": "marketplace",
       "field": "post-desc",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3172,21 +3200,22 @@
       "surface": "marketplace",
       "field": "post-image-file",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3211,21 +3240,22 @@
       "surface": "marketplace",
       "field": "post-image-url",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3250,21 +3280,22 @@
       "surface": "marketplace",
       "field": "post-location",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3289,21 +3320,22 @@
       "surface": "marketplace",
       "field": "post-price",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3328,21 +3360,22 @@
       "surface": "marketplace",
       "field": "post-title",
       "terminus": "marketplace_listings",
-      "display_fanout": 5,
+      "display_fanout": 8,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
+        "community",
+        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "marketplace-seller-profile",
+        "platform-actions",
         "project-manager"
       ],
       "displayed_via_views": [
         "v_marketplace_listings_truth"
       ],
-      "read_by_edge_fns": [
-        "marketplace-checkout"
-      ],
+      "read_by_edge_fns": [],
       "causal_cascades": [
         {
           "to_table": "marketplace_orders",
@@ -3870,9 +3903,10 @@
       "surface": "project-manager",
       "field": "f-budget",
       "terminus": "projects.budget_php",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3885,9 +3919,10 @@
       "surface": "project-manager",
       "field": "f-desc",
       "terminus": "projects.description",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3900,9 +3935,10 @@
       "surface": "project-manager",
       "field": "f-end",
       "terminus": "projects.end_date",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3915,9 +3951,10 @@
       "surface": "project-manager",
       "field": "f-name",
       "terminus": "projects",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3930,9 +3967,10 @@
       "surface": "project-manager",
       "field": "f-owner",
       "terminus": "projects.owner_name",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3945,9 +3983,10 @@
       "surface": "project-manager",
       "field": "f-priority",
       "terminus": "projects.priority",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3960,9 +3999,10 @@
       "surface": "project-manager",
       "field": "f-start",
       "terminus": "projects.start_date",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3975,9 +4015,10 @@
       "surface": "project-manager",
       "field": "f-type",
       "terminus": "projects",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -3990,9 +4031,10 @@
       "surface": "project-manager",
       "field": "l-picker",
       "terminus": "project_links",
-      "display_fanout": 3,
+      "display_fanout": 4,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler",
         "project-report"
@@ -4009,9 +4051,10 @@
       "surface": "project-manager",
       "field": "l-text",
       "terminus": "project_links",
-      "display_fanout": 3,
+      "display_fanout": 4,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler",
         "project-report"
@@ -4028,9 +4071,10 @@
       "surface": "project-manager",
       "field": "l-type",
       "terminus": "project_links",
-      "display_fanout": 3,
+      "display_fanout": 4,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler",
         "project-report"
@@ -4282,9 +4326,10 @@
       "surface": "project-manager",
       "field": "wiz-budget",
       "terminus": "projects.budget_php",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -4297,9 +4342,10 @@
       "surface": "project-manager",
       "field": "wiz-desc",
       "terminus": "projects.description",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -4312,9 +4358,10 @@
       "surface": "project-manager",
       "field": "wiz-end",
       "terminus": "projects.end_date",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -4327,9 +4374,10 @@
       "surface": "project-manager",
       "field": "wiz-owner",
       "terminus": "projects.owner_name",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -4342,9 +4390,10 @@
       "surface": "project-manager",
       "field": "wiz-priority",
       "terminus": "projects.priority",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],
@@ -4357,9 +4406,10 @@
       "surface": "project-manager",
       "field": "wiz-start",
       "terminus": "projects.start_date",
-      "display_fanout": 2,
+      "display_fanout": 3,
       "display_depth": 2,
       "displayed_on_pages": [
+        "inventory",
         "logbook",
         "pm-scheduler"
       ],

@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CMMS Integration | WorkHive</title>
-  <meta name="description" content="CMMS / ERP integrations: SAP PM, IBM Maximo, OPC-UA / MQTT sensors, REST webhooks, SSO/SAML providers." />
+  <meta name="description" content="CMMS / ERP integration: SAP PM, IBM Maximo, and generic REST live-sync, CSV history import, inbound webhooks, and hive API keys. Plant sensor feeds (OPC-UA / MQTT) arrive via a plant edge gateway." />
   <meta property="og:title" content="CMMS Integration · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/integrations.html" />
   <!-- capture: cmms_import_v1 (import) — CSV/JSON CMMS sync -->
   <link rel="manifest" href="manifest.json" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- PapaParse for CSV parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" integrity="sha384-D/t0ZMqQW31H3az8ktEiNb39wyKnS82iFY52QPACM+IjKW3jDUhyIgh2PApRqJZs" crossorigin="anonymous"></script>
-  <!-- SheetJS for Excel (.xlsx) parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
+  <!-- A4 CWV: PapaParse (CSV) + SheetJS (xlsx) total ~0.8MB and are only needed AFTER a file
+       is picked at Step 2, so they are LAZY-loaded on demand (loadScriptOnce in handleFile),
+       not eagerly on every page load. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
@@ -48,20 +48,20 @@
     .step-num {
       width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
       justify-content: center; font-size: .68rem; font-weight: 700; flex-shrink: 0;
-      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.62); /* A11y: 0.3 failed contrast on the dark card */
       border: 1px solid rgba(255,255,255,0.1); transition: all .2s;
     }
     .step-dot.active   .step-num { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.4); }
     .step-dot.done     .step-num { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.4); }
     .step-label { font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; color: rgba(255,255,255,0.6); }
     .step-dot.active .step-label, .step-dot.done .step-label { color: rgba(255,255,255,0.85); }
-    .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 14px; }
+    .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 16px; }
     .step-dot.done .step-line-after { background: rgba(74,222,128,0.3); }
     .step-inner { display: flex; flex-direction: column; align-items: center; }
 
     /* Cards */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; }
-    .card-sm { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius); padding: 20px 22px; margin-bottom: 16px; }
+    .card-sm { background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius); padding: 14px 16px; }
 
     /* Inputs */
     .wh-input {
@@ -74,10 +74,10 @@
     select.wh-input { cursor: pointer; }
 
     /* Buttons */
-    .btn { padding: 11px 20px; border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; transition: all .15s; border: 1px solid; }
+    .btn { padding: 11px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; transition: all .15s; border: 1px solid; }
     .btn:disabled { opacity: .4; cursor: not-allowed; }
-    .btn-gold  { background: rgba(247,162,27,0.14); color: var(--gold);   border-color: rgba(247,162,27,0.4); }
-    .btn-gold:hover:not(:disabled)  { background: rgba(247,162,27,0.24); }
+    .btn-gold  { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); border-color: transparent; }
+    .btn-gold:hover:not(:disabled)  { opacity: .9; }
     .btn-blue  { background: rgba(41,182,217,0.12); color: var(--blue);   border-color: rgba(41,182,217,0.35); }
     .btn-blue:hover:not(:disabled)  { background: rgba(41,182,217,0.22); }
     .btn-ghost { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.1); }
@@ -91,6 +91,8 @@
       transition: all .15s;
     }
     .source-card:hover { border-color: rgba(247,162,27,0.3); background: rgba(247,162,27,0.04); }
+    .source-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .source-card:active { transform: scale(0.98); }
     .source-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
     .source-card .sc-icon { font-size: 1.6rem; margin-bottom: 8px; }
     .source-card .sc-name { font-size: .8rem; font-weight: 700; color: var(--text); }
@@ -102,6 +104,7 @@
       padding: 40px 24px; text-align: center; cursor: pointer; transition: all .2s;
     }
     .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: rgba(41,182,217,0.04); }
+    .drop-zone:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
     .drop-zone.has-file { border-color: var(--green); background: rgba(74,222,128,0.04); }
 
     /* Mapping table */
@@ -110,7 +113,7 @@
     .map-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
     .map-table tr:last-child td { border-bottom: none; }
     .req-badge { font-size: .58rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(248,113,113,0.12); color: var(--red); }
-    .opt-badge { font-size: .58rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+    .opt-badge { font-size: .58rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.62); }
 
     /* Preview table */
     .preview-table-wrap { overflow-x: auto; }
@@ -125,8 +128,8 @@
     .progress-fill { height: 100%; background: var(--gold); border-radius: 999px; transition: width .3s; }
 
     /* Result chips */
-    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin: 14px 0; }
-    .result-chip { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin: 16px 0; }
+    .result-chip { background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius-sm); padding: 12px; text-align: center; }
     .result-chip .rn { font-size: 1.5rem; font-weight: 800; }
     .result-chip .rl { font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-top: 2px; }
 
@@ -137,7 +140,7 @@
     /* Hidden */
     .hidden { display: none !important; }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
@@ -162,7 +165,7 @@
     #it-active-sub, #it-stale-sub, #it-disabled-sub { min-height: 47px; }/* "Loading…" 1-line → up to 3-line sub (measured worst h1 47px) — keeps every .simple-card stable at its 154px reserve */
     #it-active-hero, #it-stale-hero, #it-disabled-hero { min-height: 28px; }/* lock the KPI hero number (measured h1 28px) so a font-swap metric change can't reflow the card-internal stack */
     #integrations-source-chip { min-height: 30px; }                      /* empty <p> → multi-line renderSourceChip() "Based on your …" chip under the header */
-    #it-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #it-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
     #it-summary-details.open { display:block; }
   </style>
 </head>
@@ -185,26 +188,26 @@
       <div class="sc-label">Active integrations</div>
       <div class="sc-hero" id="it-active-hero">0</div>
       <div class="sc-sub" id="it-active-sub">Loading...</div>
-      <span class="sc-tag" id="it-active-tag">—</span>
+      <span class="sc-tag" id="it-active-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="it-card-stale" data-rag-tile="integrations:stale" data-rag-label="Stale syncs">
       <div class="sc-label">Stale syncs</div>
       <div class="sc-hero" id="it-stale-hero">0</div>
       <div class="sc-sub" id="it-stale-sub">Loading...</div>
-      <span class="sc-tag" id="it-stale-tag">—</span>
+      <span class="sc-tag" id="it-stale-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="it-card-disabled" data-rag-tile="integrations:disabled" data-rag-label="Disabled integrations">
       <div class="sc-label">Disabled</div>
       <div class="sc-hero" id="it-disabled-hero">0</div>
       <div class="sc-sub" id="it-disabled-sub">Loading...</div>
-      <span class="sc-tag" id="it-disabled-tag">—</span>
+      <span class="sc-tag" id="it-disabled-tag">-</span>
     </div>
   </div>
   <div class="action-card">
     <div class="ac-label">What to do next</div>
     <div class="ac-text" id="it-action-text">Computing recommendation...</div>
   </div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details">
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details" data-i="showdetails">
     Show details
   </button>
   <div id="it-summary-details" role="region" aria-label="Integrations explainer"
@@ -212,8 +215,8 @@
     data-rag-label="Integrations detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
     <ul style="margin:0;padding-left:20px;">
-      <li><strong>Active integrations</strong>: your integrations rows with switched on and a sync in the last 7 days.</li>
-      <li><strong>Stale syncs</strong>: enabled integrations whose the last sync time is older than 7 days — usually an auth or endpoint issue.</li>
+      <li><strong>Active integrations</strong>: integrations that are switched on and have synced in the last 7 days.</li>
+      <li><strong>Stale syncs</strong>: enabled integrations whose last sync was more than 7 days ago: usually an auth or endpoint issue.</li>
       <li><strong>Disabled</strong>: integrations turned off but still in the config table.</li>
       <li><strong>Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
     </ul>
@@ -225,11 +228,11 @@
   </div>
 
   <!-- Getting Started workflow guide (dismissible) -->
-  <div id="cmms-guide" style="margin-bottom:1.25rem; display:none;">
+  <div id="cmms-guide" style="margin-bottom:1.5rem; display:none;">
     <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:14px; padding:18px 20px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
         <p style="font-size:.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em;">How to connect your CMMS</p>
-        <button onclick="dismissGuide()" style="background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; padding:0 6px; margin-right:-6px;">Dismiss</button>
+        <button onclick="dismissGuide()" style="background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; padding:0 6px; margin-right:-6px;" data-i="dismiss">Dismiss</button>
       </div>
       <div style="display:flex; gap:0; align-items:stretch; flex-wrap:wrap;">
 
@@ -239,8 +242,8 @@
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(247,162,27,0.2); border:1px solid rgba(247,162,27,0.4); color:var(--gold); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
           </div>
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Have historical data in SAP, Maximo, or any CMMS? Export it as a CSV and upload it here. This is a one-time catch-up — brings your full maintenance history into WorkHive on day one.</p>
-          <button onclick="switchTab('import')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Start here →</button>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Have old data in SAP, Maximo, or any CMMS? Export a CSV and upload it here. One upload brings your whole history into WorkHive.</p>
+          <button onclick="switchTab('import')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="starthere">Start here →</button>
         </div>
 
         <!-- Arrow -->
@@ -252,8 +255,8 @@
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(41,182,217,0.15); border:1px solid rgba(41,182,217,0.35); color:var(--blue); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--blue);">Live Sync</p>
           </div>
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">After importing history, set up Live Sync so new work orders from SAP flow in automatically every day — no more CSV exports. WorkHive also pushes completed jobs back to SAP so both systems stay in sync.</p>
-          <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Set up sync →</button>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">After the import, turn on Live Sync. New SAP work orders then flow in daily, with no CSV exports. WorkHive also pushes finished jobs back to SAP.</p>
+          <button onclick="switchTab('sync')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="setupsync">Set up sync →</button>
         </div>
 
         <!-- Arrow -->
@@ -265,8 +268,8 @@
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.35); color:var(--purple); font-size:.65rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--purple);">API Keys</p>
           </div>
-          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Optional. Generate keys so your Power BI dashboards, custom apps, or engineering tools can pull WorkHive benchmark data directly via the Intelligence API — without giving anyone raw database access.</p>
-          <button onclick="switchTab('api')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:7px; font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;">Manage keys →</button>
+          <p style="font-size:.7rem; color:rgba(255,255,255,0.55); line-height:1.5;">Optional. Make a key so Power BI, custom apps, or your tools can pull WorkHive data through the API. No one touches the raw database.</p>
+          <button onclick="switchTab('api')" style="margin-top:10px; width:100%; padding:6px; min-height:44px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:var(--wh-radius-sm); font-size:.7rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="managekeys">Manage keys →</button>
         </div>
 
       </div>
@@ -275,15 +278,15 @@
 
   <!-- Mode tabs -->
   <div style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0;">
-    <button id="tab-import" onclick="switchTab('import')" style="padding:12px 18px; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;">Import File</button>
-    <button id="tab-sync"   onclick="switchTab('sync')"   style="padding:12px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.6); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">Live Sync</button>
-    <button id="tab-api"    onclick="switchTab('api')"    style="padding:12px 18px; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.6); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;">API Keys</button>
+    <button id="tab-import" onclick="switchTab('import')" style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer;" translate="no">Import File</button>
+    <button id="tab-sync"   onclick="switchTab('sync')"   style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.6); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;" translate="no">Live Sync</button>
+    <button id="tab-api"    onclick="switchTab('api')"    style="padding:0 18px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.6); font-family:inherit; font-size:.85rem; font-weight:600; cursor:pointer;" translate="no">API Keys</button>
   </div>
 
   <!-- Header -->
   <div id="header-import" style="margin-bottom: 1.5rem;">
     <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.2rem .6rem; border-radius:999px; background:rgba(247,162,27,0.14); color:var(--gold); border:1px solid rgba(247,162,27,0.28); margin-bottom:.5rem;">Phase 2 · Cold Start Solver</span>
-    <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;">Connections</h1>
+    <h1 style="font-size:1.4rem; font-weight:800; line-height:1.2;" data-i="pctitle">Connections</h1>
     <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
          (both connect external systems, same supervisor audience). One nav entry; this
          tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
@@ -345,24 +348,24 @@
 
     <!-- ── STEP 1: Choose source + entity type ── -->
     <div id="step-1" class="card">
-      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Which CMMS are you importing from?</p>
+      <h2 style="font-size:.8rem; font-weight:700; margin:0 0 12px;" data-i="whichcmms">Which CMMS are you importing from?</h2>
       <div class="source-grid">
-        <div class="source-card" data-type="sap_pm" onclick="selectSource('sap_pm')">
+        <div class="source-card" data-type="sap_pm" onclick="selectSource('sap_pm')" role="button" tabindex="0" aria-pressed="false" aria-label="Import from SAP PM" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <div class="sc-icon">🏭</div>
           <div class="sc-name">SAP PM</div>
           <div class="sc-desc">OData export (AUFNR, ISTAT, EQUNR...)</div>
         </div>
-        <div class="source-card" data-type="maximo" onclick="selectSource('maximo')">
+        <div class="source-card" data-type="maximo" onclick="selectSource('maximo')" role="button" tabindex="0" aria-pressed="false" aria-label="Import from IBM Maximo" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <div class="sc-icon">🔧</div>
           <div class="sc-name">IBM Maximo</div>
           <div class="sc-desc">OSLC export (WONUM, ASSETNUM...)</div>
         </div>
-        <div class="source-card" data-type="generic" onclick="selectSource('generic')">
+        <div class="source-card" data-type="generic" onclick="selectSource('generic')" role="button" tabindex="0" aria-pressed="false" aria-label="Import from other or generic CMMS" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <div class="sc-icon">📋</div>
           <div class="sc-name">Other / Generic</div>
           <div class="sc-desc">Any CSV from your current CMMS</div>
         </div>
-        <div class="source-card" data-type="auto" onclick="selectSource('auto')">
+        <div class="source-card" data-type="auto" onclick="selectSource('auto')" role="button" tabindex="0" aria-pressed="false" aria-label="Auto-detect CMMS source" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <div class="sc-icon">✨</div>
           <div class="sc-name">Auto-detect</div>
           <div class="sc-desc">WorkHive figures it out from your columns</div>
@@ -370,25 +373,25 @@
       </div>
 
       <!-- Entity type selection — shown after source is picked -->
-      <div id="entity-section" style="display:none; margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
+      <div id="entity-section" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
         <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">What are you importing?</p>
         <div class="source-grid">
-          <div class="source-card selected" data-entity="work_order" onclick="selectEntity('work_order')">
+          <div class="source-card selected" data-entity="work_order" onclick="selectEntity('work_order')" role="button" tabindex="0" aria-pressed="true" aria-label="Import Work Orders" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">🔩</div>
             <div class="sc-name">Work Orders</div>
             <div class="sc-desc">Breakdowns, PMs, corrective jobs</div>
           </div>
-          <div class="source-card" data-entity="asset" onclick="selectEntity('asset')">
+          <div class="source-card" data-entity="asset" onclick="selectEntity('asset')" role="button" tabindex="0" aria-pressed="false" aria-label="Import Assets or Equipment" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">⚙️</div>
             <div class="sc-name">Assets / Equipment</div>
             <div class="sc-desc">Equipment registry, tag IDs, locations</div>
           </div>
-          <div class="source-card" data-entity="pm_schedule" onclick="selectEntity('pm_schedule')">
+          <div class="source-card" data-entity="pm_schedule" onclick="selectEntity('pm_schedule')" role="button" tabindex="0" aria-pressed="false" aria-label="Import PM Schedules" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">📅</div>
             <div class="sc-name">PM Schedules</div>
             <div class="sc-desc">Maintenance plans, intervals, tasks</div>
           </div>
-          <div class="source-card" data-entity="inventory" onclick="selectEntity('inventory')">
+          <div class="source-card" data-entity="inventory" onclick="selectEntity('inventory')" role="button" tabindex="0" aria-pressed="false" aria-label="Import Parts or Inventory" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="sc-icon">📦</div>
             <div class="sc-name">Parts / Inventory</div>
             <div class="sc-desc">Spare parts, stock levels, reorder points</div>
@@ -396,17 +399,17 @@
         </div>
       </div>
 
-      <div style="margin-top:14px; text-align:right;">
-        <button class="btn btn-gold" onclick="goStep(2)" id="btn-s1-next" disabled>Next: Upload →</button>
+      <div style="margin-top:16px; text-align:right;">
+        <button class="btn btn-gold" onclick="goStep(2)" id="btn-s1-next" data-i="nextupload" disabled>Next: Upload →</button>
       </div>
     </div>
 
     <!-- ── STEP 2: Upload file ── -->
     <div id="step-2" class="card hidden">
-      <p style="font-size:.8rem; font-weight:700; margin-bottom:12px;">Upload your CMMS export file</p>
+      <h2 style="font-size:.8rem; font-weight:700; margin:0 0 12px;">Upload your CMMS export file</h2>
       <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
 
-      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" role="button" tabindex="0" aria-label="Upload CMMS export file (CSV or Excel): drop a file here or activate to browse" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <input type="file" id="file-input" aria-label="Upload CMMS export file (CSV or Excel)" accept=".csv,.xlsx,.xls" style="display:none;" />
         <div id="drop-icon" style="font-size:2rem; margin-bottom:10px;">📂</div>
         <p id="drop-label" style="font-size:.85rem; font-weight:600; margin-bottom:4px;">Drop file here or click to browse</p>
@@ -423,7 +426,7 @@
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; margin-top:16px;">
         <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
         <button class="btn btn-gold" onclick="goStep(3)" id="btn-s2-next" disabled>Next: Map Fields →</button>
       </div>
@@ -432,13 +435,13 @@
     <!-- ── STEP 3: Map fields ── -->
     <div id="step-3" class="card hidden">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-        <p style="font-size:.8rem; font-weight:700;">Map your columns to WorkHive fields</p>
+        <h2 style="font-size:.8rem; font-weight:700; margin:0;">Map your columns to WorkHive fields</h2>
         <button class="btn btn-blue" style="padding:6px 14px; font-size:.75rem;" onclick="autoSuggestMapping()">✨ Auto-suggest</button>
       </div>
-      <p style="font-size:.72rem; color:var(--muted); margin-bottom:14px;">Tell WorkHive which column in your file corresponds to each field. Required fields must be mapped.</p>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;">Tell WorkHive which column in your file corresponds to each field. Required fields must be mapped.</p>
 
       <div style="overflow-x:auto;">
-        <!-- table-name-allow: CMMS integration field mapping / preview table --> <table class="map-table">
+        <!-- table-name-allow: CMMS integration field mapping / preview table --> <div class="wh-scroll-x"><table class="map-table">
           <thead>
             <tr>
               <th style="width:32%;">WorkHive Field</th>
@@ -448,7 +451,7 @@
             </tr>
           </thead>
           <tbody id="map-tbody"></tbody>
-        </table>
+        </table></div>
       </div>
 
       <div style="display:flex; justify-content:space-between; margin-top:16px;">
@@ -459,11 +462,11 @@
 
     <!-- ── STEP 4: Preview ── -->
     <div id="step-4" class="card hidden">
-      <p style="font-size:.8rem; font-weight:700; margin-bottom:4px;">Preview — first 5 rows</p>
-      <p style="font-size:.72rem; color:var(--muted); margin-bottom:14px;" id="preview-meta"></p>
+      <h2 style="font-size:.8rem; font-weight:700; margin:0 0 4px;">Preview: first 5 rows</h2>
+      <p style="font-size:.72rem; color:var(--muted); margin-bottom:16px;" id="preview-meta"></p>
 
       <div class="preview-table-wrap">
-        <!-- table-name-allow: CMMS integration field mapping / preview table --> <table class="preview-table">
+        <!-- table-name-allow: CMMS integration field mapping / preview table --> <div class="wh-scroll-x"><table class="preview-table">
           <thead>
             <tr>
               <th>External ID</th>
@@ -475,7 +478,7 @@
             </tr>
           </thead>
           <tbody id="preview-tbody"></tbody>
-        </table>
+        </table></div>
       </div>
 
       <div id="preview-warnings" style="margin-top:12px;"></div>
@@ -508,7 +511,7 @@
 
         <div class="result-grid" id="results-chips"></div>
 
-        <div id="patterns-section" class="card-sm hidden" style="margin-top:14px;">
+        <div id="patterns-section" class="card-sm hidden" style="margin-top:16px;">
           <p style="font-size:.72rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;">Patterns WorkHive found in your data</p>
           <div id="patterns-list"></div>
         </div>
@@ -527,7 +530,7 @@
     </div>
 
     <!-- ── Import History (visible after first import) ── -->
-    <div id="import-history-section" style="display:none; margin-top:14px;">
+    <div id="import-history-section" style="display:none; margin-top:16px;">
       <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
           <p style="font-size:.78rem; font-weight:700;">Import History</p>
@@ -567,10 +570,10 @@
       <p style="font-size:.8rem; font-weight:700; margin-bottom:8px;">API Reference</p>
       <p style="font-size:.72rem; color:var(--muted); margin-bottom:10px;">Base URL: <code style="color:var(--blue);">https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api</code></p>
       <div style="font-size:.72rem; line-height:1.8;">
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=benchmarks</code> — MTBF by equipment category (optional: &amp;category= &amp;industry=)</p>
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=failure-modes</code> — Top root causes (optional: &amp;period=90)</p>
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=report</code> — Latest intelligence report JSON</p>
-        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=ping</code> — Health check (no auth required)</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=benchmarks</code>: MTBF by equipment category (optional: &amp;category= &amp;industry=)</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=failure-modes</code>: Top root causes (optional: &amp;period=90)</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=report</code>: Latest intelligence report JSON</p>
+        <p style="margin-bottom:4px;"><code style="color:var(--gold);">?endpoint=ping</code>: Health check (no auth required)</p>
       </div>
       <p style="font-size:.7rem; color:var(--muted); margin-top:8px;">Include header: <code>Authorization: Bearer your-api-key</code></p>
       <a href="ph-intelligence.html" class="btn btn-blue" style="display:inline-block; margin-top:10px; text-decoration:none; font-size:.75rem; padding:7px 14px;">View Latest Intelligence Report →</a>
@@ -592,7 +595,7 @@
 
     <!-- Add / Edit config form -->
     <div class="card">
-      <p style="font-size:.82rem; font-weight:700; margin-bottom:14px;" id="sync-form-title">Configure Live Sync</p>
+      <p style="font-size:.82rem; font-weight:700; margin-bottom:16px;" id="sync-form-title">Configure Live Sync</p>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
         <div>
@@ -686,6 +689,22 @@
       WORKER_NAME = await restoreIdentityFromSession(db);
     }
     if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
+    // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
+    // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
+    // generation. RLS (integration_configs_supervisor_all) now blocks a worker's
+    // reads/writes server-side; this gate ALSO hides the admin UI so a worker never sees
+    // the token fields or the wizard (client role is spoofable — RLS is the real backstop).
+    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    if (HIVE_ROLE !== 'supervisor') {
+      const _m = document.querySelector('main');
+      if (_m) _m.innerHTML = '<div class="page" style="padding-top:70px;">'
+        + '<div class="card" style="text-align:center; padding:32px; max-width:560px; margin:40px auto;">'
+        + '<h2 style="margin:0 0 10px;">Supervisor access only</h2>'
+        + '<p style="color:rgba(255,255,255,0.7); margin:0;">CMMS Integrations is a supervisor / IT surface for '
+        + 'connecting WorkHive to SAP PM, Maximo, sensors, and webhooks. Ask your hive supervisor if you need a '
+        + 'connection set up.</p></div></div>';
+      return;
+    }
     if (!HIVE_ID) {
       document.getElementById('hive-gate').classList.remove('hidden');
       document.getElementById('wizard').classList.add('hidden');
@@ -700,9 +719,10 @@
     // when the user clicks Live Sync).
     if (HIVE_ID) {
       try {
-        const { data } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);
+        const { data, error } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);
+        if (error) throw error;
         renderIntegrationsSummary(data || []);
-      } catch (_) { renderIntegrationsSummary([]); }
+      } catch (_) { renderIntegrationsLoadError(); }
     } else {
       renderIntegrationsSummary([]);
     }
@@ -818,7 +838,11 @@
   // ── Step 1: Source selection ──────────────────────────────────────────────
   function selectSource(type) {
     _systemType = type;
-    document.querySelectorAll('[data-type]').forEach(c => c.classList.toggle('selected', c.dataset.type === type));
+    document.querySelectorAll('[data-type]').forEach(c => {
+      const on = c.dataset.type === type;
+      c.classList.toggle('selected', on);
+      c.setAttribute('aria-pressed', String(on));
+    });
     // Reveal entity type section now that source is chosen
     document.getElementById('entity-section').style.display = 'block';
     // Next requires entity type too
@@ -827,7 +851,11 @@
 
   function selectEntity(entity) {
     _entityType = entity;
-    document.querySelectorAll('[data-entity]').forEach(c => c.classList.toggle('selected', c.dataset.entity === entity));
+    document.querySelectorAll('[data-entity]').forEach(c => {
+      const on = c.dataset.entity === entity;
+      c.classList.toggle('selected', on);
+      c.setAttribute('aria-pressed', String(on));
+    });
     document.getElementById('btn-s1-next').disabled = !_systemType;
   }
 
@@ -835,32 +863,61 @@
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
 
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
-  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+  // Null-guard: the I2 role gate replaces <main> with the "Supervisor access only" state
+  // for a non-supervisor, so #drop-zone / #file-input no longer exist when this top-level
+  // wiring runs — without the guard a worker's denied page threw "Cannot read properties of
+  // null (reading 'addEventListener')". The denied worker needs no wizard wiring.
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+  }
 
-  function handleFile(file) {
+  // A4 CWV: load a CDN parser script on demand, once. Keeping PapaParse/SheetJS off the
+  // critical path (loaded only at Step 2) shrinks initial page load by ~0.8MB.
+  const _loadedScripts = {};
+  function loadScriptOnce(src, integrity) {
+    if (_loadedScripts[src]) return _loadedScripts[src];
+    _loadedScripts[src] = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; }
+      s.onload = () => resolve();
+      s.onerror = () => { delete _loadedScripts[src]; reject(new Error('load failed: ' + src)); };
+      document.head.appendChild(s);
+    });
+    return _loadedScripts[src];
+  }
+
+  async function handleFile(file) {
     if (!file) return;
+    // P12 upload-safety: cap file size — a huge CSV/XLSX OOMs FileReader/the parser (DoS). 15MB covers any real CMMS export.
+    if (file.size > 15 * 1024 * 1024) { showToast('File is too large, please upload a CSV or Excel file under 15MB.'); return; }
     const ext = file.name.split('.').pop().toLowerCase();
-
-    if (ext === 'csv') {
-      Papa.parse(file, {
-        header: true, skipEmptyLines: true,
-        complete: r => { processRows(r.data, r.meta.fields, file.name); }
-      });
-    } else if (ext === 'xlsx' || ext === 'xls') {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const wb   = XLSX.read(e.target.result, { type: 'binary' });
-        const ws   = wb.Sheets[wb.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
-        const hdrs = data.length ? Object.keys(data[0]) : [];
-        processRows(data, hdrs, file.name);
-      };
-      reader.readAsBinaryString(file);
-    } else {
-      showToast('Please upload a CSV or Excel file.'); return;
+    try {
+      if (ext === 'csv') {
+        await loadScriptOnce('https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js', 'sha384-D/t0ZMqQW31H3az8ktEiNb39wyKnS82iFY52QPACM+IjKW3jDUhyIgh2PApRqJZs');
+        Papa.parse(file, {
+          header: true, skipEmptyLines: true,
+          complete: r => { processRows(r.data, r.meta.fields, file.name); }
+        });
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        await loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw');
+        const reader = new FileReader();
+        reader.onload = e => {
+          const wb   = XLSX.read(e.target.result, { type: 'binary' });
+          const ws   = wb.Sheets[wb.SheetNames[0]];
+          const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          const hdrs = data.length ? Object.keys(data[0]) : [];
+          processRows(data, hdrs, file.name);
+        };
+        reader.readAsBinaryString(file);
+      } else {
+        showToast('Please upload a CSV or Excel file.'); return;
+      }
+    } catch (_) {
+      showToast('Could not load the file parser. Check your connection and try again.');
     }
   }
 
@@ -869,8 +926,9 @@
     _csvRows = rows;
     _headers = headers;
 
-    // Auto-detect CMMS type if user chose 'auto'
-    if (_systemType === 'auto') {
+    // Auto-detect CMMS type if user chose 'auto' (or no source is set — defensive: never let a
+    // null _systemType crash the row-count render below).
+    if (_systemType === 'auto' || !_systemType) {
       const hs = headers.map(h => h.toUpperCase());
       const sapScore  = ['AUFNR','ISTAT','EQUNR','ARBEI','AUART'].filter(s => hs.includes(s)).length;
       const maxiScore = ['WONUM','ASSETNUM','ACTLABHRS','WORKTYPE'].filter(s => hs.includes(s)).length;
@@ -881,7 +939,7 @@
     document.getElementById('drop-label').textContent = 'File loaded';
     document.getElementById('file-info').classList.remove('hidden');
     document.getElementById('file-name').textContent = fileName;
-    document.getElementById('file-stats').textContent = rows.length.toLocaleString() + ' rows · ' + headers.length + ' columns · detected as ' + _systemType.replace('_', ' ').toUpperCase();
+    document.getElementById('file-stats').textContent = whFmtNum(rows.length) + ' rows · ' + headers.length + ' columns · detected as ' + _systemType.replace('_', ' ').toUpperCase();
     document.getElementById('btn-s2-next').disabled = false;
   }
 
@@ -892,7 +950,7 @@
     tbody/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     _confidence = {};
     fields.forEach(f => {
-      const options = ['<option value="">— skip —</option>']
+      const options = ['<option value="">- skip -</option>']
         .concat(_headers.map(h => `<option value="${escHtml(h)}" ${_mapping[f.key] === h ? 'selected' : ''}>${escHtml(h)}</option>`))
         .join('');
       tbody.insertAdjacentHTML('beforeend', `
@@ -914,7 +972,7 @@
       exact:   'background:rgba(74,222,128,0.12); color:#4ade80; border:1px solid rgba(74,222,128,0.3);',
       partial: 'background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.3);',
       none:    'background:rgba(248,113,113,0.1); color:#f87171; border:1px solid rgba(248,113,113,0.25);',
-      skipped: 'background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.08);',
+      skipped: 'background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.08);',
     };
     const icons = { exact:'🟢', partial:'🟡', none:'🔴', skipped:'⚪' };
     const s = styles[level] || styles.skipped;
@@ -928,7 +986,7 @@
       const fields = FIELDS_BY_ENTITY[_entityType] || FIELDS_BY_ENTITY.work_order;
       const f = fields.find(x => x.key === fieldKey);
       el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = f?.required
-        ? _confidenceBadge('none',    'No match — required')
+        ? _confidenceBadge('none',    'No match: required')
         : _confidenceBadge('skipped', 'Skipped');
       _confidence[fieldKey] = f?.required ? 'none' : 'skipped';
       return;
@@ -1037,9 +1095,9 @@
 
     const entityLabel = { work_order:'Work Order ID', asset:'Asset Tag', pm_schedule:'Schedule ID', inventory:'Part Number' }[_entityType] || 'ID';
     document.getElementById('preview-meta').textContent =
-      total.toLocaleString() + ' rows · ' + valid.toLocaleString() + ' ready to import · ' +
+      whFmtNum(total) + ' rows · ' + whFmtNum(valid) + ' ready to import · ' +
       (missing ? missing + ' will be skipped (no ' + entityLabel + ')' : 'all valid');
-    document.getElementById('preview-count-label').textContent = valid.toLocaleString() + ' rows';
+    document.getElementById('preview-count-label').textContent = whFmtNum(valid) + ' rows';
 
     // ── Dry-run summary ───────────────────────────────────────────────────────
     const issues = [];
@@ -1052,20 +1110,20 @@
           return raw && !knownStatuses.has(raw) && !['Open','Closed','Cancelled'].includes(raw);
         });
         if (unknownStatus.length)
-          issues.push({ level: 'warn', msg: `${unknownStatus.length} rows have unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}") — they will import as-is, not normalized` });
+          issues.push({ level: 'warn', msg: `${unknownStatus.length} rows have unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); they will import as-is, not normalized` });
       }
       const noMachine = allNorm.filter(r => r.external_id && !r.machine).length;
       if (noMachine)
-        issues.push({ level: 'warn', msg: `${noMachine} rows have no machine/asset tag — analytics and machine history surface won't include them` });
+        issues.push({ level: 'warn', msg: `${noMachine} rows have no machine/asset tag, so analytics and machine history surface won't include them` });
       const noType = allNorm.filter(r => r.external_id && !r.maintenance_type).length;
       if (noType)
-        issues.push({ level: 'info', msg: `${noType} rows have no maintenance type — they will default to "Breakdown / Corrective"` });
+        issues.push({ level: 'info', msg: `${noType} rows have no maintenance type, so they will default to "Breakdown / Corrective"` });
     }
 
     // Confidence summary
     const lowConf = Object.entries(_confidence).filter(([k, v]) => v === 'none').map(([k]) => k);
     if (lowConf.length)
-      issues.push({ level: 'warn', msg: `${lowConf.length} required field(s) have no column mapped: ${lowConf.join(', ')} — go back to Step 3 to fix` });
+      issues.push({ level: 'warn', msg: `${lowConf.length} required field(s) have no column mapped: ${lowConf.join(', ')}. Go back to Step 3 to fix` });
 
     const tbody = document.getElementById('preview-tbody');
     tbody/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
@@ -1073,15 +1131,15 @@
       if (_entityType === 'work_order') {
         const sc = n.status === 'Closed' ? 'status-closed' : 'status-open';
         tbody.insertAdjacentHTML('beforeend', `<tr>
-          <td style="font-family:monospace; font-size:.68rem;">${escHtml(n.external_id || '—')}</td>
-          <td>${escHtml(n.machine || '—')}</td>
+          <td style="font-family:monospace; font-size:.68rem;">${escHtml(n.external_id || '-')}</td>
+          <td>${escHtml(n.machine || '-')}</td>
           <td class="${sc}">${escHtml(n.status)}</td>
           <td style="color:var(--muted);">${escHtml((n.maintenance_type || '').replace('Breakdown / Corrective','BD').replace('Preventive Maintenance','PM'))}</td>
-          <td style="color:var(--muted);">${n.actual_hours || '—'}</td>
+          <td style="color:var(--muted);">${n.actual_hours || '-'}</td>
           <td style="color:var(--muted); font-size:.68rem;">${escHtml((n.created_at || '').slice(0, 10))}</td>
         </tr>`);
       } else {
-        const cells = Object.values(n).map(v => `<td style="font-size:.68rem; color:var(--muted);">${escHtml(String(v ?? '—').slice(0, 30))}</td>`).join('');
+        const cells = Object.values(n).map(v => `<td style="font-size:.68rem; color:var(--muted);">${escHtml(String(v ?? '-').slice(0, 30))}</td>`).join('');
         const rowHtml = '<tr>' + cells + '</tr>';
         tbody.insertAdjacentHTML('beforeend', rowHtml);
       }
@@ -1109,6 +1167,10 @@
     const total      = validRows.length;
     const entityType = _entityType || 'work_order';
     const now        = new Date().toISOString();
+    // attribution FK for every imported row (logbook/asset_nodes/pm_assets/inventory_items all
+    // have auth_uid with no DB default) — derive once from the auth session.
+    let AUTH_UID = null;
+    try { const { data: { session } } = await db.auth.getSession(); AUTH_UID = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort */ }
     let imported = 0, failed = 0;
     const CHUNK  = 500;
 
@@ -1146,6 +1208,7 @@
           // imported work orders never reach logbook/analytics (Arc K K6/IN1 caught this).
           id:               crypto.randomUUID(),
           worker_name:      WORKER_NAME,
+          auth_uid:         AUTH_UID,
           date:             r.created_at || now,
           machine:          r.machine,
           category:         r.maintenance_type === 'Preventive Maintenance' ? 'Mechanical' : 'Mechanical',
@@ -1173,7 +1236,7 @@
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);
         document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        document.getElementById('progress-label').textContent = whFmtNum(i) + ' of ' + whFmtNum(total) + ' rows...';
         const sBatch = syncRows.slice(i, i + CHUNK);
         const lBatch = logRows.slice(i, i + CHUNK);
         const fBatch = fkRows.slice(i, i + CHUNK);
@@ -1194,6 +1257,7 @@
       // was dropped). Column renames: asset_id -> tag, type -> iso_class.
       const assetRows = validRows.map(r => ({
         worker_name:  WORKER_NAME,
+        auth_uid:     AUTH_UID,
         tag:          r.external_id,
         name:         r.name || r.external_id,
         iso_class:    r.type || 'General',
@@ -1211,7 +1275,7 @@
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);
         document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        document.getElementById('progress-label').textContent = whFmtNum(i) + ' of ' + whFmtNum(total) + ' rows...';
         const sBatch = syncRows.slice(i, i + CHUNK);
         const aBatch = assetRows.slice(i, i + CHUNK);
         try {
@@ -1229,7 +1293,7 @@
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);
         document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        document.getElementById('progress-label').textContent = whFmtNum(i) + ' of ' + whFmtNum(total) + ' rows...';
         const sBatch = syncRows.slice(i, i + CHUNK);
         const rBatch = validRows.slice(i, i + CHUNK);
         try {
@@ -1237,6 +1301,7 @@
           const pmRows = rBatch.map(r => ({
             hive_id:          HIVE_ID,
             worker_name:      WORKER_NAME,
+            auth_uid:         AUTH_UID,
             asset_name:       r.asset_tag || r.external_id,
             tag_id:           r.asset_tag || r.external_id,
             location:         '',
@@ -1265,6 +1330,7 @@
     } else if (entityType === 'inventory') {
       const invRows = validRows.map(r => ({
         worker_name:   WORKER_NAME,
+        auth_uid:      AUTH_UID,
         part_number:   r.external_id,
         part_name:     r.name || r.external_id,
         category:      'General',
@@ -1284,7 +1350,7 @@
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);
         document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('progress-label').textContent = i.toLocaleString() + ' of ' + total.toLocaleString() + ' rows...';
+        document.getElementById('progress-label').textContent = whFmtNum(i) + ' of ' + whFmtNum(total) + ' rows...';
         const sBatch = syncRows.slice(i, i + CHUNK);
         const vBatch = invRows.slice(i, i + CHUNK);
         try {
@@ -1364,7 +1430,7 @@
 
     const entityLabel = { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' }[_entityType] || 'records';
     document.getElementById('results-subtitle').textContent =
-      imported.toLocaleString() + ' ' + entityLabel + ' imported from your ' +
+      whFmtNum(imported) + ' ' + entityLabel + ' imported from your ' +
       (_systemType || 'generic').replace('_',' ').toUpperCase() + ' data.';
 
     document.getElementById('results-chips')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = [
@@ -1372,7 +1438,7 @@
       { n: machines,   l: 'Machines',   c: 'var(--blue)' },
       { n: closed,     l: 'Closed WOs', c: 'var(--muted)' },
       { n: breakdowns, l: 'Breakdowns', c: 'var(--red)' },
-    ].map(c => `<div class="result-chip"><div class="rn" style="color:${c.c};">${c.n.toLocaleString()}</div><div class="rl">${c.l}</div></div>`).join('');
+    ].map(c => `<div class="result-chip"><div class="rn" style="color:${c.c};">${whFmtNum(c.n)}</div><div class="rl">${c.l}</div></div>`).join('');
 
     // ── Data Quality Scorecard ─────────────────────────────────────────────
     if (quality && Object.keys(quality).length) {
@@ -1423,11 +1489,11 @@
 
     if (failed > 0) {
       document.getElementById('import-error-section').classList.remove('hidden');
-      document.getElementById('error-detail').textContent = failed + ' rows failed — check console for details.';
+      document.getElementById('error-detail').textContent = failed + ' rows failed. Check console for details.';
     }
 
     const _label = { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' }[_entityType] || 'records';
-    showToast('Import complete! ' + imported.toLocaleString() + ' ' + _label + ' imported.');
+    showToast('Import complete! ' + whFmtNum(imported) + ' ' + _label + ' imported.');
     loadImportHistory();
   }
 
@@ -1437,13 +1503,13 @@
     rows.filter(r => r.maintenance_type === 'Breakdown / Corrective')
         .forEach(r => { breakdownCounts[r.machine] = (breakdownCounts[r.machine] || 0) + 1; });
     const topMachine = Object.entries(breakdownCounts).sort((a, b) => b[1] - a[1])[0];
-    if (topMachine) patterns.push({ color: '#f87171', text: topMachine[0] + ' has the most breakdowns (' + topMachine[1] + ' in your data) — first candidate for Failure Signature Detection.' });
+    if (topMachine) patterns.push({ color: '#f87171', text: topMachine[0] + ' has the most breakdowns (' + topMachine[1] + ' in your data): first candidate for Failure Signature Detection.' });
 
     const uniqueRoots = new Set(rows.map(r => r.root_cause).filter(Boolean));
-    if (uniqueRoots.size > 3) patterns.push({ color: '#F7A21B', text: uniqueRoots.size + ' distinct failure causes detected — Tribal Knowledge Engine will surface them by machine.' });
+    if (uniqueRoots.size > 3) patterns.push({ color: '#F7A21B', text: uniqueRoots.size + ' distinct failure causes detected: Tribal Knowledge Engine will surface them by machine.' });
 
     const closedPct = Math.round((rows.filter(r => r.status === 'Closed').length / rows.length) * 100);
-    patterns.push({ color: '#4ade80', text: closedPct + '% of imported work orders are Closed — Reliability Coach can now analyze your historical PM performance.' });
+    patterns.push({ color: '#4ade80', text: closedPct + '% of imported work orders are Closed: Reliability Coach can now analyze your historical PM performance.' });
 
     return patterns.slice(0, 3);
   }
@@ -1488,6 +1554,7 @@
 
   // ── Live Sync ─────────────────────────────────────────────────────────────
   let _editingConfigId = null;
+  let _editingConfigUpdatedAt = null;   // P6: OC snapshot for the shared per-hive connector config
 
   // Layer D — Plain-Read summary for Integrations.
   function renderIntegrationsSummary(configs) {
@@ -1531,10 +1598,10 @@
     let tone, label, sub;
     if (stale.length > 0) {
       tone = 'attn'; label = `${stale.length} integration${stale.length === 1 ? '' : 's'} stale`;
-      sub  = 'Open the Live Sync tab and click into each stale row — usually an expired API key or a changed endpoint URL.';
+      sub  = 'Open the Live Sync tab and click into each stale row: usually an expired API key or a changed endpoint URL.';
     } else if (configs.length === 0) {
       tone = 'empty'; label = 'No integrations configured yet';
-      sub  = 'Start with Import File (one-time history backfill from your existing CMMS) then Live Sync (daily delta).';
+      sub  = 'Start with Import File to load your old CMMS history. Then add Live Sync for daily updates.';
     } else if (active.length === 0 && configs.length > 0) {
       tone = 'watch'; label = 'No integrations syncing right now';
       sub  = 'All your configs are either disabled or never-synced. Re-enable or run a manual sync from the Live Sync tab.';
@@ -1552,7 +1619,7 @@
     if (actBox) {
       let text;
       if (configs.length === 0) {
-        text = 'No integrations yet. Easiest path: click the "Import File" tab below, drop a CSV from your existing CMMS, and you have history on day one. Then set up Live Sync for daily deltas.';
+        text = 'No integrations yet. Click the "Import File" tab below. Drop a CSV from your CMMS. You get history on day one. Then turn on Live Sync for daily updates.';
       } else if (stale.length > 0) {
         text = `${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below, click the row, and check (1) API key not expired, (2) endpoint URL still reachable, (3) auth method still matches the CMMS side.`;
       } else if (disabled.length > 0 && active.length > 0) {
@@ -1562,6 +1629,19 @@
       }
       actBox.textContent = text;
     }
+  }
+
+  // A5 outage honesty: a backend READ failure must NOT render as the fake
+  // "No integrations configured" verdict. Surface an honest, retryable load-error
+  // in the same verdict + recommendation region instead. Uses .textContent (no XSS).
+  function renderIntegrationsLoadError() {
+    const vBox = document.getElementById('it-verdict');
+    if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add('attn'); }
+    const vIcon = document.getElementById('it-verdict-icon'); if (vIcon) vIcon.textContent = '⚠';
+    const vLbl  = document.getElementById('it-verdict-label'); if (vLbl)  vLbl.textContent  = "Couldn't load your integrations";
+    const vSb   = document.getElementById('it-verdict-sub');   if (vSb)   vSb.textContent   = 'Check your connection and refresh.';
+    const actBox = document.getElementById('it-action-text');
+    if (actBox) actBox.textContent = "We couldn't reach the integrations service, so this is not a confirmed \"nothing configured\" state. Refresh the page to try again.";
   }
 
   async function loadSyncConfigs() {
@@ -1578,11 +1658,18 @@
         ],
       });
     }
-    const { data } = await db.from('integration_configs')
+    const { data, error } = await db.from('integration_configs')
       .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(500);
+    const list = document.getElementById('sync-active-list');
+    if (error) {
+      // A5 outage honesty: a real read failure must NOT render as fake-empty.
+      renderIntegrationsLoadError();
+      if (typeof showToast === 'function') showToast("Couldn't load integrations. Check your connection and refresh.");
+      if (list) list/* xss-allow: static error copy, no interpolation */ .innerHTML = '<p style="font-size:.75rem; color:var(--red);">Couldn\'t load your live sync configs. Check your connection and refresh.</p>';
+      return;
+    }
     // Plain-Read summary (Layer D) — runs even when there are no configs.
     renderIntegrationsSummary(data || []);
-    const list = document.getElementById('sync-active-list');
     if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No live sync configs yet. Add one above.</p>'; return; }
     const supabaseUrl = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     const whList = document.getElementById('webhook-url-list');
@@ -1593,7 +1680,7 @@
           <p style="font-size:.7rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:3px;">${escHtml(c.label || c.system_type)}</p>
           <div style="display:flex; gap:6px; align-items:center;">
             <code style="flex:1; background:rgba(0,0,0,0.3); padding:6px 10px; border-radius:6px; font-size:.7rem; color:var(--blue); word-break:break-all;">${escHtml(whUrl)}</code>
-            <button onclick="navigator.clipboard.writeText('${escHtml(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 10px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.68rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
+            <button onclick="navigator.clipboard.writeText('${escJsAttr(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 10px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.68rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
           </div>
         </div>`;
       }).join('');
@@ -1602,10 +1689,16 @@
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(c => {
       const statusColor = c.last_sync_status === 'success' ? 'var(--green)' : c.last_sync_status === 'failed' ? 'var(--red)' : 'var(--muted)';
       const lastSync = c.last_sync_at ? new Date(c.last_sync_at).toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Never';
+      // U2 (WCAG 1.4.1): failure must be conveyed by more than the red date color —
+      // add a visible "Failed" text badge (+ the error reason when available, escHtml'd).
+      const statusBadge = c.last_sync_status === 'failed'
+        ? ' <span style="display:inline-block; font-size:.6rem; font-weight:700; letter-spacing:.03em; color:var(--red); background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35); border-radius:999px; padding:1px 7px;">Failed</span>'
+          + (c.last_sync_error ? ' <span style="color:var(--red); font-size:.66rem;">' + escHtml(String(c.last_sync_error)) + '</span>' : '')
+        : '';
       return `<div class="card-sm" style="margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
         <div>
           <p style="font-size:.82rem; font-weight:700;">${escHtml(c.label || c.system_type)}</p>
-          <p style="font-size:.7rem; color:var(--muted);">${escHtml(c.system_type.toUpperCase())} · ${escHtml(c.sync_freq || 'manual')} · last: <span style="color:${statusColor};">${lastSync}</span>${c.last_sync_count ? ' · ' + c.last_sync_count + ' records' : ''}</p>
+          <p style="font-size:.7rem; color:var(--muted);">${escHtml(c.system_type.toUpperCase())} · ${escHtml(c.sync_freq || 'manual')} · last: <span style="color:${statusColor};">${lastSync}</span>${statusBadge}${c.last_sync_count ? ' · ' + c.last_sync_count + ' records' : ''}</p>
         </div>
         <div style="display:flex; gap:6px;">
           <button class="btn btn-blue" style="padding:6px 12px; font-size:.72rem;" onclick="runSync('${c.id}')">Run Now</button>
@@ -1626,8 +1719,12 @@
 
     const row = { hive_id: HIVE_ID, system_type: type, label: label || type, endpoint_url: url, auth_token: token || null, sync_freq: freq, enabled: true };
     if (_editingConfigId) {
-      const { error: updErr } = await db.from('integration_configs').update(row).eq('id', _editingConfigId);
+      // P6 optimistic concurrency: only overwrite if the connector hasn't changed since we loaded it.
+      let _q = db.from('integration_configs').update(row).eq('id', _editingConfigId);
+      if (_editingConfigUpdatedAt) _q = _q.eq('updated_at', _editingConfigUpdatedAt);
+      const { data: _updRows, error: updErr } = await _q.select('id');
       if (updErr) { showToast('Could not update config: ' + updErr.message); return; }
+      if (_updRows && _updRows.length === 0) { showToast('This connector was changed by someone else, reload and re-edit.'); return; }
     } else {
       const { error: insErr } = await db.from('integration_configs').insert(row);
       if (insErr) { showToast('Could not save config: ' + insErr.message); return; }
@@ -1658,7 +1755,7 @@
     const { data: inserted } = await db.from('integration_configs').insert(tmpRow).select('id').single();
     if (!inserted) { resEl.textContent = 'Could not create test config.'; return; }
 
-    const { data, error } = await db.functions.invoke('cmms-sync', { body: { config_id: inserted.id, test: true } });
+    const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: inserted.id, test: true } });
     await db.from('integration_configs').delete().eq('id', inserted.id);
 
     if (error || data?.results?.[0]?.error) {
@@ -1666,18 +1763,23 @@
       resEl.textContent = '✗ ' + (data?.results?.[0]?.error || error?.message || 'Connection failed');
     } else {
       resEl.style.background = 'rgba(74,222,128,0.08)'; resEl.style.border = '1px solid rgba(74,222,128,0.2)'; resEl.style.color = 'var(--green)';
-      resEl.textContent = '✓ Connected — found ' + (data?.results?.[0]?.synced || 0) + ' records. Ready to sync.';
+      resEl.textContent = '✓ Connected: found ' + (data?.results?.[0]?.synced || 0) + ' records. Ready to sync.';
     }
   }
 
+  const _runSyncBusy = new Set();
   async function runSync(configId) {
+    if (_runSyncBusy.has(configId)) return;   // A4: block double-submit → duplicate sync
+    _runSyncBusy.add(configId);
     showToast('Sync started...');
-    const { data, error } = await db.functions.invoke('cmms-sync', { body: { config_id: configId } });
-    if (error) { showToast('Sync error: ' + error.message); return; }
-    const r = data?.results?.[0];
-    if (r?.error) showToast('Sync failed: ' + r.error);
-    else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.');
-    loadSyncConfigs();
+    try {
+      const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: configId } });
+      if (error) { showToast('Sync error: ' + error.message); return; }
+      const r = data?.results?.[0];
+      if (r?.error) showToast('Sync failed: ' + r.error);
+      else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.');
+      loadSyncConfigs();
+    } finally { _runSyncBusy.delete(configId); }
   }
 
   function editConfig(configId) {
@@ -1686,6 +1788,7 @@
     // Pre-fill form from existing config
     db.from('integration_configs').select('*').eq('id', configId).single().then(({ data }) => {
       if (!data) return;
+      _editingConfigUpdatedAt = data.updated_at || null;   // P6: snapshot for optimistic concurrency
       document.getElementById('sc-label').value = data.label || '';
       document.getElementById('sc-type').value  = data.system_type || 'sap_pm';
       document.getElementById('sc-url').value   = data.endpoint_url || '';
@@ -1694,8 +1797,12 @@
   }
 
   // ── API Keys (Phase 5.3) ─────────────────────────────────────────────────
+  let _genKeyBusy = false;
   async function generateApiKey() {
+    if (_genKeyBusy) return;   // A4: block double-submit → duplicate api_keys row
     if (!HIVE_ID) { showToast('Join a hive first.'); return; }
+    _genKeyBusy = true;
+    try {
     const label = document.getElementById('api-key-label').value.trim() || 'API Key';
     // Generate a random key client-side: wh_ + 32 hex chars
     const arr = new Uint8Array(16);
@@ -1715,12 +1822,13 @@
     const resEl = document.getElementById('new-key-result');
     resEl.style.display = 'block';
     resEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 14px; margin-bottom:4px;">
-      <p style="font-size:.72rem; color:var(--green); font-weight:700; margin-bottom:6px;">✓ API key generated — copy it now, it won't be shown again.</p>
+      <p style="font-size:.72rem; color:var(--green); font-weight:700; margin-bottom:6px;">✓ API key generated: copy it now, it won't be shown again.</p>
       <code style="font-size:.78rem; color:var(--text); word-break:break-all;">${escHtml(rawKey)}</code>
-      <button onclick="navigator.clipboard.writeText('${escHtml(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Copy Key</button>
+      <button onclick="navigator.clipboard.writeText('${escJsAttr(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:.72rem; cursor:pointer; font-family:inherit;">Copy Key</button>
     </div>`;
     document.getElementById('api-key-label').value = '';
     loadApiKeys();
+    } finally { _genKeyBusy = false; }
   }
 
   async function loadApiKeys() {
@@ -1729,7 +1837,7 @@
     const list = document.getElementById('api-keys-list');
     if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(k => {
-      const last = k.last_used_at ? new Date(k.last_used_at).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : 'Never used';
+      const last = k.last_used_at ? whFmtDate(k.last_used_at, { year: false }) : 'Never used'; // FD1a canonical
       return `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); flex-wrap:wrap;">
         <div>
           <p style="font-size:.8rem; font-weight:600;">${escHtml(k.label || 'Unnamed')}</p>
@@ -1769,7 +1877,7 @@
         const vals  = Object.values(qs).filter(v => typeof v === 'number');
         const avgQ  = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
         const qColor = avgQ === null ? 'var(--muted)' : avgQ >= 80 ? 'var(--green)' : avgQ >= 60 ? '#fbbf24' : 'var(--red)';
-        const dt    = new Date(row.created_at).toLocaleDateString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        const dt    = whFmtDate(row.created_at, { time: true, year: false }); // FD1a canonical
 
         return `
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); flex-wrap:wrap;">
@@ -1777,7 +1885,7 @@
               <div style="font-size:.75rem; font-weight:600;">${escHtml(row.entity_type || 'work_order')} · ${escHtml((row.system_type || '').replace('sap_pm','SAP PM').replace('maximo','Maximo').replace('generic','Generic'))}</div>
               <div style="font-size:.62rem; color:var(--muted); margin-top:2px;">${dt} · ${row.rows_written} written${row.rows_failed ? ` · ${row.rows_failed} failed` : ''}${avgQ !== null ? ` · <span style="color:${qColor};">${avgQ}% quality</span>` : ''}</div>
             </div>
-            ${canUndo ? `<button onclick="rollbackBatch('${escHtml(row.batch_id)}','${escHtml(row.entity_type)}','${escHtml(row.triggered_by || '')}','${escHtml(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;">↩ Undo</button>` : `<span style="font-size:.6rem; color:var(--muted);">Expired</span>`}
+            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;">↩ Undo</button>` : `<span style="font-size:.6rem; color:var(--muted);">Expired</span>`}
           </div>`;
       }).join('');
     } catch (_) { /* cmms_audit_log may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
@@ -1798,8 +1906,10 @@
         .gte('last_synced_at', createdAt)
         .lte('last_synced_at', windowEnd);
 
-      // 2. Best-effort: delete matching target table rows created in the batch window
-      const targetTable = { work_order:'logbook', asset:'assets', inventory:'inventory_items', pm_schedule:'pm_assets' }[entityType];
+      // 2. Best-effort: delete matching target table rows created in the batch window.
+      // asset -> asset_nodes (the legacy 'assets' table was dropped in Phase 5c; the import
+      // writes asset_nodes at ~line 1219, so rolling back 'assets' silently no-op'd — C1 fix 2026-07-06).
+      const targetTable = { work_order:'logbook', asset:'asset_nodes', inventory:'inventory_items', pm_schedule:'pm_assets' }[entityType];
       if (targetTable && triggeredBy) {
         await db.from(targetTable)
           .delete()
@@ -1827,7 +1937,9 @@
     const listEl = document.getElementById('conflicts-list');
     if (!HIVE_ID) { listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Join a hive first.</div>'; return; }
 
-    listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Scanning for conflicts...</div>';
+    // G1 (FF1): canonical skeleton instead of the hand-rolled "Scanning..." text (kept as fallback).
+    if (typeof whListSkeleton === 'function') whListSkeleton(listEl, 3);
+    else listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--muted);">Scanning for conflicts...</div>';
 
     try {
       // Load external_sync work order statuses
@@ -1866,12 +1978,12 @@
       }
 
       if (!conflicts.length) {
-        listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--green);">✓ No conflicts found — SAP and WorkHive are in sync.</div>';
+        listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:.72rem; color:var(--green);">✓ No conflicts found: SAP and WorkHive are in sync.</div>';
         return;
       }
 
       listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div style="font-size:.68rem; color:var(--muted); margin-bottom:10px;">${conflicts.length} conflict${conflicts.length > 1 ? 's' : ''} detected — SAP and WorkHive disagree on status.</div>
+        <div style="font-size:.68rem; color:var(--muted); margin-bottom:10px;">${conflicts.length} conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.</div>
         ${conflicts.map(c => `
           <div style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:10px 12px; margin-bottom:8px;">
             <div style="font-size:.75rem; font-weight:700; margin-bottom:6px;">${escHtml(c.machine)}</div>
@@ -1880,8 +1992,8 @@
               <span style="font-size:.68rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
             </div>
             <div style="display:flex; gap:6px;">
-              <button onclick="resolveConflict('${escHtml(c.logId)}','${escHtml(c.extStatus)}','sap')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
-              <button onclick="resolveConflict('${escHtml(c.logId)}','${escHtml(c.logStatus)}','workhive')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
             </div>
           </div>`).join('')}`;
     } catch (e) {
@@ -1894,7 +2006,7 @@
       if (winner === 'sap') {
         // Update logbook to match SAP
         await db.from('logbook').update({ status }).eq('id', logId);
-        showToast('Resolved — logbook updated to match SAP.');
+        showToast('Resolved: logbook updated to match SAP.');
       } else {
         // Keep WorkHive — update external_sync to match logbook
         // (will be re-overwritten on next sync unless worker edits it again)
@@ -1918,5 +2030,24 @@
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </main>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('it-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'it-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'integration_configs + external_sync + logbook',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE={dismiss:'I-dismiss',starthere:'Simulan dito →',setupsync:'I-set up ang sync →',managekeys:'Pamahalaan ang keys →',pctitle:'Mga Koneksyon',whichcmms:'Aling CMMS ang ini-import mo?',nextupload:'Susunod: I-upload →'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

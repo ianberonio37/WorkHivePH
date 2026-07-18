@@ -89,7 +89,7 @@ AI_FNS = {
 # Files to skip (test runs, generated reports, etc.)
 SKIP_PARTS = {
     ".tmp", ".playwright-mcp", "node_modules", ".venv", "test-runs",
-    "tests", "playwright-report",
+    "tests", "playwright-report", "test-results",
 }
 
 

@@ -45,7 +45,7 @@
  * contract-allow: scheduled extractor writer; output schema documented above.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, trackHandled } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
@@ -121,7 +121,7 @@ async function alreadyExtracted(db: SupabaseClient, hiveId: string): Promise<Set
 
 // ── Server entry ──────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("semantic-fact-extractor", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -185,6 +185,7 @@ serve(async (req) => {
 
   const { data: rows, error: fetchErr } = await q;
   if (fetchErr) {
+    await trackHandled(req, "semantic-fact-extractor", "logbook_fetch_failed", fetchErr);
     return fail(ctx, "logbook_fetch_failed", fetchErr.message, { status: 500 });
   }
 
@@ -283,6 +284,7 @@ serve(async (req) => {
       .upsert(rowsToWrite, { onConflict: "hive_id,subject_ref,predicate,object_ref,source_ref", ignoreDuplicates: true })
       .select("id");
     if (upErr) {
+      await trackHandled(req, "semantic-fact-extractor", "upsert_failed", upErr);
       return fail(ctx, "upsert_failed", upErr.message, {
         status: 500, detail: { facts_extracted: factsExtracted, embedded },
       });

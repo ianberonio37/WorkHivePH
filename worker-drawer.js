@@ -122,7 +122,7 @@
       const recentBlock = recents.length
         ? recents.map(r => `
           <div class="row">
-            <span>${escHtml(r.machine || '—')}</span>
+            <span>${escHtml(r.machine || '-')}</span>
             <span style="font-weight:500;font-size:0.78rem;opacity:0.7;">${escHtml((r.problem || '').slice(0, 30))}</span>
           </div>`).join('')
         : '<div class="empty">No recent logbook activity</div>';

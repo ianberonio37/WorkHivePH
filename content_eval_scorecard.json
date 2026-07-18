@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-29T10:57:21+00:00",
+  "generated_at": "2026-07-05T06:49:08+00:00",
   "axes": {
     "freshness": 100.0,
     "coverage": 100.0,
@@ -7,7 +7,7 @@
     "grounding": 100.0
   },
   "signals": {
-    "articles": 38,
+    "articles": 43,
     "undated": 0,
     "total_drift": 0,
     "drift_checks_clean": "12/12",

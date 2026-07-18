@@ -1,19 +1,19 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_links": 241,
+    "pages_scanned": 28,
+    "total_links": 259,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "link_count": 62,
+      "link_count": 63,
       "broken": []
     },
     {
       "page": "hive.html",
-      "link_count": 15,
+      "link_count": 26,
       "broken": []
     },
     {
@@ -23,7 +23,7 @@
     },
     {
       "page": "inventory.html",
-      "link_count": 7,
+      "link_count": 11,
       "broken": []
     },
     {
@@ -33,7 +33,7 @@
     },
     {
       "page": "analytics.html",
-      "link_count": 8,
+      "link_count": 10,
       "broken": []
     },
     {
@@ -48,17 +48,17 @@
     },
     {
       "page": "community.html",
-      "link_count": 8,
+      "link_count": 11,
       "broken": []
     },
     {
       "page": "public-feed.html",
-      "link_count": 2,
+      "link_count": 3,
       "broken": []
     },
     {
       "page": "marketplace.html",
-      "link_count": 7,
+      "link_count": 9,
       "broken": []
     },
     {
@@ -87,11 +87,6 @@
       "broken": []
     },
     {
-      "page": "platform-health.html",
-      "link_count": 2,
-      "broken": []
-    },
-    {
       "page": "project-manager.html",
       "link_count": 8,
       "broken": []
@@ -112,13 +107,8 @@
       "broken": []
     },
     {
-      "page": "predictive.html",
-      "link_count": 7,
-      "broken": []
-    },
-    {
       "page": "ai-quality.html",
-      "link_count": 6,
+      "link_count": 7,
       "broken": []
     },
     {
@@ -128,12 +118,12 @@
     },
     {
       "page": "achievements.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {
       "page": "asset-hub.html",
-      "link_count": 11,
+      "link_count": 12,
       "broken": []
     },
     {

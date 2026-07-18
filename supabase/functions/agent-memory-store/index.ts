@@ -28,7 +28,7 @@
  * contract-allow: memory store CRUD; output schema documented above.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role memory ops.
@@ -62,7 +62,7 @@ void _warm;
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("agent-memory-store", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 

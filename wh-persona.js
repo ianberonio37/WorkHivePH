@@ -198,8 +198,10 @@
   // PWA-conscious: 256x256 progressive JPEGs (12KB each) generated from
   // the 2.2MB source PNGs at brand_assets/James.png + Rosa.png.
   const PORTRAIT_URLS = {
-    hezekiah: 'brand_assets/james-256.jpg',  // legacy filename, same artwork
-    zaniah:   'brand_assets/rosa-256.jpg',   // legacy filename, same artwork
+    // 2026-07-03: the legacy james-256.jpg / rosa-256.jpg were never created (404 on every
+    // page). Point at the real renamed portraits that DO exist in brand_assets.
+    hezekiah: 'brand_assets/hezekiah.png',
+    zaniah:   'brand_assets/zaniah.png',
   };
   const PORTRAIT_EMOJI = {
     hezekiah: '🧔',  // matches the existing voice-journal chip

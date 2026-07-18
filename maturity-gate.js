@@ -60,7 +60,7 @@
         currentStairName: 'Unknown',
         requiredStair,
         requiredStairName: STAIR_NAMES[requiredStair] || 'Unknown',
-        blockerSummary: 'No hive context — join or create a hive first.',
+        blockerSummary: 'No hive context: join or create a hive first.',
         evidence: {},
         compositeScore: null,
       };
@@ -84,7 +84,7 @@
         requiredStairName: STAIR_NAMES[requiredStair] || 'Industry Leader',
         blockerSummary: data
           ? (data.blocker_summary || `Reach Stair ${requiredStair} to unlock this surface.`)
-          : 'No readiness snapshot yet for your hive — the daily compute will populate it.',
+          : 'No readiness snapshot yet for your hive: the daily compute will populate it.',
         evidence: (data && data.evidence) || {},
         compositeScore: data ? Number(data.composite_score) : null,
       };
@@ -125,7 +125,7 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;')));
 
-    const cur = gate.currentStair == null ? '—' : String(gate.currentStair);
+    const cur = gate.currentStair == null ? '-' : String(gate.currentStair);
     const compChip = gate.compositeScore == null
       ? ''
       : `<span style="font-size:11px;color:rgba(255,255,255,0.5);margin-left:8px;">composite ${gate.compositeScore}/100</span>`;
@@ -135,29 +135,29 @@
       : '';
 
     el.innerHTML = `
-      <div style="max-width:680px;margin:32px auto;padding:24px;border-radius:16px;
+      <div role="status" aria-live="polite" style="max-width:680px;margin:32px auto;padding:24px;border-radius:16px;
                    background:linear-gradient(150deg, rgba(42,61,88,0.55), rgba(22,32,50,0.88));
                    border:1px solid rgba(255,255,255,0.08);">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
                        font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
                        background:rgba(255,184,0,0.16);color:#FDB94A;">
-            Honest Empty State
+            Locked
           </span>
-          <span style="font-size:11px;color:rgba(255,255,255,0.45);">
-            ${esc(opts.pageName || 'This surface')} unlocks at Stair ${esc(String(gate.requiredStair))} — ${esc(gate.requiredStairName)}
+          <span style="font-size:11px;color:rgba(255,255,255,0.62);">
+            Maturity Stairway
           </span>
         </div>
         <h1 style="font-size:1.15rem;font-weight:800;color:#F4F6FA;margin:6px 0 12px;">
-          We won't fake this.
+          ${esc(opts.pageName || 'This surface')} <span data-i="mg_unlocks_at">unlocks at Stair</span> ${esc(String(gate.requiredStair))}: ${esc(gate.requiredStairName)}
         </h1>
         <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin:0 0 14px;">
-          ${esc(opts.why || 'Producing this output on insufficient data would mislead you. WorkHive surfaces the gap honestly instead.')}
+          ${esc(opts.why || 'This view fills in once your hive has enough real data to make it accurate.')}
         </p>
         <div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.06);
                      border-radius:10px;padding:12px 14px;margin:14px 0;">
-          <p style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
-                     color:rgba(255,255,255,0.45);margin:0 0 6px;">Your hive right now</p>
+          <h2 data-i="mg_hive_now" style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
+                     color:rgba(255,255,255,0.62);margin:0 0 6px;">Your hive right now</h2>
           <p style="font-size:13px;color:#F4F6FA;line-height:1.55;margin:0;">
             <strong>Stair ${esc(cur)} · ${esc(gate.currentStairName)}</strong>${compChip}
           </p>
@@ -166,6 +166,17 @@
           </p>
         </div>
         ${altLine}
+        <details class="wh-help" style="margin:12px 0 0;font-size:12px;">
+          <summary style="cursor:pointer;font-weight:700;color:rgba(255,255,255,0.72);min-height:44px;display:inline-flex;align-items:center;">How the stairway works</summary>
+          <p style="margin:4px 0 0;color:rgba(255,255,255,0.72);line-height:1.55;">
+            Each stair is earned by real records. Stair 1 needs a steady logbook habit.
+            Stair 2 needs steady PM discipline. Stair 3 needs enough history for accurate analytics.
+            Keep logging and the snapshot moves on its own.
+          </p>
+        </details>
+        <p class="wh-source-chip" style="font-size:11px;color:rgba(255,255,255,0.6);margin:10px 0 0;line-height:1.4;">
+          Readiness &middot; from your hive&#39;s live records
+        </p>
         <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
           <a href="${esc(opts.linkBack || 'hive.html')}#maturity-stairway-card"
              style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;

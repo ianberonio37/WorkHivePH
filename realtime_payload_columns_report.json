@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 31,
-    "total_refs": 68,
+    "pages_scanned": 29,
+    "total_refs": 72,
     "total_drift": 0,
     "baseline": 0
   },
@@ -75,10 +75,6 @@
       "drift": []
     },
     {
-      "page": "platform-health.html",
-      "drift": []
-    },
-    {
       "page": "project-manager.html",
       "drift": []
     },
@@ -92,10 +88,6 @@
     },
     {
       "page": "project-report.html",
-      "drift": []
-    },
-    {
-      "page": "predictive.html",
       "drift": []
     },
     {

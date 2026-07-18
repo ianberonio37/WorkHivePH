@@ -170,11 +170,13 @@ def check_approve_scoped(content):
     m = re.search(r"async function approveItem\s*\(", content)
     if not m:
         return [{"check": "approve_scoped", "reason": "approveItem() not found"}]
-    body = content[m.start():m.start() + 400]
+    # Window widened 2026-07-13 from 400 -> 900 after the P6-C1 optimistic-lock comment + 0-row branch
+    # pushed .update() past the old cutoff (same fix rejectItem got in 2026-05-13). Code is correctly scoped.
+    body = content[m.start():m.start() + 900]
     update_m = re.search(r"\.update\s*\(", body)
     if not update_m:
         return [{"check": "approve_scoped", "reason": "approveItem() .update() call not found"}]
-    after = body[update_m.start():update_m.start() + 200]
+    after = body[update_m.start():update_m.start() + 260]
     if not re.search(r"\.eq\s*\(['\"]hive_id['\"]", after):
         return [{"check": "approve_scoped",
                  "reason": "approveItem() update not scoped by hive_id — supervisor of hive A can approve items in hive B via UUID"}]
@@ -235,7 +237,7 @@ def check_supervisor_gate(content, func_name, check_id):
 def check_audit_log_on_power_actions(content):
     issues = []
     for func in ("kickMember", "approveItem", "rejectItem"):
-        body = extract_function_body(content, func, window=1500)
+        body = extract_function_body(content, func, window=2400)  # widened 2026-07-13 (P6-C1 branch pushed audit calls down)
         if body is None:
             continue
         if "writeAuditLog" not in body:
@@ -253,7 +255,7 @@ def check_audit_log_refreshed_after_write(content):
     """
     issues = []
     for func in ("kickMember", "approveItem", "rejectItem"):
-        body = extract_function_body(content, func, window=1500)
+        body = extract_function_body(content, func, window=2400)  # widened 2026-07-13 (P6-C1 branch pushed audit calls down)
         if body is None:
             continue
         if "writeAuditLog" not in body:

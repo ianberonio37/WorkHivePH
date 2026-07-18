@@ -58,7 +58,7 @@
 | C6 | Acknowledge AMC alert | alert-hub.html |
 | C7 | Generate shift handover summary | shift-brain.html |
 
-## Tier 4 — Engineer flows (P1, 6 scenarios)
+## Tier 4 — Engineer flows (P1, 5 scenarios)
 
 | ID | Title | Surface |
 |---|---|---|
@@ -162,7 +162,7 @@
 | 1 | journey-auth-identity.spec.ts | 5 | shipped |
 | 2 | journey-worker-core.spec.ts | 8 | shipped |
 | 3 | journey-supervisor.spec.ts | 7 | shipped |
-| 4 | journey-engineer.spec.ts | 6 | shipped |
+| 4 | journey-engineer.spec.ts | 5 | shipped (D4_predictive retired 2026-07-01 — predictive.html removed) |
 | 5a | journey-project.spec.ts | 3 | shipped |
 | 5b | journey-marketplace.spec.ts | 5 | shipped |
 | 6 | journey-mobile-a11y.spec.ts | 6 | shipped |

@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -11,6 +12,9 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+// CL10 faithfulness rails (2026-07-08): numeric token-accuracy + action-fabrication strip.
+import { extractNumberCores } from "../_shared/numeric_provenance.ts";
+import { stripFalseActionClaims, ACTION_HONEST_CLARIFIER } from "../_shared/action_provenance.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -337,12 +341,79 @@ Respond only in JSON: { "answer": "your response here" }`;
 const COACH_AGENTS = ["failure_analysis", "pm_status", "inventory_risk", "predictive"] as const;
 
 const COACH_SYNTH_SYSTEM = `You are a reliability engineer giving a plant supervisor their weekly action plan.
-Based on the agent data, give EXACTLY 3 specific, prioritized actions to take this week.
-Rules: name actual machines (use the exact IDs from the data). Be concrete — "schedule bearing inspection on P-003" not "check pumps".
+Based on the agent data, give UP TO 3 specific, prioritized actions to take this week.
+Rules: every "machine" value MUST be an asset ID/name that appears VERBATIM in the agent data above — copy it exactly. NEVER invent, guess, or generalize an asset ID (no "PSV-001" unless that exact tag is in the data). If the data names fewer than 3 assets, return FEWER actions (or an action with machine:"" for a general practice) rather than inventing one to fill the slot — a fabricated machine ID is worse than a short list. Be concrete — "schedule bearing inspection on P-003" not "check pumps". This rule holds in every language, including Tagalog.
 Urgency levels: TODAY (safety/critical failure risk), THIS WEEK (high risk if ignored), MONITOR (watch closely).
 Respond only in JSON: { "actions": [{ "priority": 1, "action": "...", "machine": "...", "why": "...", "urgency": "TODAY|THIS WEEK|MONITOR" }] }`;
 
+// ── CAPABILITY BOUNDS (Family R — capability honesty) ─────────────────────────
+// The assistant/orchestrator is an ANALYSIS + advice brain, NOT an action service. Deep-walk
+// 2026-07-07 found it answered "order 5 parts and pay for them" with the generic no-agents
+// fallback ("couldn't find enough data") — a misleading DATA excuse for a CAPABILITY boundary.
+// The companion (voice-journal-agent) already handles this via its CAPABILITY BOUNDS prompt clause;
+// port the intent here as a deterministic pre-check (WAT: code detects the boundary, not the LLM,
+// so an 8B model can't be coaxed into "I ordered it"). Conservative: needs an explicit external-
+// action verb + object, so legit maintenance actions ("schedule a PM", "order of work") don't match.
+const CAPABILITY_RE = /\b(order|buy|purchase)\b[^.?!]*\b(part|parts|set|sets|unit|units|supplier|vendor|for me)\b|\bpay\b[^.?!]*\b(for|them|it|the invoice|online|now)\b|\bsend\b[^.?!]*\b(e-?mail|text|sms|message)\b|\b(call|phone)\b[^.?!]*\b(supplier|vendor|him|her|them|technician)\b|\bbook\b[^.?!]*\b(visit|appointment|technician|service)\b|\bschedule\b[^.?!]*\bvisit\b|\bgrant\b[^.?!]*\b(access|permission)\b|\bprocess\b[^.?!]*\bpayment\b/i;
+const CAPABILITY_DISCLAIMER = "I can't place orders, buy parts, send emails or texts, make calls, book visits, process payments, or grant access from here — and I won't pretend I did. What I CAN do: draft the message or purchase request for you to send, tell you exactly what to say to the vendor, or point you to the right page or person (the Inventory page, your supplier, or your supervisor). Want me to draft it?";
+
+// CL5 (2026-07-08): a question that REFERENCES the prior conversation ("what did I just tell you",
+// "remind me what I set", "repeat that") should be answered from the working buffer, not deflected with
+// "not enough data" when the DB agents return nothing. This gates the memory-fallthrough below so it fires
+// ONLY for recall-shaped questions — gibberish and genuine new-data questions with no data still deflect
+// honestly (not answered from stale, unrelated memory). Conservative: needs an explicit reference marker.
+const RECALL_RE = /\bremind me\b|\brepeat (that|it|what)\b|\b(what|which|how much|how many)\b[^.?!]*\bi (just )?(said|told|gave|set|mentioned|asked|noted|typed|wrote)\b|\byou (just )?(said|told|gave|mentioned|noted)\b|\bwhat did i\b|\bwhat was the\b[^.?!]*\bi\b|\bi (just )?(told|gave|mentioned|set|noted) you\b|\bearlier\b/i;
+
+// CL10 faithfulness rail (2026-07-08). Live-caught: asked for an "exact planned-vs-reactive ratio", the
+// free-tier model INVENTED "41% planned, 59% reactive" and dressed it as "from recent records / I've
+// pulled the numbers here" — the hive has NO computed such ratio (real split ~58/41, and it inverted it).
+// This does NOT strip the number (that risks garbling a LEGIT figure) — it neutralizes the false
+// "from records" PROVENANCE claim ONLY when the answer asserts a percentage that does NOT appear in the
+// grounding set (agent results + semantic context + conversation memory). Conservative by construction:
+// a grounded % keeps its provenance; an ungrounded % with no provenance phrase is left as a plain estimate.
+const PROVENANCE_RE = /\b(from (?:recent )?records|i(?:'ve| have) pulled (?:up )?the numbers(?: here)?|based on (?:your |the )?records|from your (?:logbook|records|data|numbers))\b/gi;
+// A possessive CURRENT-STATE metric claim: "your … 41%", "41% of your …", "your ratio/split/rate is 41%".
+// This is the frame that separates a fabricated YOUR-DATA metric from a legit BENCHMARK ("world-class is
+// 85%") or domain ADVICE ("torque to 300 Nm"). Kept %-only so bare unit-constant advice (Nm/mm/hours)
+// survives untouched — an advisory assistant must keep those.
+const POSSESSIVE_CURRENT_STATE_RE = /\byour\b[^.?!]*\d{1,3}(?:\.\d+)?\s?%|\d{1,3}(?:\.\d+)?\s?%[^.?!]*\bof your\b|\byour\b[^.?!]*\b(?:ratio|split|rate|percentage|breakdown|uptime|downtime)\b[^.?!]*\d/i;
+const BENCHMARK_FRAME_RE = /\b(?:world[- ]class|benchmark|industry|typical(?:ly)?|generally|usually|standard|rule of thumb|on average|best[- ]in[- ]class)\b/i;
+// CL10 numeric rail (2026-07-08, hardened). Fixes two confirmed gaps in the old phrase-only rail:
+//  (a) coincidental-substring FALSE-NEGATIVE — token-accurate grounding via extractNumberCores so a stray
+//      "41" in an agent field no longer makes a fabricated "41%" look grounded (a "78" can't trace to "1780");
+//  (b) NO-provenance form — "Your split is 41% planned." (no "from records" phrase → the old rail was a
+//      no-op) now gets an honest hedge when the % is ungrounded, possessive-current-state framed, and NOT a
+//      benchmark. Conservative: a grounded % is left as-is; benchmarks + unit-constant advice are untouched.
+function stripFalseKpiProvenance(answer: string, grounding: string): string {
+  if (!answer) return answer;
+  const pcts = answer.match(/\b\d{1,3}(?:\.\d+)?\s?%/g) || [];
+  if (!pcts.length) return answer;
+  const groundedCores = new Set(extractNumberCores(grounding || ""));
+  const anyUngrounded = pcts.some(p => {
+    const core = p.replace(/[^\d.]/g, "").replace(/\.$/, "");
+    return core && !groundedCores.has(core);
+  });
+  if (!anyUngrounded) return answer;                                   // every % traces → leave as-is
+  // (1) neutralize a false provenance phrase ("from records") on the ungrounded %.
+  const neutralized = answer.replace(PROVENANCE_RE, "(though I don't have that exact figure computed)");
+  if (neutralized !== answer) return neutralized;
+  // (2) no-provenance form: an ungrounded % asserted as the worker's CURRENT-STATE metric, no phrase to
+  // neutralize and no benchmark framing → still a confidently-wrong number. Hedge honestly (don't strip a
+  // possibly-legit sentence — append the caveat once).
+  if (POSSESSIVE_CURRENT_STATE_RE.test(answer) && !BENCHMARK_FRAME_RE.test(answer)) {
+    return `${answer.trim()} (Note: I don't have that exact figure computed from your records — treat it as a rough estimate, not a measured value.)`;
+  }
+  return answer;
+}
+
 async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient, mode = "chat", memoryBlock = "") {
+
+  // Family R: an out-of-scope ACTION request gets an honest capability disclaimer + the real
+  // alternative — never a "not enough data" deflection and never a faked action. (chat mode only;
+  // coach mode is a fixed weekly-plan render that never carries an action ask.)
+  if (mode !== "coach" && CAPABILITY_RE.test(question || "")) {
+    return { answer: CAPABILITY_DISCLAIMER, agents_used: [] };
+  }
 
   // Coach mode: always run 4 core agents, skip router
   let agentsToRun: string[];
@@ -378,7 +449,18 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     .map(r => (r as PromiseFulfilledResult<Record<string, unknown>>).value);
 
   if (!successfulResults.length) {
-    return { answer: "I couldn't find enough data to answer that yet. Add more logbook entries, PM completions, or skill badges to build up your knowledge base.", agents_used: agentsToRun };
+    // CL5 fix (2026-07-08): a "what did I just tell you?" / reference-recall question makes the router
+    // pick a specialist that returns no HIVE data — but the answer lives in the CONVERSATION memory the
+    // gateway forwarded, not in a DB agent. Deflecting "not enough data" here (before synthesis) is why
+    // the Work Assistant had NO multi-turn recall while the voice-journal companion did. So only deflect
+    // when there is genuinely nothing to draw on (no agent data AND no conversation memory); otherwise
+    // FALL THROUGH to the memory-grounded synthesis below (resultsText is empty, memoryPrefix carries the
+    // prior turns) so the assistant answers conversationally from the working buffer.
+    const hasMemory = !!(memoryBlock && memoryBlock.trim());
+    if (!(hasMemory && RECALL_RE.test(question || ""))) {
+      return { answer: "I couldn't find enough data to answer that yet. Add more logbook entries, PM completions, or skill badges to build up your knowledge base.", agents_used: agentsToRun };
+    }
+    // else: a recall/reference question WITH conversation memory → fall through to memory-grounded synthesis.
   }
 
   // Step 3: Fetch semantic context from knowledge base (RAG)
@@ -420,8 +502,31 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   // Coach mode: use dedicated synthesis prompt, return action plan
   if (mode === "coach") {
     const coachRaw = await callGroq(synthPrompt, COACH_SYNTH_SYSTEM);
-    let actions: unknown[] = [];
+    let actions: Record<string, unknown>[] = [];
     try { actions = JSON.parse(coachRaw).actions || []; } catch { /* use empty */ }
+    // WAT deterministic guard (FB4 grounding eval, 2026-07-01): the free-tier model keeps a
+    // strong prior to invent a plausible asset ID (e.g. "PSV-001") to fill an action slot even
+    // when the prompt forbids it. The probabilistic model PROPOSES; deterministic code VERIFIES
+    // — strip any `machine` that is an asset-tag shape NOT present in this hive's real assets, so
+    // no fabricated equipment ID ever reaches the supervisor's action plan. A blank machine is
+    // safer than a hallucinated one. Verified live: drives the coach fabrication count toward 0.
+    if (hiveId && actions.length) {
+      try {
+        const { data: assetRows } = await db.from("v_asset_truth").select("tag").eq("hive_id", hiveId);
+        const realTags = new Set((assetRows || []).map((r: { tag?: string }) => String(r.tag || "").toUpperCase()).filter(Boolean));
+        if (realTags.size) {
+          const tagShape = /\b[A-Z]{2,4}-\d{2,4}\b/g;
+          for (const a of actions) {
+            const m = String(a.machine || "").trim();
+            const tags = (m.toUpperCase().match(tagShape) || []);
+            if (tags.length && tags.some((t) => !realTags.has(t))) {
+              a.machine = "";
+              a._machine_dropped = "fabricated asset ID removed (not in this hive's assets)";
+            }
+          }
+        }
+      } catch { /* best-effort guard — never block the action plan on the lookup */ }
+    }
     return { mode: "coach", actions, agents_used: agentsToRun };
   }
 
@@ -438,6 +543,17 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
       answer = formatStructuredAnswer(parsed);
     }
   } catch { /* use fallback */ }
+
+  // CL10 faithfulness rails (2026-07-08): (1) neutralize/hedge an ungrounded KPI %, then (2) strip any
+  // fabricated COMPLETED-write claim ("Log entry added", "Updated maintenance record"). The assistant is
+  // read-only advisory; a false "I did X" is trust-breaking in a maintenance context. Live-caught 2026-07-08.
+  answer = stripFalseKpiProvenance(answer, `${resultsText}\n${semanticContext}\n${memoryBlock || ""}`);
+  const actionGate = stripFalseActionClaims(answer);
+  if (actionGate.hit) {
+    answer = (actionGate.clean && actionGate.clean.length >= 15)
+      ? `${actionGate.clean}\n\n${ACTION_HONEST_CLARIFIER}`
+      : `I can't write to your records from here. ${ACTION_HONEST_CLARIFIER}`;
+  }
 
   return { answer, agents_used: agentsToRun, raw_results: successfulResults };
 }
@@ -497,7 +613,12 @@ async function resolveDisplayName(db: SupabaseClient, jwt: string): Promise<stri
   }
 }
 
-serve(async (req) => {
+serveObserved("ai-orchestrator", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "ai-orchestrator", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -594,9 +715,7 @@ serve(async (req) => {
 
   } catch (err) {
     log.error(null, "ai-orchestrator error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "ai-orchestrator", "ai_orchestrator_error", err);
   }
 });

@@ -16,7 +16,8 @@
  *   narrative      — AI-written executive summary + section insights
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -192,7 +193,9 @@ Most common failure causes (ISO 14224:2016 failure mode taxonomy): ${JSON.string
 
 Parts chronically low across multiple plants: ${JSON.stringify(data.chronic_low_stock)}
 
-Write the report narrative sections.`;
+Monthly corrective-failure counts over the last 12 months (typhoon_season flags Jun-Nov): ${JSON.stringify((data.seasonal as unknown[])?.slice(-12))}
+
+Write the report narrative sections. For seasonal_insight, ground every month/number in the monthly counts above — do NOT assert a seasonal pattern the data does not show.`;
 
   try {
     const raw  = await callAI(prompt, { systemPrompt: NARRATIVE_SYSTEM, temperature: 0.3, maxTokens: 800, jsonMode: true });
@@ -206,11 +209,22 @@ Write the report narrative sections.`;
     if (!parsed || !parsed.executive_summary) throw new Error("ai_empty_narrative");
     return parsed;
   } catch {
+    // Deterministic fallback when every AI provider is down. Every claim must still be
+    // TRUE for THIS dataset — don't hardcode a seasonal/failure assertion the data may
+    // not show (arc AI2b/AI3). Derive the seasonal + failure lines from the real inputs.
+    const seas = (data.seasonal as Array<{ month: string; count: number; typhoon_season: boolean }>) || [];
+    const peak = seas.slice().sort((a, b) => b.count - a.count)[0];
+    const modes = (data.failure_modes as Array<Record<string, unknown>>) || [];
+    const topMode = modes[0]?.root_cause ?? modes[0]?.mode ?? null;
     return {
       executive_summary: `WorkHive analyzed ${(data.summary as Record<string, unknown>)?.work_orders || 0} maintenance records across ${(data.summary as Record<string, unknown>)?.active_hives || 0} Philippine industrial plants in this period.`,
       mtbf_insight:      "Equipment reliability data is being accumulated. Full MTBF benchmarks require 3+ months of continuous data.",
-      failure_insight:   "Wear and lubrication failure remain the dominant root causes across equipment categories.",
-      seasonal_insight:  "Typhoon season (June–November) correlates with elevated bearing and electrical failure rates due to humidity and flooding.",
+      failure_insight:   topMode
+        ? `The most frequently logged root cause across the network this period is ${topMode}.`
+        : "Root-cause data is still being accumulated across the network.",
+      seasonal_insight:  peak
+        ? `Corrective failures peaked in ${peak.month} (${peak.count} across the network)${peak.typhoon_season ? ", within the Jun-Nov typhoon season" : ""}. Continue tracking monthly to confirm any seasonal pattern.`
+        : "Not enough monthly history yet to identify a seasonal failure pattern; continue logging to build the 12-month trend.",
       recommendation:    "Plants below the network MTBF average should review PM intervals and lubrication schedules for high-frequency breakdown equipment.",
     };
   }
@@ -220,7 +234,12 @@ Write the report narrative sections.`;
 // Entry point
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("intelligence-report", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "intelligence-report", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "intelligence-report");  // I6 observability
@@ -273,8 +292,7 @@ serve(async (req) => {
       { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "intelligence-report", "intelligence_report_error", err);
   }
 });

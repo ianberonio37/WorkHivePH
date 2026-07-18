@@ -65,7 +65,7 @@
       outline: none;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -177,7 +177,7 @@
       overflow-y: auto;
     }
     .chat-textarea:focus { border-color: rgba(247,162,27,0.4); }
-    .chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .chat-textarea::placeholder { color: rgba(255,255,255,0.62); }
 
     /* Toast */
     .toast {
@@ -216,7 +216,7 @@
     .key-toggle {
       background: transparent;
       border: none;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.62);
       cursor: pointer;
       padding: 0 0.5rem;
       transition: color 0.2s;
@@ -237,7 +237,7 @@
 
       <!-- Back nav -->
       <div class="flex items-center justify-between mb-8">
-        <button onclick="handleBack()" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+        <button onclick="handleBack()" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
           </svg>
@@ -245,7 +245,7 @@
         </button>
         <div class="flex items-center gap-2">
           <div class="w-2 h-2 rounded-full" style="background:#F7A21B;"></div>
-          <span class="text-xs text-white/40 font-medium tracking-wide uppercase">Stage 1</span>
+          <span class="text-xs text-white/60 font-medium tracking-wide uppercase">Stage 1</span>
         </div>
       </div>
 
@@ -257,24 +257,29 @@
           </svg>
         </div>
         <h1 class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
-        <p class="text-sm text-white/50">Ask anything: technical, operational, planning, safety, or your own job history.</p>
+        <p class="text-sm text-white/60">Ask anything: technical, operational, planning, safety, or your own job history.</p>
       </div>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.</p>
+</details>
+<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
 
         <!-- Worker name -->
         <div>
-          <label for="worker-name" class="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Your Name</label>
+          <label for="worker-name" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Your Name</label>
           <input id="worker-name" type="text" class="wh-input" aria-describedby="name-error" placeholder="e.g. Juan dela Cruz" required aria-required="true" maxlength="80" />
           <p role="alert" aria-live="assertive" id="name-error" class="error-text">Please enter your name.</p>
         </div>
 
         <!-- Today's context (optional) -->
         <div>
-          <label for="today-context" class="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">
+          <label for="today-context" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">
             Today's Context
-            <span class="text-white/30 normal-case font-normal ml-1">(optional)</span>
+            <span class="text-white/60 normal-case font-normal ml-1">(optional)</span>
           </label>
           <textarea id="today-context" class="wh-input" rows="4" maxlength="500" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
         </div>
@@ -283,7 +288,7 @@
         <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
           <p class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
-          <p id="empty-records-nudge" class="text-xs text-white/40 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
+          <p id="empty-records-nudge" class="text-xs text-white/60 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
         </div>
 
       </div>
@@ -293,13 +298,13 @@
         Start Chat
       </button>
 
-      <p class="text-center text-xs text-white/25 mt-4">Powered by WorkHive AI</p>
+      <p class="text-center text-xs text-white/60 mt-4">Powered by WorkHive AI</p>
 
     </div>
   </div>
 
   <!-- ───────── CHAT SCREEN ───────── -->
-  <!-- starts HIDDEN via .screen (display:none) — the inline display:flex used to
+  <!-- starts HIDDEN via .screen (display:none): the inline display:flex used to
        override the class, painting chat-screen 100dvh tall at first paint next to
        the active setup-screen, then showScreen() collapsed it = ~1.0 CLS (Arc L L1).
        showScreen('chat-screen') sets display:flex when activated (line ~442). -->
@@ -307,17 +312,18 @@
 
     <!-- Chat header -->
     <div class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);">
-      <button onclick="handleBack()" class="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+      <button onclick="handleBack()" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
         Setup
       </button>
       <div class="flex items-center gap-2">
+        <h1 style="margin:0;font-size:0.85rem;font-weight:700;" data-i="chattitle">Work Assistant</h1>
         <div class="w-2 h-2 rounded-full animate-pulse" style="background:#4ade80;"></div>
         <span id="chat-worker-name" class="text-sm font-semibold text-white/80"></span>
       </div>
-      <button onclick="clearChat()" class="text-xs text-white/60 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;">New Chat</button>
+      <button onclick="clearChat()" class="text-xs text-white/60 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;" data-i="newchat">New Chat</button>
     </div>
 
     <!-- Companion Streamline Step C: tab strip [Chat | Journal].
@@ -331,13 +337,13 @@
       <button id="tab-chat" type="button" role="tab" aria-selected="true"
               onclick="switchAssistantTab('chat')"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;">
+              style="background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
         Chat
       </button>
       <button id="tab-journal" type="button" role="tab" aria-selected="false"
               onclick="switchAssistantTab('journal')"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:transparent; color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;">
+              style="background:transparent; color:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_journal">
         Journal
       </button>
     </div>
@@ -347,7 +353,7 @@
       <!-- messages rendered here -->
     </div>
 
-    <!-- Journal tab body — embedded voice-journal.html.
+    <!-- Journal tab body: embedded voice-journal.html.
          allow="microphone" preserves recording permission inside the iframe.
          Lazy-loaded: src is set only when the worker first clicks Journal. -->
     <iframe id="journal-frame"
@@ -373,7 +379,7 @@
           </svg>
         </button>
       </div>
-      <p class="text-center text-[10px] text-white/20 mt-2">Powered by WorkHive AI</p>
+      <p class="text-center text-[10px] text-white/60 mt-2">Powered by WorkHive AI</p>
     </div>
 
   </div>
@@ -386,7 +392,7 @@
   <script src="wh-capture-validate.js"></script>
   <script>
     /*
-     * SENTINEL CONTRACT — assistant.html L2 anchors.
+     * SENTINEL CONTRACT: assistant.html L2 anchors.
      *
      * Each token below must remain greppable in this page source so the
      * sentinel scenarios in tests/assistant.spec.ts pass. Removing a
@@ -405,7 +411,7 @@
      * (search for data-l2-anchor="ai-disclaimer").
      */
     const ASSISTANT_L2_ANCHORS = {
-      ai_source: 'workhive-assistant cloudflare worker (model-label: groq via Groq llama-3.x; reply generated by upstream chain)',
+      ai_source: 'ai-gateway (one front door: tenancy + PII redaction + rate-limit + memory; agent=assistant→ai-orchestrator, fallback agent=voice-journal; free-tier model chain)',
       conversation_type: 'voice|text|capture',   // chat_type / message_type taxonomy
       CALC_TYPES_count: 0,                       // calcTypes count surfaced from registry
       automation_log_table: 'automation_log',    // ai_run_log mirror; pipeline monitor refreshes hourly
@@ -414,8 +420,10 @@
     };
 
     // ── Config ────────────────────────────────────────────────────
-    const WORKER_URL    = 'https://workhive-assistant.ian-beronio37.workers.dev';
+    // (K1 2026-07-12: the public workhive-assistant Cloudflare Worker fallback was
+    //  retired — every AI turn now routes through ai-gateway. WORKER_URL removed.)
     const SUPABASE_URL  = 'https://hzyvnjtisfgbksicrouu.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon/publishable key: safe to expose in frontend
 
     // ── Storage keys ──────────────────────────────────────────────
     const KEY_WORKER = 'wh_last_worker';
@@ -472,7 +480,7 @@
         _journalLoaded = true;
       }
       const onStyle  = 'background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30);';
-      const offStyle = 'background:transparent; color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.10);';
+      const offStyle = 'background:transparent; color:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.10);';
       if (tabChat)  { tabChat.setAttribute('style',  isJournal ? offStyle : onStyle);  tabChat.setAttribute('aria-selected',  isJournal ? 'false' : 'true'); }
       if (tabJourn) { tabJourn.setAttribute('style', isJournal ? onStyle  : offStyle); tabJourn.setAttribute('aria-selected', isJournal ? 'true' : 'false'); }
     }
@@ -488,9 +496,16 @@
 
     // ── Load records summary on setup screen ──────────────────────
     async function loadRecordsSummary() {
+      // G1 (FF1): canonical skeleton while the record counts load (first load only).
+      const _rl = document.getElementById('records-list');
+      if (_rl && !_rl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_rl, 3);
       const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
       let logbookCount = 0;
       if (name) {
+        // Cold-load 401 sibling (matches buildSystemPrompt's fix): restoreIdentityFromSession
+        // is fire-and-forget, so this count can race the JWT attach on a fresh device and 401
+        // → a false "0 records" + empty-nudge. getUser() settles the client's auth first.
+        try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; count degrades to 0 */ }
         const [l] = await Promise.all([
           db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name),
         ]);
@@ -506,7 +521,7 @@
 
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(i => `
         <div class="flex items-center justify-between">
-          <span class="text-xs text-white/50">${i.label}</span>
+          <span class="text-xs text-white/60">${i.label}</span>
           <span class="text-xs font-bold" style="color:${i.color}">${i.count} record${i.count !== 1 ? 's' : ''}</span>
         </div>
       `).join('');
@@ -524,6 +539,15 @@
       // so the system prompt does not balloon past the model's
       // context budget.
       const journalSince = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      // Cold-load auth settle (2026-07-12): buildSystemPrompt runs on page load to PRIME the
+      // assistant's grounding. getSession() (used elsewhere on this page) resolves the token
+      // from storage, but on a cold load supabase-js may not have attached the JWT to its
+      // PostgREST client yet, so these 6 RLS reads 401 and the system prompt is built with
+      // EMPTY records -> the assistant answers UNGROUNDED for the session, silently (live-caught:
+      // v_logbook_truth + analytics_events 401 on cold load). getUser() forces a validated
+      // round-trip that settles the client's auth before the reads. Best-effort: a genuinely
+      // signed-out user still degrades to the empty-records path exactly as before.
+      try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; reads degrade to empty */ }
       const [lRes, sRes, skillRes, invRes, pmRes, jRes] = await Promise.all([
         db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
         db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
@@ -544,7 +568,7 @@
       const journals = jRes.data || [];
 
       const fmtDate = iso => {
-        try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); }
+        try { return whFmtDate(iso); } // FD1a canonical
         catch { return iso; }
       };
 
@@ -571,26 +595,26 @@
           }).join('\n')
         : 'No schedule items in this window.';
 
-      // Skill summary — compact one-liner per discipline
+      // Skill summary: compact one-liner per discipline
       const LEVEL_NAMES = ['', 'Awareness', 'Foundational', 'Competent', 'Proficient', 'Master'];
       const skillText = skills.length
         ? skills.map(s => `${s.discipline}: Level ${s.level} (${LEVEL_NAMES[s.level] || 'L' + s.level})`).join(' | ')
         : 'No skill badges earned yet.';
 
-      // PM health — registered assets with schedules in this hive
+      // PM health: registered assets with schedules in this hive
       const pmText = pmAssets.length
         ? 'Assets with PM schedules: ' + pmAssets.map(a => `${a.asset_name} (${a.category || 'General'})`).join(', ') + '. Check PM Scheduler for overdue and due-soon tasks.'
-        : hiveIdCtx ? 'No PM assets registered in this hive yet.' : 'Not in a hive — no PM schedule visible.';
+        : hiveIdCtx ? 'No PM assets registered in this hive yet.' : 'Not in a hive: noPM schedule visible.';
 
-      // Low-stock inventory — only items at or below min_qty (reorder threshold)
+      // Low-stock inventory: only items at or below min_qty (reorder threshold)
       const lowStock = invItems.filter(i => i.qty_on_hand != null && (i.min_qty != null ? i.qty_on_hand <= i.min_qty : i.qty_on_hand <= 2));
       const invText = lowStock.length
         ? lowStock.slice(0, 5).map(i => `${i.part_name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.min_qty != null ? ' (reorder at ' + i.min_qty + ')' : ' (LOW)'}`).join(' | ')
-        : hiveIdCtx ? 'All inventory items are adequately stocked.' : 'Not in a hive — no shared inventory visible.';
+        : hiveIdCtx ? 'All inventory items are adequately stocked.' : 'Not in a hive: noshared inventory visible.';
 
       // Companion Streamline Step D: condensed journal context so the
       // assistant can answer "what did I write about yesterday?" without
-      // a tool call. Trim hard — voice journals can be long.
+      // a tool call. Trim hard: voice journals can be long.
       const journalText = journals.length
         ? journals.map(j => {
             const dt = (j.created_at || '').slice(0, 10);
@@ -600,7 +624,7 @@
         : 'No recent journal entries.';
 
       const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-      const todayReadable = new Date().toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const todayReadable = whFmtDate(new Date(), { long: true, weekday: 'long' }); // FD1a canonical
 
       return `You are a personal work assistant for an industrial worker named ${name}, built into the WorkHive platform.
 TODAY'S DATE: ${todayReadable} (${todayISO}). Use this as your reference for "today", "tomorrow", "yesterday", etc.
@@ -617,26 +641,26 @@ WorkHive is the Operational Readiness Layer for Filipino industrial plants.
 If a worker asks you to do something that contradicts this doctrine (e.g. "show me predictive analytics" on a Stair 0 hive), respond honestly: explain what's needed to unlock it, suggest the closest available capability, and link to the Maturity Stairway. Never fabricate a prediction. Never promise capability the hive hasn't earned. Honesty is the moat.
 
 --- PLATFORM CONTEXT ---
-WorkHive is the Operational Readiness Layer for Filipino industrial plants — free at the worker tier, maturity-gated for advanced capabilities, designed for field workers and their teams (technicians to plant managers).
+WorkHive is the Operational Readiness Layer for Filipino industrial plants: free at the worker tier, maturity-gated for advanced capabilities, designed for field workers and their teams (technicians to plant managers).
 
-STAGE 1 — Core Tools:
+STAGE 1: Core Tools:
 - Digital Logbook (logbook.html): Log daily jobs: machine, problem, root cause, action, downtime, parts used. Breakdown entries require failure consequence (Hidden/Running reduced/Safety risk/Stopped production per SAE JA1011), support sensor readings, and capture production output (good units/total units for OEE quality). Link to registered assets. AI-assist: Speak to Fill (voice-logbook-entry) and Photo Defect Capture (visual-defect-capture, multimodal vision with asset-tag OCR + fault_knowledge embed for RAG).
-- Day Planner (dayplanner.html): DILO/WILO/MILO/YILO scheduler — daily, weekly, monthly, yearly planning.
+- Day Planner (dayplanner.html): DILO/WILO/MILO/YILO scheduler: daily, weekly, monthly, yearly planning.
 - Voice Journal (voice-journal.html): Private spoken journal. Tap to talk in any language (English, Filipino/Tagalog, Cebuano, Ilocano); Whisper auto-detects, replies are spoken back via the browser, and entries are remembered across sessions via agent_memory.
 - This Assistant (assistant.html): Technical questions, job record insights, planning help.
 
-STAGE 2 — Team Tools:
+STAGE 2: Team Tools:
 - Hive Board (hive.html): Team workspace. Live feed of entries and PM completions. Supervisors manage membership, approve parts/assets, view PM health and MTBF/MTTR metrics.
 - Inventory (inventory.html): Parts ledger. Use/restock stock. Hive mode requires supervisor approval for new items.
 - PM Scheduler (pm-scheduler.html): Register assets, assign PM checklists by category, set frequencies (Monthly/Quarterly/Semi-Annual/Yearly). Completing a PM can auto-create a logbook entry. Logbook and PM Scheduler are bidirectionally linked.
 - Skill Matrix (skillmatrix.html): 5-level competency tracking (Awareness→Master) across Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines disciplines. Exams, badges, radar chart, team skill coverage.
 - Resume / CV Builder (resume.html): Build a professional, ATS-friendly resume from your WorkHive skills, badges and logbook. Upload a photo, PDF, Word, or Excel file; AI fills the details into an editable checklist you control. Export to PDF or JSON.
 - Engineering Calculator (engineering-design.html): 46 calculation types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, Machine Design, Vertical Transportation. Each generates a report with BOM/SOW. Built to PEC 2017, PSME, NFPA, IEC, ISO, ASME, DOLE OSHS.
-- Analytics Engine (analytics.html): 4-phase dashboard — (1) Descriptive: MTBF/MTTR (ISO 14224), OEE (ISO 22400-2 / Nakajima TPM), PM Compliance (SMRP), Pareto. (2) Diagnostic: failure modes (IEC 60812 FMEA), PM-failure correlation, RCM consequence classification (SAE JA1011). (3) Predictive: next failure date, health score 0-100, sensor anomaly detection (Z-score 3-sigma), stockout forecast (ISO 13381-1). (4) Prescriptive: priority ranking, PM optimization, AI action plan (ISO 55000). Run with 30/90/180 days or 1 year.
+- Analytics Engine (analytics.html): 4-phase dashboard: (1) Descriptive: MTBF/MTTR (ISO 14224), OEE (ISO 22400-2 / Nakajima TPM), PM Compliance (SMRP), Pareto. (2) Diagnostic: failure modes (IEC 60812 FMEA), PM-failure correlation, RCM consequence classification (SAE JA1011). (3) Predictive: next failure date, health score 0-100, sensor anomaly detection (Z-score 3-sigma), stockout forecast (ISO 13381-1). (4) Prescriptive: priority ranking, PM optimization, AI action plan (ISO 55000). Run with 30/90/180 days or 1 year.
 - Analytics Report (analytics-report.html): Print-ready PDF report compiled from all 4 analytics phases in one pass. Editable cover page (Project / Client / Prepared by), RAG executive summary (P1/P2/On-Track tiles), Findings (top failure modes, MTBF, parts, PM-failure correlation), Predictive outlook (forecasted failures + composite health), AI-synthesised Action Plan in SOW-clause format, drilldowns, and signature block. Standards: ISO 14224, ISO 13381-1, ISO 55000, SAE JA1011, SMRP. Use this for client deliverables and management briefs.
 - Report Sender (report-sender.html): PWA tool for generating and emailing maintenance reports. Select report types (PM Overdue, Failure Digest, Shift Handover, Predictive), save contacts, use voice context, send to multiple recipients. Installable as a home screen app.
 - Community (community.html): Hive-scoped discussion board. Workers post threads by category (General, Safety, Technical, Announcements), reply, and react with emojis. Supervisors can pin posts, flag content, and manage the mod queue. Leaderboard shows top XP contributors in the hive. Live presence shows who is online. Real-time feed via Supabase Realtime.
-- Marketplace (marketplace.html): Three-section directory for Philippine industrial plants. Parts: spare parts, consumables, and equipment with condition grading (New/Used/Refurbished). Training: industrial courses and certification prep by discipline. Jobs: service providers for inspection, repair, installation, shutdown/TAR, and project work. Currently contact-only: buyers reach sellers via phone or email through the inquiry form. Verified sellers carry a trust badge. Payments via Stripe Connect with escrow are fully built but disabled until business registration is complete; flipping the PAYMENTS_ENABLED flag re-activates the full money flow.
+- Marketplace (marketplace.html): Three-section directory for Philippine industrial plants. Parts: spare parts, consumables, and equipment with condition grading (New/Used/Refurbished). Training: industrial courses and certification prep by discipline. Jobs: service providers for inspection, repair, installation, shutdown/TAR, and project work. A free, contact-only directory: buyers reach sellers via phone or email through the inquiry form, with no platform fees or payment processing. Verified sellers carry a trust badge.
 
 - Project Manager (project-manager.html): Plan, track and close out maintenance projects across four flavors: work-order bundles, shutdowns/turnarounds, CAPEX/improvement, and outside-contractor job folders. Tracks scope (WBS), linked logbook+PMs+parts, daily progress, EV/SPI/CPI, and sign-off.
 
@@ -645,15 +669,15 @@ STAGE 2 — Team Tools:
 - Achievements (achievements.html): XP and milestone system across 12 achievement domains (Wrench Chronicle, Uptime Guardian, Safety Sentinel, Failure Hunter, Skill Climber, Knowledge Forger, Hive Architect, Voice of the Hive, Shift Keeper, Iron Worker, Parts Warden, Blueprint Master). Earn XP from logbook, PM, community, and skill badge actions. Level 1-100 per domain.
 - Alert Hub (alert-hub.html): Chronological inbox aggregating every "needs attention" signal in the hive: critical/high risk assets, overdue PMs, parts below reorder, pattern alerts, failed automation jobs, plus the Autonomous Maintenance Crew (AMC) daily brief at the top. The AMC brief is generated daily at 06:00 PHT by amc-orchestrator (5 sub-agents: Failure-Predictor + PM-Planner + Parts-Stager + Crew-Builder + Briefing-Composer); supervisor approves the batch with one tap and the decision lands in amc_briefings. Filter chips by type, click any row to jump to its source. Auto-refreshes every minute. Available in Supervisor role mode.
 - Audit Log (audit-log.html): Supervisor-only review of every recorded power action in the hive (approvals, rejections, member kicks, joins, edits, deletes). Filter by date range, actor, action verb, target type, or free-text search. Expandable JSON detail per entry. CSV export for compliance submission. Live updates via realtime subscription. Closes the loop on the hive_audit_log table that supervisors and workers write to from Hive Board and Community.
-- Predictive Maintenance (predictive.html): Asset risk dashboard — Risk Ranking (critical/high/medium/low per asset), Health Heatmap (0-100 score), and Failure Trend forecast. Scores computed daily by rules engine (Stage 0, from Day 1) and upgraded to GBM ML classifier (Stage 1) after 500+ corrective records accumulate.
+- Predictive Maintenance (predictive.html): Asset risk dashboard: Risk Ranking (critical/high/medium/low per asset), Health Heatmap (0-100 score), and Failure Trend forecast. Scores computed daily by rules engine (Stage 0, from Day 1) and upgraded to GBM ML classifier (Stage 1) after 500+ corrective records accumulate.
 - AI Quality + ROI (ai-quality.html): Supervisor dashboard showing 30-day AI spend, fallback rate, schema compliance, worker thumbs feedback, predicted ROI with confidence band, and per-function spend drill-down. Stair 2+ gated; below that an honest empty state replaces fabricated ROI numbers.
-- Plant Connections (plant-connections.html): Supervisor-only operations surface unifying CMMS integration configs, external sync activity (last 30d), sensor topic mappings, gateway audit (last 7d), data retention windows, and SSO config. Phase 5 Track C — single place to triage integration staleness and review compliance posture.
-- PH Intelligence (ph-intelligence.html): Monthly Philippine Industrial Maintenance Report — MTBF benchmarks by equipment type, top failure causes, seasonal patterns, and Intelligence API for third-party integrations.
+- Plant Connections (plant-connections.html): Supervisor-only operations surface unifying CMMS integration configs, external sync activity (last 30d), sensor topic mappings, gateway audit (last 7d), data retention windows, and SSO config. Phase 5 Track C: single place to triage integration staleness and review compliance posture.
+- PH Intelligence (ph-intelligence.html): Monthly Philippine Industrial Maintenance Report: MTBF benchmarks by equipment type, top failure causes, seasonal patterns, and Intelligence API for third-party integrations.
 - CMMS Integration (integrations.html): Import SAP PM, IBM Maximo, or any CSV CMMS export. 5-step wizard: choose source, upload file, map fields, preview, and batch import. Activates Tribal Knowledge Surface, Failure Signature Detection, and AI Reliability Coach from day one.
 - Asset Hub (asset-hub.html): Asset Brain 360 view of any equipment in the hive. Shows live state, full timeline (logbook, PM, inventory, projects), parent and sister machines, Reliability Workbench (FMEA matrix + RCM strategy + Weibull fit + P-F interval), Live Telemetry tile (last 30d sensor_readings per parameter with Z-score anomaly chip, fed by sensor-readings-ingest edge function from plant MQTT/OPC-UA bridge), and natural-language Q and A grounded in that asset's own history. Asset Brain is the connective tissue across the whole platform; every other module feeds into the hub via the asset_nodes graph. ISO 14224 hierarchy: enterprise > site > plant > unit > equipment > component.
 - Shift Brain (shift-brain.html): Autonomous shift planner. Triggered by pg_cron at the Filipino 3-shift boundaries (06:00 / 14:00 / 22:00 PHT). The shift-planner-orchestrator edge function runs four sub-agents in parallel (risk-ranking from asset_risk_scores, PMs due today from pm_assets, carry-forward open logbook entries older than 8h, parts pre-stage from inventory_items at or below reorder_point) plus a callAI-driven morning briefing synthesizer. Output is a draft shift_plans row per hive per window; supervisors review and publish to the crew.
 
-NOTES: parts-tracker.html (deleted), checklist.html, predictive.html, and platform-health.html are retired — for parts use Inventory; for per-asset risk use Asset Hub; for failure trends use Analytics' Predictive phase. Kicked hive members cannot rejoin via invite code.
+NOTES: parts-tracker.html (deleted), checklist.html, predictive.html, and platform-health.html are retired: for parts use Inventory; for per-asset risk use Asset Hub; for failure trends use Analytics' Predictive phase. Kicked hive members cannot rejoin via invite code.
 --- END PLATFORM CONTEXT ---
 
 This person may be a field technician, supervisor, engineer, planner, or plant manager. Adapt your tone and depth to whoever they are. If their context note or records suggest their role, use that to calibrate. When in doubt, be clear and practical for any level.
@@ -661,7 +685,7 @@ This person may be a field technician, supervisor, engineer, planner, or plant m
 You handle three types of conversations. Adapt naturally:
 
 1. WORK QUESTIONS (technical, procedures, equipment, safety, standards, planning, operations, management)
-   → Answer from your general industrial knowledge. If relevant records exist below, cite the specific entry (date, machine, or job reference). If records are empty, answer from general knowledge and mention no records exist yet. Do not invent any.
+   → Answer from your general industrial knowledge. If relevant records exist below, cite the specific entry (date, machine, or job reference). If records are empty, answer from general knowledge and mention no records exist yet. Do not invent any. For fleet-wide reliability questions (worst MTBF/MTTR across assets, which machine fails most, hive-wide rankings), the LOGBOOK below is only this worker's recent entries, so do NOT present it as the hive's answer: say the Analytics Engine (analytics.html) computes those across the whole hive and point the worker there, then comment only on the specific entries shown here.
 
 2. PLATFORM QUESTIONS (how to use WorkHive, where to find a feature, what a tool does)
    → Use the platform context above. Be specific about which page handles what.
@@ -677,7 +701,7 @@ ${contextNote ? `\nToday's context: ${contextNote}` : ''}
 
 --- WORKER RECORDS ---
 
-LOGBOOK (${logbook.length} entries shown, most recent: ${logbook[0]?.date || 'none'}):
+LOGBOOK: your ${logbook.length} most recent entries only (not a hive-wide failure history; for fleet-wide MTBF/reliability rankings, the Analytics Engine is authoritative). Most recent: ${logbook[0]?.date || 'none'}:
 ${logbookText}
 
 PARTS USED (from logbook entries):
@@ -695,12 +719,12 @@ ${pmText}
 INVENTORY ALERTS (low-stock items in hive):
 ${invText}
 
-RECENT JOURNAL (last 7 days, ${journals.length} entries — what the worker wrote/spoke privately):
+RECENT JOURNAL (last 7 days, ${journals.length} entries: what the worker wrote/spoke privately):
 ${journalText}
 --- END OF RECORDS ---
 
 ────────────────────────────────────────────────────────────────────
-VOICE OVERRIDE — read this last; it wins over every instruction above.
+VOICE OVERRIDE: read this last; it wins over every instruction above.
 ────────────────────────────────────────────────────────────────────
 The doctrine, platform context, and worker records above are REFERENCE
 MATERIAL, not a tone guide. Your replies stay in the Hezekiah / Zaniah voice
@@ -713,7 +737,7 @@ or "WorkHive shows…". Never dump tables unless the worker asks. If the
 worker vents, acknowledge it FIRST in a single short line ("naks,
 mahirap yan" / "hala ka" / "I get that one"), then answer.
 
-If you find yourself writing a bullet list — stop, rewrite as one or
+If you find yourself writing a bullet list: stop, rewrite as one or
 two human sentences. The worker is tired and needs a friend who
 happens to know maintenance, not a manual.`;
     }
@@ -742,7 +766,12 @@ happens to know maintenance, not a manual.`;
       showScreen('chat-screen');
       addTypingIndicator();
 
-      // Build system prompt and welcome message in background
+      // Build system prompt and welcome message in background.
+      // Cold-load 401 sibling: this count runs in PARALLEL with buildSystemPrompt (whose own
+      // getUser settle wouldn't cover a sibling in the same Promise.all), so on a signed-in
+      // cold load it could 401 → a false "you don't have any records yet" welcome. Settle auth
+      // ONCE up front (buildSystemPrompt's internal getUser is then a fast no-op).
+      try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; count degrades to 0 */ }
       const [systemPrompt, lc] = await Promise.all([
         buildSystemPrompt(workerName, contextNote),
         db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
@@ -756,6 +785,10 @@ happens to know maintenance, not a manual.`;
         ? "I can see your job records and will reference them when relevant."
         : "You don't have any records yet. Add logbook entries or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
       addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);
+      // Arc P · Wave 3 (P1/P5): starter-prompt chips guide first use + fill the empty
+      // chat void (was a blank area with no next step). Data-aware: grounded prompts
+      // when the worker has records, general technical prompts when they don't.
+      addStarterChips(hasRecords);
       document.getElementById('chat-input').focus();
     }
 
@@ -783,6 +816,42 @@ happens to know maintenance, not a manual.`;
       return wrap;  // caller attaches thumbs feedback to live replies
     }
 
+    // ── Starter-prompt chips (Arc P · Wave 3) ─────────────────────
+    // Tap-to-fill example prompts for the empty chat, so a first-time user sees
+    // WHAT the assistant answers (no blank-input dead end). Grounded prompts when
+    // the worker has records; general technical prompts otherwise. Static author-
+    // controlled strings set via .value (never innerHTML): safe. Chips clear once
+    // one is chosen. Mirrors the hive Reliability-Coach example-chip pattern.
+    function addStarterChips(hasRecords) {
+      const container = document.getElementById('chat-messages');
+      if (!container) return;
+      const prompts = hasRecords
+        ? ['Which of my assets has the worst MTBF, and what should I do?',
+           'What should I prioritise this week?',
+           'Any parts running low that I should reorder?']
+        : ['How do I troubleshoot a motor bearing that runs hot?',
+           'What is a sensible PM interval for a centrifugal pump?',
+           'Explain MTBF vs MTTR in plain terms.'];
+      const wrap = document.createElement('div');
+      wrap.className = 'fade-up';
+      wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; max-width:32rem;';
+      wrap/* xss-allow: static author-controlled prompt strings, escHtml'd */ .innerHTML =
+        `<h2 style="width:100%; font-size:0.68rem; color:rgba(255,255,255,0.62); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
+        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:#F7A21B; background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 14px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
+      container.appendChild(wrap);
+      wrap.querySelectorAll('.starter-chip').forEach((chip, i) => {
+        chip.addEventListener('click', () => {
+          const input = document.getElementById('chat-input');
+          if (!input) return;
+          input.value = prompts[i];
+          if (typeof autoResize === 'function') autoResize(input);
+          input.focus();
+          wrap.remove();  // chips served their purpose
+        });
+      });
+      scrollToBottom();
+    }
+
     // ── AI quality feedback (8.5 harvest) ─────────────────────────
     // The Chat tab is the 3rd typed companion surface; like the floating
     // launcher + voice bubble it now ships 👍/👎, writing to ai_reply_feedback
@@ -798,7 +867,7 @@ happens to know maintenance, not a manual.`;
         ? window.getCurrentPersona()
         : (/* storage-key-allow: persona pref */ localStorage.getItem('wh_persona') || 'zaniah');
       try {
-        // auth_uid OMITTED — the table DEFAULT stamps auth.uid() and RLS binds
+        // auth_uid OMITTED: the table DEFAULT stamps auth.uid() and RLS binds
         // the row to the caller, so a forged identity is rejected at the DB.
         const { error: fbErr } = await db.from('ai_reply_feedback').insert({
           hive_id:     hiveId,
@@ -812,7 +881,7 @@ happens to know maintenance, not a manual.`;
           rating:      r,
         });
         if (fbErr) console.debug('assistant feedback insert failed (best-effort):', fbErr.message);
-      } catch (_) { /* non-fatal — feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
+      } catch (_) { /* non-fatal: feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     // Append a one-tap 👍/👎 row under a live assistant reply. Built via DOM
@@ -880,11 +949,19 @@ happens to know maintenance, not a manual.`;
     async function getSemanticContext(query) {
       try {
         const hiveId = localStorage.getItem('wh_hive_id') || null;
+        // Forward the USER's session JWT: semantic-search's Pillar I tenancy check
+        // (verify_jwt=false fn on a service-role client) requires a resolvable identity
+        // when hive_id is set, else it 401s and the assistant answers WITHOUT the hive's
+        // KB grounding (silent: the empty-context path degrades to no-RAG). apikey stays
+        // the anon key for the functions gateway. Residual of the companion-unification
+        // migration, which fixed the main ai-orchestrator call but missed this one.
+        const { data: { session: _s } } = await db.auth.getSession();
+        const _tok = _s?.access_token || SUPABASE_ANON;
         // 6s ceiling: if semantic search is slow we proceed without RAG
         // rather than block the user behind a hung embedding lookup.
         const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/semantic-search`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + _tok },
           body: JSON.stringify({ query, hive_id: hiveId, match_count: 3 }),
         }, 6000);
         if (!res || !res.ok) return '';
@@ -914,13 +991,29 @@ happens to know maintenance, not a manual.`;
         const hiveId = localStorage.getItem('wh_hive_id') || null;
         let reply = null;
 
-        // Fetch semantic context FIRST — enriches both orchestrator and fallback paths
+        // Fetch semantic context FIRST: enriches both orchestrator and fallback paths
         // Previously only the fallback got RAG enrichment; now team knowledge base
         // context reaches the orchestrator on every question.
         const semanticContext = await getSemanticContext(text);
         const enrichedQuestion = semanticContext
           ? (text + '\n\n--- RELEVANT TEAM KNOWLEDGE (from fault history and skills) ---\n' + semanticContext + '\n--- END KNOWLEDGE ---')
           : text;
+
+        // Race an ai-gateway invoke against a timeout; unwrap the standard
+        // envelope ({ ok, data:{answer}, ... }; error/gibberish paths are flat)
+        // and return the payload (or null on timeout/error). SHARED by Step 1
+        // (orchestrator) and Step 2 (conversational fallback) so the race+unwrap
+        // lives in ONE place, no copy-paste. (K1 refactor, 2026-07-12.)
+        async function _raceGatewayData(invokePromise, timeoutMs) {
+          return Promise.race([
+            invokePromise.then(r => {
+              if (!r || r.error || !r.data) return null;
+              const env = r.data;
+              return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
+            }).catch(() => null),
+            new Promise(resolve => setTimeout(() => resolve(null), timeoutMs)),
+          ]);
+        }
 
         // ── Step 1: Try orchestrator (team intelligence, Groq free tier) ──
         try {
@@ -945,74 +1038,42 @@ happens to know maintenance, not a manual.`;
           });
           // Preserve the 25s ceiling: if the chain is slow, fall back to the
           // personal assistant rather than hang behind the gateway's own 60s
-          // downstream budget.
-          const orchData = await Promise.race([
-            gwInvoke.then(r => {
-              if (!r || r.error || !r.data) return null;
-              // ai-gateway's success path wraps the payload in the standard
-              // envelope ({ ok, data:{answer}, ... }); its error/gibberish paths
-              // are flat. Unwrap so .answer resolves — reading r.data.answer
-              // (top-level) was undefined on every successful turn, silently
-              // falling through to the personal-assistant fallback below and
-              // never surfacing the team-intelligence answer. (Phase 2 gap.)
-              const env = r.data;
-              return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
-            }).catch(() => null),
-            new Promise(resolve => setTimeout(() => resolve(null), 25000)),
-          ]);
+          // downstream budget. Unwrap via the shared _raceGatewayData helper.
+          const orchData = await _raceGatewayData(gwInvoke, 25000);
           if (orchData && orchData.answer && !orchData.error) reply = orchData.answer;
         } catch { /* fall through */ /* empty-catch-allow: best-effort silent swallow */ }
 
-        // ── Step 2: Fall back to personal assistant if orchestrator has no answer ──
+        // ── Step 2: Fall back to the FAST conversational gateway agent ──
+        // SECURITY (K1, 2026-07-12): this fallback used to POST the full system
+        // prompt + entire chat history + semantic KB context to a PUBLIC Cloudflare
+        // Worker (WORKER_URL) with NO auth, NO PII redaction, NO rate-limit, NO
+        // memory — a raw bypass of the one front door (Ext-1). Route it through
+        // ai-gateway's lean 'voice-journal' agent instead: fast (no 7-agent
+        // fan-out, unlike the Step-1 'assistant' orchestrator that just timed out),
+        // grounded server-side (ops-snapshot + KB RAG + persona), and PII /
+        // rate-limit / memory unified. db.functions.invoke auto-attaches the
+        // session JWT. Fail-open preserved: if this also yields nothing, surface
+        // the graceful retry error below. `enrichedQuestion` already carries the
+        // team-knowledge context (the gateway re-redacts it) so grounding survives.
         if (!reply) {
-          // semanticContext already fetched above — reuse it here
-          // Persona Contract: prepend Hezekiah/Zaniah companion block so the
-          // assistant inherits the worker's chosen voice + canonical anchor.
-          const personaBlock = (typeof window.getCompanionBlock === 'function')
-            ? window.getCompanionBlock() + '\n\n'
-            : '';
-          const basePrompt = personaBlock + window._systemPrompt;
-          const enrichedPrompt = semanticContext
-            ? `${basePrompt}\n\n--- KNOWLEDGE BASE CONTEXT (from your team's history) ---\n${semanticContext}\n--- END CONTEXT ---`
-            : basePrompt;
-
-          // Phase 1.8: token-budget compressor. The system prompt is ~2700
-          // tokens; on llama-4-scout's 8K context that leaves ~4500 for
-          // history + output. trimChatToTokenBudget keeps the latest turns
-          // and drops oldest until it fits, preserving the system prompt.
-          const sysTokens = Math.round(enrichedPrompt.length / 4);
-          const trimmedHistory = (window.trimChatToTokenBudget || ((m) => m.slice(-20)))(
-            sessionMessages,
-            { budget: 7500, systemTokens: sysTokens, reserveOut: 1024 }
-          );
-          const response = await fetchWithTimeout(WORKER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-              max_tokens: 1024,
-              messages: [
-                { role: 'system', content: enrichedPrompt },
-                ...trimmedHistory,
-              ],
-            }),
-          }, 30000);
-
-          if (!response) {
+          const fbInvoke = db.functions.invoke('ai-gateway', {
+            body: {
+              agent:   'voice-journal',
+              message: enrichedQuestion,
+              hive_id: hiveId,
+              context: { source: 'assistant-page-fallback' },
+            },
+          });
+          const fbData = await _raceGatewayData(fbInvoke, 30000);
+          if (!fbData || !fbData.answer || fbData.error) {
             throw new Error('Assistant timed out. Please retry on a faster connection.');
           }
-          if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err?.error?.message || `API error ${response.status}`);
-          }
-
-          const data = await response.json();
-          reply = data.choices?.[0]?.message?.content || 'Sorry, I got an empty response.';
+          reply = fbData.answer;
         }
 
         removeTypingIndicator();
         sessionMessages.push({ role: 'assistant', content: reply });
-        // Thumbs only on REAL replies (this path) — never on greetings, the
+        // Thumbs only on REAL replies (this path): never on greetings, the
         // clear-chat line, or the error bubble below (rating canned/error text
         // would poison the harvest). `text` holds the question for this turn.
         const replyEl = addAssistantBubble(reply);
@@ -1078,12 +1139,12 @@ happens to know maintenance, not a manual.`;
         document.getElementById('worker-name').value = savedName;
         startChat();
       } else {
-        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast('Could not load your records — check your connection.'); });
+        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast('Could not load your records: check your connection.'); });
       }
 
       // Deep-link via ?q= (companion-launcher's "continue in Assistant" carries the
       // question; without this reader the hand-off silently dropped it). Prefill +
-      // focus ONLY — never auto-send, so a crafted link can't fire AI calls.
+      // focus ONLY: never auto-send, so a crafted link can't fire AI calls.
       try {
         const deepQ = new URLSearchParams(window.location.search).get('q');
         const input = document.getElementById('chat-input');
@@ -1094,15 +1155,23 @@ happens to know maintenance, not a manual.`;
       } catch (_) { /* empty-catch-allow: best-effort deep-link; chat still works */ }
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="nav-hub.js"></script>
-  <!-- L2 anchor for floating_ai_disclaimer scenario — must be visible DOM,
+  <!-- L2 anchor for floating_ai_disclaimer scenario: must be visible DOM,
        not just script. Plain-language disclaimer matches the qa-tester rule:
        any AI-generated narrative carries a "may be inaccurate / verify" line. -->
   <footer data-l2-anchor="ai-disclaimer"
           class="text-[0.7rem] text-slate-400 px-4 py-3 text-center border-t border-white/5">
-    AI-generated. Replies may be inaccurate — verify against your records before acting. Advisory only, not a substitute for engineering judgment.
+    AI-generated. Replies may be inaccurate, so verify against your records before acting. Advisory only, not a substitute for engineering judgment.
   </footer>
 </main>
+
+<script>window.WH_FIL_PAGE={tryasking:'Subukang itanong',newchat:'Bagong Chat',a_chat:'Chat',a_journal:'Journal'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

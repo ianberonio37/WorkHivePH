@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
@@ -6,6 +7,8 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership before scraping a hive's KPIs.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -33,7 +36,12 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
  *   - Or error message if query fails (non-fatal)
  */
 
-serve(async (req) => {
+serveObserved("platform-scraper", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "platform-scraper", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "platform-scraper");  // I6 observability
@@ -74,6 +82,11 @@ serve(async (req) => {
             { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
+      
+        // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
       }
     }
 
@@ -111,16 +124,8 @@ serve(async (req) => {
     );
   } catch (err) {
     log.error(null, "Platform scraper error:", { detail: err });
-    return new Response(
-      JSON.stringify({
-        error: "Platform scraper failed",
-        summary: "I couldn't fetch the latest platform data. Check Analytics for details.",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "platform-scraper", "platform_scraper_error", err);
   }
 });
 

@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar O (Observability): expose a /health probe for the gateway status page.
@@ -6,6 +6,8 @@ import { handleHealth } from "../_shared/health.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual (browser) path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
@@ -23,7 +25,7 @@ void _whWarmClient;
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("embed-entry", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -75,8 +77,17 @@ serve(async (req) => {
           .eq("pm_asset_id", record.asset_id)
           .single();
         hive_id = asset?.hive_id || null;
+        // pm_knowledge.asset_id is an asset_nodes.id FK, but record.asset_id is a pm_ASSETS id.
+        // Passing it straight through violated pm_knowledge_asset_id_fkey → EVERY pm_completions
+        // embed 500'd and pm_knowledge sat at 0 rows despite 1500+ completions (silent RAG starve).
+        // Resolve the canonical node id via v_asset_truth (asset_id = asset_nodes.id, keyed by
+        // pm_asset_id) — the canonical read path, not a raw asset_nodes read; null-safe fallback.
+        const { data: node } = await db.from("v_asset_truth")
+          .select("asset_id")
+          .eq("pm_asset_id", record.asset_id)
+          .maybeSingle();
         entry = {
-          asset_id:       record.asset_id,
+          asset_id:       node?.asset_id || null,   // asset_nodes.id via v_asset_truth (was pm_assets.id → FK violation)
           asset_name:     asset?.asset_name || "Unknown",
           category:       asset?.category   || "Unknown",
           overdue_count:  0,
@@ -110,6 +121,11 @@ serve(async (req) => {
               { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
             );
           }
+          // A5: rate-limit the browser path (webhook/service-role internal path skips —
+          // same placement as voice-model-call, the reference adopter).
+          const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+          const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
         }
       }
 
@@ -124,6 +140,10 @@ serve(async (req) => {
     let embedding: number[];
     let table: string;
     let row: Record<string, unknown>;
+    // When set, the write UPSERTs on this column instead of INSERTing, so a re-embed
+    // (a logbook edit-in-place re-calls this fn) REPLACES the source's embedding rather
+    // than adding a stale duplicate to the RAG index (ARC DI §10.5 embedding seesaw).
+    let conflictKey: string | null = null;
 
     // ── FAULT (from Logbook save) ────────────────────────────────────────────
     if (type === "fault") {
@@ -144,6 +164,7 @@ serve(async (req) => {
       }
       embedding = await generateEmbedding(text);
       table = "fault_knowledge";
+      conflictKey = "logbook_id";   // re-embed on edit REPLACES (uidx 20260708000002), no dup
       row = {
         hive_id:     hive_id || null,
         logbook_id:  entry.id || null,
@@ -248,7 +269,12 @@ serve(async (req) => {
     }
 
     // ── Save to the correct knowledge table ──────────────────────────────────
-    const { error } = await db.from(table).insert(row);
+    // UPSERT on the source key (fault: logbook_id) so a re-embed on edit REPLACES the
+    // prior embedding instead of adding a stale duplicate; INSERT for types with no
+    // source-unique key yet.
+    const { error } = conflictKey
+      ? await db.from(table).upsert(row, { onConflict: conflictKey })
+      : await db.from(table).insert(row);
 
     if (error) {
       console.error(`DB insert error (${table}):`, error.message);
@@ -264,10 +290,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("embed-entry error:", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "embed-entry", "embed_entry_error", err);
   }
 });

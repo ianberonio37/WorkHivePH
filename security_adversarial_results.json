@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-06-24T05:09:55+00:00",
+  "scored_at": "2026-07-18T05:15:33+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
@@ -45,8 +45,8 @@
     "Z": {
       "title": "AuthZ / Access",
       "pct": 100.0,
-      "passed": 15,
-      "total": 15,
+      "passed": 17,
+      "total": 17,
       "floor": 100,
       "cells": [
         {
@@ -154,11 +154,27 @@
           "covered": true
         },
         {
+          "key": "public_fn_write_authz",
+          "validator": "validate_public_fn_write_authz",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "no anon-triggerable service-role writer / BFLA (R2)",
+          "covered": true
+        },
+        {
           "key": "ssrf_egress",
           "validator": "validate_ssrf_egress",
           "owasp": "A10",
           "status": "PASS",
           "note": "no user-controlled fetch egress (R2)",
+          "covered": true
+        },
+        {
+          "key": "migration_grant_regression",
+          "validator": "validate_migration_grant_regression",
+          "owasp": "A01",
+          "status": "PASS",
+          "note": "a revoked anon/auth lock not silently re-granted by a later migration (R0)",
           "covered": true
         },
         {
@@ -254,8 +270,8 @@
     },
     "P": {
       "title": "Prompt & AI security",
-      "pct": 66.7,
-      "passed": 2,
+      "pct": 100.0,
+      "passed": 3,
       "total": 3,
       "floor": 90,
       "cells": [
@@ -271,7 +287,7 @@
           "key": "ai_retrieval_isolation",
           "validator": "validate_ai_retrieval_isolation",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "RAG hive-scoped (no x-tenant)",
           "covered": true
         },
@@ -288,8 +304,8 @@
   },
   "owasp_top10": {
     "A01": {
-      "scanners": 12,
-      "clean": false,
+      "scanners": 14,
+      "clean": true,
       "covered": true
     },
     "A02": {
@@ -338,8 +354,10 @@
       "covered": true
     }
   },
-  "floors_ok": false,
-  "regressions": [
-    "P: 66.7 < baseline 100.0"
-  ]
+  "floors_ok": true,
+  "regressions": [],
+  "infra_errors": [],
+  "baseline_error": false,
+  "baseline_missing": false,
+  "exit_code": 0
 }

@@ -150,39 +150,43 @@
 <div id="ar-print-wrapper" role="region" aria-label="Project report">
   <div class="doc-cover">
     <span class="pcode" id="cov-code">PROJECT</span>
-    <h1 class="ptitle" id="cov-title">Project Report</h1>
+    <h1 class="ptitle" id="cov-title" translate="no">Project Report</h1>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>How to read this report: CPI and SPI above 1.0 mean under budget and ahead of schedule. Figures come from the linked project’s live records.</p>
+</details>
     <div>
       <span class="ptype-pill"  id="cov-type">type</span>
       <span class="status-pill" id="cov-status">status</span>
       <span style="font-size: 9pt; color: var(--muted); margin-left: 8px;" id="cov-priority"></span>
     </div>
     <div class="pmeta">
-      <span><strong>Owner:</strong> <span id="cov-owner">—</span></span>
-      <span><strong>Period:</strong> <span id="cov-period">—</span></span>
-      <span><strong>Generated:</strong> <span id="cov-generated">—</span></span>
-      <span><strong>Hive:</strong> <span id="cov-hive">—</span></span>
+      <span><strong>Owner:</strong> <span id="cov-owner">-</span></span>
+      <span><strong>Period:</strong> <span id="cov-period">-</span></span>
+      <span><strong>Generated:</strong> <span id="cov-generated">-</span></span>
+      <span><strong>Hive:</strong> <span id="cov-hive">-</span></span>
     </div>
   </div>
 
-  <h2>&sect;1&nbsp;&nbsp;Executive Summary</h2>
+  <h2 translate="no">&sect;1&nbsp;&nbsp;Executive Summary</h2>
   <div id="exec-summary"></div>
 
-  <h2>&sect;2&nbsp;&nbsp;Scope of Work (WBS)</h2>
+  <h2 translate="no">&sect;2&nbsp;&nbsp;Scope of Work (WBS)</h2>
   <div id="scope-section"></div>
 
-  <h2>&sect;3&nbsp;&nbsp;Linked Work</h2>
+  <h2 translate="no">&sect;3&nbsp;&nbsp;Linked Work</h2>
   <div id="linked-section"></div>
 
-  <h2>&sect;4&nbsp;&nbsp;Daily Progress Timeline</h2>
+  <h2 translate="no">&sect;4&nbsp;&nbsp;Daily Progress Timeline</h2>
   <div id="progress-section"></div>
 
-  <h2>&sect;5&nbsp;&nbsp;Lessons Learned</h2>
+  <h2 translate="no">&sect;5&nbsp;&nbsp;Lessons Learned</h2>
   <div id="lessons-section"></div>
 
-  <h2>&sect;6&nbsp;&nbsp;Sign-off</h2>
+  <h2 translate="no">&sect;6&nbsp;&nbsp;Sign-off</h2>
   <div id="signoff-section"></div>
 
-  <h2>&sect;7&nbsp;&nbsp;Appendix &mdash; Standards &amp; References</h2>
+  <h2 translate="no">&sect;7&nbsp;&nbsp;Appendix: Standards &amp; References</h2>
   <div id="appendix-section">
     <p style="font-size: 9.5pt; color: var(--muted); line-height: 1.55;">
       This report follows: <strong>PMBOK 7th ed.</strong>, <strong>AACE 17R-97</strong>
@@ -201,12 +205,15 @@
     <div class="grow"></div>
     <a href="project-manager.html" class="btn">&larr; Back</a>
     <button class="btn" onclick="aiGenerateNarrative()" id="ai-narrative-btn" title="AI-drafted hero finding + executive summary, strict-only mode">🤖 AI: Narrative</button>
-    <button class="btn" onclick="window.print()">Print</button>
-    <button class="btn primary" onclick="saveAsPdf()">Save as PDF</button>
+    <button class="btn" onclick="window.print()" style="background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy); border:none; font-weight:700;" data-i="print">Print</button>
+    <button class="btn primary" onclick="saveAsPdf()" data-i="saveaspdf">Save as PDF</button>
+    <!-- FCh3: the report BODY is EN-by-design (formal engineering document, translate="no"
+         headings per the N1 disposition); only this toolbar is translatable UI chrome. -->
+    <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
@@ -224,16 +231,18 @@ const db = getDb(
 if (typeof restoreIdentityFromSession === 'function') {
   restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
 }
+// AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
+if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
 
 logPageView(db);
 const e = typeof escHtml === 'function' ? escHtml : (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function $(id) { return document.getElementById(id); }
 function fmtDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  if (!d) return '-';
+  return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
-// Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): null→'—', whole-peso en-PH, never ₱NaN.
-function fmtPHP(n) { return n == null ? '—' : whFmtPeso(n, { decimals: 0 }); }
+// Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): null→'-', whole-peso en-PH, never ₱NaN.
+function fmtPHP(n) { return n == null ? '-' : whFmtPeso(n, { decimals: 0 }); }
 
 const PHASE_LABELS = { pre: 'Pre', execute: 'Execute', commission: 'Commission', close: 'Close',
                        fel1: 'FEL-1', fel2: 'FEL-2', fel3: 'FEL-3', gate: 'Stage Gate' };
@@ -249,13 +258,16 @@ function getPhase(it) {
   const projectId = params.get('project_id');
   if (!projectId) {
     $('tb-title').textContent = 'No project specified';
-    $('exec-summary').innerHTML = '<div class="empty-section">Open this page from the Project Manager (Detail &rarr; Print Report).<br><a href="project-manager.html" style="color: var(--accent);">Go to Project Manager</a></div>';
+    $('exec-summary').innerHTML = '<div class="empty-section">Open this page from the Project Manager (Detail &rarr; Print Report).<br><a href="project-manager.html" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">Go to Project Manager</a></div>';
     return;
   }
   await loadAndRender(projectId);
 })();
 
 async function loadAndRender(projectId) {
+  // G1 (FF1): canonical skeleton in the summary section while the 4 project queries run.
+  const _es = document.getElementById('exec-summary');
+  if (_es && !_es.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_es, 3);
   const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
     db.from('v_project_truth').select('*, id:project_id, end_date:target_end_date').eq('project_id', projectId).maybeSingle(),
     db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order').limit(500),
@@ -272,19 +284,23 @@ async function loadAndRender(projectId) {
   const items   = itemsRes.data || [];
   const links   = linksRes.data || [];
   const logs    = logsRes.data  || [];
-  document.title = `${project.project_code} — Project Report`;
-  $('tb-title').textContent = `${project.project_code} — ${project.name}`;
+  document.title = `${project.project_code}: Project Report`;
+  $('tb-title').textContent = `${project.project_code}: ${project.name}`;
   // Phase 6.1 — feed floating-ai context for this project
   if (window.WHAssistant?.setContext) {
+    // PII-SAFE grounding (K4, 2026-07-12): now transmitted to the LLM (piiSafe:true —
+    // previously omitted, so the summary was dropped and the companion was ungrounded on
+    // this report). Carries only codes / enums / counts / dates / budget — NEVER owner_name
+    // (person PII); blockers are already a COUNT, not free-text.
     const lines = [
-      `Project: ${project.project_code} (${project.project_type}) — ${project.name}`,
-      `Status: ${project.status}, owner: ${project.owner_name || 'unassigned'}`,
+      `Project: ${project.project_code} (${project.project_type}): ${project.name}`,
+      `Status: ${project.status}`,
       project.start_date && project.end_date ? `Period: ${project.start_date} to ${project.end_date}` : null,
       `Scope items: ${items.length}, ${items.filter(i => i.status === 'done').length} done, ${items.filter(i => i.status === 'blocked').length} blocked`,
       `Progress logs: ${logs.length} (${logs.filter(l => (l.blockers || '').trim()).length} flagged blockers)`,
-      project.budget_php ? `Budget: ₱${Number(project.budget_php).toLocaleString()}` : null,
+      project.budget_php ? `Budget: ${whFmtPeso(project.budget_php)}` : null,
     ].filter(Boolean).join('\n');
-    window.WHAssistant.setContext({ key: 'project:' + project.id, summary: lines, badge: project.project_code + ' (report)' });
+    window.WHAssistant.setContext({ key: 'project:' + project.id, summary: lines, badge: project.project_code + ' (report)', piiSafe: true });
   }
 
   // Cache for narrative function to use
@@ -331,7 +347,7 @@ async function aiGenerateNarrative() {
       <div style="font-size: 8.5pt; color: #5B6878; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">🤖 AI-drafted executive summary</div>
       <div style="font-size: 11pt; margin-top: 6px;">${(data.executive_summary || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
       ${data.lessons_synthesis ? `<div style="font-size: 10pt; margin-top: 8px; color: #1F2A37;"><strong>Lessons synthesis:</strong> ${data.lessons_synthesis.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
-      <div style="font-size: 8pt; color: #5B6878; margin-top: 6px;">AI-drafted ${new Date().toLocaleString()} — review before sign-off.</div>`;
+      <div style="font-size: 8pt; color: #5B6878; margin-top: 6px;">AI-drafted ${whFmtDate(new Date(), { time: true })}: review before sign-off.</div>`;
     $('exec-summary').appendChild(summaryDiv);
   } finally {
     btn.disabled = false;
@@ -347,12 +363,12 @@ function renderCover(p) {
   $('cov-status').textContent = (p.status || '').replace('_', ' ');
   $('cov-status').className = 'status-pill status-' + p.status;
   $('cov-priority').textContent = '· ' + (p.priority || 'medium') + ' priority';
-  $('cov-owner').textContent = p.owner_name || '—';
+  $('cov-owner').textContent = p.owner_name || '-';
   $('cov-period').textContent = (p.start_date && p.end_date)
     ? `${fmtDate(p.start_date)} → ${fmtDate(p.end_date)}`
     : (p.start_date ? `from ${fmtDate(p.start_date)}` : 'not set');
-  $('cov-generated').textContent = new Date().toLocaleString();
-  $('cov-hive').textContent = HIVE_NAME || '—';
+  $('cov-generated').textContent = whFmtDate(new Date(), { time: true });
+  $('cov-hive').textContent = HIVE_NAME || '-';
 }
 
 function renderExecSummary(p, items, logs) {
@@ -367,11 +383,11 @@ function renderExecSummary(p, items, logs) {
   const recentBlockers = logs.filter(l => (l.blockers || '').trim()).length;
 
   let hero;
-  if (p.status === 'complete')      hero = `${p.project_code} is complete — ${itemsDone} of ${items.length} scope items closed, ${hoursAct.toFixed(0)} hours logged.`;
+  if (p.status === 'complete')      hero = `${p.project_code} is complete: ${itemsDone} of ${items.length} scope items closed, ${hoursAct.toFixed(0)} hours logged.`;
   else if (blockers > 0)            hero = `${p.project_code} has ${blockers} blocked scope item${blockers === 1 ? '' : 's'} requiring attention.`;
-  else if (pct >= 95)               hero = `${p.project_code} is ${pct}% complete — closeout phase.`;
+  else if (pct >= 95)               hero = `${p.project_code} is ${pct}% complete: closeout phase.`;
   else if (pct >= 50)               hero = `${p.project_code} is ${pct}% complete with ${items.length - itemsDone} scope items remaining.`;
-  else                              hero = `${p.project_code} is ${pct}% complete — ${items.length} scope items defined, ${itemsDone} done.`;
+  else                              hero = `${p.project_code} is ${pct}% complete: ${items.length} scope items defined, ${itemsDone} done.`;
 
   let evHtml = '';
   if (p.budget_php && p.start_date && p.end_date) {
@@ -383,9 +399,9 @@ function renderExecSummary(p, items, logs) {
     const PV  = BAC * plannedPct;
     const EV  = BAC * (pct / 100);
     const AC  = hoursAct * 200;
-    const SPI = PV > 0 ? (EV / PV).toFixed(2) : '—';
-    const CPI = AC > 0 ? (EV / AC).toFixed(2) : '—';
-    const min = Math.min(SPI === '—' ? 1 : Number(SPI), CPI === '—' ? 1 : Number(CPI));
+    const SPI = PV > 0 ? (EV / PV).toFixed(2) : '-';
+    const CPI = AC > 0 ? (EV / AC).toFixed(2) : '-';
+    const min = Math.min(SPI === '-' ? 1 : Number(SPI), CPI === '-' ? 1 : Number(CPI));
     const cls = min >= 0.95 ? 'green' : min >= 0.85 ? 'amber' : 'red';
     evHtml = `
       <div class="kpi-strip">
@@ -423,20 +439,20 @@ function renderScope(items) {
     const phaseClass = p ? `phase-${p}` : 'phase-pre';
     return `
       <h3><span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span> <span style="font-weight: 400; color: var(--muted); font-size: 9.5pt;">${list.length} item${list.length === 1 ? '' : 's'}</span></h3>
-      <!-- table-name-allow: project-report data table --> <table class="doc-table">
+      <!-- table-name-allow: project-report data table --> <div class="wh-scroll-x"><table class="doc-table">
         <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th class="right">Est h</th><th class="right">Actual h</th><th class="nowrap">Due</th></tr></thead>
         <tbody>${list.map(it => `
           <tr class="${it.status === 'done' ? 'done' : ''}">
             <td class="nowrap" style="font-family: monospace;">${e(it.wbs_code || '')}</td>
             <td>${e(it.title)}</td>
-            <td>${e(it.owner_name || '—')}</td>
+            <td>${e(it.owner_name || '-')}</td>
             <td><span class="status-pill status-${it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : 'planning'}">${e((it.status || '').replace('_', ' '))}</span></td>
-            <td class="right">${it.estimated_hours ?? '—'}</td>
-            <td class="right">${it.actual_hours ?? '—'}</td>
+            <td class="right">${it.estimated_hours ?? '-'}</td>
+            <td class="right">${it.actual_hours ?? '-'}</td>
             <td class="nowrap">${e(fmtDate(it.planned_end))}</td>
           </tr>`).join('')}
         </tbody>
-      </table>`;
+      </table></div>`;
   }).join('');
   $('scope-section').innerHTML = html;
 }
@@ -451,7 +467,7 @@ function renderLinked(links) {
   const html = Object.keys(labels).filter(k => groups[k]?.length).map(k => `
     <h3>${e(labels[k])} <span style="font-weight: 400; color: var(--muted); font-size: 9.5pt;">${groups[k].length} item${groups[k].length === 1 ? '' : 's'}</span></h3>
     <ul style="font-size: 9.5pt; padding-left: 20px; line-height: 1.7;">
-      ${groups[k].map(l => `<li>${e(l.label || l.link_id || '—')}</li>`).join('')}
+      ${groups[k].map(l => `<li>${e(l.label || l.link_id || '-')}</li>`).join('')}
     </ul>`).join('');
   $('linked-section').innerHTML = html;
 }
@@ -460,22 +476,22 @@ function renderProgress(logs) {
   if (!logs.length) { $('progress-section').innerHTML = '<div class="empty-section">No daily progress logs recorded.</div>'; return; }
   const sorted = [...logs].sort((a, b) => (a.log_date || '').localeCompare(b.log_date || ''));
   $('progress-section').innerHTML = `
-    <!-- table-name-allow: project-report data table --> <table class="doc-table">
+    <!-- table-name-allow: project-report data table --> <div class="wh-scroll-x"><table class="doc-table">
       <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% complete</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
       <tbody>${sorted.map(l => `
         <tr>
           <td class="nowrap">${e(fmtDate(l.log_date))}</td>
-          <td>${e(l.reported_by || '—')}</td>
+          <td>${e(l.reported_by || '-')}</td>
           <td>
             <span class="progress-mini"><div style="width: ${l.pct_complete || 0}%;"></div></span>
             <span style="margin-left: 4px; font-size: 8.5pt;">${l.pct_complete || 0}%</span>
           </td>
-          <td class="right">${l.hours_worked ?? '—'}</td>
+          <td class="right">${l.hours_worked ?? '-'}</td>
           <td>${e((l.notes || '').slice(0, 200))}</td>
           <td style="color: ${l.blockers ? 'var(--red)' : 'var(--muted)'};">${e((l.blockers || '').slice(0, 200))}</td>
         </tr>`).join('')}
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderLessons(p) {
@@ -532,5 +548,22 @@ function saveAsPdf() {
 <script src="companion-launcher.js"></script>
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('pr-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'pr-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Recomputed when this report is generated',
+      source: 'v_project_items_truth + v_project_progress_truth + project_links',
+    });
+  });
+</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

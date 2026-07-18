@@ -66,6 +66,16 @@ def query_published_posture() -> list[dict] | None:
              WHERE pol.polrelid = p.oid AND pol.polpermissive
                AND pol.polcmd IN ('r','*')
                AND (pol.polqual IS NULL OR pg_get_expr(pol.polqual, pol.polrelid) = 'true')
+               -- Only an APP-FACING always-true policy is an anon-subscribable live stream. Realtime
+               -- evaluates the subscriber's OWN SELECT policy, so a `USING(true)` policy scoped to a
+               -- restricted infra role (grafana_reader — the monitoring read granted in
+               -- infra/mcp/grafana/grafana_reader.sql, NEVER to anon/authenticated) streams to that role
+               -- only, not to an anon subscriber. Count it as an exposure ONLY when the always-true
+               -- policy applies to PUBLIC (polroles has oid 0) or anon/authenticated. (Same infra-role
+               -- exemption as Arc G's permissive-bypass detector + the db-adoption D2 census.)
+               AND EXISTS (SELECT 1 FROM unnest(pol.polroles) pr(oid)
+                           WHERE pr.oid = 0
+                              OR pr.oid IN (SELECT r.oid FROM pg_roles r WHERE r.rolname IN ('anon','authenticated')))
            ), 0) AS permissive_always_true
     FROM published p
     ORDER BY p.relname;"""

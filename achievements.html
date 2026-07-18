@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
   <meta name="calm-dashboard" content="1" />
-  <title>Achievements — WorkHive</title>
+  <title>Achievements: WorkHive</title>
   <meta name="description" content="WorkHive worker achievements and badges. XP per skill domain, leaderboard, and progress tracking." />
-  <meta property="og:title" content="Achievements — WorkHive" />
+  <meta property="og:title" content="Achievements: WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/achievements.html" />
   <link rel="manifest" href="manifest.json" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
@@ -62,7 +62,7 @@
       text-transform: uppercase; color: var(--wh-orange); margin-bottom: 0.3rem;
     }
     #levelup-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
-    #levelup-meta { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
+    #levelup-meta { font-size: 0.8rem; color: rgba(255,255,255,0.62); margin-bottom: 1.5rem; }
     #levelup-close {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; font-family: 'Poppins', sans-serif;
@@ -94,7 +94,7 @@
       transition: background 0.15s;
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); }
-    .page-title { font-size: 1.05rem; font-weight: 700; }
+    .page-title { font-size: 1.1rem; font-weight: 700; } /* C1: joined the 18px title tier (was 1.05rem/17px, a drift step) */
 
     /* ── Hero band ── */
     .hero-card {
@@ -122,8 +122,8 @@
     }
     .hero-stats { display: flex; gap: 1.25rem; flex-wrap: wrap; }
     .hero-stat { text-align: center; }
-    .hero-stat-val { font-size: 1.2rem; font-weight: 800; line-height: 1; }
-    .hero-stat-lbl { font-size: 0.6rem; color: rgba(255,255,255,0.4);
+    .hero-stat-val { font-size: 1.15rem; font-weight: 800; line-height: 1; } /* C1: joined the 18px tier (was 1.2rem/19px, a drift step) */
+    .hero-stat-lbl { font-size: 0.6rem; color: rgba(255,255,255,0.62);
       text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
 
     /* ── Pillar section headers ── */
@@ -167,7 +167,7 @@
       color: rgba(255,255,255,0.9);
     }
     .domain-tier-label {
-      font-size: 0.58rem; font-weight: 600; color: rgba(255,255,255,0.35);
+      font-size: 0.58rem; font-weight: 600; color: rgba(255,255,255,0.62);
     }
 
     /* XP bar */
@@ -182,7 +182,7 @@
       transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
     }
     .xp-text {
-      font-size: 0.55rem; color: rgba(255,255,255,0.3);
+      font-size: 0.55rem; color: rgba(255,255,255,0.62);
       white-space: nowrap;
     }
 
@@ -194,10 +194,10 @@
       font-size: 0.6rem; padding: 0.25rem 0;
       border-top: 1px solid rgba(255,255,255,0.05);
     }
-    .event-label { flex: 1; color: rgba(255,255,255,0.55); min-width: 0;
+    .event-label { flex: 1; color: rgba(255,255,255,0.62); min-width: 0;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-xp { font-weight: 700; color: #4ade80; flex-shrink: 0; }
-    .event-time { color: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .event-time { color: rgba(255,255,255,0.62); flex-shrink: 0; }
 
     /* Iron Worker card (full-width legendary) */
     .domain-card.legendary {
@@ -212,7 +212,7 @@
     .domain-card.legendary .domain-tier-label { font-size: 0.65rem; }
     .legendary-info { flex: 1; min-width: 0; }
     .legendary-desc {
-      font-size: 0.65rem; color: rgba(255,255,255,0.4);
+      font-size: 0.65rem; color: rgba(255,255,255,0.62);
       margin-top: 0.2rem; line-height: 1.4;
     }
 
@@ -225,7 +225,7 @@
     }
     .section-heading {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: rgba(255,255,255,0.45);
+      text-transform: uppercase; color: rgba(255,255,255,0.62);
       margin-bottom: 0.75rem;
     }
     .activity-row {
@@ -243,7 +243,7 @@
     .activity-body { flex: 1; min-width: 0; }
     .activity-name { font-size: 0.72rem; font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .activity-sub { font-size: 0.62rem; color: rgba(255,255,255,0.35); }
+    .activity-sub { font-size: 0.62rem; color: rgba(255,255,255,0.62); }
     .activity-xp { font-size: 0.72rem; font-weight: 700; color: #4ade80; flex-shrink: 0; }
 
     /* ── Hive standings ── */
@@ -256,7 +256,7 @@
     .standing-rank {
       width: 24px; font-size: 0.7rem; font-weight: 800;
       text-align: center; flex-shrink: 0;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.62);
     }
     .standing-rank.gold   { color: var(--wh-orange); }
     .standing-rank.silver { color: #94A3B8; }
@@ -269,7 +269,7 @@
 
     /* ── Empty state ── */
     .empty-note {
-      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+      font-size: 0.75rem; color: rgba(255,255,255,0.62);
       text-align: center; padding: 1rem 0;
     }
 
@@ -305,7 +305,7 @@
     }
     .tier-sample-range {
       font-size: 0.55rem; font-weight: 600;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.62);
       white-space: nowrap;
     }
     /* Plain-Read summary (Layer D — UX Contract) */
@@ -320,7 +320,7 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #ac-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #ac-summary-details.open { display:block; }
@@ -329,7 +329,7 @@
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No achievements yet — earn your first badge by logging work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log your first entry →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No achievements yet. Earn your first badge by logging work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log your first entry →</a></div>
 
 
 
@@ -356,7 +356,7 @@
     <button type="button" onclick="history.back()" class="back-btn" aria-label="Go back">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <h1 class="page-title" style="margin:0;">Growth</h1>
+    <h1 class="page-title" style="margin:0;" data-i="ach_growth">Growth</h1>
   </div>
   <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface (same worker
        audience, same job "how am I progressing?"). One nav entry; this tab bar switches
@@ -375,43 +375,43 @@
   </div>
   <div class="simple-row">
     <div class="simple-card hero tag-grey" id="ac-card-week" data-rag-tile="achievements:xp_this_week" data-rag-label="XP this week">
-      <div class="sc-label">XP this week</div>
+      <h2 class="sc-label" style="margin:0;" data-i="ach_xpweek">XP this week</h2>
       <div class="sc-hero" id="ac-week-hero">0</div>
       <div class="sc-sub" id="ac-week-sub">Loading...</div>
-      <span class="sc-tag" id="ac-week-tag">—</span>
+      <span class="sc-tag" id="ac-week-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="ac-card-active" data-rag-tile="achievements:active_domains" data-rag-label="Active domains">
-      <div class="sc-label">Active domains</div>
+      <h2 class="sc-label" style="margin:0;" data-i="ach_activedom">Active domains</h2>
       <div class="sc-hero" id="ac-active-hero">0</div>
       <div class="sc-sub" id="ac-active-sub">Loading...</div>
-      <span class="sc-tag" id="ac-active-tag">—</span>
+      <span class="sc-tag" id="ac-active-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="ac-card-level" data-rag-tile="achievements:total_level" data-rag-label="Total level">
-      <div class="sc-label">Total level</div>
+      <h2 class="sc-label" style="margin:0;" data-i="ach_totallvl">Total level</h2>
       <div class="sc-hero" id="ac-level-hero">0</div>
       <div class="sc-sub" id="ac-level-sub">Loading...</div>
-      <span class="sc-tag" id="ac-level-tag">—</span>
+      <span class="sc-tag" id="ac-level-tag">-</span>
     </div>
   </div>
   <div class="action-card">
     <div class="ac-label">What to do next</div>
     <div class="ac-text" id="ac-action-text">Computing recommendation...</div>
   </div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details">
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details" data-i="showdetails">
     Show details
   </button>
   <div id="ac-summary-details" role="region" aria-label="Achievements explainer"
     data-rag-tile="achievements:detail_panel"
     data-rag-label="Achievements detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How XP and tiers work</strong>
-    <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.62);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
     <ul style="margin:0;padding-left:20px;">
       <li><strong>XP this week</strong>: XP entries from the past 7 days, summed.</li>
       <li><strong>Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
       <li><strong>Total level</strong>: sum of your level across all 12 domains. Drives your worker tier.</li>
-      <li><strong>Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red — Achievements is purely motivational.</li>
+      <li><strong>Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
   </div>
 
   <!-- Hero -->
@@ -427,30 +427,31 @@
         <div class="hero-stat">
           <div class="hero-stat-val" id="stat-composite"
     data-rag-tile="achievements:composite_score"
-    data-rag-label="Composite skill score">—</div>
+    data-rag-label="Composite skill score">-</div>
           <div class="hero-stat-lbl">Total Level</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-val" id="stat-active"
     data-rag-tile="achievements:active_domains_stat"
-    data-rag-label="Active domains stat">—</div>
+    data-rag-label="Active domains stat">-</div>
           <div class="hero-stat-lbl">Domains Active</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-val" id="stat-top"
     data-rag-tile="achievements:top_domain"
-    data-rag-label="Top skill domain">—</div>
+    data-rag-label="Top skill domain">-</div>
           <div class="hero-stat-lbl">Highest Level</div>
         </div>
       </div>
+      <a href="logbook.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:0.75rem;padding:6px 16px;border-radius:8px;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));color:var(--wh-navy);font-size:0.8rem;font-weight:700;text-decoration:none;">Earn XP: log a job &rarr;</a>
     </div>
   </div>
 
   <!-- Tier Guide -->
-  <div class="section-card" id="tier-guide-card">
+  <div class="section-card" id="tier-guide-card" style="min-height:150px;">
     <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
       <span>Tier Guide</span>
-      <span style="font-size:0.55rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.35);">Visual key — what each rank looks like</span>
+      <span style="font-size:0.55rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.62);">Visual key: what each rank looks like</span>
     </div>
     <div id="tier-showcase"></div>
   </div>
@@ -488,6 +489,8 @@
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
       restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
     }
+    // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
+    if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
   const HIVE_ID    = localStorage.getItem('wh_active_hive_id')
                    || localStorage.getItem('wh_hive_id') || '';
 
@@ -505,7 +508,7 @@
     knowledge_forger: { name: 'Knowledge Forger',  icon: '📝', pillar: 'autonomy',    desc: 'Write detailed entries and handovers' },
     hive_architect:   { name: 'Hive Architect',    icon: '🏗️', pillar: 'relatedness', desc: 'Build and sustain your team' },
     voice_of_hive:    { name: 'Voice of the Hive', icon: '🗣️', pillar: 'relatedness', desc: 'Post and reply in the community' },
-    shift_keeper:     { name: 'Shift Keeper',      icon: '🕐', pillar: 'relatedness', desc: 'Submit on-time shift handovers' },
+    shift_keeper:     { name: 'Shift Keeper',      icon: '🕐', pillar: 'relatedness', desc: 'Publish shift plans to your crew' },
     iron_worker:      { name: 'Iron Worker',       icon: '⚙️', pillar: 'legendary',   desc: 'Reach Level 50 in any 5 domains to unlock' },
   };
 
@@ -530,6 +533,7 @@
   // ── State ───────────────────────────────────────────────────
   let _achievements = [];
   let _xpLog        = [];
+  let _weekXP       = null; // dedicated 7-day XP SUM — must NOT be derived from the 30-row _xpLog list (see init: an active worker can log >30 XP events/week, silently undercounting the sum).
   let _achChannel   = null;
 
   // ── XP curve helpers ────────────────────────────────────────
@@ -565,18 +569,7 @@
   }
 
   // ── Time formatter ──────────────────────────────────────────
-  function timeAgo(ts) {
-    if (!ts) return '';
-    const diff = Date.now() - new Date(ts).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1)   return 'just now';
-    if (m < 60)  return m + 'm ago';
-    const h = Math.floor(m / 60);
-    if (h < 24)  return h + 'h ago';
-    const d = Math.floor(h / 24);
-    if (d < 30)  return d + 'd ago';
-    return Math.floor(d / 30) + 'mo ago';
-  }
+  function timeAgo(ts) { return (typeof whFmtAgo === 'function') ? whFmtAgo(ts) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
 
   // ── Render helpers ──────────────────────────────────────────
   function getAch(id) {
@@ -593,14 +586,15 @@
     const pct  = levelProgressPct(xp, lv);
     const toNext = xpToNext(xp, lv);
     const isLegendary = def.pillar === 'legendary';
+    const soon = !!def.soon;  // no XP trigger wired yet — show "Coming soon", not earnable-but-empty
 
     if (isLegendary) {
       const locked = lv === 0;
-      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" onclick="toggleDomain('${escHtml(achId)}')">
+      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-label="${escHtml(def.name)}, expand details" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}">
         <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 56)}</div>
         <div class="legendary-info">
           <div class="domain-name">${escHtml(def.name)}</div>
-          <div class="domain-tier-label">${locked ? 'Locked' : tier.label + ' Lv.' + lv}</div>
+          <div class="domain-tier-label">${soon ? 'Coming soon' : (locked ? 'Locked' : tier.label + ' Lv.' + lv)}</div>
           <div class="legendary-desc">${escHtml(def.desc)}</div>
           ${locked ? '' : `<div class="xp-bar-wrap" style="margin-top:0.5rem;"><div class="xp-bar-fill" style="width:${pct}%;--tier-clr:${tier.color};"></div></div>`}
         </div>
@@ -608,12 +602,12 @@
       </div>`;
     }
 
-    return `<div class="domain-card" data-ach="${escHtml(achId)}" onclick="toggleDomain('${escHtml(achId)}')">
+    return `<div class="domain-card" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-label="${escHtml(def.name)}${soon ? ', coming soon' : ''}, expand details" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}"${soon ? ' style="opacity:0.6"' : ''}>
       <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 52)}</div>
       <div class="domain-name">${escHtml(def.name)}</div>
-      <div class="domain-tier-label">${lv > 0 ? tier.label + ' Lv.' + lv : 'Iron Lv.0'}</div>
-      <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${pct}%;--tier-clr:${tier.color};"></div></div>
-      <div class="xp-text">${lv < 100 ? escHtml(String(toNext)) + ' XP to Lv.' + (lv + 1) : 'Max Level!'}</div>
+      <div class="domain-tier-label">${soon ? 'Coming soon' : (lv > 0 ? tier.label + ' Lv.' + lv : 'Iron Lv.0')}</div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${soon ? 0 : pct}%;--tier-clr:${tier.color};"></div></div>
+      <div class="xp-text">${soon ? 'Not yet trackable' : (lv < 100 ? escHtml(String(toNext)) + ' XP to Lv.' + (lv + 1) : 'Max Level!')}</div>
       <div class="domain-events"></div>
     </div>`;
   }
@@ -659,9 +653,13 @@
     const composite = _achievements.reduce((s, a) => s + (a.current_level || 0), 0);
     const active    = _achievements.filter(a => (a.current_level || 0) > 0).length;
     const weekAgo   = Date.now() - 7 * 86400 * 1000;
-    const weekXP    = (_xpLog || [])
-      .filter(r => r.earned_at && new Date(r.earned_at).getTime() >= weekAgo)
-      .reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);
+    // Prefer the dedicated window-scoped SUM (_weekXP from init); the 30-row _xpLog list
+    // is only a fallback (and would undercount a worker with >30 XP events in the week).
+    const weekXP    = (typeof _weekXP === 'number')
+      ? _weekXP
+      : (_xpLog || [])
+          .filter(r => r.earned_at && new Date(r.earned_at).getTime() >= weekAgo)
+          .reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);
 
     const setCard = (name, hero, sub, tag, tone) => {
       const card = document.getElementById('ac-card-' + name);
@@ -676,7 +674,7 @@
 
     setCard('week',
       `+${weekXP}`,
-      weekXP === 0 ? 'No XP earned in the past 7 days' : `${weekXP} XP from logbook + PM + AI feedback this week`,
+      weekXP === 0 ? 'No XP earned in the past 7 days' : `${weekXP} XP from logbook, PM & community work this week`,
       weekXP === 0 ? 'IDLE' : weekXP >= 100 ? 'GREAT WEEK' : weekXP >= 50 ? 'ON PACE' : 'KEEP GOING',
       weekXP === 0 ? 'grey' : weekXP >= 50 ? 'green' : 'amber'
     );
@@ -696,16 +694,16 @@
     let tone, label, sub;
     if (composite === 0) {
       tone = 'empty'; label = 'No achievements yet';
-      sub  = 'Open Logbook, log your first breakdown or PM — XP starts flowing immediately.';
+      sub  = 'Open Logbook, log your first breakdown or PM, and XP starts flowing immediately.';
     } else if (weekXP >= 50) {
-      tone = 'healthy'; label = `${weekXP} XP this week — solid pace`;
+      tone = 'healthy'; label = `${weekXP} XP this week, solid pace`;
       sub  = `${active}/12 domains active · total level ${composite}.`;
     } else if (weekXP > 0) {
-      tone = 'watch'; label = `${weekXP} XP this week — keep going`;
+      tone = 'watch'; label = `${weekXP} XP this week, keep going`;
       sub  = `Push to 50+ XP for the weekly target. ${active}/12 domains active.`;
     } else {
       tone = 'watch'; label = 'No XP this week';
-      sub  = 'Logbook entries, PM completions, and AI feedback all earn XP. Pick one and you are back on the board.';
+      sub  = 'Logbook entries, PM completions, and knowledge contributions all earn XP. Pick one and you are back on the board.';
     }
     const vBox = document.getElementById('ac-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -717,15 +715,15 @@
     if (actBox) {
       let text;
       if (composite === 0) {
-        text = 'You have no XP yet. Log a breakdown or complete a PM in Logbook / PM Scheduler — XP and badges land here automatically.';
+        text = 'You have no XP yet. Log a breakdown or complete a PM in Logbook / PM Scheduler, and XP and badges land here automatically.';
       } else if (weekXP === 0) {
-        text = 'No XP this week. The easiest source is logging a breakdown with problem + root_cause + action; that alone earns +5 XP in the Diagnostics domain.';
+        text = 'No XP this week. The easiest source is logging a breakdown with problem + root_cause + action; that earns +100 XP in the Failure Hunter domain.';
       } else if (active < 4) {
-        text = `Only ${active}/12 domains active. Try a different kind of entry — a PM completion earns Maintenance XP, a knowledge contribution earns Knowledge XP, etc.`;
+        text = `Only ${active}/12 domains active. Try a new kind of entry. A PM completion earns Maintenance XP. A shared tip earns Knowledge XP.`;
       } else if (weekXP < 50) {
-        text = `${weekXP} XP this week. Push to 50 for the weekly target — a couple of logbook entries with a good knowledge field will get you there.`;
+        text = `${weekXP} XP this week. Push to 50 for the weekly target: a couple of logbook entries with a good knowledge field will get you there.`;
       } else {
-        text = 'Great week! Keep the streak going — XP this week feeds your hive standing card below.';
+        text = 'Great week! Keep the streak going, your XP this week feeds your hive standing card below.';
       }
       actBox.textContent = text;
     }
@@ -878,7 +876,7 @@
       <div class="standing-row">
         <div class="standing-rank ${rankClass(i)}">${rankIcon(i)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
-        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.55rem;color:rgba(255,255,255,0.3);">(you)</span>' : ''}</div>
+        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.55rem;color:rgba(255,255,255,0.62);">(you)</span>' : ''}</div>
         <div class="standing-score">${w.total} pts</div>
       </div>`).join('');
 
@@ -894,7 +892,7 @@
     document.getElementById('levelup-badge-wrap')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderDomainBadge(def.icon, newLevel, 96);
     document.getElementById('levelup-eyebrow').textContent  = isTierUp ? 'Tier Up!' : 'Level Up!';
     document.getElementById('levelup-heading').textContent  = def.name;
-    document.getElementById('levelup-meta').textContent     = tier.label + ' — Level ' + newLevel;
+    document.getElementById('levelup-meta').textContent     = tier.label + ': Level ' + newLevel;
     document.getElementById('levelup-overlay').classList.remove('hidden');
   }
   function closeLevelUpModal() {
@@ -977,7 +975,8 @@
         ],
       });
     }
-    const [achRes, logRes] = await Promise.all([
+    const _weekAgoIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+    const [achRes, logRes, weekRes] = await Promise.all([
       db.from('v_worker_achievements_truth')
         .select('achievement_id, current_level, xp_total, last_action_at')
         .eq('worker_name', WORKER_NAME)
@@ -986,11 +985,34 @@
         .select('achievement_id, xp_earned, source_action, earned_at')
         .eq('worker_name', WORKER_NAME)
         .order('earned_at', { ascending: false })
-        .limit(30)
+        .limit(30), // recent-activity LIST cap (renderRecentActivity slice(0,10) / toggleDomain slice(0,3)) — NOT an aggregate source.
+      // BUGFIX (limit-as-aggregate): "XP this week" must be a WINDOW-scoped SUM, never
+      // derived from the 30-row list above — an active worker can log >30 XP events in 7
+      // days, which the 30-cap would silently undercount. Dedicated week-window query.
+      db.from('achievement_xp_log')
+        .select('xp_earned')
+        .eq('worker_name', WORKER_NAME)
+        .gte('earned_at', _weekAgoIso)
+        .limit(1000)
     ]);
+
+    // BUGFIX: a query ERROR is NOT "no achievements". supabase-js returns {data:null,error}
+    // (no throw) on an RLS-deny / dropped column — the old `achRes.data || []` then rendered
+    // the "No achievements yet" empty state for a worker who actually has XP. Surface an
+    // inline error + Retry (like loadHiveStandings) instead.
+    if (achRes.error) {
+      console.error('achievements load failed:', achRes.error.message || achRes.error);
+      const _body = document.getElementById('achievements-body');
+      if (_body && typeof whListError === 'function') {
+        whListError(_body, "Couldn’t load your achievements. Check your connection and try again.", () => init());
+      }
+      if (typeof showToast === 'function') showToast('Achievements failed to load. Tap Retry.', 'warn');
+      return;
+    }
 
     _achievements = achRes.data  || [];
     _xpLog        = logRes.data  || [];
+    _weekXP       = weekRes.error ? null : (weekRes.data || []).reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);
 
     renderHero();
     renderAchievementsSummary();
@@ -1004,7 +1026,7 @@
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
   }
 
-  init();
+  Promise.resolve(init()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3): stamp only AFTER the load completed
 </script>
 <script src="nav-hub.js"></script>
 </main>
@@ -1012,7 +1034,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -1023,5 +1045,24 @@
 </script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('ach-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'ach-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'v_worker_achievements_truth + achievement_xp_log + v_worker_truth',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE={ach_growth:'Paglago',ach_xpweek:'XP ngayong linggo',ach_activedom:'Aktibong domain',ach_totallvl:'Kabuuang level'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

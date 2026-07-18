@@ -45,6 +45,7 @@ TARGET_PAGES = [
     "marketplace.html",
     "marketplace-seller.html",
     "marketplace-admin.html",
+    "platform-actions.html",
     "project-manager.html",
     "integrations.html",
     "ph-intelligence.html",
@@ -104,11 +105,11 @@ UPSERT_RULES = [
         "inventory_items",
         "inventory_items must use .upsert() to prevent duplicate part entries",
     ),
-    (
-        "skillmatrix.html",
-        "skill_badges",
-        "skill_badges must use .upsert() to update existing badges — raw insert creates duplicates",
-    ),
+    # NOTE (K1, 2026-07-12): skillmatrix.html no longer client-writes skill_badges at all — the
+    # badge is awarded SERVER-SIDE by the grade_skill_exam() SECURITY DEFINER RPC (client writes are
+    # RLS-locked). The conflict key + no-client-write invariant is enforced by validate_skillmatrix.py
+    # (check: badge_award_server_side) + validate_growth_write_isolation.py, so the old client-upsert
+    # rule here is obsolete. See [[reference_skill_badge_server_grading]].
 ]
 
 # Save functions that must disable the submit button during operation

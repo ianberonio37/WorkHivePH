@@ -15,7 +15,8 @@
 // Thresholds are env-tunable (WH_LOGIN_MAX_ATTEMPTS / WH_LOGIN_WINDOW_MIN / WH_LOGIN_LOCKOUT_MIN). verify_jwt
 // is false (pre-auth by nature); the fn uses the SERVICE ROLE only to call the lockout RPCs (service-role-only
 // grants) — it never exposes the service key to the client.
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logRequestStart } from "../_shared/logger.ts";
@@ -28,7 +29,12 @@ function clientIp(req: Request): string {
   return (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "";
 }
 
-serve(async (req: Request) => {
+serveObserved("login", async (req: Request) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "login", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "login");

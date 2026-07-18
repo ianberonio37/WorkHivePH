@@ -1,0 +1,345 @@
+- generic [active] [ref=f3e1]:
+  - link "Skip to main content" [ref=f3e2] [cursor=pointer]:
+    - /url: "#wh-main-content"
+  - main [ref=f3e3]:
+    - generic [ref=f3e4]:
+      - generic [ref=f3e6]:
+        - heading "Alert Hub" [level=1] [ref=f3e7]
+        - paragraph [ref=f3e8]: Everything that needs your attention, in one place.
+        - paragraph [ref=f3e9]:
+          - paragraph [ref=f3e10]: "Live data · Based on your risk scores · PM overdue: counted once per asset, matches PM Scheduler"
+      - generic [ref=f3e11]:
+        - generic [ref=f3e12]:
+          - generic [ref=f3e13]:
+            - img "warning" [ref=f3e72]
+            - generic [ref=f3e15]:
+              - text: Needs your attention now
+              - generic [ref=f3e16]: "Critical or high-severity alerts are open: clear the top of the feed first."
+          - generic [ref=f3e17]:
+            - generic [ref=f3e18]:
+              - generic [ref=f3e19]: High-severity alerts
+              - generic [ref=f3e20]: "6"
+              - generic [ref=f3e21]: 6 of 8 alerts need eyes now
+              - generic [ref=f3e22]: STACKING UP
+            - generic [ref=f3e23]:
+              - generic [ref=f3e24]: Anomaly signals
+              - generic [ref=f3e25]: "0"
+              - generic [ref=f3e26]: No fused anomalies in your hive right now
+              - generic [ref=f3e27]: CLEAR
+            - generic [ref=f3e28]:
+              - generic [ref=f3e29]: AMC daily brief
+              - generic [ref=f3e30]: None today
+              - generic [ref=f3e31]: No AMC brief for today's shift
+              - generic [ref=f3e32]: NO BRIEF
+          - generic [ref=f3e33]:
+            - generic [ref=f3e34]: What to do next
+            - generic [ref=f3e35]: Filter to "Critical/High" using the chips below and clear the top of the feed first. Bookmark anything that needs a follow-up via the logbook.
+            - link "Do the recommended next action" [ref=f3e74] [cursor=pointer]:
+              - /url: "#"
+              - text: Clear 6 critical/high →
+          - button "Show details" [ref=f3e36] [cursor=pointer]
+        - tablist "Alert filters" [ref=f3e37]:
+          - tab "⊞ All 8" [selected] [ref=f3e75] [cursor=pointer]:
+            - generic [ref=f3e76]: ⊞
+            - text: All
+            - generic [ref=f3e77]: "8"
+          - tab "bot AMC 0" [ref=f3e78] [cursor=pointer]:
+            - img "bot" [ref=f3e80]
+            - text: AMC
+            - generic [ref=f3e84]: "0"
+          - tab "dot Risk 2" [ref=f3e85] [cursor=pointer]:
+            - img "dot" [ref=f3e87]
+            - text: Risk
+            - generic [ref=f3e89]: "2"
+          - tab "warning PM 1" [ref=f3e90] [cursor=pointer]:
+            - img "warning" [ref=f3e92]
+            - text: PM
+            - generic [ref=f3e94]: "1"
+          - tab "package Stock 3" [ref=f3e95] [cursor=pointer]:
+            - img "package" [ref=f3e97]
+            - text: Stock
+            - generic [ref=f3e101]: "3"
+          - tab "mail Staging 1" [ref=f3e102] [cursor=pointer]:
+            - img "mail" [ref=f3e104]
+            - text: Staging
+            - generic [ref=f3e107]: "1"
+          - tab "gear Pattern 1" [ref=f3e108] [cursor=pointer]:
+            - img "gear" [ref=f3e110]
+            - text: Pattern
+            - generic [ref=f3e113]: "1"
+          - tab "gear System 0" [ref=f3e114] [cursor=pointer]:
+            - img "gear" [ref=f3e116]
+            - text: System
+            - generic [ref=f3e119]: "0"
+        - generic [ref=f3e38]:
+          - generic [ref=f3e120]:
+            - generic [ref=f3e121]: •
+            - generic [ref=f3e122]:
+              - generic [ref=f3e123]:
+                - generic [ref=f3e124]: critical
+                - generic "GEN-003" [ref=f3e125]
+              - generic [ref=f3e126]: "0 parts recommended (68% confidence): Risk score 0.90 on GEN-003. 3 parts appear in 55%+ of past corrective fixes for this asset. Stage now to prevent unplanned downtime."
+              - generic [ref=f3e127]:
+                - link "Review & stage →" [ref=f3e128] [cursor=pointer]:
+                  - /url: asset-hub.html?tag=GEN-003
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e129] [cursor=pointer]:
+                  - img "eye" [ref=f3e130]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e133] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e134] [cursor=pointer]:
+                  - img "check" [ref=f3e135]
+                  - text: Handled
+          - generic [ref=f3e137]:
+            - img "dot" [ref=f3e139]
+            - generic [ref=f3e141]:
+              - generic [ref=f3e142]:
+                - generic [ref=f3e143]: critical
+                - generic "GEN-003" [ref=f3e144]
+              - generic [ref=f3e145]: Risk score 90%, pm overdue, repeat fault, high fault freq
+              - generic [ref=f3e146]:
+                - link "Open in Asset Hub →" [ref=f3e147] [cursor=pointer]:
+                  - /url: asset-hub.html?tag=GEN-003
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e148] [cursor=pointer]:
+                  - img "eye" [ref=f3e149]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e152] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e153] [cursor=pointer]:
+                  - img "check" [ref=f3e154]
+                  - text: Handled
+          - generic [ref=f3e156]:
+            - img "dot" [ref=f3e158]
+            - generic [ref=f3e160]:
+              - generic [ref=f3e161]:
+                - generic [ref=f3e162]: high
+                - generic "FL-001" [ref=f3e163]
+              - generic [ref=f3e164]: Risk score 78%, high fault freq, mtbf approaching
+              - generic [ref=f3e165]:
+                - link "Open in Asset Hub →" [ref=f3e166] [cursor=pointer]:
+                  - /url: asset-hub.html?tag=FL-001
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e167] [cursor=pointer]:
+                  - img "eye" [ref=f3e168]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e171] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e172] [cursor=pointer]:
+                  - img "check" [ref=f3e173]
+                  - text: Handled
+          - generic [ref=f3e175]:
+            - img "gear" [ref=f3e177]
+            - generic [ref=f3e180]:
+              - generic [ref=f3e181]:
+                - generic [ref=f3e182]: high
+                - generic "TT-001" [ref=f3e183]
+              - generic [ref=f3e184]: "TT-001: same fault pattern detected 3 times in 14 days"
+              - generic [ref=f3e185]:
+                - link "Open in Asset Hub →" [ref=f3e186] [cursor=pointer]:
+                  - /url: asset-hub.html?tag=TT-001
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e187] [cursor=pointer]:
+                  - img "eye" [ref=f3e188]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e191] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e192] [cursor=pointer]:
+                  - img "check" [ref=f3e193]
+                  - text: Handled
+          - generic [ref=f3e195]:
+            - img "package" [ref=f3e197]
+            - generic [ref=f3e201]:
+              - generic [ref=f3e202]:
+                - generic [ref=f3e203]: medium
+                - generic "Bearing 6310 C3" [ref=f3e204]
+              - generic [ref=f3e205]: 3 on hand, reorder at 4
+              - generic [ref=f3e206]:
+                - link "Open Inventory →" [ref=f3e207] [cursor=pointer]:
+                  - /url: inventory.html?q=Bearing%206310%20C3
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e208] [cursor=pointer]:
+                  - img "eye" [ref=f3e209]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e212] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e213] [cursor=pointer]:
+                  - img "check" [ref=f3e214]
+                  - text: Handled
+          - generic [ref=f3e216]:
+            - img "package" [ref=f3e218]
+            - generic [ref=f3e222]:
+              - generic [ref=f3e223]:
+                - generic [ref=f3e224]: medium
+                - generic "Secondary fuel filter" [ref=f3e225]
+              - generic [ref=f3e226]: 3 on hand, reorder at 4
+              - generic [ref=f3e227]:
+                - link "Open Inventory →" [ref=f3e228] [cursor=pointer]:
+                  - /url: inventory.html?q=Secondary%20fuel%20filter
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e229] [cursor=pointer]:
+                  - img "eye" [ref=f3e230]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e233] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e234] [cursor=pointer]:
+                  - img "check" [ref=f3e235]
+                  - text: Handled
+          - generic [ref=f3e237]:
+            - img "package" [ref=f3e239]
+            - generic [ref=f3e243]:
+              - generic [ref=f3e244]:
+                - generic [ref=f3e245]: high
+                - generic "Loctite 567 thread sealant" [ref=f3e246]
+              - generic [ref=f3e247]: 2 on hand, reorder at 4
+              - generic [ref=f3e248]:
+                - link "Open Inventory →" [ref=f3e249] [cursor=pointer]:
+                  - /url: inventory.html?q=Loctite%20567%20thread%20sealant
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e250] [cursor=pointer]:
+                  - img "eye" [ref=f3e251]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e254] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e255] [cursor=pointer]:
+                  - img "check" [ref=f3e256]
+                  - text: Handled
+          - generic [ref=f3e258]:
+            - img "warning" [ref=f3e260]
+            - generic [ref=f3e262]:
+              - generic [ref=f3e263]:
+                - generic [ref=f3e264]: high
+                - generic "Kaeser CSD 105" [ref=f3e265]
+              - generic [ref=f3e266]: PM 2d overdue (Air Compressor)
+              - generic [ref=f3e267]:
+                - link "Open PM Scheduler →" [ref=f3e268] [cursor=pointer]:
+                  - /url: pm-scheduler.html?asset=Kaeser%20CSD%20105
+                - button "Mark this alert as seen (keeps it, dims it)" [ref=f3e269] [cursor=pointer]:
+                  - img "eye" [ref=f3e270]
+                  - text: Seen
+                - button "Snooze this alert for 7 days" [ref=f3e273] [cursor=pointer]: ⏳ Snooze 7d
+                - button "Mark this alert handled" [ref=f3e274] [cursor=pointer]:
+                  - img "check" [ref=f3e275]
+                  - text: Handled
+        - button "Load More" [ref=f3e46] [cursor=pointer]
+        - generic [ref=f3e277]: Last refreshed 01:09 PM · Auto-refresh every minute
+  - group [ref=f3e47]:
+    - generic "▸ About this dashboard's data sources" [ref=f3e48] [cursor=pointer]
+  - alert
+  - generic [ref=f3e49]:
+    - button "Open navigation hub" [ref=f3e50] [cursor=pointer]:
+      - generic: WorkHive
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: WorkHive
+      - button "Open global search":
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All" [selected]:
+          - generic: ⊞
+          - text: All
+        - tab "wrench Field":
+          - generic:
+            - img "wrench"
+          - text: Field
+        - tab "user Supervisor":
+          - generic:
+            - img "user"
+          - text: Supervisor
+        - tab "gear Engineer":
+          - generic:
+            - img "gear"
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+          - link "Logbook":
+            - /url: logbook.html
+          - link "Inventory":
+            - /url: inventory.html
+          - link "Day":
+            - /url: dayplanner.html
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+        - link "Inventory":
+          - /url: inventory.html
+        - link "Day Planner":
+          - /url: dayplanner.html
+        - paragraph: Your Team
+        - link "WorkHive":
+          - /url: hive.html
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+        - link "Community":
+          - /url: community.html
+        - paragraph: Intelligence
+        - link "Analytics":
+          - /url: analytics.html
+        - link "AI Assistant":
+          - /url: assistant.html
+        - link "Asset Hub":
+          - /url: asset-hub.html
+        - link "Alert Hub":
+          - /url: alert-hub.html
+        - paragraph: Build & Projects
+        - link "Eng. Design":
+          - /url: engineering-design.html
+        - link "Project Manager":
+          - /url: project-manager.html
+        - paragraph: Grow
+        - link "Growth":
+          - /url: skillmatrix.html
+        - link "Resume Builder":
+          - /url: resume.html
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+        - link "Connections":
+          - /url: integrations.html
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Zaniah":
+          - img "Zaniah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Zaniah":
+            - img "Zaniah"
+        - generic:
+          - strong: Zaniah
+          - text: Alert Hub
+        - button "Close":
+          - img "x"
+      - generic:
+        - text: "Context:"
+        - strong: Alert Hub
+      - log "Assistant conversation":
+        - generic:
+          - text: Hi! I'm WorkHive AI. You're on the
+          - strong: WorkHive Home
+          - text: page. Ask me anything about the platform or industrial maintenance. What do you need?
+        - generic: What did I log in the logbook last week? Give me the exact entries.
+        - generic: I can see the most recent logbook entries in the snapshot, but it doesn't specify a date range like "last week." The snapshot shows entries for CR-001, MILL-001, RC-001, and BF-001. For the exact entries from last week, you'd want to check the Logbook page directly.
+      - generic:
+        - button "Voice command"
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send"
+  - generic:
+    - button "Back to previous page" [ref=f3e51] [cursor=pointer]:
+      - generic [ref=f3e54]: Back
+    - navigation "breadcrumb" [ref=f3e55]:
+      - link "Home" [ref=f3e56] [cursor=pointer]:
+        - /url: index.html
+      - generic [ref=f3e57]: ›
+      - generic [ref=f3e58]: Alert Hub
+  - button "Send feedback to WorkHive" [ref=f3e59] [cursor=pointer]:
+    - img "chat" [ref=f3e60]
+  - generic [ref=f3e62]:
+    - 'link "Read the guide: One Alert Inbox for the Whole Plant: Risk, PM, Stock, and the 6 AM Brief" [ref=f3e63] [cursor=pointer]':
+      - /url: /learn/plant-alert-inbox-amc-daily-brief/
+      - generic [ref=f3e68]:
+        - generic [ref=f3e69]: New to this page?
+        - generic [ref=f3e70]: Read the guide
+    - button "Dismiss guide link" [ref=f3e71] [cursor=pointer]: ×

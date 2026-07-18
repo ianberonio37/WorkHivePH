@@ -16,10 +16,10 @@ import { writeFileSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const PAGES = [
   'engineering-design','logbook','inventory','pm-scheduler','voice-journal','dayplanner',
-  'asset-hub','alert-hub','analytics','analytics-report','shift-brain','predictive','ai-quality',
+  'asset-hub','alert-hub','analytics','analytics-report','shift-brain','ai-quality',
   'ph-intelligence','project-manager','project-report','skillmatrix','achievements','audit-log',
   'assistant','hive','community','marketplace','marketplace-seller','marketplace-seller-profile',
-  'marketplace-admin','integrations','plant-connections','report-sender','status','platform-health',
+  'marketplace-admin','integrations','plant-connections','report-sender','status',
   'founder-console','llm-observability','agentic-rag-observability',
 ];
 

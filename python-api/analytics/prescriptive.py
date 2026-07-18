@@ -3,7 +3,7 @@ Prescriptive Analytics — Phase 4 of the WorkHive Analytics Engine
 Standard: ISO 55000:2014 Asset Management, SAE JA1011 RCM, SMRP Metrics
 
 5 deterministic functions (Groq synthesis handled by the Edge Function):
-  1. Priority Maintenance Ranking  — ISO 55001 risk framework
+  1. Priority Maintenance Ranking  — custom composite (ISO 55001-inspired)
   2. PM Interval Optimization       — SAE JA1011 §7
   3. Technician Assignment          — SMRP workforce metrics
   4. Parts Reorder Recommendation   — Inventory management cross-reference
@@ -32,9 +32,16 @@ def _to_df(records: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+# format="ISO8601" is REQUIRED, not cosmetic: pandas >=2.0 infers ONE format from
+# the first element and coerces every non-matching value to NaT. Postgres emits
+# mixed precision in the same column -- real user writes carry microseconds
+# ("...:40.422439+00:00") while seeded/whole-second rows do not -- so inference
+# locked onto microseconds and silently dropped 308 of 310 rows (99.4%). Every
+# date-based metric then computed on 2 rows and reported it with full confidence.
+# ISO8601 parses any valid ISO precision. (2026-07-15)
 def _parse_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
     if col in df.columns:
-        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
+        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce", format="ISO8601")
     return df
 
 
@@ -63,6 +70,28 @@ FREQ_DAYS = {
     "semi-annual": 180, "semiannual": 180, "semi annual": 180,
     "annual": 365, "yearly": 365,
 }
+
+# The intervals the PM scheduler can actually ISSUE. A recommendation of "every 13 days"
+# is unschedulable advice: the operator has no such option, so the card is unactionable.
+# Snapping keeps the recommendation inside the vocabulary the rest of the system speaks.
+SCHEDULABLE_DAYS = sorted(set(FREQ_DAYS.values()))          # [1, 7, 14, 30, 90, 180, 365]
+DAYS_TO_FREQ = {1: "Daily", 7: "Weekly", 14: "Biweekly", 30: "Monthly",
+                90: "Quarterly", 180: "Semi-annual", 365: "Annual"}
+
+
+def _snap_interval(days: float, direction: str = "down") -> int:
+    """Snap an arbitrary day-count to the nearest SCHEDULABLE interval.
+
+    direction="down" -> the tightest schedulable interval at or below `days` (used when
+    increasing frequency: never recommend a LOOSER interval than the maths asked for).
+    direction="up"   -> the loosest at or above `days` (used when relaxing).
+    Clamps to the vocabulary's own floor/ceiling rather than inventing a value.
+    """
+    if direction == "down":
+        below = [d for d in SCHEDULABLE_DAYS if d <= days]
+        return below[-1] if below else SCHEDULABLE_DAYS[0]
+    above = [d for d in SCHEDULABLE_DAYS if d >= days]
+    return above[0] if above else SCHEDULABLE_DAYS[-1]
 
 
 # ── 1. Priority Maintenance Ranking — ISO 55001 ───────────────────────────────
@@ -144,7 +173,10 @@ def calc_priority_ranking(
         "p1_count":      sum(1 for r in ranking if r["priority"] == "P1"),
         "p2_count":      sum(1 for r in ranking if r["priority"] == "P2"),
         "top_priority":  ranking[0]["machine"] if ranking else None,
-        "standard":      "ISO 55001 risk framework — Criticality × Frequency × Downtime",
+        # Custom composite — ISO 55001 is an asset-management *system* standard; it does NOT
+        # prescribe this formula. Label as inspired-by, never as an ISO 55001 metric
+        # (analytics-engineer skill: a weighted composite must be labelled custom).
+        "standard":      "Custom composite (ISO 55001-inspired) — Criticality x Frequency x Downtime",
     }
 
 
@@ -237,21 +269,48 @@ def calc_pm_interval_optimization(
         scope_count = len(scope_intervals)
 
         if mtbf < tightest_days * 0.8:
-            # MTBF is shorter than even the tightest current interval.
-            action      = "INCREASE FREQUENCY"
-            recommended = max(7, int(mtbf * 0.5))
-            reason      = (f"MTBF ({round(mtbf,0)}d) is shorter than the tightest current "
-                           f"PM interval ({tightest_freq.lower()} = {tightest_days}d). "
-                           f"Failures are slipping past even the most frequent inspection.")
+            # Inspect at least twice per MTBF, then SNAP to an interval the scheduler can
+            # actually issue. The old `max(7, int(mtbf*0.5))` had two defects:
+            #   1. It could emit a NON-SCHEDULABLE interval (e.g. 13d is not in FREQ_DAYS).
+            #   2. Its arbitrary 7-day floor COLLIDED with a Weekly current interval, so a
+            #      Weekly asset was badged "INCREASE FREQUENCY" and then recommended the
+            #      7 days it already had — a no-op dressed as an action. (Daily=1 is in the
+            #      vocabulary, so 7 was never the real floor.)
+            proposed = _snap_interval(mtbf * 0.5, direction="down")
+            if proposed >= tightest_days:
+                # Already at the tightest SCHEDULABLE interval and still failing early:
+                # more inspection is not the lever. SAE JA1011 §7 — when no scheduled task
+                # is effective, the honest answer is redesign / condition-monitoring, not a
+                # tighter schedule. Recommending a CHANGE means naming the real one.
+                action      = "ROOT CAUSE: PM CANNOT FIX"
+                recommended = tightest_days
+                reason      = (f"MTBF ({round(mtbf,1)}d) is shorter than {tightest_freq.lower()} "
+                               f"({tightest_days}d), already the tightest schedulable interval. "
+                               f"Inspecting more often cannot help: investigate the failure mode "
+                               f"(root-cause analysis, condition monitoring, or design-out).")
+            else:
+                action      = "INCREASE FREQUENCY"
+                recommended = proposed
+                reason      = (f"MTBF ({round(mtbf,1)}d) is shorter than the tightest current "
+                               f"PM interval ({tightest_freq.lower()} = {tightest_days}d). "
+                               f"Failures are slipping past even the most frequent inspection.")
         elif mtbf > loosest_days * 5 and crit not in ("Critical", "High"):
             # MTBF much longer than even the loosest current interval — over-maintained.
+            proposed = _snap_interval(loosest_days * 2, direction="up")
+            if proposed <= loosest_days:
+                continue  # nothing looser to schedule — not an actionable recommendation
             action      = "REVIEW — MAY REDUCE"
-            recommended = int(loosest_days * 2)
-            reason      = (f"MTBF ({round(mtbf,0)}d) is much longer than the loosest current "
+            recommended = proposed
+            reason      = (f"MTBF ({round(mtbf,1)}d) is much longer than the loosest current "
                            f"interval ({loosest_freq.lower()} = {loosest_days}d). "
                            f"This asset may be over-maintained.")
         else:
             continue  # current intervals are appropriate
+
+        # A recommendation must recommend a CHANGE (rubric E4). If the arithmetic lands on
+        # the status quo, the card has nothing to say -- drop it rather than print a no-op.
+        if action == "INCREASE FREQUENCY" and recommended == tightest_days:
+            continue
 
         recommendations.append({
                 "asset_name":         asset_name,
@@ -262,6 +321,9 @@ def calc_pm_interval_optimization(
                 "mtbf_days":          round(mtbf, 1),
                 "action":             action,
                 "recommended_days":   recommended,
+                # The scheduler's own word for the interval ("Daily"), so the card can name
+                # a frequency the operator can actually pick instead of "every 1 days".
+                "recommended_frequency": DAYS_TO_FREQ.get(recommended, f"every {recommended}d"),
                 "reason":             reason,
             })
 

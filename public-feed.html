@@ -5,9 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Public Feed — WorkHive</title>
+  <title>Public Feed: WorkHive</title>
   <meta name="description" content="Public posts from WorkHive maintenance teams worldwide. See what field workers are sharing." />
-  <meta property="og:title" content="Public Feed — WorkHive" />
+  <meta property="og:title" content="Public Feed: WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/public-feed.html" />
   <link rel="manifest" href="manifest.json" />
@@ -54,13 +54,13 @@
       border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .header-btn {
-      background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3);
-      color: var(--wh-orange); font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none;
+      color: var(--wh-navy); font-size: 0.75rem; font-weight: 700; padding: 6px 14px;
       border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center; /* D1 U2 */
       text-decoration: none; display: inline-block;
     }
-    .header-btn:hover { background: rgba(247,162,27,0.22); }
+    .header-btn:hover { opacity: .9; }
 
     /* Main layout */
     .main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; position: relative; z-index: 1; }
@@ -114,7 +114,7 @@
     .load-more-wrap { display: flex; justify-content: center; padding: 1rem 0; }
     .load-more-btn {
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.7); border-radius: 0.625rem; padding: 0.6rem 1.5rem;
+      color: rgba(255,255,255,0.7); border-radius: var(--wh-radius-sm); padding: 0.6rem 1.5rem;
       font-size: 0.8rem; cursor: pointer; transition: background 0.15s; min-height: 44px; /* D1 U2 */
     }
     .load-more-btn:hover { background: rgba(255,255,255,0.1); }
@@ -128,7 +128,7 @@
 <header class="header">
   <div class="header-left">
     <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="header-logo" />
-    <span class="header-title">Public Feed</span>
+    <h2 class="header-title" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Public Feed</h2>
     <span class="header-pill">Read-only</span>
   </div>
   <a href="index.html" class="header-btn">Sign In →</a>
@@ -137,9 +137,18 @@
 <!-- Main -->
 <main class="main">
   <div class="page-intro">
-    <h1>What hives are talking about</h1>
+    <h1 data-i="pftitle">What hives are talking about</h1>
     <p>Public posts from WorkHive maintenance teams. Sign in to join the conversation.</p>
+    <!-- A1: this read-only feed's primary action is conversion — a clear filled CTA to sign in
+         and post, so a signed-out reader sees the one thing to do (the header link is chrome). -->
+    <a href="index.html" class="header-btn" style="margin-top:0.85rem;" data-i="pf_join_cta">Sign in to post →</a>
   </div>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>This feed is read-only and shows public hive posts. Nothing personal appears here. Sign in and join a hive to post or reply.</p>
+</details>
+
+  <h2 class="wh-section-title" data-i="pf_feed_heading">Latest posts</h2>
 
   <!-- Skeleton -->
   <div id="feed-skeleton">
@@ -153,11 +162,11 @@
 
   <!-- Load More -->
   <div id="load-more-wrap" class="load-more-wrap" style="display:none;">
-    <button id="btn-load-more" class="load-more-btn" onclick="loadMore()">Load more</button>
+    <button id="btn-load-more" class="load-more-btn" onclick="loadMore()" data-i="loadmore">Load more</button>
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   const _DB = getDb(
@@ -172,14 +181,12 @@
   let _loading = false;
 
   function formatTimeAgo(ts) {
-    const diff = Date.now() - new Date(ts).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1) return 'just now';
-    if (m < 60) return `${m}m ago`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h ago`;
-    const d = Math.floor(h / 24);
-    if (d < 7) return `${d}d ago`;
+    // FD1e/FD1a: <7d delegates to canonical whFmtAgo; older uses canonical whFmtDate —
+    // the bare toLocaleDateString() here rendered ambiguous US M/D/Y for a PH audience
+    // (the same latent bug community.html fixed); named-month canonical removes it.
+    const d = (Date.now() - new Date(ts).getTime()) / 86400000;
+    if (d < 7 && typeof whFmtAgo === 'function') return whFmtAgo(ts);
+    if (typeof whFmtDate === 'function') return whFmtDate(ts);
     return new Date(ts).toLocaleDateString();
   }
 
@@ -219,6 +226,10 @@
   }
 
   async function loadInitial() {
+    // G1 (FF1) converge: canonical skeleton takes over the wait state once JS runs; the
+    // static .skeleton-card divs stay in markup only as the pre-JS first-paint reserve.
+    const _fsk = document.getElementById('feed-skeleton');
+    if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3); _fsk.dataset.whSkel = '1'; }
     const { data, error } = await fetchPage();
     document.getElementById('feed-skeleton').style.display = 'none';
     document.getElementById('feed-list').style.display     = 'block';
@@ -229,7 +240,7 @@
       if (typeof whListError === 'function') {
         whListError(document.getElementById('feed-list'), "Couldn’t load the public feed. Check your connection and try again.", () => loadInitial());
       }
-      if (typeof showToast === 'function') showToast('Public feed failed to load — tap Retry.', 'warn');
+      if (typeof showToast === 'function') showToast('Public feed failed to load. Tap Retry.', 'warn');
       return;
     }
     if (!data || data.length === 0) {
@@ -268,9 +279,26 @@
     if (btn) { btn.disabled = false; btn.textContent = 'Load more'; }
   }
 
-  loadInitial();
+  Promise.resolve(loadInitial()).then(() => {
+    if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); // G1 (FAMILY F3)
+    // E3 provenance: source verified from this page's own read.
+    var el = document.getElementById('pf-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'pf-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f ? / f ||) */ (f ? f.parentElement : document.querySelector('.page') || document.body).insertBefore(el, f || null); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'v_community_posts_truth (public posts only)',
+    });
+  });
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+
+<script>window.WH_FIL_PAGE = { pftitle: 'Pinag-uusapan ng mga hive' };</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

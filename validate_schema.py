@@ -46,6 +46,7 @@ LIVE_PAGES = [
     "analytics.html",
     "analytics-report.html",
     "nav-hub.html",
+    "nav-hub.js",              # community-unread-badge feature (2026-07) added db.from(v_community_posts_truth / community_replies)
     "companion-launcher.js",
     "voice-handler.js",         # Voice companion — queries v_kpi_truth + v_risk_truth for canonical anchoring (2026-05-13).
     "utils.js",
@@ -60,6 +61,7 @@ LIVE_PAGES = [
     "community.html",
     "marketplace.html",
     "marketplace-admin.html",
+    "platform-actions.html",
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",

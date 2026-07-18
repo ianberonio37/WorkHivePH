@@ -20,9 +20,9 @@
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: var(--wh-navy); color: var(--wh-text); padding: 24px; }
   h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  .sub { color: var(--wh-grey); font-size: .85rem; margin-bottom: 20px; }
-  .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
-  button { background: var(--wh-blue); color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
+  .sub { color: var(--wh-grey); font-size: .85rem; margin-bottom: 16px; }
+  .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  button { background: var(--wh-blue); color: var(--wh-navy); border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
   button:disabled { opacity: .6; cursor: default; }
   /* CLS reserve: #summary fills "Checking…" → a longer multi-line status line (async).
      Reserve ~2 lines so the filled text doesn't grow the .bar and push #grid/.slo down. */
@@ -44,35 +44,52 @@
   .deps { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
   .dep { font-size: .7rem; padding: 2px 8px; border-radius: 20px; background: #20304d; }
   .dep.ok { color: var(--wh-green); } .dep.bad { color: var(--wh-red); }
-  .slo { margin-top: 28px; background: var(--wh-navy-2); border-radius: 12px; padding: 16px 18px; }
+  .slo { margin-top: 24px; background: var(--wh-navy-2); border-radius: 12px; padding: 16px 18px; }
   .slo h2 { font-size: 1rem; margin: 0 0 10px; }
   .slo table { width: 100%; border-collapse: collapse; font-size: .82rem; }
   .slo td { padding: 5px 8px; border-bottom: 1px solid #20304d; }
   .slo td:last-child { text-align: right; color: var(--wh-amber); font-weight: 600; }
 </style>
+  <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
+       token source this page cannot CONFORM to the design system even in principle -- the
+       rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
+       render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
+  <link rel="stylesheet" href="tokens.css">
+  <!-- The shared component layer (rubric class S: a family page composes shared organisms --
+       renderSourceChip for E3 provenance, the locale floor, the freshness auto-stamp). This
+       page had NO shared layer at all, which is why its chip could not render. -->
+  <script src="utils.js"></script>
 </head>
 <body>
   <header>
-    <h1>WorkHive Gateway — Status</h1>
+    <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.8rem;color:rgba(255,255,255,0.7);text-decoration:none;">← Home</a>
+    <h1 translate="no">WorkHive Gateway — Status</h1>
     <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
   </header>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.</p>
+</details>
   <div class="bar">
-    <button id="refresh" onclick="runChecks()">Refresh</button>
+    <button id="refresh" onclick="runChecks()" data-i="refresh">Refresh</button>
     <span class="summary" id="summary" role="status" aria-live="polite">Checking…</span>
   </div>
-  <div class="grid" id="grid"></div>
+  <!-- Static first-paint placeholder card: shows the design-system card primitive immediately
+       (U6/A2 consistency) while the async /health pings resolve; render() replaces it. Kept as
+       STATIC HTML (not a JS render fn) so it doesn't add an un-anchored render fn (canonical-anchor). -->
+  <div class="grid" id="grid"><div class="card nohealth"><div class="fn"><span>Gateway status</span><span class="dot nohealth"></span></div><div class="meta">checking edge functions…</div></div></div>
 
   <div class="slo">
-    <h2>SLO targets (28-day window)</h2>
-    <table aria-label="Gateway SLO targets">
+    <h2 translate="no">SLO targets (28-day window)</h2>
+    <div class="wh-scroll-x"><table aria-label="Gateway SLO targets">
       <tr><td>Gateway availability</td><td>≥ 99.5%</td></tr>
       <tr><td>Interactive latency (p95)</td><td>&lt; 2.0 s</td></tr>
       <tr><td>Voice surface latency (p95)</td><td>&lt; 2.5 s</td></tr>
       <tr><td>RAG / background latency (p95)</td><td>&lt; 5.0 s</td></tr>
-      <tr><td>Error rate (excl. 401/403/429)</td><td>&lt; 1.0%</td></tr>
+      <tr><td>Error rate (excludes sign-in &amp; rate-limit responses)</td><td>&lt; 1.0%</td></tr>
       <tr><td>Provider-chain success before fallback</td><td>≥ 80%</td></tr>
       <tr><td>Error budget @ 99.5%</td><td>~3h 22m / 28d</td></tr>
-    </table>
+    </table></div>
   </div>
 
   <script>
@@ -156,11 +173,22 @@
       sum.textContent = ok + '/' + probed + ' probed surfaces healthy (' + avail + '%)' +
         (down ? ' · ' + down + ' DOWN' : '') +
         (noh ? ' · ' + noh + ' without /health' : '') +
-        ' · ' + new Date().toLocaleTimeString();
+        ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
       btn.disabled = false;
     }
 
     runChecks();
   </script>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('st-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'st-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · probes run on load',
+      source: 'gateway health endpoint (edge functions probed directly)',
+    });
+  });
+</script>
 </body>
 </html>

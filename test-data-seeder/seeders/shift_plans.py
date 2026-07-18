@@ -52,7 +52,11 @@ def seed_shift_plans(client, log, ctx: dict) -> dict:
             "briefing":     "Demo shift plan seeded for tester. "
                             f"Top {len(risk_top)} risk assets carry over from yesterday's runtime. "
                             "Supervisor: review, edit, then publish to crew.",
-            "payload":      json.dumps(payload),
+            # jsonb column: pass the dict directly. json.dumps() double-encodes it into a
+            # jsonb *string* scalar, which shift-brain's payload.<field> reads render as empty
+            # (same class as parts_staging_recommendations.parts F1). The real orchestrator
+            # (shift-planner-orchestrator) upserts payload as an object.
+            "payload":      payload,
         })
 
     inserted = batch_insert(client, "shift_plans", rows, chunk=500)

@@ -61,7 +61,7 @@ LEARN_ARTICLES = [
     ("gamifying-maintenance-for-engagement",              "Gamifying Maintenance for Technician Engagement",                 "/hive.html",                "Hive"),
     ("industrial-marketplace-philippine-specialists",     "Industrial Marketplace for Philippine Specialists",               "/marketplace.html",         "Marketplace"),
     ("predictive-alert-thresholds-plants",                "Predictive Alert Thresholds for Industrial Plants",               "/hive.html",                "Hive"),
-    ("dole-iso-audit-trail-from-logbook",                 "DOLE OSHS and ISO Audit Trail from Your Logbook",                 "/platform-health.html",     "Audit"),
+    ("dole-iso-audit-trail-from-logbook",                 "DOLE OSHS and ISO Audit Trail from Your Logbook",                 "/audit-log.html",           "Audit"),
     ("ai-quality-and-roi-stage-2-plants",                 "Measuring AI Quality and ROI for Stage 2+ Industrial Plants",     "/analytics-report.html",    "Analytics"),
     ("sensor-cmms-gateway-operations",                    "Sensor and CMMS Gateway Operations for Industrial Plants",        "/hive.html",                "Hive"),
     ("ph-industrial-benchmarks-intelligence",             "PH Industrial Benchmarks and Intelligence Reports (Free)",        "/analytics-report.html",    "Analytics"),
@@ -72,16 +72,38 @@ LEARN_ARTICLES = [
     # ── Wave 2 (2026-05-18): methodology + career + sector + compliance ───────
     ("reliability-centered-maintenance-philippine-plants","Reliability-Centered Maintenance (RCM) for Philippine Plants",    "/pm-scheduler.html",        "PM Scheduler"),
     ("fmea-worked-example-philippine-bottling-line",      "FMEA Worked Example: a Philippine Bottling Line",                 "/asset-hub.html",           "Asset Hub"),
-    ("loto-procedures-dole-oshs-template",                "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template",          "/platform-health.html",     "Audit"),
+    ("loto-procedures-dole-oshs-template",                "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template",          "/audit-log.html",           "Audit"),
     ("vibration-analysis-on-a-phone-budget",              "Vibration Analysis on a Phone Budget (Philippine PdM)",           "/voice-journal.html",       "Voice Journal"),
     ("thermography-for-pm-philippine-plants",             "Thermography for Preventive Maintenance in Philippine Plants",    "/pm-scheduler.html",        "PM Scheduler"),
-    ("ra-11285-energy-efficiency-plant-checklist",        "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist",  "/platform-health.html",     "Audit"),
+    ("ra-11285-energy-efficiency-plant-checklist",        "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist",  "/audit-log.html",           "Audit"),
     ("tesda-nc-mapping-to-skill-matrix",                  "Mapping TESDA NC II and NC III to Your Skill Matrix",             "/skillmatrix.html",         "Skill Matrix"),
     ("ofw-engineer-portable-portfolio",                   "How OFW-Track Engineers Build a Portable Maintenance Portfolio",  "/skillmatrix.html",         "Skill Matrix"),
     ("psme-iiee-piche-which-association-to-join",         "PSME, IIEE, PIChE: Which Philippine Engineering Association?",    "/community.html",           "Community"),
     ("food-beverage-plant-maintenance-philippines",       "Maintenance in Philippine Food and Beverage Plants",              "/hive.html",                "Hive"),
     ("power-plant-reliability-metrics-philippines",       "Power Plant Reliability Metrics in the Philippines",              "/analytics-report.html",    "Analytics"),
     ("bms-facilities-maintenance-peza-buildings",         "BMS and Facilities Maintenance in PEZA Buildings",                "/hive.html",                "Hive"),
+
+    # ── Wave 3 (2026-07-02): the Asset Brain 360 intelligence layer ───────────
+    # Gap found by the content-grounding sweep: building-asset-register covers
+    # CREATING the register; nothing covers the live per-machine brain you get
+    # AFTER — QR scan -> full timeline + parts-that-fit + AI Q&A + the per-asset
+    # predictive risk score (which folded here when predictive.html retired).
+    ("asset-brain-360-one-machine-history-philippine-plant","Asset Brain 360: Every Machine's Full History in One QR Scan",   "/asset-hub.html",           "Asset Hub"),
+
+    # ── Wave 4 (2026-07-03): the "your AI works for you / save time" layer ─────
+    # Gaps: shift-brain had only a handover TEMPLATE article (not the autonomous
+    # planner); alert-hub had only a THRESHOLDS article (not the unified inbox).
+    ("autonomous-shift-planning-philippine-plants",       "Autonomous Shift Planning: the AI Brief That Tells Your Crew What to Fix First", "/shift-brain.html",  "Shift Brain"),
+    ("plant-alert-inbox-amc-daily-brief",                 "One Alert Inbox for the Whole Plant: Risk, PM, Stock, and the 6 AM Brief",       "/alert-hub.html",    "Alert Hub"),
+
+    # ── Wave 5 (2026-07-03): the interconnected ANALYTICS hub (analytics has the
+    # most connects_to of any un-articled feature: logbook -> engine -> predictive
+    # -> reports -> intelligence). The engine + its print-ready report deliverable.
+    ("four-phases-maintenance-analytics-philippine-plants","The 4 Phases of Maintenance Analytics: From What Happened to What To Do Next",   "/analytics.html",         "Analytics"),
+    ("print-ready-maintenance-analytics-report",          "The Print-Ready Maintenance Report Your Management Actually Reads",              "/analytics-report.html",  "Analytics Report"),
+    # ── Wave 6 (2026-07-07): pillar overview + AI companion capabilities ───────
+    ("what-is-workhive-complete-platform-guide",          "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams", "/index.html",       "WorkHive"),
+    ("workhive-ai-companion-complete-capabilities",       "The WorkHive AI Companion: Everything It Can Do (and How to Get the Most From It)",         "/assistant.html",   "AI Companion"),
 ]
 
 

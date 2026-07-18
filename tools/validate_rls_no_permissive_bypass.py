@@ -60,6 +60,17 @@ def query_open_tables() -> list[str] | None:
       AND p.polcmd IN ('r','*') AND (p.polqual IS NULL OR pg_get_expr(p.polqual,p.polrelid)='true')
       AND EXISTS (SELECT 1 FROM information_schema.columns col
                   WHERE col.table_schema='public' AND col.table_name=c.relname AND col.column_name='hive_id')
+      -- Only an APP-FACING permissive policy can defeat app-user isolation. Postgres OR's permissive
+      -- policies ONLY among those APPLICABLE to the current role, so a `USING(true)` policy scoped to a
+      -- restricted infra role (e.g. grafana_reader, granted the monitoring read path in
+      -- infra/mcp/grafana/grafana_reader.sql and NEVER to anon/authenticated) does NOT weaken an app
+      -- user's hive-scoped policy. Flag the bypass ONLY when the always-true policy applies to PUBLIC
+      -- (polroles contains oid 0) or to anon/authenticated. (Same infra-role exemption as the
+      -- build_substrate scoping analyzer + the db-adoption D2 census.)
+      AND EXISTS (
+        SELECT 1 FROM unnest(p.polroles) AS pr(oid)
+        WHERE pr.oid = 0
+           OR pr.oid IN (SELECT r.oid FROM pg_roles r WHERE r.rolname IN ('anon','authenticated')))
     ORDER BY c.relname;"""
     try:
         p = subprocess.run(["docker", "exec", DB, "psql", "-U", "postgres", "-d", "postgres", "-tA", "-c", sql],

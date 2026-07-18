@@ -186,7 +186,7 @@
 
   // ── Scan loop ─────────────────────────────────────────────────────────────
   function startScanLoop(formats) {
-    showStatus('Hold steady — auto-detects');
+    showStatus('Hold steady, auto-detects');
     if (_detector) {
       _scanLoopTimer = setInterval(scanOnce, SCAN_LOOP_MS);
     } else if (_zxingReader) {
@@ -213,7 +213,7 @@
   function deliverScan(rawText) {
     const value = validateScanResult(rawText);
     if (!value) {
-      showStatus('Tag format not recognized — try again or type manually');
+      showStatus('Tag format not recognized, try again or type manually');
       return;
     }
 
@@ -386,12 +386,12 @@
 
   function _humanReadableError(err) {
     const name = err && err.name;
-    if (name === 'NotAllowedError')   return 'Camera permission denied — type tag manually below';
-    if (name === 'NotFoundError')     return 'No camera found — type tag manually below';
-    if (name === 'NotReadableError')  return 'Camera busy in another app — type tag manually below';
-    if (name === 'OverconstrainedError') return 'Camera could not match constraints — type tag manually below';
+    if (name === 'NotAllowedError')   return 'Camera permission denied: type tag manually below';
+    if (name === 'NotFoundError')     return 'No camera found: type tag manually below';
+    if (name === 'NotReadableError')  return 'Camera busy in another app: type tag manually below';
+    if (name === 'OverconstrainedError') return 'Camera could not match constraints: type tag manually below';
     if (err && err.message) return err.message;
-    return 'Camera unavailable — type tag manually below';
+    return 'Camera unavailable: type tag manually below';
   }
 
 })();

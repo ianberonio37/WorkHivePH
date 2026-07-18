@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
@@ -43,7 +44,12 @@ import { checkUserRateLimit, userRateLimitedResponse } from "../_shared/rate-lim
  *   sends the signed-in user's access token. See FULLSTACK_SAAS_GATEWAY_ROADMAP.md §6e.
  */
 
-serve(async (req) => {
+serveObserved("voice-semantic-rag", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "voice-semantic-rag", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "voice-semantic-rag");  // I6 observability
@@ -167,19 +173,8 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    log.error(null, "Unexpected error:", { detail: err });
-    return new Response(
-      JSON.stringify({
-        error: "Internal server error",
-        results: [],
-        method: "error",
-        count: 0,
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-semantic-rag", "voice_semantic_rag_error", err);
   }
 });
 

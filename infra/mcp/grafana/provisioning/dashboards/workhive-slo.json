@@ -1,0 +1,61 @@
+{
+  "uid": "workhive-slo-arct",
+  "title": "WorkHive SLO / Golden Signals (Arc T)",
+  "tags": ["workhive", "slo", "observability", "arc-t"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Errors (range)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from wh_traces where error_code is not null and coalesce(status,0) not in (401,403,429) and $__timeFilter(created_at)" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Traced total (range)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from wh_traces where $__timeFilter(created_at)" } ]
+    },
+    {
+      "id": 3, "type": "table", "title": "Errors by route (28d)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select route, count(*) filter (where error_code is not null and coalesce(status,0) not in (401,403,429)) as errors, count(*) filter (where status in (401,403,429)) as policy_rejections, count(*) as traced from wh_traces where created_at > now() - interval '28 days' group by 1 order by 2 desc, 4 desc limit 50" } ]
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Errors over time (excl. 401/403/429)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 40 }, "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": false } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select $__timeGroup(created_at,'1h') as time, count(*) as errors from wh_traces where error_code is not null and coalesce(status,0) not in (401,403,429) and $__timeFilter(created_at) group by 1 order by 1" } ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Latency p95 / p50 (ms)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line", "fillOpacity": 10 }, "unit": "ms" }, "overrides": [] },
+      "options": { "legend": { "showLegend": true, "displayMode": "list" } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select $__timeGroup(created_at,'1h') as time, percentile_cont(0.95) within group (order by latency_ms) as p95_ms, percentile_cont(0.5) within group (order by latency_ms) as p50_ms from wh_traces where latency_ms is not null and $__timeFilter(created_at) group by 1 order by 1" } ]
+    },
+    {
+      "id": 6, "type": "piechart", "title": "Errors by code (range)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "values": true }, "legend": { "displayMode": "table", "placement": "right", "values": ["value"] } },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select error_code, count(*) as count from wh_traces where error_code is not null and $__timeFilter(created_at) group by 1 order by 2 desc" } ]
+    }
+  ]
+}

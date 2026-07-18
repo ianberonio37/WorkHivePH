@@ -3,33 +3,23 @@
     "asset_count": 5,
     "description": "C5: versioned baseline of AI assets. Validator FAILs if file hash moves without version bump.",
     "format_version": "1.0",
-    "last_evaluated": "2026-06-21T11:16:50Z",
-    "test_seal": "cbcf09b05d9c474b"
+    "last_evaluated": "2026-07-18T02:03:02Z",
+    "test_seal": "d869b227e8199368"
   },
   "assets": {
     "ai-eval-runner.judge": {
-      "current_version": 3,
+      "current_version": 4,
       "file": "supabase/functions/ai-eval-runner/index.ts",
       "history": [
         {
-          "recorded_at": "2026-06-02T11:56:22Z",
-          "sha256": "ca4b9f07d72f1849518cbc41555154f34a0f1d8cef116adc60c51784701dd328",
-          "version": 1
-        },
-        {
-          "recorded_at": "2026-06-21T08:40:28Z",
-          "sha256": "4ceb721e0b2ab648b5a89c1d179f86cbf29fb1baa6fe5c9a20c94fd7a474c902",
-          "version": 2
-        },
-        {
-          "recorded_at": "2026-06-21T11:16:50Z",
-          "sha256": "3dd224346b1878901a6a35ee0c1db269abedf61b02344e0de49bcf307256abe4",
-          "version": 3
+          "recorded_at": "2026-07-01T12:42:36Z",
+          "sha256": "4069c6b9eaa94a7c4afa480d8eba908bac397c8960e80361b9548ea4098c8057",
+          "version": 4
         }
       ],
       "kind": "ts",
       "owner": "ai-engineer",
-      "sha256": "3dd224346b1878901a6a35ee0c1db269abedf61b02344e0de49bcf307256abe4"
+      "sha256": "4069c6b9eaa94a7c4afa480d8eba908bac397c8960e80361b9548ea4098c8057"
     },
     "ai_eval_baseline": {
       "current_version": 2,
@@ -60,7 +50,7 @@
       "sha256": "5d4a6efd9aa0e137271986dd133a2d3e96c3650684a804f24a0f2a1a3afa9e74"
     },
     "shared.ai-chain": {
-      "current_version": 2,
+      "current_version": 4,
       "file": "supabase/functions/_shared/ai-chain.ts",
       "history": [
         {
@@ -72,14 +62,24 @@
           "recorded_at": "2026-06-21T08:40:28Z",
           "sha256": "6371a095f29c9faf4da0027023697f5627ebb8d410ef098cd5c6473def462d50",
           "version": 2
+        },
+        {
+          "recorded_at": "2026-07-06T21:43:05Z",
+          "sha256": "541759229670b46efc59ec534322f3456a10e64378e2ee00e57b0df748a6129d",
+          "version": 3
+        },
+        {
+          "recorded_at": "2026-07-13T08:01:06Z",
+          "sha256": "75add10c766dfe2ba18b5fe360e58734162ec98bb8772904b41f6525a4976365",
+          "version": 4
         }
       ],
       "kind": "ts",
       "owner": "ai-engineer",
-      "sha256": "6371a095f29c9faf4da0027023697f5627ebb8d410ef098cd5c6473def462d50"
+      "sha256": "75add10c766dfe2ba18b5fe360e58734162ec98bb8772904b41f6525a4976365"
     },
     "shared.persona": {
-      "current_version": 7,
+      "current_version": 10,
       "file": "supabase/functions/_shared/persona.ts",
       "history": [
         {
@@ -116,11 +116,26 @@
           "recorded_at": "2026-06-21T08:40:28Z",
           "sha256": "4f7eb16d9d7a3440c698e308217b74565c719c025da7a60a8daad574ab6dec58",
           "version": 7
+        },
+        {
+          "recorded_at": "2026-07-01T11:41:04Z",
+          "sha256": "0f9d1f95d7f2bb42cdbe8ea64b5d99b539e48cfb26a53cfd0dc90a6a9570d12f",
+          "version": 8
+        },
+        {
+          "recorded_at": "2026-07-06T21:43:05Z",
+          "sha256": "48bbf6825785c730b3f0668e13799a6666b56c0bd757b9284e52246a01f8df61",
+          "version": 9
+        },
+        {
+          "recorded_at": "2026-07-18T02:03:02Z",
+          "sha256": "4d06d2d624a766574549c07a44fdc6663539845daeada99125610d3e4c400d88",
+          "version": 10
         }
       ],
       "kind": "ts",
       "owner": "ai-engineer",
-      "sha256": "4f7eb16d9d7a3440c698e308217b74565c719c025da7a60a8daad574ab6dec58"
+      "sha256": "4d06d2d624a766574549c07a44fdc6663539845daeada99125610d3e4c400d88"
     }
   }
 }

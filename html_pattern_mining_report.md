@@ -1,9 +1,9 @@
 # HTML Page Pattern Mining Report
 
-- Pages scanned: **39** (backups + test pages excluded)
+- Pages scanned: **42** (backups + test pages excluded)
 - Features extracted: **40**
 - Promotion threshold: >= 80% conformance, <= 6 outliers
-- Promotion candidates: **6**
+- Promotion candidates: **2**
 
 ## Promotion candidates (sweet spot)
 
@@ -12,57 +12,53 @@ outliers are real gaps or legitimate exceptions for that page type.
 
 | Feature | Conformance | Outliers |
 |---|---:|---|
-| `has_h1` | 94% | marketplace-seller-profile.html, marketplace-seller.html |
-| `has_meta_description` | 92% | architecture.html, marketplace-admin.html, symbol-gallery.html |
-| `loads_utils_js` | 92% | architecture.html, symbol-gallery.html, validator-catalog.html |
-| `loads_supabase_cdn` | 92% | architecture.html, symbol-gallery.html, validator-catalog.html |
-| `has_manifest_link` | 89% | architecture.html, llm-observability.html, symbol-gallery.html, validator-catalog.html |
-| `calls_eschtml` | 89% | alert-hub.html, architecture.html, project-report.html, symbol-gallery.html |
+| `loads_utils_js` | 90% | architecture.html, promo-poster.html, symbol-gallery.html, validator-catalog.html |
+| `has_main_landmark` | 90% | design-system.html, platform-actions.html, promo-poster.html, status.html |
 
 ## Full conformance ranking
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `has_doctype_html` | 100% | 39 / 39 |
-| `has_lang_attr` | 100% | 39 / 39 |
-| `has_meta_charset` | 100% | 39 / 39 |
-| `has_meta_viewport` | 100% | 39 / 39 |
-| `has_title_tag` | 100% | 39 / 39 |
-| `has_main_landmark` | 100% | 39 / 39 |
-| `has_h1` | 94% | 37 / 39 |
-| `has_meta_description` | 92% | 36 / 39 |
-| `loads_utils_js` | 92% | 36 / 39 |
-| `loads_supabase_cdn` | 92% | 36 / 39 |
-| `has_manifest_link` | 89% | 35 / 39 |
-| `calls_eschtml` | 89% | 35 / 39 |
-| `has_og_title` | 82% | 32 / 39 |
-| `has_og_image` | 82% | 32 / 39 |
-| `loads_nav_hub_js` | 82% | 32 / 39 |
-| `has_canonical_link` | 76% | 30 / 39 |
-| `has_empty_state_anchor` | 64% | 25 / 39 |
-| `has_meta_robots` | 59% | 23 / 39 |
-| `has_theme_color` | 53% | 21 / 39 |
-| `has_verdict_card` | 53% | 21 / 39 |
-| `has_details_toggle` | 43% | 17 / 39 |
-| `uses_eschtml_binding` | 30% | 12 / 39 |
-| `loads_offline_banner_js` | 25% | 10 / 39 |
-| `uses_tailwind_cdn` | 23% | 9 / 39 |
-| `loads_wh_capture_validate` | 15% | 6 / 39 |
-| `validates_hive_membership` | 15% | 6 / 39 |
-| `loads_maturity_gate_js` | 10% | 4 / 39 |
-| `has_og_description` | 7% | 3 / 39 |
-| `has_twitter_card` | 7% | 3 / 39 |
-| `has_jsonld_schema` | 7% | 3 / 39 |
-| `has_source_chip` | 7% | 3 / 39 |
-| `loads_wh_persona_js` | 5% | 2 / 39 |
-| `loads_wh_ga4_js` | 2% | 1 / 39 |
-| `loads_wh_help_js` | 2% | 1 / 39 |
-| `loads_wh_tts_js` | 2% | 1 / 39 |
-| `registers_service_worker` | 2% | 1 / 39 |
-| `loads_floating_ai_js` | 0% | 0 / 39 |
-| `loads_search_overlay_js` | 0% | 0 / 39 |
-| `uses_createclient` | 0% | 0 / 39 |
-| `handles_signin_redirect` | 0% | 0 / 39 |
+| `has_doctype_html` | 100% | 42 / 42 |
+| `has_lang_attr` | 100% | 42 / 42 |
+| `has_meta_charset` | 100% | 42 / 42 |
+| `has_meta_viewport` | 100% | 42 / 42 |
+| `has_title_tag` | 100% | 42 / 42 |
+| `has_h1` | 100% | 42 / 42 |
+| `loads_utils_js` | 90% | 38 / 42 |
+| `has_main_landmark` | 90% | 38 / 42 |
+| `has_meta_description` | 83% | 35 / 42 |
+| `has_manifest_link` | 83% | 35 / 42 |
+| `loads_supabase_cdn` | 83% | 35 / 42 |
+| `calls_eschtml` | 76% | 32 / 42 |
+| `loads_nav_hub_js` | 73% | 31 / 42 |
+| `has_og_title` | 71% | 30 / 42 |
+| `has_og_image` | 71% | 30 / 42 |
+| `loads_offline_banner_js` | 69% | 29 / 42 |
+| `has_canonical_link` | 66% | 28 / 42 |
+| `has_details_toggle` | 64% | 27 / 42 |
+| `has_meta_robots` | 57% | 24 / 42 |
+| `has_empty_state_anchor` | 57% | 24 / 42 |
+| `has_theme_color` | 50% | 21 / 42 |
+| `has_verdict_card` | 45% | 19 / 42 |
+| `uses_eschtml_binding` | 33% | 14 / 42 |
+| `uses_tailwind_cdn` | 21% | 9 / 42 |
+| `loads_wh_capture_validate` | 14% | 6 / 42 |
+| `validates_hive_membership` | 14% | 6 / 42 |
+| `has_source_chip` | 9% | 4 / 42 |
+| `has_og_description` | 7% | 3 / 42 |
+| `has_twitter_card` | 7% | 3 / 42 |
+| `has_jsonld_schema` | 7% | 3 / 42 |
+| `loads_maturity_gate_js` | 7% | 3 / 42 |
+| `loads_wh_persona_js` | 4% | 2 / 42 |
+| `loads_wh_ga4_js` | 2% | 1 / 42 |
+| `loads_wh_help_js` | 2% | 1 / 42 |
+| `loads_wh_tts_js` | 2% | 1 / 42 |
+| `registers_service_worker` | 2% | 1 / 42 |
+| `loads_floating_ai_js` | 0% | 0 / 42 |
+| `loads_search_overlay_js` | 0% | 0 / 42 |
+| `uses_createclient` | 0% | 0 / 42 |
+| `handles_signin_redirect` | 0% | 0 / 42 |
 
 ## How to act on this report
 

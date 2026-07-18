@@ -1,0 +1,25 @@
+{
+  "_doc": "AV Component Registry: Layer AV (Availability) canonical set (opened 2026-07-17). The offline canonical set ships as ONE unit (banner + queue + connectivity + session-timeout + device-fingerprint); adoption = all five present. Health (/health) = Layer A9 100%; loading states = Layer F FF1 100%; DR seeds = seeders/.",
+  "version": 1,
+  "layer": "AV",
+  "components": [
+    {
+      "id": "AV1",
+      "class": "AVO Offline set",
+      "name": "offline canonical set (banner/queue/connectivity/session-timeout/device-fingerprint)",
+      "api": "the 5 trailing <script> tags, shipped together",
+      "defined_in": "offline-banner.js + siblings (repo root)",
+      "satisfies": "PWA offline resilience + session hygiene on worker tool pages",
+      "need": "family minus chrome-less trio; per-page disposition during the wave may add exempts",
+      "exempt": [
+        "agentic-rag-observability.html",
+        "promo-poster.html",
+        "status.html"
+      ],
+      "exempt_reason": "founder-only / poster / status surfaces: chrome-less by design (same basis as FCh1/2)",
+      "status": "built",
+      "when_to_use": "every worker tool page",
+      "when_not": "chrome-less internal surfaces"
+    }
+  ]
+}

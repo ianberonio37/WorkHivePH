@@ -123,8 +123,10 @@ def check_hive_id_in_add_transaction(content, page):
     m = re.search(r"function addTransaction\s*\(", content)
     if not m:
         return []
-    # Extract the object literal pushed to txns
-    fn_body = content[m.start():m.start() + 600]
+    # Extract the object literal pushed to txns. Window must be generous: the object grew
+    # (added auth_uid + its comment), so a too-small fixed window truncates before hive_id
+    # and false-FAILs. Match the FIRST txns.push({...}) after the fn start; it is this fn's.
+    fn_body = content[m.start():m.start() + 1500]
     push_m = re.search(r"txns\.push\s*\(\{([^}]+)\}\)", fn_body, re.DOTALL)
     if not push_m:
         return [{"check": "hive_id_in_add_transaction", "page": page,
@@ -182,7 +184,7 @@ def check_supervisor_approval_writes(hive_content, page):
     if not re.search(r"async function approveItem\b[\s\S]{0,500}?status\s*:\s*['\"]approved['\"]", hive_content, re.DOTALL):
         issues.append({"check": "supervisor_approval_writes", "page": page,
                        "reason": "approveItem() in hive.html does not write status='approved'"})
-    if not re.search(r"async function rejectItem\b[\s\S]{0,500}?status\s*:\s*['\"]rejected['\"]", hive_content, re.DOTALL):
+    if not re.search(r"async function rejectItem\b[\s\S]{0,900}?status\s*:\s*['\"]rejected['\"]", hive_content, re.DOTALL):  # widened 500->900 2026-07-13 (P6-C1 comment pushed status past cutoff; code correct)
         issues.append({"check": "supervisor_approval_writes", "page": page,
                        "reason": "rejectItem() in hive.html does not write status='rejected'"})
     return issues
@@ -223,6 +225,34 @@ def check_highlight_escapes(content, page):
 
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
+def check_stock_state_facet(content, page):
+    """Inventory PDDA (2026-07-12): stockStatus must expose the 5-state facet
+    (critical + surplus, not just out/low/ok) and the marketplace CTAs must route
+    by state. Locks the fix where a critical-low part (is_critical_low, qty<=min/2)
+    looked identical to a merely-low one, and 'Sell surplus' showed on every ok item
+    (e.g. CHAIN-12B at 2/min-1). See PRODUCTION_FIXES + inventory-validator skill."""
+    issues = []
+    m = re.search(r"function\s+stockStatus\s*\(", content)
+    body = content[m.start():m.start() + 1100] if m else ""
+    if "'critical'" not in body:
+        issues.append({"check": "stock_state_facet", "page": page,
+                       "reason": "stockStatus() no longer returns 'critical' — critical-low parts (is_critical_low) become indistinguishable from merely-low"})
+    if "'surplus'" not in body:
+        issues.append({"check": "stock_state_facet", "page": page,
+                       "reason": "stockStatus() no longer returns 'surplus' — the over-stock tier that gates the honest Sell offer is gone"})
+    if "sellSurplus(" in content:
+        if "st === 'surplus'" not in content:
+            issues.append({"check": "stock_state_facet", "page": page,
+                           "reason": "sellSurplus CTA is not gated on st === 'surplus'"})
+        if re.search(r"st === 'ok'[^\n]{0,40}sellSurplus", content):
+            issues.append({"check": "stock_state_facet", "page": page,
+                           "reason": "sellSurplus CTA still gated on the old 'ok' state — 'Sell' can show on a non-surplus item again (CHAIN-12B 2/1 bug)"})
+    if "findOnMarketplace(" in content and "st === 'critical'" not in content:
+        issues.append({"check": "stock_state_facet", "page": page,
+                       "reason": "findOnMarketplace routing omits st === 'critical' — critically-low parts miss the source-a-part CTA"})
+    return issues
+
+
 CHECK_NAMES = [
     # L1
     "status_transitions", "use_restock_guards",
@@ -235,6 +265,8 @@ CHECK_NAMES = [
     "supervisor_gate_delete", "auth_gate",
     # L4
     "highlight_escapes",
+    # L5 — UX correctness
+    "stock_state_facet",
 ]
 
 CHECK_LABELS = {
@@ -255,6 +287,8 @@ CHECK_LABELS = {
     "auth_gate":                 "L3  WORKER_NAME auth gate present",
     # L4
     "highlight_escapes":         "L4  highlight() calls escHtml before rendering",
+    # L5
+    "stock_state_facet":         "L5  5-state stock facet (critical+surplus) + CTA routing (Sell=surplus, Find=critical)",
 }
 
 
@@ -292,6 +326,9 @@ def main():
 
     # L4
     all_issues += check_highlight_escapes(inventory, INVENTORY_PAGE)
+
+    # L5
+    all_issues += check_stock_state_facet(inventory, INVENTORY_PAGE)
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

@@ -61,6 +61,29 @@ LABEL_EXEMPT_TYPES = {
 }
 
 
+# ── Shared component-library credit (Arc U, 2026-07-17) ──────────────────────
+# The toggle-state announcer (whToggleAria) and the sheet focus-trap+Escape
+# auto-wire (whSheetA11y → whModalA11y) live in ONE shared surface: utils.js.
+# A page ADOPTS these WCAG behaviours by loading utils.js (the FULLSTACK
+# component-library "adoption gate" model), not by hand-adding markup per page.
+# So a page that loads utils.js is credited for the runtime behaviour those
+# helpers provide — provided utils.js actually still defines them (guard below).
+def _read_utils_helpers():
+    txt = read_file("utils.js") or ""
+    return {
+        "toggle_aria": ("function whToggleAria" in txt) or ("window.whToggleAria" in txt),
+        "sheet_a11y":  ("function whSheetA11y" in txt) or ("window.whSheetA11y" in txt),
+    }
+
+
+UTILS_HELPERS = _read_utils_helpers()
+
+
+def _loads_utils(content):
+    """True if the page loads the shared component/a11y library (utils.js)."""
+    return bool(re.search(r'src=["\'][^"\']*\butils\.js', content))
+
+
 def _is_template_line(line):
     stripped = line.strip()
     return stripped.startswith("`") or stripped.startswith("${") or (
@@ -197,17 +220,25 @@ def check_unlabeled_inputs(pages):
                 continue
             if _is_template_line(line):
                 continue
-            type_m = re.search(r'type=["\'](\w+)["\']', line)
+            # The tag may span multiple lines — accumulate until it closes so an
+            # aria-label / placeholder on a CONTINUATION line is credited (else a
+            # perfectly-labelled multi-line <input> false-positives on line 1).
+            tag = line
+            j = i
+            while ">" not in tag and j + 1 < len(lines):
+                j += 1
+                tag += " " + lines[j]
+            type_m = re.search(r'type=["\'](\w+)["\']', tag)
             if type_m and type_m.group(1).lower() in LABEL_EXEMPT_TYPES:
                 continue
-            id_m = re.search(r'\bid=["\']([^"\']+)["\']', line)
+            id_m = re.search(r'\bid=["\']([^"\']+)["\']', tag)
             if not id_m:
                 continue
             input_id = id_m.group(1)
             if (input_id not in labeled_ids
-                    and "aria-label" not in line
-                    and "placeholder=" not in line
-                    and "title=" not in line):
+                    and "aria-label" not in tag
+                    and "placeholder=" not in tag
+                    and "title=" not in tag):
                 issues.append({"check": "unlabeled_inputs", "page": page,
                                "line": i + 1, "skip": True,
                                "reason": (f"{page}:{i + 1} input/select id=\"{input_id}\" has no "
@@ -289,6 +320,10 @@ def check_focus_trap(pages):
             continue
         if "sheet-overlay" not in content and "modal-overlay" not in content:
             continue
+        # Credit the shared auto-wire: whSheetA11y (utils.js) applies whModalA11y —
+        # which traps Tab + restores focus — to every .sheet-overlay/.modal-overlay.
+        if UTILS_HELPERS["sheet_a11y"] and _loads_utils(content):
+            continue
         has_trap = ("trapFocus" in content) or ("function trapFocus" in content)
         if not has_trap:
             issues.append({"check": "focus_trap", "skip": True,
@@ -306,6 +341,11 @@ def check_escape_closes(pages):
         if content is None:
             continue
         if "sheet-overlay" not in content and "modal-overlay" not in content:
+            continue
+        # Credit the shared auto-wire: whSheetA11y (utils.js) applies whModalA11y —
+        # whose keydown handler closes the open overlay on Escape (clicks its close
+        # control or adds .hidden) — to every .sheet-overlay/.modal-overlay.
+        if UTILS_HELPERS["sheet_a11y"] and _loads_utils(content):
             continue
         has_escape = bool(re.search(
             r"addEventListener\(\s*['\"]keydown['\"][^)]*\).*?Escape",
@@ -326,6 +366,12 @@ def check_toggle_aria_pressed(pages):
     for page in pages:
         content = read_file(page)
         if content is None:
+            continue
+        # Credit the shared announcer: whToggleAria (utils.js) sets + syncs
+        # aria-pressed on every .filter-chip / .tab-btn / .reaction-btn (its managed
+        # set is a superset of the toggleable classes below), driven by a
+        # MutationObserver so the announced state tracks the visual .active flip.
+        if UTILS_HELPERS["toggle_aria"] and _loads_utils(content):
             continue
         # Only flag if the page has BOTH a toggle pattern AND any button class
         # used for a toggleable widget (reaction-btn, filter-chip, tab-btn etc.)
@@ -385,6 +431,32 @@ def check_status_live_region(pages):
     return issues
 
 
+# ── Layer 7: Shared a11y component integrity (forward-only ratchet) ───────────
+
+def check_shared_a11y_helpers(pages):
+    """FORWARD-ONLY RATCHET (Arc U / FULLSTACK component-library P2).
+    The toggle-state announcer (whToggleAria) and the sheet focus-trap + Escape
+    auto-wire (whSheetA11y → whModalA11y) are the SHARED components that the
+    toggle_aria_pressed / focus_trap / escape_closes checks credit a page for by
+    the mere fact it loads utils.js. If either is deleted from utils.js, EVERY
+    page silently loses the WCAG behaviour while those checks quietly go back to
+    warn-skip. So the ABSENCE of a shared helper is a HARD FAIL — the credit path
+    can never be hollowed out without tripping the build."""
+    issues = []
+    if not UTILS_HELPERS["toggle_aria"]:
+        issues.append({"check": "shared_a11y_helpers",
+                       "reason": ("utils.js no longer defines whToggleAria — the shared "
+                                  "aria-pressed toggle announcer that every .filter-chip/.tab-btn "
+                                  "page relies on is GONE (WCAG 4.1.2 regression platform-wide)")})
+    if not UTILS_HELPERS["sheet_a11y"]:
+        issues.append({"check": "shared_a11y_helpers",
+                       "reason": ("utils.js no longer defines whSheetA11y — the shared sheet "
+                                  "focus-trap + Escape auto-wire that every .sheet-overlay/"
+                                  ".modal-overlay page relies on is GONE (WCAG 2.1.2/2.4.3 "
+                                  "regression platform-wide)")})
+    return issues
+
+
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 CHECK_NAMES = [
@@ -398,6 +470,7 @@ CHECK_NAMES = [
     "escape_closes",
     "toggle_aria_pressed",
     "status_live_region",
+    "shared_a11y_helpers",
 ]
 
 CHECK_LABELS = {
@@ -411,6 +484,7 @@ CHECK_LABELS = {
     "escape_closes":      "L6  Pages with sheet-overlay have a document Escape handler  [WARN]",
     "toggle_aria_pressed":"L6  Toggleable .active buttons declare aria-pressed  [WARN]",
     "status_live_region": "L6  Connection-status conn-dot lives in role=status aria-live  [WARN]",
+    "shared_a11y_helpers":"L7  Shared a11y helpers (whToggleAria/whSheetA11y) present in utils.js",
 }
 
 
@@ -430,6 +504,7 @@ def main():
     all_issues += check_escape_closes(LIVE_PAGES)
     all_issues += check_toggle_aria_pressed(LIVE_PAGES)
     all_issues += check_status_live_region(LIVE_PAGES)
+    all_issues += check_shared_a11y_helpers(LIVE_PAGES)
 
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 

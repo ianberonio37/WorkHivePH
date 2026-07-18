@@ -1,0 +1,45 @@
+  RUN   Deploy-Signals Miner (H G-1.5: edge fn registration/deploy coverage + rollback/pre-deploy presence)  [92mPASS[0m   0.1s
+  RUN   CI-Signals Miner (CI G-1.5: workflow count/triggers + gate-running + .tool-versions pin)  [92mPASS[0m   0.1s
+  RUN   Deploy-Safety Sentinel (H GS: rollback runbook + pre-deploy gate + undeployed-fn ratchet)  [92mPASS[0m   0.1s
+  RUN   CI-Gate Sentinel (CI GS: local ci_gate + a workflow runs the gate + reproducible pin + wired trigger)  [92mPASS[0m   0.1s
+  RUN   Log-Surface Discovery (L G-1: count of fns logging raw console.* without logger.ts frozen at baseline)  [92mPASS[0m   0.1s
+  RUN   Log-Correlation Sentinel (L GS: structured logger + trace_id correlation + JSON + trace-store aggregation)  [92mPASS[0m   0.1s
+
+  [96mMATURITY P4[0m
+  --------------------------------------------------------------------
+  RUN   OpenAPI Sync (A capability: openapi.json covers every edge fn in ALL_FUNCTIONS, no ghost routes; re-run tools/gen_openapi.py on drift)  [92mPASS[0m   0.1s
+  RUN   Layer sub-discipline COVERAGE (A7.4 §14.5: 99-item rubric checklist across 13 layers; forward-only ratchet — a layer losing validator/tool evidence FAILs. Measures presence-of-mechanism = upper bound on true-scope depth, NOT depth)  [92mPASS[0m   1.7s
+  RUN   Gateway-axis MEASURED (G2 §14.6: derives each layer's PEP-chokepoint grade from REAL bypass reports — gateway_coverage/tenancy/policy-hive-binding/canonical-sources/kpi-canonical; forward-only on bypass count. 7/13 measured; data-gateway bypass = G1 target → 0)  [92mPASS[0m   0.1s
+  RUN   HONEST per-layer depth (§14.6: Gateway PEP × Gate ratchet × Prod-real, 13 layers; forward-only composite ratchet. Stricter than the 13x6 matrix + coverage — requires a PREVENTION chokepoint + prod-real, not detection/local-substitute. Overall 64.1%; Gateway axis 7.5/13 = the frontier, now 7 grades instrument-backed via gateway-bypass)  [92mPASS[0m   0.1s
+  RUN   Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)  [92mPASS[0m   0.1s
+  RUN   AI Self-Improvement: Visual Defect Confidence         [92mPASS[0m   0.1s
+
+  [96mARC L[0m
+  --------------------------------------------------------------------
+  RUN   Arc L Performance & Scale ratchet (forward-only: S/E/R/B pass-counts >= locked baseline; floors S90/E85/R85/B95)  [92mPASS[0m   0.1s
+
+  [96mREADINESS GATE[0m
+  --------------------------------------------------------------------
+  [93mWARN[0m  Git working tree                        5 uncommitted file(s)
+  [96mSKIP[0m  Python API (Render)                     --fast mode
+  [96mSKIP[0m  Supabase edge function                  --fast mode
+
+  FAILURES
+  --------------------------------------------------------------------
+  [91mFAIL[0m  Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
+         missing:          11  (baseline: 10)
+  [91mFAIL[0m  AI Asset Versioning (C5: prompts/eval-sets/model-chain/judge versioned + hash-locked like migrations)
+         [91mFAIL silent_change[0m (1):
+  [91mFAIL[0m  Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)
+         [91mFAIL[0m  L1  Every Deno.env.get('FOO') is declared in .env, buil
+
+  [91mREGRESSIONS DETECTED[0m (was PASS, now FAIL):
+  [91mREG[0m  Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
+  [91mREG[0m  AI Asset Versioning (C5: prompts/eval-sets/model-chain/judge versioned + hash-locked like migrations)
+  [91mREG[0m  Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)
+========================================================================
+
+  [1m[91mBLOCKED — fix failures before deploying[0m[0m
+  438 PASS  3 FAIL  0 WARN  63 SKIP  |  1056.6s total
+
+  Saved platform_health.json

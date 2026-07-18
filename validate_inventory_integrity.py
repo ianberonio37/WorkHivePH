@@ -43,7 +43,7 @@ def main():
     print("─" * 40)
 
     items = db.table("inventory_items") \
-        .select("id, part_name, part_number, qty_on_hand, min_qty, hive_id") \
+        .select("id, part_name, part_number, qty_on_hand, min_qty, hive_id, linked_asset_node_ids") \
         .limit(500).execute().data or []
 
     txns = db.table("inventory_transactions") \
@@ -144,6 +144,21 @@ def main():
         print(f"  {YELLOW}WARN{RESET}  min_qty_positive: {n} items have min_qty=0 or null — stock alerts won't fire for them")
         total_warn += 1
         results.append({"check": "min_qty_positive", "status": "WARN", "count": n})
+
+    # ── Check 6: Asset↔part BOM coverage (Inventory PDDA) ─────────────────────
+    # linked_asset_node_ids is the spare-parts BOM that drives inventory.html's asset
+    # badges + the logbook fault-parts-picker prioritization. WARN (not FAIL) when 0
+    # parts are linked — it's a seed-state canary: run tools/backfill_asset_part_bom.py
+    # (the seed pipeline's post-seed step wires it automatically on a fresh reseed).
+    linked = [i for i in items if i.get("linked_asset_node_ids")]
+    if linked:
+        print(f"  {GREEN}PASS{RESET}  asset_bom_coverage: {len(linked)}/{len(items)} parts linked to equipment (spare-parts BOM)")
+        total_pass += 1
+        results.append({"check": "asset_bom_coverage", "status": "PASS", "linked": len(linked), "total": len(items)})
+    else:
+        print(f"  {YELLOW}WARN{RESET}  asset_bom_coverage: 0/{len(items)} parts linked — run tools/backfill_asset_part_bom.py (BOM unseeded)")
+        total_warn += 1
+        results.append({"check": "asset_bom_coverage", "status": "WARN", "linked": 0, "total": len(items)})
 
     # ── Summary ──────────────────────────────────────────────────────────────
     print(f"\n  Summary: {total_pass} pass · {total_warn} warn · {total_fail} fail")

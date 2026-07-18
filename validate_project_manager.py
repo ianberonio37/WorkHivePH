@@ -146,6 +146,30 @@ def layer1_page_structure():
     issues.append(_check("utils_loaded", '<script src="utils.js"' in html,
                          "Page must load utils.js for escHtml"))
 
+    # ── PROJECT_MANAGER_DEEP_ARC (2026-07-11) — lock the X-keystone + facet deliverables ──
+    import glob as _glob
+    # 12. Maintenance-nature facet surfaced on the PM UI (Extension 1)
+    issues.append(_check("maintenance_nature_facet_ui",
+                         "nature-pill" in html and "maintenance_nature" in html,
+                         "project-manager.html must surface the maintenance_nature facet chip from v_project_truth"))
+    # 13. Facet derived SERVER-SIDE in v_project_truth (WAT: never client-recomputed)
+    facet_mig = ""
+    for _f in _glob.glob("supabase/migrations/*maintenance_nature*.sql"):
+        facet_mig = _read(_f) or ""
+    issues.append(_check("maintenance_nature_facet_view",
+                         "maintenance_nature" in facet_mig and "v_project_truth" in facet_mig,
+                         "v_project_truth must derive maintenance_nature (migration *maintenance_nature*.sql)"))
+    # 14. Inventory->PM reverse auto-link (X reverse-fabric: part-use bundles under a project)
+    inv = _read("inventory.html") or ""
+    issues.append(_check("inventory_reverse_autolink", "_autoLinkInventoryToProject" in inv,
+                         "inventory.html must auto-link a used part to active projects on its asset"))
+    # 15. Seeder bundles the 4 source systems into project_links (worked-state fabric, not island)
+    seeder = _read("test-data-seeder/seeders/projects.py") or ""
+    bundle_ok = "FLAVOUR_BUNDLE" in seeder and all(
+        k in seeder for k in ("logbook", "pm_completion", "inventory_item", "engineering_calc"))
+    issues.append(_check("project_links_fabric_seed", bundle_ok,
+                         "projects seeder must bundle logbook/pm/inventory/calc project_links (not just asset)"))
+
     return issues
 
 

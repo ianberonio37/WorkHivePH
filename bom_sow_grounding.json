@@ -2,12 +2,12 @@
   "tool": "tools/validate_bom_sow_grounding.py",
   "subject": "engineering-bom-sow LLM artifact grounds the calc's primary sized values (live)",
   "cells_total": 7,
-  "cells_grounded": 7,
-  "cells_skipped": 0,
+  "cells_grounded": 6,
+  "cells_skipped": 1,
   "detail": {
     "Pump Sizing (TDH)": {
       "bom_http": 200,
-      "bom_len": 8260,
+      "bom_len": 13983,
       "cells": {
         "motor kW": {
           "value": 0.18,
@@ -23,7 +23,7 @@
     },
     "Transformer Sizing": {
       "bom_http": 200,
-      "bom_len": 7001,
+      "bom_len": 4889,
       "cells": {
         "rated kVA": {
           "value": 1000,
@@ -33,19 +33,12 @@
       }
     },
     "AHU Sizing": {
-      "bom_http": 200,
-      "bom_len": 10429,
-      "cells": {
-        "coil kW": {
-          "value": 75.12,
-          "as": "75.12",
-          "grounded": true
-        }
-      }
+      "bom_http": 500,
+      "skipped": "service/transient (non-200) \u2014 not a grounding signal"
     },
     "Fire Pump Sizing": {
       "bom_http": 200,
-      "bom_len": 9127,
+      "bom_len": 5396,
       "cells": {
         "flow L/min": {
           "value": 2840,
@@ -61,7 +54,7 @@
     },
     "Generator Sizing": {
       "bom_http": 200,
-      "bom_len": 7884,
+      "bom_len": 8041,
       "cells": {
         "rated kVA": {
           "value": 87.5,

@@ -4,10 +4,14 @@
     "alert-hub.html",
     "asset-hub.html",
     "community.html",
+    "dayplanner.html",
     "founder-console.html",
     "hive.html",
+    "inventory.html",
+    "logbook.html",
     "marketplace.html",
     "pm-scheduler.html",
-    "project-manager.html"
+    "project-manager.html",
+    "utils.js"
   ]
 }

@@ -35,9 +35,9 @@ the other has drifted until a user reports a broken feature.
 
   Layer 4 — Hardcoded secret detection
     4.  No source file under supabase/functions/ contains a string that
-        looks like a real API key (Stripe sk_, Groq gsk_, Cerebras csk-,
-        Voyage pa-, Jina jina_, OpenRouter sk-or-, Resend re_, generic
-        bearer tokens). Secrets must live in .env, not in source.
+        looks like a real API key (Groq gsk_, Cerebras csk-, Voyage pa-,
+        Jina jina_, OpenRouter sk-or-, Resend re_, generic bearer tokens).
+        Secrets must live in .env, not in source.
     [FAIL] Hardcoded secret in source — gitignore won't catch it.
 
 Usage:  python validate_env_secret_coverage.py
@@ -81,8 +81,6 @@ EXTERNAL_USE_KEYS: dict = {
 # feature disabled banner, etc.). Documented case-by-case.
 OPTIONAL_VARS: dict = {
     "ALLOWED_ORIGIN": "CORS allowlist; falls back to '*' when unset (dev)",
-    "STRIPE_SECRET_KEY": "Marketplace contact-only mode runs without it; payments require it",
-    "STRIPE_WEBHOOK_SECRET": "Same — webhooks rejected without it but marketplace works in contact-only",
     "RESEND_API_KEY": "Email sends silently noop without it; report-sender shows 'email not configured'",
     "GEMINI_API_KEY": "AI fallback chain — Groq is primary; Gemini only used if explicitly configured",
     "AZURE_SPEECH_KEY": "Persona Contract Phase 7 TTS — tts-speak returns 500 when unset; wh-tts.js client falls back to browser SpeechSynthesis. Set in cloud secrets only (Azure F0 free tier).",
@@ -94,7 +92,12 @@ OPTIONAL_VARS: dict = {
     "WH_USER_RATE_LIMIT_OVERRIDE": "P1 roadmap 2026-05-26: per-user soft cap inside the per-hive rate-limit bucket (_shared/rate-limit.ts checkUserRateLimit). Falls back to compiled default 25 when unset.",
     "WH_SOLO_RATE_LIMIT_OVERRIDE": "Phase 0 solo rate limit (resume-builder): always-on IP/auth_uid ceiling for solo (no-hive) callers in _shared/rate-limit.ts (DEFAULT_SOLO_RATE_LIMIT_PER_HOUR). Falls back to compiled default 30 when unset; only raise for synthetic walks.",
     "WH_LOG_LEVEL": "P1 roadmap 2026-05-26: structured-logger threshold (_shared/logger.ts). Values: debug | info | warn | error. Falls back to 'info' when unset.",
+    "WH_CHAOS": "Arc T/T2 2026-07-01: LOCAL-only fault-injection flag (_shared/observability.ts). When '1', a request with the x-wh-fault-inject header throws an unhandled error to prove the wh_traces error net. Unset/absent in prod (a service-role caller can also trigger it); the wrapper branches to the normal handler when unset.",
     "WH_VOICE_QUOTA_RATIO": "P1 roadmap 2026-05-27 turn 7: voice quota share inside the per-hive rate-limit bucket (_shared/rate-limit.ts checkClassedRateLimit). 0.0-1.0; falls back to 0.7 when unset.",
+    "WH_RATE_LIMIT_PER_DAY_OVERRIDE": "Q4 2026-07-05: per-DAY AI ceiling per hive (_shared/rate-limit.ts checkAIRateLimit). Falls back to 300/day when unset.",
+    "WH_SOLO_RATE_LIMIT_PER_DAY_OVERRIDE": "Q4 2026-07-05: per-DAY AI ceiling per solo identity (_shared/rate-limit.ts checkSoloRateLimit). Falls back to 100/day when unset.",
+    "WH_GLOBAL_RPM": "Q6 2026-07-05: GLOBAL org-shared LLM-pool per-minute burst-smoother wall (_shared/rate-limit.ts checkGlobalAIBudget). Falls back to 120/min when unset; the guard also fails OPEN on any counter error.",
+    "WH_GLOBAL_RPD": "Q6 2026-07-05: GLOBAL org-shared LLM-pool per-day circuit-breaker (_shared/rate-limit.ts checkGlobalAIBudget). Falls back to 12000/day when unset; the guard also fails OPEN on any counter error.",
     "CLOUDFLARE_ACCOUNT_ID": "Embedding-chain (_shared/embedding-chain.ts) Cloudflare Workers-AI provider — VERIFIED graceful: cloudflareEmbed throws if unset and the fallback chain catches it + moves to the next provider (voyage/jina/bge-local). Not configured locally; the chain runs without it.",
     "CLOUDFLARE_API_TOKEN": "Co-required with CLOUDFLARE_ACCOUNT_ID for the Cloudflare embed provider; same graceful-skip path in the fallback chain when missing.",
     "EMBEDDING_PRIMARY": "Embedding-chain provider preference (_shared/embedding-chain.ts) — VERIFIED graceful: `Deno.env.get('EMBEDDING_PRIMARY') || 'voyage'`, defaults to voyage when unset.",
@@ -102,13 +105,16 @@ OPTIONAL_VARS: dict = {
     "WH_LOGIN_MAX_ATTEMPTS": "Arc I I7/A brute-force lockout threshold (login/index.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_LOGIN_MAX_ATTEMPTS') || 5)`, defaults to 5 attempts when unset.",
     "WH_LOGIN_WINDOW_MIN": "Arc I I7/A brute-force window (login/index.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_LOGIN_WINDOW_MIN') || 15)`, defaults to 15 min when unset.",
     "WH_LOGIN_LOCKOUT_MIN": "Arc I I7/A lockout duration (login/index.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_LOGIN_LOCKOUT_MIN') || 15)`, defaults to 15 min when unset.",
+    "WH_ASR_URL": "Self-hosted ASR endpoint (_shared/audio-chain.ts) — VERIFIED graceful: `Deno.env.get('WH_ASR_URL') || (local ? host.docker.internal:8902/transcribe : '')`. Local auto-defaults; prod sets it or leaves empty to skip the self-hosted lane.",
+    "WH_LLM_URL": "Sovereign local LLM endpoint (NATIVE_AI_ROADMAP #2b; tools/lib/ai_chain.py + _shared/ai-chain.ts) — VERIFIED graceful: when unset the AI chain skips the in-plant OpenAI-compatible lane (Ollama/llama.cpp) and falls back to the cloud chain.",
+    "WH_LLM_MODEL": "Model id for the WH_LLM_URL local lane — VERIFIED graceful: defaults to 'llama3.1' when unset; only read when WH_LLM_URL is set.",
+    "WH_LLM_API_KEY": "Optional bearer for the WH_LLM_URL local endpoint — VERIFIED graceful: sent only when set (a keyless local Ollama/llama.cpp needs none); only read when WH_LLM_URL is set.",
+    "WH_SOLO_IP_CEILING_MULTIPLIER": "Per-IP hard-wall multiplier for solo callers (_shared/rate-limit.ts) — VERIFIED graceful: `Number(Deno.env.get('WH_SOLO_IP_CEILING_MULTIPLIER') || 5)`, defaults to 5x the per-solo cap when unset.",
 }
 
 # API-key-prefix patterns that indicate a real secret. The trailing length
 # requirement keeps short identifier strings out of the false-positive net.
 SECRET_PATTERNS: list = [
-    (r"\bsk_live_[A-Za-z0-9]{20,}",                     "Stripe LIVE secret key"),
-    (r"\bsk_test_[A-Za-z0-9]{20,}",                     "Stripe TEST secret key"),
     (r"\bgsk_[A-Za-z0-9]{30,}",                         "Groq API key"),
     (r"\bcsk-[A-Za-z0-9]{30,}",                         "Cerebras API key"),
     (r"\bpa-[A-Za-z0-9_-]{30,}",                        "Voyage API key"),
@@ -223,10 +229,9 @@ def check_required_coverage(refs: dict, env_keys: set[str]) -> list[dict]:
     throw at runtime. Two severity bands:
       - FAIL: not in .env / built-ins / OPTIONAL_VARS — function will throw.
       - WARN: in OPTIONAL_VARS — feature is gated off elsewhere (e.g.,
-        STRIPE_SECRET_KEY for contact-only marketplace), function won't
-        actually be invoked yet, but the moment the gate flips the var
-        MUST be set or the function 500s. Tracked as a pre-flight
-        checklist item.
+        an unset AI fallback key), function won't actually be invoked yet,
+        but the moment the gate flips the var MUST be set or the function
+        500s. Tracked as a pre-flight checklist item.
     """
     issues: list[dict] = []
     declared = env_keys | BUILT_IN_SUPABASE_VARS

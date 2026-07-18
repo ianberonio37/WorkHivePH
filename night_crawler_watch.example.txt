@@ -1,0 +1,10 @@
+# Night Crawler watchlist — sources to keep distilled in substrate/external/
+# Format:  <url> | <topic> | <pages>,<depth>
+#   - <topic>        optional (defaults to page title); sets the chunk slug
+#   - <pages>,<depth> optional; present = breadth spider (same-domain), absent = single page
+# Lines starting with '#' are comments. Run:  python tools/night_crawler.py --watch night_crawler_watch.example.txt
+#
+# Copy this to night_crawler_watch.txt and edit for your own sources.
+
+https://www.anthropic.com/engineering/contextual-retrieval | anthropic contextual retrieval
+# https://docs.crawl4ai.com/ | crawl4ai docs | 6,2

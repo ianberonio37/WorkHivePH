@@ -247,4 +247,24 @@ test.describe('pm-scheduler.html — PM user journey', () => {
       ).toBeGreaterThanOrEqual(16);
     }
   });
+
+  test('pm_mirror_asset_lineage: PM->logbook mirror entries are asset-lineaged (FK + tag)', async ({ whPage }) => {
+    // LOGBOOK arc reuse Extension 2: a PM completion mirrored into the logbook must resolve the
+    // canonical asset_node_id (not null → orphaned) and use the tag, not the display name.
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const db = adminClient();
+    const { data: mirrored } = await db.from('logbook')
+      .select('id, machine, asset_node_id, pm_completion_id')
+      .not('pm_completion_id', 'is', null).limit(10);
+    if (!mirrored || mirrored.length === 0) {
+      test.skip(true, 'no PM->logbook mirror rows in seed (mirror is default-ON but seed may not exercise it)');
+      return;
+    }
+    for (const r of mirrored) {
+      expect(r.asset_node_id, `mirrored PM logbook entry ${r.id} must be asset-lineaged (asset_node_id not null)`).not.toBeNull();
+      // machine is the asset TAG platform-wide (short code like TT-001), never the long display name.
+      expect(String(r.machine || '').length, `mirrored entry ${r.id} machine should be a tag, not empty`).toBeGreaterThan(0);
+    }
+  });
 });

@@ -61,7 +61,6 @@ GATEWAY_BYPASS_OK = {
     "batch-risk-scoring":         "Cron-only batch job",
     "trigger-ml-retrain":         "Cron-only training trigger",
     # Webhook receivers (external systems POST in; cannot be wrapped).
-    "marketplace-webhook":        "Stripe webhook signing; raw body required",
     "cmms-webhook-receiver":      "External CMMS webhook signing; raw body required",
     # Specialist agents called BY the gateways themselves.
     "asset-brain-query":          "Specialist routed by ai-gateway",
@@ -77,7 +76,6 @@ GATEWAY_BYPASS_OK = {
     "cmms-sync":                  "Initiated server-side from hive admin tooling",
     "cmms-push-completion":       "Server-side dispatch from analytics-orchestrator",
     "parts-staging-recommender":  "Server-side dispatch from analytics-orchestrator",
-    "marketplace-connect-onboard": "Stripe redirect dance; opt-out for now",
     "embed-entry":                "Write-only embedding pipeline; not user-facing",
     "ai-orchestrator":            "Legacy orchestrator; superseded by ai-gateway",
     "project-progress":           "Server-side rollup helper; not user-facing",
@@ -114,6 +112,7 @@ GATEWAY_BYPASS_OK = {
     # identity-key family is now ratcheted by validate_gateway_tenancy.py.
     # LIVE-proven: attacker no-JWT -> empty; authed user -> own-scoped.
     "voice-semantic-rag":         "Browser-callable personal voice-journal RAG; auth_uid IDOR FIXED (resolveIdentity JWT-verified uid, body ignored, anon->empty); structured tool, not routed",
+    "marketplace-listing-assist": "Browser-callable structured Post-a-Listing AI tool (marketplace Post form); self-secures with resolveIdentity+resolveTenancy hive-membership gate (Pillar I) then checkAIRateLimit before the AI call; returns structured {category,description,used_image} the gateway's flat {answer} contract would drop; server-owned category whitelist (WAT guard). Not routed.",
     # --- Auth front-door (Arc I, 2026-06-21): pre-auth / self-scoped, CANNOT route through
     # platform-gateway because the gateway presumes an authenticated identity. Each self-secures.
     "login":                      "PRE-AUTH front door (verify_jwt=false) — the single sign-in proxy; can't sit behind a gateway that requires a JWT. Server-side brute-force lockout (check_login_lockout/record_login_failure RPCs, 5 tries/15min) + enumeration-safe before forwarding to GoTrue (Arc I I7/A)",

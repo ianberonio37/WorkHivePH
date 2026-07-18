@@ -65,8 +65,36 @@ def run_post_seed_edges(client, log, ctx: dict) -> dict:
     log(f"  failure-signature-scan: {fss_ok}/{len(hives)} hives processed")
     log(f"  benchmark-compute:      {bench_ok}/{len(hives)} hives processed")
     log(f"  intelligence-report:    {intel_ok}/{len(hives)} hives processed")
+
+    # Spare-parts BOM (Inventory PDDA, 2026-07-12): born-linked on every reseed. Runs
+    # here because it needs BOTH inventory_items AND asset_nodes present in the DB (the
+    # ctx assets carry in-memory ids, not the asset_nodes uuids linked_asset_node_ids needs).
+    # Idempotent; only writes linked_asset_node_ids (ledger untouched). Mirrors
+    # tools/backfill_asset_part_bom.py via the shared compute_asset_links mapping.
+    bom_linked = 0
+    try:
+        from seeders.inventory import compute_asset_links
+        assets = client.table("asset_nodes").select("id, tag, iso_class, hive_id").limit(5000).execute().data or []
+        items  = client.table("inventory_items").select("id, part_number, hive_id").limit(5000).execute().data or []
+        by_hive_a, by_hive_i = {}, {}
+        for a in assets:
+            by_hive_a.setdefault(a["hive_id"], []).append(a)
+        for it in items:
+            by_hive_i.setdefault(it["hive_id"], []).append(it)
+        for hid, hitems in by_hive_i.items():
+            links = compute_asset_links(hitems, by_hive_a.get(hid, []))
+            for it in hitems:
+                desired = links.get(it["id"])
+                client.table("inventory_items").update({"linked_asset_node_ids": desired or None}).eq("id", it["id"]).execute()
+                if desired:
+                    bom_linked += 1
+        log(f"  asset↔part BOM:         {bom_linked} parts linked to their equipment")
+    except Exception as e:  # never let the BOM step break a seed run
+        log(f"  WARN: asset↔part BOM link step failed ({e})")
+
     return {
         "edge_failure_scan_ok":   fss_ok,
         "edge_benchmark_ok":      bench_ok,
         "edge_intelligence_ok":   intel_ok,
+        "asset_part_bom_linked":  bom_linked,
     }

@@ -154,6 +154,8 @@ def seed_logbook(client, log, ctx: dict) -> dict:
             failure_consequence = None
             readings_json = None
             production_output = None
+            loto_applied = False
+            permit_reference = None
             downtime = 0
             parts: list = []
 
@@ -172,6 +174,11 @@ def seed_logbook(client, log, ctx: dict) -> dict:
                     total = random.randint(800, 2400)
                     good = int(total * random.uniform(0.85, 0.99))
                     production_output = {"good_units": good, "total_units": total}
+                # LOTO / Permit-to-Work (Extension 3): high-consequence repairs require energy
+                # isolation (RA 11058 / DOLE DO 198-18). Deliberate safety record, not regex-inferred.
+                if failure_consequence in ("Safety risk", "Stopped production"):
+                    loto_applied = True
+                    permit_reference = f"PTW-{ts:%Y}-{random.randint(1000, 9999)}"
             elif maint_type == "Preventive Maintenance":
                 note = random.choice(PREVENTIVE_NOTES)
                 problem, action, knowledge = note["problem"], note["action"], note["knowledge"]
@@ -219,6 +226,8 @@ def seed_logbook(client, log, ctx: dict) -> dict:
                 "failure_consequence": failure_consequence,
                 "readings_json": readings_json,
                 "production_output": production_output,
+                "loto_applied": loto_applied,
+                "permit_reference": permit_reference,
                 "auth_uid": w.get("auth_uid"),
             })
 
@@ -253,12 +262,22 @@ def link_logbook_to_asset_nodes(client, log, ctx: dict) -> dict:
     # 3700 calls down to ~90 (one per distinct asset_node_id).
     total = 0
     buckets: dict[str, list[str]] = {}
+    # Bucket EVERY currently-unlinked row, not just the first PostgREST page. The
+    # previous version pulled `.limit(1000)` then broke after one page, so with
+    # >1000 logbook rows it linked only the first 1000 and left the rest NULL --
+    # re-opening the 2700-entry asset-history undercount (v_asset_truth.
+    # lifetime_logbook_entries) on EVERY reseed (the cross-session seesaw
+    # validate_logbook_asset_linkage guards). We do NOT update inside this loop,
+    # so the unlinked set is stable and OFFSET pagination over it is safe.
+    PAGE = 1000
+    offset = 0
     while True:
         batch = (
             client.table("logbook")
             .select("id, hive_id, machine")
             .is_("asset_node_id", "null")
-            .limit(1000)
+            .order("id")
+            .range(offset, offset + PAGE - 1)
             .execute()
             .data
             or []
@@ -269,11 +288,9 @@ def link_logbook_to_asset_nodes(client, log, ctx: dict) -> dict:
             nid = by_hive_tag.get((r["hive_id"], r["machine"]))
             if nid:
                 buckets.setdefault(nid, []).append(r["id"])
-        # If the .select() returned the same N rows again (because nothing
-        # has been updated yet within this loop), we'd spin forever. Break
-        # after one pull — we only need one pass to bucket everything
-        # currently unlinked. The next reseed will repopulate if needed.
-        break
+        if len(batch) < PAGE:
+            break
+        offset += PAGE
 
     # Chunk each bucket into ~500-id slices so the SQL `IN ($1, $2, ...)`
     # stays within Postgres's parameter limit.

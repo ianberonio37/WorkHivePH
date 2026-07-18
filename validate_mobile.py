@@ -52,6 +52,7 @@ LIVE_PAGES = [
     "community.html",
     "marketplace.html",
     "marketplace-admin.html",
+    "platform-actions.html",
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",
@@ -583,7 +584,35 @@ def check_offline_banner_present():
     return issues
 
 
+def check_skip_link():
+    """
+    WCAG 2.4.1 (Bypass Blocks, Level A): a skip-link must let keyboard users jump past
+    the repeated nav/chrome to main content. It is injected platform-wide by
+    wayfinding.js injectSkipLink() as the FIRST focusable element, targeting <main>.
+    Lock the injection so it cannot silently regress (Arc U, 2026-07-01).
+    """
+    content = read_file("wayfinding.js")
+    if not content:
+        return [{"check": "skip_link", "page": "wayfinding.js",
+                 "reason": "wayfinding.js missing — platform skip-link host absent"}]
+    issues = []
+    required = {
+        "injectSkipLink":        "injectSkipLink() function removed",
+        "wh-skip-link":          ".wh-skip-link marker class removed",
+        "Skip to main content":  "skip-link label text removed",
+        "insertBefore":          "skip-link no longer inserted as first body child (breaks tab order)",
+    }
+    for token, why in required.items():
+        if token not in content:
+            issues.append({"check": "skip_link", "page": "wayfinding.js", "reason": why})
+    if "injectSkipLink();" not in content:
+        issues.append({"check": "skip_link", "page": "wayfinding.js",
+                       "reason": "injectSkipLink() not called in init() — skip-link never injected"})
+    return issues
+
+
 CHECK_NAMES = [
+    "skip_link",
     "viewport_fit",
     "input_font_size",
     "safe_area",
@@ -600,6 +629,7 @@ CHECK_NAMES = [
 ]
 
 CHECK_LABELS = {
+    "skip_link":               "A11y  WCAG 2.4.1 skip-link injected platform-wide (wayfinding.js)",
     "viewport_fit":            "L1  viewport-fit=cover on all live pages",
     "input_font_size":         "L1  .wh-input font-size >= 16px (iOS auto-zoom guard)",
     "safe_area":               "L2  Fixed bottom elements have safe-area-inset-bottom",
@@ -622,6 +652,7 @@ def main():
     print("=" * 55)
 
     all_issues = []
+    all_issues += check_skip_link()
     all_issues += check_viewport_fit(LIVE_PAGES)
     all_issues += check_input_font_size(LIVE_PAGES)
     all_issues += check_safe_area(LIVE_PAGES)

@@ -102,7 +102,7 @@
     if (window.supabaseClient && window.supabaseClient.functions) return window.supabaseClient;
     if (_client) return _client;
     if (window.supabase && window.supabase.createClient) {
-      try { _client = window.supabase.createClient(SB_URL, SB_KEY); return _client; } catch (_) { /* empty-catch-allow: best-effort guard (test-only battery) */ }
+      try { _client = window.supabase.createClient(SB_URL, SB_KEY); return _client; } catch (_) { /* empty-catch-allow + singleton-exempt: best-effort guard, test-only battery (prefers window.db above) */ }
     }
     return null;
   }

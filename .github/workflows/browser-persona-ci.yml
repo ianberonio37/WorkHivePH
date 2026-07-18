@@ -1,0 +1,65 @@
+name: Browser-CI Persona Walk
+
+# FB2 (Forward-Build, NEXT_ARCS_ROADMAP.md #7 - "biggest single live lever").
+#
+# Stands up the HEADLESS Playwright run that walks every page as a DIVERSE persona roster
+# (field-tech worker@mobile / supervisor@desktop / new-worker novice@desktop / admin
+# supervisor@cross-hive) and re-drives the live floor in CI - so a regression that only hits
+# ONE persona/viewport (a worker code path that throws, a tenant secret leak, a hive-data-
+# dependent contrast bug) is caught here, not in the field.
+#
+# Two layers (same split as Arc V/W/Y):
+#   - CHEAP ratchet  : validate_browser_ci_persona.py runs on EVERY push inside the main
+#                      WorkHive Gate (run_platform_checks "Forward-Build" group) - checks the
+#                      committed board vs baseline. No browser needed.
+#   - REAL re-drive  : THIS workflow actually re-drives the 4-persona headless walk against the
+#                      live test env (WH_TEST_BASE_URL) on a weekly schedule + manual dispatch,
+#                      refreshing browser_ci_persona_board.json and re-asserting the floor live.
+#
+# The persona accounts (bryangarcia / leandromarquez / wilfredomalabanan / pabloaguilar, pw
+# test1234) must be seeded in the target env - the same seeded identities the journey specs use.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 4 * * 1'   # 4am UTC every Monday (after the nightly gate)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-persona-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  persona-walk:
+    name: Headless 4-persona live floor
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Walk every page as the 4-persona roster (headless)
+        env:
+          WH_TEST_BASE_URL: ${{ secrets.WH_TEST_BASE_URL }}
+          WH_SUPABASE_URL: ${{ secrets.WH_SUPABASE_URL }}
+          WH_TEST_PASSWORD: ${{ secrets.WH_TEST_PASSWORD }}
+        run: node tools/browser_ci_persona_walk.mjs --accept
+      - name: Assert the live floor held
+        run: python validate_browser_ci_persona.py
+      - name: Upload persona board
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-ci-persona-board
+          path: |
+            browser_ci_persona_board.json
+            browser_ci_persona_check_report.json

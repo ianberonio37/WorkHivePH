@@ -1,0 +1,368 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#wh-main-content"
+  - main [ref=e3]:
+    - alert: Saved.
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Back" [ref=e6] [cursor=pointer]:
+          - /url: hive.html
+        - generic [ref=e9]:
+          - heading "Asset Hub" [level=1] [ref=e10]
+          - generic [ref=e11]: 360 view of any equipment in your hive
+          - paragraph [ref=e12]:
+            - paragraph [ref=e13]: Live + daily snapshot · Based on your asset records, risk scores, logbook, failure analysis & reliability analysis · Click any asset for its full 360 (timeline, neighbours, reliability)
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img "check" [ref=e72]
+          - generic [ref=e17]:
+            - text: 30 assets tracked, 6 marked critical
+            - button "Where did this come from? Show data source." [ref=e18] [cursor=pointer]: ⓘ
+            - generic [ref=e19]: "Registry complete: proceed to PM Scheduler to ensure every critical asset has scope items."
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]: Total assets
+            - generic [ref=e23]: "30"
+            - generic [ref=e24]: 30 approved assets in this hive
+            - generic [ref=e25]: MATURE
+          - button "Where did this come from? Show data source." [ref=e26] [cursor=pointer]: ⓘ
+          - generic [ref=e27]:
+            - generic [ref=e28]: Critical assets
+            - generic [ref=e29]: "6"
+            - generic [ref=e30]: "6 critical assets: these drive every reliability KPI"
+            - generic [ref=e31]: TRACKED
+          - generic [ref=e32]:
+            - generic [ref=e33]: Pending assets
+            - generic [ref=e34]: "0"
+            - generic [ref=e35]: No worker submissions awaiting review
+            - generic [ref=e36]: CLEAR
+        - generic [ref=e37]:
+          - generic [ref=e38]: What to do next
+          - generic [ref=e39]: Asset registry looks complete. Tap any card for its 360° view (PMs, breakdowns, parts, risk score).
+          - link "Do the recommended next action" [ref=e74] [cursor=pointer]:
+            - /url: "#"
+            - text: Browse the asset list →
+        - button "Show details" [ref=e40] [cursor=pointer]
+        - generic [ref=e41]:
+          - searchbox "Search by tag, name, or location" [ref=e42]
+          - button "Scan equipment tag with camera" [ref=e43] [cursor=pointer]:
+            - generic [ref=e49]: Scan
+        - generic [ref=e75]:
+          - generic [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]:
+              - generic [ref=e78]: BF-001
+              - generic [ref=e79]: Donaldson Pulse-Jet PJBH
+              - generic [ref=e80]: Mechanical · Utility Building
+            - generic "Criticality (how important this asset is)" [ref=e82]: critical
+          - generic [ref=e83] [cursor=pointer]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: BF-002
+              - generic [ref=e86]: Donaldson Pulse-Jet PJBH
+              - generic [ref=e87]: Mechanical · Warehouse
+            - generic "Criticality (how important this asset is)" [ref=e89]: critical
+          - generic [ref=e90] [cursor=pointer]:
+            - generic [ref=e91]:
+              - generic [ref=e92]: BLR-003
+              - generic [ref=e93]: Miura LX-300
+              - generic [ref=e94]: Mechanical · Boiler Room
+            - generic [ref=e95]:
+              - generic "Live reliability risk (model)" [ref=e96]: medium risk 55%
+              - generic "Criticality (how important this asset is)" [ref=e97]: critical
+          - generic [ref=e98] [cursor=pointer]:
+            - generic [ref=e99]:
+              - generic [ref=e100]: PV-002
+              - generic [ref=e101]: Local Fab ASME Sec VIII
+              - generic [ref=e102]: Mechanical · Boiler Room
+            - generic "Criticality (how important this asset is)" [ref=e104]: critical
+          - generic [ref=e105] [cursor=pointer]:
+            - generic [ref=e106]:
+              - generic [ref=e107]: TT-001
+              - generic [ref=e108]: Yokogawa YTA610
+              - generic [ref=e109]: Instrumentation · Production Line A
+            - generic "Criticality (how important this asset is)" [ref=e111]: critical
+          - generic [ref=e112] [cursor=pointer]:
+            - generic [ref=e113]:
+              - generic [ref=e114]: WLD-001
+              - generic [ref=e115]: Lincoln Electric Idealarc DC-1500
+              - generic [ref=e116]: Electrical · Workshop
+            - generic "Criticality (how important this asset is)" [ref=e118]: critical
+          - generic [ref=e119] [cursor=pointer]:
+            - generic [ref=e120]:
+              - generic [ref=e121]: GEN-003
+              - generic [ref=e122]: MTU 16V4000 G83L
+              - generic [ref=e123]: Mechanical · Warehouse
+            - generic [ref=e124]:
+              - generic "Live reliability risk (model)" [ref=e125]: critical risk 90%
+              - generic "Criticality (how important this asset is)" [ref=e126]: high
+          - generic [ref=e127] [cursor=pointer]:
+            - generic [ref=e128]:
+              - generic [ref=e129]: GEN-004
+              - generic [ref=e130]: MTU 16V4000 G83L
+              - generic [ref=e131]: Mechanical · Workshop
+            - generic "Criticality (how important this asset is)" [ref=e133]: high
+          - generic [ref=e134] [cursor=pointer]:
+            - generic [ref=e135]:
+              - generic [ref=e136]: MILL-001
+              - generic [ref=e137]: Haas VF-3
+              - generic [ref=e138]: Mechanical · Pump Pit 2
+            - generic "Criticality (how important this asset is)" [ref=e140]: high
+          - generic [ref=e141] [cursor=pointer]:
+            - generic [ref=e142]:
+              - generic [ref=e143]: PV-001
+              - generic [ref=e144]: Local Fab ASME Sec VIII
+              - generic [ref=e145]: Mechanical · Pump Pit 1
+            - generic "Criticality (how important this asset is)" [ref=e147]: high
+          - generic [ref=e148] [cursor=pointer]:
+            - generic [ref=e149]:
+              - generic [ref=e150]: RC-001
+              - generic [ref=e151]: Burckhardt Laby
+              - generic [ref=e152]: Pneumatic · Workshop
+            - generic "Criticality (how important this asset is)" [ref=e154]: high
+          - generic [ref=e155] [cursor=pointer]:
+            - generic [ref=e156]:
+              - generic [ref=e157]: UPS-001
+              - generic [ref=e158]: Eaton 9395
+              - generic [ref=e159]: Electrical · Yard - South
+            - generic "Criticality (how important this asset is)" [ref=e161]: high
+          - generic [ref=e162] [cursor=pointer]:
+            - generic [ref=e163]:
+              - generic [ref=e164]: AC-001
+              - generic [ref=e165]: Kaeser CSD 105
+              - generic [ref=e166]: Pneumatic · Utility Building
+            - generic "Criticality (how important this asset is)" [ref=e168]: medium
+          - generic [ref=e169] [cursor=pointer]:
+            - generic [ref=e170]:
+              - generic [ref=e171]: AC-002
+              - generic [ref=e172]: Kaeser CSD 105
+              - generic [ref=e173]: Pneumatic · Warehouse
+            - generic "Criticality (how important this asset is)" [ref=e175]: medium
+          - generic [ref=e176] [cursor=pointer]:
+            - generic [ref=e177]:
+              - generic [ref=e178]: AC-003
+              - generic [ref=e179]: Kaeser CSD 105
+              - generic [ref=e180]: Pneumatic · Pump Pit 2
+            - generic "Criticality (how important this asset is)" [ref=e182]: medium
+          - generic [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]:
+              - generic [ref=e185]: BLR-001
+              - generic [ref=e186]: Miura LX-300
+              - generic [ref=e187]: Mechanical · Production Line A
+            - generic "Criticality (how important this asset is)" [ref=e189]: medium
+          - generic [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]:
+              - generic [ref=e192]: BLR-002
+              - generic [ref=e193]: Cleaver-Brooks CB-700-200
+              - generic [ref=e194]: Mechanical · Boiler Room
+            - generic "Criticality (how important this asset is)" [ref=e196]: medium
+          - generic [ref=e197] [cursor=pointer]:
+            - generic [ref=e198]:
+              - generic [ref=e199]: CR-001
+              - generic [ref=e200]: Konecranes CXT NEO 10t
+              - generic [ref=e201]: Mechanical · Utility Building
+            - generic "Criticality (how important this asset is)" [ref=e203]: medium
+          - generic [ref=e204] [cursor=pointer]:
+            - generic [ref=e205]:
+              - generic [ref=e206]: FL-001
+              - generic [ref=e207]: Toyota 8FG25
+              - generic [ref=e208]: Mechanical · Production Line B
+            - generic [ref=e209]:
+              - generic "Live reliability risk (model)" [ref=e210]: high risk 78%
+              - generic "Criticality (how important this asset is)" [ref=e211]: medium
+          - generic [ref=e212] [cursor=pointer]:
+            - generic [ref=e213]:
+              - generic [ref=e214]: GEN-001
+              - generic [ref=e215]: Caterpillar 3516B
+              - generic [ref=e216]: Mechanical · Pump Pit 2
+            - generic "Criticality (how important this asset is)" [ref=e218]: medium
+          - generic [ref=e219] [cursor=pointer]:
+            - generic [ref=e220]:
+              - generic [ref=e221]: GEN-002
+              - generic [ref=e222]: Caterpillar 3516B
+              - generic [ref=e223]: Mechanical · Yard - North
+            - generic "Criticality (how important this asset is)" [ref=e225]: medium
+          - generic [ref=e226] [cursor=pointer]:
+            - generic [ref=e227]:
+              - generic [ref=e228]: P-001
+              - generic [ref=e229]: Goulds 3196 i-FRAME
+              - generic [ref=e230]: Mechanical · Substation
+            - generic "Criticality (how important this asset is)" [ref=e232]: medium
+          - generic [ref=e233] [cursor=pointer]:
+            - generic [ref=e234]:
+              - generic [ref=e235]: PLC-001
+              - generic [ref=e236]: Siemens S7-1500 CPU 1516
+              - generic [ref=e237]: Electrical · Utility Building
+            - generic [ref=e238]:
+              - generic "Live reliability risk (model)" [ref=e239]: medium risk 50%
+              - generic "Criticality (how important this asset is)" [ref=e240]: medium
+          - generic [ref=e241] [cursor=pointer]:
+            - generic [ref=e242]:
+              - generic [ref=e243]: PV-003
+              - generic [ref=e244]: Local Fab ASME Sec VIII
+              - generic [ref=e245]: Mechanical · Workshop
+            - generic "Criticality (how important this asset is)" [ref=e247]: medium
+          - generic [ref=e248] [cursor=pointer]:
+            - generic [ref=e249]:
+              - generic [ref=e250]: RC-002
+              - generic [ref=e251]: Burckhardt Laby
+              - generic [ref=e252]: Pneumatic · Warehouse
+            - generic "Criticality (how important this asset is)" [ref=e254]: medium
+          - generic [ref=e255] [cursor=pointer]:
+            - generic [ref=e256]:
+              - generic [ref=e257]: SUB-001
+              - generic [ref=e258]: Flygt NP 3171
+              - generic [ref=e259]: Mechanical · Pump Pit 1
+            - generic [ref=e260]:
+              - generic "Live reliability risk (model)" [ref=e261]: low risk 20%
+              - generic "Criticality (how important this asset is)" [ref=e262]: medium
+          - generic [ref=e263] [cursor=pointer]:
+            - generic [ref=e264]:
+              - generic [ref=e265]: TT-002
+              - generic [ref=e266]: Yokogawa YTA610
+              - generic [ref=e267]: Instrumentation · Compressor Room
+            - generic "Criticality (how important this asset is)" [ref=e269]: medium
+          - generic [ref=e270] [cursor=pointer]:
+            - generic [ref=e271]:
+              - generic [ref=e272]: AC-004
+              - generic [ref=e273]: Kaeser CSD 105
+              - generic [ref=e274]: Pneumatic · Workshop
+            - generic "Criticality (how important this asset is)" [ref=e276]: low
+          - generic [ref=e277] [cursor=pointer]:
+            - generic [ref=e278]:
+              - generic [ref=e279]: HPU-001
+              - generic [ref=e280]: Bosch Rexroth ABPAC
+              - generic [ref=e281]: Hydraulic · Utility Building
+            - generic "Criticality (how important this asset is)" [ref=e283]: low
+          - generic [ref=e284] [cursor=pointer]:
+            - generic [ref=e285]:
+              - generic [ref=e286]: PB-001
+              - generic [ref=e287]: Amada HFE 80-25
+              - generic [ref=e288]: Mechanical · Yard - North
+            - generic "Criticality (how important this asset is)" [ref=e290]: low
+        - button "Load More" [ref=e51] [cursor=pointer]
+      - text: ⓘ
+    - group [ref=e52]:
+      - generic "▸ About this dashboard's data sources" [ref=e53] [cursor=pointer]
+  - button "Connectivity status" [ref=e54] [cursor=pointer]:
+    - generic [ref=e56]: Online
+  - generic [ref=e57]:
+    - button "Open navigation hub" [ref=e58] [cursor=pointer]:
+      - generic: WorkHive
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: WorkHive
+      - button "Open global search":
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All" [selected]:
+          - generic: ⊞
+          - text: All
+        - tab "wrench Field":
+          - generic:
+            - img "wrench"
+          - text: Field
+        - tab "user Supervisor":
+          - generic:
+            - img "user"
+          - text: Supervisor
+        - tab "gear Engineer":
+          - generic:
+            - img "gear"
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+          - link "Logbook":
+            - /url: logbook.html
+          - link "Inventory":
+            - /url: inventory.html
+          - link "Day":
+            - /url: dayplanner.html
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+        - link "Inventory":
+          - /url: inventory.html
+        - link "Day Planner":
+          - /url: dayplanner.html
+        - paragraph: Your Team
+        - link "WorkHive":
+          - /url: hive.html
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+        - link "Community":
+          - /url: community.html
+        - paragraph: Intelligence
+        - link "Analytics":
+          - /url: analytics.html
+        - link "AI Assistant":
+          - /url: assistant.html
+        - link "Asset Hub":
+          - /url: asset-hub.html
+        - link "Alert Hub":
+          - /url: alert-hub.html
+        - paragraph: Build & Projects
+        - link "Eng. Design":
+          - /url: engineering-design.html
+        - link "Project Manager":
+          - /url: project-manager.html
+        - paragraph: Grow
+        - link "Growth":
+          - /url: skillmatrix.html
+        - link "Resume Builder":
+          - /url: resume.html
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+        - link "Connections":
+          - /url: integrations.html
+  - button "Send feedback to WorkHive" [ref=e59] [cursor=pointer]:
+    - img "chat" [ref=e60]
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Zaniah":
+          - img "Zaniah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Zaniah":
+            - img "Zaniah"
+        - generic:
+          - strong: Zaniah
+          - text: Asset Hub
+        - button "Close":
+          - img "x"
+      - generic:
+        - text: "Context:"
+        - strong: Asset Hub
+      - log "Assistant conversation":
+        - generic:
+          - text: Hi! I'm WorkHive AI. You're on the
+          - strong: WorkHive Home
+          - text: page. Ask me anything about the platform or industrial maintenance. What do you need?
+        - generic: What did I log in the logbook last week? Give me the exact entries.
+        - generic: I can see the most recent logbook entries in the snapshot, but it doesn't specify a date range like "last week." The snapshot shows entries for CR-001, MILL-001, RC-001, and BF-001. For the exact entries from last week, you'd want to check the Logbook page directly.
+      - generic:
+        - button "Voice command"
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send"
+  - generic [ref=e62]:
+    - 'link "Read the guide: Building an Asset Register from Scratch (Zero-Budget, ISO 14224)" [ref=e63] [cursor=pointer]':
+      - /url: /learn/building-asset-register-zero-budget/
+      - generic [ref=e68]:
+        - generic [ref=e69]: New to this page?
+        - generic [ref=e70]: Read the guide
+    - button "Dismiss guide link" [ref=e71] [cursor=pointer]: ×

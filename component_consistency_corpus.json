@@ -21,7 +21,6 @@
     "ph-intelligence.html",
     "plant-connections.html",
     "pm-scheduler.html",
-    "predictive.html",
     "project-manager.html",
     "project-report.html",
     "report-sender.html",
@@ -351,7 +350,9 @@
         "pill": 0,
         "stepper": 0
       },
-      "capabilities": []
+      "capabilities": [
+        "display_count_chip"
+      ]
     },
     "assistant.html": {
       "page": "assistant.html",
@@ -395,7 +396,7 @@
       },
       "census": {
         "view-tab": 0,
-        "filter-chip": 5,
+        "filter-chip": 6,
         "phase-tab": 0,
         "shift-pill": 0,
         "chip": 0,
@@ -481,39 +482,30 @@
         "simple-card": [
           {
             "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-hero"
             ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
+            "missing_required": [
+              "sc-label"
+            ],
+            "modifiers": []
           },
           {
             "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-hero"
             ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
+            "missing_required": [
+              "sc-label"
+            ],
+            "modifiers": []
           },
           {
             "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-hero"
             ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
+            "missing_required": [
+              "sc-label"
+            ],
+            "modifiers": []
           }
         ],
         "sum-card": []
@@ -698,18 +690,6 @@
             "modifiers": [
               "tag-grey"
             ]
-          },
-          {
-            "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
           }
         ],
         "sum-card": []
@@ -792,7 +772,7 @@
             ],
             "missing_required": [],
             "modifiers": [
-              "tag-${c.tone}"
+              "tag-${c.tone}${isHero"
             ]
           }
         ],
@@ -862,103 +842,6 @@
         "stepper": 0
       },
       "capabilities": []
-    },
-    "predictive.html": {
-      "page": "predictive.html",
-      "primitives": {
-        "simple-card": [
-          {
-            "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
-          },
-          {
-            "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
-          },
-          {
-            "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "tag-grey"
-            ]
-          }
-        ],
-        "sum-card": [
-          {
-            "shape": [
-              "sl",
-              "sn"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "critical"
-            ]
-          },
-          {
-            "shape": [
-              "sl",
-              "sn"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "high"
-            ]
-          },
-          {
-            "shape": [
-              "sl",
-              "sn"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "medium"
-            ]
-          },
-          {
-            "shape": [
-              "sl",
-              "sn"
-            ],
-            "missing_required": [],
-            "modifiers": [
-              "low"
-            ]
-          }
-        ]
-      },
-      "census": {
-        "view-tab": 0,
-        "filter-chip": 0,
-        "phase-tab": 0,
-        "shift-pill": 0,
-        "chip": 0,
-        "pill": 0,
-        "stepper": 0
-      },
-      "capabilities": [
-        "display_count_chip"
-      ]
     },
     "project-manager.html": {
       "page": "project-manager.html",
@@ -1234,26 +1117,69 @@
     "primitives": {
       "simple-card": {
         "label": "KPI tile (.simple-card)",
-        "instances": 52,
+        "instances": 48,
         "modal_shape": [
           "sc-hero",
           "sc-label",
           "sc-sub",
           "sc-tag"
         ],
-        "modal_count": 52,
-        "distinct_shapes": 1,
-        "minority_shapes": [],
-        "missing_required": []
+        "modal_count": 45,
+        "distinct_shapes": 2,
+        "minority_shapes": [
+          {
+            "shape": [
+              "sc-hero"
+            ],
+            "count": 3,
+            "pages": [
+              "hive"
+            ],
+            "delta_vs_modal": [
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ]
+          }
+        ],
+        "missing_required": [
+          {
+            "page": "hive.html",
+            "missing": [
+              "sc-label"
+            ],
+            "shape": [
+              "sc-hero"
+            ]
+          },
+          {
+            "page": "hive.html",
+            "missing": [
+              "sc-label"
+            ],
+            "shape": [
+              "sc-hero"
+            ]
+          },
+          {
+            "page": "hive.html",
+            "missing": [
+              "sc-label"
+            ],
+            "shape": [
+              "sc-hero"
+            ]
+          }
+        ]
       },
       "sum-card": {
         "label": "Count-chip summary (.sum-card → .sn/.sl)",
-        "instances": 8,
+        "instances": 4,
         "modal_shape": [
           "sl",
           "sn"
         ],
-        "modal_count": 8,
+        "modal_count": 4,
         "distinct_shapes": 1,
         "minority_shapes": [],
         "missing_required": []
@@ -1264,7 +1190,7 @@
         "alert-hub"
       ],
       "display_count_chip": [
-        "predictive"
+        "asset-hub"
       ],
       "audio_tts_browser": [
         "voice-journal"
@@ -1284,10 +1210,10 @@
       },
       "filter-chip": {
         "pages": 4,
-        "total": 23,
+        "total": 24,
         "by_page": {
           "analytics": 12,
-          "community": 5,
+          "community": 6,
           "pm-scheduler": 4,
           "voice-journal": 2
         }
@@ -1321,6 +1247,51 @@
         }
       }
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "sweep:component:simple-card:missing-sc-label:hive",
+        "page": "hive.html",
+        "wave": 0,
+        "title": ".simple-card on hive is missing required .sc-label",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label:hive",
+        "page": "hive.html",
+        "wave": 0,
+        "title": ".simple-card on hive is missing required .sc-label",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label:hive",
+        "page": "hive.html",
+        "wave": 0,
+        "title": ".simple-card on hive is missing required .sc-label",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:shape-variants",
+        "page": "achievements.html",
+        "wave": 0,
+        "title": ".simple-card renders in 2 different shapes across pages",
+        "pillar": "U/Component",
+        "severity": "Polish",
+        "effort": "M",
+        "flag": "TASTE",
+        "should_be": "the modal .simple-card shape is ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag'] (45 instances); 1 minority variant(s) exist e.g. on hive (delta ['.sc-label', '.sc-sub', '.sc-tag']). Converge to one shape (Jakob/consistency) or document the intentional variant."
+      }
+    ]
   }
 }

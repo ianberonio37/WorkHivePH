@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
 // capability: voice_to_action_router
 
 // contract-allow: intent classification only
@@ -84,7 +84,7 @@ Examples:
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("voice-report-intent", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -210,10 +210,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("voice-report-intent error:", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-report-intent", "voice_report_intent_error", err);
   }
 });

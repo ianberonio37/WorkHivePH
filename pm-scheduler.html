@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="worker-daily" content="1" />  <!-- H1 goal-gradient contract (FAMILY roadmap): this is a daily worker journey page -->
   <title>PM Scheduler: WorkHive</title>
   <!-- capture: pm_completion_v1 (form) — PM completion + scope-item add/edit writes to pm_completions + pm_scope_items -->
   <meta name="description" content="Plant Maintenance Scheduler. Add assets, assign PM scope by category, set frequencies, and track due dates. Syncs with your WorkHive hive board." />
@@ -22,8 +23,8 @@
       theme: {
         extend: {
           colors: {
-            'orange-wh': '#F7A21B',
-            'blue-wh':   '#29B6D9',
+            'orange-wh': '#FDB94A',
+            'blue-wh':   '#5FCCE8',
             'navy-wh':   '#162032',
           },
           fontFamily: { poppins: ['Poppins', 'sans-serif'] },
@@ -61,7 +62,7 @@
       transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
     }
     .wh-input:focus { border-color: var(--wh-orange); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
     select.wh-input option { background: #1e2d45; color: white; }
     select option { background: #1e2d45; color: white; }
 
@@ -87,9 +88,11 @@
     .btn-ghost:active { transform: scale(0.98); }
 
     .btn-danger {
-      min-height: 40px; background: transparent; color: #ef4444; font-weight: 600;
+      /* #f87171 (red-400) on the #162032 card = 5.9:1, clears WCAG 2.2 AA 4.5:1;
+         the prior #ef4444 was 4.33:1 (PM PDDA A-axis). */
+      min-height: 40px; background: transparent; color: var(--wh-red-text); font-weight: 600;
       border-radius: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8125rem;
-      border: 1px solid rgba(239,68,68,0.3); transition: background 0.2s; cursor: pointer;
+      border: 1px solid rgba(248,113,113,0.4); transition: background 0.2s; cursor: pointer;
     }
     .btn-danger:hover { background: rgba(239,68,68,0.1); }
 
@@ -116,7 +119,7 @@
     }
 
     /* Asset status badges */
-    .badge-overdue  { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-overdue  { background: rgba(239,68,68,0.15); color: var(--wh-red-text); border: 1px solid rgba(239,68,68,0.3); }
     .badge-duesoon  { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
     .badge-ontrack  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
     .badge-nodata   { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); }
@@ -152,10 +155,13 @@
       display: inline-flex; padding: 1px 7px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     }
+    .freq-D  { background: rgba(244,114,182,0.15); color: #f9a8d4; }
+    .freq-W  { background: rgba(56,189,248,0.15);  color: #7dd3fc; }
     .freq-M  { background: rgba(41,182,217,0.15); color: var(--wh-blue); }
-    .freq-Q  { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .freq-Q  { background: rgba(167,139,250,0.15); color: #C4B5FD; }
     .freq-SA { background: rgba(251,191,36,0.15);  color: #fbbf24; }
     .freq-Y  { background: rgba(247,162,27,0.15);  color: var(--wh-orange); }
+    .freq-Other { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
 
     /* Detail scope row */
     .detail-scope-row {
@@ -190,7 +196,7 @@
     .filter-chip {
       padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.62);
       background: transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
@@ -240,7 +246,13 @@
 
     /* FAB */
     .fab {
-      position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); right: 1.25rem;
+      /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: keep page FABs bottom-LEFT,
+         away from the global bottom-right widget stack [wh-conn-chip @ right/bottom:5.5rem
+         z9998] that occluded this FAB and tripped the axe target-size proximity flag.
+         Extended to ALL viewports 2026-07-01: the supervisor desktop walk caught the SAME
+         occlusion at 1280px because the chip is fixed bottom-right at every width — bottom-left
+         is clear of the chip AND the top-left wayfinding pill, and clears the 56px bottom-nav. */
+      position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 1.25rem; right: auto;
       width: 52px; height: 52px; border-radius: 50%; background: var(--wh-orange);
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 16px rgba(247,162,27,0.4); border: none; cursor: pointer;
@@ -248,10 +260,6 @@
     }
     .fab:hover { background: var(--wh-orange-dark); transform: scale(1.05); }
     .fab:active { transform: scale(0.95); }
-    /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: move page FABs bottom-LEFT on
-       mobile, away from the global bottom-right widget stack that caused the axe
-       target-size proximity flag at 390px). Desktop keeps bottom-right. */
-    @media (max-width: 767px) { .fab { left: 1.25rem; right: auto; } }
 
     /* Slide up animation for wizard */
     @keyframes slideUp {
@@ -293,22 +301,28 @@
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:14px; }
     .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.62); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
-    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+/* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
+   component CSS — no components.css link — so .ac-cta lives here too). */
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta:hover { background:var(--wh-orange-dark); }
+.action-card .ac-cta:active { transform:scale(0.98); }
+.action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
     .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
     #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
@@ -325,7 +339,7 @@
 <!-- ── TOP NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92);border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-    <a href="index.html" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
+    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
@@ -347,7 +361,7 @@
 
     <!-- Header -->
     <div class="mb-5">
-      <h1 class="text-xl font-bold">PM Scheduler</h1>
+      <h1 class="text-xl font-bold" data-i="pagetitle">PM Scheduler</h1>
       <p id="dash-subtitle" class="text-sm text-white/60 mt-0.5">Track all your equipment PM tasks in one place.</p>
       <p id="pm-source-chip" style="margin-top:3px;"></p>
     </div>
@@ -360,34 +374,38 @@
       <div class="verdict-text"><span id="pm-verdict-label">Computing PM compliance...</span><small id="pm-verdict-sub">Counting overdue, due-this-week, and on-track scope items.</small></div>
     </div>
 
+    <!-- H1 goal-gradient: live on-track/total from renderPMSummary (whProgressStrip). -->
+    <div id="pm-progress" class="wh-progress-slot"></div>
     <!-- Summary stat row — repurposed into Plain-Read .simple-card layout. -->
     <div class="simple-row mb-5">
       <div class="simple-card hero tag-grey" id="pm-card-overdue" data-rag-tile="pm-scheduler:overdue" data-rag-label="Overdue PMs">
-        <div class="sc-label">Overdue</div>
+        <h2 class="sc-label" style="margin:0;" data-i="overdue">Overdue</h2>
         <div class="sc-hero" id="stat-overdue">0</div>
         <div class="sc-sub" id="pm-overdue-sub">Past due date</div>
-        <span class="sc-tag" id="pm-overdue-tag">—</span>
+        <span class="sc-tag" id="pm-overdue-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-duesoon" data-rag-tile="pm-scheduler:due_soon" data-rag-label="Due soon (14d)">
-        <div class="sc-label">Due soon (14d)</div>
+        <h2 class="sc-label" style="margin:0;" data-i="duesoon">Due soon (14d)</h2>
         <div class="sc-hero" id="stat-duesoon">0</div>
         <div class="sc-sub" id="pm-duesoon-sub">Next 14 days</div>
-        <span class="sc-tag" id="pm-duesoon-tag">—</span>
+        <span class="sc-tag" id="pm-duesoon-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-ontrack" data-rag-tile="pm-scheduler:on_track" data-rag-label="On track">
-        <div class="sc-label">On track</div>
+        <h2 class="sc-label" style="margin:0;" data-i="ontrack">On track</h2>
         <div class="sc-hero" id="stat-ontrack">0</div>
         <div class="sc-sub" id="pm-ontrack-sub">Compliance %</div>
-        <span class="sc-tag" id="pm-ontrack-tag">—</span>
+        <span class="sc-tag" id="pm-ontrack-tag">-</span>
       </div>
     </div>
 
     <div class="action-card">
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="pm-action-text">Computing recommendation...</div>
+      <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
+      <a id="pm-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
     </div>
 
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details">
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="pm-summary-details" role="region" aria-label="PM compliance explainer"
@@ -398,17 +416,17 @@
         <li><strong>Overdue</strong>: scope items where today &gt; last completion + each task's own interval (Weekly=7, Monthly=30, Quarterly=90, Semi-annual=180, Annual=365 days).</li>
         <li><strong>Due soon (14d)</strong>: scope items whose next due date falls within the next 14 days.</li>
         <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
-        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1 — PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical the SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct from the "on track now" snapshot count.</li>
+        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical the SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct from the "on track now" snapshot count.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
 
     <!-- Filter chips -->
     <div id="filter-bar" class="flex gap-2 overflow-x-auto pb-1 mb-4" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-      <button class="filter-chip active" data-filter="all">All</button>
-      <button class="filter-chip" data-filter="overdue">Overdue</button>
-      <button class="filter-chip" data-filter="duesoon">Due Soon</button>
-      <button class="filter-chip" data-filter="ontrack">On Track</button>
+      <button class="filter-chip active" data-filter="all" data-i="filterall">All</button>
+      <button class="filter-chip" data-filter="overdue" data-i="filteroverdue">Overdue</button>
+      <button class="filter-chip" data-filter="duesoon" data-i="filterduesoon">Due Soon</button>
+      <button class="filter-chip" data-filter="ontrack" data-i="filterontrack">On Track</button>
     </div>
 
     <!-- Category filter — searchable typeahead (Arc V L-lens: 20+ categories in a flat <select> is a
@@ -422,7 +440,7 @@
 
     <!-- Load More -->
     <div id="pm-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       <p id="pm-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
     </div>
 
@@ -455,10 +473,10 @@
     <div class="mb-6">
       <button onclick="goBack()" class="flex items-center gap-1.5 text-white/60 hover:text-white/70 text-sm mb-4 transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-        Back
+        <span data-i="back">Back</span>
       </button>
       <div class="flex items-center justify-between mb-3">
-        <h2 id="wizard-title" class="text-lg font-bold">Add Asset</h2>
+        <h2 id="wizard-title" class="text-lg font-bold" data-i="addasset">Add Asset</h2>
         <div id="step-indicator" class="flex gap-1.5 items-center"></div>
       </div>
       <div class="progress-bar">
@@ -471,7 +489,7 @@
 
       <!-- Pick from registered assets -->
       <div class="wh-card p-4 mb-5">
-        <p class="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Pick from Registered Assets</p>
+        <p class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Pick from Registered Assets</p>
         <input aria-label="Search your registered assets..." id="asset-search" type="text" class="wh-input mb-2" placeholder="Search your registered assets..." oninput="filterRegisteredAssets()" />
         <div id="registered-asset-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
         <p id="reg-assets-empty" class="hidden text-xs text-white/60 text-center py-3">No registered assets found. Fill in the form below manually.</p>
@@ -482,21 +500,21 @@
 
       <div class="space-y-4">
         <div>
-          <label for="w-name" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Asset / Equipment Name *</label>
-          <input id="w-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump No. 1" />
+          <label for="w-name" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="assetname">Asset / Equipment Name *</label>
+          <input id="w-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump No. 1" maxlength="120">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="w-tag" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Tag / ID</label>
-            <input id="w-tag" type="text" class="wh-input" placeholder="e.g. CWP-001" />
+            <label for="w-tag" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="tagid">Tag / ID</label>
+            <input id="w-tag" type="text" class="wh-input" placeholder="e.g. CWP-001" maxlength="120">
           </div>
           <div>
-            <label for="w-location" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Location</label>
-            <input id="w-location" type="text" class="wh-input" placeholder="e.g. Pump Room A" />
+            <label for="w-location" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="location">Location</label>
+            <input id="w-location" type="text" class="wh-input" placeholder="e.g. Pump Room A" maxlength="120">
           </div>
         </div>
         <div>
-          <label for="w-category" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Category *</label>
+          <label for="w-category" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="category">Category *</label>
           <select id="w-category" class="wh-input" onchange="onCategoryChange()">
             <option value="">Select equipment category...</option>
             <option>Rotating Equipment</option>
@@ -510,23 +528,23 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Criticality</label>
+          <label class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="criticality">Criticality</label>
           <div class="grid grid-cols-3 gap-2" id="crit-group">
-            <button type="button" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:#f87171;background:transparent;" onclick="setCrit(this)">Critical</button>
-            <button type="button" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
-            <button type="button" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;" onclick="setCrit(this)">Minor</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)">Critical</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;" onclick="setCrit(this)">Minor</button>
           </div>
         </div>
       </div>
 
       <div class="mt-6">
-        <button class="btn-primary" onclick="goStep(2)">Next: Select PM Scope</button>
+        <button class="btn-primary" onclick="goStep(2)" data-i="next2">Next: Select PM Scope</button>
       </div>
     </div>
 
     <!-- STEP 2: Scope Selection -->
     <div id="step-2" class="wizard-step hidden">
-      <p class="text-sm text-white/50 mb-2">Select which PM tasks apply to this asset and set each frequency.</p>
+      <p class="text-sm text-white/60 mb-2">Select which PM tasks apply to this asset and set each frequency.</p>
       <p class="text-xs text-white/60 mb-4">Pre-loaded based on your category. Uncheck items you don't need, adjust frequencies, or add custom tasks.</p>
 
       <div id="scope-list" class="space-y-2 mb-4"></div>
@@ -535,7 +553,7 @@
       <div class="wh-card p-4 mt-3">
         <p class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Add Custom Task</p>
         <div class="flex gap-2">
-          <input aria-label="e.g. Inspect coupling guard" id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" />
+          <input aria-label="e.g. Inspect coupling guard" id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" maxlength="250">
           <select id="custom-item-freq" aria-label="Custom task frequency" class="wh-input" style="width:auto;min-width:130px;">
             <option value="Monthly">Monthly</option>
             <option value="Quarterly" selected>Quarterly</option>
@@ -543,21 +561,21 @@
             <option value="Yearly">Yearly</option>
           </select>
         </div>
-        <button class="btn-ghost mt-2" style="font-size:0.8125rem;padding:0.5rem 1rem;" onclick="addCustomItem()">+ Add Task</button>
+        <button class="btn-ghost mt-2" style="font-size:0.8125rem;padding:0.5rem 1rem;" onclick="addCustomItem()" data-i="plusaddtask">+ Add Task</button>
       </div>
 
       <div class="flex gap-3 mt-6">
-        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(1)">Back</button>
-        <button class="btn-primary" onclick="goStep(3)">Next: Set Anchor Date</button>
+        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(1)" data-i="back">Back</button>
+        <button class="btn-primary" onclick="goStep(3)" data-i="next3">Next: Set Anchor Date</button>
       </div>
     </div>
 
     <!-- STEP 3: Anchor Date -->
     <div id="step-3" class="wizard-step hidden">
-      <p class="text-sm text-white/50 mb-5">When was this equipment last serviced? This is the starting point for all due date calculations.</p>
+      <p class="text-sm text-white/60 mb-5">When was this equipment last serviced? This is the starting point for all due date calculations.</p>
 
       <div class="wh-card p-5 mb-4">
-        <label for="w-anchor" class="block text-xs font-semibold text-white/50 mb-1.5 uppercase tracking-wide">Last PM Date</label>
+        <label for="w-anchor" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="lastpmdate">Last PM Date</label>
         <input id="w-anchor" type="date" class="wh-input" />
         <p class="text-xs text-white/60 mt-2">If never serviced before, leave blank: all tasks will show as overdue immediately to prompt action.</p>
       </div>
@@ -586,14 +604,14 @@
       </div>
 
       <div class="flex gap-3 mt-6">
-        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(2)">Back</button>
-        <button class="btn-primary" onclick="goStep(4)">Next: Review</button>
+        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(2)" data-i="back">Back</button>
+        <button class="btn-primary" onclick="goStep(4)" data-i="next4">Next: Review</button>
       </div>
     </div>
 
     <!-- STEP 4: Review & Save -->
     <div id="step-4" class="wizard-step hidden">
-      <p class="text-sm text-white/50 mb-5">Review your asset setup before saving.</p>
+      <p class="text-sm text-white/60 mb-5">Review your asset setup before saving.</p>
 
       <div class="wh-card p-5 mb-4 space-y-3">
         <div class="flex items-start justify-between gap-3">
@@ -616,8 +634,8 @@
       </div>
 
       <div class="flex gap-3 mt-6">
-        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(3)">Back</button>
-        <button id="btn-save-asset" class="btn-primary" onclick="saveAsset()">Save Asset</button>
+        <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="goStep(3)" data-i="back">Back</button>
+        <button id="btn-save-asset" class="btn-primary" onclick="saveAsset()" data-i="saveasset">Save Asset</button>
       </div>
     </div>
 
@@ -634,11 +652,11 @@
     <div class="flex items-center justify-between mb-5">
       <button onclick="goBack()" class="flex items-center gap-1.5 text-white/60 hover:text-white/70 text-sm transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-        Back
+        <span data-i="back">Back</span>
       </button>
       <div class="flex gap-2">
-        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;" onclick="openEditPMAsset()">Edit Asset</button>
-        <button id="btn-delete-asset" class="btn-danger hidden" onclick="confirmDeleteAsset()">Delete Asset</button>
+        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
+        <button id="btn-delete-asset" class="btn-danger hidden" onclick="confirmDeleteAsset()" data-i="deleteasset">Delete Asset</button>
       </div>
     </div>
 
@@ -660,14 +678,14 @@
 
     <!-- Add Task trigger -->
     <button onclick="openAddTaskSheet()" class="wh-card w-full p-4 mb-4 flex items-center justify-between text-sm font-semibold transition-colors" style="color:rgba(247,162,27,0.8);">
-      <span>+ Add Task</span>
+      <span data-i="plusaddtask">+ Add Task</span>
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
     </button>
 
     <!-- PM Tasks section -->
     <div class="mb-4">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-sm">PM Tasks</h3>
+        <h3 class="font-semibold text-sm" data-i="pmtasks">PM Tasks</h3>
         <span id="det-progress-text" class="text-xs text-white/60"></span>
       </div>
       <div id="det-tasks" class="space-y-2.5"></div>
@@ -675,11 +693,11 @@
 
     <!-- History log -->
     <div class="wh-card p-4">
-      <h3 class="font-semibold text-sm mb-3">Completion History</h3>
+      <h3 class="font-semibold text-sm mb-3" data-i="completionhistory">Completion History</h3>
       <div id="det-history" class="divide-y divide-white/5"></div>
       <div id="det-history-empty" class="hidden text-center py-6 text-white/60 text-xs">No completions recorded yet.</div>
       <div id="det-history-more" class="hidden mt-3">
-        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </div>
 
@@ -693,13 +711,13 @@
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
       </svg>
-      Dashboard
+      <span data-i="dashboard">Dashboard</span>
     </button>
     <button class="nav-tab" id="tab-add" onclick="goAddAsset()">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>
-      Add Asset
+      <span data-i="addasset">Add Asset</span>
     </button>
   </div>
 </div>
@@ -707,24 +725,24 @@
 <!-- ── EDIT PM ASSET MODAL (supervisor only in hive mode) ── -->
 <div id="pm-edit-modal" role="dialog" aria-modal="true" aria-label="Edit PM asset" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
   <div class="wh-card w-full p-6 relative" style="max-width:420px;">
-    <button onclick="closeEditPMAsset()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1.1rem;">✕</button>
+    <button onclick="closeEditPMAsset()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.62);cursor:pointer;font-size:1.1rem;">✕</button>
 
-    <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
+    <h3 class="font-bold text-base text-white mb-4 pr-8" data-i="editasset">Edit Asset</h3>
 
     <div class="mb-3">
-      <label for="pm-edit-name" class="block text-xs text-white/60 mb-1">Asset Name</label>
-      <input id="pm-edit-name" type="text" class="wh-input" placeholder="e.g. Batten Staple Machine 2">
+      <label for="pm-edit-name" class="block text-xs text-white/60 mb-1" data-i="assetnameshort">Asset Name</label>
+      <input id="pm-edit-name" type="text" class="wh-input" placeholder="e.g. Batten Staple Machine 2" maxlength="120">
     </div>
     <div class="mb-3">
-      <label for="pm-edit-tag" class="block text-xs text-white/60 mb-1">Tag / ID</label>
-      <input id="pm-edit-tag" type="text" class="wh-input" placeholder="e.g. Machine 2">
+      <label for="pm-edit-tag" class="block text-xs text-white/60 mb-1" data-i="tagid">Tag / ID</label>
+      <input id="pm-edit-tag" type="text" class="wh-input" placeholder="e.g. Machine 2" maxlength="120">
     </div>
     <div class="mb-3">
-      <label for="pm-edit-location" class="block text-xs text-white/60 mb-1">Location</label>
-      <input id="pm-edit-location" type="text" class="wh-input" placeholder="e.g. Building A, Line 3">
+      <label for="pm-edit-location" class="block text-xs text-white/60 mb-1" data-i="location">Location</label>
+      <input id="pm-edit-location" type="text" class="wh-input" placeholder="e.g. Building A, Line 3" maxlength="120">
     </div>
     <div class="mb-3">
-      <label for="pm-edit-criticality" class="block text-xs text-white/60 mb-1">Criticality</label>
+      <label for="pm-edit-criticality" class="block text-xs text-white/60 mb-1" data-i="criticality">Criticality</label>
       <select id="pm-edit-criticality" class="wh-input">
         <option value="">-- Select --</option>
         <option value="Critical">Critical</option>
@@ -737,8 +755,8 @@
     <p role="alert" aria-live="assertive" id="pm-edit-error" class="text-xs text-red-400 mb-3 hidden"></p>
 
     <div class="flex gap-2">
-      <button onclick="saveEditPMAsset()" id="pm-edit-save-btn" class="btn-primary flex-1">Save Changes</button>
-      <button onclick="closeEditPMAsset()" class="btn-ghost px-4">Cancel</button>
+      <button onclick="saveEditPMAsset()" id="pm-edit-save-btn" class="btn-primary flex-1" data-i="savechanges">Save Changes</button>
+      <button onclick="closeEditPMAsset()" class="btn-ghost px-4" data-i="cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -750,8 +768,8 @@
 
     <div class="flex items-start justify-between gap-3 mb-4">
       <div>
-        <h3 class="font-bold text-base">Task Completed</h3>
-        <p id="sheet-item-text" class="text-sm text-white/50 mt-0.5 leading-snug"></p>
+        <h3 class="font-bold text-base" data-i="taskcompleted">Task Completed</h3>
+        <p id="sheet-item-text" class="text-sm text-white/60 mt-0.5 leading-snug"></p>
       </div>
       <span id="sheet-freq-badge" class="freq-badge flex-shrink-0 mt-1"></span>
     </div>
@@ -761,20 +779,20 @@
       <svg class="w-4 h-4 text-white/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
       <div class="min-w-0">
         <p id="sheet-asset-name" class="text-sm font-semibold text-white truncate"></p>
-        <p class="text-xs text-white/60">Completed: <span id="sheet-date" class="text-white/50"></span></p>
+        <p class="text-xs text-white/60">Completed: <span id="sheet-date" class="text-white/60"></span></p>
       </div>
     </div>
 
     <!-- Findings textarea -->
     <div class="mb-3">
-      <label for="sheet-findings" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">Findings / Observations <span class="text-white/20 font-normal normal-case">(optional)</span></label>
-      <textarea aria-label="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." id="sheet-findings" rows="3" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
+      <label for="sheet-findings" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5"><span data-i="findings">Findings / Observations</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+      <textarea aria-label="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." id="sheet-findings" rows="3" maxlength="2000" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
     </div>
 
     <!-- Action taken -->
     <div class="mb-4">
-      <label for="sheet-action" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5">Action Taken</label>
-      <input id="sheet-action" type="text" class="wh-input" placeholder="e.g. PM completed per schedule" />
+      <label for="sheet-action" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5" data-i="actiontaken">Action Taken</label>
+      <input id="sheet-action" type="text" class="wh-input" placeholder="e.g. PM completed per schedule" maxlength="250">
     </div>
 
     <!-- Log to logbook toggle -->
@@ -786,7 +804,7 @@
           <div id="sheet-toggle-thumb" class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform" style="transform:translateX(16px);"></div>
         </div>
         <div>
-          <p class="text-sm font-semibold text-white">Also save to Logbook</p>
+          <p class="text-sm font-semibold text-white" data-i="alsosavelogbook">Also save to Logbook</p>
           <p class="text-xs text-white/60">Creates a Preventive Maintenance entry with these findings.</p>
         </div>
       </label>
@@ -794,9 +812,9 @@
 
     <!-- Buttons -->
     <div class="flex gap-3">
-      <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="closeSheet()">Cancel</button>
+      <button class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" onclick="closeSheet()" data-i="cancel">Cancel</button>
       <button id="sheet-save-btn" class="btn-primary" onclick="submitCompletion()">
-        <span id="sheet-save-label">Save Completion</span>
+        <span id="sheet-save-label" data-i="savecompletion">Save Completion</span>
       </button>
     </div>
   </div>
@@ -806,7 +824,7 @@
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <!-- ══ SCRIPTS ══ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
 <script>
@@ -1002,8 +1020,8 @@ function getAssetOverallStatus(items) {
 }
 
 function formatDate(d) {
-  if (!d) return 'N/A';
-  return new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (!d) return 'N/A'; // page's no-date semantic kept
+  return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
 
 function daysLabel(nextDue) {
@@ -1057,25 +1075,55 @@ const TYPE_TO_CATEGORY = {
 // CAT COLOR MAP
 // ─────────────────────────────────────
 const CAT_COLORS = {
-  'Rotating Equipment': { bg: 'rgba(41,182,217,0.15)', color: '#29B6D9' },
-  'Static Equipment':   { bg: 'rgba(167,139,250,0.15)', color: '#a78bfa' },
+  'Rotating Equipment': { bg: 'rgba(41,182,217,0.15)', color: '#5FCCE8' },
+  'Static Equipment':   { bg: 'rgba(167,139,250,0.15)', color: '#C4B5FD' },
   'Electrical':         { bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
   'Instrumentation':    { bg: 'rgba(34,197,94,0.15)',   color: '#4ade80' },
-  'HVAC':               { bg: 'rgba(244,114,182,0.15)', color: '#f472b6' },
-  'Utility Systems':    { bg: 'rgba(247,162,27,0.15)',  color: '#F7A21B' },
-  'Civil / Structural': { bg: 'rgba(156,163,175,0.15)', color: '#9ca3af' },
-  'Material Handling':  { bg: 'rgba(249,115,22,0.15)',  color: '#f97316' },
+  'HVAC':               { bg: 'rgba(244,114,182,0.15)', color: '#f9a8d4' },
+  'Utility Systems':    { bg: 'rgba(247,162,27,0.15)',  color: '#FDB94A' },
+  'Civil / Structural': { bg: 'rgba(156,163,175,0.15)', color: '#c3ccd6' },
+  'Material Handling':  { bg: 'rgba(249,115,22,0.15)',  color: '#FDBA74' },
 };
 
 function catPill(cat) {
-  const c = CAT_COLORS[cat] || { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' };
+  const c = CAT_COLORS[cat] || { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.62)' };
   return `<span class="cat-pill" style="background:${c.bg};color:${c.color};">${escHtml(cat)}</span>`;
 }
 
+// ── Canonical PM frequency registry — the ONE source of truth for display order/labels/colors.
+// v_pm_scope_items_truth (and the seeder / CMMS import) use a BROADER, case-insensitive
+// vocabulary (Weekly, Annual, Semi-annual, biweekly…) than the create form historically
+// offered, so EVERY display path normalises through canonFreq() and an 'Other' catch-all
+// group guarantees no scope item is ever silently dropped. Before 2026-07-12 the detail
+// view grouped by EXACT string against ['Monthly','Quarterly','Semi-Annual','Yearly'],
+// hiding Weekly/Annual/Semi-annual = ~half the platform's scope items (PM PDDA F0 keystone).
+const FREQ = [
+  { key: 'Daily',       days: 1,   badge: 'D',  cls: 'freq-D',  color: '#f9a8d4' },
+  { key: 'Weekly',      days: 7,   badge: 'W',  cls: 'freq-W',  color: '#7dd3fc' },
+  { key: 'Monthly',     days: 30,  badge: 'M',  cls: 'freq-M',  color: '#5FCCE8' },
+  { key: 'Quarterly',   days: 90,  badge: 'Q',  cls: 'freq-Q',  color: '#C4B5FD' },
+  { key: 'Semi-Annual', days: 180, badge: 'SA', cls: 'freq-SA', color: '#fb923c' },
+  { key: 'Annual',      days: 365, badge: 'Y',  cls: 'freq-Y',  color: '#4ade80' },
+];
+const FREQ_BY_KEY = Object.fromEntries(FREQ.map(f => [f.key, f]));
+// Map any stored frequency string (case/synonym-insensitive) to a canonical FREQ key, or null.
+function canonFreq(freq) {
+  switch (String(freq || '').toLowerCase().trim()) {
+    case 'daily':                                              return 'Daily';
+    case 'weekly':                                             return 'Weekly';
+    case 'biweekly': case 'fortnightly':                       return 'Weekly';
+    case 'monthly':                                            return 'Monthly';
+    case 'quarterly':                                          return 'Quarterly';
+    case 'semi-annual': case 'semiannual': case 'semi annual': return 'Semi-Annual';
+    case 'annual': case 'yearly':                              return 'Annual';
+    default:                                                   return null;   // unknown → 'Other' bucket
+  }
+}
+
 function freqBadge(freq) {
-  const map = { 'Monthly': 'M', 'Quarterly': 'Q', 'Semi-Annual': 'SA', 'Yearly': 'Y' };
-  const cls = { 'Monthly': 'freq-M', 'Quarterly': 'freq-Q', 'Semi-Annual': 'freq-SA', 'Yearly': 'freq-Y' };
-  return `<span class="freq-badge ${cls[freq] || ''}">${map[freq] || freq}</span>`;
+  const f = FREQ_BY_KEY[canonFreq(freq)] || FREQ_BY_KEY[freq];   // accept a raw value OR a canonical key
+  if (f) return `<span class="freq-badge ${f.cls}">${f.badge}</span>`;
+  return `<span class="freq-badge freq-Other">${escHtml(String(freq || 'Other'))}</span>`;
 }
 
 function statusBadge(st) {
@@ -1091,7 +1139,7 @@ function statusBadge(st) {
 
 function critBadge(crit) {
   const map = {
-    Critical: 'background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);',
+    Critical: 'background:rgba(239,68,68,0.15);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.3);',
     Major:    'background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);',
     Minor:    'background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);',
   };
@@ -1164,7 +1212,7 @@ async function init() {
     _pmChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source:    'pm_assets + pm_scope_items + pm_completions',
-      notes:     [
+      method:    [
         'Overdue: last completion > interval days ago',
         'Compliance = completions / scope in window',
         'Stair 2 gate: 2 consecutive weeks >= 80% compliance (SMRP)',
@@ -1172,6 +1220,7 @@ async function init() {
     });
   }
   await loadData();
+  if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
 
   // Arc X A3 (list-state persistence): restore the dashboard's filter state from the
   // URL (?filter=, ?cat=) BEFORE the first render, so it survives a reload / back-nav
@@ -1273,6 +1322,15 @@ async function init() {
 // ─────────────────────────────────────
 async function loadData() {
   if (!HIVE_ID && !WORKER_NAME) return;
+
+  // G1 (FF1): canonical card skeleton in the asset list while the query is in flight (first
+  // load only). Replaces the #dash-loading text as the visible wait state — never show both.
+  const _alList = document.getElementById('asset-list');
+  if (_alList && !assets.length && !_alList.childElementCount && typeof whCardSkeleton === 'function') {
+    whCardSkeleton(_alList, 3);
+    const _dl = document.getElementById('dash-loading');
+    if (_dl) _dl.classList.add('hidden');
+  }
 
   // Load assets first: pm_scope_items has no worker_name, must join via asset_id
   const assetsRes = await (HIVE_ID
@@ -1380,6 +1438,13 @@ function getEnrichedItems(assetId) {
 // verdict + 3 cards + recommendation. Asset-level rollup, not scope-item.
 function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   const total = enriched.length;
+  // H1 goal-gradient — the on-track snapshot IS the worker's "get everything green"
+  // journey (distinct from SMRP compliance below, which is historical).
+  const pmProg = document.getElementById('pm-progress');
+  if (pmProg) {
+    pmProg.innerHTML = (typeof whProgressStrip === 'function')
+      ? whProgressStrip('PM assets on track', ontrack, total) : '';
+  }
   // Compliance = canonical SMRP 2.1.1 (completed/scheduled, frequency-aware) from
   // get_pm_compliance_smrp — the SAME number Analytics shows, and what the Stair-2
   // gate keys off. This is NOT the on-track snapshot (ontrack/total): a hive can
@@ -1428,15 +1493,15 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   let vTone, vLabel, vSub;
   if (total === 0) {
     vTone = 'empty'; vLabel = 'No PM scope items yet';
-    vSub = 'Add assets and PM scope items to start tracking compliance — the dashboard fills in from there.';
+    vSub = 'Add assets and PM scope items to start tracking compliance; the dashboard fills in from there.';
   } else if (overdue > 5 || compliance < 50) {
     vTone = 'attn'; vLabel = 'PM compliance is in the red';
     vSub  = overdue > 5
-              ? `${overdue} overdue assets — Reliability dimension is taking a hit on the Maturity Stairway.`
-              : `Compliance ${compliance}% — needs work before this hive clears Stair 2.`;
+              ? `${overdue} assets are overdue. Each one lowers your Reliability score on the Maturity Stairway.`
+              : `Compliance ${compliance}%: needs work before this hive clears Stair 2.`;
   } else if (overdue > 0 || compliance < 80) {
     vTone = 'watch'; vLabel = 'PM compliance is on watch';
-    vSub  = `${compliance}% compliance · ${overdue} overdue · ${duesoon} due this week — knock the overdue ones out first.`;
+    vSub  = `${compliance}% compliance · ${overdue} overdue · ${duesoon} due this week: knock the overdue ones out first.`;
   } else {
     vTone = 'healthy'; vLabel = `PM compliance is healthy (${compliance}%)`;
     vSub  = `${ontrack} of ${total} assets on track${duesoon > 0 ? ' · ' + duesoon + ' to schedule this week' : ''}.`;
@@ -1450,22 +1515,68 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   // Action — single most-actionable next step.
   const actBox = document.getElementById('pm-action-text');
   if (actBox) {
+    // Arc P · Wave 1 (P3 / FUSION 3a): render ONE primary button that DOES the step —
+    // apply the relevant filter chip + scroll to the list (or navigate cross-page).
+    const setCta = (label, opts) => {
+      const b = document.getElementById('pm-action-btn'); if (!b) return; opts = opts || {};
+      b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', opts.href || '#');
+      b.onclick = opts.href ? null : (e) => { e.preventDefault();
+        try { if (opts.click) { const c = document.querySelector(opts.click); if (c) c.click(); } } catch (_) { /* empty-catch-allow: bridge click is best-effort */ }
+        const t = opts.scroll && document.querySelector(opts.scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    };
     let text;
     if (total === 0) {
       text = 'Open the asset list below and click "Add asset" to register your first equipment. Once you add a PM scope item, this dashboard tracks compliance automatically.';
+      setCta('Review the asset list →', { scroll: '#filter-bar' });
     } else if (overdue > 5) {
-      text = `Filter to "Overdue" using the chips below and bulk-assign these PMs across the week. Every overdue PM is a penalty on your Reliability dimension.`;
+      text = `Tap the "Overdue" chip below. Then spread those PMs across the week. Every overdue PM drags your Reliability score down.`;
+      setCta(`Assign ${overdue} overdue PMs →`, { scroll: '#filter-bar', click: '.filter-chip[data-filter="overdue"]' });
     } else if (overdue > 0) {
       text = `Filter to "Overdue" and clear the ${overdue} past-due asset${overdue === 1 ? '' : 's'} this week. Bring compliance back above 80% to keep Stair 2.`;
+      setCta(`Clear ${overdue} overdue PM${overdue === 1 ? '' : 's'} →`, { scroll: '#filter-bar', click: '.filter-chip[data-filter="overdue"]' });
     } else if (duesoon > 0) {
       text = `${duesoon} asset${duesoon === 1 ? ' has' : 's have'} PMs due in the next 14 days. Slot them into the next two weekly shift plans before they become overdue.`;
+      setCta(`Schedule ${duesoon} due-soon →`, { scroll: '#filter-bar', click: '.filter-chip[data-filter="duesoon"]' });
     } else if (compliance < 80) {
-      text = `Compliance is at ${compliance}%. Walk through the list below — assets with no completion history yet show as on-track but contribute zero signal. Run an initial PM to lock in the timer.`;
+      text = `Compliance is at ${compliance}%. Walk through the list below: assets with no completion history yet show as on-track but contribute zero signal. Run an initial PM to lock in the timer.`;
+      setCta('Review the asset list →', { scroll: '#filter-bar' });
     } else {
       text = 'PM compliance is healthy. Check the asset list below to confirm criticals (red border) are still being prioritized in your team plan.';
+      setCta('Review the asset list →', { scroll: '#filter-bar' });
     }
     actBox.textContent = text;
   }
+}
+
+// AI grounding: register a piiSafe LIVE PM snapshot with the companion (mirrors inventory.html).
+// Equipment tags + counts + the SMRP % are equipment/operational identity, not PII; worker
+// names and free-text notes are deliberately excluded so the ops-snapshot never leaks PII.
+let _pmCtxRetryPending = false;
+function setPmCompanionContext(enriched, overdue, duesoon, ontrack, attempt) {
+  attempt = attempt || 0;
+  if (typeof WHAssistant === 'undefined' || !WHAssistant.setContext) {
+    if (attempt < 25 && !_pmCtxRetryPending) {
+      _pmCtxRetryPending = true;
+      setTimeout(() => { _pmCtxRetryPending = false; setPmCompanionContext(enriched, overdue, duesoon, ontrack, attempt + 1); }, 300);
+    }
+    return;
+  }
+  try {
+    const total = enriched.length;
+    const overdueTags = enriched
+      .filter(a => a.overall === 'overdue')
+      .map(a => a.tag_id || a.asset_name).filter(Boolean).slice(0, 15).join(', ');
+    const smrp = (pmSmrpCompliance != null) ? `${Math.round(pmSmrpCompliance)}% ` : '';
+    const summary =
+      `Preventive-maintenance schedule: ${total} PM assets in this hive. Live PM status: ` +
+      `${overdue} overdue, ${duesoon} due within 14 days, ${ontrack} on track. ` +
+      (smrp ? `SMRP Metric 2.1.1 PM compliance is ${smrp}(same value Analytics shows). ` : '') +
+      (overdueTags ? `Overdue assets (clear these first): ${overdueTags}. ` : `Nothing is overdue right now. `) +
+      `Each asset carries recurring PM scope tasks grouped by frequency (Weekly/Monthly/Quarterly/Semi-Annual/Annual); ` +
+      `completing a task rolls its next-due date forward by that interval. Answer PM/compliance questions from these ` +
+      `live counts, never estimate or invent a number.`;
+    WHAssistant.setContext({ key: 'pm-scheduler', summary, badge: `${overdue} overdue`, piiSafe: true });
+  } catch (_) { /* empty-catch-allow: companion grounding is best-effort */ }
 }
 
 function renderDashboard() {
@@ -1500,10 +1611,29 @@ function renderDashboard() {
   // and the verdict line never disagree with the asset list below.
   renderPMSummary(enriched, overdueCount, dueSoonCount, onTrackCount);
 
+  // AI grounding (PM PDDA, 2026-07-12): feed the companion a piiSafe LIVE PM snapshot so
+  // "PM Scheduler" answers compliance/overdue questions from the page's real numbers instead
+  // of confabulating (mirrors inventory.html + marketplace.html setContext; only counts +
+  // equipment tags + the SMRP %, no worker names / free-text → PII-safe). Refreshes every render.
+  setPmCompanionContext(enriched, overdueCount, dueSoonCount, onTrackCount);
+
   // Filter
   let filtered = enriched;
   if (activeFilter !== 'all') filtered = filtered.filter(a => a.overall === activeFilter);
   if (catFilter)              filtered = filtered.filter(a => a.category === catFilter);
+
+  // Worst-first triage sort (PM PDDA U): overdue → due-soon → on-track → no-data, and within
+  // a band the soonest / most-overdue next-due first — so the most urgent PM is always on top
+  // even before the supervisor touches a filter chip. (Was insertion order → the lone overdue
+  // asset was buried behind due-soon assets on page 2, defeating the whole triage.)
+  const STATUS_RANK = { overdue: 0, duesoon: 1, ontrack: 2, nodata: 3 };
+  const soonestDue = a => {
+    const ds = a.enrichedItems.map(i => i.nextDue ? new Date(i.nextDue).getTime() : Infinity);
+    return ds.length ? Math.min(...ds) : Infinity;
+  };
+  filtered = filtered.slice().sort((a, b) =>
+    (STATUS_RANK[a.overall] ?? 9) - (STATUS_RANK[b.overall] ?? 9) || soonestDue(a) - soonestDue(b)
+  );
 
   if (!filtered.length) {
     empty.classList.remove('hidden');
@@ -1560,7 +1690,7 @@ function renderDashboard() {
             background:${asset.overall === 'overdue' ? '#ef4444' : asset.overall === 'duesoon' ? '#fbbf24' : '#4ade80'};
           "></div>
         </div>
-        <p class="text-xs text-white/25 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
+        <p class="text-xs text-white/60 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
       </div>
     `;
   }).join('');
@@ -1603,19 +1733,22 @@ function renderDetail(asset) {
   const done = items.filter(i => i.itemStatus === 'ontrack').length;
   document.getElementById('det-progress-text').textContent = `${done}/${items.length} on track`;
 
-  // Tasks grouped by frequency
-  const freqOrder = ['Monthly', 'Quarterly', 'Semi-Annual', 'Yearly'];
-  const grouped   = {};
-  freqOrder.forEach(f => { grouped[f] = items.filter(i => i.frequency === f); });
+  // Tasks grouped by CANONICAL frequency. Anything unrecognised lands in 'Other' so a scope
+  // item is NEVER silently dropped (PM PDDA F0 — was exact-match against 4 hardcoded labels).
+  const grouped = {};
+  items.forEach(i => {
+    const key = canonFreq(i.frequency) || 'Other';
+    (grouped[key] = grouped[key] || []).push(i);
+  });
+  const freqOrder = [...FREQ.map(f => f.key), 'Other'];
 
   const tasksEl = document.getElementById('det-tasks');
-  tasksEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = freqOrder.map(freq => {
-    if (!grouped[freq].length) return '';
+  tasksEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = freqOrder.filter(freq => grouped[freq] && grouped[freq].length).map(freq => {
     return `
       <div class="mb-4">
         <div class="flex items-center gap-2 mb-2">
           ${freqBadge(freq)}
-          <span class="text-xs text-white/60 font-semibold">${freq}</span>
+          <span class="text-xs text-white/60 font-semibold">${freq === 'Other' ? 'Other frequencies' : freq}</span>
         </div>
         <div class="space-y-2">
           ${grouped[freq].map(item => {
@@ -1630,8 +1763,8 @@ function renderDetail(asset) {
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="text-xs text-white/60 space-y-0.5">
-                    <div>Last done: <span class="text-white/50">${lastStr}</span></div>
-                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/50'}">${nextStr} (${daysStr})</span></div>
+                    <div>Last done: <span class="text-white/60">${lastStr}</span></div>
+                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/60'}">${nextStr} (${daysStr})</span></div>
                   </div>
                   <button class="complete-btn ${item.itemStatus === 'ontrack' ? 'done' : ''}"
                     onclick="markDone('${item.id}', this)"
@@ -1677,7 +1810,7 @@ function renderDetail(asset) {
             <p class="text-xs text-white/60 mt-0.5">
               <span class="${statusCls} font-semibold">${c.status === 'done' ? 'Completed' : 'Deferred'}</span>
               · ${escHtml(c.worker_name)} · ${formatDate(c.completed_at)}
-              ${c.notes ? `<br><span class="italic text-white/25">"${escHtml(c.notes)}"</span>` : ''}
+              ${c.notes ? `<br><span class="italic text-white/60">"${escHtml(c.notes)}"</span>` : ''}
             </p>
           </div>
         </div>
@@ -1721,12 +1854,11 @@ function markDone(scopeItemId, btn) {
   document.getElementById('sheet-save-label').textContent = 'Save Completion';
   document.getElementById('sheet-save-btn').disabled      = false;
 
-  // Freq badge
-  const freqMap = { Monthly: 'freq-M', Quarterly: 'freq-Q', 'Semi-Annual': 'freq-SA', Yearly: 'freq-Y' };
-  const freqLbl = { Monthly: 'M', Quarterly: 'Q', 'Semi-Annual': 'SA', Yearly: 'Y' };
+  // Freq badge (canonical registry — robust to Weekly/Annual/Semi-annual casing & synonyms)
+  const _cf = FREQ_BY_KEY[canonFreq(item.frequency)];
   const fb = document.getElementById('sheet-freq-badge');
-  fb.className = `freq-badge ${freqMap[item.frequency] || ''}`;
-  fb.textContent = freqLbl[item.frequency] || item.frequency;
+  fb.className = `freq-badge ${_cf ? _cf.cls : 'freq-Other'}`;
+  fb.textContent = _cf ? _cf.badge : (item.frequency || '');
 
   // Toggle wiring (only once)
   const toggle = document.getElementById('sheet-log-toggle');
@@ -1741,7 +1873,7 @@ function updateToggleUI() {
   const on    = document.getElementById('sheet-log-toggle').checked;
   const track = document.getElementById('sheet-toggle-track');
   const thumb = document.getElementById('sheet-toggle-thumb');
-  track.style.background        = on ? '#F7A21B' : 'rgba(255,255,255,0.15)';
+  track.style.background        = on ? '#FDB94A' : 'rgba(255,255,255,0.15)';
   thumb.style.transform         = on ? 'translateX(16px)' : 'translateX(0)';
   document.getElementById('sheet-save-label').textContent = on ? 'Save + Log in Logbook' : 'Save Completion';
 }
@@ -1804,7 +1936,7 @@ async function saveEditPMAsset() {
     return;
   }
   if (pmRows !== null && pmRows !== undefined && pmRows.length === 0) {
-    errEl.textContent = 'Asset was modified by someone else — reload to see the latest version.';
+    errEl.textContent = 'Asset was modified by someone else; reload to see the latest version.';
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
@@ -1867,7 +1999,7 @@ async function submitCompletion() {
   if (!navigator.onLine && window._whPmQueue) {
     await window._whPmQueue.enqueue({ id: compId, op: 'insert', payload: compPayload });
     completions.unshift({ ...compPayload });
-    showToast('Saved offline — will sync when you reconnect.');
+    showToast('Saved offline, will sync when you reconnect.');
     closeSheet();
     renderDetail(currentAsset);
     renderDashboard();
@@ -1916,6 +2048,16 @@ async function submitCompletion() {
       PM_TEMPLATES[cat].some(t => t.text.toLowerCase() === taskText)
     ) || currentAsset.category;
     const logCat = PM_CAT_TO_LOG_CAT[taskPMCat] || PM_CAT_TO_LOG_CAT[currentAsset.category] || 'Mechanical';
+    // Resolve the canonical asset_nodes.id so the mirrored logbook entry is ASSET-LINEAGED —
+    // v_asset_truth counts equipment history on asset_node_id (FK), so a null-FK mirror was
+    // orphaned from the asset's history and every asset-scoped KPI. Read the canonical view
+    // v_asset_truth (asset_id = asset_nodes.id) keyed by pm_asset_id (1:1, unique). Fail-soft to null.
+    let resolvedNodeId = null;
+    try {
+      const { data: nodeRow } = await db.from('v_asset_truth')
+        .select('asset_id').eq('pm_asset_id', currentAsset.id).limit(1).maybeSingle();
+      resolvedNodeId = nodeRow?.asset_id || null;
+    } catch (_) { resolvedNodeId = null; }
     const logPayload = {
       // logbook.id is TEXT, NOT NULL, with no DB default — the logbook uses
       // client-generated ids (Date.now()+random). Omitting it made every
@@ -1924,7 +2066,10 @@ async function submitCompletion() {
       // pm- prefixed for traceability.
       id:               'pm-' + Date.now().toString() + Math.random().toString(36).slice(2),
       date:             now,
-      machine:          currentAsset.asset_name,
+      // machine is the asset TAG platform-wide (logbook.html sets #f-machine to the tag; every
+      // machine-keyed consumer + v_logbook_truth expect the tag). The mirror was using the display
+      // NAME — inconsistent with every other logbook row. Use the tag, fall back to name.
+      machine:          currentAsset.tag_id || currentAsset.asset_name,
       maintenance_type: 'Preventive Maintenance',
       category:         logCat,
       problem:          _sheetScopeItem.item_text,
@@ -1934,7 +2079,8 @@ async function submitCompletion() {
       closed_at:        now,
       hive_id:          HIVE_ID || null,
       worker_name:      WORKER_NAME,
-      asset_node_id:    null,
+      auth_uid:         _authUid || null,  // attribution FK — cross-surface logbook mirror was dropping it (matches the pm_completions/pm_assets payloads on this page)
+      asset_node_id:    resolvedNodeId,     // asset lineage FK (was null → orphaned from v_asset_truth equipment history)
       pm_completion_id: compData.id,
     };
 
@@ -1991,7 +2137,7 @@ async function _autoLinkPmToProject(compData, asset) {
   const linkRows = projs.map(p => ({
     project_id: p.id, hive_id: HIVE_ID,
     link_type: 'pm_completion', link_id: compData.id,
-    label: `PM ${asset.asset_name || asset.tag_id || asset.id} — ${new Date(compData.completed_at).toLocaleDateString()}`,
+    label: `PM ${asset.asset_name || asset.tag_id || asset.id}: ${new Date(compData.completed_at).toLocaleDateString()}`,
   }));
   const { error: linkErr } = await db.from('project_links').insert(linkRows);
   if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
@@ -2002,9 +2148,15 @@ async function _autoLinkPmToProject(compData, asset) {
 
 async function embedPMEntry(entry) {
   try {
+    // Forward the USER's session JWT: embed-entry's Pillar I tenancy check
+    // requires a resolvable identity when hive_id is set, else it 401s and the
+    // PM embedding never reaches the RAG index. apikey stays the anon key.
+    // (Same fix analytics-orchestrator got 2026-06-07.)
+    const { data: { session: _s } } = await db.auth.getSession();
+    const _tok = _s?.access_token || SUPABASE_KEY;
     await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tok },
       body: JSON.stringify({
         type: 'pm',
         hive_id: HIVE_ID || null,
@@ -2117,7 +2269,7 @@ function pickRegisteredAsset(id) {
     selectedCrit = a.criticality;
     document.querySelectorAll('.crit-btn').forEach(b => {
       const active = b.dataset.val === selectedCrit;
-      if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:#f87171;background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
+      if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
       if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#fbbf24;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
       if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
     });
@@ -2162,7 +2314,7 @@ function resetWizard() {
   document.querySelectorAll('.crit-btn').forEach(b => {
     const isDefault = b.dataset.val === 'Major';
     b.classList.toggle('selected', isDefault);
-    if (b.dataset.val === 'Critical') b.style.cssText = 'border-color:rgba(239,68,68,0.3);color:#f87171;background:transparent;';
+    if (b.dataset.val === 'Critical') b.style.cssText = 'border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;';
     if (b.dataset.val === 'Major')    b.style.cssText = 'border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);';
     if (b.dataset.val === 'Minor')    b.style.cssText = 'border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;';
   });
@@ -2172,7 +2324,7 @@ function setCrit(btn) {
   selectedCrit = btn.dataset.val;
   document.querySelectorAll('.crit-btn').forEach(b => {
     const active = b === btn;
-    if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:#f87171;background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
+    if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
     if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#fbbf24;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
     if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
   });
@@ -2180,7 +2332,7 @@ function setCrit(btn) {
 
 function onCategoryChange() {
   const cat = document.getElementById('w-category').value;
-  wizardItems = (PM_TEMPLATES[cat] || []).map(t => ({ ...t, isCustom: false }));
+  wizardItems = (PM_TEMPLATES[cat] || []).map(t => ({ ...t, freq: canonFreq(t.freq) || t.freq, isCustom: false }));
 }
 
 function addCustomItem() {
@@ -2201,8 +2353,8 @@ function renderScopeList() {
 
   container/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = wizardItems.map((item, idx) => {
     const included = item.included !== false;
-    const freqOpts = ['Monthly','Quarterly','Semi-Annual','Yearly']
-      .map(f => `<option value="${f}" ${item.freq === f ? 'selected' : ''}>${f}</option>`).join('');
+    const freqOpts = FREQ.map(f => f.key)
+      .map(f => `<option value="${f}" ${canonFreq(item.freq) === f ? 'selected' : ''}>${f}</option>`).join('');
     return `
       <div class="scope-row ${included ? 'included' : ''}" id="scope-row-${idx}">
         <div class="scope-check" onclick="toggleScopeItem(${idx})"></div>
@@ -2217,7 +2369,7 @@ function renderScopeList() {
             </select>
           </div>
         </div>
-        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/20 hover:text-red-400 transition-colors p-1" aria-label="Remove">
+        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/60 hover:text-red-400 transition-colors p-1" aria-label="Remove">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>` : ''}
       </div>
@@ -2360,7 +2512,7 @@ async function saveAsset() {
     asset_id:    asset.id,
     hive_id:     HIVE_ID || null,
     item_text:   item.text,
-    frequency:   item.freq,
+    frequency:   canonFreq(item.freq) || item.freq,
     anchor_date: anchor || null,
     is_custom:   item.isCustom || false,
   }));
@@ -2414,8 +2566,8 @@ function renderCatTabs() {
     const isActive = cat === _tmplActiveCat;
     const style = isActive
       ? 'background:rgba(247,162,27,0.18);color:#F7A21B;border-color:rgba(247,162,27,0.5);'
-      : 'background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);border-color:rgba(255,255,255,0.1);';
-    return `<button type="button" onclick="selectTmplCat('${escHtml(cat)}')"
+      : 'background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.62);border-color:rgba(255,255,255,0.1);';
+    return `<button type="button" onclick="selectTmplCat('${escJsAttr(cat)}')"
       class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors"
       style="${style}">${escHtml(cat)}</button>`;
   }).join('');
@@ -2438,20 +2590,20 @@ function renderTaskChips() {
   const chipsEl = document.getElementById('tmpl-chips');
 
   if (!templates.length) {
-    chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-xs text-white/25 py-2">All standard tasks for this category already added.</p>';
+    chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-xs text-white/60 py-2">All standard tasks for this category already added.</p>';
     return;
   }
 
-  const freqColor = { Monthly: '#29B6D9', Quarterly: '#a78bfa', 'Semi-Annual': '#fb923c', Yearly: '#4ade80' };
+  const freqColor = Object.fromEntries(FREQ.map(f => [f.key, f.color]));
   const currentText = document.getElementById('add-task-text').value.trim();
 
   chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = templates.map(t => {
     const isSelected = currentText === t.text;
-    const fc = freqColor[t.freq] || '#ffffff';
+    const fc = freqColor[canonFreq(t.freq)] || '#ffffff';
     const bg = isSelected ? 'rgba(247,162,27,0.15)' : 'rgba(255,255,255,0.04)';
     const border = isSelected ? 'rgba(247,162,27,0.5)' : 'rgba(255,255,255,0.08)';
     return `<button type="button"
-      onclick="pickTaskChip('${escHtml(t.text).replace(/'/g,"&#39;")}','${t.freq}')"
+      onclick="pickTaskChip('${escJsAttr(t.text)}','${escJsAttr(t.freq)}')"
       class="flex items-center justify-between gap-3 w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors"
       style="background:${bg};border-color:${border};">
       <span class="leading-snug">${escHtml(t.text)}</span>
@@ -2651,7 +2803,7 @@ if (window.whModalA11y) {
     <div class="sheet-handle"></div>
 
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-base">Add PM Task</h3>
+      <h3 class="font-bold text-base" data-i="addpmtask">Add PM Task</h3>
       <button onclick="closeAddTaskSheet()" class="text-white/60 hover:text-white/70 p-1 -mr-1" aria-label="Close">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -2659,25 +2811,25 @@ if (window.whModalA11y) {
 
     <!-- Category tabs -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.4);">CATEGORY</label>
+      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.62);" data-i="catlabel">CATEGORY</label>
       <div id="tmpl-cat-tabs" class="flex flex-wrap gap-1.5"></div>
     </div>
 
     <!-- Task chips -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.4);">STANDARD TASKS: tap one to fill below</label>
+      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.62);" data-i="standardtasks">STANDARD TASKS: tap one to fill below</label>
       <div id="tmpl-chips" class="flex flex-col gap-1.5 max-h-44 overflow-y-auto pr-1"></div>
     </div>
 
     <!-- Description -->
     <div class="mb-3">
-      <label for="add-task-text" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">TASK DESCRIPTION</label>
-      <input id="add-task-text" type="text" class="wh-input" placeholder="Describe the PM task..." style="font-size:16px;" />
+      <label for="add-task-text" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.62);" data-i="taskdesc">TASK DESCRIPTION</label>
+      <input id="add-task-text" type="text" class="wh-input" placeholder="Describe the PM task..." style="font-size:16px;" maxlength="250">
     </div>
 
     <!-- Frequency -->
     <div class="mb-4">
-      <label for="add-task-freq" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.4);">FREQUENCY</label>
+      <label for="add-task-freq" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.62);" data-i="frequency">FREQUENCY</label>
       <select id="add-task-freq" class="wh-input" data-select-placeholder-allow="default Monthly is the most common PM frequency">
         <option value="Monthly">Monthly</option>
         <option value="Quarterly">Quarterly</option>
@@ -2687,8 +2839,8 @@ if (window.whModalA11y) {
     </div>
 
     <div class="flex gap-3">
-      <button onclick="closeAddTaskSheet()" class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;">Cancel</button>
-      <button onclick="saveNewTask()" class="btn-primary">Add Task</button>
+      <button onclick="closeAddTaskSheet()" class="btn-ghost" style="width:auto;padding:0.75rem 1.25rem;" data-i="cancel">Cancel</button>
+      <button onclick="saveNewTask()" class="btn-primary" data-i="addtask">Add Task</button>
     </div>
   </div>
 </div>
@@ -2742,6 +2894,54 @@ if (window.whModalA11y) {
   <script defer src="session-timeout.js"></script>
   <script defer src="form-autosave.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    pagetitle: 'PM Scheduler',
+    overdue: 'Lampas na sa takda',
+    duesoon: 'Malapit nang ma-due (14d)',
+    ontrack: 'Nasa tamang takbo',
+    showdetails: 'Ipakita ang detalye',
+    filterall: 'Lahat',
+    filteroverdue: 'Lampas sa Takda',
+    filterduesoon: 'Malapit nang Ma-due',
+    filterontrack: 'Nasa Takbo',
+    loadmore: 'Mag-load pa',
+    back: 'Bumalik',
+    addasset: 'Magdagdag ng Asset',
+    assetname: 'Pangalan ng Asset / Equipment *',
+    assetnameshort: 'Pangalan ng Asset',
+    tagid: 'Tag / ID',
+    location: 'Lokasyon',
+    category: 'Kategorya *',
+    criticality: 'Criticality',
+    next2: 'Susunod: Piliin ang PM Scope',
+    next3: 'Susunod: Itakda ang Anchor Date',
+    next4: 'Susunod: Suriin',
+    plusaddtask: '+ Magdagdag ng Task',
+    addtask: 'Magdagdag ng Task',
+    addpmtask: 'Magdagdag ng PM Task',
+    lastpmdate: 'Petsa ng Huling PM',
+    saveasset: 'I-save ang Asset',
+    editasset: 'I-edit ang Asset',
+    deleteasset: 'Burahin ang Asset',
+    pmtasks: 'Mga PM Task',
+    completionhistory: 'History ng Pagkumpleto',
+    dashboard: 'Dashboard',
+    savechanges: 'I-save ang Mga Pagbabago',
+    cancel: 'Kanselahin',
+    taskcompleted: 'Nakumpleto ang Task',
+    findings: 'Mga Nakita / Obserbasyon',
+    optional: '(opsyonal)',
+    actiontaken: 'Ginawang Aksyon',
+    alsosavelogbook: 'I-save din sa Logbook',
+    savecompletion: 'I-save ang Pagkumpleto',
+    catlabel: 'KATEGORYA',
+    standardtasks: 'STANDARD TASKS: pindutin ang isa para punan sa ibaba',
+    taskdesc: 'DESKRIPSYON NG TASK',
+    frequency: 'DALAS (FREQUENCY)',
+  };
+</script>
 </main>
 </body>
 </html>

@@ -154,6 +154,77 @@ export function redactPIIWithMap(payload: unknown): RedactionMap {
   return { redacted: walk(payload), hydration };
 }
 
+/**
+ * redactKnownNames: replace each known worker FULL-NAME occurrence in a free-text block
+ * (the forwarded memory_block, the summariser transcript) with a stable `<name_N>` placeholder
+ * + a hydration map. redactPIIWithMap only scrubs email/phone in a plain string (a name in prose
+ * has no PII KEY), so this closes the MULTI-TURN name leak the single-turn redaction misses: a
+ * prior-turn answer ("Bryan Garcia is assigned to PB-001") or the worker's own name reaching the
+ * model provider inside the memory_block, even though the current-turn worker_name is redacted.
+ * Full-name + word-boundary only (never first-name-alone — too many false hits on common words).
+ * CL11 live-caught 2026-07-08.
+ */
+export function redactKnownNames(
+  text: string,
+  names: string[],
+): { redacted: string; hydration: Record<string, string> } {
+  const hydration: Record<string, string> = {};
+  if (!text || !names?.length) return { redacted: text, hydration };
+  // Longest first so "Juan Dela Cruz" is matched before a shorter contained name.
+  const uniq = [...new Set(names.filter((n) => n && n.trim().length >= 4))]
+    .sort((a, b) => b.length - a.length);
+  let out = text;
+  let i = 0;
+  for (const name of uniq) {
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`\\b${esc}\\b`, "gi");
+    if (!re.test(out)) continue;               // don't burn a counter on an absent name
+    const ph = `<name_${++i}>`;
+    out = out.replace(re, ph);
+    hydration[ph] = name;
+  }
+  return { redacted: out, hydration };
+}
+
+/**
+ * redactMemoryText: full multi-turn PII scrub for a free-text memory block or
+ * summariser transcript. `redactKnownNames` only scrubs known worker NAMES; a
+ * worker who stated an EMAIL or PHONE in a prior turn ("my email is juan@plant.ph")
+ * has that value carried verbatim in the agent_memory turn_text + the semantic
+ * journal recall, so it reaches the model provider RAW inside the forwarded
+ * memory_block / summariser transcript even though the current-turn redaction
+ * scrubbed it. This closes that multi-turn egress leak (K2, live-caught 2026-07-12):
+ * names -> <name_N> (via redactKnownNames) AND email/phone -> <mememail_N>/<memphone_N>.
+ * The `<mem*_N>` namespace is DISTINCT from the current-turn map's <email_N>/<phone_N>
+ * so a memory placeholder can never collide with (and overwrite) a current-turn one
+ * when both hydration maps merge. Returns a hydration map so a placeholder the model
+ * echoes in its answer is restored on egress (hydratePII); the summariser path can
+ * discard it (server-side context, re-redacted on the next forward). ISO timestamps
+ * are carved out exactly as the single-turn scrub does (scrubExceptISO).
+ */
+export function redactMemoryText(
+  text: string,
+  names: string[],
+): { redacted: string; hydration: Record<string, string> } {
+  if (!text) return { redacted: text, hydration: {} };
+  // 1) known worker full-names -> <name_N> (+ hydration)
+  const named = redactKnownNames(text, names);
+  const hydration: Record<string, string> = { ...named.hydration };
+  // 2) email / phone -> <mememail_N> / <memphone_N> (distinct namespace, own counters)
+  const counters: Record<string, number> = {};
+  const alloc = (kind: string, original: string): string => {
+    counters[kind] = (counters[kind] ?? 0) + 1;
+    const ph = `<mem${kind}_${counters[kind]}>`;
+    hydration[ph] = original;
+    return ph;
+  };
+  const redacted = scrubExceptISO(named.redacted, (chunk) =>
+    chunk
+      .replace(EMAIL_RE, (m) => alloc("email", m))
+      .replace(PHONE_RE, (m) => alloc("phone", m)));
+  return { redacted, hydration };
+}
+
 function piiKindFromKey(key: string): string {
   if (key.toLowerCase().includes("email")) return "email";
   if (key.toLowerCase().includes("phone") || key.toLowerCase().includes("mobile")) return "phone";

@@ -48,6 +48,7 @@ LIVE_PAGES = [
     "community.html",
     "marketplace.html",
     "marketplace-admin.html",
+    "platform-actions.html",
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",

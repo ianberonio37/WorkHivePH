@@ -114,6 +114,7 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     # Cross-cutting infra
     "hive_audit_log", "cmms_audit_log", "automation_log",
     "ai_rate_limits", "ai_audit_log",
+    "ai_global_budget",   # Q6 org-shared LLM-pool counter (internal rate-limit infra, same class as ai_rate_limits; not analytical KPI fuel)
     "external_sync", "integration_configs",
     "report_contacts",
     # UI-state / disposition tables (interaction state, NOT analytical KPI fuel):
@@ -122,6 +123,9 @@ FUEL_ANCHOR_IGNORE_TABLES = {
     "alert_dismissals",
     # Catalog / definition tables
     "achievement_definitions", "equipment_reading_templates",
+    "skill_exam_keys",   # server-held exam answer key (migration-seeded), read ONLY by the
+                         # grade_skill_exam() DEFINER grader — internal grading infra, no surface,
+                         # never analytical KPI fuel (same class as ai_global_budget). K1, mig …016.
     # Memory / brain tooling
     "agent_memory",
     "agent_followups",   # agent prospective-memory queue (server-side scheduler state; no fuel canonical)

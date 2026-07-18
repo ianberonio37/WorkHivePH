@@ -551,6 +551,40 @@ Return ONLY a JSON array of HTML strings (each item one <p> or the one structura
 """
 
 
+def _coerce_paragraphs(items):
+    """Normalize a section's item list into a FLAT list of HTML strings.
+
+    The prompt asks for a JSON array of HTML strings, but llama-4-scout sometimes
+    returns a nested JSON array for a 'steps' block — ["step 1", "step 2", ...]
+    as one item instead of a single "<ol>...</ol>" string. That nested list then
+    crashes `" ".join(paragraphs)` in validation/summary. Coerce each non-string
+    item back to a string: a nested list becomes a proper <ol> steps block (so the
+    section still renders scannably), a {text:...} dict becomes its text. Turns a
+    model-output quirk into graceful recovery instead of a TypeError.
+    """
+    if not isinstance(items, list):
+        return items
+    out = []
+    for it in items:
+        if isinstance(it, str):
+            out.append(it)
+        elif isinstance(it, list):
+            steps = [str(s).strip() for s in it if str(s).strip()]
+            if not steps:
+                continue
+            if any(("<ol" in s or "<ul" in s or "<li" in s) for s in steps):
+                out.append(" ".join(steps))          # already carries markup
+            else:
+                out.append("<ol>" + "".join(f"<li>{s}</li>" for s in steps) + "</ol>")
+        elif isinstance(it, dict):
+            val = it.get("text") or it.get("step") or it.get("content") or ""
+            if str(val).strip():
+                out.append(str(val))
+        elif it is not None:
+            out.append(str(it))
+    return out
+
+
 def _ai_array(prompt):
     """AI call expecting a JSON array (not object)."""
     raw = call_ai_chain(prompt, max_tokens=4096, json_mode=False)
@@ -562,7 +596,7 @@ def _ai_array(prompt):
     if not m:
         raise RuntimeError(f"AI did not return JSON array. Raw start: {raw[:240]}")
     try:
-        return json.loads(m.group())
+        return _coerce_paragraphs(json.loads(m.group()))
     except json.JSONDecodeError as exc:
         repair = call_ai_chain(
             "Fix this malformed JSON array. Return ONLY valid JSON, no fence, no preamble:\n\n"
@@ -574,7 +608,7 @@ def _ai_array(prompt):
         m2 = re.search(r"\[.*\]", repair, re.DOTALL)
         if not m2:
             raise RuntimeError(f"JSON array unrepairable: {exc}")
-        return json.loads(m2.group())
+        return _coerce_paragraphs(json.loads(m2.group()))
 
 
 def _apply_replacements(text: str) -> tuple:

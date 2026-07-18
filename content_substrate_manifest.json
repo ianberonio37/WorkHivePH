@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-29T10:57:14+00:00",
+  "generated_at": "2026-07-07T11:16:17+00:00",
   "generator": "content_substrate.py",
   "catalog_counts": {
     "nav_tools_total": 24,
@@ -8,9 +8,9 @@
     "features_total": 27,
     "features_active": 27,
     "features_routed": 26,
-    "learn_articles": 38,
-    "sitemap_urls": 43,
-    "sitemap_learn_urls": 38,
+    "learn_articles": 45,
+    "sitemap_urls": 50,
+    "sitemap_learn_urls": 45,
     "faqs_index": 15,
     "intel_features": 22
   },
@@ -18,22 +18,37 @@
     "landing": {
       "present": true,
       "linked_pages": [
+        "achievements.html",
+        "ai-quality.html",
+        "alert-hub.html",
+        "analytics-report.html",
         "analytics.html",
+        "asset-hub.html",
         "assistant.html",
+        "audit-log.html",
+        "community.html",
+        "dayplanner.html",
         "engineering-design.html",
         "hive.html",
         "index.html",
+        "integrations.html",
         "inventory.html",
         "logbook.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "ph-intelligence.html",
         "pm-scheduler.html",
+        "project-manager.html",
+        "project-report.html",
+        "public-feed.html",
+        "report-sender.html",
+        "resume.html",
+        "shift-brain.html",
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "linked_count": 10,
+      "linked_count": 28,
       "count_claims": {
-        "guide": [
-          38
-        ],
         "tool": [
           33
         ]
@@ -54,21 +69,21 @@
         "WebSite"
       ],
       "faq_count": 15,
-      "has_feature_list": false
+      "has_feature_list": true
     },
     "learn": {
       "present": true,
-      "article_count": 38,
-      "dated": 38,
+      "article_count": 45,
+      "dated": 45,
       "undated": 0
     },
     "seo_geo": {
-      "sitemap_urls": 43,
-      "sitemap_learn_urls": 38,
+      "sitemap_urls": 50,
+      "sitemap_learn_urls": 45,
       "llms_present": true,
       "llms_feature_bullets": 6,
       "robots_present": true,
-      "jsonld_feature_list": false
+      "jsonld_feature_list": true
     },
     "video": {
       "present": true,
@@ -93,13 +108,13 @@
     "orphan_count": 0,
     "gap_count": 0,
     "nav_only_uncovered": 0,
-    "learn_hub_unlisted": 0
+    "learn_hub_unlisted": 2
   },
   "coverage_summary": {
     "active_routed": 26,
     "with_article": 26,
     "article_coverage_pct": 100.0,
-    "on_landing": 10,
+    "on_landing": 26,
     "named_in_llms": 24
   },
   "alias_issues": []

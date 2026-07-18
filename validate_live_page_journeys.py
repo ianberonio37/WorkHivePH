@@ -19,6 +19,9 @@ finding appeared) or a missing/garbled artifact.
 import json
 import os
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 RESULTS = "live_page_journeys_results.json"
 BASELINE = "live_page_journeys_baseline.json"

@@ -1,0 +1,240 @@
+{
+  "_doc": "API Component Registry: Layer A canonical library (FULLSTACK_COMPONENT_LIBRARY_ROADMAP §1, opened 2026-07-17). SSOT for the edge-function canonical modules in supabase/functions/_shared/. Adoption is MEASURED by tools/api_adoption_census.py (import-based detection over every function's index.ts); forward-only floors live in api_adoption_baseline.json. Same P0-P6 template as Layer F.",
+  "version": 1,
+  "layer": "A",
+  "surface_glob": "supabase/functions/*/index.ts",
+  "components": [
+    {
+      "id": "A1",
+      "class": "AC Core",
+      "name": "cors.ts",
+      "api": "import { corsHeaders } from '../_shared/cors.ts'",
+      "satisfies": "every response's CORS preamble",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "cors.ts"
+        }
+      ],
+      "need": "family",
+      "when_to_use": "every edge function (preflight + response headers)",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "A2",
+      "class": "AC Core",
+      "name": "envelope.ts",
+      "api": "import from '../_shared/envelope.ts'",
+      "satisfies": "canonical success/error JSON envelope",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "envelope.ts"
+        }
+      ],
+      "need": "family",
+      "when_to_use": "every JSON-returning function (one response shape platform-wide)",
+      "when_not": "streaming/binary responses (justify)",
+      "status": "built",
+      "exempt": [
+        "login",
+        "supervisor-reset-password",
+        "cold-archive-query"
+      ],
+      "exempt_reason": "login/supervisor-reset-password: bespoke pre-envelope auth-response contracts that pages consume (converging the shape breaks callers: a coordinated refactor backlog item, not a census checkbox); cold-archive-query: internal sub-call whose response contract is consumed by agentic-rag-loop."
+    },
+    {
+      "id": "A3",
+      "class": "AC Core",
+      "name": "tenant-context.ts",
+      "api": "import from '../_shared/tenant-context.ts'",
+      "satisfies": "hive/tenant scoping preamble",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "tenant-context.ts"
+        }
+      ],
+      "need": "tenant-data",
+      "when_to_use": "any function reading/writing tenant rows",
+      "when_not": "public/anonymous surfaces",
+      "status": "built",
+      "exempt": [
+        "ai-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "batch-risk-scoring",
+        "export-hive-data",
+        "supervisor-reset-password",
+        "voice-journal-agent",
+        "intelligence-api",
+        "parts-staging-recommender",
+        "pdf-ingest",
+        "cmms-webhook-receiver"
+      ],
+      "exempt_reason": "triage 2026-07-17, three verified classes: (1) OWN membership gate predating tenant-context.ts (ai/analytics-orchestrator, asset-brain-query, batch-risk-scoring, export-hive-data, supervisor-reset-password: the 2026-06-07 cross-hive-IDOR fix idiom, functionally equivalent; converge-to-canonical = refactor BACKLOG, not a hole); (2) gateway-resolved tenancy (voice-journal-agent, intelligence-api, parts-staging-recommender, pdf-ingest: ai-gateway/platform-gateway resolve tenancy centrally per their headers); (3) HMAC-verified webhook (cmms-webhook-receiver, X-WorkHive-Signature sha256)."
+    },
+    {
+      "id": "A4",
+      "class": "AI Chain",
+      "name": "ai-chain.ts",
+      "api": "import from '../_shared/ai-chain.ts' (free-tier chain: Groq→Cerebras→Gemini→Mistral)",
+      "satisfies": "never pin one LLM (feedback_use_ai_chain_always)",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "ai-chain.ts"
+        }
+      ],
+      "need": "llm",
+      "when_to_use": "every LLM call",
+      "when_not": "-",
+      "status": "built",
+      "exempt": [
+        "voice-model-call"
+      ],
+      "exempt_reason": "DEPRECATED/ORPHANED (verified 2026-07-12: zero callers; own internal multi-model fallback; retirement pending: do NOT wire callers, use ai-gateway)"
+    },
+    {
+      "id": "A5",
+      "class": "AS Safety",
+      "name": "rate-limit.ts",
+      "api": "import from '../_shared/rate-limit.ts'",
+      "satisfies": "RL layer quota preamble",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "rate-limit.ts"
+        }
+      ],
+      "need": "family",
+      "when_to_use": "every externally-invokable function",
+      "when_not": "internal-only helpers (justify)",
+      "status": "built",
+      "exempt": [
+        "agent-memory-store",
+        "agentic-rag-loop",
+        "cmms-webhook-receiver",
+        "cold-archive-query",
+        "export-hive-data",
+        "intelligence-api",
+        "parts-staging-recommender",
+        "pdf-ingest",
+        "sensor-readings-ingest",
+        "temporal-rag-orchestrator",
+        "trigger-ml-retrain",
+        "voice-action-router",
+        "data-fabric-normalizer",
+        "login",
+        "fmea-populator",
+        "visual-defect-capture"
+      ],
+      "exempt_reason": "gateway-routed specialists: ai-gateway 'applies the rate-limit gate ONCE (vs every orchestrator gating)' and platform-gateway 'per-route rate-limit caps live HERE, not on the specialists': verified 2026-07-17 in both gateways' headers+imports. A per-fn limit here would double-limit routed traffic. no-caller quartet (data-fabric-normalizer, login, platform-scraper, tts-speak) stays UNexempt pending orphan/entry-point verification. data-fabric-normalizer: Phase-5 SCAFFOLDING (no live callers); MUST gain ingest rate-limiting before its first external wiring: recorded as the activation requirement. login: own dedicated lockout RPCs (check_login_lockout/record_login_failure per-identifier+IP, 423 pre-GoTrue): purpose-built brute-force protection, a generic bucket would be redundant. fmea-populator + visual-defect-capture: ALREADY rate-limited via a LOCAL checkAIRateLimit(verified hive) — the import-based census misclassified them as gaps; adding checkSoloRateLimit was REDUNDANT and tripped validate_policy_hive_binding (reverted 2026-07-17). Lesson: import-based detection misses local-fn rate-limiters; check for a local checkAIRateLimit before flagging an AI fn as an A5 gap."
+    },
+    {
+      "id": "A6",
+      "class": "AS Safety",
+      "name": "ssrf-guard.ts",
+      "api": "import from '../_shared/ssrf-guard.ts'",
+      "satisfies": "outbound-fetch SSRF guard",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "ssrf-guard.ts"
+        }
+      ],
+      "need": "outbound-fetch",
+      "when_to_use": "any function fetching a caller-influenced URL",
+      "when_not": "no outbound fetches",
+      "status": "built",
+      "exempt": [
+        "engineering-bom-sow",
+        "send-report-email",
+        "voice-embeddings",
+        "voice-semantic-rag"
+      ],
+      "exempt_reason": "verified 2026-07-17: each fetches a FIXED hardcoded provider endpoint (googleapis / resend / jina): no caller-influenced URL, no SSRF exposure. The triage test for future gaps: is any part of the URL caller-influenced?"
+    },
+    {
+      "id": "A7",
+      "class": "AS Safety",
+      "name": "redactPII.ts",
+      "api": "import from '../_shared/redactPII.ts'",
+      "satisfies": "PII redaction before LLM/logs",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "redactPII.ts"
+        }
+      ],
+      "need": "census-only",
+      "when_to_use": "text pipelines carrying worker-authored content outward",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "A8",
+      "class": "AO Observability",
+      "name": "logger.ts / observability.ts / error-tracker.ts",
+      "api": "import from '../_shared/logger.ts' | observability.ts | error-tracker.ts",
+      "satisfies": "L layer logging envelope",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "logger.ts"
+        },
+        {
+          "kind": "import",
+          "module": "observability.ts"
+        },
+        {
+          "kind": "import",
+          "module": "error-tracker.ts"
+        }
+      ],
+      "need": "family",
+      "when_to_use": "every function (structured logs + error capture)",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "A9",
+      "class": "AO Observability",
+      "name": "health.ts",
+      "api": "import from '../_shared/health.ts'",
+      "satisfies": "AV G-1 /health endpoint",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "health.ts"
+        }
+      ],
+      "need": "family",
+      "when_to_use": "every function (the health-surface discovery gate keys on it)",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "A10",
+      "class": "AC Core",
+      "name": "cache.ts / context-budget.ts",
+      "api": "import from '../_shared/cache.ts' | context-budget.ts",
+      "satisfies": "CA layer caching + token-budget preambles",
+      "detect": [
+        {
+          "kind": "import",
+          "module": "cache.ts"
+        },
+        {
+          "kind": "import",
+          "module": "context-budget.ts"
+        }
+      ],
+      "need": "census-only",
+      "when_to_use": "hot-path reads (cache) and LLM context assembly (budget)",
+      "when_not": "-",
+      "status": "built"
+    }
+  ]
+}

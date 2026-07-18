@@ -122,24 +122,27 @@ def main():
     metrics = load_registry(REGISTRY)
     r1, r2 = check_consumers(ROOT, metrics)
 
+    # NOTE: format_result (validator_utils) prints iss['reason']; use that key (not 'detail')
+    # so a real finding renders as a readable FAIL instead of crashing the formatter with a
+    # KeyError (which masked which violation fired — Asset/Alert/Shift arc, 2026-07-12).
     issues = []
     for v in r1:
-        issues.append({"check": CHECK_NAMES[0], "detail": v})
+        issues.append({"check": CHECK_NAMES[0], "reason": v})
     for v in r2:
-        issues.append({"check": CHECK_NAMES[1], "detail": v})
+        issues.append({"check": CHECK_NAMES[1], "reason": v})
 
     objs = live_objects()
     missing_sources = []
     if objs is None:
         issues.append({"check": CHECK_NAMES[2], "skip": True,
-                       "detail": "live DB unreachable -> SKIP (no false alarms offline)"})
+                       "reason": "live DB unreachable -> SKIP (no false alarms offline)"})
     else:
         for mid, m in metrics.items():
             for src in m.get("allowed_sources", []):
                 if src not in objs:
                     missing_sources.append(f"{mid}: source '{src}' not in live DB")
         for v in missing_sources:
-            issues.append({"check": CHECK_NAMES[2], "detail": v})
+            issues.append({"check": CHECK_NAMES[2], "reason": v})
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
     REPORT.write_text(json.dumps({

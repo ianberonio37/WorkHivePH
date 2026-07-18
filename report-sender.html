@@ -11,7 +11,7 @@
   <!-- capture: voice_report_intent_v1 (voice) -->
   <!-- dashboard-allow: report-sending tool; no analytics tiles, just AI report metadata. -->
   <link rel="manifest" href="report-sender-manifest.json" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
@@ -38,7 +38,7 @@
       position: fixed; top: 1rem; left: 50%;
       transform: translateX(-50%) translateY(-72px);
       background: rgba(31,46,69,0.96); color: var(--wh-cloud);
-      padding: 0.6rem 1.25rem; border-radius: 0.625rem;
+      padding: 0.6rem 1.25rem; border-radius: var(--wh-radius);
       font-size: 0.8rem; font-weight: 500;
       transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
       z-index: 200; white-space: nowrap;
@@ -78,7 +78,7 @@
     /* ── Section label ── */
     .section-label {
       font-size: 0.68rem; font-weight: 700;
-      color: var(--wh-steel); text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.07em;
       margin-bottom: 0.75rem;
     }
     .mt-lg { margin-top: 1.5rem; }
@@ -97,7 +97,7 @@
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s, transform 0.1s;
       font-family: 'Poppins', sans-serif;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.62);
       font-size: 0.8rem; font-weight: 500;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -121,7 +121,7 @@
       padding: 0.1rem 0.4rem; border-radius: 999px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.28);
+      color: rgba(255,255,255,0.62);
       margin-left: auto; flex-shrink: 0;
     }
     .chips-count {
@@ -141,7 +141,7 @@
       outline: none; transition: border-color 0.2s;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.22); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
     .email-error { font-size: 0.7rem; color: #ef4444; margin-top: 0.375rem; min-height: 1em; }
 
     /* ── Contacts ── */
@@ -152,7 +152,7 @@
     .section-label-row .section-label { margin-bottom: 0; }
     .add-contact-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 600;
-      padding: 0.3rem 0.625rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
+      padding: 0.3rem 0.625rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--wh-radius-sm); /* R3: press rect */
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
       color: var(--wh-orange); cursor: pointer;
       -webkit-tap-highlight-color: transparent; transition: all 0.15s;
@@ -178,19 +178,19 @@
     }
     .contact-info { flex: 1; min-width: 0; }
     .contact-name { display: block; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .contact-tag  { font-size: 0.62rem; color: rgba(255,255,255,0.35); }
+    .contact-tag  { font-size: 0.62rem; color: rgba(255,255,255,0.62); }
     .contact-check { opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
     .contact-chip.selected .contact-check { opacity: 1; }
     .contact-delete {
       background: none; border: none; cursor: pointer;
-      color: rgba(255,255,255,0.2); font-size: 1rem; padding: 0;
+      color: rgba(255,255,255,0.62); font-size: 1rem; padding: 0;
       min-width: 28px; min-height: 28px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
     }
     .contact-delete:active { background: rgba(239,68,68,0.15); color: #ef4444; }
 
-    .one-time-label { font-size: 0.68rem; color: rgba(255,255,255,0.3); margin-bottom: 0.375rem; }
+    .one-time-label { font-size: 0.68rem; color: rgba(255,255,255,0.62); margin-bottom: 0.375rem; }
 
     /* ── Bottom sheet ── */
     .sheet-overlay {
@@ -211,7 +211,7 @@
     .sheet-title  { font-size: 1rem; font-weight: 700; color: #fff; }
     .sheet-body   { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
     .sheet-field  { margin-bottom: 1rem; }
-    .field-label  { display: block; font-size: 0.68rem; font-weight: 700; color: var(--wh-steel); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+    .field-label  { display: block; font-size: 0.68rem; font-weight: 700; color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
     .sheet-error  { font-size: 0.7rem; color: #ef4444; min-height: 1em; }
     .sheet-footer { padding: 0.75rem 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
 
@@ -220,7 +220,7 @@
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.35rem 0.75rem; border-radius: 999px; min-height: 36px;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.5); cursor: pointer;
+      color: rgba(255,255,255,0.62); cursor: pointer;
       transition: all 0.15s; -webkit-tap-highlight-color: transparent;
     }
     .label-pill.active { background: rgba(247,162,27,0.15); border-color: var(--wh-orange); color: var(--wh-orange); }
@@ -239,7 +239,7 @@
     .history-body { flex: 1; min-width: 0; }
     .history-type    { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.8); }
     .history-meta    { font-size: 0.65rem; color: rgba(255,255,255,0.75); margin-top: 0.1rem; } /* D1 a11y: 0.3→0.75 WCAG 1.4.3 (raised card) */
-    .history-summary { font-size: 0.68rem; color: var(--wh-steel); margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-summary { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .resend-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600;
       padding: 0.35rem 0.625rem; border-radius: 0.5rem;
@@ -260,7 +260,7 @@
       background: rgba(22,32,50,0.4);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: border-color 0.2s, opacity 0.2s, color 0.2s;
-      color: rgba(255,255,255,0.28); opacity: 0.55;
+      color: rgba(255,255,255,0.62); opacity: 0.55;
       -webkit-tap-highlight-color: transparent;
       position: relative;
     }
@@ -270,7 +270,7 @@
     .mic-circle.ready {
       opacity: 0.82; border-style: solid;
       border-color: rgba(255,255,255,0.22);
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.62);
     }
     .mic-circle.listening {
       opacity: 1; border-style: solid;
@@ -297,13 +297,13 @@
       border-color: #22c55e; color: #22c55e;
     }
 
-    .mic-label { font-size: 0.7rem; color: rgba(255,255,255,0.28); text-align: center; font-weight: 500; }
+    .mic-label { font-size: 0.7rem; color: rgba(255,255,255,0.62); text-align: center; font-weight: 500; }
 
     /* ── Voice context card ── */
     .voice-ctx {
       background: rgba(22,32,50,0.6);
       border: 1px solid rgba(34,197,94,0.25);
-      border-radius: 0.625rem;
+      border-radius: var(--wh-radius);
       padding: 0.5rem 0.75rem;
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.72rem; color: rgba(255,255,255,0.65);
@@ -313,7 +313,7 @@
     .voice-ctx-text { flex: 1; line-height: 1.35; font-style: italic; }
     .voice-ctx-clear {
       background: none; border: none; cursor: pointer;
-      color: rgba(255,255,255,0.3); font-size: 1rem;
+      color: rgba(255,255,255,0.62); font-size: 1rem;
       padding: 0; line-height: 1; min-width: 28px; min-height: 28px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; -webkit-tap-highlight-color: transparent;
@@ -324,7 +324,7 @@
     .send-btn {
       width: 100%; min-height: 48px;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
-      color: var(--wh-navy); font-weight: 700; border-radius: 0.75rem;
+      color: var(--wh-navy); font-weight: 700; border-radius: 0.5rem; /* R3: press rect, distinct from the 12px SELECT chips */
       padding: 0.875rem 1.5rem; font-size: 0.9rem;
       font-family: 'Poppins', sans-serif; border: none; cursor: pointer;
       transition: all 0.2s;
@@ -358,7 +358,7 @@
     .proc-list { width: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
     .proc-row {
       display: flex; align-items: center; gap: 0.625rem;
-      background: rgba(22,32,50,0.45); border-radius: 0.625rem;
+      background: rgba(22,32,50,0.45); border-radius: var(--wh-radius);
       padding: 0.625rem 0.875rem;
     }
     .proc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -375,7 +375,7 @@
     }
     .proc-label { flex: 1; font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.75); }
     .proc-status { font-size: 0.7rem; }
-    .proc-status.pending { color: rgba(255,255,255,0.3); }
+    .proc-status.pending { color: rgba(255,255,255,0.62); }
     .proc-status.running { color: var(--wh-orange); }
     .proc-status.done { color: #22c55e; }
     .proc-status.err { color: #ef4444; }
@@ -388,12 +388,12 @@
       display: flex; align-items: center; justify-content: center;
     }
     .state-title { font-size: 1rem; font-weight: 700; color: #fff; }
-    .state-sub { font-size: 0.78rem; color: var(--wh-steel); }
+    .state-sub { font-size: 0.78rem; color: var(--wh-steel-bright); }
     /* Email status row inside results */
     .email-status {
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.72rem; font-weight: 600;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.62);
     }
     .email-status.sent  { color: #22c55e; }
     .email-status.error { color: #ef4444; }
@@ -416,17 +416,17 @@
       display: flex; align-items: flex-start; gap: 0.625rem;
       background: rgba(22,32,50,0.5);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 0.625rem; padding: 0.75rem;
+      border-radius: var(--wh-radius); padding: 0.75rem;
       text-align: left;
     }
     .result-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 0.3rem; }
     .result-body { flex: 1; min-width: 0; }
     .result-type { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom: 0.2rem; }
-    .result-summary { font-size: 0.7rem; color: var(--wh-steel); line-height: 1.4; }
+    .result-summary { font-size: 0.7rem; color: var(--wh-steel-bright); line-height: 1.4; }
 
     .btn-ghost {
       font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
-      padding: 0.625rem 1.5rem; border-radius: 0.625rem;
+      padding: 0.625rem 1.5rem; border-radius: var(--wh-radius-sm);
       border: 1px solid rgba(255,255,255,0.15); background: transparent;
       color: rgba(255,255,255,0.6); cursor: pointer;
       transition: all 0.15s; min-height: 40px;
@@ -439,7 +439,7 @@
     .install-icon-btn {
       display: flex; align-items: center; gap: 0.35rem;
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.45rem 0.75rem; min-height: 44px; border-radius: 0.625rem;
+      padding: 0.45rem 0.75rem; min-height: 44px; border-radius: var(--wh-radius-sm);
       background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.28);
       color: var(--wh-orange); cursor: pointer; white-space: nowrap;
       -webkit-tap-highlight-color: transparent; transition: all 0.15s;
@@ -467,7 +467,7 @@
     .install-guide-text ol li { margin-bottom: 0.15rem; }
     .ios-hint-close {
       background: none; border: none; cursor: pointer;
-      color: rgba(255,255,255,0.3); font-size: 1rem;
+      color: rgba(255,255,255,0.62); font-size: 1rem;
       padding: 0; min-width: 28px; min-height: 28px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; flex-shrink: 0;
@@ -495,7 +495,7 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #rs-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #rs-summary-details.open { display:block; }
@@ -516,9 +516,13 @@
     <header class="page-header">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem">
         <div>
-          <div class="header-badge">WorkHive</div>
-          <h1>Reports</h1>
+          <div class="header-badge" translate="no">WorkHive</div>
+          <h1 data-i="pagetitle">Reports</h1>
           <p>Select reports. Add email. Send.</p>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>Pick a report chip, add a recipient, press send. Saved contacts make later sends one tap.</p>
+</details>
           <!-- STREAMLINE F6: part of the unified "Reports" surface (Analytics report ↔ Send). -->
           <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
             <a role="tab" aria-selected="false" href="analytics-report.html" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Analytics report</a>
@@ -530,7 +534,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v13M8 11l4 4 4-4"/><rect x="3" y="18" width="18" height="3" rx="1"/>
           </svg>
-          <span>Install</span>
+          <span data-i="install">Install</span>
         </button>
       </div>
     </header>
@@ -549,29 +553,29 @@
     </div>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="rs-card-reports" data-rag-tile="report-sender:reports_selected" data-rag-label="Reports selected">
-        <div class="sc-label">Reports selected</div>
+        <h2 class="sc-label" style="margin:0;" data-i="reportssel">Reports selected</h2>
         <div class="sc-hero" id="rs-reports-hero">0</div>
         <div class="sc-sub" id="rs-reports-sub">Loading...</div>
-        <span class="sc-tag" id="rs-reports-tag">—</span>
+        <span class="sc-tag" id="rs-reports-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="rs-card-recipients" data-rag-tile="report-sender:recipients" data-rag-label="Recipients">
-        <div class="sc-label">Recipients</div>
+        <h2 class="sc-label" style="margin:0;" data-i="recipients">Recipients</h2>
         <div class="sc-hero" id="rs-recipients-hero">0</div>
         <div class="sc-sub" id="rs-recipients-sub">Loading...</div>
-        <span class="sc-tag" id="rs-recipients-tag">—</span>
+        <span class="sc-tag" id="rs-recipients-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="rs-card-contacts" data-rag-tile="report-sender:saved_contacts" data-rag-label="Saved contacts">
-        <div class="sc-label">Saved contacts</div>
+        <h2 class="sc-label" style="margin:0;" data-i="savedcontacts">Saved contacts</h2>
         <div class="sc-hero" id="rs-contacts-hero">0</div>
         <div class="sc-sub" id="rs-contacts-sub">Loading...</div>
-        <span class="sc-tag" id="rs-contacts-tag">—</span>
+        <span class="sc-tag" id="rs-contacts-tag">-</span>
       </div>
     </div>
     <div class="action-card">
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="rs-action-text">Pick a report and a recipient.</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details">
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="rs-summary-details" role="region" aria-label="Report sender explainer"
@@ -581,10 +585,10 @@
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Reports selected</strong>: chips you've tapped to include (PM Overdue, Failure Digest, Shift Handover, Predictive, OEE, Weekly Analytics).</li>
         <li><strong>Recipients</strong>: saved contacts you've ticked + any one-time email typed below.</li>
-        <li><strong>Saved contacts</strong>: contacts persisted to your hive — reusable across sends.</li>
+        <li><strong>Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
         <li><strong>Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Voice context is optional — tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
     </div>
 
     <div class="card" id="main-card" data-state="idle">
@@ -592,14 +596,14 @@
       <!-- ── Main content ── -->
       <div class="main-content" id="main-content">
 
-        <div class="section-label">Select Reports</div>
+        <div class="section-label" data-i="selectreports">Select Reports</div>
         <div class="chips-grid" id="chips-grid"></div>
         <div class="chips-count" id="chips-count"></div>
 
         <!-- Contacts -->
         <div class="section-label-row">
-          <span class="section-label">Send to</span>
-          <button class="add-contact-btn" id="add-contact-btn">+ Add contact</button>
+          <span class="section-label" data-i="sendto">Send to</span>
+          <button class="add-contact-btn" id="add-contact-btn" data-i="addcontact">+ Add contact</button>
         </div>
         <div class="contacts-list" id="contacts-list"></div>
 
@@ -639,7 +643,7 @@
           <button class="voice-ctx-clear" id="voice-ctx-clear" aria-label="Clear voice context">&#x2715;</button>
         </div>
 
-        <button class="send-btn" id="send-btn" disabled>Send Reports</button>
+        <button class="send-btn" id="send-btn" disabled data-i="sendreports">Send Reports</button>
 
       </div><!-- /main-content -->
 
@@ -675,14 +679,14 @@
         <div class="results-list" id="results-list"></div>
 
         <div class="state-reset" id="results-countdown"></div>
-        <button class="btn-ghost" id="reset-btn">Reset now</button>
+        <button class="btn-ghost" id="reset-btn" data-i="resetnow">Reset now</button>
       </div>
 
     </div><!-- /card -->
 
     <!-- Report history -->
     <div class="history-section" id="history-section" style="display:none">
-      <div class="section-label" style="margin-bottom:0.75rem">Recent Reports</div>
+      <div class="section-label" style="margin-bottom:0.75rem" data-i="recentreports">Recent Reports</div>
       <div class="history-list" id="history-list"></div>
     </div>
 
@@ -693,31 +697,31 @@
     <div class="bottom-sheet" id="contact-sheet">
       <div class="sheet-handle"></div>
       <div class="sheet-header">
-        <h2 class="sheet-title" id="sheet-title">Add Contact</h2>
+        <h2 class="sheet-title" id="sheet-title" data-i="addcontacttitle">Add Contact</h2>
       </div>
       <div class="sheet-body">
         <div class="sheet-field">
-          <label for="contact-name" class="field-label">Name</label>
-          <input type="text" class="wh-input" id="contact-name" placeholder="Juan dela Cruz" autocomplete="off"/>
+          <label for="contact-name" class="field-label" data-i="name">Name</label>
+          <input type="text" class="wh-input" id="contact-name" placeholder="Juan dela Cruz" autocomplete="off" maxlength="120">
         </div>
         <div class="sheet-field">
-          <label for="contact-email" class="field-label">Email</label>
+          <label for="contact-email" class="field-label" translate="no">Email</label>
           <input type="email" class="wh-input" id="contact-email" placeholder="juan@company.com"/>
         </div>
         <div class="sheet-field">
-          <label class="field-label">Role</label>
+          <label class="field-label" data-i="role">Role</label>
           <div class="label-pills" id="label-pills">
-            <button class="label-pill active" data-label="Team">Team</button>
-            <button class="label-pill" data-label="Supervisor">Supervisor</button>
-            <button class="label-pill" data-label="Engineer">Engineer</button>
-            <button class="label-pill" data-label="Manager">Manager</button>
+            <button class="label-pill active" data-label="Team" translate="no">Team</button>
+            <button class="label-pill" data-label="Supervisor" translate="no">Supervisor</button>
+            <button class="label-pill" data-label="Engineer" translate="no">Engineer</button>
+            <button class="label-pill" data-label="Manager" translate="no">Manager</button>
           </div>
         </div>
         <div role="alert" aria-live="assertive" class="sheet-error" id="sheet-error"></div>
       </div>
       <div class="sheet-footer">
-        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem">Save Contact</button>
-        <button class="btn-ghost"   id="cancel-contact-btn" style="width:100%">Cancel</button>
+        <button class="btn-primary" id="save-contact-btn" style="width:100%;min-height:48px;font-size:0.9rem" data-i="savecontact">Save Contact</button>
+        <button class="btn-ghost"   id="cancel-contact-btn" style="width:100%" data-i="cancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -839,6 +843,8 @@
     if (typeof restoreIdentityFromSession === 'function') {
       restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
     }
+    // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
+    if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
 
     logPageView(db);
     // ── State ────────────────────────────────────────────────────────────────────
@@ -962,7 +968,7 @@
       );
       setCard('contacts',
         String(saved),
-        saved === 0 ? 'No contacts saved yet — add one above' : `${saved} reusable contact${saved === 1 ? '' : 's'} on this hive`,
+        saved === 0 ? 'No contacts saved yet, add one above' : `${saved} reusable contact${saved === 1 ? '' : 's'} on this hive`,
         saved === 0 ? 'START' : 'LIST',
         saved === 0 ? 'grey' : 'green'
       );
@@ -991,7 +997,7 @@
       if (actBox) {
         let text;
         if (reports === 0 && saved === 0) {
-          text = `Start here: tap a report chip above (PM Overdue is the easiest), then tap "+ Add contact" to save your first recipient. Future sends will be one-tap from then on.`;
+          text = `Start here: tap a report chip above. PM Overdue is the easiest. Then tap "+ Add contact" to save a recipient. After that, sending takes one tap.`;
         } else if (reports === 0) {
           text = `Tap one or more report chips above. PM Overdue + Failure Digest are the most-requested by supervisors.`;
         } else if (recipients === 0) {
@@ -1024,6 +1030,9 @@
     // ── Report history ────────────────────────────────────────────────────────────
     async function loadHistory() {
       if (!HIVE_ID) return;
+      // G1 (FF1): canonical skeleton while the history query runs (first load only).
+      const _hl = document.getElementById('history-list');
+      if (_hl && !_hl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_hl, 3);
       // Try with created_at first; fall back without it if column missing (400 = schema gap)
       let { data, error } = await db
         .from('v_ai_reports_truth')
@@ -1179,7 +1188,7 @@
     function renderContacts() {
       const list = document.getElementById('contacts-list');
       if (!_contacts.length) {
-        list.innerHTML = `<div class="contacts-empty">No contacts yet — tap Add contact</div>`;
+        list.innerHTML = `<div class="contacts-empty">No contacts yet, tap Add contact</div>`;
         return;
       }
       list.innerHTML = _contacts.map(c => {
@@ -1267,6 +1276,7 @@
       const name  = document.getElementById('contact-name').value.trim();
       const email = document.getElementById('contact-email').value.trim();
       const errEl = document.getElementById('sheet-error');
+      const saveBtn = document.getElementById('save-contact-btn');
 
       if (!name)                     { errEl.textContent = 'Name is required.';        return; }
       if (!email || !isValidEmail(email)) { errEl.textContent = 'Enter a valid email.'; return; }
@@ -1274,11 +1284,12 @@
 
       const payload = { name, email, label: _selectedLabel };
 
+      if (saveBtn) saveBtn.disabled = true; // lock: a double-click would insert a duplicate contact row
       if (HIVE_ID) {
         const { data, error } = await db.from('report_contacts')
           .insert({ ...payload, hive_id: HIVE_ID })
           .select('id, name, email, label').single();
-        if (error) { errEl.textContent = 'Could not save. Try again.'; return; }
+        if (error) { errEl.textContent = 'Could not save. Try again.'; if (saveBtn) saveBtn.disabled = false; return; }
         _contacts.push(data);
       } else {
         _contacts.push({ id: crypto.randomUUID(), ...payload });
@@ -1286,6 +1297,7 @@
       // Always sync to localStorage so contacts survive navigation
       localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
 
+      if (saveBtn) saveBtn.disabled = false; // re-enable for the next add (sheet reopens fresh)
       closeSheet();
       renderContacts();
       updateSendBtn();
@@ -1497,7 +1509,7 @@
         if (text?.trim()) {
           await parseVoiceIntent(text.trim()); // same function as Path A
         } else {
-          showToast('Could not hear you — try again');
+          showToast('Could not hear you, try again');
           setMicState('ready');
         }
       } catch (err) {
@@ -1583,7 +1595,7 @@
       });
 
       if (!byName.length) {
-        showToast(`"${escHtml(hint)}" not found in contacts — add them first`);
+        showToast(`"${escHtml(hint)}" not found in contacts, add them first`);
         return;
       }
       for (const c of byName) _selectedContacts.add(c.id);
@@ -1768,7 +1780,7 @@
         // Send email — runs after the results panel is visible
         await sendReportEmail(results, recipients);
       } else {
-        showToast('All reports failed — check connection and try again');
+        showToast('All reports failed, check connection and try again');
         setCardState('idle');
       }
     }
@@ -1959,12 +1971,13 @@
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js"></script>
 </main>
-</body>
-</html>
+<!-- structural fix 2026-07-17: a premature </body></html> lived here, orphaning the five
+     scripts below OUTSIDE the document (invalid HTML the browser merely tolerated). -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>window.WH_FIL_PAGE={pagetitle:'Mga Ulat',selectreports:'Pumili ng mga ulat',reportssel:'napiling ulat',recipients:'Mga Tatanggap',sendto:'Ipadala kay',sendreports:'Ipadala ang Mga Ulat',recentreports:'Mga Kamakailang Ulat',savedcontacts:'Mga Naka-save na Contact',addcontacttitle:'Magdagdag ng Contact',name:'Pangalan',role:'Tungkulin',savecontact:'I-save ang Contact',resetnow:'I-reset ngayon',install:'I-install'};</script>
 </body>
 </html>

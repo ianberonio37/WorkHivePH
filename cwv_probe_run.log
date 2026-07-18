@@ -1,0 +1,15 @@
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  ================================================================
+    [ 1/43] index.html                                           LCP=[92m352[0mms INP=[91m600[0mms CLS=[92m0[0m
+    [ 2/43] learn                                                LCP=[92m788[0mms INP=[92m16[0mms CLS=[92m0[0m
+    [ 3/43] about                                                LCP=[92m920[0mms INP=[92m200[0mms CLS=[92m0[0m
+    [ 4/43] privacy-policy                                       LCP=[92m764[0mms INP=[92m152[0mms CLS=[92m0[0m
+    [ 5/43] terms-of-service                                     LCP=[92m972[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 6/43] learn/ai-companion-hezekiah-zaniah-personas          LCP=[92m1168[0mms INP=[92m16[0mms CLS=[92m0[0m
+    [ 7/43] learn/ai-quality-and-roi-stage-2-plants              LCP=[92m888[0mms INP=[92m48[0mms CLS=[92m0[0m
+    [ 8/43] learn/ai-work-assistant-maintenance-technicians      LCP=[92m928[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 9/43] learn/bms-facilities-maintenance-peza-buildings      LCP=[92m976[0mms INP=[92m40[0mms CLS=[92m0.032[0m
+    [91mERR[0m  learn/building-asset-register-zero-budget/index.html run 1: page.goto: net::ERR_INSUFFICIENT_RESOURCES at http://127.0.0.1:5000/workhive/learn/building-asset-register-zero-budget/
+    [10/43] learn/building-asset-register-zero-budget            LCP=[92m1182[0mms INP=[92m56[0mms CLS=[92m0[0m
+    [11/43] learn/connecting-workhive-to-sap-maximo-cmms         LCP=[92m1160[0mms INP=[90m—[0mms CLS=[92m0[0m

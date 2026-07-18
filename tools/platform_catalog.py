@@ -73,6 +73,18 @@ CATALOG_VERSION = 1
 # Pages that were retired — referencing them anywhere is feature drift.
 RETIRED_PAGES = {"parts-tracker.html", "checklist.html"}
 
+# A retired page whose FILE is GONE from disk but whose capability FOLDED INTO a
+# still-live page (the canonical migration re-homed it). Distinct from a folded-
+# but-present page (`folded`, Pass 1.5): there the file stays on disk; here it was
+# deleted and its jobs re-home to <live target>. Keeps the capability a distinct
+# catalog feature (id from the retired stem) whose route resolves to the LIVE
+# surface, so the alias + video journey stay live-checked instead of dangling.
+#   predictive.html deleted 2026-07-02 (migration 20260702000000); its per-asset
+#   risk-360 view was absorbed into asset-hub.html (Phase B.5 risk panel).
+FOLDED_INTO = {
+    "predictive.html": "asset-hub.html",
+}
+
 # ── The live-checked join alias (intel marketed name → real nav route) ────────
 # The ONLY hand-declared mapping in the file. It does not enumerate features
 # (nav + intel do that live); it only resolves the join for the 21 marketed
@@ -290,6 +302,7 @@ def build_features(nav_tools: list[dict]) -> tuple[list[dict], list[dict]]:
     # not drift. Catalog = capability truth; nav = presentation. Only a route
     # whose page is GONE from disk is a genuinely dangling alias.
     folded: dict[str, str] = {}   # intel_name -> href, materialised in Pass 1.5
+    folded_redirect: dict[str, tuple[str, str]] = {}   # intel_name -> (retired_href, live_href), Pass 1.6
     for intel_name, href in INTEL_TO_ROUTE.items():
         if intel_name not in FEATURE_ECOSYSTEM:
             alias_issues.append({"kind": "alias_intel_missing", "feature": intel_name,
@@ -297,6 +310,9 @@ def build_features(nav_tools: list[dict]) -> tuple[list[dict], list[dict]]:
         if href and href not in nav_by_href:
             if (ROOT / href).exists():
                 folded[intel_name] = href
+            elif href in FOLDED_INTO and (ROOT / FOLDED_INTO[href]).exists():
+                # Retired page, file deleted, but capability re-homed to a LIVE page.
+                folded_redirect[intel_name] = (href, FOLDED_INTO[href])
             else:
                 alias_issues.append({"kind": "alias_route_missing", "feature": intel_name, "href": href,
                                      "reason": f"alias route '{href}' for '{intel_name}' is no longer a nav tool and its page is gone"})
@@ -362,6 +378,37 @@ def build_features(nav_tools: list[dict]) -> tuple[list[dict], list[dict]]:
             "nav_status":  "folded",
             "journey_key": _href_stem(href).replace("-", "_"),
             "sources":     ["page", "intel"],
+            "articles":    [],
+        })
+
+    # Pass 1.6 — folded-with-redirect: a marketed intel feature whose page was
+    # DELETED but whose capability re-homed to a still-live page (FOLDED_INTO). The
+    # feature keeps its own id (the retired stem) so the video journey + alias
+    # resolve, but its route is the LIVE fold target — never a 404. Distinct from
+    # Pass 1.5 (page still on disk).
+    for intel_name, (retired_href, live_href) in folded_redirect.items():
+        intel = FEATURE_ECOSYSTEM.get(intel_name, {})
+        fid = _href_stem(retired_href) or _slug(intel_name)
+        features.append({
+            "id":          fid,
+            "name":        intel_name,
+            "alias":       intel_name,
+            "route":       live_href,
+            "url":         f"/{live_href}",
+            "status":      "active",
+            "capability":  (intel.get("loop_role") or "").strip(),
+            "connects_to": intel.get("connects_to", []),
+            "tables":      intel.get("tables", []),
+            "edge_fns":    intel.get("edge_fns", []),
+            "audience":    intel.get("audience", []),
+            "nav_label":   None,
+            "nav_section": None,
+            "nav_hidden":  True,
+            "nav_roles":   [],
+            "nav_status":  "folded",
+            "folded_from": retired_href,
+            "journey_key": _href_stem(retired_href).replace("-", "_"),
+            "sources":     ["intel"],
             "articles":    [],
         })
 

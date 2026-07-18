@@ -88,8 +88,9 @@ ASSETS = [
         "file": "supabase/functions/ai-eval-runner/index.ts",
         "kind": "ts",
         "marker": "AI_ASSET_VERSION",
+        "hash_region": r"const JUDGE_PROMPT = `(.*?)`;",
         "owner": "ai-engineer",
-        "note":  "JUDGE_PROMPT + judge-model + score rubric. Judge drift invalidates the C2 baseline.",
+        "note":  "JUDGE_PROMPT template (prompt + embedded score rubric) — the judge definition. hash_region scopes the hash to this constant so infra edits (imports, serve()/serveObserved wrapper) never masquerade as judge drift, per the marker's own 'bump only when JUDGE_PROMPT/model/rubric/threshold changes' contract. Judge drift invalidates the C2 baseline.",
     },
     {
         "id":   "ai_eval_baseline",
@@ -110,6 +111,25 @@ def now_iso() -> str:
 
 def hash_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
+
+
+def asset_hash(asset: dict, raw: bytes) -> tuple[str | None, str | None]:
+    """Content hash for an asset. By default hashes the whole file. If the asset
+    declares a `hash_region` regex, hashes ONLY the first captured group instead
+    — so the asset tracks its actual AI-relevant content (a judge prompt, a
+    rubric) and is NOT tripped by infra edits to the same file (imports, the
+    serve()/serveObserved() wrapper). A declared region that no longer matches
+    is an ERROR (the tracked content was removed/renamed — must be noticed),
+    never a silent fall-back to whole-file. Returns (sha, error)."""
+    region = asset.get("hash_region")
+    if not region:
+        return hash_bytes(raw), None
+    text = raw.decode("utf-8", errors="replace")
+    m = re.search(region, text, re.DOTALL)
+    if not m:
+        return None, f"hash_region /{region}/ matched nothing (tracked content removed/renamed?)"
+    captured = m.group(1) if m.groups() else m.group(0)
+    return hash_bytes(captured.encode("utf-8")), None
 
 
 def get_dotted(d: dict, path: str):
@@ -208,7 +228,10 @@ def evaluate(write: bool) -> tuple[int, dict]:
             continue
 
         raw = path.read_bytes()
-        sha = hash_bytes(raw)
+        sha, herr = asset_hash(asset, raw)
+        if herr:
+            findings["fail_unparseable"].append({"id": aid, "file": asset["file"], "error": herr})
+            continue
         declared, err = extract_version(asset, raw)
         if declared is None:
             findings["fail_unparseable"].append({"id": aid, "file": asset["file"], "error": err})

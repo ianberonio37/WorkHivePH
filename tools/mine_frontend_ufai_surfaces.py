@@ -82,7 +82,6 @@ PAGES = [
     ("analytics.html", "2 Dashboards"),
     ("analytics-report.html", "2 Dashboards"),
     ("shift-brain.html", "2 Dashboards"),
-    ("predictive.html", "2 Dashboards"),
     ("ai-quality.html", "2 Dashboards"),
     ("ph-intelligence.html", "2 Dashboards"),
     ("project-manager.html", "3 Records"),
@@ -102,7 +101,6 @@ PAGES = [
     ("plant-connections.html", "5 Connect/Commerce"),
     ("report-sender.html", "5 Connect/Commerce"),
     ("status.html", "6 System/Admin"),
-    ("platform-health.html", "6 System/Admin"),
     ("founder-console.html", "6 System/Admin"),
     ("llm-observability.html", "6 System/Admin"),
     ("agentic-rag-observability.html", "6 System/Admin"),
@@ -112,7 +110,7 @@ PAGES = [
 PUBLIC_PAGES = {"index.html", "public-feed.html"}            # public entry, not auth-gated targets
 SOLO_PAGES = {"resume.html"}                                  # public solo tool, no hive tenancy
 CROSS_HIVE_ADMIN = {                                          # see cross-hive/platform data BY DESIGN
-    "founder-console.html", "marketplace-admin.html", "platform-health.html",
+    "founder-console.html", "marketplace-admin.html",
     "llm-observability.html", "agentic-rag-observability.html", "status.html",
 }
 

@@ -3,10 +3,10 @@
   "baseline": {
     "dead_end_fields": 5,
     "cascade_fields": 38,
-    "anchors_resolved": 65,
+    "anchors_resolved": 62,
     "redundancy_pending_review": 0,
-    "ladder_grounded": 65,
+    "ladder_grounded": 62,
     "ladder_ungrounded_high_rung": 0,
-    "provenance_trustworthy": 64
+    "provenance_trustworthy": 58
   }
 }

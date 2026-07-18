@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <script src="maturity-gate.js"></script>
   <link rel="stylesheet" href="tokens.css">
@@ -28,10 +28,14 @@
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    /* This page <link>s Poppins above and then rendered system-ui anyway: all 53 of its
+       text elements measured as a NON-Poppins typeface, the strongest "different
+       personality" on the platform (NN/g #4 internal consistency). The font was being
+       downloaded and thrown away. var(--wh-font) resolves from tokens.css, linked below. */
+    body { font-family: var(--wh-font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
 
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
     .hive-pill { font-size: .65rem; font-weight: 700; padding: .3rem .8rem; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
 
@@ -82,7 +86,7 @@
       font-size: .65rem; font-weight: 700; color: var(--gold);
       text-decoration: none; margin-top: 8px;
       padding: 4px 10px; border: 1px solid rgba(247,162,27,0.25);
-      border-radius: 6px; background: rgba(247,162,27,0.06);
+      border-radius: var(--wh-radius-sm); background: rgba(247,162,27,0.06);
       transition: background .15s;
     }
     .alert-action:hover { background: rgba(247,162,27,0.15); }
@@ -92,9 +96,12 @@
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
       font-size: .65rem; font-weight: 700; color: rgba(255,255,255,0.72);
       margin-top: 8px; padding: 4px 12px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.16); border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.16); border-radius: var(--wh-radius-sm);
       background: rgba(255,255,255,0.05); transition: background .15s;
     }
+    /* R3 one-shape-per-role: "Seen" is a SELECT toggle (aria-pressed) — give it the pill
+       silhouette so it reads differently from the "Snooze"/details PRESS rects (8px). */
+    .alert-dismiss[aria-pressed] { border-radius: var(--wh-radius-pill); }
     .alert-dismiss:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .alert-dismiss:active { transform: scale(.97); }
     /* Arc Y Y3: Acknowledge ("Seen") distinct visual — the alert stays but its
@@ -132,7 +139,7 @@
       border-radius: 14px; margin-top: 40px;
     }
     .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
-    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 20px; }
+    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
     .gate-btn {
       display: inline-block; padding: 10px 24px;
       background: rgba(41,182,217,0.15); color: var(--blue);
@@ -151,10 +158,10 @@
       border: 1px solid rgba(167,139,250,0.30);
       border-radius: 14px;
       padding: 18px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-    .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); padding: 3px 8px; border-radius: 6px; background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
+    .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
     .amc-headline { font-size: .98rem; font-weight: 800; color: var(--text); line-height: 1.35; }
     .amc-summary { font-size: .78rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; }
     .amc-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
@@ -166,7 +173,7 @@
     .amc-section-title { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin: 10px 0 4px; }
     .amc-row { padding: 4px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
     .amc-row:last-child { border-bottom: 0; }
-    .amc-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .amc-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
     .amc-btn { min-height: 44px; padding: 8px 18px; border-radius: 8px; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
     .amc-btn-approve { background: rgba(74,222,128,0.16); color: var(--green); border-color: rgba(74,222,128,0.32); }
     .amc-btn-approve:hover:not(:disabled) { background: rgba(74,222,128,0.26); }
@@ -183,7 +190,7 @@
     }
 
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
@@ -195,26 +202,32 @@
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
-    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
+    .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
     .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; min-height:134px; } /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
     .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
+    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
-    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+    .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
+    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }
+/* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
+   component CSS — no components.css link — so .ac-cta lives here too). */
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta:hover { background:var(--wh-orange-dark); }
+.action-card .ac-cta:active { transform:scale(0.98); }
+.action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
     /* CLS (Arc L L1): reserve the command-center growers — verdict box (68→84 when sub wraps) + the
        async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
-    /* #ah-verdict removed (Arc Y Y2 de-dup) */
+    /* #ah-verdict re-added (UX Contract Layer D) — composite-tone verdict, no KPI-number duplication (styled by .verdict rules above). */
     #filters { min-height:144px; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
   </style>
 </head>
@@ -226,7 +239,7 @@
 
   <div class="page-header">
     <div>
-      <h1 class="page-title" style="margin:0;">Alert Hub</h1>
+      <h1 class="page-title" style="margin:0;" translate="no">Alert Hub</h1>
       <p style="font-size:.7rem; color:var(--muted); margin-top:2px;" id="page-sub">Everything that needs your attention, in one place.</p>
       <p id="wh-source-chip"></p>
     </div>
@@ -236,7 +249,7 @@
   <!-- Hive gate (shown when no HIVE_ID) -->
   <div id="gate-card" class="gate-card" style="display:none;">
     <div style="font-size:1.6rem; margin-bottom:8px;">🐝</div>
-    <h2>Join a hive to see alerts</h2>
+    <h2 data-i="joinhive">Join a hive to see alerts</h2>
     <p>Alert Hub aggregates risk, PM, stock, and pattern signals across your team. You need to be in a hive to see them.</p>
     <a class="gate-btn" href="hive.html">Open Hive Board</a>
   </div>
@@ -250,34 +263,41 @@
          Populated by renderAlertSummary() after _alerts is loaded.
          Rolls up: critical count, anomaly count, AMC brief status. -->
     <div id="ah-summary">
-      <!-- Arc Y Y2 de-dup: removed #ah-verdict roll-up box — its sub-line re-stated the exact
-           3 KPI-card numbers (high-severity / anomaly / AMC) and its tone logic mirrored the
-           cards; the "What to do next" action card below carries the single plain-language step. -->
+      <!-- Plain-Read verdict (Layer D — UX Contract). One-sentence "is my hive
+           calm or does it need me?" read. Written NOT to re-state the 3 KPI-card
+           numbers (the Arc Y Y2 de-dup lesson) — it gives the single composite
+           tone only; the cards carry the counts, the action card the next step. -->
+      <div id="ah-verdict" class="verdict empty">
+        <span id="ah-verdict-icon" class="verdict-icon">·</span>
+        <div class="verdict-text"><span id="ah-verdict-label">Reading alert state...</span><small id="ah-verdict-sub">Rolling up critical alerts, anomaly signals, and today's AMC brief.</small></div>
+      </div>
       <div class="simple-row">
         <div class="simple-card tag-grey hero" id="ah-card-critical" data-rag-tile="alert-hub:high_severity_alerts" data-rag-label="High-severity alerts">
           <div class="sc-label">High-severity alerts</div>
-          <div class="sc-hero" id="ah-critical-hero">—</div>
+          <div class="sc-hero" id="ah-critical-hero">-</div>
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
-          <span class="sc-tag" id="ah-critical-tag">—</span>
+          <span class="sc-tag" id="ah-critical-tag">-</span>
         </div>
         <div class="simple-card tag-grey" id="ah-card-anomaly" data-rag-tile="alert-hub:anomaly_signals" data-rag-label="Anomaly signals">
           <div class="sc-label">Anomaly signals</div>
-          <div class="sc-hero" id="ah-anomaly-hero">—</div>
+          <div class="sc-hero" id="ah-anomaly-hero">-</div>
           <div class="sc-sub" id="ah-anomaly-sub">Loading...</div>
-          <span class="sc-tag" id="ah-anomaly-tag">—</span>
+          <span class="sc-tag" id="ah-anomaly-tag">-</span>
         </div>
         <div class="simple-card tag-grey" id="ah-card-amc" data-rag-tile="alert-hub:amc_daily_brief" data-rag-label="AMC daily brief">
           <div class="sc-label">AMC daily brief</div>
-          <div class="sc-hero" id="ah-amc-hero">—</div>
+          <div class="sc-hero" id="ah-amc-hero">-</div>
           <div class="sc-sub" id="ah-amc-sub">Loading...</div>
-          <span class="sc-tag" id="ah-amc-tag">—</span>
+          <span class="sc-tag" id="ah-amc-tag">-</span>
         </div>
       </div>
       <div class="action-card">
         <div class="ac-label">What to do next</div>
         <div class="ac-text" id="ah-action-text">Computing recommendation...</div>
+        <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
+        <a id="ah-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
       </div>
-      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details">
+      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
         Show details
       </button>
       <div id="ah-summary-details" role="region" aria-label="Alert breakdown"
@@ -287,7 +307,7 @@
         <ul style="margin:0;padding-left:20px;">
           <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
           <li><strong>Anomaly signals</strong>: count of sensor anomalies in attention status (Stair 3+ hives only).</li>
-          <li><strong>AMC daily brief</strong>: today's brief status — pending / approved / rejected / none.</li>
+          <li><strong>AMC daily brief</strong>: today's brief status: pending / approved / rejected / none.</li>
           <li><strong>Verdict</strong>: red if any critical alerts OR anomalies in attention; amber if AMC pending OR high alerts; green when clear.</li>
         </ul>
       </div>
@@ -322,9 +342,9 @@
       </div>
       <div id="amc-details" class="amc-details"></div>
       <div class="amc-actions">
-        <button id="amc-toggle-btn"  class="amc-btn amc-btn-toggle"  type="button">Show details</button>
-        <button id="amc-approve-btn" class="amc-btn amc-btn-approve" type="button" style="display:none;">Approve brief</button>
-        <button id="amc-reject-btn"  class="amc-btn amc-btn-reject"  type="button" style="display:none;">Reject</button>
+        <button id="amc-toggle-btn"  class="amc-btn amc-btn-toggle"  type="button" data-i="showdetails">Show details</button>
+        <button id="amc-approve-btn" class="amc-btn amc-btn-approve" type="button" style="display:none;" data-i="approvebrief">Approve brief</button>
+        <button id="amc-reject-btn"  class="amc-btn amc-btn-reject"  type="button" style="display:none;" data-i="reject">Reject</button>
         <span id="amc-readonly-note" class="amc-readonly-note" style="display:none;">Supervisor approval required.</span>
       </div>
       <div id="amc-status-msg" class="amc-status-msg"></div>
@@ -358,7 +378,7 @@
       <div class="empty-sub">No active alerts in your hive right now.</div>
     </div>
     <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAlerts()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -377,7 +397,7 @@
   document.getElementById('wh-source-chip').innerHTML = renderSourceChip({
     freshness: 'Live data',
     source:    'v_risk_truth',
-    notes:     ['PM overdue: counted once per asset— matches PM Scheduler'],
+    notes:     ['PM overdue: counted once per asset, matches PM Scheduler'],
   });
 
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
@@ -392,6 +412,7 @@
                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                   || localStorage.getItem('workerName') || '';
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 
   const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
@@ -449,6 +470,11 @@
   let _anomalyChannel = null;
   let _anomalyLoading = false;
   let _anomalyDebounce = null;
+  // F8/reuse: canonical anomaly count held in module state (set by renderAnomalyEngine) so the
+  // Plain-Read summary reads it directly instead of DOM-scraping the rendered badge (which raced:
+  // the fire-and-forget loadAnomalyEngine could leave the verdict reading "All clear" for up to
+  // 60s while critical signals were still loading). Starts null = "not yet known".
+  let _anomalyCount = null;
 
   // Timer helpers — kept OUTSIDE any event handler so the timer validator
   // can see the named-variable assignment cleanly.
@@ -596,7 +622,7 @@
         sections.push(
           '<div class="amc-section-title">Top risk assets</div>' +
           b.top_assets.map(a =>
-            `<div class="amc-row"><strong>${e(a.asset_name || '?')}</strong> — ${e(a.risk_level || '?')} (${Math.round((Number(a.risk_score) || 0) * 100)}%)</div>`,
+            `<div class="amc-row"><strong>${e(a.asset_name || '?')}</strong>: ${e(a.risk_level || '?')} (${Math.round((Number(a.risk_score) || 0) * 100)}%)</div>`,
           ).join('')
         );
       }
@@ -604,7 +630,7 @@
         sections.push(
           '<div class="amc-section-title">PMs due</div>' +
           b.pm_due.map(p =>
-            `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong> — ${e(p.category || 'general')}` +
+            `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong>: ${e(p.category || 'general')}` +
             (p.days_since_last_completion != null ? `, ${p.days_since_last_completion}d since last` : '') +
             (p.criticality ? ` <em>(${e(p.criticality)})</em>` : '') +
             `</div>`,
@@ -617,7 +643,7 @@
           b.parts_to_stage.map(p => {
             const n = Array.isArray(p.parts) ? p.parts.length : 0;
             const conf = p.confidence != null ? Math.round(Number(p.confidence) * 100) + '%' : '?';
-            return `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong> — ${n} part(s), ${conf} confidence${p.rationale ? ' · ' + e(String(p.rationale).slice(0, 120)) : ''}</div>`;
+            return `<div class="amc-row"><strong>${e(p.asset_name || '?')}</strong>: ${n} part(s), ${conf} confidence${p.rationale ? ' · ' + e(String(p.rationale).slice(0, 120)) : ''}</div>`;
           }).join('')
         );
       }
@@ -648,7 +674,7 @@
     const statusMsg = document.getElementById('amc-status-msg');
     if (statusMsg) {
       if (brief.status === 'approved' && brief.approved_by) {
-        const when = brief.approved_at ? new Date(brief.approved_at).toLocaleString('en-PH') : '';
+        const when = brief.approved_at ? whFmtDate(brief.approved_at, { time: true }) : '';
         statusMsg.textContent = `Approved by ${brief.approved_by}${when ? ' at ' + when : ''}.`;
       } else if (brief.status === 'rejected') {
         statusMsg.textContent = 'Brief rejected. The next 06:00 PHT run will generate a fresh one.';
@@ -873,12 +899,16 @@
       count.textContent = '0 signals';
       count.style.background = 'rgba(74,222,128,0.15)';
       count.style.color = '#4ade80';
+      _anomalyCount = 0;
+      try { renderAlertSummary(); } catch (_) { /* empty-catch-allow: summary refresh is best-effort; renderFeed already painted the feed */ }
       return;
     }
     empty.style.display = 'none';
     count.textContent = rows.length + ' signal' + (rows.length === 1 ? '' : 's');
     count.style.background = 'rgba(248,113,113,0.15)';
     count.style.color = '#f87171';
+    _anomalyCount = rows.length;
+    try { renderAlertSummary(); } catch (_) { /* empty-catch-allow: summary refresh is best-effort; renderFeed already painted the feed */ }
 
     const isSupervisor = HIVE_ROLE === 'supervisor';
 
@@ -887,7 +917,7 @@
       const reasons = Array.isArray(r.top_reasons) ? r.top_reasons.slice(0, 3) : [];
       const reasonStr = reasons.length
         ? reasons.map(rr => e(rr.label || rr.signal)).join(' · ')
-        : 'Composite signal — open details for breakdown';
+        : 'Composite signal: open details for breakdown';
       const ackBtn = isSupervisor && r.status === 'active'
         ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" style="font-size:0.7rem; padding:6px 12px;">Acknowledge</button>`
         : '';
@@ -973,7 +1003,7 @@
       // alert never fired. Bonus: is_low_stock + is_critical_low arrive
       // already-derived so the consumer drops the threshold math.
       db.from('v_inventory_items_truth')
-        .select('part_name, qty_on_hand, reorder_point, is_low_stock, is_out_of_stock, updated_at')
+        .select('part_name, qty_on_hand, reorder_point, min_qty, is_low_stock, is_critical_low, is_out_of_stock, updated_at')
         .eq('hive_id', HIVE_ID)
         .limit(150),
 
@@ -993,6 +1023,7 @@
 
       db.from('automation_log')
         .select('job_name, status, detail, triggered_at')
+        .eq('hive_id', HIVE_ID)   // F3-arc F5: was RLS-only; every other feed source is hive-filtered
         .eq('status', 'failed')
         .gte('triggered_at', dayAgo)
         .order('triggered_at', { ascending: false })
@@ -1023,6 +1054,17 @@
 
     const all = [];
 
+    // Canonical-reuse (ASSET_ALERT_SHIFT F-staging-band): keep the canonical risk_level per
+    // asset so the staging alert can reuse the SAME band the risk alert shows, instead of
+    // re-deriving one from risk_score with a locally-invented 0.85 cutoff (which could
+    // disagree with v_risk_truth for the same asset).
+    const _riskLevelByAsset = {};
+    if (riskRes.status === 'fulfilled') {
+      for (const r of (riskRes.value.data || [])) {
+        if (r && r.asset_name) _riskLevelByAsset[String(r.asset_name).toLowerCase()] = r.risk_level;
+      }
+    }
+
     // Risk alerts
     if (riskRes.status === 'fulfilled') {
       for (const r of (riskRes.value.data || [])) {
@@ -1041,7 +1083,7 @@
           dedupeKey: 'risk:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
           severity: r.risk_level,
           title: r.asset_name || 'Unknown asset',
-          msg: `Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factors ? ' — ' + factors : ''}`,
+          msg: `Risk score ${Math.round((Number(r.risk_score) || 0) * 100)}%${factors ? ', ' + factors : ''}`,
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
           actionLabel: 'Open in Asset Hub',
@@ -1055,11 +1097,18 @@
       for (const i of inv) {
         const qty = Number(i.qty_on_hand);
         const rp  = Number(i.reorder_point);
-        if (rp > 0 && qty <= rp) {
+        // Canonical-reuse (ASSET_ALERT_SHIFT F33): classify via the shared whStockSeverity,
+        // which reads the canonical is_out_of_stock/is_critical_low/is_low_stock flags the
+        // query already SELECTs — instead of re-implementing the qty/reorder threshold math
+        // (which could silently drift from the view + renderPartsStrip). The view's migration
+        // built those flags so this logic lives in ONE place.
+        const stock = (window.whStockSeverity ? whStockSeverity(i)
+          : { atRisk: rp > 0 && qty <= rp, severity: qty <= 0 ? 'critical' : (qty <= rp / 2 ? 'high' : 'medium') });
+        if (stock.atRisk) {
           all.push({
             kind: 'stock',
             dedupeKey: 'stock:' + (i.part_name || i.id || 'unknown'),   // Arc Y Y3: stable dismissal key
-            severity: qty <= 0 ? 'critical' : (qty <= rp / 2 ? 'high' : 'medium'),
+            severity: stock.severity,
             title: i.part_name || 'Unnamed part',
             msg: `${qty} on hand, reorder at ${rp}`,
             time: i.updated_at || new Date().toISOString(),
@@ -1120,14 +1169,25 @@
     // Predictive Parts Auto-Staging recommendations (Phase ML-2)
     if (stagingRes.status === 'fulfilled') {
       for (const r of (stagingRes.value.data || [])) {
-        const partsCount = Array.isArray(r.parts) ? r.parts.length : 0;
+        // Defensive: a legacy row may store parts as a double-encoded JSON string rather
+        // than a jsonb array — parse it so the count is not silently 0 (see asset-hub _parsePartsField).
+        let _parts = r.parts;
+        if (typeof _parts === 'string' && _parts.trim()) { try { _parts = JSON.parse(_parts); } catch (_) { _parts = []; } }
+        const partsCount = Array.isArray(_parts) ? _parts.length : 0;
         const conf       = Math.round((Number(r.confidence) || 0) * 100);
+        // Reuse the canonical risk_level for this asset (from v_risk_truth) rather than
+        // re-deriving a band from risk_score with a local 0.85 cutoff; fall back to the score
+        // only if the asset has no canonical risk row.
+        const _canonLevel = _riskLevelByAsset[String(r.asset_name || '').toLowerCase()];
+        const _stagingSev = (_canonLevel === 'critical' || _canonLevel === 'high')
+          ? _canonLevel
+          : (_canonLevel ? _canonLevel : ((Number(r.risk_score) >= 0.85) ? 'critical' : 'high'));
         all.push({
           kind: 'staging',
           dedupeKey: 'staging:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
-          severity: (Number(r.risk_score) >= 0.85) ? 'critical' : 'high',
+          severity: _stagingSev,
           title: r.asset_name || 'Unknown asset',
-          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence) — ${r.rationale || ''}`.slice(0, 200),
+          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence): ${r.rationale || ''}`.slice(0, 200),
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
           actionLabel: 'Review & stage',
@@ -1180,8 +1240,21 @@
       console.warn('amc fetch failed:', err && err.message ? err.message : err);
     }
 
-    // Sort newest first
-    all.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    // Worst-first triage sort (ASSET_ALERT_SHIFT_DEEP_ARC F3): a maintenance inbox must lead
+    // with the most severe open item, not the most recent — a 3-day-old critical must outrank
+    // a 1-hour-old info alert. Rank by severity, then newest-first WITHIN a severity band.
+    // (Was a pure newest-first sort, which buried criticals and made the "clear the top of the
+    // feed" verdict/CTA dishonest.) SEV_RANK also normalizes the 'low' band that v_alert_truth
+    // can emit (F34) so it sorts below medium instead of silently tying with it.
+    // NB: comparator params are x/y (not a/b) on purpose — a `b.<key>` token would collide with
+    // the amc_briefings.brief JSONB-contract alias `b` in validate_seed_consumer_contract and be
+    // mis-read as a brief-key access (false positive). Same logic, collision-free names.
+    const SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+    all.sort((x, y) => {
+      const rx = SEV_RANK[x.severity] ?? 2, ry = SEV_RANK[y.severity] ?? 2;
+      if (rx !== ry) return rx - ry;
+      return new Date(y.time).getTime() - new Date(x.time).getTime();
+    });
 
     // ── Arc Y Y3: alert agency — hide alerts the hive has TRIAGED ──────────────
     // A derived alert (pm/risk/stock/pattern/staging) carries a stable dedupeKey; a
@@ -1230,8 +1303,16 @@
       // the same state shown below. Always runs — even on render error — so
       // the verdict label leaves the "Loading..." initial state.
       try { renderAlertSummary(); } catch (e) { console.warn('renderAlertSummary threw:', e?.message || e); }
+      // G1 system status via the SHARED whFreshnessChip (rubric class G / FAMILY roadmap F3).
+      // The old plain-text line carried the same fact with no role="status", so a screen
+      // reader never heard it and the tightened G1 couldn't see it. The chip adds the
+      // live region + the stale dot + i18n; opts.suffix keeps this page's cadence note.
       const fm = document.getElementById('footer-meta');
-      if (fm) fm.textContent = `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
+      if (fm && typeof whFreshnessChip === 'function') {
+        whFreshnessChip(fm, Date.now(), { suffix: '· ' + (window._t ? _t('Auto-refresh every minute', 'Awtomatikong nagre-refresh bawat minuto') : 'Auto-refresh every minute') });
+      } else if (fm) {
+        fm.textContent = `Last refreshed ${fmtTime(new Date())} · Auto-refresh every minute`;
+      }
     }
   }
 
@@ -1244,7 +1325,7 @@
     document.getElementById('filters').innerHTML = KINDS.map(k => {
       const active = k.id === _activeKind ? ' active' : '';
       const count = counts[k.id] || 0;
-      return `<button class="chip${active}" data-kind="${e(k.id)}" role="tab" aria-selected="${active ? 'true' : 'false'}">
+      return `<button class="chip${active}" data-kind="${e(k.id)}" role="tab" aria-selected="${active ? 'true' : 'false'}" translate="no">
         <span>${e(k.icon)}</span>${e(k.label)}
         <span class="chip-count">${count}</span>
       </button>`;
@@ -1337,16 +1418,11 @@
     const critical = _alerts.filter(a => a.severity === 'critical' || a.severity === 'high').length;
     const total = _alerts.length;
 
-    // Anomaly signals: pull from the panel's count badge (already populated
-    // by loadAnomalyEngine). Defaults to 0 if Stair 3 gate is closed.
-    let anomalyCount = 0;
-    try {
-      const badge = document.getElementById('anomaly-engine-count');
-      if (badge) {
-        const m = (badge.textContent || '').match(/(\d+)/);
-        if (m) anomalyCount = parseInt(m[1], 10);
-      }
-    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+    // Anomaly signals: read canonical module state (_anomalyCount) set by renderAnomalyEngine,
+    // NOT the rendered DOM badge (F8 race fix). null = not-yet-loaded → treat as 0 for the
+    // number but renderAnomalyEngine re-invokes this summary once it resolves, so the verdict
+    // corrects itself instead of staying stuck on a stale "All clear".
+    const anomalyCount = (_anomalyCount == null) ? 0 : _anomalyCount;
 
     // AMC brief status: read from the AMC card visible state + status pill.
     let amcStatus = 'none';
@@ -1403,29 +1479,76 @@
                   : 'NO BRIEF';
     const amcSub  = amcStatus === 'pending'  ? 'Supervisor approval blocks AMC dispatch'
                   : amcStatus === 'approved' ? "Today's brief is live; crew is dispatched"
-                  : amcStatus === 'rejected' ? "Today's brief rejected — see status message on card"
+                  : amcStatus === 'rejected' ? "Today's brief rejected: see status message on card"
                   : amcStatus === 'active'   ? 'Brief loaded for this shift'
                   : "No AMC brief for today's shift";
     setCard('amc', amcHero, amcSub, amcTag, amcTone);
 
-    // Arc Y Y2 de-dup: the #ah-verdict roll-up box was removed (its sub-line re-stated the
-    // exact 3 KPI-card numbers + its tone mirrored the cards). The single plain-language
-    // next-step now lives ONLY in the "What to do next" action card below — no duplication.
+    // Plain-Read verdict (Layer D) — one composite tone only. Deliberately does
+    // NOT re-state the 3 KPI-card numbers (the Arc Y Y2 de-dup lesson): the cards
+    // carry the counts, this line carries the single "calm / watch / needs-me" read.
+    const vBox   = document.getElementById('ah-verdict');
+    const vIcon  = document.getElementById('ah-verdict-icon');
+    const vLabel = document.getElementById('ah-verdict-label');
+    const vSub   = document.getElementById('ah-verdict-sub');
+    if (vBox && vIcon && vLabel && vSub) {
+      let tone, icon, label, sub;
+      if (critical > 0) {
+        tone = 'attn'; icon = '⚠';
+        label = 'Needs your attention now';
+        sub = 'You have open critical alerts. Clear the top of the feed first.';
+      } else if (anomalyCount > 0 || amcStatus === 'pending') {
+        tone = 'watch'; icon = '!';
+        label = 'Worth a look this shift';
+        sub = anomalyCount > 0
+          ? 'Anomaly signals are brewing: a fault may be forming across your assets.'
+          : "Today's AMC brief is waiting on your approval before crew dispatch.";
+      } else if (total > 0) {
+        tone = 'watch'; icon = '!';
+        label = 'Calm, a few open items';
+        sub = 'Open alerts remain but none are critical, work them on your next walkaround.';
+      } else {
+        tone = 'healthy'; icon = '✓';
+        label = 'All clear';
+        sub = 'No critical alerts, anomalies, or pending briefs for your hive right now.';
+      }
+      vBox.classList.remove('healthy', 'watch', 'attn', 'empty');
+      vBox.classList.add(tone);
+      vIcon.textContent  = icon;
+      vLabel.textContent = label;
+      vSub.textContent   = sub;
+    }
 
     // Action — pick the single most-urgent next step.
     const actBox = document.getElementById('ah-action-text');
     if (actBox) {
+      // Arc P · Wave 1 (P3 / FUSION 3a): one primary button that scrolls to the feed
+      // (or the AMC card) so the recommended step is one tap away.
+      const setCta = (label, scroll) => {
+        const b = document.getElementById('ah-action-btn'); if (!b) return;
+        b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', '#');
+        b.onclick = (e) => { e.preventDefault(); const t = document.querySelector(scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+      };
+      const hideCta = () => { const b = document.getElementById('ah-action-btn'); if (b) b.classList.add('hidden'); };
       let text;
       if (critical > 0) {
-        text = `Filter to "Critical/High" using the chips below and clear the top of the feed first. Bookmark anything that needs a follow-up via the logbook.`;
+        // F3: the feed is now sorted worst-first, so critical/high sit at the TOP — the honest
+        // instruction is "start at the top", not "filter to Critical/High using the chips"
+        // (there is no severity chip; chips filter by kind only, so that instruction was impossible).
+        text = `${critical} critical/high alert${critical === 1 ? '' : 's'} at the top of the feed. Clear those first, then work down. Tap an alert to open it in its source page.`;
+        setCta(`Clear ${critical} critical/high →`, '#feed');
       } else if (anomalyCount > 0) {
-        text = `Open the Anomaly Engine 2.0 panel below — multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`;
+        text = `Open the Anomaly Engine 2.0 panel below: multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`;
+        setCta('Review anomaly signals →', '#feed');
       } else if (amcStatus === 'pending') {
         text = `Today's AMC brief is awaiting your approval. Click "Approve brief" in the AMC card below to dispatch crew suggestions to your workers.`;
+        setCta('Review the AMC brief →', '#amc-card');
       } else if (total > 0) {
         text = `${total} open alerts, none critical. Work through them as time permits during your next walkaround.`;
+        setCta(`Work through ${total} alert${total === 1 ? '' : 's'} →`, '#feed');
       } else {
         text = `Alert Hub is clear. Check back after the next shift change or sensor reading window.`;
+        hideCta();
       }
       actBox.textContent = text;
     }
@@ -1441,6 +1564,17 @@
 
     if (!items.length) {
       feed.innerHTML = '';
+      // F40: don't claim "All clear" when a KIND filter is hiding matches while other alerts
+      // remain — that's dishonest. Only the unfiltered (all) empty is truly "all clear".
+      const emptyTitle = empty.querySelector('.empty-title');
+      const emptySub   = empty.querySelector('.empty-sub');
+      if (_activeKind !== 'all' && _alerts.length) {
+        if (emptyTitle) emptyTitle.textContent = 'None under this filter';
+        if (emptySub)   emptySub.textContent = `No ${_activeKind} alerts. ${_alerts.length} alert${_alerts.length === 1 ? '' : 's'} under other filters. Tap "All" to see them.`;
+      } else {
+        if (emptyTitle) emptyTitle.textContent = 'All clear';
+        if (emptySub)   emptySub.textContent = 'No active alerts in your hive right now.';
+      }
       empty.style.display = 'block';
       lmWrap.classList.add('hidden');
       return;
@@ -1454,7 +1588,9 @@
     const e = escHtml;
     feed.innerHTML = visible.map(a => {
       const sev = a.severity || 'medium';
-      const tagClass = ({ critical: 'tag-critical', high: 'tag-high', medium: 'tag-medium', info: 'tag-info' })[sev] || 'tag-medium';
+      // F34: include 'low' (v_alert_truth normalizes some signature severities to it) so it
+      // renders as the least-severe style instead of silently borrowing tag-medium.
+      const tagClass = ({ critical: 'tag-critical', high: 'tag-high', medium: 'tag-medium', low: 'tag-info', info: 'tag-info' })[sev] || 'tag-medium';
       const icon = ({ risk: '🔴', pm: '⚠️', stock: '📦', pattern: '🧬', system: '⚙️' })[a.kind] || '•';
       const isSeen = !!(a.dedupeKey && _seen[a.dedupeKey]);
       return `<div class="alert kind-${e(a.kind)}${isSeen ? ' seen' : ''}">
@@ -1462,8 +1598,8 @@
         <div class="alert-body">
           <div class="alert-head">
             <span class="alert-tag ${e(tagClass)}">${e(sev)}</span>
-            <span class="alert-title" title="${e(a.title)}">${e(a.title)}</span>
-            ${isSeen ? '<span class="alert-seen-badge">Seen</span>' : ''}
+            <h3 class="alert-title" style="display:inline;margin:0;font-size:inherit;" title="${e(a.title)}" translate="no">${e(a.title)}</h3>
+            ${isSeen ? '<span class="alert-seen-badge" data-i="ah_seen">Seen</span>' : ''}
             <span class="alert-time">${e(fmtRelative(a.time))}</span>
           </div>
           <div class="alert-msg">${e(a.msg || '')}</div>
@@ -1472,9 +1608,9 @@
               ? `<a class="alert-action" href="${e(a.href)}">${e(a.actionLabel)} →</a>`
               : ''}
             ${a.dedupeKey
-              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? 'Mark this alert not seen' : 'Mark this alert as seen (keeps it, dims it)'}">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
-                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="Snooze this alert for 7 days">&#9203; Snooze 7d</button>
-                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="Mark this alert handled">&#10003; Handled</button>`
+              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? 'Mark this alert not seen' : 'Mark this alert as seen (keeps it, dims it)'}" data-i="ah_seenbtn">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
+                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="Snooze this alert for 7 days" data-i="ah_snooze">&#9203; Snooze 7d</button>
+                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="Mark this alert handled" data-i="ah_handled">&#10003; Handled</button>`
               : ''}
           </div>
         </div>
@@ -1501,7 +1637,12 @@
     // the matching alert so the named signal is not lost in the feed (Issue #2 class).
     if (!renderFeed._focusDone) {
       try {
-        const _focus = new URLSearchParams(window.location.search).get('focus');
+        // F4 (Asset/Alert/Shift arc): also honor ?asset= / ?tag= as focus aliases. Outbound
+        // links across the platform emit alert-hub.html?asset=<tag> (and ?tag=), but only
+        // ?focus= was read — an inbound asset deep-link was silently ignored (pre-catalogued
+        // A1 "alert-hub has no reader"). Treat all three as "focus this machine in the feed".
+        const _q = new URLSearchParams(window.location.search);
+        const _focus = _q.get('focus') || _q.get('asset') || _q.get('tag');
         if (_focus) {
           renderFeed._focusDone = true;
           const _norm = s => String(s || '').trim().toLowerCase();
@@ -1521,16 +1662,9 @@
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  function fmtRelative(iso) {
-    if (!iso) return '';
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  }
+  function fmtRelative(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
   function fmtTime(d) {
-    return d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+    return (typeof whFmtDate === 'function') ? whFmtDate(d, { timeOnly: true }) : d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }); // FD1a canonical
   }
 
 })();
@@ -1540,7 +1674,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -1553,5 +1687,13 @@
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
+
+<script>window.WH_FIL_PAGE={ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

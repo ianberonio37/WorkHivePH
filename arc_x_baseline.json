@@ -226,7 +226,7 @@
       {
         "id": "analytics_list_search",
         "file": "analytics.html",
-        "assert_present": "list-search\" aria-label=\"\\$\\{escHtml\\(searchPlaceholder"
+        "assert_present": "list-search\" aria-label=\"\\$\\{escHtml\\(_searchLbl"
       },
       {
         "id": "pm_wizard_scope_item",
@@ -340,6 +340,12 @@
       "id": "rm-current-title",
       "class": "DEFINITION",
       "reason": "names the user's own resume document"
+    },
+    {
+      "page": "marketplace.html",
+      "id": "post-part-number",
+      "class": "IDENTIFIER",
+      "reason": "Free-form manufacturer part number (e.g. BRG-6313 / SKF-6205-2RS) the seller reads off their OWN part when posting a listing - there is no enumerable picker for arbitrary manufacturer part numbers, and the field carries a PERSISTENT visible <label> \"Part number\" (recognition intact); the placeholder is a format example, not the label. Optional field. Triaged 2026-07-18."
     }
   ],
   "c3_status_on_record": {

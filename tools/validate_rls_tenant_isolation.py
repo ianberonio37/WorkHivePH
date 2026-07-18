@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D8
 """validate_rls_tenant_isolation.py — Arc G G2: per-table RLS isolation, proven LIVE two-tenant.
 
 The sub-layer check proves "0 orphan-RLS" (every RLS-enabled table has at least one policy).
@@ -35,6 +36,8 @@ BY_DESIGN = {
     "community_posts": "community is a cross-hive forum — community_posts_read allows public=true posts cross-hive",
     "community_xp":    "global gamification leaderboard — community_xp is intentionally cross-hive readable",
     "analytics_events": "platform-admin analytics — analytics_events_select_admin grants cross-hive read to admins only",
+    "marketplace_listings": "public marketplace (roadmap C8) — mkt_listings_read exposes status='published' listings cross-hive; drafts/sold stay owner-only (verified 2026-07-07: policy = published OR own OR admin; the 1 draft did NOT leak)",
+    "marketplace_sellers": "public marketplace SELLER DIRECTORY (the sibling of marketplace_listings) — a cross-hive bazaar requires buyers to see sellers across hives (name/tier/rating/KYB/certs/response-rate = seller-public by design, like an eBay profile). Verified 2026-07-17: exposed fields are seller-marketplace-public; the internal auth_uid UUID is opaque and consumed ONLY by get_community_reputation_by_auth, which is now tenancy-gated (mig 20260717000003, membership-OR-seller). Follow-up (Arc R backlog): a get_seller_community_reputation(worker,hive) that resolves auth_uid server-side, so the client never needs it + auth_uid can be column-revoked.",
     "platform_feedback": "global public product-feedback board",
 }
 

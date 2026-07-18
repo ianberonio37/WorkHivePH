@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -110,30 +111,61 @@ async function runPMOverdue(db: SupabaseClient, hiveId: string, voiceContext?: s
 
 // ── REPORT: Failure Digest ────────────────────────────────────────────────────
 
-const FAILURE_DIGEST_SYSTEM = `You are a weekly maintenance risk analyst. Analyze this week's failure records.
-Respond only in JSON: { "top_risk_machines": [{"machine","failure_count","total_downtime_h"}], "repeat_failures": [{"machine","root_cause","times"}], "week_summary": "two sentence executive summary for the supervisor" }`;
+// AI1 grounding (Hive Board PDDA, 2026-07-10): the LLM writes ONLY the prose summary —
+// every displayed COUNT/SUM is computed deterministically in code below (WAT split, mirrors
+// pm_overdue). Previously the model produced failure_count/total_downtime_h/times itself and
+// they were rendered on the board as hard facts — a free-tier 8B model miscounts.
+const FAILURE_DIGEST_SYSTEM = `You are a weekly maintenance risk analyst. You are given ALREADY-COMPUTED figures — do NOT invent, change, or recompute any number.
+Respond only in JSON: { "week_summary": "two sentence executive summary for the supervisor, referencing only the figures given" }`;
 
 async function runFailureDigest(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
-  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  // Canonical: logbook_truth.
-  const { data } = await db.from("v_logbook_truth")
-    .select("machine, category, root_cause, downtime_hours, created_at")
-    .eq("hive_id", hiveId)
-    .eq("maintenance_type", "Breakdown / Corrective")
-    .gte("created_at", since)
-    .limit(100);
+  const PERIOD = 7;
+  // ★CANONICAL failure/downtime/repeat metrics from the Analytics Engine RPCs (7-day window)
+  // — do NOT re-aggregate breakdowns locally (drift with analytics/asset-hub). All three RPCs
+  // already scope to maintenance_type='Breakdown / Corrective'. The LLM writes only the prose.
+  // (Ian's canonical-reuse review, Hive Board PDDA, 2026-07-10.)
+  const [freqRes, mttrRes, repeatRes] = await Promise.all([
+    db.rpc("get_failure_frequency", { p_hive_id: hiveId, p_period_days: PERIOD }),
+    db.rpc("get_mttr_by_machine",   { p_hive_id: hiveId, p_period_days: PERIOD }),
+    db.rpc("get_repeat_failures",   { p_hive_id: hiveId, p_period_days: PERIOD }),
+  ]);
+  const freq = (freqRes.data || []) as Array<{ machine: string; failure_count: number }>;
+  if (!freq.length) return "No failures this week.";
 
-  if (!data?.length) return "No failures this week.";
+  const downByMachine = new Map<string, number>();
+  for (const r of (mttrRes.data || []) as Array<{ machine: string; total_downtime_h: number }>) {
+    downByMachine.set(r.machine, Number(r.total_downtime_h) || 0);
+  }
+  const top_risk_machines = freq
+    .map(r => ({
+      machine: r.machine,
+      failure_count: Number(r.failure_count) || 0,
+      total_downtime_h: Math.round((downByMachine.get(r.machine) || 0) * 10) / 10,
+    }))
+    .sort((a, b) => (b.failure_count - a.failure_count) || (b.total_downtime_h - a.total_downtime_h))
+    .slice(0, 5);
 
-  const summary = data.map(e =>
-    `${e.machine}|${e.category}|${e.root_cause || "unknown"}|${e.downtime_hours || 0}h`
-  ).join("\n");
+  const repeat_failures = ((repeatRes.data || []) as Array<{ machine: string; root_cause: string; occurrences: number }>)
+    .map(r => ({ machine: r.machine, root_cause: r.root_cause || "unknown", times: Number(r.occurrences) || 0 }))
+    .slice(0, 5);
 
+  // LLM writes ONLY the prose, from the computed figures.
+  const facts = top_risk_machines.map(x => `${x.machine}: ${x.failure_count} failure(s), ${x.total_downtime_h}h downtime`).join("\n");
   const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
-  const raw = await callGroq(`This week's failures (machine|category|root_cause|downtime):\n${summary}${ctx}`, FAILURE_DIGEST_SYSTEM);
-  const result = JSON.parse(raw);
-  await saveReport(db, hiveId, "failure_digest", result, result.week_summary || "Failure digest complete.");
-  return result.week_summary || "Failure digest done.";
+  let week_summary = "";
+  try {
+    const raw = await callGroq(`Computed top-risk machines this week (do NOT change these numbers):\n${facts}${ctx}`, FAILURE_DIGEST_SYSTEM);
+    week_summary = (JSON.parse(raw).week_summary || "").toString();
+  } catch (_e) { week_summary = ""; }
+  if (!week_summary) {
+    const t = top_risk_machines[0];
+    week_summary = t
+      ? `${top_risk_machines.length} machine(s) logged breakdowns this week; ${t.machine} led with ${t.failure_count} failure(s) and ${t.total_downtime_h}h downtime.`
+      : "Breakdowns were logged this week.";
+  }
+  const result = { top_risk_machines, repeat_failures, week_summary };
+  await saveReport(db, hiveId, "failure_digest", result, week_summary);
+  return week_summary;
 }
 
 // ── REPORT: Shift Handover ────────────────────────────────────────────────────
@@ -168,29 +200,74 @@ async function runShiftHandover(db: SupabaseClient, hiveId: string, voiceContext
 
 // ── REPORT: Predictive ────────────────────────────────────────────────────────
 
-const PREDICTIVE_SYSTEM = `You are a predictive maintenance analyst. Calculate MTBF per machine and predict next failures.
-Respond only in JSON: { "predictions": [{"machine","mtbf_days":number,"last_failure":"YYYY-MM-DD","predicted_next":"YYYY-MM-DD","risk":"HIGH|MEDIUM|LOW"}], "highest_risk_machine": "machine name", "summary": "one sentence for supervisor" }`;
+// AI1 grounding (Hive Board PDDA, 2026-07-10): MTBF, last/next-failure DATES and risk are
+// computed deterministically in code — date arithmetic is the least reliable operation for a
+// small model, and these render on the board as concrete dates. The LLM writes ONLY the prose.
+const PREDICTIVE_SYSTEM = `You are a predictive maintenance analyst. You are given ALREADY-COMPUTED per-machine figures — do NOT invent, change, or recompute any number or date.
+Respond only in JSON: { "summary": "one sentence for the supervisor, referencing only the figures given" }`;
 
 async function runPredictive(db: SupabaseClient, hiveId: string, voiceContext?: string): Promise<string> {
-  // Canonical: logbook_truth.
-  const { data } = await db.from("v_logbook_truth")
+  // ★CANONICAL MTBF — read the Analytics Engine RPC `get_mtbf_by_machine` (LAG-interval
+  // AVG over the last 90d of breakdowns) instead of re-deriving MTBF here. Re-computing it
+  // locally would drift from analytics / asset-hub (the exact two-places-compute-one-metric
+  // bug class this arc also fixed for stock counts). This fn adds ONLY the projection layer
+  // (last failure -> predicted next date, risk band) — a supervisor-facing extrapolation the
+  // RPC doesn't own. LLM still writes only the prose. (Ian, Hive Board PDDA, 2026-07-10.)
+  const { data: mtbfRows } = await db.rpc("get_mtbf_by_machine", { p_hive_id: hiveId, p_period_days: 90 });
+  if (!mtbfRows?.length) return "Not enough failure history for predictions yet.";
+
+  // Last failure per machine = a max() of the event date (not a computed metric -> no drift).
+  const { data: lastRows } = await db.from("v_logbook_truth")
     .select("machine, created_at")
     .eq("hive_id", hiveId)
     .eq("maintenance_type", "Breakdown / Corrective")
-    .order("machine", { ascending: true })
-    .order("created_at", { ascending: true })
-    .limit(200);
+    .order("created_at", { ascending: false })
+    .limit(500);
+  const lastByMachine = new Map<string, number>();
+  for (const e of (lastRows || [])) {
+    if (!e.machine || !e.created_at) continue;
+    const t = new Date(e.created_at).getTime();
+    if (Number.isFinite(t) && !lastByMachine.has(e.machine)) lastByMachine.set(e.machine, t); // desc -> first is latest
+  }
 
-  if (!data?.length) return "Not enough failure history for predictions yet.";
+  const DAY = 86400000;
+  const now = Date.now();
+  const predictions = (mtbfRows as Array<{ machine: string; mtbf_days: number }>)
+    .map(r => {
+      const mtbf_days = Number(r.mtbf_days) || 0;
+      const lastT = lastByMachine.get(r.machine) ?? now;
+      const nextT = lastT + mtbf_days * DAY;
+      const overdueDays = (now - nextT) / DAY;
+      const risk = overdueDays > 0 ? "HIGH" : (overdueDays > -(mtbf_days * 0.25) ? "MEDIUM" : "LOW");
+      return {
+        machine: r.machine,
+        mtbf_days,
+        last_failure: new Date(lastT).toISOString().slice(0, 10),
+        predicted_next: new Date(nextT).toISOString().slice(0, 10),
+        risk,
+      };
+    })
+    .filter(p => p.mtbf_days > 0);
+  if (!predictions.length) return "Not enough failure history for predictions yet.";
+  predictions.sort((a, b) => a.predicted_next.localeCompare(b.predicted_next));
+  const highest_risk_machine = predictions.find(p => p.risk === "HIGH")?.machine || predictions[0].machine;
 
-  const summary = data.map(e => `${e.machine}|${e.created_at?.slice(0, 10)}`).join("\n");
-  const today = new Date().toISOString().slice(0, 10);
-
+  // LLM writes ONLY the prose, from the computed figures.
+  const facts = predictions.slice(0, 8)
+    .map(p => `${p.machine}: MTBF ${p.mtbf_days}d, last ${p.last_failure}, predicted next ${p.predicted_next} (${p.risk})`).join("\n");
   const ctx = voiceContext ? `\n\nUser context: "${voiceContext}"` : "";
-  const raw = await callGroq(`Today: ${today}\nFailure history (machine|date):\n${summary}${ctx}`, PREDICTIVE_SYSTEM);
-  const result = JSON.parse(raw);
-  await saveReport(db, hiveId, "predictive", result, result.summary || "Predictive analysis complete.");
-  return result.summary || "Predictive done.";
+  let summary = "";
+  try {
+    const raw = await callGroq(`Computed predictions (do NOT change these numbers/dates):\n${facts}${ctx}`, PREDICTIVE_SYSTEM);
+    summary = (JSON.parse(raw).summary || "").toString();
+  } catch (_e) { summary = ""; }
+  if (!summary) {
+    const p = predictions.find(x => x.risk === "HIGH") || predictions[0];
+    summary = `${p.machine} is the highest predicted risk (MTBF ${p.mtbf_days}d, next failure ~${p.predicted_next}).`;
+  }
+  const result = { predictions: predictions.slice(0, 10), highest_risk_machine, summary };
+  await saveReport(db, hiveId, "predictive", result, summary);
+  return summary;
 }
 
 // ── REPORT: Project Suggestions (Phase 6B) ───────────────────────────────────
@@ -330,7 +407,12 @@ async function runProjectRisk(db: SupabaseClient, hiveId: string, voiceContext?:
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("scheduled-agents", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "scheduled-agents", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -454,9 +536,7 @@ serve(async (req) => {
 
   } catch (err) {
     log.error(null, "scheduled-agents error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "scheduled-agents", "scheduled_agents_error", err);
   }
 });

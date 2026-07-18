@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="description" content="WorkHive Founder Console — platform-wide health, growth, and operational readiness signals for the founder. Admin-gated." />
+  <meta name="description" content="WorkHive Founder Console: platform-wide health, growth, and operational readiness signals for the founder. Admin-gated." />
   <!-- Layer -1.5 Calm Dashboard Contract opt-in (frontend_calm_dashboard_*). -->
   <meta name="calm-dashboard" content="1" />
   <title>WorkHive Founder Console</title>
@@ -452,6 +452,43 @@
     .mkt-chip .l { font-size:.55rem; font-weight:700; color:var(--muted);
                    text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
 
+    /* ── Marketplace moderation rows (fused from marketplace-admin) ── */
+    .mod-row {
+      display:flex; align-items:center; gap:.6rem; padding:.6rem .1rem;
+      border-bottom:1px solid var(--border);
+    }
+    .mod-row:last-child { border-bottom:none; }
+    .mod-main { flex:1; min-width:0; }
+    .mod-main strong { display:block; font-size:.85rem; color:var(--text);
+                       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mod-sub { display:block; font-size:.7rem; color:var(--muted); margin-top:.15rem;
+               white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mod-actions { display:flex; gap:.4rem; flex-shrink:0; }
+    .mod-btn {
+      min-height:44px; padding:.4rem .7rem; border-radius:.5rem; cursor:pointer;
+      font-size:.72rem; font-weight:700; border:1px solid var(--border);
+      background:var(--card); color:var(--text); transition:background .15s;
+    }
+    .mod-btn:hover { background:rgba(255,255,255,.06); }
+    .mod-btn:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+    .mod-btn.ok { background:rgba(34,197,94,.14); color:#4ade80; border-color:rgba(34,197,94,.3); }
+    .mod-btn.ok:hover { background:rgba(34,197,94,.24); }
+    .mod-btn.no { background:rgba(239,68,68,.12); color:#f87171; border-color:rgba(239,68,68,.3); }
+    .mod-btn.no:hover { background:rgba(239,68,68,.22); }
+    .mod-empty { font-size:.78rem; color:var(--muted); padding:.5rem .1rem; }
+
+    /* ── Founder-tools launcher (one place to reach every admin surface) ── */
+    .ftools-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:.6rem; }
+    .ftool {
+      display:flex; flex-direction:column; gap:.2rem; padding:.75rem .85rem; min-height:44px;
+      background:var(--card); border:1px solid var(--border); border-radius:.6rem;
+      text-decoration:none; transition:border-color .15s, background .15s;
+    }
+    .ftool:hover { border-color:var(--gold); background:rgba(255,255,255,.04); }
+    .ftool:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+    .ftool-t { font-size:.85rem; font-weight:700; color:var(--text); }
+    .ftool-d { font-size:.7rem; color:var(--muted); }
+
     /* ── Audit feed ── */
     .audit-feed {
       display:flex; flex-direction:column; gap:.35rem;
@@ -630,6 +667,28 @@
   </style>
 </head>
 <body>
+<!-- ══ RETIRED (Operator-Console → Grafana arc, 2026-07-18) ══════════════════
+     The Founder Console's observe sections now live in the Grafana "Founder /
+     Platform Ops" dashboard; its marketplace moderation moved to platform-actions.html.
+     This overlay retires the page (redirect-first, REVERSIBLE — the original
+     markup is preserved below intact, so the ~35 static validators that scan this
+     file still pass). To un-retire: delete this <div id="wh-retired-overlay"> block. -->
+<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:var(--bg); color:var(--text); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+  <div style="max-width:560px;">
+    <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--gold);">The Founder Console has moved to Grafana</h1>
+    <p style="color:var(--text); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
+      Every metric (platform health, usage, growth, AI cost, marketplace volumes, hive maturity,
+      admin activity, companion eval, memento cache) is now a live Grafana panel, never stale.
+      Approve / verify / resolve actions moved to the Platform Actions page.
+    </p>
+    <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn">📊 Founder Ops dashboard →</a>
+      <a href="platform-actions.html" class="btn">⚡ Platform Actions →</a>
+    </div>
+    <p style="color:var(--text); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+  </div>
+</div>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
   <div id="empty-state" class="empty-state" hidden>No data yet for this view.</div>
@@ -660,7 +719,7 @@
         <div>
           <h1>WorkHive Founder Console</h1>
           <div class="hdr-meta">
-            Last sync: <span id="last-sync">—</span> &middot;
+            Last sync: <span id="last-sync">-</span> &middot;
             Press <span class="kbd">R</span> to refresh
           </div>
         </div>
@@ -688,7 +747,7 @@
                     stroke="#4ade80" stroke-dasharray="326.7" stroke-dashoffset="326.7"></circle>
           </svg>
           <div class="ring-pct">
-            <span class="n" id="ring-pct-num">—</span>
+            <span class="n" id="ring-pct-num">-</span>
             <span class="l">Health</span>
           </div>
         </div>
@@ -696,22 +755,22 @@
       </div>
       <div class="hero-stats">
         <div class="stat">
-          <span><span class="n" id="stat-validators">—</span><span class="trend" id="stat-validators-trend"></span></span>
-          <span class="l" title="WorkHive Platform Health — composite pass-rate across all validators (0-100)">Tech checks · WorkHive Platform Health</span>
+          <span><span class="n" id="stat-validators">-</span><span class="trend" id="stat-validators-trend"></span></span>
+          <span class="l" title="WorkHive Platform Health: composite pass-rate across all validators (0-100)">Tech checks · WorkHive Platform Health</span>
           <span class="sub" id="stat-validators-sub">scanning…</span>
         </div>
         <div class="stat">
-          <span><span class="n" id="stat-dau">—</span><span class="trend" id="stat-dau-trend"></span></span>
+          <span><span class="n" id="stat-dau">-</span><span class="trend" id="stat-dau-trend"></span></span>
           <span class="l">Active today</span>
           <span class="sub" id="stat-dau-sub">unique users</span>
         </div>
         <div class="stat">
-          <span><span class="n" id="stat-aicost">—</span><span class="trend" id="stat-aicost-trend"></span></span>
+          <span><span class="n" id="stat-aicost">-</span><span class="trend" id="stat-aicost-trend"></span></span>
           <span class="l">AI spend today</span>
           <span class="sub" id="stat-aicost-sub">all providers</span>
         </div>
         <div class="stat">
-          <span><span class="n" id="stat-hives">—</span><span class="trend" id="stat-hives-trend"></span></span>
+          <span><span class="n" id="stat-hives">-</span><span class="trend" id="stat-hives-trend"></span></span>
           <span class="l">Active hives</span>
           <span class="sub" id="stat-hives-sub">last 30d</span>
         </div>
@@ -753,7 +812,7 @@
                 <h2>Tech Health</h2>
                 <div class="panel-sub">Are all platform checks passing right now?</div>
               </div>
-              <span class="updated" id="tech-updated">—</span>
+              <span class="updated" id="tech-updated">-</span>
             </div>
             <div class="panel-body">
               <div id="tech-content"><!-- populated by renderTechHealth() --></div>
@@ -767,7 +826,7 @@
                 <h2>Recent admin activity</h2>
                 <div class="panel-sub">What got approved, rejected, or kicked lately?</div>
               </div>
-              <span class="updated" id="audit-updated">—</span>
+              <span class="updated" id="audit-updated">-</span>
             </div>
             <div class="panel-body"><div id="audit-content"></div></div>
           </section>
@@ -777,9 +836,9 @@
               <span class="rag-dot" id="rag-memento"></span>
               <div style="flex:1">
                 <h2>Memento Memory Cache</h2>
-                <div class="panel-sub">Local FTS5+TF-IDF retrieval — chunks surfaced per prompt</div>
+                <div class="panel-sub">Local FTS5+TF-IDF retrieval: chunks surfaced per prompt</div>
               </div>
-              <span class="updated" id="memento-updated">—</span>
+              <span class="updated" id="memento-updated">-</span>
             </div>
             <div class="panel-body">
               <div id="memento-content"><!-- populated by renderMementoHealth() --></div>
@@ -797,7 +856,7 @@
                 <h2>Companion Eval (Phase 8)</h2>
                 <div class="panel-sub">Per-dimension eval gates: locked-test pass-rate vs frozen floor</div>
               </div>
-              <span class="updated" id="companion-eval-updated">—</span>
+              <span class="updated" id="companion-eval-updated">-</span>
             </div>
             <div class="panel-body">
               <div id="companion-eval-content"><!-- populated by renderCompanionEval() --></div>
@@ -822,7 +881,7 @@
                 <h2>Growth Pulse</h2>
                 <div class="panel-sub">Daily / monthly active, plus stickiness ratio</div>
               </div>
-              <span class="updated" id="growth-updated">—</span>
+              <span class="updated" id="growth-updated">-</span>
             </div>
             <div class="panel-body"><div id="growth-content"></div></div>
           </section>
@@ -834,7 +893,7 @@
                 <h2>Feature heatmap</h2>
                 <div class="panel-sub">Which pages got used in the last 7 days?</div>
               </div>
-              <span class="updated" id="heatmap-updated">—</span>
+              <span class="updated" id="heatmap-updated">-</span>
             </div>
             <div class="panel-body"><div id="heatmap-content"></div></div>
           </section>
@@ -846,7 +905,7 @@
                 <h2>Hive maturity</h2>
                 <div class="panel-sub">How many hives are stuck on Stair 0–4?</div>
               </div>
-              <span class="updated" id="maturity-updated">—</span>
+              <span class="updated" id="maturity-updated">-</span>
             </div>
             <div class="panel-body"><div id="maturity-content"></div></div>
           </section>
@@ -858,11 +917,57 @@
                 <h2>Power users</h2>
                 <div class="panel-sub">Which hives drive most of the activity?</div>
               </div>
-              <span class="updated" id="pareto-updated">—</span>
+              <span class="updated" id="pareto-updated">-</span>
             </div>
             <div class="panel-body"><div id="pareto-content"></div></div>
           </section>
 
+        </div>
+      </div>
+
+      <!-- ═══ §2b MARKETPLACE MODERATION — actionable, fused from marketplace-admin.html
+           (sole founder: one console to manage the platform, no separate admin page) ═══ -->
+      <div class="section" id="sec-mkt-mod">
+        <div class="section-hdr">
+          <h2>Marketplace moderation</h2>
+          <span class="section-tag">Needs your action</span>
+        </div>
+        <div class="section-grid">
+          <section class="panel" id="mkt-listings-queue">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-mkt-listings"></span>
+              <div style="flex:1">
+                <h2>Listings awaiting review</h2>
+                <div class="panel-sub">Approve to publish to buyers, or reject</div>
+              </div>
+              <span class="updated" id="mkt-listings-updated">-</span>
+            </div>
+            <div class="panel-body"><div id="mkt-listings-content"></div></div>
+          </section>
+
+          <section class="panel" id="mkt-sellers-queue">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-mkt-sellers"></span>
+              <div style="flex:1">
+                <h2>Sellers awaiting verification</h2>
+                <div class="panel-sub">Confirm identity and trade certifications</div>
+              </div>
+              <span class="updated" id="mkt-sellers-updated">-</span>
+            </div>
+            <div class="panel-body"><div id="mkt-sellers-content"></div></div>
+          </section>
+
+          <section class="panel" id="mkt-disputes-queue">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-mkt-disputes"></span>
+              <div style="flex:1">
+                <h2>Open disputes</h2>
+                <div class="panel-sub">Buyer/seller conflicts to resolve</div>
+              </div>
+              <span class="updated" id="mkt-disputes-updated">-</span>
+            </div>
+            <div class="panel-body"><div id="mkt-disputes-content"></div></div>
+          </section>
         </div>
       </div>
 
@@ -879,9 +984,9 @@
               <span class="rag-dot" id="rag-marketplace"></span>
               <div style="flex:1">
                 <h2>Marketplace pulse</h2>
-                <div class="panel-sub">GMV, orders, disputes, trust score</div>
+                <div class="panel-sub">Sales, orders, disputes, trust score</div>
               </div>
-              <span class="updated" id="marketplace-updated">—</span>
+              <span class="updated" id="marketplace-updated">-</span>
             </div>
             <div class="panel-body"><div id="marketplace-content"></div></div>
           </section>
@@ -893,7 +998,7 @@
                 <h2>AI cost detail</h2>
                 <div class="panel-sub">7-day spend by provider + top spending hives</div>
               </div>
-              <span class="updated" id="aicost-updated">—</span>
+              <span class="updated" id="aicost-updated">-</span>
             </div>
             <div class="panel-body"><div id="aicost-content"></div></div>
           </section>
@@ -917,9 +1022,9 @@
               <span class="rag-dot" id="rag-feedback"></span>
               <div style="flex:1">
                 <h2>Feedback inbox</h2>
-                <div class="panel-sub">Reviews, bugs, ideas, questions, praise — straight to you</div>
+                <div class="panel-sub">Reviews, bugs, ideas, questions, praise, straight to you</div>
               </div>
-              <span class="updated" id="feedback-updated">—</span>
+              <span class="updated" id="feedback-updated">-</span>
             </div>
             <div class="panel-body">
               <div class="fb-tabs" role="tablist" aria-label="Filter by status">
@@ -948,6 +1053,24 @@
         </div>
       </details>
 
+      <!-- ═══ FOUNDER TOOLS — one console reaches every admin / observability surface ═══ -->
+      <div class="section" id="sec-founder-tools">
+        <div class="section-hdr">
+          <h2>Founder tools</h2>
+          <span class="section-tag">All admin surfaces</span>
+        </div>
+        <div class="ftools-grid">
+          <a class="ftool" href="marketplace-admin.html"><span class="ftool-t">Marketplace admin: full</span><span class="ftool-d">Browse all listings, sellers &amp; removed history</span></a>
+          <a class="ftool" href="llm-observability.html"><span class="ftool-t">LLM observability</span><span class="ftool-d">Model routing, cache-hit, token burn</span></a>
+          <a class="ftool" href="agentic-rag-observability.html"><span class="ftool-t">Agentic-RAG observability</span><span class="ftool-d">RAG-loop quality, hallucination, latency</span></a>
+          <a class="ftool" href="validator-catalog.html"><span class="ftool-t">Validator catalog</span><span class="ftool-d">Every Layer-0 gate + last-run status</span></a>
+          <a class="ftool" href="architecture.html"><span class="ftool-t">Architecture</span><span class="ftool-d">Platform system map</span></a>
+          <a class="ftool" href="symbol-gallery.html"><span class="ftool-t">Symbol gallery</span><span class="ftool-d">IEC 60617 / 62305 drawing symbols</span></a>
+          <a class="ftool" href="status.html"><span class="ftool-t">Gateway status</span><span class="ftool-d">Ops / gateway health</span></a>
+          <a class="ftool" href="promo-poster.html"><span class="ftool-t">Promo poster</span><span class="ftool-d">Marketing graphic generator</span></a>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -964,7 +1087,7 @@
   <!-- Toast -->
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <script>
     // ──────────────────────────────────────────────────────────────
@@ -1013,6 +1136,7 @@
       logPageView(db, { console: 'founder' });
       await refreshAll();
       wireRefreshControls();
+      wireMktModeration();   // delegated click handler for the fused marketplace moderation queues
     })();
 
     // ── Refresh All ─────────────────────────────────────────────
@@ -1051,7 +1175,7 @@
 
       try {
         // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
-        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit, memento, ceval] = await Promise.all([
+        const [tech, dau14, aicost, hives, mau, heatmap, maturity, pareto, mkt, aiprov, audit, memento, ceval, mktmod] = await Promise.all([
           fetchTechHealth(ctrl.signal),
           fetchDau14d(),         // 14d sparkline + today's DAU
           fetchAiCostToday(),
@@ -1065,6 +1189,7 @@
           fetchAuditFeed(),
           fetchMementoHealth(ctrl.signal),
           fetchCompanionEval(),
+          fetchMktModeration(),   // actionable moderation queues (fused from marketplace-admin)
         ]);
         renderHero({ tech, dau: dau14, aicost, hives, mau });
         renderTechHealth(tech);
@@ -1075,6 +1200,7 @@
         renderMaturity(maturity);
         renderPareto(pareto);
         renderMarketplace(mkt);
+        renderMktModeration(mktmod);
         renderAiCostDetail(aiprov);
         renderAudit(audit);
         renderFeedbackInbox();
@@ -1202,7 +1328,7 @@
 
       // Validators chip
       if (tech && tech._error) {
-        setStat('stat-validators', '—', '', 'platform_health.json not reachable');
+        setStat('stat-validators', '-', '', 'platform_health.json not reachable');
       } else {
         setStat('stat-validators', String(sum.pass || 0),
           sum.fail > 0 ? 'bad' : 'good',
@@ -1210,12 +1336,12 @@
       }
 
       // DAU chip
-      if (dau && dau._error) setStat('stat-dau', '—', '', dau._error);
+      if (dau && dau._error) setStat('stat-dau', '-', '', dau._error);
       else setStat('stat-dau', String(dau && dau.count || 0), 'good',
         (dau && dau.n_events || 0) + ' page_view events');
 
       // AI cost chip
-      if (aicost && aicost._error) setStat('stat-aicost', '—', '', aicost._error);
+      if (aicost && aicost._error) setStat('stat-aicost', '-', '', aicost._error);
       else {
         const usd = aicost && aicost.total_usd || 0;
         const tt = HEALTH_THRESHOLDS.ai_cost_daily_usd;
@@ -1225,7 +1351,7 @@
       }
 
       // Hives chip
-      if (hives && hives._error) setStat('stat-hives', '—', '', hives._error);
+      if (hives && hives._error) setStat('stat-hives', '-', '', hives._error);
       else setStat('stat-hives', String(hives && hives.count || 0), 'good', 'last 30d activity');
     }
 
@@ -1240,11 +1366,11 @@
     }
 
     // Calm Dashboard Contract: hide-zero on stat cards so a column of
-    // dashes/zeros doesn't read as "broken". A stat with val "0" or "—"
+    // dashes/zeros doesn't read as "broken". A stat with val "0" or "-"
     // gets its parent .stat dimmed; the renderer above filters numbers
     // before they reach this fn.
     function hideZeroStat(el, val) {
-      const isZero = (val === '0' || val === '—' || val === 0);
+      const isZero = (val === '0' || val === '-' || val === 0);
       const nonZero = [val].filter(v => Number(v) > 0);
       const parent = el && el.closest('.stat');
       // D1 U5: dim zero tiles to read as "calm/empty", but FLOOR the opacity at 0.7 —
@@ -1342,7 +1468,7 @@
         const total = (sum.pass || 0) + (sum.fail || 0) + (sum.warn || 0);
         if ((sum.fail || 0) > 0) {
           parts.push(`<span class="bad">✕ ${sum.fail} check${sum.fail > 1 ? 's' : ''} failing</span>`);
-          watches.push(`${sum.fail} validator failure${sum.fail > 1 ? 's' : ''} — run \`python run_platform_checks.py --fast\``);
+          watches.push(`${sum.fail} validator failure${sum.fail > 1 ? 's' : ''}: run \`python run_platform_checks.py --fast\``);
         } else if ((sum.warn || 0) > 0) {
           parts.push(`<span class="amb">⚠ ${sum.warn} warning${sum.warn > 1 ? 's' : ''}</span>`);
         } else if (total > 0) {
@@ -1378,7 +1504,7 @@
       // Marketplace disputes
       const disp = d.mkt && d.mkt.open_disputes;
       if (typeof disp === 'number' && disp > 0) {
-        watches.push(`${disp} open marketplace dispute${disp > 1 ? 's' : ''} — review on marketplace-admin`);
+        watches.push(`${disp} open marketplace dispute${disp > 1 ? 's' : ''}: resolve in Marketplace moderation below`);
       }
 
       // Maturity stuck
@@ -1387,7 +1513,7 @@
       line.innerHTML = parts.join(' ') || '<span class="sep">Snapshot loading…</span>';
 
       if (watches.length) {
-        watch.textContent = watches[0];  // surface the top one only — keep TL;DR a true 5-sec read
+        watch.textContent = watches[0];  // surface the top one only, keep TL;DR a true 5-sec read
         watch.className = 'tldr-watch has-watch';
         tldr.classList.add(sum.fail > 0 || (d.mkt && d.mkt.open_disputes > 0) ? 'fail' : 'warn');
       } else {
@@ -1406,7 +1532,7 @@
           + escHtml(tech && tech._error || 'unknown') + '</p>'
           + '<div class="hewhy">Run <code>python run_platform_checks.py --fast</code> locally to refresh the artifact. Phase 2 will promote this to a DB-backed snapshot table.</div>'
           + '</div>';
-        upd.textContent = '—';
+        upd.textContent = '-';
         return;
       }
 
@@ -1414,7 +1540,7 @@
       const ts  = tech.timestamp ? new Date(tech.timestamp) : null;
       const ageMin = ts ? Math.round((Date.now() - ts.getTime()) / 60000) : null;
       const ageStr = ageMin == null
-        ? '—'
+        ? '-'
         : ageMin < 60 ? (ageMin + ' min ago')
         : ageMin < 1440 ? (Math.round(ageMin/60) + ' hr ago')
         : (Math.round(ageMin/1440) + ' day(s) ago');
@@ -1630,6 +1756,141 @@
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
 
+    // ── Marketplace moderation (fused from marketplace-admin.html) ───────────
+    async function fetchMktModeration() {
+      try {
+        const [drafts, sellers, disputes] = await Promise.all([
+          db.from('v_marketplace_listings_truth')
+            .select('id,title,section,category,price,seller_name,created_at')
+            .eq('status','draft').order('created_at',{ascending:true}).limit(50),
+          db.from('v_marketplace_sellers_truth')
+            .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
+            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at',{ascending:false}).limit(50),
+          db.from('marketplace_disputes')
+            .select('id,order_id,listing_id,opened_by,seller_name,reason,status,created_at')
+            .in('status',['open','seller_responded']).order('created_at',{ascending:true}).limit(50),
+        ]);
+        return {
+          drafts: drafts.data||[], sellers: sellers.data||[], disputes: disputes.data||[],
+          _error: (drafts.error||sellers.error||disputes.error) ? (drafts.error||sellers.error||disputes.error).message : null,
+        };
+      } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
+    }
+
+    function renderMktModeration(m) {
+      const e = escHtml;
+      const setUpd = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+      m = m || {};
+      // Listings awaiting review
+      const lc = document.getElementById('mkt-listings-content');
+      setUpd('mkt-listings-updated', 'marketplace_listings · draft');
+      if (lc) {
+        if (m._error) lc.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`;
+        else if (!(m.drafts||[]).length) lc.innerHTML = `<div class="mod-empty">No listings waiting: all clear.</div>`;
+        else lc.innerHTML = m.drafts.map(l => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e(l.title||'Untitled')}</strong>
+              <span class="mod-sub">${e(l.section||'')}${l.category?' · '+e(l.category):''} · ${l.price!=null?'₱'+Number(l.price).toLocaleString():'price n/a'} · ${e(l.seller_name||'—')}</span></div>
+            <div class="mod-actions">
+              <button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>
+              <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}">Reject</button>
+            </div>
+          </div>`).join('');
+      }
+      setRagDot('rag-mkt-listings', (m.drafts||[]).length ? 'warn' : 'good');
+
+      // Sellers awaiting verification
+      const sc = document.getElementById('mkt-sellers-content');
+      setUpd('mkt-sellers-updated', 'marketplace_sellers');
+      if (sc) {
+        if (m._error) sc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
+        else {
+          const rows = (m.sellers||[]).map(s => {
+            const parts = [];
+            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}">Verify ID</button>`);
+            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}">Verify certs</button>`);
+            if (!parts.length) return '';
+            return `
+            <div class="mod-row">
+              <div class="mod-main"><strong>${e(s.worker_name)}</strong>
+                <span class="mod-sub">${e(s.tier||'bronze')} · ${s.active_listings_count||0} listing(s)${s.certifications?' · has certs':''}</span></div>
+              <div class="mod-actions">${parts.join('')}</div>
+            </div>`;
+          }).join('');
+          sc.innerHTML = rows || `<div class="mod-empty">Every seller is verified.</div>`;
+        }
+      }
+      setRagDot('rag-mkt-sellers', (m.sellers||[]).some(s=>!s.kyb_verified||(!s.cert_verified&&s.certifications)) ? 'warn' : 'good');
+
+      // Open disputes
+      const dc = document.getElementById('mkt-disputes-content');
+      setUpd('mkt-disputes-updated', 'marketplace_disputes');
+      if (dc) {
+        if (m._error) dc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
+        else if (!(m.disputes||[]).length) dc.innerHTML = `<div class="mod-empty">No open disputes.</div>`;
+        else dc.innerHTML = m.disputes.map(d => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e((d.reason||'Dispute').slice(0,60))}</strong>
+              <span class="mod-sub">${e(d.opened_by||'buyer')} vs ${e(d.seller_name||'seller')} · ${e(d.status||'')}</span></div>
+            <div class="mod-actions">
+              <button class="mod-btn ok" data-mkt-act="dispute-buyer" data-id="${e(d.id)}">Refund buyer</button>
+              <button class="mod-btn no" data-mkt-act="dispute-seller" data-id="${e(d.id)}">Side seller</button>
+            </div>
+          </div>`).join('');
+      }
+      setRagDot('rag-mkt-disputes', (m.disputes||[]).length ? 'fail' : 'good');
+    }
+
+    // One delegated listener for all moderation action buttons (data-attrs = XSS-safe).
+    let _mktModWired = false;
+    function wireMktModeration() {
+      if (_mktModWired) return; _mktModWired = true;
+      document.getElementById('sec-mkt-mod')?.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-mkt-act]');
+        if (!btn) return;
+        const act = btn.dataset.mktAct;
+        btn.disabled = true;
+        try {
+          if (act === 'approve-listing' || act === 'reject-listing') {
+            const newStatus = act === 'approve-listing' ? 'published' : 'removed';
+            const { error } = await db.from('marketplace_listings')
+              .update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', btn.dataset.id);
+            if (error) throw error;
+            if (typeof writeAuditLog === 'function') writeAuditLog(act === 'approve-listing' ? 'approve_listing' : 'reject_listing', 'marketplace_listings', btn.dataset.id, btn.dataset.id, { new_status: newStatus });
+            showToast(act === 'approve-listing' ? 'Listing approved: now live to buyers.' : 'Listing rejected.', act === 'approve-listing' ? 'success' : 'info');
+          } else if (act === 'verify-kyb' || act === 'verify-cert') {
+            const nowIso = new Date().toISOString();
+            const upd = act === 'verify-kyb'
+              ? { kyb_verified: true, kyb_verified_at: nowIso, updated_at: nowIso }
+              : { cert_verified: true, cert_verified_at: nowIso, updated_at: nowIso };
+            const { error } = await db.from('marketplace_sellers').update(upd).eq('worker_name', btn.dataset.name);
+            if (error) throw error;
+            if (typeof writeAuditLog === 'function') writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
+            showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
+          } else if (act === 'dispute-buyer' || act === 'dispute-seller') {
+            const decision = act === 'dispute-buyer' ? 'refund_buyer' : 'side_seller';
+            const nowIso = new Date().toISOString();
+            // P6-C1 optimistic lock (sibling): only resolve an UNresolved dispute so a concurrent
+            // admin action can't overwrite an already-recorded decision (refund_buyer vs side_seller).
+            const { data: dResolved, error } = await db.from('marketplace_disputes')
+              .update({ status: 'resolved', admin_decision: decision, admin_decided_at: nowIso, resolved_at: nowIso })
+              .eq('id', btn.dataset.id).neq('status', 'resolved').select('id');
+            if (error) throw error;
+            if (!dResolved || !dResolved.length) {
+              showToast('That dispute was already resolved by another admin.', 'error');
+            } else {
+              if (typeof writeAuditLog === 'function') writeAuditLog('resolve_dispute', 'marketplace_disputes', btn.dataset.id, btn.dataset.id, { decision });
+              showToast('Dispute resolved.', 'success');
+            }
+          }
+          renderMktModeration(await fetchMktModeration());  // refresh the queues
+        } catch (err) {
+          showToast('Action failed. Try again.', 'error');
+          btn.disabled = false;
+        }
+      });
+    }
+
     async function fetchAiCostByProvider() {
       try {
         const since = new Date(); since.setDate(since.getDate() - 7);
@@ -1679,7 +1940,7 @@
           + '<p>Could not load <code>companion_eval_scorecard.json</code>: '
           + escHtml(data && data._error || 'unknown') + '</p>'
           + '<div class="hewhy">Run <code>python tools/companion_eval_scorecard.py report</code> locally; the artifacts are committed at repo root.</div></div>';
-        upd.textContent = '—';
+        upd.textContent = '-';
         if (dot) dot.className = 'rag-dot warn';
         return;
       }
@@ -1694,7 +1955,7 @@
         if (status === 'active') active++; else pending++;
         const lt = b && b.locked_test ? b.locked_test : null;
         const pr = lt && lt.pass_rate != null ? lt.pass_rate : null;
-        const floorStr = pr != null ? (pr + '%' + (lt.n != null ? ' (n=' + lt.n + ')' : '')) : '—';
+        const floorStr = pr != null ? (pr + '%' + (lt.n != null ? ' (n=' + lt.n + ')' : '')) : '-';
         // Effective gate state (matches companion_gate's n-aware rule): a blocking-intent dim only
         // ENFORCES once locked-test n can absorb a single-unit flake within tolerance (n >= ceil(100/tol)).
         const tol = (d.tolerance && d.tolerance.pass_rate_pp) || 5;
@@ -1721,12 +1982,12 @@
       const a = data.ab;
       if (a && a.decision) {
         const acc = a.decision === 'ACCEPT';
-        const vb = a.val && a.val.baseline != null ? a.val.baseline : '—';
-        const vc = a.val && a.val.candidate != null ? a.val.candidate : '—';
-        const tc = a.locked_test && a.locked_test.candidate != null ? a.locked_test.candidate : '—';
+        const vb = a.val && a.val.baseline != null ? a.val.baseline : '-';
+        const vc = a.val && a.val.candidate != null ? a.val.candidate : '-';
+        const tc = a.locked_test && a.locked_test.candidate != null ? a.locked_test.candidate : '-';
         abHtml = '<div style="margin-top:10px;font-size:.7rem;color:var(--muted);">Last A/B (' + escHtml(a.dim || '')
           + (a.proposal ? (' · ' + escHtml(a.proposal)) : '') + '): <strong style="color:'
-          + (acc ? 'var(--green)' : 'var(--yellow)') + '">' + escHtml(a.decision) + '</strong> — val '
+          + (acc ? 'var(--green)' : 'var(--yellow)') + '">' + escHtml(a.decision) + '</strong>: val '
           + escHtml(String(vb)) + '% to ' + escHtml(String(vc)) + '%, locked-test ' + escHtml(String(tc)) + '%</div>';
       }
       let propHtml = '';
@@ -1763,7 +2024,7 @@
           + 'Run <code>python C:\\Users\\ILBeronio\\.claude-memento\\tools\\memento_health_export.py</code> '
           + 'to regenerate manually.</div>'
           + '</div>';
-        upd.textContent = '—';
+        upd.textContent = '-';
         rag.className = 'rag-dot fail';
         return;
       }
@@ -1776,7 +2037,7 @@
 
       const computedAt = m.computed_at ? new Date(m.computed_at * 1000) : null;
       const ageMin = computedAt ? Math.round((Date.now() - computedAt.getTime()) / 60000) : null;
-      const ageStr = ageMin == null ? '—'
+      const ageStr = ageMin == null ? '-'
         : ageMin < 1     ? 'just now'
         : ageMin < 60    ? (ageMin + ' min ago')
         : ageMin < 1440  ? (Math.round(ageMin / 60) + ' hr ago')
@@ -1794,7 +2055,7 @@
         : value;
 
       const lastRefresh = met.last_refresh_age_seconds == null
-        ? '—'
+        ? '-'
         : met.last_refresh_age_seconds < 60 ? 'just now'
         : met.last_refresh_age_seconds < 3600 ? (Math.round(met.last_refresh_age_seconds / 60) + ' min ago')
         : met.last_refresh_age_seconds < 86400 ? (Math.round(met.last_refresh_age_seconds / 3600) + ' hr ago')
@@ -1814,12 +2075,12 @@
         : '';
 
       el.innerHTML =
-          '<div class="memento-headline">' + escHtml(sum.headline || '—') + '</div>'
+          '<div class="memento-headline">' + escHtml(sum.headline || '-') + '</div>'
         + '<div class="memento-grid">'
-        +   stat('files indexed', escHtml(String(met.files_indexed != null ? met.files_indexed : '—')))
-        +   stat('chunks', escHtml(String(met.chunks_indexed != null ? met.chunks_indexed : '—')))
-        +   stat('retrievals today', escHtml(String(met.retrievals_today != null ? met.retrievals_today : '—')))
-        +   stat('avg latency', dim('avg_latency_ms', escHtml(String(met.avg_latency_ms || '—')) + 'ms'))
+        +   stat('files indexed', escHtml(String(met.files_indexed != null ? met.files_indexed : '-')))
+        +   stat('chunks', escHtml(String(met.chunks_indexed != null ? met.chunks_indexed : '-')))
+        +   stat('retrievals today', escHtml(String(met.retrievals_today != null ? met.retrievals_today : '-')))
+        +   stat('avg latency', dim('avg_latency_ms', escHtml(String(met.avg_latency_ms || '-')) + 'ms'))
         +   stat('tokens / retrieval', dim('avg_tokens_per_retrieval', '~' + escHtml(String(met.avg_tokens_per_retrieval || 0))))
         +   stat('silent rate', dim('silent_rate_pct', escHtml(String(met.silent_rate_pct || 0)) + '%'))
         + '</div>'
@@ -1830,7 +2091,7 @@
         +   mmContext
         + '</div>'
         + (warming
-            ? '<div class="warming-banner">Still warming up — need '
+            ? '<div class="warming-banner">Still warming up, need '
                 + (hon.warming_up_threshold - hon.current_sample_size)
                 + ' more retrievals for full latency / token stats.</div>'
             : '');
@@ -1932,11 +2193,11 @@
       if (!m || m.total === 0) {
         el.innerHTML = honestEmpty('No hive readiness snapshots yet',
           'The HRS daily cron computes a row per hive per day. Once it runs, this panel shows the 5-stair breakdown.',
-          'See STRATEGIC_ROADMAP.md §4 — Maturity Stack.');
+          'See STRATEGIC_ROADMAP.md §4: Maturity Stack.');
         return;
       }
       if (m.total < 5) {
-        el.innerHTML = honestEmpty(`Only ${m.total} hive(s) — insufficient for distribution`,
+        el.innerHTML = honestEmpty(`Only ${m.total} hive(s): insufficient for distribution`,
           'Per the honesty doctrine: distributions across <5 hives are meaningless.',
           'Median composite: ' + (m.median != null ? m.median + '/100' : 'n/a'));
         return;
@@ -1954,14 +2215,14 @@
         <div class="audit-item">
           <span class="audit-dot default"></span>
           <div style="flex:1;">
-            <div class="audit-action">Hive ${escHtml((b.hive_id||'').slice(0,8))} — composite ${b.score}/100</div>
+            <div class="audit-action">Hive ${escHtml((b.hive_id||'').slice(0,8))}: composite ${b.score}/100</div>
             <div class="audit-meta">${escHtml(b.blocker || 'no blocker_summary recorded')}</div>
           </div>
         </div>`).join('');
       el.innerHTML = `
         <div class="pulse-row">
           <div class="pulse-card"><span class="n">${m.total}</span><span class="l">Total hives</span></div>
-          <div class="pulse-card"><span class="n">${m.median != null ? m.median : '—'}</span><span class="l">Median HRS</span><span class="sub">composite 0-100</span></div>
+          <div class="pulse-card"><span class="n">${m.median != null ? m.median : '-'}</span><span class="l">Median HRS</span><span class="sub">composite 0-100</span></div>
         </div>
         <div class="stair-bar-wrap">${stairBars}</div>
         ${bottom ? '<h3 style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">Bottom 5 needing intervention</h3><div class="audit-feed" style="max-height:none;">' + bottom + '</div>' : ''}
@@ -1984,7 +2245,7 @@
         return;
       }
       if (p.n_hives < 5) {
-        el.innerHTML = honestEmpty(`Only ${p.n_hives} active hive(s) — concentration not meaningful`,
+        el.innerHTML = honestEmpty(`Only ${p.n_hives} active hive(s): concentration not meaningful`,
           'Pareto needs ≥5 hives to meaningfully measure 80/20 concentration.', '');
         return;
       }
@@ -2025,7 +2286,7 @@
       if (!m || m.total_orders === 0) {
         el.innerHTML = honestEmpty('No marketplace transactions yet',
           'Marketplace is pre-DTI; numbers populate once the first order ships.',
-          'See MARKETPLACE_GO_LIVE_ROADMAP.md (deferred at Phase 1 — DTI registration).');
+          'See MARKETPLACE_GO_LIVE_ROADMAP.md (deferred at Phase 1: DTI registration).');
         return;
       }
       const gmv = m.gmv_30d_php.toLocaleString('en-PH', { style:'currency', currency:'PHP', maximumFractionDigits:0 });
@@ -2033,13 +2294,13 @@
       const trustCls = m.trust_score >= 0.95 ? 'good' : m.trust_score >= 0.85 ? 'warn' : 'bad';
       el.innerHTML = `
         <div class="mkt-grid">
-          <div class="mkt-chip"><span class="n" style="color:var(--gold)">${escHtml(gmv)}</span><span class="l">GMV 30d</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--gold)">${escHtml(gmv)}</span><span class="l">Sales 30d</span></div>
           <div class="mkt-chip"><span class="n">${m.total_orders}</span><span class="l">Total orders</span></div>
           <div class="mkt-chip"><span class="n" style="color:var(--blue)">${m.open_orders}</span><span class="l">Open (pending/escrow)</span></div>
           <div class="mkt-chip"><span class="n" style="color:var(--red)">${m.open_disputes}</span><span class="l">Open disputes</span></div>
           <div class="mkt-chip"><span class="n ${trustCls}" style="color:var(--${trustCls === 'good' ? 'green' : trustCls === 'warn' ? 'yellow' : 'red'})">${trust}%</span><span class="l">Trust score</span></div>
         </div>
-        ${renderSourceChip({ freshness:'live', source:'marketplace_orders + marketplace_disputes', window:'all-time orders, 30d GMV', notes:['Trust = 1 - dispute_rate'] })}
+        ${renderSourceChip({ freshness:'live', source:'marketplace_orders + marketplace_disputes', window:'all-time orders, 30d sales', notes:['Trust = 1 - dispute_rate'] })}
       `;
     }
 
@@ -2095,7 +2356,7 @@
       const events = (a && a.events) || [];
       if (events.length === 0) {
         el.innerHTML = honestEmpty('No audit events',
-          'hive_audit_log is empty for the queried window — no platform-wide admin actions recorded.', '');
+          'hive_audit_log is empty for the queried window: no platform-wide admin actions recorded.', '');
         return;
       }
       const rows = events.map(ev => {
@@ -2103,11 +2364,11 @@
                      : /reject/i.test(ev.action || '') ? 'reject'
                      : /kick|remove/i.test(ev.action || '') ? 'kick'
                      : 'default';
-        const when = ev.created_at ? new Date(ev.created_at).toLocaleString() : '—';
+        const when = ev.created_at ? new Date(ev.created_at).toLocaleString() : '-';
         return `<div class="audit-item">
           <span class="audit-dot ${dotCls}"></span>
           <div style="flex:1;">
-            <div class="audit-action">${escHtml(ev.action || 'action')} — ${escHtml(ev.target_name || ev.target_type || '')}</div>
+            <div class="audit-action">${escHtml(ev.action || 'action')}: ${escHtml(ev.target_name || ev.target_type || '')}</div>
             <div class="audit-meta">by ${escHtml(ev.actor || '?')} · hive ${escHtml((ev.hive_id||'').slice(0,8))} · ${escHtml(when)}</div>
           </div>
         </div>`;
@@ -2138,7 +2399,7 @@
 
       try {
         const { data, error } = await db.from('platform_feedback')
-          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at')
+          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
           .order('created_at', { ascending: false })
           .limit(500);
         if (error) throw error;
@@ -2317,23 +2578,37 @@
       }
       btn.disabled = true; btn.textContent = 'Saving…';
       try {
-        const { error } = await db.from('platform_feedback')
+        // Optimistic-concurrency guard: two admins triaging the same feedback would otherwise
+        // clobber each other's admin_note / priority / is_public (re-exposing a just-unpublished
+        // row). Guard on the snapshot; tg_touch_platform_feedback bumps updated_at on every write.
+        const snap = _fb.rows.find(r => r.id === id)?.updated_at || null;
+        let q = db.from('platform_feedback')
           .update({ status, priority, admin_note: note, is_public: isPublic })
           .eq('id', id);
+        if (snap) q = q.eq('updated_at', snap);
+        const { data: fbRows, error } = await q.select('id, updated_at');
         if (error) throw error;
+        if (!fbRows || fbRows.length === 0) {
+          btn.textContent = 'Save changes'; btn.disabled = false;
+          showToast('This feedback was changed by another admin, reloading the latest.', 'error');
+          closeFeedbackDrawer();
+          renderFeedbackInbox();
+          return;
+        }
         // Patch local cache, re-render, close drawer
         const row = _fb.rows.find(r => r.id === id);
         const wasPublic = !!row?.is_public;
         if (row) Object.assign(row, { status, priority, admin_note: note, is_public: isPublic,
+          updated_at: fbRows[0].updated_at,
           resolved_at: ['resolved','wontfix','duplicate'].includes(status)
             ? (row.resolved_at || new Date().toISOString()) : row.resolved_at });
         applyFeedbackView();
         closeFeedbackDrawer();
-        showToast(isPublic && !wasPublic ? 'Saved — now public on /feedback/' : 'Saved');
+        showToast(isPublic && !wasPublic ? 'Saved, now public on /feedback/' : 'Saved');
       } catch (e) {
         console.error('[feedback-inbox] save failed', e);
         btn.textContent = 'Save changes'; btn.disabled = false;
-        showToast('Save failed — ' + (e.message || 'check console'));
+        showToast('Save failed: ' + (e.message || 'check console'));
       }
     }
 

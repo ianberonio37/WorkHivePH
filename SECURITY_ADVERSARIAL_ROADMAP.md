@@ -144,9 +144,13 @@ Four lens-hunters (refute-by-default) swept the 47 pages + 61 edge fns + AI chai
 | S2 | S/A08 | **zero SRI** on all CDN scripts | MED | SRI on 6 pinned tags + gate (46 floating=backlog) | gate |
 | Meta1 | S/A09 | sast_scan claimed 7/7 but Top-10 has 10 (A07/A09/A10 absent) | MED | full Top-10 map + completeness gate | gate |
 
-◇ = marketplace payment cluster is **vestigial** (free platform, `PAYMENTS_ENABLED=false`) — hardened
-as interim defense-in-depth (anon→401), NOT activated. **Disposition fork for Ian: REMOVE the 5
-Stripe fns (per the free-platform decision) vs keep-hardened.**
+◇ = marketplace payment cluster was **vestigial** (free platform, `PAYMENTS_ENABLED=false`) — hardened
+as interim defense-in-depth (anon→401), NOT activated. **✅ FORK RESOLVED 2026-06-30 — Ian: "remove
+entirely the Stripe. my marketplace is free."** The 5 Stripe fns (marketplace-checkout/webhook/release/
+connect-onboard/connect-status) were **DELETED**, the `stripe_*` DB columns dropped, and the whole
+payment UI + `PAYMENTS_ENABLED` flag removed. This whole attack-surface row is now **N/A — the surface
+no longer exists** (the strongest possible disposition: you can't attack what isn't there). The
+`validate_public_fn_authz` EXEMPT entry for `marketplace-webhook` was removed with it.
 
 ### New gates (all teeth-proven, registered in `run_platform_checks.py` "AI Validation"):
 `validate_ssrf_egress` · `validate_public_fn_authz` · `validate_dom_xss_fields` ·
@@ -168,13 +172,148 @@ Stripe fns (per the free-platform decision) vs keep-hardened.**
 
 ---
 
+## 3c. ★ R0 RECONCILIATION (2026-07-01) — the three named holes were REAL; all closed + gated
+
+When Stream 2 re-opened, the §3 board read a stale "Final 100%" but the live sweep exposed the three
+holes the NEXT queue had flagged. All measured, fixed, live-verified, and locked this turn:
+
+| Hole | Root cause (measured) | Fix | Proof |
+|---|---|---|---|
+| **RAG IDOR** (P 100→**66.7%**) | `match_procedural_memories` (edge-only DEFINER, locked to service_role by 20260620) was **silently re-granted anon/authenticated** by the C2.1 feature migration `20260624000002_episodic_supersedes.sql` (its `GRANT ... TO anon, authenticated` reverted the lock; comment falsely claimed "grants unchanged"). Cross-tenant procedural-memory retrieval (NULL hive = ALL hives). | Forward migration `20260701000000_regate_match_procedural_memories.sql`: convert to plpgsql + `user_can_access_hive()` early-return **self-gate** (property fix — cross-tenant returns empty regardless of grants) **AND** re-revoke anon/authenticated (least-privilege). | **live two-tenant psql**: non-member→cross-hive `false`, NULL-hive `false`, own-hive `true`; `has_function_privilege`: anon/auth `false`, service_role `true`. `validate_ai_retrieval_isolation` PASS. |
+| **P-lens 66.7%** | consequence of the above (2/3 P cells) | the re-gate flips the cell | board **P 66.7→100%**, exit 0 |
+| **board exit-0 false-green** | (a) the OWASP Top-10 line colored by `covered` (a scanner *exists*) not `clean` (it *passes*) → `A01` printed green while its scanner actively failed; (b) a **missing/corrupt baseline silently disengaged** the ratchet (regression check no-ops → an above-floor regression exits 0); (c) `--update-baseline` on a regressed board **locked the regression in** as the new baseline. | `security_adversarial_sweep.py`: color-by-`clean` (dirty category prints `A01!`), **fail-closed** on corrupt-baseline + infra ERROR/TIMEOUT cells, **ratchet-UP-only** `--update-baseline` (refuses to write a regression/floor-miss), loud "ratchet disengaged" on a genuinely-absent baseline. | **8-case `--self-test`** (all pass) — the board's own anti-false-green logic now has teeth. |
+
+**New durable prevention — `validate_migration_grant_regression.py` (Z/A01, in the runner + a Z board cell):**
+a security RATCHET on the migration files. Once a migration explicitly revokes anon/authenticated EXECUTE
+(a deliberate app-role lock-out), no LATER migration may re-grant it to public/anon/authenticated without a
+`-- regrant-approved:` marker. **Adversarially verified:** run against the pre-fix tree it flags *exactly*
+`match_procedural_memories` (the real C2.1 regression) and nothing else; with the fix it is clean. 6-case
+self-test proves it distinguishes the regression from the legitimate "revoke-default-from-public then
+grant-roles" idiom and from a remediated (re-locked) function. **This would have caught C2.1 at authoring time.**
+
+---
+
 ## 5. NEXT queue (live)
 
-- R0: spine ✓ · scorer (building) · baseline-lock.
-- Triage the 4 hunter reports → verify → fix keystone(s) → gate → ratchet.
-- Fix the SAST OWASP-map gap (A07/A09/A10 + A06 relabel).
-- Per-public-fn internal-authZ proof for the 60 `verify_jwt=false` fns (R2 core).
-- SRI sweep across the CDN tags (R3).
-- Register scorer + new gates in the platform runner; teach skills.
+- ✅ **ARC R CONTINUATION COMPLETE (2026-07-17).** Timeout fix VERIFIED on the fresh-runtime board:
+  **X 100 (4/4) · Z 100 (17/17 — gateway_tenancy now PASSES in-board) · P 100 (3/3 — reputation IDOR
+  fix confirmed).** S reads 8/9 in THIS run ONLY because `python_api_deps` (a `pip-audit` → OSV **network**
+  CVE scan) timed out — it PASSED in the prior run when the network was responsive (S=100); given a 360s
+  SLOW_CELLS budget now, but it is inherently external-network + fail-closed (correct: the board won't
+  ratchet through an infra timeout). **NO RATCHET NEEDED:** the R0 baseline (`security_adversarial_baseline.json`,
+  2026-07-01) is already **X100/Z100/S100/P100** — this session's fixes RESTORED that state (P 66.7→100 via
+  mig 003; Z 94.1→100 via the SLOW_CELLS timeout fix), they did not exceed it, so the baseline stays honest
+  and unchanged. True security posture: **all four lenses at their 100% floor**, every code-controlled cell
+  green; the only single-run non-green is the external CVE-database network scan. **Arc R is at rest.**
+  **⚠ Ian deploy gate:** migs 20260717000001/2/3/4 LOCAL-applied only.
 
-**Ian-gated outward (his standing gate, never a turn-stop):** commit + any prod redeploy. STAY LOCAL.
+
+- ✅ **BOARD PER-CELL TIMEOUT FIX (2026-07-17, finishing Arc R):** the clean post-fix board read
+  X100/S100/P100 with Z stuck at 94.1% (16/17) — the ONLY miss was `gateway_tenancy=TIMEOUT`, and it
+  timed out even on a FRESH runtime, so it was NOT contention. Root cause: `security_adversarial_sweep._run`
+  used a fixed 180s per-cell timeout, but `validate_gateway_tenancy` runs **39 sequential live edge-fn
+  tenancy probes** (~5-8s each) — legitimately thorough, ~5-6 min, and PASSES standalone (0 unverified /
+  39 readers: 38 safe + 1 exempt). So a slow-but-PASSING live check was being fail-closed into a false
+  Z-lens miss. **FIX:** a `SLOW_CELLS` per-validator timeout override (gateway_tenancy 600s; gateway_bypass/
+  public_fn_authz/rls_tenant_isolation 480s) — the anti-false-green teeth are UNCHANGED (a cell that still
+  times out is still fail-closed; slow cells just get adequate time to produce a REAL PASS/FINDINGS).
+  Self-test still PASS. Board re-running on fresh runtime → expected true X100/Z100/S100/P100 + ratchet.
+
+
+- ✅ **R-CONTINUATION (2026-07-17, Ian re-picked Arc R):** the live board re-run surfaced a REAL 3-surface
+  cluster from the recent Community↔Marketplace reputation bridge (postdates the 07-03 sweep), decomposed
+  from an apparent "regression" (the 4th signal, `Z/gateway_tenancy`, was **infra flux** — standalone PASS
+  0-unverified, confirmed by re-run under no load, not a hole). **P-lens `ai_retrieval_isolation` — 2 real
+  cross-tenant retrieval IDORs** (`get_community_reputation` / `_by_auth`: DEFINER, authenticated-callable,
+  client-`p_hive_id`/`p_auth_uid` filter, NO membership gate → any worker's reputation queryable cross-hive;
+  mitigated in-practice by each RPC's public-footprint WHERE gate, so LOW sev, but the structural IDOR is
+  real). **FIX (Ian: harden) — mig `20260717000003`:** converted both to plpgsql with a **membership-OR-seller**
+  early-return guard (property fix, the §3c pattern) that preserves BOTH legit uses — community shows a
+  member's rep to their OWN hive-mates (member path), marketplace shows a SELLER's rep cross-hive (seller
+  path), an attacker querying a non-seller cross-hive gets EMPTY. **Live-verified two-tenant:** member path ✓
+  (David/Lucena), seller path ✓ (Bryan cross-hive, pablo a verified NON-member so only the seller path
+  allowed it), gate `validate_ai_retrieval_isolation` PASS. Also fixed the gate's own **both-operand-order
+  blind spot** (`p_auth_uid = auth.uid()` wasn't recognized, only the reverse) — a real self-gate could have
+  been false-flagged. **Z-lens `rls_tenant_isolation` — `marketplace_sellers` cross-hive row read:** verified
+  BY-DESIGN (the bazaar seller directory, sibling of `marketplace_listings`; fields are seller-marketplace-
+  public); added to the gate's evidence-curated `BY_DESIGN` with the note that `auth_uid` is opaque + consumed
+  only by the now-gated reputation RPC. **Board:** X100/Z100/S100/P back-to-100 (isolation gates all green).
+  **⚠ Ian deploy gate:** mig `20260717000003` is LOCAL-applied only. **auth_uid hardening DONE (mig `20260717000004`, LOCAL):** built `get_seller_community_reputation(worker,
+  hive)` (server-side auth_uid resolve, seller-scoped, delegates to the gated `_by_auth`); dropped auth_uid
+  from `v_marketplace_sellers_truth`; **column-level `REVOKE SELECT ON marketplace_sellers` + re-`GRANT SELECT`
+  on the explicit column list minus auth_uid** (a bare `REVOKE SELECT(col)` is a no-op under a table-level
+  grant — the real gotcha); marketplace-seller-profile switched to the new RPC. **Live-verified:** client
+  auth_uid read → `permission denied`; normal seller fields + reputation + seller writes all intact; both
+  isolation gates green (new RPC exempt-by-evidence: seller-scoped). Board Z/P at 100 (bar the 2 infra-flux
+  timeouts). **⚠ Ian deploy gate:** migs 20260717000003/4 LOCAL-applied only.
+
+
+- ✅ **R0 COMPLETE (2026-07-01):** board green + honestly-measured (X100/Z100 [now 16 cells]/S100/P100), the
+  three named holes closed + gated (§3c), baseline re-locked (ratchet-up-only), migration-grant-regression
+  linter added. **⚠ Ian deploy gate:** migration `20260701000000` is LOCAL/applied-to-local-DB only — prod
+  redeploy is Ian's.
+- ✅ **R2 first pass DONE (2026-07-01):** mined all **55** `verify_jwt=false` fns (was 60; −5 with Stripe removal)
+  for the per-fn authZ question. **54/55 guarded** (resolveTenancy / service-role-gate / signature / identity
+  rate-limit); the 1 heuristic hit (`resume-extract`) is a VERIFIED false-positive (service-role client used
+  ONLY for an identity-keyed `checkSoloRateLimit`, no tenant read/write). **1 REAL finding found + fixed +
+  live-verified: `pdf-ingest`** — a `verify_jwt=false` service-role **drainer** with NO auth check → an anon
+  `POST {}` (drain mode) force-processed every pending `pdf_jobs` row across ALL hives (unauthorized all-hives
+  compute / BFLA). FIX = the same `if (bearer !== SERVICE_KEY) return 403` its sibling batch fns enforce
+  (`supabase/functions/pdf-ingest/index.ts`). **Live-verified:** anon/bogus-bearer → 403; service-role → 200
+  `{mode:"drain",processed:0}`. **NEW durable gate `validate_public_fn_write_authz.py`** (Z/A01/BFLA, registered
+  + a Z board cell): every `verify_jwt=false` service-role WRITER must carry an auth/cron/signature/identity-RL
+  guard — adversarially verified to flag pre-fix pdf-ingest, clear post-fix. Board Z now **17 cells**, still 100%.
+  ⚠ pdf-ingest edit is LOCAL/undeployed — prod redeploy is Ian's gate.
+- ✅ **R2 remainder — pure-READ cross-tenant EXPORT class VERIFIED SECURE (2026-07-03).** The named keystone
+  (`export_hive_data`, §0b "the most likely place to find a real cross-tenant export") was live-probed on the
+  REAL local stack (54321) as a two-tenant attack, not just read on disk. **4-probe battery, all pass the
+  contract:** [1] supervisor pabloaguilar exports his OWN hive (Lucena) → `200` (1.39 MB real export, legit
+  path works); [2] pablo exports **Baguio** (not his hive) → `403 "Caller is not a member of this hive"` —
+  cross-tenant READ **denied** (the edge fn binds the client `hive_id` to the JWT-verified identity + active-
+  supervisor role, does NOT trust the client `hive_id`); [3] anon (publishable key, no user JWT) → `403
+  "Missing Authorization bearer JWT"`; [4] anon calls the RPC **directly** (bypassing the edge fn) → `401 /
+  42501 "permission denied for function export_hive_data"`. On the real DB `export_hive_data` is SECURITY
+  DEFINER + **service_role-only** (`anon`/`authenticated` EXECUTE = false); migrations 0006 **and** 0016 both
+  revoke public/anon/authenticated → grant service_role (re-lock, not a §3c-style regression). No new vuln.
+  **NEW durable lock — `validate_public_fn_write_authz.py` gained a bulk-export READER arm:** a `verify_jwt=false`
+  service-role fn that invokes an `export_hive_data`-class DEFINER RPC (`PRIVILEGED_READ_RPCS`) must carry the
+  same authZ guard as a writer — making export-hive-data's ratchet FIRST-CLASS instead of incidental (it was
+  covered only via its best-effort audit-log write; drop that write and the old gate silently stopped covering
+  it). 4 new teeth self-test cases, all pass; full gate + aggregate board green (X100/Z100(17)/S100/P100).
+- ✅ **R1 — DOM-XSS sink sweep beyond escHtml VERIFIED CLEAN (2026-07-03).** Swept every DOM-sink CLASS across the
+  47 pages that neither `validate_xss` (escHtml-scope) nor `validate_dom_xss_fields` (`${obj.field}` DB-column
+  interpolation) covers: **code-exec** (`eval`/`new Function`/string `setTimeout`/`setInterval`) = **zero** in
+  page JS; **dynamic-HTML** (`document.write`/`insertAdjacentHTML`/`.outerHTML`) — all escaped (asset-hub
+  reliability report local `esc()` on every free-text FMEA/RCM/logbook field · asset-qr `esc(tag/name/location)`
+  · hive handover re-prints already-escaped DOM · community `renderContentWithMentions` escapes content-first ·
+  public-feed `renderCard` · integrations rows · project-manager owner opts all `escHtml`); **`javascript:`-URI**
+  (dynamic `href`/`src`) — alert-hub actions = hardcoded page prefix + `encodeURIComponent`, hive CTA = static,
+  inventory `<img src>` = `data:image/`|`https://` prefix-gated (X4). **One latent (non-exploitable-today) gap
+  FIXED:** `hive.html` notification link (`<a href="${n.link}">`) interpolated `n.link` RAW; every `pushNotif`
+  currently passes a static page string, but a raw `${x}` in an attribute is one future user-derived link from
+  attribute-breakout → `escHtml()`'d both the href value + link text (defense-in-depth; zero behavior change on
+  static values). Both X-lens gates green (validate_xss 10/10 · validate_dom_xss_fields 0/baseline-0).
+- ✅ **R3 — SRI pin-first backlog CLEARED for every pinnable tag (2026-07-03).** The 44 floating tags were only
+  **4 distinct URLs**: `@supabase/supabase-js@2` (bare ×29 + UMD-path ×5 = 34), `mermaid@11` (×1), and
+  `cdn.tailwindcss.com` (×9). **35 pinned + SRI'd** (supabase-js→`@2.110.0/dist/umd/supabase.min.js` ·
+  mermaid→`@11.16.0`), + 1 subdir page = **36 tags** across 35 files. **Proven zero-behavior-change:** the
+  exact-version bytes hash-match bare `@2`/`@11` byte-for-byte (`sha384-DjOvX/…`), so pinning only freezes the
+  version the app already loads and adds integrity. **Live-verified** (browser MCP was profile-locked → used the
+  deterministic SRI local-substitute): jsdelivr sends `access-control-allow-origin: *` (so `crossorigin=anonymous`
+  integrity proceeds) + served bytes == the `integrity` attr + the live-served page delivers the pinned tag → by
+  the SRI spec the browser loads & executes it. `validate_sri.py` still green (0 pinned-without-SRI); floating
+  **44→9**. **The 9 remaining are ALL `cdn.tailwindcss.com` (Tailwind Play CDN) — genuinely un-SRI-able, NOT
+  just un-pinned:** it is a runtime JIT compiler with no versioned artifact to hash (Tailwind docs: "Play CDN is
+  not intended for production"). The real fix is **migrate off the Play CDN to a built static Tailwind CSS file**
+  (own unit — high blast radius across 40+ pages + changes the build/deploy model = Ian-gated), not an SRI hash.
+  Honestly tracked as a gate NOTE (built-attempt on record: SRI is not the right lever for this cell). **OWASP-map
+  + config audit** were already closed in R0 (board shows A01–A10 all covered; `verify_jwt` drift gated by
+  public-fn-authz/write-authz). **Arc R active-local queue is now DRAINED** — only the Ian-gated Tailwind migration
+  remains as a forward backlog item.
+- **NEXT — Stream 3 Arc U (Accessibility):** draft `ACCESSIBILITY_UFAI_ROADMAP.md`; the instrument already exists —
+  reuse FB2's `browser_ci_persona_walk.mjs` axe-per-persona harness (headless node, independent of the MCP browser);
+  its banked WCAG violations are Arc U's denominator. Then Stream 4 **Arc T (Observability)**.
+
+**Ian-gated outward (his standing gate, never a turn-stop):** commit + any prod redeploy (incl. the hive.html
+notification-link escHtml, the write-authz gate reader arm, and the 36 pinned+SRI CDN tags). The Tailwind
+Play-CDN→built-CSS migration is a separate Ian-gated unit. STAY LOCAL — pivot to Arc U.

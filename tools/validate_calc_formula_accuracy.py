@@ -188,9 +188,522 @@ def _check_harmonic_519_individual_limits(mod):
 
 
 # ─── Golden vectors ──────────────────────────────────────────────────────────
+def _check_hvac_tr_conversion(mod):
+    """Deep-arc P7/F-1: the refrigeration ton is EXACTLY 1 TR = 3.517 kW (ASHRAE Fundamentals).
+    A drifted constant (3.5, or a 12000-BTU rounding) silently mis-sizes every AC selection.
+    Invariant on the OUTPUT (all inputs default), so it holds for any case: TR == kW / 3.517."""
+    out = mod.calculate({"floor_area": 120, "persons": 10, "equipment_kw": 2})
+    kw = out.get("recommended_kW")
+    tr = out.get("recommended_TR")
+    ok = (isinstance(kw, (int, float)) and isinstance(tr, (int, float))
+          and kw > 0 and abs(tr - kw / 3.517) <= 0.02)
+    return [(f"recommended_TR({tr}) == recommended_kW({kw})/3.517  [1 TR = 3.517 kW, ASHRAE]", ok, "")]
+
+
+def _check_sprinkler_nfpa13(mod):
+    """Deep-arc P7/F-1: NFPA 13 area-density method (SAFETY-CRITICAL). (1) The hazard design
+    density is a FIXED code constant — Ordinary Hazard Group 1 = 6.12 mm/min (0.15 gpm/ft²); a
+    corrupted density table silently under-sizes a fire-suppression system. (2) System demand is
+    additive: total = sprinkler demand + hose stream. Both are code identities, no derived value."""
+    out = mod.calculate({"occupancy_hazard": "Ordinary Hazard Group 1"})
+    checks = []
+    d = out.get("density_mm_min")
+    checks.append((f"OH1 density_mm_min({d}) == 6.12 [NFPA 13: 0.15 gpm/ft^2]",
+                   isinstance(d, (int, float)) and abs(d - 6.12) <= 0.01, ""))
+    qs, hose, qt = out.get("q_sprinklers_lpm"), out.get("hose_stream_lpm"), out.get("q_total_lpm")
+    if all(isinstance(x, (int, float)) for x in (qs, hose, qt)):
+        checks.append((f"q_total({qt}) == q_sprinklers({qs}) + hose({hose}) [NFPA 13 total demand]",
+                       abs(qt - (qs + hose)) <= 1.5, ""))
+    return checks
+
+
+def _check_fire_pump_nfpa20(mod):
+    """Deep-arc P7/F-1: NFPA 20 pump-curve envelope (SAFETY-CRITICAL). A rated fire pump must
+    hold churn (shutoff) pressure <= 140% of rated and deliver >= 65% of rated pressure at 150%
+    of rated flow. A drifted curve constant silently selects a pump that can't hold the required
+    residual — fire not controlled.
+
+    Derived from the SERVED .calculate() result (rated/churn/overload pressure fields) and the
+    input-INDEPENDENT NFPA ratios — so it runs BOTH hermetically and live (through the HTTP shim),
+    and is robust to a friction-model change (it checks churn/rated == 1.40 and overload/rated ==
+    0.65, not fixed pressures). Replaces the old internal-only `_pump_curve_points` probe (Arc G2)."""
+    r = mod.calculate({"required_flow_lpm": 2000, "required_pressure_bar": 8.0})
+    rated = r.get("rated_pressure_bar")
+    churn = r.get("churn_pressure_bar")
+    overload = r.get("overload_150pct_press_bar")
+    typed = all(isinstance(x, (int, float)) for x in (rated, churn, overload)) and (rated or 0) > 0
+    return [
+        (f"churn {churn} == 140% of rated {rated}  [NFPA 20 max churn 1.40x]",
+         typed and abs(churn / rated - 1.40) <= 0.005, ""),
+        (f"150%-flow {overload} == 65% of rated {rated}  [NFPA 20 min overload 0.65x]",
+         typed and abs(overload / rated - 0.65) <= 0.005, ""),
+    ]
+
+
+def _check_clean_agent_nfpa2001(mod):
+    """Deep-arc P7/F-1: NFPA 2001 §5.3.1 (LIFE-SAFETY). The design concentration must meet/exceed
+    the agent's minimum extinguishing concentration; under-concentration = fire not suppressed.
+    Identity on a fixed agent constant (FK-5-1-12 c_min = 4.0% by volume)."""
+    out = mod.calculate({"agent_type": "FK-5-1-12", "hazard_volume_m3": 100})
+    dc, cmin = out.get("design_concentration_pct"), out.get("c_min_pct")
+    checks = []
+    if isinstance(dc, (int, float)) and isinstance(cmin, (int, float)):
+        checks.append((f"design_conc({dc}%) >= c_min({cmin}%)  [NFPA 2001 reach min extinguishing]",
+                       dc >= cmin - 0.01, ""))
+        checks.append((f"FK-5-1-12 c_min({cmin}) == 4.0  [NFPA 2001 fixed agent constant]",
+                       abs(cmin - 4.0) <= 0.01, ""))
+    return checks
+
+
+def _check_fire_alarm_nfpa72(mod):
+    """Deep-arc P7/F-1: NFPA 72 secondary supply (SAFETY-CRITICAL). Battery capacity = standby
+    energy + alarm energy, where Ah = current(A) × time(h). A wrong time-unit or division silently
+    under-sizes the standby battery (the alarm goes dead during the fire). Definitional identities."""
+    out = mod.calculate({"panel_standby_mA": 50, "panel_alarm_mA": 200, "standby_hours": 24, "alarm_minutes": 5})
+    checks = []
+    isb, sh, ahsb = out.get("I_standby_total_mA"), out.get("standby_hours"), out.get("Ah_standby")
+    ial, am, ahal = out.get("I_alarm_total_mA"), out.get("alarm_minutes"), out.get("Ah_alarm")
+    if all(isinstance(x, (int, float)) for x in (isb, sh, ahsb)):
+        checks.append((f"Ah_standby({ahsb}) == I_standby({isb}mA)/1000 x {sh}h  [NFPA 72 standby energy]",
+                       abs(ahsb - (isb / 1000.0) * sh) <= 0.01, ""))
+    if all(isinstance(x, (int, float)) for x in (ial, am, ahal)):
+        checks.append((f"Ah_alarm({ahal}) == I_alarm({ial}mA)/1000 x {am}min/60  [NFPA 72 alarm energy]",
+                       abs(ahal - (ial / 1000.0) * (am / 60.0)) <= 0.01, ""))
+    return checks
+
+
+def _check_voltage_drop_pec(mod):
+    """Deep-arc P7/F-1: PEC 2017 branch-circuit voltage drop <= 3% (SAFETY/QUALITY). The compliance
+    verdict must MATCH the computed vd_pct against the limit; a broken verdict marks an undersized
+    (over-drop) conductor compliant. vd_pct is itself the identity (Vdrop/V x 100)."""
+    out = mod.calculate({"voltage": 230, "current": 20, "wire_length": 30, "conductor_mm2": 3.5})
+    vdp, branch = out.get("vd_pct"), out.get("pec_branch_ok")
+    checks = []
+    if isinstance(vdp, (int, float)) and isinstance(branch, bool):
+        checks.append((f"pec_branch_ok({branch}) == (vd_pct({vdp}) <= 3.0)  [PEC 2017 branch VD <= 3%]",
+                       branch == (vdp <= 3.0 + 1e-9), ""))
+    return checks
+
+
+def _check_wire_ampacity_pec(mod):
+    """Deep-arc P7/F-1: PEC 2017 / NEC 210.19 continuous-load rule (SAFETY-CRITICAL). For a
+    continuous load, the selected conductor's DERATED ampacity must be >= 125% of the design
+    current. Under-sizing overheats the conductor = fire hazard. Verified: 100A continuous ->
+    derated 141A >= 125A."""
+    out = mod.calculate({"load_amps": 100, "continuous_load": True, "voltage": 230, "phases": 1})
+    dc, amp, cont = out.get("design_current"), out.get("derated_ampacity_a"), out.get("continuous_load")
+    checks = []
+    if isinstance(dc, (int, float)) and isinstance(amp, (int, float)) and cont:
+        checks.append((f"derated_ampacity({amp}A) >= 1.25 x design_current({dc}A) = {round(1.25 * dc, 1)}A  [PEC 2017 continuous]",
+                       amp >= 1.25 * dc - 0.5, ""))
+    return checks
+
+
+def _check_generator_nfpa110(mod):
+    """Deep-arc P7/F-1: emergency genset sizing (NFPA 110). Apparent power kVA = real power kW /
+    power factor; and the selected genset must cover the installed requirement. A corrupted PF
+    application or under-selection mis-sizes emergency power (a life-safety supply)."""
+    out = mod.calculate({})
+    kw, pf, kva = out.get("demand_kW"), out.get("power_factor"), out.get("demand_kVA")
+    rec, need = out.get("recommended_kVA"), out.get("installed_kVA_needed")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (kw, pf, kva)) and pf > 0:
+        checks.append((f"demand_kVA({kva}) == demand_kW({kw})/PF({pf})  [apparent = real / power factor]",
+                       abs(kva - kw / pf) <= 0.05, ""))
+    if all(isinstance(x, (int, float)) for x in (rec, need)):
+        checks.append((f"recommended_kVA({rec}) >= installed_kVA_needed({need})  [genset covers requirement]",
+                       rec >= need - 0.01, ""))
+    return checks
+
+
+def _check_transformer_fault(mod):
+    """Deep-arc P7/F-1: transformer available fault current (IEC 60909 / IEEE C57, SAFETY-CRITICAL).
+    Isc = I_full_load / (Z% / 100). This value sizes the downstream breaker INTERRUPTING capacity;
+    a wrong Isc means a breaker that cannot clear a fault (catastrophic). Also rated kVA must cover
+    the spare-capacity requirement."""
+    out = mod.calculate({})
+    i2, z, isc = out.get("I2_full_load_A"), out.get("impedance_pct"), out.get("Isc_secondary_A")
+    rated, req = out.get("rated_kva"), out.get("required_kva")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (i2, z, isc)) and z > 0:
+        checks.append((f"Isc_secondary({isc}A) == I2_fl({i2}A)/(Z%={z}/100)  [IEC 60909 available fault current]",
+                       abs(isc - i2 / (z / 100.0)) <= max(1.0, 0.005 * isc), ""))
+    if all(isinstance(x, (int, float)) for x in (rated, req)):
+        checks.append((f"rated_kva({rated}) >= required_kva({req})  [transformer covers spare-capacity]",
+                       rated >= req - 0.01, ""))
+    return checks
+
+
+def _check_pressure_vessel_asme(mod):
+    """Deep-arc P7/F-1: pressure vessel (ASME VIII-1, SAFETY-CRITICAL, explosion risk). Required
+    shell thickness = calculated minimum + corrosion allowance, and the selected plate must be >=
+    required (a thin shell bursts). Hydrostatic test pressure = 1.3 x MAWP (UG-99)."""
+    out = mod.calculate({})
+    tmin, ca = out.get("t_shell_min_mm"), out.get("corrosion_allowance_mm")
+    treq, tact = out.get("t_shell_required_mm"), out.get("t_shell_actual_mm")
+    hydro, mawp = out.get("hydro_test_bar"), out.get("mawp_bar")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (treq, tact)):
+        checks.append((f"t_shell_actual({tact}mm) >= t_shell_required({treq}mm)  [ASME VIII shell adequacy]",
+                       tact >= treq - 0.01, ""))
+    if all(isinstance(x, (int, float)) for x in (tmin, ca, treq)):
+        checks.append((f"t_required({treq}) == t_min({tmin}) + corrosion({ca})  [ASME VIII required thickness]",
+                       abs(treq - (tmin + ca)) <= 0.01, ""))
+    if all(isinstance(x, (int, float)) for x in (hydro, mawp)) and mawp > 0:
+        checks.append((f"hydro_test({hydro}bar) == 1.3 x MAWP({mawp})  [ASME VIII-1 UG-99]",
+                       abs(hydro - 1.3 * mawp) <= max(0.05, 0.005 * hydro), ""))
+    return checks
+
+
+def _check_chiller_thermo(mod):
+    """Deep-arc P7/F-1: chiller thermodynamics. (1) COP_full_load < COP_carnot is the SECOND LAW —
+    a real coefficient of performance can NEVER exceed the ideal Carnot limit; a calc claiming
+    otherwise is physically impossible (broken). (2) TR = kW / 3.517 (exact refrigeration ton)."""
+    out = mod.calculate({})
+    cop, carnot = out.get("COP_full_load"), out.get("COP_carnot")
+    kw, tr = out.get("cooling_kW"), out.get("cooling_TR")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (cop, carnot)):
+        checks.append((f"COP_full_load({cop}) < COP_carnot({carnot})  [2nd law: real COP <= ideal Carnot]",
+                       cop < carnot, ""))
+    if all(isinstance(x, (int, float)) for x in (kw, tr)) and kw > 0:
+        checks.append((f"cooling_TR({tr}) == cooling_kW({kw})/3.517  [1 TR = 3.517 kW]",
+                       abs(tr - kw / 3.517) <= 0.05, ""))
+    return checks
+
+
+def _check_cooling_tower(mod):
+    """Deep-arc P7/F-1: cooling tower geometry (CTI). range = hot-in - cold-out; approach =
+    cold-out - design wet-bulb. A broken range/approach mis-sizes the tower (under-cooling)."""
+    out = mod.calculate({})
+    hin, cout, wb = out.get("t_hot_in_c"), out.get("t_cold_out_c"), out.get("wb_design_c")
+    rng, app = out.get("range_c"), out.get("approach_c")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (hin, cout, rng)):
+        checks.append((f"range({rng}) == t_hot_in({hin}) - t_cold_out({cout})  [CTI cooling range]",
+                       abs(rng - (hin - cout)) <= 0.05, ""))
+    if all(isinstance(x, (int, float)) for x in (cout, wb, app)):
+        checks.append((f"approach({app}) == t_cold_out({cout}) - wb({wb})  [CTI approach]",
+                       abs(app - (cout - wb)) <= 0.05, ""))
+    return checks
+
+
+def _check_ahu_continuity(mod):
+    """Deep-arc P7/F-1: AHU flow continuity (supply m³/hr = m³/s x 3600) + coil TR = kW / 3.517."""
+    out = mod.calculate({})
+    m3s, m3hr = out.get("supply_flow_m3s"), out.get("supply_flow_m3hr")
+    kw, tr = out.get("coil_total_kw"), out.get("coil_total_tr")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (m3s, m3hr)):
+        checks.append((f"supply_flow_m3hr({m3hr}) == m3s({m3s}) x 3600  [flow continuity]",
+                       abs(m3hr - m3s * 3600) <= max(1.0, 0.005 * m3hr), ""))
+    if all(isinstance(x, (int, float)) for x in (kw, tr)) and kw > 0:
+        checks.append((f"coil_total_tr({tr}) == coil_total_kw({kw})/3.517  [1 TR = 3.517 kW]",
+                       abs(tr - kw / 3.517) <= 0.05, ""))
+    return checks
+
+
+def _check_domestic_water_flow(mod):
+    """Deep-arc P7/F-1: domestic water flow-unit continuity (L/s = L/min / 60; m³/hr = L/s x 3.6)."""
+    out = mod.calculate({})
+    lpm, lps, m3hr = out.get("peak_flow_lpm"), out.get("peak_flow_lps"), out.get("peak_flow_m3hr")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (lpm, lps)) and lps > 0:
+        checks.append((f"peak_flow_lps({lps}) == lpm({lpm})/60  [flow unit continuity]",
+                       abs(lps - lpm / 60.0) <= 0.02, ""))
+    if all(isinstance(x, (int, float)) for x in (lps, m3hr)) and m3hr > 0:
+        checks.append((f"peak_flow_m3hr({m3hr}) == lps({lps}) x 3.6  [L/s -> m3/hr]",
+                       abs(m3hr - lps * 3.6) <= 0.05, ""))
+    return checks
+
+
+def _check_stp_flow(mod):
+    """Deep-arc P7/F-1: STP flow continuity (hourly = daily/24) + BOD removal % = removed/load x 100."""
+    out = mod.calculate({})
+    day, hr = out.get("flow_m3_day"), out.get("flow_m3_hr")
+    load, rem, pct = out.get("bod_load_kg_day"), out.get("bod_removed_kg_day"), out.get("bod_removal_pct")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (day, hr)) and hr > 0:
+        checks.append((f"flow_m3_hr({hr}) == flow_m3_day({day})/24  [daily -> hourly flow]",
+                       abs(hr - day / 24.0) <= 0.02, ""))
+    if all(isinstance(x, (int, float)) for x in (load, rem, pct)) and load > 0:
+        checks.append((f"bod_removal_pct({pct}) == removed({rem})/load({load}) x 100  [BOD removal, DENR]",
+                       abs(pct - rem / load * 100) <= 0.5, ""))
+    return checks
+
+
+def _check_shaft_torque(mod):
+    """Deep-arc P7/F-1: shaft torque T = P/omega = P_kW*60000/(2*pi*n) (SAFETY: a wrong torque
+    mis-sizes the shaft -> fatigue failure). Also the selected standard shaft >= the minimum."""
+    out = mod.calculate({})
+    P, n, T = out.get("power_kW"), out.get("speed_rpm"), out.get("torque_Nm")
+    dmin, dstd = out.get("d_min_mm"), out.get("d_standard_mm")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (P, n, T)) and n > 0:
+        expected = P * 60000.0 / (2 * math.pi * n)
+        checks.append((f"torque_Nm({T}) == P_kW({P})*60000/(2*pi*n={n})  [T = P/omega]",
+                       abs(T - expected) <= max(0.1, 0.01 * expected), ""))
+    if all(isinstance(x, (int, float)) for x in (dmin, dstd)):
+        checks.append((f"d_standard_mm({dstd}) >= d_min_mm({dmin})  [selected shaft >= min for fatigue]",
+                       dstd >= dmin - 0.01, ""))
+    return checks
+
+
+def _check_heat_exchanger_lmtd(mod):
+    """Deep-arc P7/F-1: heat exchanger corrected LMTD = LMTD x F (multi-pass correction). A wrong
+    correction under/over-sizes the exchanger area."""
+    out = mod.calculate({})
+    lmtd, F, corr = out.get("lmtd_K"), out.get("F_correction"), out.get("lmtd_corrected_K")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (lmtd, F, corr)):
+        checks.append((f"lmtd_corrected({corr}) == lmtd({lmtd}) x F({F})  [TEMA LMTD correction]",
+                       abs(corr - lmtd * F) <= 0.05, ""))
+    return checks
+
+
+def _check_compressed_air(mod):
+    """Deep-arc P7/F-1: compressed air unit continuity (CFM = m3/min x 35.3147; L = m3 x 1000)."""
+    out = mod.calculate({})
+    m3min, cfm = out.get("total_demand_m3min"), out.get("total_demand_cfm")
+    L, m3 = out.get("receiver_volume_L"), out.get("receiver_volume_m3")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (m3min, cfm)) and cfm > 0:
+        checks.append((f"total_demand_cfm({cfm}) == m3min({m3min}) x 35.3147  [m3/min -> CFM]",
+                       abs(cfm - m3min * 35.3147) <= max(0.1, 0.01 * cfm), ""))
+    if all(isinstance(x, (int, float)) for x in (L, m3)) and L > 0:
+        checks.append((f"receiver_volume_L({L}) == m3({m3}) x 1000  [m3 -> L]", abs(L - m3 * 1000) <= 1.0, ""))
+    return checks
+
+
+def _check_solar_pv(mod):
+    """Deep-arc P7/F-1: solar PV. total_panels = per_string x parallel; and the string voltages
+    must obey Vmp_hot < Vmp_stc < Voc_cold (temperature-voltage physics) — cold raises Voc toward
+    inverter over-voltage, hot lowers Vmp toward MPPT drop-out. A wrong ordering mis-designs the
+    string (SAFETY: inverter over-voltage)."""
+    out = mod.calculate({})
+    pps, sp, tot = out.get("panels_per_string"), out.get("strings_parallel"), out.get("total_panels")
+    hot, stc, cold = out.get("vmp_string_hot_V"), out.get("vmp_string_stc_V"), out.get("voc_string_cold_V")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (pps, sp, tot)):
+        checks.append((f"total_panels({tot}) == per_string({pps}) x parallel({sp})  [array topology]",
+                       tot == pps * sp, ""))
+    if all(isinstance(x, (int, float)) for x in (hot, stc, cold)):
+        checks.append((f"Vmp_hot({hot}) < Vmp_stc({stc}) < Voc_cold({cold})  [PV temp-voltage physics]",
+                       hot < stc < cold, ""))
+    return checks
+
+
+def _check_ups_sizing(mod):
+    """Deep-arc P7/F-1: UPS. load_kVA = load_kW / power_factor; recommended UPS >= minimum kVA."""
+    out = mod.calculate({})
+    kw, pf, kva = out.get("load_kW"), out.get("power_factor"), out.get("load_kVA")
+    rec, mn = out.get("recommended_kVA"), out.get("ups_kVA_min")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (kw, pf, kva)) and pf > 0:
+        checks.append((f"load_kVA({kva}) == load_kW({kw})/PF({pf})  [apparent = real / PF]",
+                       abs(kva - kw / pf) <= 0.05, ""))
+    if all(isinstance(x, (int, float)) for x in (rec, mn)):
+        checks.append((f"recommended_kVA({rec}) >= ups_kVA_min({mn})  [UPS covers requirement]",
+                       rec >= mn - 0.01, ""))
+    return checks
+
+
+def _check_earthing_verdict(mod):
+    """Deep-arc P7/F-1: grounding compliance (PEC 2017 Art. 2.50 / IEEE 80, SAFETY-CRITICAL). A
+    grounding system PASSES only if its resistance <= the limit; a broken verdict marks an unsafe
+    (too-high-resistance) ground compliant = shock/electrocution risk."""
+    out = mod.calculate({})
+    r, lim, passv = out.get("r_parallel_ohm"), out.get("r_limit_ohm"), out.get("pass")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (r, lim)) and isinstance(passv, bool):
+        checks.append((f"pass({passv}) == (r_parallel({r}) <= r_limit({lim}))  [PEC/IEEE 80 ground verdict]",
+                       passv == (r <= lim + 1e-9), ""))
+    return checks
+
+
+def _check_pf_correction(mod):
+    """Deep-arc P7/F-1: PF correction — required kVAR = kW x (tan(phi1) - tan(phi2)); and correcting
+    the power factor must REDUCE the apparent power (kVA_after < kVA_before)."""
+    out = mod.calculate({})
+    kw, t1, t2, kvar = out.get("kw"), out.get("tan_phi1"), out.get("tan_phi2"), out.get("kvar_required")
+    before, after = out.get("kva_before"), out.get("kva_after")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (kw, t1, t2, kvar)):
+        checks.append((f"kvar_required({kvar}) == kw({kw}) x (tan1({t1})-tan2({t2}))  [PF correction]",
+                       abs(kvar - kw * (t1 - t2)) <= 0.5, ""))
+    if all(isinstance(x, (int, float)) for x in (before, after)):
+        checks.append((f"kva_after({after}) < kva_before({before})  [PF correction reduces kVA]",
+                       after < before, ""))
+    return checks
+
+
+def _check_boiler(mod):
+    """Deep-arc P7/F-1: boiler energy balance. absolute = gauge + 1.013 bar; steam enthalpy delta =
+    hg - hf; heat duty q_kW = design_steam(kg/hr) x delta_h(kJ/kg) / 3600. A wrong energy balance
+    mis-sizes the boiler (under-capacity = no steam) or over-fires it."""
+    out = mod.calculate({"boiler_type": "Steam", "steam_demand_kg_hr": 500})
+    barg, bara = out.get("steam_pressure_barg"), out.get("steam_pressure_bara")
+    hg, hf, dh = out.get("hg_kj_kg"), out.get("hf_fw_kj_kg"), out.get("delta_h_kj_kg")
+    dsd, q = out.get("design_steam_demand_kg_hr"), out.get("q_boiler_kw")
+    checks = []
+    if all(isinstance(x, (int, float)) for x in (barg, bara)):
+        checks.append((f"steam_pressure_bara({bara}) == barg({barg}) + 1.013  [gauge -> absolute]",
+                       abs(bara - (barg + 1.013)) <= 0.02, ""))
+    if all(isinstance(x, (int, float)) for x in (hg, hf, dh)):
+        checks.append((f"delta_h({dh}) == hg({hg}) - hf({hf})  [steam enthalpy delta]",
+                       abs(dh - (hg - hf)) <= 0.5, ""))
+    if all(isinstance(x, (int, float)) for x in (dsd, dh, q)) and q > 0:
+        checks.append((f"q_boiler_kw({q}) == design_steam({dsd})*delta_h({dh})/3600  [boiler heat duty]",
+                       abs(q - dsd * dh / 3600) <= max(0.5, 0.01 * q), ""))
+    return checks
+
+
 # Each: declarative {module, calc_type, standard, inputs, asserts:[{path,expected,tol,note}]}
 #       or invariant {module, calc_type, standard, custom: callable(mod)->[(label,ok,detail)]}
 VECTORS = [
+    {
+        "module": "calcs.hvac_cooling_load",
+        "calc_type": "HVAC Cooling Load",
+        "standard": "ASHRAE Fundamentals — 1 refrigeration ton = 3.517 kW (exact)",
+        "custom": _check_hvac_tr_conversion,
+    },
+    {
+        "module": "calcs.fire_sprinkler",
+        "calc_type": "Fire Sprinkler Hydraulic",
+        "standard": "NFPA 13 — area-density method (fixed hazard density + additive total demand)",
+        "custom": _check_sprinkler_nfpa13,
+    },
+    {
+        "module": "calcs.fire_pump",
+        "calc_type": "Fire Pump Sizing",
+        "standard": "NFPA 20 — pump curve envelope (churn <=140% rated, 150%-flow >=65% rated)",
+        "custom": _check_fire_pump_nfpa20,
+    },
+    {
+        "module": "calcs.clean_agent_suppression",
+        "calc_type": "Clean Agent Suppression",
+        "standard": "NFPA 2001 §5.3.1 — design concentration >= minimum extinguishing concentration",
+        "custom": _check_clean_agent_nfpa2001,
+    },
+    {
+        "module": "calcs.fire_alarm_battery",
+        "calc_type": "Fire Alarm Battery",
+        "standard": "NFPA 72 — secondary supply Ah = standby energy (I x h) + alarm energy (I x min/60)",
+        "custom": _check_fire_alarm_nfpa72,
+    },
+    {
+        "module": "calcs.voltage_drop",
+        "calc_type": "Voltage Drop",
+        "standard": "PEC 2017 — branch VD <= 3%; compliance verdict matches computed vd_pct",
+        "custom": _check_voltage_drop_pec,
+    },
+    {
+        "module": "calcs.wire_sizing",
+        "calc_type": "Wire Sizing",
+        "standard": "PEC 2017 / NEC 210.19 — continuous-load conductor derated ampacity >= 125% design current",
+        "custom": _check_wire_ampacity_pec,
+    },
+    {
+        "module": "calcs.generator_sizing",
+        "calc_type": "Generator Sizing",
+        "standard": "NFPA 110 — kVA = kW / power factor; recommended genset >= installed requirement",
+        "custom": _check_generator_nfpa110,
+    },
+    {
+        "module": "calcs.transformer_sizing",
+        "calc_type": "Transformer Sizing",
+        "standard": "IEC 60909 / IEEE C57 — Isc = I_full_load / (Z%/100); rated kVA >= requirement",
+        "custom": _check_transformer_fault,
+    },
+    {
+        "module": "calcs.pressure_vessel",
+        "calc_type": "Pressure Vessel",
+        "standard": "ASME VIII-1 — t_actual >= t_min + corrosion; hydro test = 1.3 x MAWP (UG-99)",
+        "custom": _check_pressure_vessel_asme,
+    },
+    {
+        "module": "calcs.chiller",
+        "calc_type": "Chiller System",
+        "standard": "Thermodynamics — COP < Carnot (2nd law); TR = kW / 3.517",
+        "custom": _check_chiller_thermo,
+    },
+    {
+        "module": "calcs.cooling_tower",
+        "calc_type": "Cooling Tower Sizing",
+        "standard": "CTI — range = hot_in - cold_out; approach = cold_out - wet_bulb",
+        "custom": _check_cooling_tower,
+    },
+    {
+        "module": "calcs.ahu_sizing",
+        "calc_type": "AHU Sizing",
+        "standard": "Flow continuity (m3/hr = m3/s x 3600) + coil TR = kW / 3.517",
+        "custom": _check_ahu_continuity,
+    },
+    {
+        # NOTE: this custom (_check_domestic_water_flow, reads peak_flow_* fields) tests the
+        # calcs.domestic_water handler, which the live API serves under "Domestic Water System"
+        # — NOT "Water Supply Pipe Sizing" (that routes to calcs.water_supply_pipe → peak_* fields,
+        # covered by the PPC-Hunter vector below). The label was a copy-paste mismatch that made the
+        # LIVE validator POST empty inputs to the wrong handler (0 flow → empty checks → FAIL). (Arc G2)
+        "module": "calcs.domestic_water",
+        "calc_type": "Domestic Water System",
+        "standard": "Flow-unit continuity (L/s = L/min / 60; m3/hr = L/s x 3.6)",
+        "custom": _check_domestic_water_flow,
+    },
+    {
+        "module": "calcs.wastewater_stp",
+        "calc_type": "Wastewater Treatment (STP)",
+        "standard": "DENR DAO 2016-08 — flow continuity + BOD removal % = removed/load x 100",
+        "custom": _check_stp_flow,
+    },
+    {
+        "module": "calcs.shaft_design",
+        "calc_type": "Shaft Design",
+        "standard": "ASME B106.1M — torque T = P/omega; selected shaft >= minimum diameter",
+        "custom": _check_shaft_torque,
+    },
+    {
+        "module": "calcs.heat_exchanger",
+        "calc_type": "Heat Exchanger",
+        "standard": "TEMA — corrected LMTD = LMTD x F (multi-pass correction factor)",
+        "custom": _check_heat_exchanger_lmtd,
+    },
+    {
+        "module": "calcs.compressed_air",
+        "calc_type": "Compressed Air",
+        "standard": "Unit continuity — CFM = m3/min x 35.3147; L = m3 x 1000",
+        "custom": _check_compressed_air,
+    },
+    {
+        "module": "calcs.solar_pv",
+        "calc_type": "Solar PV System",
+        "standard": "IEC 62548 — topology + Vmp_hot < Vmp_stc < Voc_cold (temp-voltage physics)",
+        "custom": _check_solar_pv,
+    },
+    {
+        "module": "calcs.ups_sizing",
+        "calc_type": "UPS Sizing",
+        "standard": "IEEE 1184 — load_kVA = load_kW / PF; recommended UPS >= minimum kVA",
+        "custom": _check_ups_sizing,
+    },
+    {
+        "module": "calcs.earthing_grounding",
+        "calc_type": "Earthing / Grounding System",
+        "standard": "PEC 2017 Art. 2.50 / IEEE 80 — pass verdict = resistance <= limit (shock safety)",
+        "custom": _check_earthing_verdict,
+    },
+    {
+        "module": "calcs.power_factor_correction",
+        "calc_type": "Power Factor Correction",
+        "standard": "kVAR = kW x (tan phi1 - tan phi2); correction reduces kVA",
+        "custom": _check_pf_correction,
+    },
+    {
+        "module": "calcs.boiler_system",
+        "calc_type": "Boiler System",
+        "standard": "Steam energy balance — bara=barg+1.013; delta_h=hg-hf; q=m*delta_h/3600",
+        "custom": _check_boiler,
+    },
     {
         "module": "calcs.solar_pv",
         "calc_type": "Solar PV System",

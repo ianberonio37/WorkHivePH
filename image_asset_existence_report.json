@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_refs": 459,
+    "pages_scanned": 28,
+    "total_refs": 531,
     "total_broken": 0,
     "baseline": 0
   },
@@ -71,10 +71,6 @@
       "broken": []
     },
     {
-      "page": "platform-health.html",
-      "broken": []
-    },
-    {
       "page": "project-manager.html",
       "broken": []
     },
@@ -88,10 +84,6 @@
     },
     {
       "page": "project-report.html",
-      "broken": []
-    },
-    {
-      "page": "predictive.html",
       "broken": []
     },
     {

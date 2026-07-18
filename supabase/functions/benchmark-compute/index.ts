@@ -10,7 +10,8 @@
  * No AI calls — pure SQL aggregation, deterministic and free.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -18,6 +19,8 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -224,7 +227,12 @@ async function computeNetwork(db: SupabaseClient, now: Date) {
 // Entry point
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("benchmark-compute", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "benchmark-compute", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "benchmark-compute");  // I6 observability
@@ -248,6 +256,11 @@ serve(async (req) => {
             { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
+      
+        // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req));
       }
     }
 
@@ -285,8 +298,7 @@ serve(async (req) => {
       { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "benchmark-compute", "benchmark_compute_error", err);
   }
 });

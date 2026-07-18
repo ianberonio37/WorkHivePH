@@ -33,7 +33,7 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT = Path(__file__).resolve().parent.parent
 DB = "supabase_db_workhive"
 BASE = "http://127.0.0.1:54321"
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+_HIVE_FALLBACK = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"  # Baguio Textile Mills — stable canonical test hive (Leandro=supervisor, Bryan=worker)
 GREEN, RED, YEL = "\033[92m", "\033[91m", "\033[93m"; RST = "\033[0m"
 SELF_TEST = "--self-test" in sys.argv[1:]
 
@@ -45,6 +45,17 @@ def psql(sql: str):
         return p.stdout.strip() if p.returncode == 0 else None
     except Exception:
         return None
+
+
+# Resolve the test hive DYNAMICALLY: the hive where the supervisor (Leandro Marquez) AND the reset
+# target (Bryan Garcia) are BOTH active in the right roles. Hardcoding a uuid rots when a reseed
+# regenerates hive ids — the old 9b4eaeac went dead, so the edge fn correctly 403'd on a non-existent
+# hive and this (previously 9/9) gate started failing. Falls back to the canonical Baguio hive.
+HIVE = (psql(
+    "SELECT s.hive_id FROM v_worker_truth s JOIN v_worker_truth w ON w.hive_id = s.hive_id "
+    "WHERE s.worker_name='Leandro Marquez' AND s.role='supervisor' AND s.hive_status='active' "
+    "AND w.worker_name='Bryan Garcia' AND w.role='worker' AND w.hive_status='active' LIMIT 1")
+    or _HIVE_FALLBACK)
 
 
 def _key():

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-30T07:18:49.993415+00:00",
+  "generated_at": "2026-07-18T05:34:47.168785+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -8,84 +8,13 @@
       "label": "Edge fn patterns",
       "file": "edge_pattern_mining_report.json",
       "present": true,
-      "proposals": [
-        {
-          "feature": "imports_cors_shared",
-          "anti_pattern": false,
-          "conformance": 0.983,
-          "outlier_count": 1,
-          "outliers": [
-            "marketplace-webhook"
-          ]
-        },
-        {
-          "feature": "cors_headers_first_in_handler",
-          "anti_pattern": false,
-          "conformance": 0.983,
-          "outlier_count": 1,
-          "outliers": [
-            "walkthrough-analyzer"
-          ]
-        },
-        {
-          "feature": "wraps_handler_in_try",
-          "anti_pattern": false,
-          "conformance": 0.966,
-          "outlier_count": 2,
-          "outliers": [
-            "marketplace-webhook",
-            "walkthrough-analyzer"
-          ]
-        },
-        {
-          "feature": "imports_supabase_esm",
-          "anti_pattern": false,
-          "conformance": 0.898,
-          "outlier_count": 6,
-          "outliers": [
-            "engineering-bom-sow",
-            "engineering-calc-agent",
-            "voice-embeddings",
-            "voice-model-call",
-            "voice-transcribe",
-            "walkthrough-analyzer"
-          ]
-        },
-        {
-          "feature": "reads_supabase_url_env",
-          "anti_pattern": false,
-          "conformance": 0.898,
-          "outlier_count": 6,
-          "outliers": [
-            "engineering-bom-sow",
-            "engineering-calc-agent",
-            "voice-embeddings",
-            "voice-model-call",
-            "voice-transcribe",
-            "walkthrough-analyzer"
-          ]
-        },
-        {
-          "feature": "reads_service_role_env",
-          "anti_pattern": false,
-          "conformance": 0.898,
-          "outlier_count": 6,
-          "outliers": [
-            "engineering-bom-sow",
-            "engineering-calc-agent",
-            "voice-embeddings",
-            "voice-model-call",
-            "voice-transcribe",
-            "walkthrough-analyzer"
-          ]
-        }
-      ],
+      "proposals": [],
       "summary": {
-        "fns_scanned": 59,
+        "fns_scanned": 57,
         "features_extracted": 35,
-        "promotion_candidates": 6
+        "promotion_candidates": 0
       },
-      "proposal_count": 6
+      "proposal_count": 0
     },
     {
       "label": "HTML patterns",
@@ -93,73 +22,34 @@
       "present": true,
       "proposals": [
         {
-          "feature": "has_h1",
-          "conformance": 0.949,
-          "outlier_count": 2,
-          "outliers": [
-            "marketplace-seller-profile.html",
-            "marketplace-seller.html"
-          ]
-        },
-        {
-          "feature": "has_meta_description",
-          "conformance": 0.923,
-          "outlier_count": 3,
-          "outliers": [
-            "architecture.html",
-            "marketplace-admin.html",
-            "symbol-gallery.html"
-          ]
-        },
-        {
           "feature": "loads_utils_js",
-          "conformance": 0.923,
-          "outlier_count": 3,
-          "outliers": [
-            "architecture.html",
-            "symbol-gallery.html",
-            "validator-catalog.html"
-          ]
-        },
-        {
-          "feature": "loads_supabase_cdn",
-          "conformance": 0.923,
-          "outlier_count": 3,
-          "outliers": [
-            "architecture.html",
-            "symbol-gallery.html",
-            "validator-catalog.html"
-          ]
-        },
-        {
-          "feature": "has_manifest_link",
-          "conformance": 0.897,
+          "conformance": 0.905,
           "outlier_count": 4,
           "outliers": [
             "architecture.html",
-            "llm-observability.html",
+            "promo-poster.html",
             "symbol-gallery.html",
             "validator-catalog.html"
           ]
         },
         {
-          "feature": "calls_eschtml",
-          "conformance": 0.897,
+          "feature": "has_main_landmark",
+          "conformance": 0.905,
           "outlier_count": 4,
           "outliers": [
-            "alert-hub.html",
-            "architecture.html",
-            "project-report.html",
-            "symbol-gallery.html"
+            "design-system.html",
+            "platform-actions.html",
+            "promo-poster.html",
+            "status.html"
           ]
         }
       ],
       "summary": {
-        "pages_scanned": 39,
+        "pages_scanned": 42,
         "features_extracted": 40,
-        "promotion_candidates": 6
+        "promotion_candidates": 2
       },
-      "proposal_count": 6
+      "proposal_count": 2
     },
     {
       "label": "Migration patterns",
@@ -168,7 +58,7 @@
       "proposals": [
         {
           "feature": "has_header_comment",
-          "conformance": 0.991,
+          "conformance": 0.994,
           "outlier_count": 2,
           "outliers": [
             "20260422192855_remote_commit.sql",
@@ -177,7 +67,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 219,
+        "files_scanned": 351,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -190,7 +80,7 @@
       "proposals": [
         {
           "feature": "accepts_client_param",
-          "conformance": 0.9,
+          "conformance": 0.905,
           "outlier_count": 4,
           "outliers": [
             "ai_reports.py",
@@ -201,7 +91,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 40,
+        "files_scanned": 42,
         "features_extracted": 19,
         "promotion_candidates": 1
       },
@@ -213,18 +103,8 @@
       "present": true,
       "proposals": [
         {
-          "feature": "has_cp1252_stdout_guard",
-          "conformance": 0.991,
-          "outlier_count": 3,
-          "outliers": [
-            "validate_frequency_map_consistency.py",
-            "validate_seeder_insert_columns.py",
-            "validate_truth_view_consumer_columns.py"
-          ]
-        },
-        {
           "feature": "has_main_guard",
-          "conformance": 0.988,
+          "conformance": 0.99,
           "outlier_count": 4,
           "outliers": [
             "validate_bom_sow.py",
@@ -235,11 +115,11 @@
         }
       ],
       "summary": {
-        "files_scanned": 339,
+        "files_scanned": 399,
         "features_extracted": 20,
-        "promotion_candidates": 2
+        "promotion_candidates": 1
       },
-      "proposal_count": 2
+      "proposal_count": 1
     },
     {
       "label": "JS module patterns",
@@ -247,7 +127,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 31,
+        "files_scanned": 37,
         "features_extracted": 16,
         "promotion_candidates": 0
       },
@@ -260,7 +140,7 @@
       "proposals": [
         {
           "feature": "has_print_calls",
-          "conformance": 0.966,
+          "conformance": 0.985,
           "outlier_count": 7,
           "outliers": [
             "analyze_walkthrough_new.py",
@@ -274,7 +154,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 204,
+        "files_scanned": 471,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -287,8 +167,8 @@
       "summary": {
         "rules_evaluated": 57,
         "rules_with_errors": 0,
-        "promotion_candidates": 8,
-        "critical_violations": 4,
+        "promotion_candidates": 17,
+        "critical_violations": 7,
         "rules_by_source": {
           "skill_md:designer": 2,
           "skill_md:mobile-maestro": 2,
@@ -316,38 +196,22 @@
           "reason": "`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
         }
       ],
-      "issues": [
-        {
-          "check": "missing_script",
-          "skip": false,
-          "reason": "Registry entry id='interactive-lineage' references `validate_interactive_lineage.py` which does not exist on disk. The guardian will fail to launch. Either restore the file or remove the registry entry."
-        },
-        {
-          "check": "missing_script",
-          "skip": false,
-          "reason": "Registry entry id='causal-cascade-coverage' references `validate_causal_cascade_coverage.py` which does not exist on disk. The guardian will fail to launch. Either restore the file or remove the registry entry."
-        },
-        {
-          "check": "missing_script",
-          "skip": false,
-          "reason": "Registry entry id='reactivity-wiring' references `validate_reactivity_wiring.py` which does not exist on disk. The guardian will fail to launch. Either restore the file or remove the registry entry."
-        }
-      ]
+      "issues": []
     },
     {
       "label": "Canonical drift",
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 201,
-        "kpi_rendering_pages": 80,
+        "files_scanned": 210,
+        "kpi_rendering_pages": 87,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
         "tier_b_pages": 0,
-        "total_canonical_reads": 291,
+        "total_canonical_reads": 302,
         "total_drift_reads": 0,
         "total_gap_reads": 0,
-        "total_allowed_reads": 209
+        "total_allowed_reads": 219
       }
     },
     {

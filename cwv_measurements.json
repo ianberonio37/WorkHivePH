@@ -1,0 +1,1174 @@
+{
+  "generated_at": "2026-07-08T06:56:06.245Z",
+  "env": "local",
+  "cache": "warm-median",
+  "lcp_local_optimistic": true,
+  "base": "http://127.0.0.1:5000",
+  "viewport": {
+    "width": 390,
+    "height": 780
+  },
+  "runs_per_page": 3,
+  "limited": false,
+  "complete": true,
+  "thresholds": {
+    "lcp_ms": 2500,
+    "inp_ms": 200,
+    "cls": 0.1
+  },
+  "note": "Local Flask seeder, MOBILE viewport. lcp_ms = median of warm-cache runs (code-intrinsic render pipeline, isolates WorkHive from this machine's CDN latency). lcp_cold_ms = first-visit cold-cache LCP (dominated by the render-blocking Tailwind CDN fetch — a separate known perf item). Local LCP is optimistic vs PH-4G prod (a local pass is necessary-not-sufficient); true field CWV is Layer B.",
+  "pages": [
+    {
+      "surface": "index.html",
+      "url": "http://127.0.0.1:5000/workhive/",
+      "lcp_ms": 60,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 732,
+      "transferKB": 14,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        60,
+        68,
+        60
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24
+      ]
+    },
+    {
+      "surface": "learn/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 3320,
+      "transferKB": 47,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        200,
+        208,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "about/index.html",
+      "url": "http://127.0.0.1:5000/workhive/about/",
+      "lcp_ms": 180,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 484,
+      "transferKB": 13,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        188,
+        180,
+        176
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "privacy-policy/index.html",
+      "url": "http://127.0.0.1:5000/workhive/privacy-policy/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 636,
+      "transferKB": 14,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        224,
+        188,
+        180
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "terms-of-service/index.html",
+      "url": "http://127.0.0.1:5000/workhive/terms-of-service/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 492,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        188,
+        172
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ai-companion-hezekiah-zaniah-personas/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ai-companion-hezekiah-zaniah-personas/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 35,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        200,
+        232,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ai-quality-and-roi-stage-2-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ai-quality-and-roi-stage-2-plants/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 500,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        228,
+        212,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ai-work-assistant-maintenance-technicians/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ai-work-assistant-maintenance-technicians/",
+      "lcp_ms": 220,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 536,
+      "transferKB": 43,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        236,
+        204,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/asset-brain-360-one-machine-history-philippine-plant/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/asset-brain-360-one-machine-history-philippine-plant/",
+      "lcp_ms": 224,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 572,
+      "transferKB": 26,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        224,
+        244,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/autonomous-shift-planning-philippine-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/autonomous-shift-planning-philippine-plants/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 484,
+      "transferKB": 25,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        184,
+        232,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/bms-facilities-maintenance-peza-buildings/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/bms-facilities-maintenance-peza-buildings/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 484,
+      "transferKB": 35,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        216,
+        264
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/building-asset-register-zero-budget/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/building-asset-register-zero-budget/",
+      "lcp_ms": 228,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 520,
+      "transferKB": 43,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        220,
+        284,
+        228
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/connecting-workhive-to-sap-maximo-cmms/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 40,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        244,
+        196,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/dilo-wilo-day-planner-supervisors/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/dilo-wilo-day-planner-supervisors/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 492,
+      "transferKB": 40,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        200,
+        200,
+        192
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/dole-iso-audit-trail-from-logbook/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/dole-iso-audit-trail-from-logbook/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 532,
+      "transferKB": 31,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        208,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/fmea-worked-example-philippine-bottling-line/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/fmea-worked-example-philippine-bottling-line/",
+      "lcp_ms": 244,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 512,
+      "transferKB": 29,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        200,
+        332,
+        244
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/food-beverage-plant-maintenance-philippines/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/food-beverage-plant-maintenance-philippines/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 492,
+      "transferKB": 33,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        180,
+        200,
+        232
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/four-phases-maintenance-analytics-philippine-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/four-phases-maintenance-analytics-philippine-plants/",
+      "lcp_ms": 220,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 548,
+      "transferKB": 28,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        220,
+        216,
+        240
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/free-engineering-calculators-philippine-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/free-engineering-calculators-philippine-plants/",
+      "lcp_ms": 276,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 512,
+      "transferKB": 44,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        356,
+        276,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/free-pm-checklist-templates/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/free-pm-checklist-templates/",
+      "lcp_ms": 228,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 596,
+      "transferKB": 41,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        264,
+        196,
+        228
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/gamifying-maintenance-for-engagement/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/gamifying-maintenance-for-engagement/",
+      "lcp_ms": 248,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 31,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        260,
+        200,
+        248
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/industrial-community-of-practice-philippines/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/industrial-community-of-practice-philippines/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 504,
+      "transferKB": 30,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        180,
+        304
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/industrial-marketplace-philippine-specialists/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/industrial-marketplace-philippine-specialists/",
+      "lcp_ms": 196,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 33,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        188,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/joining-and-growing-your-hive/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/joining-and-growing-your-hive/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 588,
+      "transferKB": 33,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        200,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/loto-procedures-dole-oshs-template/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/loto-procedures-dole-oshs-template/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 500,
+      "transferKB": 30,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        188,
+        180,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/maintenance-project-planning-template/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/maintenance-project-planning-template/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 504,
+      "transferKB": 44,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        212,
+        216,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/maintenance-shift-handover-template/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/maintenance-shift-handover-template/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 528,
+      "transferKB": 41,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        208,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/mtbf-vs-mttr-for-supervisors/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/mtbf-vs-mttr-for-supervisors/",
+      "lcp_ms": 236,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 624,
+      "transferKB": 39,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        236,
+        292,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ofw-engineer-portable-portfolio/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ofw-engineer-portable-portfolio/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 500,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        192,
+        212,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ph-industrial-benchmarks-intelligence/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ph-industrial-benchmarks-intelligence/",
+      "lcp_ms": 192,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 528,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        192,
+        192,
+        216
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/plant-alert-inbox-amc-daily-brief/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/plant-alert-inbox-amc-daily-brief/",
+      "lcp_ms": 196,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 680,
+      "transferKB": 27,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        192,
+        272
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/power-plant-reliability-metrics-philippines/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/power-plant-reliability-metrics-philippines/",
+      "lcp_ms": 184,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 488,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        184,
+        176,
+        184
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/predictive-alert-thresholds-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/predictive-alert-thresholds-plants/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 560,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        240,
+        216
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/predictive-maintenance-on-a-budget-philippines/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/predictive-maintenance-on-a-budget-philippines/",
+      "lcp_ms": 196,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 39,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        192,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/print-ready-maintenance-analytics-report/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/print-ready-maintenance-analytics-report/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 500,
+      "transferKB": 27,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        212,
+        208,
+        232
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/psme-iiee-piche-which-association-to-join/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/psme-iiee-piche-which-association-to-join/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 532,
+      "transferKB": 34,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        216,
+        280
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ra-11285-energy-efficiency-plant-checklist/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 480,
+      "transferKB": 31,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        180,
+        188,
+        192
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/reliability-centered-maintenance-philippine-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/reliability-centered-maintenance-philippine-plants/",
+      "lcp_ms": 180,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 504,
+      "transferKB": 29,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        192,
+        176,
+        180
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/resume-builder-for-filipino-industrial-workers/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/resume-builder-for-filipino-industrial-workers/",
+      "lcp_ms": 228,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 25,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        256,
+        212,
+        228
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/sensor-cmms-gateway-operations/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/sensor-cmms-gateway-operations/",
+      "lcp_ms": 192,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        224,
+        192,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/skill-matrix-for-maintenance-technicians/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/skill-matrix-for-maintenance-technicians/",
+      "lcp_ms": 220,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 548,
+      "transferKB": 45,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        220,
+        248,
+        192
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/spare-parts-inventory-philippine-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/spare-parts-inventory-philippine-plants/",
+      "lcp_ms": 196,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 512,
+      "transferKB": 41,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        192,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/start-digital-logbook-philippine-factory/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/start-digital-logbook-philippine-factory/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 500,
+      "transferKB": 51,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        204,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/tesda-nc-mapping-to-skill-matrix/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/tesda-nc-mapping-to-skill-matrix/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 472,
+      "transferKB": 32,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        268,
+        208,
+        184
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/thermography-for-pm-philippine-plants/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/thermography-for-pm-philippine-plants/",
+      "lcp_ms": 180,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 504,
+      "transferKB": 33,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        272,
+        180,
+        176
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/vibration-analysis-on-a-phone-budget/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/vibration-analysis-on-a-phone-budget/",
+      "lcp_ms": 196,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 512,
+      "transferKB": 29,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        196,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/voice-to-text-maintenance-philippine-plant-floor/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 504,
+      "transferKB": 36,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        192,
+        240
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/what-is-oee-how-to-calculate/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/what-is-oee-how-to-calculate/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 504,
+      "transferKB": 41,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        216,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/what-is-workhive-complete-platform-guide/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/what-is-workhive-complete-platform-guide/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 528,
+      "transferKB": 56,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        224,
+        208,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/workhive-ai-companion-complete-capabilities/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/workhive-ai-companion-complete-capabilities/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 604,
+      "transferKB": 48,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        228,
+        208,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    }
+  ]
+}

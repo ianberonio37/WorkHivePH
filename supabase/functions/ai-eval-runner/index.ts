@@ -19,7 +19,7 @@
  * Closes PRODUCTION_FIXES #52 Phase D (runner wired) -- the cron was
  * scheduled in Phase B/C but the endpoint it called did not exist.
  *
- * AI_ASSET_VERSION: 3
+ * AI_ASSET_VERSION: 4
  * C5 (Self-Improving Gate) — bump this integer whenever JUDGE_PROMPT,
  * judge model id, score rubric, or pass-threshold changes. C2's eval
  * gate scores against this judge's verdicts, so an unannounced edit
@@ -27,7 +27,8 @@
  * if the file hash moves without this bumping. Owner: AI Engineer.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -220,7 +221,12 @@ async function judgeAnswer(
   }
 }
 
-serve(async (req) => {
+serveObserved("ai-eval-runner", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "ai-eval-runner", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });

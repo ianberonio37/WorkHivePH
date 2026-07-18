@@ -53,8 +53,6 @@ FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
 # Webhook / server-to-server fns that legitimately use wildcard CORS.
 CORS_WILDCARD_OK = {
-    "marketplace-webhook":  "Stripe webhook; called server-to-server, no browser CORS surface",
-    "stripe-webhook":       "(reserved) Stripe webhook style endpoint",
 }
 
 WILDCARD_RE = re.compile(

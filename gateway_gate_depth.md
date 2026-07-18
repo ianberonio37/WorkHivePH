@@ -3,7 +3,7 @@
 _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND a Gate (detection ratchet) for every layer, graded by REAL depth + whether the proof is PROD-REAL or a local substitute. Deliberately stricter than the 13×6 matrix (100%) and `measure_layer_depth` coverage (84.3%), which both credit detection-presence and local substitutes._
 
 
-**★ HONEST OVERALL DEPTH = 66.7%**  (axis totals /13 — Gateway 8.5 · Gate 11.0 · Prod-real 6.5)
+**★ HONEST OVERALL DEPTH = 67.9%**  (axis totals /13 — Gateway 9.0 · Gate 11.0 · Prod-real 6.5)
 
 
 | Layer | Gateway | Gate | Prod-real | depth% |
@@ -15,8 +15,8 @@ _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND
 | Database & Storage | 1.0 | 1.0 | 1.0 | **100.0%** |
 | CI/CD & Version Control | 1.0 | 1.0 | 0.5 | **83.3%** |
 | Rate Limiting | 1.0 | 1.0 | 0.5 | **83.3%** |
+| Availability & Recovery | 1.0 | 1.0 | 0.0 | **66.7%** |
 | Caching & CDN | 0.5 | 0.5 | 0.5 | **50.0%** |
-| Availability & Recovery | 0.5 | 1.0 | 0.0 | **50.0%** |
 | Error Tracking & Logs | 0.5 | 0.5 | 0.0 | **33.3%** |
 | Hosting & Deployment | 0.0 | 1.0 | 0.0 | **33.3%** |
 | Cloud & Compute | 0.0 | 0.5 | 0.0 | **16.7%** |
@@ -60,15 +60,15 @@ _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND
 - **Gate 1.0** — m: rate-limit-fairness/adoption ratchets
 - **Prod-real 0.5** — s: live burst proven LOCAL (60x->429); prod-scale fairness is external
 
+### Availability & Recovery — 66.7%
+- **Gateway 1.0** — m: bypass=0 via health_surface_discovery_report.json (measured)
+- **Gate 1.0** — m: game-day-readiness ratchet (game_day + verify_backups + RTO/RPO present)
+- **Prod-real 0.0** — f: prod failover / multi-AZ / PITR drill are external/unbuilt
+
 ### Caching & CDN — 50.0%
 - **Gateway 0.5** — a: cached() is a partial chokepoint, adoption < target (documented residual); no CDN-edge convergence
 - **Gate 0.5** — a: cache-hit-rate ratchet present but adoption-incomplete
 - **Prod-real 0.5** — s: app-cache prod-real; CDN-edge config is external
-
-### Availability & Recovery — 50.0%
-- **Gateway 0.5** — m: bypass=47 via health_surface_discovery_report.json (measured-partial)
-- **Gate 1.0** — m: game-day-readiness ratchet (game_day + verify_backups + RTO/RPO present)
-- **Prod-real 0.0** — f: prod failover / multi-AZ / PITR drill are external/unbuilt
 
 ### Error Tracking & Logs — 33.3%
 - **Gateway 0.5** — m: bypass=16 via structured_log_adoption_report.json (measured-partial)

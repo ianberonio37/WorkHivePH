@@ -5,7 +5,7 @@
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, follow" />
-  <meta name="description" content="Turn your WorkHive skills, badges and logbook into a professional, ATS-friendly resume. Add files from your phone — photo, PDF, Word or Excel. Free for every Filipino worker." />
+  <meta name="description" content="Turn your WorkHive skills, badges and logbook into a professional, ATS-friendly resume. Add files from your phone: photo, PDF, Word or Excel. Free for every Filipino worker." />
   <meta property="og:title" content="Resume / CV Builder · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <title>Resume / CV Builder | WorkHive</title>
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <!-- Supabase CDN MUST be first script (utils.js getDb depends on it) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <!-- html2pdf for PDF export (P2). pagebreak mode:['css'] only per mobile-maestro rules. -->
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
@@ -71,6 +71,8 @@
     .btn-ghost { background: rgba(255,255,255,0.05); color: var(--wh-cloud); border-color: rgba(255,255,255,0.12); }
     .btn-ghost:active { background: rgba(255,255,255,0.1); }
     .btn-sm { min-height: 36px; padding: 0.35rem 0.7rem; font-size: 0.74rem; }
+    /* Export/preview dialog is the most-used surface: hold the 44px platform tap floor. */
+    .preview-bar .btn-sm { min-height: 44px; }
     .btn-add { width: 100%; margin-top: 0.6rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: var(--wh-blue-light); }
     .btn-add:active { background: rgba(41,182,217,0.15); }
     .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #f87171;
@@ -146,8 +148,11 @@
     .sheet-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
       color: var(--wh-blue-light); margin: 0.9rem 0 0.45rem; }
     .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .check-row input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; margin-top: 0.55rem; accent-color: var(--wh-blue); }
+    .check-row input[type="checkbox"] { width: 24px; height: 24px; min-width: 24px; margin-top: 0.5rem; accent-color: var(--wh-blue); }
     .check-row .cr-body { flex: 1; }
+    /* Clear the sticky .sheet-foot so the LAST review row's editable input is never
+       obscured by the footer (WCAG 2.2 SC 2.5.8 target-size). */
+    #review-body { padding-bottom: 3.25rem; }
     /* ── My Resumes manager ── */
     .rm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .rm-row-main { flex: 1; min-width: 0; }
@@ -177,12 +182,12 @@
   <div class="aurora"><div class="aurora-blob aurora-blob-1"></div><div class="aurora-blob aurora-blob-2"></div></div>
 
   <main class="page" id="main">
-    <div id="offline-banner">⚠ You're offline — changes are saved on this device and will sync when you reconnect.</div>
+    <div id="offline-banner">⚠ You're offline: changes are saved on this device and will sync when you reconnect.</div>
 
     <!-- chip-allow: this page reads v_logbook_truth + v_skill_badges_truth ONCE to PRE-FILL a resume (not a live KPI display); per-item data provenance is shown via srcChip, so a page-level source/freshness chip does not apply. -->
     <header class="page-header">
       <h1>📄 Resume / CV Builder</h1>
-      <p>Build a professional resume from your WorkHive experience. Everything is editable — you decide what goes in.</p>
+      <p>Build a professional resume from your WorkHive experience. Everything is editable: you decide what goes in.</p>
       <div id="ctx-pill" class="ctx-pill" style="display:none;"></div>
     </header>
 
@@ -190,23 +195,34 @@
       <button class="btn btn-primary" id="btn-autofill" type="button">✨ Auto-fill from my WorkHive data</button>
       <button class="btn btn-ghost" id="btn-save" type="button">💾 Save</button>
       <button class="btn btn-ghost" id="btn-resumes" type="button">📂 My Resumes</button>
-      <button class="btn btn-ghost" id="btn-export" type="button">👁 Preview &amp; Export</button>
-      <button class="btn btn-ghost" id="btn-undo" type="button">↩ Undo</button>
+      <button class="btn btn-ghost" id="btn-export" type="button" data-i="rz_export">👁 Preview &amp; Export</button>
+      <button class="btn btn-ghost" id="btn-undo" type="button" data-i="rz_undo">↩ Undo</button>
     </div>
 
     <div class="card" id="upload-card">
-      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">📎 Add from files</div><div class="sec-sub">Dump as many as you like — photo, screenshot, PDF, Word, Excel, or text. We read each one and you choose what to keep.</div></div></div>
+      <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2" data-i="rz_add_files">📎 Add from files</div><div class="sec-sub" data-i="rz_upload_sub">Dump as many as you like: photo, screenshot, PDF, Word, Excel, or text. We read each one and you choose what to keep. Multi-page resume? Snap one photo per page (or upload the PDF): each photo is read on its own.</div></div></div>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
-        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📷 Take photos</button>
-        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);">📁 Choose files</button>
+        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);" data-i="rz_take_photos">📷 Take photos</button>
+        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);" data-i="rz_choose_files">📁 Choose files</button>
       </div>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
       <p id="upload-status" style="font-size:0.72rem;color:#5FCCE8;margin-top:0.6rem;display:none;"></p>
-      <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime — it builds on what you already have.</p>
+      <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime: it builds on what you already have.</p>
+      <script>
+        // P11 i18n — adopt the SHARED data-i/_t system (utils.js WH_FIL_PAGE lever, P5 lever ladder).
+        // First batch: upload-card chrome + header actions. Natural Taglish, English domain terms kept.
+        window.WH_FIL_PAGE = Object.assign(window.WH_FIL_PAGE || {}, {
+          rz_export: '👁 I-preview at I-export', rz_undo: '↩ I-undo',
+          rz_add_files: '📎 Magdagdag mula sa files',
+          rz_upload_sub: 'Mag-dump ng kahit ilan: litrato, screenshot, PDF, Word, Excel, o text. Babasahin namin ang bawat isa at ikaw ang pipili kung ano ang itatago. Maraming pahina ang resume? Kumuha ng isang litrato bawat pahina (o i-upload ang PDF): bawat litrato ay babasahin nang hiwalay.',
+          rz_take_photos: '📷 Kumuha ng litrato', rz_choose_files: '📁 Pumili ng files',
+          rz_upload_privacy: 'Ang iyong mga file ay binabasa lang para punan ang iyong resume, pagkatapos itatapon. Walang idadagdag hangga\'t hindi mo pinindot para kumpirmahin. Magdagdag pa anumang oras: nakabubuo ito sa mayroon ka na.',
+        });
+      </script>
       <label class="opt-toggle" for="promote-dedupe">
         <input type="checkbox" id="promote-dedupe" />
-        <span>Promote, don't duplicate: when an achievement becomes a Project or Award, don't also keep it as a duplicate bullet. <b>Off by default</b> — leave off to capture the most.</span>
+        <span>Promote, don't duplicate: when an achievement becomes a Project or Award, don't also keep it as a duplicate bullet. <b>Off by default</b>, leave off to capture the most.</span>
       </label>
     </div>
 
@@ -219,7 +235,7 @@
       </div>
       <button class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
       <button class="btn btn-ghost" id="btn-jdscore" type="button" style="width:100%;margin-top:0.6rem;">📊 Check my match score for this job</button>
-      <div id="jd-score-panel" role="region" aria-label="Job match score" style="display:none;margin-top:0.9rem;"></div>
+      <div id="jd-score-panel" role="region" aria-label="Job match score" aria-live="polite" style="display:none;margin-top:0.9rem;"></div>
       <button class="btn btn-ghost" id="btn-coverletter" type="button" style="width:100%;margin-top:0.6rem;">✍ Draft a cover letter</button>
       <div id="cover-letter-panel" role="region" aria-label="Cover letter draft" style="display:none;margin-top:0.9rem;"></div>
     </div>
@@ -248,7 +264,7 @@
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="rm-title">
       <div class="sheet-handle"></div>
       <h2 id="rm-title" style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
-      <p style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs — e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
+      <p style="font-size:0.74rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs, e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
       <label style="display:block;font-size:0.7rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
         <input class="wh-input" id="rm-current-title" aria-label="Name of the resume you are editing" placeholder="e.g. Maintenance Technician CV" style="margin-top:0.25rem;" />
       </label>
@@ -332,7 +348,7 @@
         { f: 'location', label: 'Location', ph: 'Batangas, PH' },
         { f: 'startDate', label: 'From', ph: '2021', half: true },
         { f: 'endDate', label: 'To', ph: 'Present', half: true },
-        { f: 'highlights', label: 'What you did (one per line)', type: 'lines', ph: 'Repaired Pump P-204B; cut downtime by 4 hours\nLed monthly PM on 12 conveyors', hint: 'Tip: add a number where you can — downtime saved, equipment count, team size, or cost. Numbers get an employer’s attention.' },
+        { f: 'highlights', label: 'What you did (one per line)', type: 'lines', ph: 'Repaired Pump P-204B; cut downtime by 4 hours\nLed monthly PM on 12 conveyors', hint: 'Tip: add a number where you can (downtime saved, equipment count, team size, or cost). Numbers get an employer’s attention.' },
       ] },
       { key: 'skills', title: 'Skills', sub: 'From your Skill Matrix + anything you add', fields: [
         { f: 'name', label: 'Skill', ph: 'Mechanical Maintenance' },
@@ -364,7 +380,7 @@
         { f: 'summary', label: 'Note', type: 'area', ph: '' },
       ] },
       { key: 'references', title: 'References', sub: '', fields: [
-        { f: 'name', label: 'Name & role', ph: 'Engr. Juan Dela Cruz — Maintenance Supervisor' },
+        { f: 'name', label: 'Name & role', ph: 'Engr. Juan Dela Cruz, Maintenance Supervisor' },
         { f: 'reference', label: 'Contact / note', type: 'area', ph: 'Available on request' },
       ] },
     ];
@@ -422,11 +438,17 @@
     // who needs it (name filled, every section still empty). (Novice MCP sweep 2026-06-06.)
     function isEmptyResume() {
       return !resume.work.length && !resume.skills.length && !resume.certificates.length
-        && !resume.education.length && !resume.projects.length && !resume.awards.length;
+        && !resume.education.length && !resume.projects.length && !resume.awards.length && !resume.references.length;
     }
 
     function render() {
       const root = document.getElementById('sections');
+      // Arc P · Wave 3 (P2 progressive disclosure): the AI helpers (write summary /
+      // polish / tailor-to-job / match-score / cover-letter) ALL need resume content
+      // to be useful — hide the whole card until the resume is non-empty so they don't
+      // read as premature clutter on a blank first load (they reveal once you add anything).
+      const _aiCard = document.getElementById('ai-card');
+      if (_aiCard) _aiCard.style.display = isEmptyResume() ? 'none' : '';
       let html = renderBasics();
       if (isEmptyResume()) {
         // Empty state = a first-timer's "start here". Present ALL three paths
@@ -436,7 +458,7 @@
         // path they actually need. (Novice MCP sweep 2026-06-06.)
         html += `<div class="card empty-prompt">
           <div class="big">🧰</div>
-          <p><b>Three ways to start — pick whichever is easiest:</b></p>
+          <p><b>Three ways to start: pick whichever is easiest:</b></p>
           <p>① <b>Auto-fill</b> from your WorkHive skills, badges &amp; logbook &nbsp;·&nbsp; ② <b>Upload</b> an old resume (photo, PDF, Word, or text) &nbsp;·&nbsp; ③ Just <b>type</b> into the sections below. You can edit everything afterwards.</p>
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
             <button class="btn btn-primary" id="btn-autofill-2" type="button">✨ Auto-fill from WorkHive</button>
@@ -456,6 +478,10 @@
     // Quantification coach: deterministic count of experience bullets that include
     // a number. Coaches toward quantified bullets (the #1 lever vs other applicants)
     // WITHOUT ever inventing a figure — the worker supplies the real one.
+    // A quantified achievement carries a REAL number (count/%/hours/cost), not merely a
+    // bare year. Strip standalone 4-digit years, then require a remaining digit - so
+    // 'Since 2019 maintained pumps' is NOT counted as a quantified bullet.
+    function _hasMetric(s) { return /\d/.test(String(s || '').replace(/\b(19|20)\d\d\b/g, '')); }
     function updateQuantCoach() {
       const el = document.getElementById('quant-coach');
       if (!el) return;
@@ -464,16 +490,16 @@
         const t = String(h || '').trim();
         if (!t) return;
         total++;
-        if (/\d/.test(t)) q++;
+        if (_hasMetric(t)) q++;
       }));
       if (!total) { el.style.display = 'none'; return; }
       el.style.display = 'block';
       if (q === total) {
         el.className = 'quant-coach ok';
-        el.textContent = `✅ All ${total} experience bullet${total === 1 ? '' : 's'} include a number — strong.`;
+        el.textContent = `✅ All ${total} experience bullet${total === 1 ? '' : 's'} include a number: strong.`;
       } else {
         el.className = 'quant-coach';
-        el.textContent = `💪 ${q} of ${total} experience bullets include a number. Numbers win — add real figures (downtime saved, equipment count, team size, cost). Never invent one.`;
+        el.textContent = `💪 ${q} of ${total} experience bullets include a number. Numbers win: add real figures (downtime saved, equipment count, team size, cost). Never invent one.`;
       }
     }
 
@@ -641,7 +667,7 @@
 
     async function saveCloud(silent) {
       if (!_authUid) { if (!silent) toast('Saved on this device. Sign in to back up to the cloud.'); await saveLocal(); return; }
-      if (!navigator.onLine) { if (!silent) toast('Offline — saved on this device, will sync later.'); await saveLocal(); return; }
+      if (!navigator.onLine) { if (!silent) toast('Offline: saved on this device, will sync later.'); await saveLocal(); return; }
       const btn = document.getElementById('btn-save');
       const lbl = btn.textContent;
       if (!silent) { btn.disabled = true; btn.textContent = 'Saving…'; }
@@ -672,7 +698,7 @@
         if (!silent) toast('✓ Resume saved.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_saved', { page: 'resume' });
       } catch (err) {
-        toast('Could not save to cloud: ' + (err.message || 'error') + ' — saved on device.');
+        toast('Could not save to cloud: ' + (err.message || 'error') + '. Saved on device.');
         await saveLocal();
       } finally {
         if (!silent) { btn.disabled = false; btn.textContent = lbl; }
@@ -796,11 +822,21 @@
           </div></div>`;
       }).join('');
     }
+    // AI5: the JD-score + cover-letter panels are NOT tied to _resumeId; clear them on a
+    // resume switch/new so a previous resume's score/letter does not linger on the next.
+    function _resetAiPanels() {
+      ['jd-score-panel', 'cover-letter-panel'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.display = 'none'; el.innerHTML = ''; } });
+      try { _jdKeywords = []; _jdSelected.clear(); } catch (_) { /* empty-catch-allow: _jdKeywords/_jdSelected declared later; ignore on early call */ }
+    }
     async function switchResume(id) {
       if (id === _resumeId) { closeResumeManager(); return; }
       if (resumeWorthSaving()) await saveCloud(true);  // never lose current work
       const ok = await loadCloudById(id);
       if (!ok) { toast('Could not open that resume.'); await renderResumeList(); return; }
+      _undoStack.length = 0;  // the undo stack belongs to the PREVIOUS resume; an Undo
+      // after switching would restore resume A's model while _resumeId points at B,
+      // so the next save would write A's content into B's row (cross-resume clobber).
+      _resetAiPanels();
       render(); await saveLocal();
       closeResumeManager();
       toast('Opened “' + (resume.meta.title || 'resume') + '”.');
@@ -809,6 +845,8 @@
       if (resumeWorthSaving()) await saveCloud(true);
       resume = emptyResume(); resume.basics.name = WORKER_NAME; resume.meta.title = 'Untitled resume';
       _resumeId = null;
+      _undoStack.length = 0;  // fresh resume: the prior resume's undo history must not carry over
+      _resetAiPanels();
       render(); await saveLocal();
       closeResumeManager();
       toast('Started a new blank resume. Edit it, then tap 💾 Save.');
@@ -845,12 +883,27 @@
     // ── Auto-fill from WorkHive (builds checklist items, reuses review sheet) ─
     async function runAutofill() {
       toast('Gathering your WorkHive data…');
+      // U6 (identity-drift): every query below keys on the display NAME. If the
+      // localStorage name drifted from the DB (a rename / case / whitespace mismatch),
+      // all five return empty and a worker with a full Skill Matrix + Logbook sees
+      // "No WorkHive data found" - the flagship efficiency lever silently yields nothing.
+      // Resolve the CANONICAL display_name by auth_uid first (owner-scoped, one query).
+      // tier-a-allow: this reads worker_profiles ONLY for the caller's OWN display_name (auth_uid-scoped,
+      // maybeSingle) to pre-fill their resume — it is NOT a worker-roster / worker-KPI surface, so the
+      // Tier-A views (v_worker_truth / v_worker_skill_truth / v_worker_assignment_truth) do not apply.
+      // Skills already read the canonical v_skill_badges_truth (below); skill_badges is a marked
+      // canonical-allow for supplementary earned_at/exam_score columns the truth view omits.
+      let wname = WORKER_NAME;
+      if (_authUid) {
+        try { const { data: wp } = await db.from('worker_profiles').select('display_name').eq('auth_uid', _authUid).maybeSingle();
+          if (wp && wp.display_name) wname = wp.display_name; } catch (_) { /* empty-catch-allow: fall back to the localStorage name */ }
+      }
       const [badgesRes, profileRes, certRes, logRes, userRes] = await Promise.allSettled([
-        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME).limit(500),
-        db.from('skill_profiles').select('primary_skill').eq('worker_name', WORKER_NAME).maybeSingle(),
+        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', wname).limit(500),
+        db.from('skill_profiles').select('primary_skill').eq('worker_name', wname).maybeSingle(),
         // canonical-allow: v_skill_badges_truth (read above) exposes discipline+level only; the resume certificate auto-fill also needs earned_at + exam_score, which the truth view does not expose, so it reads skill_badges directly for those supplementary columns.
-        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', WORKER_NAME).limit(500),
-        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', WORKER_NAME).order('created_at', { ascending: false }).limit(300),
+        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', wname).limit(500),
+        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', wname).order('created_at', { ascending: false }).limit(300),
         db.auth.getUser(),
       ]);
       const badges  = (badgesRes.status === 'fulfilled' && badgesRes.value.data) || [];
@@ -872,8 +925,8 @@
       for (const b of badges) { const d = b.discipline; if (!d) continue; if (!lvlByDisc[d] || b.level > lvlByDisc[d]) lvlByDisc[d] = b.level; }
       Object.keys(lvlByDisc).forEach((d) => {
         const lvl = lvlByDisc[d], word = LEVELWORD[lvl] || '';
-        items.push({ group: 'Skills', value: `${cap(d)} — ${word}`, checked: true, src: 'Skill Matrix',
-          apply: (r, val) => { const nm = (val.split('—')[0] || cap(d)).trim();
+        items.push({ group: 'Skills', value: `${cap(d)}: ${word}`, checked: true, src: 'Skill Matrix',
+          apply: (r, val) => { const nm = (val.split(':')[0] || cap(d)).trim();
             if (r.skills.some(s => s.name.toLowerCase() === nm.toLowerCase())) return;
             const kw = tesdaHint(lvl); r.skills.push({ name: nm, level: word, keywords: kw ? [kw] : [], _source: 'Skill Matrix' }); } });
       });
@@ -912,7 +965,7 @@
           `${headline} with hands-on experience maintaining ${machines.length} equipment types and ${logs.length} documented maintenance jobs.`, 'Logbook'));
       }
 
-      if (!items.length) { toast('No WorkHive data found yet — start with the Skill Matrix and Logbook.'); return; }
+      if (!items.length) { toast('No WorkHive data found yet: start with the Skill Matrix and Logbook.'); return; }
       openReview('We found ' + items.length + ' things from your WorkHive data', items, (selected) => {
         pushUndo(); snapshotVersion('before auto-fill');
         for (const it of selected) it.apply(resume, it.value);
@@ -924,7 +977,13 @@
     }
 
     function mkBasic(group, field, label, value, src) {
-      return { group, value, label, checked: true, src,
+      // U6: if the worker ALREADY has a value for this basics field, pre-UNCHECK it and
+      // flag it so a re-run of Auto-fill does not silently overwrite their edit (e.g. a
+      // hand-written professional summary). Same "promote, don't clobber" doctrine as the
+      // section dedupe; the worker can still tick it to take the WorkHive version.
+      const cur = (field === 'city' || field === 'region') ? (resume.basics.location || {})[field] : resume.basics[field];
+      const has = !!String(cur || '').trim();
+      return { group, value, label: has ? (label + ' (you already have one)') : label, checked: !has, src,
         apply: (r, val) => { if (field === 'city' || field === 'region') r.basics.location[field] = val; else r.basics[field] = val;
           r.basics._src = r.basics._src || {}; r.basics._src[field] = src; } };
     }
@@ -971,8 +1030,8 @@
           html += `<div class="check-row">
             <input type="checkbox" data-review-check="${i}" ${it.checked ? 'checked' : ''} aria-label="Include this item" />
             <div class="cr-body">
-              ${it.label ? `<div style="font-size:0.62rem;color:#7B8794;margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
-              <input class="wh-input" data-review-value="${i}" value="${escHtml(it.value)}" />
+              ${it.label ? `<div style="font-size:0.62rem;color:#9fb0c0;margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
+              <input class="wh-input" data-review-value="${i}" value="${escHtml(it.value)}" aria-label="${escHtml('Edit ' + String(it.label || it.group || 'value').replace(/^Was:\s*/i, '').slice(0, 60))}" />
             </div></div>`;
         }
       }
@@ -1030,6 +1089,11 @@
       });
     }
 
+    // A4: per-dump truncation notices (a >10-page PDF / >6-sheet xlsx was silently
+    // clipped with NO warning, unlike the server map-reduce partial-read). handleFiles
+    // resets this each dump and surfaces it in the review header so a phone worker's
+    // multi-page CV does not lose its trailing jobs invisibly.
+    let _uploadNotes = [];
     const PDFJS_SRC = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
     const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
     async function extractPdf(file) {
@@ -1040,6 +1104,7 @@
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
       let text = '';
       const maxPages = Math.min(pdf.numPages, 10);
+      if (pdf.numPages > maxPages) _uploadNotes.push((file.name || 'PDF') + ': read the first ' + maxPages + ' of ' + pdf.numPages + ' pages');
       for (let i = 1; i <= maxPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
@@ -1058,6 +1123,7 @@
       const buf = await file.arrayBuffer();
       const wb = window.XLSX.read(buf, { type: 'array' });
       let text = '';
+      if (wb.SheetNames.length > 6) _uploadNotes.push((file.name || 'spreadsheet') + ': read the first 6 of ' + wb.SheetNames.length + ' sheets');
       wb.SheetNames.slice(0, 6).forEach(n => { text += '# ' + n + '\n' + window.XLSX.utils.sheet_to_csv(wb.Sheets[n]) + '\n'; });
       return text;
     }
@@ -1090,19 +1156,34 @@
     // (the "Mechanical Engineer x2" bug). Keys are normalized so "Maintenance
     // Supervisor @ Universal Robina" from two files collapses to one.
     function _norm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+    // Loose key for MINER-produced sections (projects/awards): the server miners emit
+    // the SAME bullet with different surface forms across files ('Predictive Maintenance
+    // Program' vs 'Predictive-maintenance program', '...of the Year' vs '...of the Year
+    // 2019'). Strip punctuation, standalone years and the word 'award' so a 2-version
+    // upload does not duplicate projects/awards (mirrors the server S23 award dedupe).
+    function _normLoose(s) { return _norm(s).replace(/\b(19|20)\d\d\b/g, '').replace(/\baward\b/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
     function entryKey(section, e) {
       if (section === 'work')         return _norm(e.position) + '@' + _norm(e.name);
       if (section === 'education')    return _norm(e.institution) + '|' + _norm(e.studyType || e.area);
       if (section === 'skills')       return _norm(e.name);
       if (section === 'certificates') return _norm(e.name);
-      if (section === 'projects')     return _norm(e.name);
-      if (section === 'awards')       return _norm(e.title);
+      if (section === 'projects')     return _normLoose(e.name);
+      if (section === 'awards')       return _normLoose(e.title);
       return '';
     }
     function entryExists(section, candidate) {
       const k = entryKey(section, candidate);
       if (!k || k === '@' || k === '|') return false;  // not enough to judge — let it through
-      return (resume[section] || []).some(x => entryKey(section, x) === k);
+      const list = resume[section] || [];
+      if (list.some(x => entryKey(section, x) === k)) return true;
+      // Miner sections (projects/awards): the LLM extracts the SAME bullet with different-
+      // length spans across two uploads ('PM rollout' vs 'SAP PM rollout for 400 assets'),
+      // so exact loose-key equality misses it. Treat a >=10-char substring containment of
+      // one loose key inside the other as the same entry — kills the cross-file mined dup.
+      if ((section === 'projects' || section === 'awards') && k.length >= 10) {
+        return list.some(x => { const xk = entryKey(section, x); return xk.length >= 10 && (xk.indexOf(k) !== -1 || k.indexOf(xk) !== -1); });
+      }
+      return false;
     }
 
     // Turn an extracted JSON Resume partial into editable checklist items.
@@ -1135,9 +1216,9 @@
       (f.skills || []).forEach((s) => {
         if (!s.name) return;
         const dup = entryExists('skills', s);
-        const v = s.name + (s.level ? ` — ${s.level}` : '');
+        const v = s.name + (s.level ? `: ${s.level}` : '');
         items.push({ group: 'Skills', label: dup ? ('skill' + DUP) : '', value: v, checked: !dup, src: S,
-          apply: (r, val) => { const nm = (val.split('—')[0] || s.name).trim(); if (entryExists('skills', { name: nm })) return; r.skills.push({ name: nm, level: s.level || '', keywords: [], _source: S }); } });
+          apply: (r, val) => { const nm = (val.split(':')[0] || s.name).trim(); if (entryExists('skills', { name: nm })) return; r.skills.push({ name: nm, level: s.level || '', keywords: [], _source: S }); } });
       });
       (f.certificates || []).forEach((c) => {
         if (!c.name) return;
@@ -1186,10 +1267,18 @@
     // editable checklist tagged by source filename -> merge into the resume.
     // Sequential (not parallel) to stay gentle on the free-tier chain + rate limit.
     async function handleFiles(fileList) {
-      const files = Array.from(fileList).slice(0, MAX_BATCH);
+      // Q3 free-tier upload cap: skip files over 10 MB before we read/upload them —
+      // a giant PDF/image wastes storage + AI-extract budget. Batch count is capped
+      // separately (MAX_BATCH); this caps per-file SIZE.
+      const MAX_FILE_BYTES = 10 * 1024 * 1024;
+      const raw = Array.from(fileList).slice(0, MAX_BATCH);
+      const oversized = raw.filter(f => f.size > MAX_FILE_BYTES);
+      const files = raw.filter(f => f.size <= MAX_FILE_BYTES);
+      if (oversized.length) toast(oversized.length + ' file' + (oversized.length === 1 ? '' : 's') + ' skipped (over 10 MB).');
       if (!files.length) return;
       if (fileList.length > MAX_BATCH) toast('Reading the first ' + MAX_BATCH + ' files.');
       setBusy(true);
+      _uploadNotes = [];   // A4: reset per-dump truncation notices
       const all = []; let okCount = 0, failCount = 0;
       const seenRows = new Set();  // collapse duplicate rows ACROSS files (same section + value)
       for (let i = 0; i < files.length; i++) {
@@ -1200,7 +1289,7 @@
           if (res.error || !res.items || !res.items.length) { failCount++; continue; }
           const short = f.name.length > 24 ? f.name.slice(0, 21) + '…' : f.name;
           res.items.forEach(it => {
-            const key = (it.group || '') + '' + _norm(it.value);
+            const key = (it.group || '') + '' + _normLoose(it.value);
             if (seenRows.has(key)) return;  // same item already came from an earlier file in this dump
             seenRows.add(key);
             it.label = it.label ? (it.label + ' · ' + short) : short;
@@ -1210,9 +1299,19 @@
         } catch (_) { failCount++; }
       }
       setBusy(false); setUploadStatus('');
-      if (!all.length) { toast(failCount ? 'Could not read those files. Try clearer photos or PDFs.' : 'No resume details found.'); return; }
+      if (!all.length) {
+        // A5: don't blame the FILE when the real cause is a dead network (the
+        // CGNAT/free-tier audience). callResumeExtract THROWS on an offline drop.
+        const offline = failCount && !navigator.onLine;
+        const tn = _uploadNotes.length ? ' (' + _uploadNotes.join('; ') + ')' : '';   // A4: surface truncation even with no items
+        toast((offline ? 'You appear to be offline. Reconnect, then try uploading again.'
+              : failCount ? 'Could not read those files. Try clearer photos or PDFs.'
+              : 'No resume details found.') + tn);
+        return;
+      }
       const note = files.length > 1 ? (' from ' + okCount + ' file' + (okCount === 1 ? '' : 's') + (failCount ? ' (' + failCount + ' skipped)' : '')) : '';
-      openReview('We read ' + all.length + ' things' + note, all, (selected) => {
+      const truncNote = _uploadNotes.length ? ' - ' + _uploadNotes.join('; ') : '';   // A4: surface page/sheet truncation, never silent
+      openReview('We read ' + all.length + ' things' + note + truncNote, all, (selected) => {
         pushUndo(); snapshotVersion('before file import');
         for (const it of selected) it.apply(resume, it.value);
         render(); scheduleLocalSave();
@@ -1260,9 +1359,9 @@
         items.push({ group: 'Polished experience', label: 'Was: ' + ref.text, value: b, checked: true, src: 'AI suggested',
           apply: (r, val) => { if (r.work[ref.wi] && Array.isArray(r.work[ref.wi].highlights)) r.work[ref.wi].highlights[ref.hi] = val; } });
       });
-      if (!items.length) { toast('Your experience already reads well — no changes suggested.'); return; }
+      if (!items.length) { toast('Your experience already reads well, no changes suggested.'); return; }
       openReview('Review the polished wording', items, (selected) => {
-        snapshotVersion('before AI polish');
+        pushUndo(); snapshotVersion('before AI polish');
         for (const it of selected) it.apply(resume, it.value);
         render(); scheduleLocalSave();
         toast('✓ Updated ' + selected.length + ' lines.');
@@ -1280,10 +1379,10 @@
       if (data.summary) items.push({ group: 'Tailored summary', label: 'New professional summary', value: data.summary, checked: true, src: 'AI suggested',
         apply: (r, val) => { r.basics.summary = val; r.basics._src = r.basics._src || {}; r.basics._src.summary = 'AI suggested'; } });
       (data.highlights || []).forEach((h) => items.push({ group: 'Suggested highlights', label: '', value: h, checked: true, src: 'AI suggested',
-        apply: (r, val) => { ensureWork0().highlights.push(val); } }));
+        apply: (r, val) => { const w0 = ensureWork0(); const nv = _norm(val); if (!(w0.highlights || []).some(h => _norm(h) === nv)) w0.highlights.push(val); } }));  // AI5: re-running tailor must not append a duplicate suggested highlight
       if (!items.length) { toast('No suggestions returned. Try again.'); return; }
       openReview('Review the tailored suggestions', items, (selected) => {
-        snapshotVersion('before tailor to job');
+        pushUndo(); snapshotVersion('before tailor to job');
         for (const it of selected) it.apply(resume, it.value);
         render(); scheduleLocalSave();
         toast('✓ Applied ' + selected.length + ' suggestions.');
@@ -1330,8 +1429,8 @@
       // digit is the honest signal of a quantified, recruiter-grabbing result),
       // plus awards. We hand the model the real numbers so it can quote them truthfully.
       const achievements = [];
-      (resume.work || []).forEach(w => (w.highlights || []).forEach(h => { if (h && /\d/.test(h)) achievements.push(h); }));
-      (resume.projects || []).forEach(p => { const t = [p.name, p.description].filter(Boolean).join(': '); if (t && /\d/.test(t)) achievements.push(t); });
+      (resume.work || []).forEach(w => (w.highlights || []).forEach(h => { if (h && _hasMetric(h)) achievements.push(h); }));
+      (resume.projects || []).forEach(p => { const t = [p.name, p.description].filter(Boolean).join(': '); if (t && _hasMetric(t)) achievements.push(t); });
       (resume.awards || []).forEach(a => { if (a.title) achievements.push(a.title); });
       // If nothing is quantified, fall back to the first highlight of each job so we
       // can still synthesize a summary (recall-first: never block on missing numbers).
@@ -1355,7 +1454,7 @@
       const items = [{ group: 'Professional summary', label: cur ? ('Was: ' + cur) : 'New professional summary', value: data.summary, checked: true, src: 'AI suggested',
         apply: (r, val) => { r.basics.summary = val; r.basics._src = r.basics._src || {}; r.basics._src.summary = 'AI suggested'; } }];
       openReview('Review your new summary', items, (selected) => {
-        snapshotVersion('before summary synthesis');
+        pushUndo(); snapshotVersion('before summary synthesis');
         for (const it of selected) it.apply(resume, it.value);
         render(); scheduleLocalSave();
         toast(selected.length ? '✓ Updated your summary.' : 'Kept your current summary.');
@@ -1388,12 +1487,23 @@
 
     // Single-token -> substring match; multi-word -> all significant tokens present.
     // Leans toward "have" so we never tell a worker they lack a term their resume shows.
+    // A single token must match on a WORD BOUNDARY, not as a raw substring, or 'iso'
+    // matches 'isolation', 'lean' matches 'cleaner', 'ups' matches 'setups' - inflating
+    // the JD score and telling a worker they cover a skill their resume never states.
+    function _wordInCorpus(w, corpus) {
+      if (!w) return false;
+      const esc = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp('(^|[^a-z0-9])' + esc + '($|[^a-z0-9])').test(corpus);
+    }
     function keywordPresent(term, corpus) {
       const t = _normKw(term);
       if (!t) return false;
-      if (corpus.includes(t)) return true;
-      const toks = t.split(' ').filter(w => w.length > 2);
-      return toks.length > 1 && toks.every(w => corpus.includes(w));
+      if (t.includes(' ')) {
+        if (corpus.includes(t)) return true;   // exact multi-word phrase
+        const toks = t.split(' ').filter(w => w.length > 2);
+        return toks.length > 1 && toks.every(w => _wordInCorpus(w, corpus));
+      }
+      return _wordInCorpus(t, corpus);
     }
 
     // Local fallback extractor: maintenance-domain dictionary + acronym capture.
@@ -1456,7 +1566,7 @@
       // callResumePolish already toasted its raw error (e.g. "rate limited"); when the
       // local fallback still produced a score, replace that alarming toast with a calm
       // note so the flaky-network worker trusts the result they can plainly see.
-      if (usedFallback) toast('Showed a quick offline match estimate — AI was busy.');
+      if (usedFallback) toast('Showed a quick offline match estimate: AI was busy.');
       if (typeof logEvent === 'function') logEvent(db, 'resume_jd_score', { page: 'resume', terms: _jdKeywords.length, matched: _jdKeywords.filter(k => k.have).length });
     }
 
@@ -1576,7 +1686,7 @@
       if (r.basics) delete r.basics._src;
       ['work', 'education', 'skills', 'certificates', 'projects', 'awards', 'references']
         .forEach(k => (r[k] || []).forEach(it => { delete it._source; }));
-      r.meta = { version: 'v1.0.0', generator: 'WorkHive Resume Builder', lastModified: new Date().toISOString() };
+      r.meta = { version: 'v1.0.0', generator: 'WorkHive Resume Builder', lastModified: new Date().toISOString(), title: (resume.meta && resume.meta.title) || 'My Resume', template: (resume.meta && resume.meta.template) || 'ats-plain' };
       return r;
     }
 
@@ -1613,6 +1723,17 @@
       ].join('');
     }
 
+    // A blank added-but-unfilled row (user taps '+ Add' then exports) must NOT render an
+    // orphan section header + empty entry. Only entries with real content render/export.
+    function _entryHasContent(section, x) {
+      if (section === 'work')         return !!(x.position || x.name || (x.highlights || []).some(Boolean));
+      if (section === 'education')    return !!(x.institution || x.studyType || x.area);
+      if (section === 'projects')     return !!(x.name || x.description || (x.highlights || []).some(Boolean));
+      if (section === 'awards')       return !!x.title;
+      if (section === 'references')   return !!(x.name || x.reference);
+      return !!x.name;  // skills, certificates
+    }
+    function _present(section) { return (resume[section] || []).filter(x => _entryHasContent(section, x)); }
     function buildResumeHTML() {
       const e = escHtml, b = resume.basics;
       const contact = [b.email, b.phone, [b.location.city, b.location.region].filter(Boolean).join(', ')]
@@ -1621,11 +1742,12 @@
       if (b.label) h += `<div class="r-label">${e(b.label)}</div>`;
       if (contact) h += `<div class="r-contact">${contact}</div>`;
       if (b.summary) h += `<p class="r-summary">${e(b.summary)}</p>`;
-      const sec = (t) => `<div class="r-sec"><div class="r-sec-title">${e(t)}</div></div>`;
+      const sec = (t) => `<div class="r-sec"><div class="r-sec-title" role="heading" aria-level="2">${e(t)}</div></div>`;
 
-      if (resume.work.length) {
+      const _workE = _present('work');
+      if (_workE.length) {
         h += sec('Experience');
-        for (const w of resume.work) {
+        for (const w of _workE) {
           const dates = [w.startDate, w.endDate].filter(Boolean).join(' – ');
           const org = [w.name, w.location].filter(Boolean).join(' · ');
           const hl = (w.highlights || []).filter(Boolean);
@@ -1635,27 +1757,31 @@
             + (w.summary ? `<div>${e(w.summary)}</div>` : '') + `</div>`;
         }
       }
-      if (resume.skills.length) {
-        h += sec('Skills') + `<p class="r-skills">${resume.skills.map(s => e(s.name) + (s.level ? ` (${e(s.level)})` : '')).filter(Boolean).join(' &middot; ')}</p>`;
+      const _skillsE = _present('skills');
+      if (_skillsE.length) {
+        h += sec('Skills') + `<p class="r-skills">${_skillsE.map(s => e(s.name) + (s.level ? ` (${e(s.level)})` : '')).filter(Boolean).join(' &middot; ')}</p>`;
       }
-      if (resume.education.length) {
+      const _eduE = _present('education');
+      if (_eduE.length) {
         h += sec('Education');
-        for (const ed of resume.education) {
+        for (const ed of _eduE) {
           const dates = [ed.startDate, ed.endDate].filter(Boolean).join(' – ');
           const org = [ed.institution, ed.area].filter(Boolean).join(' · ');
           h += `<div class="r-entry"><div class="r-entry-head"><span class="r-pos">${e(ed.studyType || ed.area || '')}</span><span class="r-dates">${e(dates)}</span></div>${org ? `<div class="r-org">${e(org)}</div>` : ''}</div>`;
         }
       }
-      if (resume.certificates.length) {
+      const _certE = _present('certificates');
+      if (_certE.length) {
         h += sec('Certificates & Licenses');
-        for (const c of resume.certificates) {
+        for (const c of _certE) {
           const meta = [c.issuer, c.date].filter(Boolean).map(e).join(', ');
-          h += `<div class="r-cert"><b>${e(c.name || '')}</b>${meta ? ` — ${meta}` : ''}</div>`;
+          h += `<div class="r-cert"><b>${e(c.name || '')}</b>${meta ? `: ${meta}` : ''}</div>`;
         }
       }
-      if (resume.projects.length) {
+      const _projE = _present('projects');
+      if (_projE.length) {
         h += sec('Projects');
-        for (const p of resume.projects) {
+        for (const p of _projE) {
           const dates = [p.startDate, p.endDate].filter(Boolean).join(' – ');
           const hl = (p.highlights || []).filter(Boolean);
           h += `<div class="r-entry"><div class="r-entry-head"><span class="r-pos">${e(p.name || '')}</span><span class="r-dates">${e(dates)}</span></div>`
@@ -1663,16 +1789,18 @@
             + (hl.length ? `<ul>${hl.map(x => `<li>${e(x)}</li>`).join('')}</ul>` : '') + `</div>`;
         }
       }
-      if (resume.awards.length) {
+      const _awardE = _present('awards');
+      if (_awardE.length) {
         h += sec('Awards');
-        for (const a of resume.awards) {
+        for (const a of _awardE) {
           const meta = [a.awarder, a.date].filter(Boolean).map(e).join(', ');
-          h += `<div class="r-entry"><span class="r-pos">${e(a.title || '')}</span>${meta ? ` — ${meta}` : ''}${a.summary ? `<div>${e(a.summary)}</div>` : ''}</div>`;
+          h += `<div class="r-entry"><span class="r-pos">${e(a.title || '')}</span>${meta ? `: ${meta}` : ''}${a.summary ? `<div>${e(a.summary)}</div>` : ''}</div>`;
         }
       }
-      if (resume.references.length) {
+      const _refE = _present('references');
+      if (_refE.length) {
         h += sec('References');
-        for (const rf of resume.references) {
+        for (const rf of _refE) {
           h += `<div class="r-entry"><b>${e(rf.name || '')}</b>${rf.reference ? `<div>${e(rf.reference)}</div>` : ''}</div>`;
         }
       }
@@ -1691,7 +1819,7 @@
     function setTemplate(t) { _template = t; resume.meta.template = t; renderPaper(); scheduleLocalSave(); }
 
     async function downloadPDF() {
-      if (typeof html2pdf === 'undefined') { toast('PDF library still loading — try again in a moment.'); return; }
+      if (typeof html2pdf === 'undefined') { toast('PDF library still loading, try again in a moment.'); return; }
       const el = document.getElementById('resume-paper');
       const safe = (resume.basics.name || 'resume').replace(/[^a-z0-9]+/gi, '_');
       const prevW = el.style.width; el.style.width = '680px'; // pin A4 portrait content width (mobile-maestro PDF rule)
@@ -1733,11 +1861,19 @@
     // hand and zip it with JSZip (lazy-loaded) so the output is a real .docx an
     // ATS parses cleanly - not an HTML-masquerading-as-doc file. Section order
     // mirrors buildResumeHTML so the Word file matches the PDF and the editor.
-    function _xe(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;'); }
+    // Escape for OOXML. First STRIP XML-1.0-illegal control chars (everything below
+    // 0x20 except \t \n \r) — a stray U+000B/U+000C from a bad phone-PDF text layer
+    // otherwise lands verbatim in document.xml and Word REFUSES to open the .docx
+    // (a hard corruption, worse than a garble). Then escape the 5 XML entities.
+    function _xe(s) { return String(s == null ? '' : s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;'); }
     function _run(text, o) { o = o || {};
       let rpr = '';
       if (o.b || o.i || o.sz || o.color) rpr = '<w:rPr>' + (o.b ? '<w:b/>' : '') + (o.i ? '<w:i/>' : '') + (o.sz ? `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>` : '') + (o.color ? `<w:color w:val="${o.color}"/>` : '') + '</w:rPr>';
-      return `<w:r>${rpr}<w:t xml:space="preserve">${_xe(text)}</w:t></w:r>`;
+      // Preserve line breaks: a multi-line field (summary, a pasted multi-line bullet)
+      // must render as real <w:br/> breaks. A single <w:t> with a literal \n is
+      // collapsed by Word to one SPACE, silently flattening a multi-paragraph summary.
+      const body = String(text == null ? '' : text).split(/\r\n|\r|\n/).map(p => `<w:t xml:space="preserve">${_xe(p)}</w:t>`).join('<w:br/>');
+      return `<w:r>${rpr}${body}</w:r>`;
     }
     function _para(runs, o) { o = o || {};
       let ppr = '<w:pPr>' + `<w:spacing w:after="${o.after == null ? 120 : o.after}"/>`;
@@ -1755,9 +1891,9 @@
       if (b.summary) P.push(_para(_run(b.summary, { sz: 22 }), { after: 160 }));
       const title = (t) => P.push(_para(_run(t.toUpperCase(), { b: true, sz: 24 }), { after: 60, border: true }));
       const bullet = (t) => P.push(_para(_run('•  ' + t, { sz: 22 }), { after: 40, indent: 220 }));
-      if (resume.work.length) {
+      if (_present('work').length) {
         title('Experience');
-        for (const w of resume.work) {
+        for (const w of _present('work')) {
           const dates = [w.startDate, w.endDate].filter(Boolean).join(' – ');
           P.push(_para(_run(w.position || '', { b: true, sz: 22 }) + (dates ? _run('    ' + dates, { sz: 20, color: '666666' }) : ''), { after: 20 }));
           const org = [w.name, w.location].filter(Boolean).join(' · ');
@@ -1765,44 +1901,44 @@
           (w.highlights || []).filter(Boolean).forEach(bullet);
         }
       }
-      if (resume.skills.length) {
+      if (_present('skills').length) {
         title('Skills');
-        P.push(_para(_run(resume.skills.map(s => s.name + (s.level ? ` (${s.level})` : '')).filter(Boolean).join('   •   '), { sz: 22 }), { after: 120 }));
+        P.push(_para(_run(_present('skills').map(s => s.name + (s.level ? ` (${s.level})` : '')).filter(Boolean).join('   •   '), { sz: 22 }), { after: 120 }));
       }
-      if (resume.education.length) {
+      if (_present('education').length) {
         title('Education');
-        for (const ed of resume.education) {
+        for (const ed of _present('education')) {
           const dates = [ed.startDate, ed.endDate].filter(Boolean).join(' – ');
           P.push(_para(_run(ed.studyType || ed.area || '', { b: true, sz: 22 }) + (dates ? _run('    ' + dates, { sz: 20, color: '666666' }) : ''), { after: 20 }));
           const org = [ed.institution, ed.area].filter(Boolean).join(' · ');
           if (org) P.push(_para(_run(org, { sz: 20, color: '444444' }), { after: 60 }));
         }
       }
-      if (resume.certificates.length) {
+      if (_present('certificates').length) {
         title('Certificates & Licenses');
-        for (const c of resume.certificates) {
+        for (const c of _present('certificates')) {
           const meta = [c.issuer, c.date].filter(Boolean).join(', ');
           P.push(_para(_run(c.name || '', { b: true, sz: 22 }) + (meta ? _run('  ' + meta, { sz: 20, color: '444444' }) : ''), { after: 40 }));
         }
       }
-      if (resume.projects.length) {
+      if (_present('projects').length) {
         title('Projects');
-        for (const p of resume.projects) {
+        for (const p of _present('projects')) {
           P.push(_para(_run(p.name || '', { b: true, sz: 22 }), { after: 20 }));
           if (p.description) P.push(_para(_run(p.description, { sz: 22 }), { after: 40 }));
           (p.highlights || []).filter(Boolean).forEach(bullet);
         }
       }
-      if (resume.awards.length) {
+      if (_present('awards').length) {
         title('Awards');
-        for (const a of resume.awards) {
+        for (const a of _present('awards')) {
           const meta = [a.awarder, a.date].filter(Boolean).join(', ');
           P.push(_para(_run(a.title || '', { b: true, sz: 22 }) + (meta ? _run('  ' + meta, { sz: 20, color: '444444' }) : ''), { after: 40 }));
         }
       }
-      if (resume.references.length) {
+      if (_present('references').length) {
         title('References');
-        for (const rf of resume.references) {
+        for (const rf of _present('references')) {
           P.push(_para(_run(rf.name || '', { b: true, sz: 22 }) + (rf.reference ? _run('  ' + rf.reference, { sz: 22 }) : ''), { after: 40 }));
         }
       }
@@ -1811,7 +1947,7 @@
     async function exportDocx() {
       try {
         if (typeof JSZip === 'undefined') await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
-        if (typeof JSZip === 'undefined') { toast('Word library still loading — try again in a moment.'); return; }
+        if (typeof JSZip === 'undefined') { toast('Word library still loading, try again in a moment.'); return; }
         const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${buildDocxBody()}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720"/></w:sectPr></w:body></w:document>`;
         const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
         const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
@@ -1891,12 +2027,24 @@
         const files = Array.from(ev.target.files || []); ev.target.value = '';
         if (files.length) await handleFiles(files);
       }));
-      document.getElementById('btn-summary').addEventListener('click', () => { runSummarize(); });
-      document.getElementById('btn-polish').addEventListener('click', () => { runPolish(); });
-      document.getElementById('btn-tailor').addEventListener('click', () => { runTailor(); });
-      document.getElementById('btn-jdscore').addEventListener('click', () => { runJdScore(); });
+      // U3: disable an AI button while its request is IN FLIGHT. The progress toast
+      // auto-dismisses at 2.8s but callResumePolish can take up to 45s; without this a
+      // worker sees an idle UI, re-taps, and starts a parallel 45s call / opens two
+      // review sheets. Re-enabled (finally) when the runner returns.
+      const _wireBusy = (id, fn) => {
+        const el = document.getElementById(id); if (!el) return;
+        el.addEventListener('click', async () => {
+          if (el.disabled) return;
+          el.disabled = true; el.setAttribute('aria-busy', 'true');
+          try { await fn(); } finally { el.disabled = false; el.removeAttribute('aria-busy'); }
+        });
+      };
+      _wireBusy('btn-summary', runSummarize);
+      _wireBusy('btn-polish', runPolish);
+      _wireBusy('btn-tailor', runTailor);
+      _wireBusy('btn-jdscore', runJdScore);
       document.getElementById('jd-score-panel').addEventListener('click', onJdPanelClick);
-      document.getElementById('btn-coverletter').addEventListener('click', () => { runCoverLetter(); });
+      _wireBusy('btn-coverletter', runCoverLetter);
       document.getElementById('cover-letter-panel').addEventListener('click', onCoverLetterClick);
       const pdEl = document.getElementById('promote-dedupe');
       if (pdEl) {

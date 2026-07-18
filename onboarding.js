@@ -107,36 +107,77 @@
       return;
     }
     host.classList.remove('hidden');
+    window._lastOnbProgress = progress;  // cache so a language toggle re-renders without re-fetching
+    window._lastOnbHost = host;
+    // N1: onboarding strings translate with the page EN/FIL toggle. _FIL maps the step labels;
+    // T() falls back to English when no active translator / no FIL entry.
+    const _FIL = {
+      'Supervisor setup': 'Setup ng Superbisor', 'Get started': 'Magsimula',
+      'Sign in': 'Mag-sign in', 'Join a hive': 'Sumali sa hive', 'Log your first entry': 'I-log ang unang entry',
+      'Upload a photo': 'Mag-upload ng litrato', 'Complete a PM task': 'Tapusin ang PM task',
+      'Lead a hive': 'Mamuno ng hive', 'Approve or reject a submission': 'Aprubahan o tanggihan ang submission',
+      'Register an asset': 'Mag-register ng asset', 'Set a PM template': 'Mag-set ng PM template',
+      'Review the audit log': 'Suriin ang audit log', 'Approve a daily brief': 'Aprubahan ang daily brief',
+    };
+    const T = (en) => (typeof window._t === 'function' ? window._t(en, _FIL[en]) : en);
+    const isFil = typeof window !== 'undefined' && window.WH_LANG === 'fil';
     const pct = Math.round(100 * progress.completed / progress.total);
-    const title = progress.role === 'supervisor'
-      ? 'Supervisor setup'
-      : 'Get started';
-    const subtitle = `${progress.completed} of ${progress.total} steps complete`;
+    const title = progress.role === 'supervisor' ? T('Supervisor setup') : T('Get started');
+    const subtitle = isFil
+      ? `${progress.completed} sa ${progress.total} hakbang tapos`
+      : `${progress.completed} of ${progress.total} steps complete`;
 
-    const items = progress.steps.map(s => `
-      <li style="display:flex; align-items:center; gap:8px; padding:6px 0; font-size:11.5px; color:${s.done ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.85)'};">
-        <span aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; flex-shrink:0;
-          background:${s.done ? 'rgba(74,222,128,0.18)' : 'rgba(255,255,255,0.06)'};
-          color:${s.done ? '#4ade80' : 'rgba(255,255,255,0.45)'};
-          border:1px solid ${s.done ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.08)'};
-          font-weight:800; font-size:11px;">${s.done ? '✓' : '·'}</span>
-        <span style="${s.done ? 'text-decoration:line-through;' : ''}">${_esc(s.label)}</span>
-      </li>
-    `).join('');
+    // D1/O1: each INCOMPLETE step links to the surface where the user actually does it (with a
+    // "→" affordance + 44px hit area) — the card's whole job is to move them to ONE real action,
+    // not just report status. Completed steps stay inert struck-through. Structural steps
+    // (sign-in / join / lead) have no destination and render inert.
+    const STEP_HREF = {
+      first_log: 'logbook.html?new=1', first_photo: 'logbook.html?new=1', first_pm: 'pm-scheduler.html',
+      registered_asset: 'asset-hub.html', set_pm: 'pm-scheduler.html',
+      approved_member: 'alert-hub.html', approved_brief: 'alert-hub.html',
+    };
+    const remaining = progress.total - progress.completed;
+    let nextSeen = false;  // A3/H1: emphasize ONLY the first incomplete step (the next rung).
+
+    const items = progress.steps.map(s => {
+      const href   = STEP_HREF[s.id];
+      const isNext = !s.done && !nextSeen;
+      if (isNext) nextSeen = true;
+      const marker = `<span aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; flex-shrink:0;
+          background:${s.done ? 'rgba(74,222,128,0.18)' : isNext ? 'rgba(247,162,27,0.22)' : 'rgba(255,255,255,0.06)'};
+          color:${s.done ? '#4ade80' : isNext ? '#F7A21B' : 'rgba(255,255,255,0.45)'};
+          border:1px solid ${s.done ? 'rgba(74,222,128,0.4)' : isNext ? 'rgba(247,162,27,0.5)' : 'rgba(255,255,255,0.08)'};
+          font-weight:800; font-size:12px;">${s.done ? '✓' : '·'}</span>`;
+      const labelStyle = s.done ? 'text-decoration:line-through; color:rgba(255,255,255,0.55);'
+                        : isNext ? 'font-weight:700; color:#fff;'
+                        : 'color:rgba(255,255,255,0.85);';
+      const label   = `<span style="${labelStyle} flex:1;">${_esc(T(s.label))}</span>`;
+      const rowStyle = 'display:flex; align-items:center; gap:8px; min-height:44px; padding:4px 0; font-size:12px;';
+      if (!s.done && href) {
+        return `<li><a href="${href}" style="${rowStyle} text-decoration:none; color:inherit;">${marker}${label}<span aria-hidden="true" style="color:#F7A21B; font-weight:700; flex-shrink:0;">&#8594;</span></a></li>`;
+      }
+      return `<li style="${rowStyle}">${marker}${label}</li>`;
+    }).join('');
+
+    // H2 endowed-progress: convert the Zeigarnik "N left" tension into a pull toward completion.
+    const endowed = remaining > 0
+      ? `<p style="font-size:12px; color:rgba(255,255,255,0.6); margin:8px 0 0; font-variant-numeric:tabular-nums;">${isFil ? `${remaining} hakbang na lang para handa ang hive.` : `${remaining} step${remaining > 1 ? 's' : ''} left to a hive-ready setup.`}</p>`
+      : '';
 
     host.innerHTML = `
       <div style="padding:14px 16px;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(247,162,27,0.18); color:#F7A21B;">${_esc(title)}</span>
-            <span style="font-size:11px; color:rgba(255,255,255,0.55);">${_esc(subtitle)}</span>
+            <span style="font-size:12px; color:rgba(255,255,255,0.62); font-variant-numeric:tabular-nums;">${_esc(subtitle)}</span>
           </div>
-          <span style="font-size:14px; font-weight:800; color:#F7A21B;">${pct}%</span>
+          <span style="font-size:14px; font-weight:800; color:#F7A21B; font-variant-numeric:tabular-nums;">${pct}%</span>
         </div>
         <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:3px; margin:8px 0; overflow:hidden;">
           <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,#F7A21B,#FDB94A); border-radius:3px; transition:width 0.4s ease;"></div>
         </div>
         <ul style="list-style:none; padding:0; margin:6px 0 0;">${items}</ul>
+        ${endowed}
       </div>
     `;
   }
@@ -149,4 +190,15 @@
 
   window.whOnboardingProgress    = whOnboardingProgress;
   window.whRenderOnboardingCard  = whRenderOnboardingCard;
+
+  // N1: re-render on the page's EN/FIL toggle, from cached progress (no re-fetch of the detectors).
+  if (typeof document !== 'undefined') {
+    document.addEventListener('wh-locale-change', function () {
+      try {
+        if (window._lastOnbHost && window._lastOnbProgress) {
+          whRenderOnboardingCard(window._lastOnbHost, window._lastOnbProgress);
+        }
+      } catch (_) { /* empty-catch-allow: best-effort re-render of the onboarding card on locale change */ }
+    });
+  }
 })();

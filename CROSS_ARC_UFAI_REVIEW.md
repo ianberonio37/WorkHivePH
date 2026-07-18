@@ -134,8 +134,18 @@ Ian asked for** — the needs-new column distilled to "what to build next."
    `py8000fwd` + `embed_server :8901` all serving) — write the live-invoke round-trips that flip Arc E's F-lens cells
    **and** Arc I I5/U · I5/A · I7/F (the old "edge-fns 503 locally" env-debt). With Tier-1 consumed, **this is the
    single next local lever** — the build is done; what remains is to *drive* it end-to-end. **← next**
-7. **Browser-CI harness** — unblocks Arc D's ~811 strict-live cells + Arc E/F front-facing render cells. The
-   single biggest platform-wide live lever (see §1 caveat). Playwright recipe already proven in §13/Arc-I tests.
+7. ~~**Browser-CI harness**~~ — **✅ DONE 2026-07-01 (FB2).** `tools/browser_ci_persona_walk.mjs` walks all 37
+   pages HEADLESS as a 4-persona **role × viewport × hive** roster (field-tech worker@mobile · supervisor@desktop ·
+   new-worker novice@desktop · admin supervisor@cross-hive-Lucena), running the authoritative `ufai_battery`
+   referee per persona; emits `browser_ci_persona_board.json` + forward-only `browser_ci_persona_baseline.json`.
+   Floor = the PERSONA-DELTA (console-error / dead-onclick / serious-WCAG / secret-leak) Arc D's single-identity
+   sweep can't see — NOT a re-derived Arc-D absolute. **Live floor = 140/140 (100%)** after the bugs it caught
+   were fixed: (a) a battery secret-scanner false-positive (bare word `service_role` in a label → tightened to
+   credential-shape, helps every consumer); (b) the shared `.sc-tag` status-badge contrast class (red 3.95 / grey
+   4.16 FAIL) → single-source lighten in components.css across ~13 pages; (c) a 7-page fan-out of distinct
+   contrast / target-size (the known FAB shell-occlusion disposition, now RESOLVED) / nested-interactive fixes.
+   Gate `validate_browser_ci_persona.py` (group Forward-Build) + real headless re-drive in
+   `.github/workflows/browser-persona-ci.yml`. This axe-per-persona harness is the instrument Arc U will drive.
 8. **k6 / load tier** — `tools/load_test.k6.js` already targets the local edge; "install k6," not "needs prod."
 
 ### Tier 3 — live-LLM (single invokes are $0 free-tier; only bursts cost)

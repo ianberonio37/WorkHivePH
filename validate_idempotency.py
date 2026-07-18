@@ -112,6 +112,9 @@ def check_migration_index_idempotency():
         content = read_file(os.path.join(MIGRATIONS_DIR, fname))
         if not content:
             continue
+        # Strip SQL line comments before scanning DDL — a comment mentioning "CREATE INDEX ...
+        # CONCURRENTLY" (prose, not a statement) must NOT be flagged as a non-idempotent index.
+        content = re.sub(r'--[^\n]*', '', content)
         for m in re.finditer(r'\bCREATE\s+(?:UNIQUE\s+)?INDEX\s+', content, re.IGNORECASE):
             context = content[m.start():m.start() + 120]
             if re.search(r'IF\s+NOT\s+EXISTS', context, re.IGNORECASE):

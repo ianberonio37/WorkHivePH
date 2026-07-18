@@ -109,42 +109,48 @@ test.describe('hive.html — supervisor Plain-Read journey', () => {
     await whPage.goto(PAGE);
     await waitForVerdictSettled(whPage);
 
-    const icon = await whPage.locator('#ss-verdict-icon').textContent({ timeout: 5000 });
-    // check=healthy, bang=watch, warning=attn, middle-dot=empty
-    const validIcons = ['✓', '!', '⚠', '·'];
-    expect(validIcons, `unexpected verdict icon: "${icon}"`)
-      .toContain(icon!.trim());
+    // The icon conveys tone as EITHER an emoji (·/! stay text) OR, once the platform
+    // emoji→SVG system (utils.js whIconSystem) converts it, an inline <svg.wh-i aria-label>
+    // (✓ → "check", ⚠ → "warning"). Accept both so the test is icon-system-robust.
+    const info = await whPage.locator('#ss-verdict-icon').evaluate(el => ({
+      text: (el.textContent || '').trim(),
+      svgLabel: el.querySelector('svg')?.getAttribute('aria-label') || '',
+    }));
+    const okText = ['✓', '!', '⚠', '·'].includes(info.text);
+    const okSvg  = /warning|check|alert|info|dot|circle/i.test(info.svgLabel);
+    expect(okText || okSvg, `verdict icon should convey tone (text="${info.text}" svg="${info.svgLabel}")`).toBe(true);
   });
 
-  test('3 plain-read cards all have non-placeholder heroes', async ({ whPage }) => {
+  test('3 action tiles all have non-placeholder heroes', async ({ whPage }) => {
     test.slow(); // inventory query inside loadSupervisorSummary can be slow
     await whPage.goto(PAGE);
     await waitForDataReady(whPage);
 
-    // Stair card
-    const stairHero = await whPage.locator('#ss-stair-hero').textContent();
-    expect(stairHero?.trim(), 'stair hero should be populated').not.toBe('—');
-    expect(stairHero?.trim()).not.toBe('--');
+    // v4 action tiles (2026-07-14): PM overdue / low stock / open work — each a live count.
+    const pmHero = await whPage.locator('#ss-pm-hero').textContent();
+    expect(pmHero?.trim(), 'PM-overdue tile hero should be populated').not.toBe('—');
+    expect(pmHero?.trim()).not.toBe('--');
 
-    // Adoption card
-    const adoptHero = await whPage.locator('#ss-adoption-hero').textContent();
-    expect(adoptHero?.trim(), 'adoption hero should be populated').not.toBe('—');
+    const stockHero = await whPage.locator('#ss-stock-hero').textContent();
+    expect(stockHero?.trim(), 'low-stock tile hero should be populated').not.toBe('—');
 
-    // Issues card — the key fix from walkthrough (was 0 when 18 WOs existed)
-    const issuesHero = await whPage.locator('#ss-issues-hero').textContent();
-    expect(issuesHero?.trim(), 'issues hero should be populated').not.toBe('—');
-    expect(issuesHero?.trim()).not.toBe('--');
+    // Open-work tile — the count that must never contradict stat-open (see journey-cross-page).
+    const jobsHero = await whPage.locator('#ss-jobs-hero').textContent();
+    expect(jobsHero?.trim(), 'open-work tile hero should be populated').not.toBe('—');
+    expect(jobsHero?.trim()).not.toBe('--');
   });
 
-  test('Open Issues card sub-text mentions at least one canonical source', async ({ whPage }) => {
+  test('action tiles name their canonical sources (PM / stock / work)', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForDataReady(whPage);
 
-    const sub = await whPage.locator('#ss-issues-sub').textContent({ timeout: 5000 });
-    // Should mention "open WO" OR "PM overdue" OR "low stock" OR "No open work"
-    expect(sub, 'issues sub should reference actual data sources').toMatch(
-      /open WO|PM overdue|low stock|No open work|no open/i,
-    );
+    // v4: the three tiles ARE the canonical signals — their labels name each source.
+    const pmLbl    = await whPage.locator('#ss-pm-label').textContent({ timeout: 5000 });
+    const stockLbl = await whPage.locator('#ss-stock-label').textContent({ timeout: 5000 });
+    const jobsLbl  = await whPage.locator('#ss-jobs-label').textContent({ timeout: 5000 });
+    expect(pmLbl,    'PM tile should name PM/overdue').toMatch(/PM|overdue/i);
+    expect(stockLbl, 'stock tile should name stock/parts').toMatch(/stock|part/i);
+    expect(jobsLbl,  'work tile should name work/jobs').toMatch(/work|job/i);
   });
 
   test('action card has substantive recommendation (not "Computing...")', async ({ whPage }) => {
@@ -317,20 +323,24 @@ test.describe('hive.html — supervisor Plain-Read journey', () => {
     }
   });
 
-  test('Open Issues card is NEVER 0 when stat-open shows work orders', async ({ whPage }) => {
+  test('your-open-jobs tile shows a valid personal count (subset of hive open WOs)', async ({ whPage }) => {
     test.slow(); // sign-in + waitForDataReady can take extra time
     await whPage.goto(PAGE);
     await waitForDataReady(whPage);
 
-    const statOpen    = await whPage.locator('#stat-open').textContent({ timeout: 6000 }).catch(() => '0');
-    const issuesHero  = await whPage.locator('#ss-issues-hero').textContent().catch(() => '0');
+    const statOpen  = await whPage.locator('#stat-open').textContent({ timeout: 6000 }).catch(() => '0');
+    // v4 (2026-07-15): tile 3 is the CURRENT USER's OWN open jobs (personal, worker_name-scoped), a
+    // SUBSET of the hive-wide open WOs in #stat-open. It must be a valid count and never EXCEED the hive.
+    const jobsHero  = await whPage.locator('#ss-jobs-hero').textContent().catch(() => '');
 
     const openWOCount = parseInt(statOpen?.trim() || '0', 10);
-    const issuesCount = parseInt(issuesHero?.trim() || '0', 10);
+    const jobsCount   = parseInt((jobsHero || '').trim(), 10);
 
-    if (openWOCount > 0) {
-      expect(issuesCount, `Open Issues card (${issuesCount}) should not be 0 when stat-open shows ${openWOCount} WOs`)
-        .toBeGreaterThan(0);
+    expect(Number.isFinite(jobsCount), `your-open-jobs tile should be a number, got "${jobsHero}"`).toBe(true);
+    expect(jobsCount, 'your-open-jobs count should be >= 0').toBeGreaterThanOrEqual(0);
+    if (Number.isFinite(openWOCount)) {
+      expect(jobsCount, `your-open-jobs (${jobsCount}) should not exceed hive open WOs (${openWOCount})`)
+        .toBeLessThanOrEqual(openWOCount);
     }
   });
 });

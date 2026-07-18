@@ -30,7 +30,8 @@
  *   devops (env-var secret, region-aware endpoint, AbortSignal timeout)
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -38,6 +39,9 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { clampPersona } from "../_shared/persona.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): Azure TTS is a paid cost surface reachable
+// from the browser (wh-tts.js / voice-journal) — per-person/IP bucket before synth.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -140,7 +144,12 @@ function buildSsml(voice: string, text: string, personaKey: string): string {
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("tts-speak", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "tts-speak", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "tts-speak");  // I6 observability
@@ -163,6 +172,20 @@ serve(async (req) => {
   if (text.length > MAX_TEXT_LENGTH) {
     return json(corsHeaders, 413, { error: `text too long (max ${MAX_TEXT_LENGTH} chars)` });
   }
+
+  // A5: bucket on the authed user when the caller sent a JWT, else on IP (best-effort
+  // identity — TTS is invoked with the session token by wh-tts.js).
+  const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  let _uid: string | null = null;
+  try {
+    const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    if (_bearer && _bearer !== SB_KEY) {
+      const { data: _u } = await _adminClient.auth.getUser(_bearer);
+      _uid = _u?.user?.id || null;
+    }
+  } catch (_) { /* fall through to IP bucket */ }
+  const _rl = await checkSoloRateLimit(_adminClient, soloRateLimitKey(_uid, _ip), undefined, undefined, _ip);
+  if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
 
   const personaKey = clampPersona(body.persona);
   const voice      = PERSONA_TO_VOICE[personaKey];

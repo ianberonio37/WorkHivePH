@@ -29,30 +29,11 @@
    validate_design_tokens.py L1 gates tokens.css, L2 bans the #e8920a drift hex,
    L3 ratchets raw brand hex on the glass down. */
 :root {
-  /* Brand RGB triplets — for rgba(var(--wh-*-rgb), a); the colors themselves are
-     in tokens.css (the single palette source). */
-  --wh-orange-rgb:   247, 162, 27;
-  --wh-blue-rgb:     41, 182, 217;
-  /* Spacing — 8px grid (NN/g dashboard grid) */
-  --wh-space-1: 4px;  --wh-space-2: 8px;  --wh-space-3: 12px;
-  --wh-space-4: 16px; --wh-space-6: 24px; --wh-space-8: 32px;
-  /* Radius */
-  --wh-radius-sm: 8px; --wh-radius: 12px; --wh-radius-lg: 16px;
-  /* Type */
-  --wh-font: 'Poppins', system-ui, -apple-system, sans-serif;
-  /* Elevation (Arc W · W1) — soft dark-mode shadows. Black-based (not brand hex) so they layer on
-     any surface; shadow-3 is for the highest float (overlays/modals). box-shadow is OUTSIDE the box
-     model → zero layout shift / CLS, no tap-target or animation-budget cost. */
-  --wh-shadow-1: 0 1px 2px rgba(0,0,0,0.20), 0 2px 6px rgba(0,0,0,0.16);
-  --wh-shadow-2: 0 4px 10px rgba(0,0,0,0.24), 0 8px 24px rgba(0,0,0,0.18);
-  --wh-shadow-3: 0 12px 32px rgba(0,0,0,0.34), 0 4px 12px rgba(0,0,0,0.22);
-  /* Surface-tint ladder (Material-3 tonal elevation — the dark-mode-correct PRIMARY depth cue:
-     higher layer = lighter surface). Aliases over the navy ladder already in tokens.css. */
-  --wh-elev-0: var(--wh-navy);       /* page base */
-  --wh-elev-1: var(--wh-navy-mid);   /* raised card / panel */
-  --wh-elev-2: var(--wh-navy-light); /* popover / menu floating above a card */
-  /* z-scale — one ladder so overlays/modals/toasts stack predictably (retires ad-hoc z:9999). */
-  --wh-z-base: 1; --wh-z-sticky: 100; --wh-z-overlay: 1000; --wh-z-modal: 1100; --wh-z-toast: 1200;
+  /* The platform vocabulary (colour, spacing, radius, type, elevation, z) now lives in
+     tokens.css — @imported above — so the ~21 pages that link tokens.css WITHOUT
+     components.css can see it too. Do not re-declare it here: a second declaration is a
+     second source of truth and defeats one-place editing. (2026-07-15) */
+
 }
 
 /* KPI summary cards — the 3-tile "operational heartbeat" header grid */
@@ -66,13 +47,23 @@
    == page bg → coplanar). The soft shadow comes from the global elevation rule below. */
 .simple-card { background:var(--wh-elev-1); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:14px 16px; min-height:154px; }
 .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
-.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); }
+/* THE canonical KPI number. Two tiers only, and this is the standard one:
+     .sc-hero            -> 1.5rem  (every KPI tile on every page)
+     .simple-card.hero   -> clamp(2rem,5.5vw,2.4rem) (the ONE key metric, Von Restorff)
+   tabular-nums lives HERE, not per page, so digits sit on a fixed pitch platform-wide:
+   columns of KPIs line up and a refreshing value cannot jitter its own tile. Any page
+   re-declaring .sc-hero locally SHADOWS this and silently opts out of both. (C4, 2026-07-15) */
+.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
 .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
 .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
-.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
-.simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb),0.16);  color:var(--wh-orange); }
-.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
-.simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+/* sc-tag text colors LIGHTENED for WCAG 2.2 AA 4.5:1 at the 0.58rem badge size (FB2
+   browser-CI persona walk caught these failing live over the 0.16-tinted bg on the
+   #1F2E45 card: red 3.95 + grey 4.16 FAIL, amber 4.93 borderline). Measured ratios
+   over the effective tinted bg now: green 6.9 · amber 6.2 · red 5.8 · grey 7.7 — hues kept. */
+.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#86efac; }
+.simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb),0.16);  color:var(--wh-orange-light); }
+.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#fca5a5; }
+.simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:#cbd5e1; }
 
 /* "What to do next" recommendation card */
 .action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:14px 16px; margin-bottom:var(--wh-space-6); }
@@ -80,6 +71,27 @@
 /* Arc L · L1 CLS: reserve ~3 lines for the async recommendation (measured 1-line placeholder
    20px → up to 79px when the real "what to do next" text fills) so it doesn't grow + shift. */
 .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:60px; }
+/* Arc P · Wave 1 (P3 "one obvious primary action"): the "What to do next" block ends in ONE
+   primary CTA button that DOES the recommended action, not just prose. Shared so every dashboard's
+   next-action block renders the same primary control (FUSION 3a). Orange = the page's single primary
+   accent inside the blue advisory card. Renderers set label+href and un-hide it per-branch. */
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:var(--wh-radius-sm); cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta:hover { background:var(--wh-orange-dark); }
+.action-card .ac-cta:active { transform:scale(0.98); }
+.action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
+
+/* Arc P · Wave 1 (P2 progressive disclosure / FUSION 2 list-discipline): heavy SECONDARY sections
+   (long feeds, benchmarks, action logs, big lists) collapse into <details class="wh-disclose"> so the
+   default view stays glance-first (verdict + vital-20% + one action). Reused across dashboards. */
+.wh-disclose { margin-bottom:var(--wh-space-6); border:1px solid rgba(255,255,255,0.08); border-radius:var(--wh-radius); background:rgba(255,255,255,0.02); overflow:hidden; }
+.wh-disclose > summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; min-height:44px; box-sizing:border-box; font-size:0.72rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.72); }
+.wh-disclose > summary::-webkit-details-marker { display:none; }
+.wh-disclose > summary::after { content:'\25B8'; font-size:0.7rem; opacity:0.6; transition:transform 0.2s; flex-shrink:0; }
+.wh-disclose[open] > summary::after { transform:rotate(90deg); }
+.wh-disclose > summary:hover { color:#F4F6FA; }
+.wh-disclose > summary .wh-disclose-title { display:flex; align-items:center; gap:8px; min-width:0; }
+.wh-disclose .wh-disclose-body { padding:0 16px 16px; }
+@media (prefers-reduced-motion: reduce) { .wh-disclose > summary::after { transition:none; } }
 
 /* "Show details" explainer toggle button (behavior = utils.js wireDetailToggle, S10) */
 .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
@@ -103,6 +115,12 @@
 /* covers the sibling shared tab bars — wh-reports-tabs / wh-growth-tabs /
    wh-conn-tabs (and any future *-tabs) — whose tab span/link ship inline 34–36px */
 [class*="-tabs"] [role="tab"], [class*="-tabs"] a { min-height:44px !important; box-sizing:border-box; display:inline-flex; align-items:center; }
+/* Arc U U5 (Arc D tap-target drift, 2026-07-01): .btn-primary is the platform's PRIMARY
+   action button and is defined per-page inline; several pages (marketplace, marketplace-seller)
+   ship it without a height, so it renders ~36-40px at 390px. A primary CTA is never
+   intentionally sub-44 → floor it globally. !important overrides the later page <style>
+   (same reasoning as the tab bar above); box-sizing guards the global border-box model. */
+.btn-primary { min-height:44px !important; box-sizing:border-box; }
 
 /* ════════════════════════════════════════════════════════════════════════════
    Arc W · W1 — GLOBAL ELEVATION + CONTROL-STATE CRAFT (lifts every linking page)
@@ -150,3 +168,17 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
   outline: 2px solid var(--wh-orange);
   outline-offset: 2px;
 }
+
+/* FC2 (FULLSTACK_COMPONENT_LIBRARY §2.2): count-chip summary — PROMOTED 2026-07-17 from
+   page-local twins (agentic-rag-observability.html:74, ai-quality.html). Pages' local rules
+   keep working (same shape); this is the ONE canonical source new pages use. */
+.sum-card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 14px; text-align: center; }
+.sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
+.sum-card .sl { font-size: 0.58rem; font-weight: 600; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+/* FC4 (FULLSTACK_COMPONENT_LIBRARY, Ian 2026-07-17: "bless .card + promote"): the DASHBOARD-PANEL
+   container — the second sanctioned container dialect beside the .simple-card family (FC1).
+   Boundaries: KPI/count tiles = .simple-card/.sum-card; report/panel sections = .card.
+   Pages' local .card rules (loaded after this link) intentionally override while their values
+   converge; this canonical is the single reference + the floor for new pages. */
+.card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; margin-bottom: 16px; }

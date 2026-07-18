@@ -274,6 +274,27 @@ def check_null_scope_guard(src: str) -> list[dict]:
     return issues
 
 
+def check_temporal_comparison_backstop(src: str) -> list[dict]:
+    """R22: Period-comparison -> temporal backstop (deep-walk CL3, 2026-07-08).
+    The Router LLM mis-routes some PERIOD-COMPARISON questions ("MTBF this year vs
+    last year" -> semantic; "compare 2026 vs 2025" / "Q1 vs Q2" -> cold_archive via
+    a borderline->18mo from-date), shipping a false "no records >2yr ago" deflection
+    for a RECENT comparison. A deterministic backstop forces temporal on a comparison
+    intent + a recent period pair (leaving genuine deep-archive comparisons alone).
+    Guards the whole class so a revert (dropping the guard) FAILs here."""
+    issues = []
+    # The guard must exist and force route = "temporal" for a recent comparison.
+    if 'recent period-comparison forced to temporal' not in src:
+        issues.append({"check": "temporal_comparison_backstop", "reason": "period-comparison temporal backstop missing — a recent 'compare 2026 vs 2025' / 'Q1 vs Q2' question mis-routes to cold_archive/semantic and ships a false 'no records >2yr ago' deflection"})
+    # It must be CONDITIONAL (compare intent + recent period), not a blunt override.
+    if not (re.search(r"hasCompare", src) and re.search(r"hasRecentPeriod", src)):
+        issues.append({"check": "temporal_comparison_backstop", "reason": "backstop must gate on hasCompare + hasRecentPeriod (a blunt 'always temporal' would steal genuine semantic/archive routes)"})
+    # It must exempt genuine deep-archive comparisons (all named years >18mo old).
+    if "allArchivalYears" not in src:
+        issues.append({"check": "temporal_comparison_backstop", "reason": "backstop must exempt allArchivalYears so a genuine '2019 vs 2020' deep-archive comparison stays cold_archive"})
+    return issues
+
+
 def check_voice_handler_optin() -> list[dict]:
     """R20: voice-handler.js wires the agentic-rag-loop opt-in path."""
     src = read_file(VOICE_HANDLER_JS) or ""
@@ -327,6 +348,7 @@ CHECKS = [
     ("integration_wave",               "R19 Items 2+3+4 wired (hierarchical lane + temporal delegate + memory recall/store)", lambda: check_integration_wave(_read_fn())),
     ("voice_handler_optin",            "R20 voice-handler.js opt-in: _isLongHorizonQuestion + agentic-rag-loop POST",        check_voice_handler_optin),
     ("null_scope_guard",               "R21 Null-scope guard: retrieverStage + spanDaysFromTimeScope tolerate null time_scope", lambda: check_null_scope_guard(_read_fn())),
+    ("temporal_comparison_backstop",   "R22 Period-comparison -> temporal backstop (recent 'YoY'/'Q1 vs Q2'/'2026 vs 2025' not mis-routed to cold_archive/semantic)", lambda: check_temporal_comparison_backstop(_read_fn())),
 ]
 
 

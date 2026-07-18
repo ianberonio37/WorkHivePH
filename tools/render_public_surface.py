@@ -108,7 +108,9 @@ def build_tool_catalog_mirror(cat: dict, html: str) -> str:
     seen_links = {t[2].strip("/").lower() for t in tools}
     lines: list[str] = []
     for name, desc, link in tools:
-        sep = " — " if desc else ""
+        # Colon separator (not an em dash) so the rendered mirror satisfies the
+        # standing no-em-dash rule ([[feedback-no-em-dashes]] / validate_em_dash).
+        sep = ": " if desc else ""
         href = "/" + _esc_html(link.strip("/"))
         lines.append(f'<li><a href="{href}">{_esc_html(name)}{sep}{_esc_html(desc)}</a></li>')
     # Back-fill active catalog tool pages that stageData never links (e.g. ai-quality).
@@ -121,7 +123,7 @@ def build_tool_catalog_mirror(cat: dict, html: str) -> str:
         nm = _esc_html((f.get("name") or route).strip())
         desc = (f.get("capability") or "").strip() or _page_meta_desc(route)
         desc = _esc_html(desc)
-        sep = " — " if desc else ""
+        sep = ": " if desc else ""   # colon, not em dash (no-em-dash rule)
         lines.append(f'<li><a href="/{_esc_html(route.strip("/"))}">{nm}{sep}{desc}</a></li>')
         seen_links.add(route.strip("/").lower())
     return "\n      " + "\n      ".join(lines) + "\n    "

@@ -85,6 +85,11 @@ PAGES = [
 EXCLUDE_PAGES = {
     "platform-health.html",
     "founder-console.html",
+    # admin/dev/ops internal pages — technical terms ARE the plain language for these audiences
+    # (same cohort already exempted from i18n; not worker-facing "glass"). 2026-07-18.
+    "agentic-rag-observability.html",  # isPlatformAdmin AI-observability dashboard
+    "design-system.html",              # internal dev/design component showcase
+    "status.html",                     # internal ops status page
 }
 
 # ── Forbidden-pattern classes ────────────────────────────────────────────────

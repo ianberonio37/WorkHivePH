@@ -19,7 +19,8 @@
  * table as the structural surface vs streaming pipeline).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -136,7 +137,12 @@ async function processJob(
   };
 }
 
-serve(async (req) => {
+serveObserved("pdf-ingest", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "pdf-ingest", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -151,6 +157,22 @@ serve(async (req) => {
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
+
+  // BFLA / cost-abuse gate (Arc R R2, OWASP A01): pdf-ingest is a SERVICE-ROLE background drainer
+  // that processes pending pdf_jobs across ALL hives (embedding + cross-table inserts into
+  // job.target_table). It runs verify_jwt=false, so WITHOUT this check any anonymous caller could
+  // POST {} (drain mode) to force an unauthorized, unbounded all-hives compute — the same
+  // "unenforced cron-only" class already gated in batch-risk-scoring / parts-staging-recommender /
+  // trigger-ml-retrain. Only the cron/service-role caller (which sends the service-role key as the
+  // bearer) may trigger it; a user JWT or anon caller is refused.
+  const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  if (!(bearer && bearer === SERVICE_KEY)) {
+    return new Response(
+      JSON.stringify({ error: "Forbidden: service-role only (background drainer)" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   const db = _whWarmClient || createClient(SUPABASE_URL, SERVICE_KEY);
 
   let body: { job_id?: string } = {};

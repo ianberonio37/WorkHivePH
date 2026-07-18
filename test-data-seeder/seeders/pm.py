@@ -136,6 +136,11 @@ def seed_pm(client, log, ctx: dict) -> dict:
     # Completions — generate historical PM completions over 90 days
     log("  generating PM completions over 90 days based on frequency...")
     completion_rows = []
+    # pm_completions carries a UNIQUE (scope_item_id, worker_name, completed_at::date) dedup
+    # index. The same worker can be randomly picked for two completions of ONE scope item on
+    # the SAME day -> a deterministic 23505 under the fixed RNG seed (aborts /api/seed/all).
+    # Track the key and skip a would-be duplicate (a lost filler completion is harmless).
+    seen_completion_keys: set = set()
     for scope in scope_items_inserted:
         freq_days = FREQ_DAYS.get(scope["frequency"], 30)
         # Number of completions = 90 / freq_days, plus a bit of jitter
@@ -146,6 +151,10 @@ def seed_pm(client, log, ctx: dict) -> dict:
             if not asset_workers:
                 continue
             worker = random.choice(asset_workers)
+            dedup_key = (scope["id"], worker["worker_name"], to_iso(ts)[:10])  # date mirrors the uidx
+            if dedup_key in seen_completion_keys:
+                continue
+            seen_completion_keys.add(dedup_key)
             completion_rows.append({
                 "asset_id": scope["asset_id"],
                 "scope_item_id": scope["id"],

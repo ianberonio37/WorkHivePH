@@ -89,16 +89,48 @@ test.describe('pm-scheduler.html - sentinel scenarios', () => {
     expect(filtered, 'realtime channels on pm-scheduler should include hive_id filter').toBeTruthy();
   });
 
-  test('freq_days_alignment: frequency_days field accepts numeric input', async ({ whPage }) => {
+  test('freq_render_robust: frequency grouping is drop-proof (canonFreq + Other catch-all)', async ({ whPage }) => {
+    // PM PDDA F0 keystone: the detail view must group scope tasks through canonFreq() with an
+    // 'Other' catch-all so Weekly/Annual/Semi-annual items are never silently dropped (the old
+    // exact-match-against-4-labels hid ~half the platform's scope items). Assert the machinery
+    // is present and no legacy hardcoded 4-label array remains.
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
-    const freq = whPage.locator(
-      '#freq-days, [name="frequency_days"], input[placeholder*="freq" i]'
-    ).first();
-    if (await freq.count() === 0) { test.skip(true, 'no frequency_days input visible'); return; }
-    await freq.fill('30');
-    const val = await freq.inputValue();
-    expect(val).toBe('30');
+    const src = await pageSrcWithExternals(whPage);
+    expect(/function\s+canonFreq\s*\(/.test(src), 'canonFreq() normaliser must exist').toBe(true);
+    expect(/\|\|\s*['"]Other['"]/.test(src), "an 'Other' catch-all group must exist").toBe(true);
+    const legacyHardcoded = /freqOrder\s*=\s*\[\s*['"]Monthly['"]\s*,\s*['"]Quarterly['"]\s*,\s*['"]Semi-Annual['"]\s*,\s*['"]Yearly['"]\s*\]/.test(src);
+    expect(legacyHardcoded, 'the hardcoded 4-label freqOrder must NOT be reintroduced').toBe(false);
+    for (const syn of ['weekly', 'annual', 'semi-annual']) {
+      expect(new RegExp(`case\\s*['"]${syn}['"]`, 'i').test(src), `canonFreq must handle '${syn}'`).toBe(true);
+    }
+  });
+
+  test('freq_crosspage_consistent: PM freq badges are case/synonym-robust across pages', async ({ whPage }) => {
+    // PM PDDA cross-page: hive.html + logbook.html render PM freq badges; they must NOT key the
+    // legacy 4-label uppercase map (which showed Weekly/Annual/Semi-annual as raw gray text).
+    for (const page of ['/workhive/hive.html', '/workhive/logbook.html']) {
+      await whPage.goto(page);
+      await waitForPageReady(whPage);
+      const src = await pageSrcWithExternals(whPage);
+      if (!/freqMap|freqCls/.test(src)) continue; // page doesn't render a PM freq badge
+      const legacy = /\{\s*Monthly:\s*['"]M['"],\s*Quarterly:\s*['"]Q['"],\s*['"]Semi-Annual['"]:\s*['"]SA['"],\s*Yearly:\s*['"]Y['"]\s*\}/.test(src);
+      const canon = /weekly:/i.test(src) && /annual:/i.test(src);
+      expect(legacy && !canon, `${page} must use the canonical case-robust freq badge map, not the 4-label uppercase one`).toBe(false);
+    }
+  });
+
+  test('pm_write_isolation: PM child-table writes are hive-scoped (covered by the live two-tenant validator)', async ({ whPage }) => {
+    // PM PDDA I keystone: pm_scope_items / pm_completions / pm_assets writes must be hive-scoped
+    // (migration 20260712000012). The authoritative behavioral proof is the LIVE rolled-back
+    // two-tenant RLS probe in tools/validate_pm_write_isolation.py (Playwright can't hold two
+    // authenticated tenant contexts against RLS as cleanly). Here we anchor the sentinel scenario
+    // and assert the client PM writes carry hive_id (attribution the RLS policy keys off).
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    const scopesHiveId = /pm_scope_items|pm_completions/.test(src) && /hive_id/.test(src);
+    expect(scopesHiveId, 'PM write payloads must carry hive_id (RLS hive-scope key)').toBe(true);
   });
 
   test('comp_payload_fields: completion payload includes required canonical fields', async ({ whPage }) => {

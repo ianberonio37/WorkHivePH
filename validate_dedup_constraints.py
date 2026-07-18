@@ -32,7 +32,6 @@ G = "\033[92m"; R = "\033[91m"; Y = "\033[93m"; B = "\033[1m"; X = "\033[0m"
 DEDUP_PATHS = [
     ("pm_completions",     ["scope_item_id", "worker_name", "completed_at"], "pm-scheduler.html"),
     ("project_links",      ["project_id", "link_type", "link_id"],           "project-manager.html"),
-    ("marketplace_orders", ["stripe_session_id"],                            None),  # webhook-deduped
 ]
 
 

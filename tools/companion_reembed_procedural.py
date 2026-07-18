@@ -32,6 +32,12 @@ G = "\033[92m"; R = "\033[91m"; Y = "\033[93m"; C = "\033[96m"; B = "\033[1m"; X
 
 SELFTEST_SQL = r"""
 BEGIN;
+-- Run as the trusted edge/cron service: match_procedural_memories self-gates via
+-- user_can_access_hive(p_hive_id) (RAG IDOR fix) and returns zero rows to an
+-- unauthenticated NULL-hive caller. Production edge fns invoke it with the
+-- service_role key; the self-test mirrors that trusted context (the RPC's own
+-- documented "trusted edge/cron service_role" path), NOT a bypass of the gate.
+SET LOCAL request.jwt.claims = '{"role":"service_role"}';
 DO $$
 DECLARE
   v_emb vector := array_fill(0.1::real, ARRAY[384])::vector;

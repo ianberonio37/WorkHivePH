@@ -19,6 +19,9 @@ flywheel "reporting-only, exit 0 always" path (run_platform_checks.py:998).
 import json
 import os
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 RESULTS = "arc_v_results.json"
 BASELINE = "arc_v_baseline.json"

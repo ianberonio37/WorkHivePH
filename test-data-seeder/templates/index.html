@@ -725,6 +725,8 @@
   .top-link.blue:hover { background: rgba(41,182,217,0.2); }
   .top-link.red  { background: rgba(248,113,113,0.1); color: var(--red);  border-color: rgba(248,113,113,0.3); }
   .top-link.red:hover  { background: rgba(248,113,113,0.2); }
+  .top-link.green { background: rgba(52,211,153,0.1); color: #34d399; border-color: rgba(52,211,153,0.35); }
+  .top-link.green:hover { background: rgba(52,211,153,0.2); }
 
   @media (max-width: 700px) {
     .preview-grid { grid-template-columns: 1fr; }
@@ -1229,9 +1231,14 @@
     {% if connected %}
     <div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
       <a href="/workhive/" target="_blank" class="top-link gold"
-        data-tip-title="Open WorkHive (test mode)"
-        data-tip="Opens the live WorkHive site but proxied through this Flask app so it talks to your LOCAL Supabase instead of production. Same UI, but every login, save, and read hits the seeded data on 127.0.0.1:54321."
-        data-tip-foot="Use when: testing any UI change against seeded data without affecting production users.">▶ Open WorkHive (test mode) →</a>
+        onclick="try{window.open('http://127.0.0.1:3001/d/workhive-slo-arct','wh_grafana');}catch(e){}"
+        data-tip-title="Open WorkHive (test mode) + Grafana"
+        data-tip="Opens the live WorkHive site proxied through this Flask app (talks to your LOCAL Supabase, not production) AND pops the Grafana SLO dashboard in a second tab, so you watch platform health while you test. Every login, save, and read hits the seeded data on 127.0.0.1:54321."
+        data-tip-foot="Use when: testing any UI change against seeded data — the app + its observability dashboard open together.">▶ Open WorkHive (test mode) →</a>
+      <a href="http://127.0.0.1:3001/d/workhive-slo-arct" target="_blank" class="top-link green"
+        data-tip-title="Grafana — SLO / Observability (Arc T)"
+        data-tip="Opens the LOCAL Grafana at 127.0.0.1:3001 → the 'WorkHive SLO / Golden Signals' dashboard: live edge-fn error rate, latency p50/p95, and the wh_slo_edge_errors alert. Errors you trigger while testing WorkHive show up here. Login admin / password in infra/mcp/.env.mcp (GRAFANA_ADMIN_PASSWORD)."
+        data-tip-foot="Use when: watching platform health side-by-side with the app during a test session.">📊 Grafana (SLO) →</a>
       <a href="/testing" target="_blank" class="top-link blue"
         data-tip-title="Testing Checklist"
         data-tip="A structured manual checklist for the 'feature is working' tests that the automated gates can't easily cover: hive-isolation visual confirmation, mobile look-and-feel, role-based UI rendering, key flows end-to-end."

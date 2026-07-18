@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""embed_server.py — self-host bge-small-en-v1.5 embedding server (NO rate limit).
+"""embed_server.py - self-host bge-small-en-v1.5 embedding server (NO rate limit).
 
 The durable capacity fix (Ian, 2026-06-13): free embedding APIs (Voyage 3 RPM w/o card,
 Gemini free-tier 429 on a burst) cannot serve many concurrent users. A self-hosted
@@ -17,7 +17,10 @@ Needs: pip install fastembed   (ONNX, no torch). First run downloads the model (
 """
 from __future__ import annotations
 import json
+import os
 import sys
+import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 DEFAULT_PORT = 8901
@@ -78,10 +81,35 @@ class Handler(BaseHTTPRequestHandler):
         return
 
 
+def _self_heal_loop(interval_min: int) -> None:
+    """Hands-free self-healing: periodically run the idempotent dirty-row re-embed sweep so any row
+    embedded in a foreign space during a past outage re-heals into bge-local space. Decoupled via a
+    subprocess (no import coupling); a cheap no-op when the corpus is already in lockstep. Opt-in via
+    env WH_EMBED_SELFHEAL_MIN so the pure embedding server stays pure by default."""
+    import subprocess
+    from pathlib import Path
+    sweep = str(Path(__file__).with_name("reembed_dirty_knowledge.py"))
+    while True:
+        time.sleep(interval_min * 60)
+        try:
+            out = subprocess.run([sys.executable, sweep], capture_output=True, text=True, timeout=600)
+            tail = (out.stdout or out.stderr or "").strip().splitlines()
+            if tail:
+                print(f"[self-heal] {tail[-1].strip()}", flush=True)
+        except Exception as e:  # noqa: BLE001
+            print(f"[self-heal] sweep error: {type(e).__name__}: {e}", flush=True)
+
+
 def main() -> int:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT
     print(f"warming {MODEL_NAME} ...", flush=True)
     _model()  # download + load once at startup
+    # Hands-free self-heal (OWN-EMBEDDER): WH_EMBED_SELFHEAL_MIN=15 makes THIS one process the complete
+    # self-healing embedder - serves embeddings AND re-heals dirty corpus rows on a timer. Off by default.
+    heal_min = int(os.environ.get("WH_EMBED_SELFHEAL_MIN", "0") or "0")
+    if heal_min > 0:
+        threading.Thread(target=_self_heal_loop, args=(heal_min,), daemon=True).start()
+        print(f"[self-heal] enabled - dirty-row re-embed sweep every {heal_min} min (idempotent no-op when clean)", flush=True)
     print(f"embed_server listening on 0.0.0.0:{port} (bge-small-en-v1.5, 384d, no rate limit)", flush=True)
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
     return 0

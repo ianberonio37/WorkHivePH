@@ -1,19 +1,19 @@
 {
   "_doc": "Display ladder classification (Phase E). Each display anchor tagged on Gartner's Descriptive->Diagnostic->Predictive->Prescriptive ladder. grounded = anchor resolves to a canonical source (Phase B RESOLVED*). Ungrounded predictive/prescriptive tiles claim a higher rung than their data backs = residual to fix.",
   "totals": {
-    "displays": 65,
+    "displays": 64,
     "by_rung": {
-      "predictive": 8,
-      "descriptive": 36,
-      "diagnostic": 19,
+      "predictive": 6,
+      "descriptive": 39,
+      "diagnostic": 17,
       "prescriptive": 2
     },
-    "grounded": 65,
-    "grounded_pct": 100.0,
+    "grounded": 62,
+    "grounded_pct": 96.9,
     "grounded_by_rung": {
-      "predictive": 8,
-      "descriptive": 36,
-      "diagnostic": 19,
+      "predictive": 6,
+      "descriptive": 37,
+      "diagnostic": 17,
       "prescriptive": 2
     },
     "ungrounded_high_rung": 0
@@ -29,11 +29,27 @@
     },
     {
       "page": "hive.html",
+      "id": "audit-log-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "hive.html",
       "id": "presence-bar",
       "token": "presence-bar",
       "rung": "descriptive",
       "grounded": true,
       "source_via": "verified_bind"
+    },
+    {
+      "page": "hive.html",
+      "id": "roster-count",
+      "token": "count",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
     },
     {
       "page": "hive.html",
@@ -66,6 +82,14 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "hive.html",
+      "id": "ss-sticky-label",
+      "token": "ss-sticky-label",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "logbook.html",
@@ -252,12 +276,12 @@
       "source_via": "verified_bind"
     },
     {
-      "page": "marketplace-seller.html",
-      "id": "ps-earned",
-      "token": "earned",
+      "page": "marketplace.html",
+      "id": "post-ai-assist-label",
+      "token": "post-ai-assist-label",
       "rung": "descriptive",
       "grounded": true,
-      "source_via": "verified_bind"
+      "source_via": "js_parse_heuristic"
     },
     {
       "page": "dayplanner.html",
@@ -279,30 +303,6 @@
       "page": "dayplanner.html",
       "id": "sidebar-count-label",
       "token": "count",
-      "rung": "descriptive",
-      "grounded": true,
-      "source_via": "verified_bind"
-    },
-    {
-      "page": "platform-health.html",
-      "id": "health-label",
-      "token": "health",
-      "rung": "diagnostic",
-      "grounded": true,
-      "source_via": "verified_bind"
-    },
-    {
-      "page": "platform-health.html",
-      "id": "health-num",
-      "token": "health",
-      "rung": "diagnostic",
-      "grounded": true,
-      "source_via": "verified_bind"
-    },
-    {
-      "page": "platform-health.html",
-      "id": "streak-num",
-      "token": "streak",
       "rung": "descriptive",
       "grounded": true,
       "source_via": "verified_bind"
@@ -336,22 +336,6 @@
       "id": "ph-verdict-label",
       "token": "-verdict-label",
       "rung": "diagnostic",
-      "grounded": true,
-      "source_via": "verified_bind"
-    },
-    {
-      "page": "predictive.html",
-      "id": "pr-verdict-label",
-      "token": "-verdict-label",
-      "rung": "predictive",
-      "grounded": true,
-      "source_via": "verified_bind"
-    },
-    {
-      "page": "predictive.html",
-      "id": "trend-label",
-      "token": "trend",
-      "rung": "predictive",
       "grounded": true,
       "source_via": "verified_bind"
     },
@@ -522,6 +506,14 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "verified_bind"
+    },
+    {
+      "page": "voice-journal.html",
+      "id": "sov-voice-label",
+      "token": "sov-voice-label",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "founder-console.html",

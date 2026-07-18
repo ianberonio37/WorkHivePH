@@ -21,11 +21,42 @@ from __future__ import annotations
 
 import os
 import random
+import re
 import time
 from dataclasses import dataclass
 from typing import Optional
 
 import requests
+
+
+# ── Reasoning-strip parity with TS _shared/ai-chain.ts stripReasoningBlocks ──
+# Case 1/2: <think>…</think> blocks. Case 3 (V5, 2026-07-13): untagged persona-scaffold
+# leaks ("We need to respond as Zaniah, strategist… the worker says:…") that some free-tier
+# models emit as bare prose — caught live by voice_family_probe. Returns "" when the reply
+# is reasoning-only, so the caller tries the next model.
+_THINK_PAIR_RE = re.compile(r"<think[\s>][\s\S]*?</think>", re.IGNORECASE)
+_PLAN_START_RE = re.compile(
+    r"^\s*(?:okay,?\s*|so,?\s*|alright,?\s*|well,?\s*)?(?:we|i|let(?:'s| us| me))\b"
+    r"[^.!?\n]{0,60}?(?:\b(?:need(?:s)? to|should|must|will|have to|'ll|'re going to|going to|want to)\b[^.!?\n]{0,60}?)?"
+    r"\b(?:respond|reply|answer|say|be|act|write|give|frame|craft|address|produce|consider)\b",
+    re.IGNORECASE)
+_SCAFFOLD_META_RE = re.compile(
+    r"\b(?:as\s+(?:zaniah|hezekiah)|as\s+the\s+(?:strategist|technician)|1\s*-\s*3\s+sentences|"
+    r"short\s+1-3|kpis?\s+verbatim|sisterly\s+ph\s+english|persona|system\s+prompt|"
+    r"the\s+worker\s+(?:says|said)|snapshot\s+data|memory\s+block)\b",
+    re.IGNORECASE)
+
+
+def _strip_reasoning_blocks(text: str) -> str:
+    if not text:
+        return text or ""
+    out = _THINK_PAIR_RE.sub("", text).strip()
+    if out.lower().startswith("<think"):
+        idx = out.lower().find("</think>")
+        out = out[idx + len("</think>"):].strip() if idx != -1 else ""
+    if out and _PLAN_START_RE.search(out) and _SCAFFOLD_META_RE.search(out):
+        return ""
+    return out
 
 
 @dataclass
@@ -169,12 +200,49 @@ def _attempt_chain(
         except (KeyError, ValueError, IndexError) as e:
             errors.append(f"{label}: bad payload {e}")
             continue
+        content = _strip_reasoning_blocks(content or "")
         if not content:
-            errors.append(f"{label}: empty content")
+            errors.append(f"{label}: empty content")   # incl. reasoning-only after strip
             continue
         if verbose: print(f"  [ai-chain] {label} OK ({len(content)} chars)")
         return (content, label), max_ra, errors
     return None, max_ra, errors
+
+
+def _try_local_llm(messages: list, *, temperature: float, max_tokens: int,
+                   json_mode: bool, timeout_s: int, verbose: bool) -> Optional[tuple[str, str]]:
+    """Sovereign local LLM slot (mirror of _shared/ai-chain.ts tryLocalLLM, NATIVE_AI_ROADMAP.md #2b).
+    When WH_LLM_URL is set, try the plant's own OpenAI-compatible endpoint (Ollama / llama.cpp) FIRST so
+    inference + data stay in-plant. Returns (content, label) on success; None when WH_LLM_URL is unset or
+    on ANY failure (fails OPEN to the cloud chain below). Env-gated + additive: prod chain unchanged."""
+    base = (os.environ.get("WH_LLM_URL") or "").rstrip("/")
+    if not base:
+        return None
+    model = os.environ.get("WH_LLM_MODEL") or "llama3.1"
+    key = os.environ.get("WH_LLM_API_KEY")
+    headers = {"Content-Type": "application/json"}
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    body = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
+    if json_mode:
+        body["response_format"] = {"type": "json_object"}
+    try:
+        res = requests.post(f"{base}/chat/completions", headers=headers, json=body, timeout=timeout_s)
+    except requests.RequestException as e:
+        if verbose: print(f"  [ai-chain] WH_LLM_URL network {e.__class__.__name__} -> cloud chain")
+        return None
+    if res.status_code != 200:
+        if verbose: print(f"  [ai-chain] WH_LLM_URL {res.status_code} -> cloud chain")
+        return None
+    try:
+        content = (res.json().get("choices") or [{}])[0].get("message", {}).get("content", "") or ""
+    except Exception:
+        return None
+    content = _strip_reasoning_blocks(content)     # <think> + untagged persona-scaffold leak
+    if content:
+        if verbose: print(f"  [ai-chain] served by WH_LLM_URL (sovereign local) / {model}")
+        return content, f"wh-llm-local:{model}"
+    return None
 
 
 def call_ai(
@@ -203,6 +271,12 @@ def call_ai(
 
     common = dict(temperature=temperature, max_tokens=max_tokens,
                   json_mode=json_mode, timeout_s=timeout_s, verbose=verbose)
+
+    # Sovereign local LLM first (NATIVE_AI_ROADMAP.md #2b): if WH_LLM_URL is set, keep inference +
+    # data in-plant; unset -> skip to the cloud chain (unchanged); any failure falls open below.
+    _sovereign = _try_local_llm(messages, **common)
+    if _sovereign is not None:
+        return _sovereign
 
     # Pass 1 — herd-spread chain (P1)
     result, ra1, errs1 = _attempt_chain(_reorder_chain(spread), messages, **common)

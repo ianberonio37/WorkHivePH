@@ -62,7 +62,6 @@ RE_JS_LINE_COMMENT = re.compile(r"(?<!:)//[^\n]*")
 # sw-precache cache-busters, GA/UTM tags, etc. Keep this list SHORT and justified.
 INFRA_PARAMS = {
     "v", "ts", "cache", "utm_source", "utm_medium", "utm_campaign",
-    "checkout", "onboard",  # Stripe return-URL params, read inside PAYMENTS_ENABLED gate
 }
 
 
@@ -143,7 +142,7 @@ def run():
     if not passed:
         issues.append({
             "check": CHECK_NAMES[0],
-            "detail": f"{len(dead)} dead param(s) vs baseline {baseline.get('count', 0)}; "
+            "reason": f"{len(dead)} dead param(s) vs baseline {baseline.get('count', 0)}; "
                       f"NEW: {', '.join(new_items[:5])}",
         })
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
@@ -172,7 +171,7 @@ def self_test():
             "<a href='dest-dead.html?tag=M-001'>dead</a>"
             "<a href='emitter.html?self=1'>self</a>"
             "<a href='https://x.com/other.html?ext=1'>ext</a>"
-            "<a href='dest-dead.html?checkout=success'>infra</a>"
+            "<a href='dest-dead.html?utm_source=email'>infra</a>"
             "<!-- <a href='dest-dead.html?commented=1'>stripped</a> -->",
             encoding="utf-8")
         dead = find_dead_params(root)

@@ -35,7 +35,7 @@
   button, .btn {
     font-family: inherit; font-size: 0.92rem; font-weight: 600;
     background: var(--card); color: var(--text); border: 1px solid var(--border);
-    border-radius: 10px; padding: 9px 14px; cursor: pointer; transition: all 0.15s;
+    border-radius: var(--wh-radius-sm); padding: 9px 14px; cursor: pointer; transition: all 0.15s;
     min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
   }
   button:hover, .btn:hover { background: var(--card-hover); }
@@ -49,6 +49,9 @@
     background: var(--bg); color: var(--text); border: 1px solid var(--border);
     border-radius: 8px; padding: 9px 11px; width: 100%;
   }
+  /* WCAG 2.5.8 / K2: 44px touch floor for text controls (9px padding + 16px font gave ~42px).
+     Excludes checkbox/radio, which keep their fixed 16px box. */
+  select, textarea, input:not([type="checkbox"]):not([type="radio"]) { min-height: 44px; }
   textarea { min-height: 70px; resize: vertical; }
   label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
   .field { margin-bottom: 12px; }
@@ -105,7 +108,7 @@
 
   /* ── Empty state with type tiles (reuses wizard tile style) ── */
   .empty-tiles-wrap {
-    background: var(--surface); border: 1px dashed var(--border); border-radius: 14px;
+    background: var(--surface); border: 1px dashed var(--border); border-radius: var(--wh-radius);
     padding: 24px; margin-top: 8px;
   }
   .empty-tiles-headline { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; text-align: center; }
@@ -114,7 +117,7 @@
   /* ── Project cards ────────────────────────────────────────── */
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
   .pcard {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 14px 16px; cursor: pointer; transition: all 0.15s;
   }
   .pcard:hover { border-color: var(--gold); transform: translateY(-1px); }
@@ -128,6 +131,13 @@
   .ptype-shutdown   { background: rgba(225,85,84,0.18);  color: #F58A89; }
   .ptype-capex      { background: rgba(247,162,27,0.18); color: var(--gold); }
   .ptype-contractor { background: rgba(48,208,104,0.18); color: var(--green); }
+  .nature-pill {
+    display: inline-block; font-size: 0.6rem; padding: 2px 7px; border-radius: 999px;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
+  }
+  .nature-reactive   { background: rgba(225,85,84,0.14);  color: #F58A89;     border-color: rgba(225,85,84,0.3); }
+  .nature-preventive { background: rgba(48,208,104,0.14); color: var(--green); border-color: rgba(48,208,104,0.3); }
+  .nature-project    { background: rgba(247,162,27,0.14); color: var(--gold);  border-color: rgba(247,162,27,0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
   .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
   .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
@@ -186,7 +196,7 @@
   }
   .modal-bg.open { display: flex; }
   .modal {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 22px; max-width: 560px; width: 100%;
   }
   .modal h3 { font-size: 1.1rem; margin-bottom: 14px; font-weight: 700; }
@@ -204,7 +214,7 @@
 
   /* ── Progress log entries ─────────────────────────────────── */
   .log-entry {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 12px 14px; margin-bottom: 8px;
   }
   .log-entry-head { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
@@ -267,7 +277,7 @@
   /* Step 2: template cards */
   .template-card-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
   .template-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 12px 14px; cursor: pointer; transition: all 0.15s;
   }
   .template-card:hover { border-color: var(--gold); background: var(--card-hover); }
@@ -350,7 +360,7 @@
 <!-- Hive gate -->
 <div id="hive-gate">
   <div class="gate-card">
-    <h2 style="margin-bottom: 10px;">Join a hive first</h2>
+    <h2 style="margin-bottom: 10px;" data-i="joinhivefirst">Join a hive first</h2>
     <p class="sub" style="margin-bottom: 18px;">Project Manager is team data. Join or create a hive to plan and track projects with your crew.</p>
     <a href="hive.html" class="btn primary">Go to Hive</a>
   </div>
@@ -358,7 +368,7 @@
 
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No projects yet — start with a project template above.</div>
+  <div id="empty-state" class="empty-state" hidden>No projects yet: start with a project template above.</div>
   <div id="no-results" class="empty-state" hidden>No projects match those filters.</div>
 
 
@@ -367,17 +377,17 @@
     data-rag-tile="project-manager:project_list"
     data-rag-label="Project list view">
     <div class="row" style="justify-content: space-between; margin-bottom: 4px;">
-      <h1>Project Manager</h1>
+      <h1 data-i="pagetitle">Project Manager</h1>
       <div style="display:flex; align-items:center; gap:10px;">
         <!-- Phase B merge: project-report.html now reachable as a button here -->
         <a href="project-report.html" id="project-print-btn" title="Open print-ready Project Report"
-           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:rgba(247,162,27,0.12); color:var(--orange-wh); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
+           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--orange-wh); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
           📄 Print Report
         </a>
         <span id="hive-tag" class="small" style="color: var(--muted);"></span>
       </div>
     </div>
-    <div class="sub">Plan, track and close out maintenance projects: work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
+    <div class="sub">Plan, track and close out maintenance projects. Handles work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
     <p id="pm-mgr-source-chip" style="margin:4px 0 0;"></p>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
@@ -388,37 +398,37 @@
     </div>
     <div class="simple-row">
       <div class="simple-card hero tag-grey" id="pm-card-active" data-rag-tile="project-manager:active_projects" data-rag-label="Active projects">
-        <div class="sc-label">Active projects</div>
+        <h2 class="sc-label" style="margin:0;" data-i="activeprojects">Active projects</h2>
         <div class="sc-hero" id="pm-active-hero">0</div>
         <div class="sc-sub" id="pm-active-sub">Loading...</div>
-        <span class="sc-tag" id="pm-active-tag">—</span>
+        <span class="sc-tag" id="pm-active-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-overdue" data-rag-tile="project-manager:past_end_date" data-rag-label="Past end date">
-        <div class="sc-label">Past end date</div>
+        <h2 class="sc-label" style="margin:0;" data-i="pastenddate">Past end date</h2>
         <div class="sc-hero" id="pm-overdue-hero">0</div>
         <div class="sc-sub" id="pm-overdue-sub">Loading...</div>
-        <span class="sc-tag" id="pm-overdue-tag">—</span>
+        <span class="sc-tag" id="pm-overdue-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-blocked" data-rag-tile="project-manager:on_hold_planning" data-rag-label="On hold or planning">
-        <div class="sc-label">On hold or planning</div>
+        <h2 class="sc-label" style="margin:0;" data-i="onholdplanning">On hold or planning</h2>
         <div class="sc-hero" id="pm-blocked-hero">0</div>
         <div class="sc-sub" id="pm-blocked-sub">Loading...</div>
-        <span class="sc-tag" id="pm-blocked-tag">—</span>
+        <span class="sc-tag" id="pm-blocked-tag">-</span>
       </div>
     </div>
     <div class="action-card">
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="pm-action-text">Computing recommendation...</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details">
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="pm-summary-details" role="region" aria-label="Project health explainer">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Active projects</strong>: active.</li>
-        <li><strong>Past end date</strong>: past their end date but not yet closed — projects that should have closed but haven't.</li>
-        <li><strong>On hold or planning</strong>: on hold or planning — work that's not moving yet.</li>
+        <li><strong>Past end date</strong>: past their end date but not yet closed: projects that should have closed but haven't.</li>
+        <li><strong>On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
         <li><strong>Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
       <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
@@ -427,11 +437,11 @@
     <div class="recent-row" id="recent-strip"></div>
 
     <div class="tab-strip" id="status-tabs" role="tablist" aria-label="Filter projects by status">
-      <button data-status="active"   class="active" role="tab" aria-selected="true">Active</button>
-      <button data-status="planning"               role="tab" aria-selected="false">Planning</button>
-      <button data-status="on_hold"                role="tab" aria-selected="false">On hold</button>
-      <button data-status="complete"               role="tab" aria-selected="false">Complete</button>
-      <button data-status=""                       role="tab" aria-selected="false">All</button>
+      <button data-status="active"   class="active" role="tab" aria-selected="true" data-i="tabactive">Active</button>
+      <button data-status="planning"               role="tab" aria-selected="false" data-i="tabplanning">Planning</button>
+      <button data-status="on_hold"                role="tab" aria-selected="false" data-i="tabonhold">On hold</button>
+      <button data-status="complete"               role="tab" aria-selected="false" data-i="tabcomplete">Complete</button>
+      <button data-status=""                       role="tab" aria-selected="false" data-i="taball">All</button>
     </div>
 
     <div class="filter-row">
@@ -446,25 +456,25 @@
         <option value="">All owners</option>
       </select>
       <input aria-label="Search by name or code…" type="search" id="filter-search" placeholder="Search by name or code…">
-      <button class="btn primary new-btn" onclick="openNewProject()">+ New project</button>
-      <button class="btn small" onclick="openAIIntentModal()" title="Describe your project in plain language">🤖 AI: from text</button>
+      <button class="btn primary new-btn" onclick="openNewProject()" data-i="newproject">+ New project</button>
+      <button class="btn small" onclick="openAIIntentModal()" title="Describe your project in plain language" data-i="aifromtext">🤖 AI: from text</button>
     </div>
 
     <div id="card-grid" class="card-grid"
     data-rag-tile="project-manager:project_cards"
     data-rag-label="Project card grid"></div>
     <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
   </div>
 
   <!-- DETAIL VIEW -->
   <div id="detail-view">
-    <button class="btn ghost small" onclick="closeDetail()">← Back to all projects</button>
+    <button class="btn ghost small" onclick="closeDetail()" data-i="backtoall">← Back to all projects</button>
     <div class="detail-head">
       <div>
         <span class="pcode" id="d-code"></span>
-        <h2 id="d-name"></h2>
+        <h2 id="d-name" translate="no"></h2>
         <div class="row" style="gap: 6px; margin-top: 4px;">
           <span class="ptype-pill" id="d-type"></span>
           <span class="status-pill" id="d-status"></span>
@@ -472,8 +482,8 @@
         </div>
       </div>
       <div class="row" style="gap: 6px;">
-        <button class="btn small" onclick="openEditProject()">Edit</button>
-        <button class="btn small danger" onclick="deleteProject()">Delete</button>
+        <button class="btn small" onclick="openEditProject()" data-i="edit">Edit</button>
+        <button class="btn small danger" onclick="deleteProject()" data-i="delete">Delete</button>
       </div>
     </div>
 
@@ -503,7 +513,7 @@
 
     <!-- Step 1: pick type -->
     <div class="wizard-pane" data-pane="1">
-      <h3>What kind of project?</h3>
+      <h3 data-i="whatkind">What kind of project?</h3>
       <p class="sub" style="font-size:0.85rem; margin-bottom:14px;">Pick the closest match. You can change scope later.</p>
       <div class="type-tile-grid">
         <div class="type-tile" data-type="workorder" onclick="wizardPickType('workorder')">
@@ -528,34 +538,34 @@
         </div>
       </div>
       <div class="wizard-foot">
-        <button class="btn ghost" onclick="closeModal('modal-wizard')">Cancel</button>
-        <button class="btn primary" id="wiz-next-1" onclick="wizardNext()" disabled>Next →</button>
+        <button class="btn ghost" onclick="closeModal('modal-wizard')" data-i="cancel">Cancel</button>
+        <button class="btn primary" id="wiz-next-1" onclick="wizardNext()" disabled data-i="next">Next →</button>
       </div>
     </div>
 
     <!-- Step 2: pick template -->
     <div class="wizard-pane" data-pane="2">
-      <h3>Pick a starter pack</h3>
+      <h3 data-i="starterpack">Pick a starter pack</h3>
       <p class="sub" style="font-size:0.85rem; margin-bottom:10px;">Pre-populated scope items based on industry standards. You'll be able to tweak everything in the next step.</p>
       <div class="template-card-list" id="wiz-template-list"></div>
-      <button class="blank-link" onclick="wizardPickTemplate('__blank__')">Or start with a blank project →</button>
+      <button class="blank-link" onclick="wizardPickTemplate('__blank__'); wizardNext()" data-i="blankproject">Or start with a blank project →</button>
       <div class="wizard-foot">
-        <button class="btn ghost" onclick="wizardBack()">← Back</button>
-        <button class="btn primary" id="wiz-next-2" onclick="wizardNext()" disabled>Next →</button>
+        <button class="btn ghost" onclick="wizardBack()" data-i="back">← Back</button>
+        <button class="btn primary" id="wiz-next-2" onclick="wizardNext()" disabled data-i="next">Next →</button>
       </div>
     </div>
 
     <!-- Step 3: customise + create -->
     <div class="wizard-pane" data-pane="3">
-      <h3>Customise &amp; create</h3>
-      <div class="field"><label for="wiz-name">Project name *</label><input type="text" id="wiz-name" maxlength="120" placeholder="e.g. Pump 201 annual overhaul"></div>
+      <h3 data-i="customisecreate">Customise &amp; create</h3>
+      <div class="field"><label for="wiz-name" data-i="projectname">Project name *</label><input type="text" id="wiz-name" maxlength="120" placeholder="e.g. Pump 201 annual overhaul"></div>
       <div class="grid-2">
         <div class="field">
-          <label for="wiz-owner">Owner</label>
+          <label for="wiz-owner" data-i="owner">Owner</label>
           <select id="wiz-owner"><option value="">— unassigned —</option></select>
         </div>
         <div class="field">
-          <label for="wiz-priority">Priority</label>
+          <label for="wiz-priority" data-i="priority">Priority</label>
           <select id="wiz-priority">
             <option value="low">Low</option><option value="medium" selected>Medium</option>
             <option value="high">High</option><option value="critical">Critical</option>
@@ -563,15 +573,15 @@
         </div>
       </div>
       <div class="grid-2">
-        <div class="field"><label for="wiz-start">Start date</label><input type="date" id="wiz-start"><div class="field-hint">Auto-distributes scope item dates across duration.</div></div>
-        <div class="field"><label for="wiz-end">End date</label><input type="date" id="wiz-end"></div>
+        <div class="field"><label for="wiz-start" data-i="startdate">Start date</label><input type="date" id="wiz-start"><div class="field-hint">Auto-distributes scope item dates across duration.</div></div>
+        <div class="field"><label for="wiz-end" data-i="enddate">End date</label><input type="date" id="wiz-end"></div>
       </div>
       <div class="field" id="wiz-budget-field">
-        <label for="wiz-budget">Budget (PHP)</label>
+        <label for="wiz-budget" data-i="budgetphp">Budget (PHP)</label>
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
         <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it.</div>
       </div>
-      <div class="field"><label for="wiz-desc">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
 
       <div style="margin: 16px 0 6px;">
         <strong style="font-size:0.92rem;">Scope items</strong>
@@ -582,8 +592,8 @@
       <div class="add-custom-row" onclick="wizardAddCustomItem()">+ Add custom item</div>
 
       <div class="wizard-foot">
-        <button class="btn ghost" onclick="wizardBack()">← Back</button>
-        <button class="btn primary" onclick="wizardSubmit()" id="wiz-create">Create project</button>
+        <button class="btn ghost" onclick="wizardBack()" data-i="back">← Back</button>
+        <button class="btn primary" onclick="wizardSubmit()" id="wiz-create" data-i="createproject">Create project</button>
       </div>
     </div>
   </div>
@@ -591,12 +601,12 @@
 
 <div id="modal-project" class="modal-bg">
   <div class="modal">
-    <h3 id="m-project-title">New project</h3>
+    <h3 id="m-project-title" data-i="newprojecttitle">New project</h3>
     <form id="form-project" onsubmit="event.preventDefault(); saveProject();">
-      <div class="field"><label for="f-name">Name *</label><input type="text" id="f-name" required maxlength="120"></div>
+      <div class="field"><label for="f-name" data-i="name">Name *</label><input type="text" id="f-name" required maxlength="120"></div>
       <div class="grid-2">
         <div class="field">
-          <label for="f-type">Type *</label>
+          <label for="f-type" data-i="typereq">Type *</label>
           <select id="f-type" required data-select-placeholder-allow="default 'workorder' is the most common project type">
             <option value="workorder">Work Order Bundle</option>
             <option value="shutdown">Shutdown / Turnaround</option>
@@ -605,7 +615,7 @@
           </select>
         </div>
         <div class="field">
-          <label for="f-priority">Priority</label>
+          <label for="f-priority" data-i="priority">Priority</label>
           <select id="f-priority">
             <option value="low">Low</option>
             <option value="medium" selected>Medium</option>
@@ -615,23 +625,23 @@
         </div>
       </div>
       <div class="grid-2">
-        <div class="field"><label for="f-start">Start date</label><input type="date" id="f-start"></div>
-        <div class="field"><label for="f-end">End date</label><input type="date" id="f-end"></div>
+        <div class="field"><label for="f-start" data-i="startdate">Start date</label><input type="date" id="f-start"></div>
+        <div class="field"><label for="f-end" data-i="enddate">End date</label><input type="date" id="f-end"></div>
       </div>
       <div class="grid-2">
         <div class="field">
-          <label for="f-owner">Owner</label>
+          <label for="f-owner" data-i="owner">Owner</label>
           <select id="f-owner"><option value="">— unassigned —</option></select>
         </div>
         <div class="field" id="budget-field">
-          <label for="f-budget">Budget (PHP)</label>
+          <label for="f-budget" data-i="budgetphp">Budget (PHP)</label>
           <input type="number" id="f-budget" min="0" step="100" placeholder="e.g. 250000">
         </div>
       </div>
-      <div class="field"><label for="f-desc">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
+      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
       <div class="modal-foot">
-        <button type="button" class="btn ghost" onclick="closeModal('modal-project')">Cancel</button>
-        <button type="submit" class="btn primary" id="f-submit">Create</button>
+        <button type="button" class="btn ghost" onclick="closeModal('modal-project')" data-i="cancel">Cancel</button>
+        <button type="submit" class="btn primary" id="f-submit" data-i="create">Create</button>
       </div>
     </form>
   </div>
@@ -639,17 +649,17 @@
 
 <div id="modal-scope" class="modal-bg">
   <div class="modal">
-    <h3 id="m-scope-title">Add scope item</h3>
+    <h3 id="m-scope-title" data-i="addscopeitem">Add scope item</h3>
     <form id="form-scope" onsubmit="event.preventDefault(); saveScopeItem();">
-      <div class="field"><label for="s-title">Title *</label><input type="text" id="s-title" required maxlength="200"></div>
+      <div class="field"><label for="s-title" data-i="title">Title *</label><input type="text" id="s-title" required maxlength="200"></div>
       <div class="grid-3">
-        <div class="field"><label for="s-wbs">WBS code</label><input type="text" id="s-wbs" placeholder="1.2.3" maxlength="40"></div>
+        <div class="field"><label for="s-wbs" data-i="wbscode">WBS code</label><input type="text" id="s-wbs" placeholder="1.2.3" maxlength="40"></div>
         <div class="field">
-          <label for="s-owner">Owner</label>
-          <select id="s-owner"><option value="">—</option></select>
+          <label for="s-owner" data-i="owner">Owner</label>
+          <select id="s-owner"><option value="">-</option></select>
         </div>
         <div class="field">
-          <label for="s-status">Status</label>
+          <label for="s-status" data-i="status">Status</label>
           <select id="s-status" data-select-placeholder-allow="default 'pending' is the correct initial status for new items">
             <option value="pending">Pending</option>
             <option value="in_progress">In progress</option>
@@ -660,13 +670,13 @@
         </div>
       </div>
       <div class="grid-3">
-        <div class="field"><label for="s-pstart">Planned start</label><input type="date" id="s-pstart"></div>
-        <div class="field"><label for="s-pend">Planned end</label><input type="date" id="s-pend"></div>
-        <div class="field"><label for="s-est">Est. hours</label><input type="number" id="s-est" min="0" step="0.5">
+        <div class="field"><label for="s-pstart" data-i="plannedstart">Planned start</label><input type="date" id="s-pstart"></div>
+        <div class="field"><label for="s-pend" data-i="plannedend">Planned end</label><input type="date" id="s-pend"></div>
+        <div class="field"><label for="s-est" data-i="esthours">Est. hours</label><input type="number" id="s-est" min="0" step="0.5">
           <div class="field-hint">Rule of thumb: 8h × crew × days.</div></div>
       </div>
       <div class="field">
-        <label for="s-phase">Phase</label>
+        <label for="s-phase" data-i="phase">Phase</label>
         <select id="s-phase">
           <option value="">— none —</option>
           <option value="pre">Pre (prep, isolation, PTW)</option>
@@ -681,14 +691,14 @@
         <div class="field-hint">Used to group scope items in the project view.</div>
       </div>
       <div class="field">
-        <label for="s-preds">Predecessors (depends on)</label>
+        <label for="s-preds" data-i="predecessors">Predecessors (depends on)</label>
         <select id="s-preds" multiple style="min-height: 80px;"></select>
         <div class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label for="s-notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes — not the phase, that's above."></textarea></div>
+      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea></div>
       <div class="modal-foot">
-        <button type="button" class="btn ghost" onclick="closeModal('modal-scope')">Cancel</button>
-        <button type="submit" class="btn primary">Save</button>
+        <button type="button" class="btn ghost" onclick="closeModal('modal-scope')" data-i="cancel">Cancel</button>
+        <button type="submit" class="btn primary" data-i="save">Save</button>
       </div>
     </form>
   </div>
@@ -696,9 +706,9 @@
 
 <div id="modal-link" class="modal-bg">
   <div class="modal">
-    <h3>Link existing work</h3>
+    <h3 data-i="linkexisting">Link existing work</h3>
     <div class="field">
-      <label for="l-type">Type</label>
+      <label for="l-type" data-i="type">Type</label>
       <select id="l-type" onchange="loadLinkOptions()" data-select-placeholder-allow="default 'asset' is the most common link target">
         <option value="asset">Asset</option>
         <option value="logbook">Logbook entry</option>
@@ -709,16 +719,16 @@
       </select>
     </div>
     <div class="field" id="l-picker-wrap">
-      <label for="l-picker">Pick</label>
+      <label for="l-picker" data-i="pick">Pick</label>
       <select id="l-picker"></select>
     </div>
     <div class="field hidden" id="l-text-wrap">
-      <label for="l-text">Contractor / vendor name</label>
+      <label for="l-text" data-i="contractorname">Contractor / vendor name</label>
       <input type="text" id="l-text" maxlength="200" placeholder="e.g. Acme Industrial Services Inc.">
     </div>
     <div class="modal-foot">
-      <button type="button" class="btn ghost" onclick="closeModal('modal-link')">Cancel</button>
-      <button type="button" class="btn primary" onclick="saveLink()">Add link</button>
+      <button type="button" class="btn ghost" onclick="closeModal('modal-link')" data-i="cancel">Cancel</button>
+      <button type="button" class="btn primary" onclick="saveLink()" data-i="addlink">Add link</button>
     </div>
   </div>
 </div>
@@ -726,15 +736,15 @@
 <!-- Phase 6.3 (6A) — AI Intent: NL project creation -->
 <div id="modal-ai-intent" class="modal-bg">
   <div class="modal">
-    <h3>🤖 Describe your project</h3>
+    <h3 data-i="describeproject">🤖 Describe your project</h3>
     <p class="sub" style="font-size: 0.85rem;">Type or paste a sentence describing what you want to plan. The AI will pick the type, template, dates, and asset, then drop you into the wizard for review.</p>
     <div class="field">
-      <label for="ai-intent-text">What's the project?</label>
+      <label for="ai-intent-text" data-i="whatsproject">What's the project?</label>
       <textarea id="ai-intent-text" maxlength="600" rows="4" placeholder="e.g. Plan a 3-day pump overhaul on PUMP-201 starting Monday. Or: CAPEX project to replace compressor on Line 2, contractor scope, budget 850k, end by August."></textarea>
     </div>
     <div class="modal-foot">
-      <button type="button" class="btn ghost" onclick="closeModal('modal-ai-intent')">Cancel</button>
-      <button type="button" class="btn primary" id="ai-intent-go" onclick="runAIIntent()">Parse with AI</button>
+      <button type="button" class="btn ghost" onclick="closeModal('modal-ai-intent')" data-i="cancel">Cancel</button>
+      <button type="button" class="btn primary" id="ai-intent-go" onclick="runAIIntent()" data-i="parsewithai">Parse with AI</button>
     </div>
   </div>
 </div>
@@ -742,15 +752,15 @@
 <!-- Phase 5B — Add role -->
 <div id="modal-role" class="modal-bg">
   <div class="modal">
-    <h3>Assign role</h3>
+    <h3 data-i="assignrole">Assign role</h3>
     <form id="form-role" onsubmit="event.preventDefault(); saveRole();">
       <div class="grid-2">
         <div class="field">
-          <label for="r-worker">Worker *</label>
-          <select id="r-worker"><option value="">—</option></select>
+          <label for="r-worker" data-i="worker">Worker *</label>
+          <select id="r-worker"><option value="">-</option></select>
         </div>
         <div class="field">
-          <label for="r-role">Role *</label>
+          <label for="r-role" data-i="role">Role *</label>
           <select id="r-role" required data-select-placeholder-allow="default 'owner' is the initial role for the creator">
             <option value="owner">Owner</option>
             <option value="planner">Planner</option>
@@ -760,10 +770,10 @@
           </select>
         </div>
       </div>
-      <div class="field"><label for="r-notes">Notes</label><textarea id="r-notes" maxlength="500" placeholder="Optional context (e.g. responsible for HSE permit-to-work)"></textarea></div>
+      <div class="field"><label for="r-notes" data-i="notes">Notes</label><textarea id="r-notes" maxlength="500" placeholder="Optional context (e.g. responsible for HSE permit-to-work)"></textarea></div>
       <div class="modal-foot">
-        <button type="button" class="btn ghost" onclick="closeModal('modal-role')">Cancel</button>
-        <button type="submit" class="btn primary">Assign</button>
+        <button type="button" class="btn ghost" onclick="closeModal('modal-role')" data-i="cancel">Cancel</button>
+        <button type="submit" class="btn primary" data-i="assign">Assign</button>
       </div>
     </form>
   </div>
@@ -772,13 +782,13 @@
 <!-- Phase 5D — New change order -->
 <div id="modal-co" class="modal-bg">
   <div class="modal">
-    <h3>Raise change order</h3>
+    <h3 data-i="raiseco">Raise change order</h3>
     <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
-      <div class="field"><label for="co-title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
-      <div class="field"><label for="co-scope">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea></div>
-      <div class="field"><label for="co-reason">Reason</label>
+      <div class="field"><label for="co-title" data-i="title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
+      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea></div>
+      <div class="field"><label for="co-reason" data-i="reason">Reason</label>
         <select id="co-reason">
-          <option value="">—</option>
+          <option value="">-</option>
           <option value="cost">Cost reduction</option>
           <option value="safety">Safety / regulatory</option>
           <option value="scope_clarification">Scope clarification</option>
@@ -788,12 +798,12 @@
         </select>
       </div>
       <div class="grid-2">
-        <div class="field"><label for="co-cost">Cost impact (PHP)</label><input type="number" id="co-cost" step="100" placeholder="e.g. 25000 (positive = increase)"></div>
-        <div class="field"><label for="co-days">Schedule impact (days)</label><input type="number" id="co-days" placeholder="e.g. 3 (positive = adds days)"></div>
+        <div class="field"><label for="co-cost" data-i="costimpact">Cost impact (PHP)</label><input type="number" id="co-cost" step="100" placeholder="e.g. 25000 (positive = increase)"></div>
+        <div class="field"><label for="co-days" data-i="scheduleimpact">Schedule impact (days)</label><input type="number" id="co-days" placeholder="e.g. 3 (positive = adds days)"></div>
       </div>
       <div class="modal-foot">
-        <button type="button" class="btn ghost" onclick="closeModal('modal-co')">Cancel</button>
-        <button type="submit" class="btn primary">Submit for approval</button>
+        <button type="button" class="btn ghost" onclick="closeModal('modal-co')" data-i="cancel">Cancel</button>
+        <button type="submit" class="btn primary" data-i="submitapproval">Submit for approval</button>
       </div>
     </form>
   </div>
@@ -801,18 +811,18 @@
 
 <div id="modal-progress" class="modal-bg">
   <div class="modal">
-    <h3>Daily progress log</h3>
+    <h3 data-i="dailyprogresslog">Daily progress log</h3>
     <form id="form-progress" onsubmit="event.preventDefault(); saveProgressLog();">
       <div class="grid-2">
-        <div class="field"><label for="p-date">Date</label><input type="date" id="p-date" required></div>
-        <div class="field"><label for="p-pct">% complete (today)</label><input type="number" id="p-pct" min="0" max="100" step="1" required></div>
+        <div class="field"><label for="p-date" data-i="date">Date</label><input type="date" id="p-date" required></div>
+        <div class="field"><label for="p-pct" data-i="pctcomplete">% complete (today)</label><input type="number" id="p-pct" min="0" max="100" step="1" required></div>
       </div>
-      <div class="field"><label for="p-hours">Hours worked</label><input type="number" id="p-hours" min="0" step="0.5"></div>
-      <div class="field"><label for="p-notes">Notes / accomplishments</label><textarea id="p-notes" maxlength="1500"></textarea></div>
-      <div class="field"><label for="p-blockers">Blockers (red flag if filled)</label><textarea id="p-blockers" maxlength="600"></textarea></div>
+      <div class="field"><label for="p-hours" data-i="hoursworked">Hours worked</label><input type="number" id="p-hours" min="0" step="0.5"></div>
+      <div class="field"><label for="p-notes" data-i="notesaccomp">Notes / accomplishments</label><textarea id="p-notes" maxlength="1500"></textarea></div>
+      <div class="field"><label for="p-blockers" data-i="blockers">Blockers (red flag if filled)</label><textarea id="p-blockers" maxlength="600"></textarea></div>
       <div class="modal-foot">
-        <button type="button" class="btn ghost" onclick="closeModal('modal-progress')">Cancel</button>
-        <button type="submit" class="btn primary">Save log</button>
+        <button type="button" class="btn ghost" onclick="closeModal('modal-progress')" data-i="cancel">Cancel</button>
+        <button type="submit" class="btn primary" data-i="savelog">Save log</button>
       </div>
     </form>
   </div>
@@ -820,7 +830,7 @@
 
 <div id="toast-container"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 /* ─────────────────────────────────────────────────────────────────────────
@@ -877,14 +887,13 @@ function showToast(msg, kind, ms) {
   setTimeout(() => t.remove(), ms || 3500);
 }
 function fmtDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  if (!d) return '-';
+  return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
 function fmtPHP(n) {
   // Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): keeps the
-  // null→'—' affordance, whole-peso en-PH with thousands separators, never ₱NaN.
-  return n == null ? '—' : whFmtPeso(n, { decimals: 0 });
+  // null→'-' affordance, whole-peso en-PH with thousands separators, never ₱NaN.
+  return n == null ? '-' : whFmtPeso(n, { decimals: 0 });
 }
 function progressColor(pct) {
   if (pct >= 80) return 'green';
@@ -932,7 +941,7 @@ async function validateHiveMembership() {
     _pmMgrChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load · updates automatically',
       source:    'projects + project_items',
-      notes:     [
+      method:    [
         'Status buckets: Active / Planning / On Hold / Complete',
         'Past end date: active projects whose end date has passed',
         'Completion %: average task progress per project',
@@ -943,6 +952,7 @@ async function validateHiveMembership() {
   loadGroupState();
   await loadHiveMembers();
   await loadProjects();
+  if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
   bindFilters();
   subscribeRealtime();
 
@@ -998,6 +1008,13 @@ async function loadProjects() {
       p._items_total = r ? r.count : 0;
       p._items_done  = r ? r.done : 0;
     });
+    // Extension 1: the canonical maintenance-nature facet (reactive/preventive/project)
+    // from v_project_truth — WAT: derived server-side, never re-computed on the client.
+    const { data: nat } = await db.from('v_project_truth')
+      .select('project_id, maintenance_nature').in('project_id', ids).limit(500);
+    const natMap = {};
+    (nat || []).forEach(n => { natMap[n.project_id] = n.maintenance_nature; });
+    _projects.forEach(p => { p._nature = natMap[p.id] || null; });
   }
   updateTabCounts();
   renderRecents();
@@ -1010,10 +1027,11 @@ function pcardHtml(p) {
       <div class="pcard-head">
         <span class="pcode">${e(p.project_code)}</span>
         <span class="ptype-pill ptype-${p.project_type}">${e(p.project_type)}</span>
+        ${p._nature ? `<span class="nature-pill nature-${e(p._nature)}" title="Maintenance nature: how this project's work is sourced">${e(p._nature)}</span>` : ''}
       </div>
       <div class="pname">${e(p.name)}</div>
       <div class="pmeta">
-        <span>👤 ${e(p.owner_name || '—')}</span>
+        <span>👤 ${e(p.owner_name || '-')}</span>
         ${p.end_date ? `<span>📅 ${e(fmtDate(p.end_date))}</span>` : ''}
         ${p._items_total ? `<span>📋 ${p._items_done}/${p._items_total}</span>` : ''}
       </div>
@@ -1031,7 +1049,7 @@ function renderEmptyState(grid, totalProjects) {
   if (totalProjects === 0) {
     grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
       <div class="empty-tiles-wrap" style="grid-column: 1 / -1;">
-        <div class="empty-tiles-headline">No projects yet — start with a template</div>
+        <div class="empty-tiles-headline">No projects yet: start with a template</div>
         <div class="empty-tiles-sub">Pick a flavour. Each one comes with industry-standard scope items you can tweak.</div>
         <div class="type-tile-grid">
           <div class="type-tile" onclick="openNewProject(); setTimeout(()=>wizardPickType('workorder'), 0);">
@@ -1089,7 +1107,7 @@ function renderProjectsSummary() {
   );
   setCard('overdue',
     String(overdue),
-    overdue === 0 ? 'No active projects past their end date' : `${overdue} project${overdue === 1 ? '' : 's'} past end_date without closing out`,
+    overdue === 0 ? 'No active projects past their end date' : `${overdue} project${overdue === 1 ? '' : 's'} past their end date without closing out`,
     overdue === 0 ? 'CLEAR' : overdue >= 3 ? 'SLIPPING' : 'WATCH',
     overdue === 0 ? 'green' : overdue >= 3 ? 'red' : 'amber'
   );
@@ -1103,11 +1121,11 @@ function renderProjectsSummary() {
   let tone, label, sub;
   if (overdue >= 3) {
     tone = 'attn'; label = `${overdue} projects past end date`;
-    sub  = 'These should have closed by now. Open each — either mark Complete (if done) or revise end_date to current reality.';
+    sub  = 'These should have closed by now. Open each, then either mark Complete (if done) or revise the end date to current reality.';
   } else if (overdue > 0 || blocked > active) {
-    tone = 'watch'; label = 'Project portfolio is climbing — a few things to handle';
+    tone = 'watch'; label = 'Project portfolio is climbing: a few things to handle';
     const parts = [];
-    if (overdue > 0)       parts.push(`${overdue} past end_date`);
+    if (overdue > 0)       parts.push(`${overdue} past end date`);
     if (blocked > active)  parts.push(`${blocked} blocked vs ${active} active`);
     sub = parts.join(' · ') + '.';
   } else if (total === 0) {
@@ -1127,13 +1145,13 @@ function renderProjectsSummary() {
   if (actBox) {
     let text;
     if (total === 0) {
-      text = 'No projects yet. Easiest way to start: click 🤖 AI: from text and describe a project in plain language ("3-day pump overhaul next week, need 2 mechanics and 4 spare seals") — the AI builds the scope item list for you.';
+      text = 'No projects yet. Easiest way to start: click 🤖 AI: from text and describe a project in plain language ("3-day pump overhaul next week, need 2 mechanics and 4 spare seals"), and the AI builds the scope item list for you.';
     } else if (overdue >= 3) {
-      text = `Filter to "Active" tab and walk down — every project past its end_date is dragging your portfolio health. Close out or push the date forward, one at a time.`;
+      text = `Filter to "Active" tab and walk down: every project past its end date is dragging your portfolio health. Close out or push the date forward, one at a time.`;
     } else if (overdue > 0) {
-      text = `${overdue} project${overdue === 1 ? ' is' : 's are'} past end_date. Open them via the Active tab and either mark Complete or revise end_date — both clear the verdict.`;
+      text = `${overdue} project${overdue === 1 ? ' is' : 's are'} past their end date. Open them via the Active tab and either mark Complete or revise the end date (both clear the verdict).`;
     } else if (blocked > active) {
-      text = `${blocked} project${blocked === 1 ? '' : 's'} in planning or on-hold, only ${active} active. Either kick off the planning ones or close out the on-hold ones — a backlog of waiting work is a portfolio smell.`;
+      text = `${blocked} project${blocked === 1 ? '' : 's'} in planning or on-hold, only ${active} active. Either kick off the planning ones or close out the on-hold ones, because a backlog of waiting work is a portfolio smell.`;
     } else {
       text = 'Portfolio is healthy. Use the recent strip below to jump back into the project you opened last, or filter the tabs to plan the next phase.';
     }
@@ -1372,12 +1390,12 @@ const PROJECT_TEMPLATES = {
       desc: 'Standard front-end-loading process for capital projects. Three FEL gates before FID.',
       duration_days: 180, discipline: 'Engineering',
       items: [
-        { title: 'FEL-1: Concept Study (AACE Class 5, ±50%) — options, screening, business case', est_h: 40, freq_phase: 'fel1' },
-        { title: 'Stage Gate 1 — go / hold / kill review', est_h: 4, freq_phase: 'gate' },
-        { title: 'FEL-2: Feasibility Study (Class 4, ±30%) — selected option, conceptual design', est_h: 80, freq_phase: 'fel2' },
-        { title: 'Stage Gate 2 — approve to FEED', est_h: 4, freq_phase: 'gate' },
-        { title: 'FEL-3: FEED / Basic Engineering (Class 3, ±15%) — full design package', est_h: 200, freq_phase: 'fel3' },
-        { title: 'Stage Gate 3 — Final Investment Decision (FID)', est_h: 4, freq_phase: 'gate' },
+        { title: 'FEL-1: Concept Study (AACE Class 5, ±50%): options, screening, business case', est_h: 40, freq_phase: 'fel1' },
+        { title: 'Stage Gate 1: go / hold / kill review', est_h: 4, freq_phase: 'gate' },
+        { title: 'FEL-2: Feasibility Study (Class 4, ±30%): selected option, conceptual design', est_h: 80, freq_phase: 'fel2' },
+        { title: 'Stage Gate 2: approve to FEED', est_h: 4, freq_phase: 'gate' },
+        { title: 'FEL-3: FEED / Basic Engineering (Class 3, ±15%): full design package', est_h: 200, freq_phase: 'fel3' },
+        { title: 'Stage Gate 3: Final Investment Decision (FID)', est_h: 4, freq_phase: 'gate' },
         { title: 'Detailed engineering + procurement', est_h: 400, freq_phase: 'execute' },
         { title: 'Construction + commissioning', est_h: 800, freq_phase: 'execute' },
         { title: 'Handover to operations + lessons learned', est_h: 40, freq_phase: 'close' },
@@ -1565,7 +1583,7 @@ function renderWizardTemplates() {
 function renderWizardItems() {
   const list = $('wiz-item-list');
   if (!_wizardState.items.length) {
-    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty" style="padding: 14px;">Blank project — add custom items below or skip and add scope items inside the project.</div>';
+    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty" style="padding: 14px;">Blank project: add custom items below or skip and add scope items inside the project.</div>';
   } else {
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _wizardState.items.map((it, idx) => `
       <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
@@ -1732,7 +1750,7 @@ async function runAIIntent() {
             if (data.end_date) $('wiz-end').value = data.end_date;
             if (data.priority) $('wiz-priority').value = data.priority;
             if (data.description) $('wiz-desc').value = data.description;
-            showToast('AI pre-filled the wizard — review and Create.', 'success');
+            showToast('AI pre-filled the wizard: review and Create.', 'success');
           }, 60);
         }, 60);
       } else {
@@ -1791,7 +1809,7 @@ async function saveProject() {
     const { data: projRows, error } = await projQuery.select('id');
     if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
     if (projRows !== null && projRows !== undefined && projRows.length === 0) {
-      showToast('Project was modified by someone else — reload to see the latest.', 'error');
+      showToast('Project was modified by someone else, reload to see the latest.', 'error');
       return;
     }
     showToast('✓ Project saved → Project Report updated · refreshes wherever it is linked (Logbook · PM Scheduler)', 'success', 5000);
@@ -1871,22 +1889,30 @@ function pushAIContext() {
   const r = _progress?.rollup || {};
   const ev = _progress?.earned_value;
   const cp = _progress?.critical_path;
+  // PII-SAFE grounding (K4, 2026-07-12): this summary is now TRANSMITTED to the LLM
+  // (piiSafe:true — previously the flag was omitted so companion-launcher dropped the
+  // whole summary and the companion was ungrounded on projects). It therefore carries
+  // ONLY project codes / enums / counts / % / money rollups — NEVER owner_name (person
+  // PII), the progress-log blocker FREE-TEXT, or the free-text description (both can
+  // hold names/contacts the gateway's page_context redaction won't catch in prose).
+  // The companion grounds on the project's SHAPE; specific names/notes stay on the page.
+  const blockedLogs = _logs.filter(l => (l.blockers || '').trim()).length;
   const lines = [
-    `Project: ${_detail.project_code} (${_detail.project_type}) — ${_detail.name}`,
-    `Status: ${_detail.status}, priority: ${_detail.priority}, owner: ${_detail.owner_name || 'unassigned'}`,
+    `Project: ${_detail.project_code} (${_detail.project_type}): ${_detail.name}`,
+    `Status: ${_detail.status}, priority: ${_detail.priority}`,
     _detail.start_date && _detail.end_date ? `Period: ${_detail.start_date} to ${_detail.end_date}` : null,
     `Scope items: ${_items.length} total, ${_items.filter(i => i.status === 'done').length} done, ${_items.filter(i => i.status === 'blocked').length} blocked`,
     r.pct_complete != null ? `Progress: ${r.pct_complete}% complete (${r.hours_actual || 0}h actual / ${r.hours_estimated || 0}h estimated)` : null,
     ev?.available ? `EVM: SPI ${ev.spi}, CPI ${ev.cpi}, status ${ev.status} (BAC ₱${ev.bac}, EV ₱${ev.ev})` : null,
     cp?.total_days ? `Critical path: ${cp.total_days}d, ${cp.item_ids.length} of ${_items.length} items on critical path` : null,
-    _logs.length ? `${_logs.length} progress log(s); latest blockers: ${_logs.filter(l => (l.blockers || '').trim()).slice(0, 3).map(l => `"${l.blockers.slice(0, 80)}"`).join(', ') || 'none'}` : 'No progress logs yet',
+    _logs.length ? `${_logs.length} progress log(s), ${blockedLogs} reporting an active blocker` : 'No progress logs yet',
     _changeOrders.length ? `${_changeOrders.length} change order(s); ${_changeOrders.filter(c => c.status === 'pending').length} pending approval` : null,
-    _detail.description ? `Description: ${_detail.description.slice(0, 200)}` : null,
   ].filter(Boolean);
   window.WHAssistant.setContext({
     key: 'project:' + _detail.id,
     summary: lines.join('\n'),
     badge: _detail.project_code,
+    piiSafe: true,
   });
 }
 
@@ -1956,8 +1982,8 @@ function renderOverview() {
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete ?? 0}%</div><div class="kpi-sub">${r.items_done ?? 0}/${r.items_total ?? 0} items done</div></div>
       <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${_num(r.hours_actual, 0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${_num(r.hours_estimated, 0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
-      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed ?? 0}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '—'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
-      ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '—'} / ${ev.cpi ?? '—'}</div><div class="kpi-sub">${(ev.status || 'unknown').toUpperCase()}</div></div>` : ''}
+      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed ?? 0}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '-'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
+      ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '-'} / ${ev.cpi ?? '-'}</div><div class="kpi-sub">${(ev.status || 'unknown').toUpperCase()}</div></div>` : ''}
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;">Description</h3>
@@ -1965,7 +1991,7 @@ function renderOverview() {
         ${_detail.description ? e(_detail.description).replace(/\n/g, '<br>') : 'No description yet. Click Edit to add one.'}
       </p>
       <div class="grid-3" style="margin-top: 14px; font-size: 0.85rem;">
-        <div><strong>Owner</strong><br>${e(_detail.owner_name || '—')}</div>
+        <div><strong>Owner</strong><br>${e(_detail.owner_name || '-')}</div>
         <div><strong>Start</strong><br>${e(fmtDate(_detail.start_date))}</div>
         <div><strong>End</strong><br>${e(fmtDate(_detail.end_date))}</div>
       </div>
@@ -2028,11 +2054,11 @@ function renderScope() {
       <tr class="${it.status === 'done' ? 'done' : ''} ${isCritical ? 'critical' : ''}">
         <td class="mono small">${e(it.wbs_code || '')}</td>
         <td>${e(it.title)}</td>
-        <td class="small">${e(it.owner_name || '—')}</td>
+        <td class="small">${e(it.owner_name || '-')}</td>
         <td><span class="status-pill status-${sCls}" style="cursor:pointer;" title="Click to cycle status" onclick="cycleScopeStatus('${e(it.id)}', event)">${e(it.status.replace('_', ' '))}</span></td>
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
         <td class="small">${e(fmtDate(it.planned_end))}</td>
-        <td class="small">${it.estimated_hours || '—'}h</td>
+        <td class="small">${it.estimated_hours || '-'}h</td>
         <td><button class="btn small ghost" onclick="openEditScope('${e(it.id)}')">Edit</button></td>
       </tr>`;
   };
@@ -2047,16 +2073,16 @@ function renderScope() {
           <span class="phase-tag ${phaseClass}">${e(phaseLabel)}</span>
           <span class="small" style="color:var(--muted);">${items.length} item${items.length === 1 ? '' : 's'}</span>
         </div>
-        <!-- table-name-allow: project WBS / scope data table --> <table>
+        <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
           <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
           <tbody>${items.map(renderRow).join('')}</tbody>
-        </table>
+        </table></div>
       </div>`;
   }).join('') : `
-    <!-- table-name-allow: project WBS / scope data table --> <table>
+    <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
       <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th>Est</th><th></th></tr></thead>
       <tbody>${_items.map(renderRow).join('')}</tbody>
-    </table>`;
+    </table></div>`;
 
   $('pane-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
@@ -2134,7 +2160,7 @@ async function saveScopeItem() {
     const { data: scopeRows, error: scopeErr } = await scopeQuery.select('id');
     err = scopeErr;
     if (!err && scopeRows !== null && scopeRows !== undefined && scopeRows.length === 0) {
-      showToast('Scope item was modified by someone else — reload to see the latest.', 'error');
+      showToast('Scope item was modified by someone else, reload to see the latest.', 'error');
       return;
     }
   } else {
@@ -2172,7 +2198,7 @@ async function linkSuggested(idx) {
   const { error } = await db.from('project_links').insert({
     project_id: _detailId, hive_id: HIVE_ID,
     link_type: 'logbook', link_id: c.id,
-    label: `${c.machine || '?'} — ${(c.problem || '').slice(0, 60)}`,
+    label: `${c.machine || '?'}: ${(c.problem || '').slice(0, 60)}`,
   });
   // Arc S C-lens (gap-C-010): project_links_target_uidx makes a double-click
   // benign — 23505 means the link already exists, not a failure.
@@ -2191,7 +2217,7 @@ function renderLinked() {
     return `<div style="margin-bottom: 12px;">
       <h4 style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
       <div>${items.map(l => `
-        <span class="link-pill">${e(l.label || l.link_id || '—')} <button onclick="removeLink('${e(l.id)}')" title="Remove">×</button></span>
+        <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${e(l.id)}')" title="Remove">×</button></span>
       `).join('')}</div>
     </div>`;
   }).join('');
@@ -2202,13 +2228,13 @@ function renderLinked() {
       <div>
         ${_linkSuggestions.map((c, i) => `
           <span class="link-pill" style="cursor:pointer;" onclick="linkSuggested(${i})" title="Click to link">
-            ${e((c.machine || '?') + ' — ' + (c.problem || '').slice(0, 50))} <span style="color: var(--gold);">+ link</span>
+            ${e((c.machine || '?') + ': ' + (c.problem || '').slice(0, 50))} <span style="color: var(--gold);">+ link</span>
           </span>`).join('')}
       </div>
     </div>` : '';
   $('pane-linked')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_links.length} linked item(s) — pull existing logbook entries, PMs, parts, contractor info into this project</div>
+      <div class="small" style="color: var(--muted);">${_links.length} linked item(s): pull existing logbook entries, PMs, parts, contractor info into this project</div>
       <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();">+ Link work</button>
     </div>
     ${suggestionBanner}
@@ -2236,9 +2262,9 @@ async function loadLinkOptions() {
   const labelFor = (r) => {
     if (t === 'asset' || t === 'marketplace_listing') return r.name || r.title || r.id;
     if (t === 'inventory_item') return r.part_name || r.part_number || r.id;
-    if (t === 'logbook') return `${r.machine || '?'} — ${(r.problem || '').slice(0, 50)}`;
+    if (t === 'logbook') return `${r.machine || '?'}: ${(r.problem || '').slice(0, 50)}`;
     if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString()}`;
-    if (t === 'engineering_calc') return `${r.calc_type} — ${r.project_name || ''}`;
+    if (t === 'engineering_calc') return `${r.calc_type}: ${r.project_name || ''}`;
     return r.id;
   };
   $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (data || []).map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('');
@@ -2433,7 +2459,7 @@ function renderRoles() {
 function openAddRole() {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
   // Populate worker dropdown
-  $('r-worker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<option value="">—</option>' +
+  $('r-worker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<option value="">-</option>' +
     _members.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
   $('r-worker').value = '';
   $('r-role').value = 'planner';
@@ -2469,8 +2495,8 @@ const CO_STATUS_LABELS = { pending: 'Pending review', approved: 'Approved', reje
 function renderChangeOrders() {
   const rows = _changeOrders.map(co => {
     const sCls = co.status === 'approved' ? 'active' : co.status === 'rejected' ? 'cancelled' : co.status === 'cancelled' ? 'archived' : 'planning';
-    const costLine = co.cost_impact_php ? `${co.cost_impact_php > 0 ? '+' : ''}${fmtPHP(co.cost_impact_php)}` : '—';
-    const daysLine = co.schedule_impact_days ? `${co.schedule_impact_days > 0 ? '+' : ''}${co.schedule_impact_days}d` : '—';
+    const costLine = co.cost_impact_php ? `${co.cost_impact_php > 0 ? '+' : ''}${fmtPHP(co.cost_impact_php)}` : '-';
+    const daysLine = co.schedule_impact_days ? `${co.schedule_impact_days > 0 ? '+' : ''}${co.schedule_impact_days}d` : '-';
     return `
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
         <div class="row" style="justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px;">
@@ -2540,10 +2566,13 @@ async function saveChangeOrder() {
 async function approveCO(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
   if (!(await window.whConfirm('Approve this change order? Cost / schedule impact will be reflected in the project.', { okLabel: 'Approve', cancelLabel: 'Cancel' }))) return;
-  const { error } = await db.from('project_change_orders')
+  // P6-C1 optimistic lock (sibling of hive/asset-hub): only decide a STILL-pending CO so a concurrent
+  // approve/reject (or a double-click) cannot reverse an already-decided, cost-impacting change order.
+  const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
-    .eq('id', id);
+    .eq('id', id).eq('status', 'pending').select('id');
   if (error) { showToast(error.message, 'error'); return; }
+  if (!updated || !updated.length) { showToast('That change order was already decided by another supervisor.'); await refreshDetail(); return; }
   showToast('Approved.', 'success');
   await refreshDetail();
 }
@@ -2551,10 +2580,12 @@ async function rejectCO(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
   const reason = await window.whPrompt('Reason for rejection (visible to requester):', { inputLabel: 'Rejection reason' });
   if (!reason) return;
-  const { error } = await db.from('project_change_orders')
+  // P6-C1 optimistic lock: only reject a STILL-pending CO (no re-flip of an already-decided order).
+  const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(), rejection_reason: reason })
-    .eq('id', id);
+    .eq('id', id).eq('status', 'pending').select('id');
   if (error) { showToast(error.message, 'error'); return; }
+  if (!updated || !updated.length) { showToast('That change order was already decided by another supervisor.'); await refreshDetail(); return; }
   showToast('Rejected.', 'success');
   await refreshDetail();
 }
@@ -2592,15 +2623,15 @@ function renderBudget() {
       <div class="kpi"><div class="kpi-label">Planned value (PV)</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
       <div class="kpi"><div class="kpi-label">Earned value (EV)</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
       <div class="kpi"><div class="kpi-label">Actual cost (AC)</div><div class="kpi-value">${fmtPHP(ev.ac)}</div><div class="kpi-sub">proxy: hours × ₱200</div></div>
-      <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${ev.spi ?? '—'}</div><div class="kpi-sub">schedule</div></div>
-      <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '—'}</div><div class="kpi-sub">cost</div></div>
+      <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${ev.spi ?? '-'}</div><div class="kpi-sub">schedule</div></div>
+      <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '-'}</div><div class="kpi-sub">cost</div></div>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Variance summary</h3>
-      <!-- table-name-allow: project WBS / scope data table --> <table>
+      <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
         <tr><td>Schedule variance (SV = EV − PV)</td><td>${fmtPHP(ev.sv)}</td></tr>
         <tr><td>Cost variance (CV = EV − AC)</td><td>${fmtPHP(ev.cv)}</td></tr>
-      </table>
+      </table></div>
       <div class="small" style="margin-top: 10px; color: var(--muted);">Standards: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.</div>
     </div>
   `;
@@ -2639,8 +2670,8 @@ function renderSignoff() {
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.</div>
-      <textarea aria-label="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated — consider buffer hours for next pump overhaul\n• Parts staging was on point — keep weekly cadence\n• PTW issued late by 2h — pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
-      ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))} — supervisor edit before sign-off recommended.</div>` : ''}
+      <textarea aria-label="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
+      ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))}: supervisor edit before sign-off recommended.</div>` : ''}
       <div class="row" style="gap: 8px; margin-top: 8px; justify-content: flex-end;">
         <button class="btn small" onclick="aiDraftLessons()" title="Use AI to draft from progress logs">🤖 AI: Draft from logs</button>
         <button class="btn small" onclick="saveLessons()">Save lessons</button>
@@ -2668,7 +2699,7 @@ async function aiDraftLessons() {
       _ai_generated_at: new Date().toISOString(),
     };
     _detail.meta = meta;
-    showToast('AI draft loaded — review and Save lessons to keep it.', 'success');
+    showToast('AI draft loaded: review and Save lessons to keep it.', 'success');
   } catch (e) {
     showToast('AI failed: ' + e.message, 'error');
   }
@@ -2678,11 +2709,22 @@ async function saveLessons() {
   if (!_detail) return;
   const text = $('lessons-text').value.trim();
   const meta = { ...(_detail.meta || {}), lessons_learned: text };
-  const { error } = await db.from('projects')
+  // Optimistic-concurrency guard: meta is read-modify-written from the cached _detail, so a blind
+  // update would clobber a concurrent edit to the SAME project (lessons or any other field). Guard on
+  // the snapshot; trg_projects_updated_at bumps updated_at on every write, so a stale write 0-rows.
+  let q = db.from('projects')
     .update({ meta }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
+  if (_detail.updated_at) q = q.eq('updated_at', _detail.updated_at);
+  const { data, error } = await q.select('id, updated_at, meta');
   if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  if (!data || data.length === 0) {
+    showToast('This project changed since you opened it, reloading.', 'error');
+    await openDetail(_detail.id);
+    return;
+  }
   showToast('Lessons saved.', 'success');
-  _detail.meta = meta;
+  _detail.meta = data[0].meta || meta;
+  _detail.updated_at = data[0].updated_at; // refresh snapshot for a subsequent edit
   // Phase 6.4 — embed lessons text for semantic search across projects
   if (text.length >= 30) _embedProjectAsync('project_lesson', { lessons_text: text });
 }
@@ -2810,14 +2852,121 @@ function subscribeRealtime() {
 window.addEventListener('beforeunload', () => { if (_rtChannel) db.removeChannel(_rtChannel); });
 
 /* ── Modal helpers ─────────────────────────────────────────── */
-function openModal(id) { $(id).classList.add('open'); }
-function closeModal(id) { $(id).classList.remove('open'); }
+function openModal(id) {
+  const m = $(id); if (!m) return;
+  m._returnFocus = document.activeElement;      // a11y: restore focus on close
+  m.classList.add('open');
+  const f = m.querySelector('input,select,textarea,button');  // focus-in on open
+  if (f) setTimeout(() => { try { f.focus(); } catch (_) { /* empty-catch-allow: focus-in is best-effort a11y */ } }, 30);
+}
+function closeModal(id) {
+  const m = $(id); if (!m) return;
+  m.classList.remove('open');
+  if (m._returnFocus && m._returnFocus.focus) { try { m._returnFocus.focus(); } catch (_) { /* empty-catch-allow: return-focus best-effort; opener may be gone */ } }
+}
+// A11y (deep-walk dim 8, 2026-07-06): every .modal-bg is a dialog — set the ARIA contract
+// once, close on backdrop-click AND Escape (all 8 PM modals were missing role/aria/Escape).
 document.querySelectorAll('.modal-bg').forEach(el => {
-  el.addEventListener('click', ev => { if (ev.target === el) el.classList.remove('open'); });
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+    const h = el.querySelector('h1,h2,h3,.modal-title,[class*="title"]');
+    if (h && h.textContent.trim()) el.setAttribute('aria-label', h.textContent.trim().slice(0, 60));
+  }
+  el.addEventListener('click', ev => { if (ev.target === el) closeModal(el.id); });
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key !== 'Escape') return;
+  const open = [...document.querySelectorAll('.modal-bg.open')].pop();
+  if (open) closeModal(open.id);
 });
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    joinhivefirst: 'Sumali muna sa hive',
+    pagetitle: 'Tagapamahala ng Proyekto',
+    activeprojects: 'Mga aktibong proyekto',
+    pastenddate: 'Lampas sa end date',
+    onholdplanning: 'Naka-hold o nagpaplano',
+    showdetails: 'Ipakita ang detalye',
+    tabactive: 'Aktibo',
+    tabplanning: 'Pagpaplano',
+    tabonhold: 'Naka-hold',
+    tabcomplete: 'Kumpleto',
+    taball: 'Lahat',
+    newproject: '+ Bagong proyekto',
+    aifromtext: '🤖 AI: mula sa text',
+    loadmore: 'Mag-load pa',
+    backtoall: '← Bumalik sa lahat ng proyekto',
+    edit: 'I-edit',
+    delete: 'Burahin',
+    whatkind: 'Anong klaseng proyekto?',
+    cancel: 'Kanselahin',
+    next: 'Susunod →',
+    starterpack: 'Pumili ng starter pack',
+    blankproject: 'O magsimula sa blangkong proyekto →',
+    back: '← Bumalik',
+    customisecreate: 'I-customize at gumawa',
+    projectname: 'Pangalan ng proyekto *',
+    owner: 'May-ari',
+    priority: 'Prayoridad',
+    startdate: 'Petsa ng simula',
+    enddate: 'Petsa ng pagtatapos',
+    budgetphp: 'Badyet (PHP)',
+    description: 'Deskripsyon',
+    createproject: 'Gumawa ng proyekto',
+    create: 'Gumawa',
+    newprojecttitle: 'Bagong proyekto',
+    name: 'Pangalan *',
+    typereq: 'Uri *',
+    addscopeitem: 'Magdagdag ng scope item',
+    title: 'Pamagat *',
+    wbscode: 'WBS code',
+    status: 'Status',
+    plannedstart: 'Planong simula',
+    plannedend: 'Planong pagtatapos',
+    esthours: 'Tinatayang oras',
+    phase: 'Phase',
+    predecessors: 'Mga naunang gawain (depende sa)',
+    notes: 'Mga tala',
+    save: 'I-save',
+    linkexisting: 'I-link ang umiiral na trabaho',
+    type: 'Uri',
+    pick: 'Pumili',
+    contractorname: 'Pangalan ng contractor / vendor',
+    addlink: 'Idagdag ang link',
+    describeproject: '🤖 Ilarawan ang iyong proyekto',
+    whatsproject: 'Ano ang proyekto?',
+    parsewithai: 'I-parse gamit ang AI',
+    assignrole: 'Magtalaga ng role',
+    worker: 'Manggagawa *',
+    role: 'Role *',
+    assign: 'Italaga',
+    raiseco: 'Mag-raise ng change order',
+    scopechange: 'Pagbabago sa scope *',
+    reason: 'Dahilan',
+    costimpact: 'Epekto sa gastos (PHP)',
+    scheduleimpact: 'Epekto sa iskedyul (araw)',
+    submitapproval: 'I-submit para sa approval',
+    dailyprogresslog: 'Pang-araw-araw na progress log',
+    date: 'Petsa',
+    pctcomplete: '% kumpleto (ngayong araw)',
+    hoursworked: 'Oras na nagtrabaho',
+    notesaccomp: 'Mga tala / nagawa',
+    blockers: 'Mga hadlang (red flag kung may laman)',
+    savelog: 'I-save ang log',
+  };
+</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

@@ -27,7 +27,8 @@
  * maestro (response targets browser speechSynthesis, so keep replies short).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -49,6 +50,10 @@ import { redactPII } from "../_shared/redactPII.ts";
 // "conversational" mode — full persona, freeform prose.
 import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
 import { gateNumericProvenance } from "../_shared/numeric_provenance.ts";
+// Post-gate remnant resolver (CL2/CL10, 2026-07-08): a G1-stripped reply can leave
+// an incoherent fragment ("Check the OEM manual though."); route a gutted remnant to
+// an honest, domain-aware pointer. One-source-zero-drift with its unit test.
+import { resolveProvenanceRemnant } from "../_shared/gutted_reply.ts";
 // Phase G3 (Grounding Doctrine §2): typed fact-sheet + slot-fill render. On a
 // value-seeking data-read turn the model emits {{FACT:id}} placeholders and CODE
 // inserts the real numbers — closing G1's coincidental-match residual by
@@ -104,6 +109,7 @@ Voice-Journal-specific rules:
 - MEMORY IS NOT LIVE TRUTH: a value, asset, reading, or "situation" that appears only in your memory block / rolling summary is something the worker SAID at some point, not a verified current fact. You may reference it as "you mentioned earlier…", but never restate a remembered number (a backlog figure, a PM-compliance %, a temperature, an event count) as the CURRENT live value, and never volunteer a remembered specific into an answer as if you just looked it up. When they directly ask "what did I tell you the torque was?" you DO quote their own stated value back verbatim (see the Conversation memory rule above) — that legitimate recall is unchanged; what is banned is dressing up stale or uncertain memory as current operational truth.
 - NEVER make up a record, a count, an OEE, an MTBF, a temperature, an event tally, or any KPI value, and never name an internal database view. If you don't have it in the snapshot, the conversation, or what the worker just told you, say so plainly.
 - FALSE-PREMISE GUARD (the most important recall rule): a question can falsely PRESUPPOSE you already hold a value — "what OEE number did I give you?", "what PM compliance figure did I quote?", "what was that vibration reading I told you about?", "what did we decide about the boiler last shift?". If that specific value/decision is NOT actually written in your memory block, the premise is FALSE. Answer "You haven't given me that figure" or "I don't have a record of you telling me that" and supply NO number, reading, percentage, or decision. The grammar of a question assuming a value exists does NOT make one exist, and a worker asking confidently does NOT mean they told you before. Refuse the presupposition; never emit a plausible figure just to satisfy the shape of the question.
+- READABILITY (this reply is SPOKEN ALOUD to a worker on a plant floor via speechSynthesis): keep EVERY sentence under 20 words, and use plain, 8th-grade words over long ones. Two short sentences are always better than one long one. A worker cannot re-read speech, so a 35-word sentence is lost.
 
 You will be given:
 - The worker's latest spoken message
@@ -122,9 +128,11 @@ interface AgentRequest {
 }
 
 interface AgentResponse {
-  answer: string;
-  lang:   string;
-  error?: string;
+  answer:   string;
+  lang:     string;
+  persona?: string;   // CL9 (2026-07-08): structural echo of the resolved persona key so callers/harnesses
+                      // can assert which persona answered (hezekiah|zaniah) without prose-grepping "Naks"/"Hala".
+  error?:   string;
 }
 
 // ── Unsupported false-recall guard (Grounding Doctrine, 2026-06-14 — the family-I tic) ─────
@@ -138,6 +146,7 @@ interface AgentResponse {
 // no-conversational-memory, so legitimate C-family recall (the worker DID state something earlier)
 // is never touched. Mirrors the G1 numeric strip: drop the offending sentence, keep the rest.
 const _RECALL_FRAME_RE = /\b(?:you (?:mentioned|said|told me|noted|wanted|asked|brought up|indicated)|earlier,? you|as you (?:mentioned|noted|said)|last time you|previously you|we (?:discussed|talked about)|came up earlier)\b/i;
+
 function stripUnsupportedRecall(text: string, hasConvoMemory: boolean): string {
   if (hasConvoMemory || !text) return text;            // legitimate recall is possible → leave it
   const sentences = text.split(/(?<=[.!?])\s+/);
@@ -284,6 +293,53 @@ function stripUngroundedEventClaim(text: string, userBlock: string): string {
     : "I don't have that detailed failure history on this surface. The Work Assistant and the Analytics page carry the per-asset breakdown and the planned-versus-reactive split.";
 }
 
+// ── Fabricated breakdown-history-PATTERN guard (Grounding Doctrine, HELD-OUT diverse dv-14, 2026-07-13) ─
+// Asked to "walk me through AC-001's last three breakdowns", the model honestly said the snapshot
+// doesn't print them — then OVER-REACHED with an invented PATTERN in the SAME sentence: "…but the
+// pattern is clear: every logbook entry for AC-001 this week was mechanical, zero downtime recorded."
+// Line-105 forbids inventing failure history, but the free-tier 8B doesn't always hold it, and
+// stripUngroundedEventClaim self-disables whenever ANY logbook aggregate is present. Strip, by
+// construction, a sentence that asserts a UNIVERSAL history claim ("every/all/each … entr(y/ies)")
+// OR a "the pattern is clear/obvious" frame AND carries a fabricated specific (a fault-type, downtime,
+// or a fault code). The honest "I don't have that / pull the Logbook" pointer + real counts survive.
+const _HISTORY_PATTERN_RE = /\b(?:the pattern is (?:clear|obvious)|every (?:single )?(?:logbook )?entr(?:y|ies)|all (?:the |your )?(?:logbook )?entr(?:y|ies)|each (?:logbook )?entr(?:y|ies))\b/i;
+const _HISTORY_SPECIFIC_RE = /\b(?:mechanical|electrical|hydraulic|pneumatic|corrosion|lubrication|vibration|zero downtime|no downtime|fault code|fault type)\b/i;
+function stripFabricatedHistoryPattern(text: string): string {
+  if (!text) return text;
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const kept = sentences.filter((s) =>
+    !(_HISTORY_PATTERN_RE.test(s) && _HISTORY_SPECIFIC_RE.test(s)));
+  const out = kept.join(" ").replace(/\s+/g, " ").trim();
+  return out.length >= 15
+    ? out
+    : "I don't have that per-asset breakdown history on this surface. Pull the Logbook and filter by the asset for the exact fault codes and dates.";
+}
+
+// ── Fabricated recalled-VALUE strip (held-out diverse run dv-44, 2026-07-13) ──
+// The worker asks the companion to recall a value THEY supposedly stated ("remind me of the
+// compliance % I quoted last week"). With no such value in conversational memory the model
+// invents a specific one and attributes it to the worker ("…lower than the 62% you mentioned
+// last week"). Drop a sentence that pins a SPECIFIC number to the worker's PAST statement when
+// that number is NOT present in the actual conversation memory. The grounded CURRENT value and
+// the honest remainder survive; a genuine recall (the value IS in memory) is preserved.
+const _RECALL_ATTRIB_RE = /\b(?:the|that|your)\s+(\d[\d.,]*)\s*%?\s+you\s+(?:mentioned|quoted|said|told me|cited|gave|reported|noted|had)\b/i;
+const _RECALL_PAST_RE = /\b(?:last week|last month|last shift|last time|before|earlier|previously|yesterday|the other day)\b/i;
+function stripFabricatedRecalledValue(text: string, convoMemory: string): string {
+  if (!text) return text;
+  const mem = String(convoMemory || "");
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const kept = sentences.filter((s) => {
+    const m = s.match(_RECALL_ATTRIB_RE);
+    if (!m || !_RECALL_PAST_RE.test(s)) return true;      // not a past-value-attribution clause
+    const val = m[1].replace(/[.,]+$/, "");               // the cited value, e.g. "62"
+    return mem.includes(val);                             // keep ONLY if that value is actually in memory
+  });
+  const out = kept.join(" ").replace(/\s+/g, " ").trim();
+  return out.length >= 15
+    ? out
+    : "I don't have a record of a figure you gave me earlier on this. Your current numbers are in the snapshot above.";
+}
+
 // ── Unregistered-asset claim guard (Grounding Doctrine, 2026-06-14 — HELD-OUT diverse run dv-03) ─
 // A worker can ASSERT a false event for a non-existent asset ("PUMP-X tripped again overnight, walk
 // me through its history"). The model sometimes ECHOES the premise ("another trip on PUMP-X adds to
@@ -362,7 +418,12 @@ function stripUnservedMetricClaims(text: string): string {
 // companion_fabrication_sweep.py grade() uses INDEPENDENT logic. See the usage in
 // the response pipeline below (was the stripUngroundedKpi call).
 
-serve(async (req) => {
+serveObserved("voice-journal-agent", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "voice-journal-agent", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
 
   if (req.method === "OPTIONS") {
@@ -551,6 +612,15 @@ serve(async (req) => {
     // "two of the four breakdowns this week…" fabrication that G1 misses because its numbers are
     // worded; skipped when the logbook block is present (real failure data) and on generic advice.
     clean = stripUngroundedEventClaim(clean, userBlock);
+    // Fabricated breakdown-history-PATTERN strip (held-out dv-14, 2026-07-13): drop a sentence that
+    // invents a UNIVERSAL history claim ("every logbook entry was mechanical, zero downtime") or a
+    // "the pattern is clear" frame carrying a fabricated fault-type/downtime specific — the model's
+    // over-reach right after honestly admitting it doesn't have the last-N-breakdowns detail.
+    clean = stripFabricatedHistoryPattern(clean);
+    // Fabricated recalled-value strip (held-out dv-44, 2026-07-13): drop a sentence that attributes a
+    // specific number to the worker's PAST statement ("the 62% you mentioned last week") when that
+    // value isn't in conversational memory — the model confabulates a recall the worker asked for.
+    clean = stripFabricatedRecalledValue(clean, convoMemory);
     // Unregistered-asset claim strip (held-out dv-03): drop a sentence that affirms an event for a
     // tag not in the snapshot's registered list (keeps explicit denials).
     clean = stripUnregisteredAssetClaim(clean, userBlock);
@@ -565,11 +635,13 @@ serve(async (req) => {
     // (e.g. the live "...41% from a target of 80%" leak). If it guts the whole reply,
     // fall back to an honest pointer.
     const prov = gateNumericProvenance(clean, userBlock);
-    if (prov.hit) {
-      clean = prov.clean.length >= 15
-        ? prov.clean
-        : "I don't have your exact KPI figures on this voice surface. Check the Work Assistant for your live OEE, MTBF, and planned-vs-reactive ratio.";
-    }
+    // The gate removed every untraceable-number sentence (safety: never author a
+    // spec/KPI figure). What survives must still be a COHERENT reply — a > 15-char
+    // dangling fragment ("Check the OEM manual though.") is worse than an honest
+    // pointer. resolveProvenanceRemnant routes a gutted SPEC ask to the
+    // deterministic calculator, a gutted non-spec remnant to live metrics, and
+    // leaves a coherent grounded remnant untouched (one-source with its unit test).
+    clean = resolveProvenanceRemnant(prov.clean, prov.hit, message);
     const latency = Date.now() - t0;
     const hiveIdForLog =
       typeof body.hive_id === "string" && body.hive_id ? body.hive_id : null;
@@ -592,7 +664,7 @@ serve(async (req) => {
       return json(corsHeaders, 502, { error: "Empty answer from AI chain" });
     }
 
-    return json(corsHeaders, 200, { answer: clean, lang } satisfies AgentResponse);
+    return json(corsHeaders, 200, { answer: clean, lang, persona: personaKey } satisfies AgentResponse);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (_whWarmClient) {

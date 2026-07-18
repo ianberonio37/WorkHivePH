@@ -37,7 +37,8 @@
  * AbortSignal.timeout, no provider SDK), architect (WAT: AI reasons, code executes).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -159,7 +160,12 @@ Respond ONLY in this JSON shape:
 
 // ── Main handler ──────────────────────────────────────────────────────────────
 
-serve(async (req: Request): Promise<Response> => {
+serveObserved("walkthrough-analyzer", async (req: Request): Promise<Response> => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "walkthrough-analyzer", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: getCorsHeaders(req) });
   }
@@ -377,10 +383,7 @@ Classify these errors against the 9 Sentinel Agent domains.`;
       { headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
     );
   } catch (err) {
-    log.error(null, "[walkthrough-analyzer] error:", { detail: String(err) });
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "walkthrough-analyzer", "walkthrough_analyzer_error", err);
   }
 });

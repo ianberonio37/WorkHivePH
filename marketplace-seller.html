@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#F7A21B" />
   <link rel="manifest" href="manifest.json" />
-  <title>Seller Dashboard — WorkHive Marketplace</title>
-  <meta name="description" content="Seller dashboard for the WorkHive marketplace. Manage listings, inquiries, orders, and payouts." />
-  <meta property="og:title" content="Seller Dashboard — WorkHive Marketplace" />
+  <title>Seller Dashboard: WorkHive Marketplace</title>
+  <meta name="description" content="Seller dashboard for the free WorkHive marketplace. Manage listings, reply to buyer inquiries, and track your analytics." />
+  <meta property="og:title" content="Seller Dashboard: WorkHive Marketplace" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/marketplace-seller.html" />
   <!-- capture: marketplace_listing_v1 (form + upload) -->
@@ -33,13 +33,13 @@
     /* Gate */
     #auth-gate { display: none; position: fixed; inset: 0; z-index: 200; background: #0f1923; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
     #auth-gate h2 { font-size: 1.1rem; font-weight: 700; }
-    #auth-gate p { font-size: 0.82rem; color: var(--wh-steel); max-width: 300px; }
+    #auth-gate p { font-size: 0.82rem; color: var(--wh-steel-bright); max-width: 300px; }
     #auth-gate a { margin-top: 0.5rem; padding: 0.6rem 1.5rem; background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3); border-radius: 0.625rem; color: var(--wh-orange); font-weight: 600; font-size: 0.82rem; text-decoration: none; display: inline-block; }
 
     /* Profile card */
     .profile-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.25rem;
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem;
     }
     .profile-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
     .profile-avatar {
@@ -52,10 +52,10 @@
     .profile-name { font-size: 1.1rem; font-weight: 800; margin: 0; }  /* D1 U1: promoted div→h1 (page's semantic title); reset h1 default margin */
     .profile-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
     .badge-tier { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
-    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #E8B27A; border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
-    .badge-kyb { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(41,182,217,0.15); color: var(--wh-blue); border: 1px solid rgba(41,182,217,0.3); display: inline-flex; align-items: center; gap: 0.2rem; }
+    .badge-kyb { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3); display: inline-flex; align-items: center; gap: 0.2rem; }
     .badge-unverified { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
 
     /* Profile stats grid */
@@ -64,33 +64,18 @@
     .pstat-num { font-size: 1.2rem; font-weight: 800; color: var(--wh-orange); }
     .pstat-num.blue { color: var(--wh-blue); }
     .pstat-num.green { color: #4ade80; }
-    .pstat-lbl { font-size: 0.62rem; color: var(--wh-steel); margin-top: 0.1rem; }
-
-    /* Connect Stripe banner */
-    .stripe-banner {
-      display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem;
-      padding: 0.75rem 0.875rem; background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.2);
-      border-radius: 0.75rem;
-    }
-    .stripe-banner p { flex: 1; font-size: 0.75rem; color: #b0b8c4; line-height: 1.4; }
-    .btn-connect-stripe {
-      padding: 0.5rem 0.875rem; border-radius: 0.5rem; cursor: pointer; white-space: nowrap;
-      background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.3);
-      color: var(--wh-blue); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 700;
-      transition: background 0.15s;
-    }
-    .btn-connect-stripe:hover { background: rgba(41,182,217,0.22); }
+    .pstat-lbl { font-size: 0.62rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
 
     /* Tabs */
-    .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.25rem; background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.35rem; }
-    .tab-btn { flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem; min-height: 44px; }
+    .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.5rem; background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.35rem; }
+    .tab-btn { flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem; min-height: 44px; }
     .tab-btn.active { background: linear-gradient(135deg, rgba(247,162,27,0.15), rgba(247,162,27,0.08)); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.25); }
     .tab-count { background: rgba(247,162,27,0.2); color: var(--wh-orange); border-radius: 999px; font-size: 0.6rem; padding: 0.1rem 0.4rem; font-weight: 700; }
     .tab-count.red { background: rgba(248,113,113,0.2); color: #f87171; }
 
     /* Status filter chips */
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: var(--wh-steel); font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target */
+    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: #86929D; font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel #7B8794 (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(22,32,50,0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
     .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange); }
 
     /* Listing items */
@@ -104,19 +89,19 @@
     .listing-item.removed   { border-left: 3px solid #f87171; opacity: 0.65; }
     .listing-item.sold      { border-left: 3px solid var(--wh-blue); }
     .li-body { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem; }
-    .li-thumb { width: 56px; height: 56px; border-radius: 0.5rem; flex-shrink: 0; background: rgba(42,61,88,0.8); display: flex; align-items: center; justify-content: center; color: var(--wh-steel); overflow: hidden; }
+    .li-thumb { width: 56px; height: 56px; border-radius: 0.5rem; flex-shrink: 0; background: rgba(42,61,88,0.8); display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden; }
     .li-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .li-info { flex: 1; min-width: 0; }
     .li-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
     .li-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
-    .meta-chip { padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.62rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel); border: 1px solid rgba(255,255,255,0.08); }
+    .meta-chip { padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.62rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08); }
     .meta-chip.gold   { background: rgba(247,162,27,0.1); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
     .meta-chip.green  { background: rgba(74,222,128,0.1); color: #4ade80; border-color: rgba(74,222,128,0.2); }
     .meta-chip.yellow { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: rgba(251,191,36,0.2); }
     .meta-chip.red    { background: rgba(248,113,113,0.1); color: #f87171; border-color: rgba(248,113,113,0.2); }
     .meta-chip.blue   { background: rgba(41,182,217,0.1); color: var(--wh-blue); border-color: rgba(41,182,217,0.25); }
     .li-actions { display: flex; gap: 0.4rem; padding: 0.625rem 0.875rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.12); }
-    .btn-sm { padding: 0.35rem 0.75rem; border-radius: 0.45rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--wh-steel); transition: background 0.15s; }
+    .btn-sm { padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--wh-steel-bright); transition: background 0.15s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; }  /* radius 0.5rem=8px matches the press vocabulary (was 0.45rem=7px rogue → S1/R3); min-height 44px meets the tap target (Edit/View Live were 25px → F1/K2) */
     .btn-sm:hover { background: rgba(255,255,255,0.08); }
     .btn-sm.primary { background: rgba(247,162,27,0.1); border-color: rgba(247,162,27,0.25); color: var(--wh-orange); }
     .btn-sm.primary:hover { background: rgba(247,162,27,0.2); }
@@ -129,35 +114,19 @@
     .inquiry-item.replied { opacity: 0.65; }
     .inq-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; }
     .inq-buyer { font-size: 0.82rem; font-weight: 700; }
-    .inq-date { font-size: 0.7rem; color: var(--wh-steel); white-space: nowrap; }
+    .inq-date { font-size: 0.7rem; color: var(--wh-steel-bright); white-space: nowrap; }
     .inq-listing { font-size: 0.72rem; color: var(--wh-blue); margin-bottom: 0.5rem; }
     .inq-message { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; margin-bottom: 0.625rem; padding: 0.625rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; }
-    .inq-contact { font-size: 0.72rem; color: var(--wh-steel); margin-bottom: 0.625rem; }
+    .inq-contact { font-size: 0.72rem; color: var(--wh-steel-bright); margin-bottom: 0.625rem; }
     .inq-contact strong { color: var(--wh-cloud); }
     .reply-area { margin-top: 0.5rem; }
     .reply-textarea { width: 100%; padding: 0.6rem 0.75rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 70px; margin-bottom: 0.4rem; }
     .reply-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .reply-textarea::placeholder { color: var(--wh-steel); }
+    .reply-textarea::placeholder { color: var(--wh-steel-bright); }
     .inq-actions { display: flex; gap: 0.4rem; }
 
-    /* Order items */
-    .order-item { background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65)); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; padding: 0.875rem; }
-    .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
-    .order-amount { font-size: 1.1rem; font-weight: 800; color: #4ade80; }
-    .order-status { font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; }
-    .order-meta { font-size: 0.72rem; color: var(--wh-steel); line-height: 1.6; }
-
-    /* Earnings card */
-    .earnings-card { background: linear-gradient(145deg, rgba(74,222,128,0.08), rgba(31,46,69,0.7)); border: 1px solid rgba(74,222,128,0.2); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1rem; }
-    .earnings-total { font-size: 2rem; font-weight: 800; color: #4ade80; }
-    .earnings-lbl { font-size: 0.75rem; color: var(--wh-steel); margin-bottom: 1rem; }
-    .earnings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .ecard { background: rgba(0,0,0,0.2); border-radius: 0.625rem; padding: 0.75rem; text-align: center; }
-    .ecard-num { font-size: 1.1rem; font-weight: 700; }
-    .ecard-lbl { font-size: 0.65rem; color: var(--wh-steel); margin-top: 0.15rem; }
-
     /* Empty state */
-    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--wh-steel); }
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--wh-steel-bright); }
     .empty-state svg { opacity: 0.25; margin-bottom: 0.75rem; }
     .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.35rem; }
     .empty-state p { font-size: 0.78rem; }
@@ -182,21 +151,21 @@
     .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 101; background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%); border-radius: 1rem 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 92vh; overflow-y: auto; }
     .sheet.open { transform: translateY(0); }
     .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
-    .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     .sheet-title { font-size: 1rem; font-weight: 700; }
-    .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel); }
+    .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); }
 
     /* Form elements */
     .form-group { margin-bottom: 1rem; }
-    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel); margin-bottom: 0.4rem; display: block; }
+    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
     .wh-input { width: 100%; padding: 0.65rem 0.875rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; }
     .wh-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-input::placeholder { color: var(--wh-steel); }
+    .wh-input::placeholder { color: var(--wh-steel-bright); }
     .wh-select { width: 100%; padding: 0.65rem 0.875rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; cursor: pointer; appearance: none; -webkit-appearance: none; }
     .wh-select:focus { outline: none; border-color: rgba(247,162,27,0.4); }
     .wh-textarea { width: 100%; padding: 0.65rem 0.875rem; background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.625rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
     .wh-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-textarea::placeholder { color: var(--wh-steel); }
+    .wh-textarea::placeholder { color: var(--wh-steel-bright); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .btn-primary { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem; color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.92; }
@@ -234,27 +203,22 @@
     <div class="profile-top">
       <div class="profile-avatar" id="profile-avatar">?</div>
       <div class="profile-info">
-        <h1 class="profile-name" id="profile-name">Loading…</h1>
+        <h1 class="profile-name" id="profile-name" translate="no">Loading…</h1>
         <div class="profile-badges" id="profile-badges"></div>
       </div>
-      <a href="marketplace.html" style="font-size:0.72rem;color:#7B8794;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target -->
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>Manage your listings, answer inquiries, and track views here. Verification badges raise buyer trust. There are no fees.</p>
+</details>
+      <a href="marketplace.html" class="back-link" aria-label="Back to marketplace" style="font-size:0.72rem;color:var(--wh-steel-bright);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target; .back-link so wayfinding recognizes it (no duplicate pill/CLS) + W1 credits it -->
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Browse
       </a>
     </div>
     <div class="profile-stats">
-      <div class="pstat"><div class="pstat-num" id="ps-listings">—</div><div class="pstat-lbl">Listings</div></div>
-      <div class="pstat"><div class="pstat-num" id="ps-sales">—</div><div class="pstat-lbl">Sales</div></div>
-      <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">—</div><div class="pstat-lbl">New Inquiries</div></div>
-      <div class="pstat" id="pstat-earned"><div class="pstat-num green" id="ps-earned">—</div><div class="pstat-lbl">PHP Earned</div></div>
-    </div>
-    <div class="stripe-banner" id="stripe-banner" style="display:none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      <p id="stripe-banner-text">Connect your Stripe account to receive payments when buyers confirm receipt.</p>
-      <button class="btn-connect-stripe" id="btn-stripe-connect" aria-label="Connect Stripe">Connect Stripe</button>
-    </div>
-    <div id="stripe-recheck-row" style="display:none;margin-top:0.75rem;text-align:right;">
-      <button id="btn-stripe-recheck" style="background:none;border:none;color:#7B8794;font-family:'Poppins',sans-serif;font-size:0.72rem;cursor:pointer;text-decoration:underline;" aria-label="Re-check Stripe status">Re-check Stripe status</button>
+      <div class="pstat"><div class="pstat-num" id="ps-listings">-</div><div class="pstat-lbl">Listings</div></div>
+      <div class="pstat"><div class="pstat-num" id="ps-sales">-</div><div class="pstat-lbl">Sales</div></div>
+      <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">-</div><div class="pstat-lbl">New Inquiries</div></div>
     </div>
 
     <!-- Messenger handle input — buyers reach you via m.me/<handle> -->
@@ -263,10 +227,10 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#0084ff"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
         <strong style="font-size:0.82rem;">Facebook Messenger handle</strong>
       </div>
-      <p style="font-size:0.72rem;color:#7B8794;margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
+      <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
       <div style="display:flex;gap:0.5rem;">
         <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" aria-label="Your Messenger handle" style="flex:1;font-size:1rem;" />
-        <button id="btn-save-messenger" style="padding:0.6rem 1rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;">Save</button>
+        <button id="btn-save-messenger" style="padding:0.6rem 1rem;border-radius:0.5rem;border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;min-height:44px;box-sizing:border-box;" data-i="save">Save</button>
       </div>
       <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:#4ade80;"></div>
     </div>
@@ -276,12 +240,12 @@
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
         <strong style="font-size:0.82rem;">Certifications</strong>
-        <span id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:#7B8794;">Not verified</span>
+        <span id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
       </div>
-      <p style="font-size:0.72rem;color:#7B8794;margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
-      <textarea class="wh-textarea" id="cert-input" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" aria-label="Your trade certifications, one per line" style="min-height:90px;font-size:1rem;"></textarea>
+      <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
+      <textarea class="wh-textarea" id="cert-input" maxlength="1000" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" aria-label="Your trade certifications, one per line" style="min-height:90px;font-size:1rem;"></textarea>
       <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;">
-        <button id="btn-save-certs" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;min-height:44px;">Save certifications</button>
+        <button id="btn-save-certs" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.1);color:var(--wh-violet-text);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;min-height:44px;" data-i="savecerts">Save certifications</button>
       </div>
     </div>
   </div>
@@ -298,11 +262,6 @@
       <span class="lbl">Inquiries</span>
       <span class="tab-count red" id="badge-inquiries">0</span>
     </button>
-    <button class="tab-btn" data-tab="orders" role="tab" aria-selected="false" id="tab-orders">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      <span class="lbl">Orders</span>
-      <span class="tab-count" id="badge-orders">0</span>
-    </button>
     <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-label="Analytics"><!-- D1 U5: label hidden at mobile → needs aria-label (button-name) -->
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
       <span class="lbl">Analytics</span>
@@ -311,16 +270,16 @@
 
   <!-- Listings filter chips -->
   <div class="filter-row" id="listing-filter" role="group" aria-label="Filter listings by status">
-    <button class="filter-chip active" data-status="all">All</button>
-    <button class="filter-chip" data-status="published">Published</button>
-    <button class="filter-chip" data-status="draft">Draft</button>
-    <button class="filter-chip" data-status="removed">Removed</button>
+    <button class="filter-chip active" data-status="all" data-i="f_all" aria-pressed="true">All</button>
+    <button class="filter-chip" data-status="published" data-i="f_pub" aria-pressed="false">Published</button>
+    <button class="filter-chip" data-status="draft" data-i="f_draft" aria-pressed="false">Draft</button>
+    <button class="filter-chip" data-status="removed" data-i="f_rem" aria-pressed="false">Removed</button>
   </div>
 
   <!-- Content -->
   <div id="content-area" class="item-list"></div>
   <div id="seller-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;">Load More</button>
+    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
   </div>
 </main>
 
@@ -356,7 +315,7 @@
     </div>
     <div class="form-group">
       <label class="form-label" for="edit-desc">Description</label>
-      <textarea class="wh-textarea" id="edit-desc" required></textarea>
+      <textarea class="wh-textarea" id="edit-desc" maxlength="2000" required></textarea>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -378,25 +337,25 @@
       <label class="form-label">Photo</label>
       <div id="edit-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;">
         <input type="file" id="edit-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
-        <div id="edit-image-empty" style="color:#7B8794;">
+        <div id="edit-image-empty" style="color:var(--wh-steel-bright);">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.4rem;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">Tap to add or replace photo</div>
           <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG/PNG/WebP up to 5MB</div>
         </div>
         <div id="edit-image-preview" style="display:none;">
           <img id="edit-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
-          <div id="edit-image-status" style="font-size:0.7rem;color:#7B8794;margin-top:0.5rem;"></div>
+          <div id="edit-image-status" style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
           <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="edit-image-url" value="" />
     </div>
 
-    <button type="submit" class="btn-primary" id="btn-save-edit">Save Changes</button>
+    <button type="submit" class="btn-primary" id="btn-save-edit" style="min-height:44px;box-sizing:border-box;">Save Changes</button>
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -409,16 +368,17 @@
   window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 
   logPageView(db);
-  /* Set true to re-enable Orders tab, Earnings card, Stripe Connect onboarding.
-     See MARKETPLACE_GO_LIVE_ROADMAP.md for the activation path. */
-  const PAYMENTS_ENABLED = false;
 
   let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  let _authUid = null; // attribution FK — marketplace_sellers upserts (messenger/certs) were dropping it
     // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
     // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
     // first; session identity overrides asynchronously.
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
       restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+    }
+    if (typeof db !== 'undefined') {
+      db.auth.getSession().then(({ data }) => { _authUid = data?.session?.user?.id || null; }).catch(() => {});
     }
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || null;
 
@@ -447,14 +407,6 @@
     jobs:     ['Inspection','Repair & Overhaul','Installation','Welding & Fabrication','Electrical Work','Instrumentation','Shutdown / TAR','Project Management','Other']
   };
 
-  const STATUS_ORDER_LABEL = {
-    pending_payment: { label: 'Awaiting Payment', color: '#7B8794' },
-    escrow_hold:     { label: 'In Escrow', color: '#29B6D9' },
-    released:        { label: 'Paid Out', color: '#4ade80' },
-    refunded:        { label: 'Refunded', color: '#f87171' },
-    disputed:        { label: 'Disputed', color: '#fbbf24' },
-  };
-
   /* gate */
   if (!WORKER_NAME) {
     document.getElementById('auth-gate').style.display = 'flex';
@@ -476,17 +428,10 @@
 
   function fmtPrice(price) {
     if (!price || Number(price) === 0) return 'Negotiable';
-    return 'PHP ' + Number(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (typeof whFmtPeso === 'function') ? whFmtPeso(price, { decimals: 2 }) : 'PHP ' + Number(price).toFixed(2); // FD1c canonical (₱); plain fallback only if utils.js ever missing
   }
 
-  function timeAgo(iso) {
-    if (!iso) return '';
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
-  }
+  function timeAgo(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
 
   function initials(name) {
     return (name || '?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
@@ -497,7 +442,6 @@
   let _listings   = [];
   let _sellerDisplayCount = 30;  // List View Contract: client-side slice pagination
   let _inquiries  = [];
-  let _orders     = [];
   let _seller     = null;
   let _statusFilter = 'all';
   let _editItem   = null;
@@ -507,7 +451,6 @@
     const avatarEl  = document.getElementById('profile-avatar');
     const nameEl    = document.getElementById('profile-name');
     const badgesEl  = document.getElementById('profile-badges');
-    const bannerEl  = document.getElementById('stripe-banner');
 
     if (avatarEl)  avatarEl.textContent = initials(WORKER_NAME);
     if (nameEl)    nameEl.textContent   = WORKER_NAME;
@@ -524,8 +467,8 @@
       badgesEl.innerHTML = `
         <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
         ${_seller?.kyb_verified
-          ? `<span class="badge-kyb"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB Verified</span>`
-          : `<span class="badge-unverified">KYB Pending</span>`}`;
+          ? `<span class="badge-kyb"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>ID Verified</span>`
+          : `<span class="badge-unverified">Verification Pending</span>`}`;
     }
 
     /* Pre-fill Messenger input + preview from existing profile */
@@ -552,18 +495,6 @@
         certPill.style.color = '#fbbf24';
       }
     }
-
-    /* Show Stripe banner if no account yet, or account exists but not verified.
-       Skipped entirely when PAYMENTS_ENABLED is false (contact-only marketplace). */
-    if (bannerEl && PAYMENTS_ENABLED) {
-      if (!_seller || !_seller.stripe_account_id) {
-        bannerEl.style.display = 'flex';
-      } else if (_seller.stripe_account_id && !_seller.kyb_verified) {
-        const bannerText = document.getElementById('stripe-banner-text');
-        if (bannerText) bannerText.textContent = 'Your Stripe account is connected but verification is pending. Check status or complete the onboarding.';
-        bannerEl.style.display = 'flex';
-      }
-    }
   }
 
   /* ── Load listings ──────────────────────────────────────────────────────── */
@@ -585,7 +516,7 @@
         .select('id', { count: 'exact', head: true })
         .eq('seller_name', WORKER_NAME);
       _listingsTotal = Number(count || 0);
-    } catch (_) { _listings = []; }
+    } catch (_) { _listings = []; if (typeof showToast === 'function') showToast("Couldn't load your listings . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
     renderListings();
     updateBadges();
     updateProfileStats();
@@ -594,7 +525,6 @@
   // True counts (head-only, no .limit) so the badges aren't capped at
   // the detail-list LIMIT. Same fix shape as the index.html home tile
   // bug (2026-05-20).
-  let _ordersTotal    = 0;
   let _inquiriesTotal = 0;
   let _inquiriesPendingTotal = 0;
   let _listingsTotal  = 0;
@@ -625,58 +555,28 @@
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
-    } catch (_) { _inquiries = []; }
+    } catch (_) { _inquiries = []; if (typeof showToast === 'function') showToast("Couldn't load inquiries . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
     renderInquiries();
     updateBadges();
-  }
-
-  /* ── Load orders ────────────────────────────────────────────────────────── */
-  async function loadOrders() {
-    showSkeletons();
-    try {
-      const { data, error } = await db
-        .from('v_marketplace_orders_truth')
-        .select('id,listing_id,buyer_name,price,status,stripe_transfer_id,escrow_release_at,created_at,marketplace_listings(title)')
-        .eq('seller_name', WORKER_NAME)
-        .order('created_at', { ascending: false })
-        .limit(50); // limit-as-count-allow: list cap only; _ordersTotal head-count query below drives the badge
-      if (error) throw error;
-      _orders = data || [];
-      try {
-        const { count } = await db
-          .from('v_marketplace_orders_truth')
-          .select('id', { count: 'exact', head: true })
-          .eq('seller_name', WORKER_NAME);
-        _ordersTotal = Number(count || 0);
-      } catch (_) { /* fall back */ /* empty-catch-allow: best-effort silent swallow */ }
-    } catch (_) { _orders = []; }
-    renderOrders();
-    updateBadges();
-    updateProfileStats();
   }
 
   /* ── Update badges ──────────────────────────────────────────────────────── */
   function updateBadges() {
     const bl = document.getElementById('badge-listings');
     const bi = document.getElementById('badge-inquiries');
-    const bo = document.getElementById('badge-orders');
     if (bl) bl.textContent = _listingsTotal || _listings.length;
     // Pending inquiry badge uses the head-only count when available, else
     // falls back to the in-memory filter on the limited array.
     if (bi) bi.textContent = _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length;
-    if (bo) bo.textContent = _ordersTotal || _orders.length;
   }
 
   function updateProfileStats() {
     const psl = document.getElementById('ps-listings');
     const pss = document.getElementById('ps-sales');
     const psi = document.getElementById('ps-pending-inq');
-    const pse = document.getElementById('ps-earned');
     if (psl) psl.textContent = _listingsTotal || _listings.length;
     if (pss) pss.textContent = _seller?.total_sales || 0;
     if (psi) psi.textContent = _inquiries.filter(i => i.status === 'pending').length;
-    const earned = _orders.filter(o => o.status === 'released').reduce((sum, o) => sum + Number(o.price || 0) * 0.95, 0);
-    if (pse) pse.textContent = earned > 0 ? earned.toLocaleString('en-PH', { maximumFractionDigits: 0 }) : '0';
   }
 
   /* ── Render listings ────────────────────────────────────────────────────── */
@@ -691,7 +591,7 @@
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        <h3>No listings yet</h3>
+        <h2>No listings yet</h2>
         <p>Post your first listing to start selling on WorkHive.</p>
         <a href="marketplace.html" class="btn-post-now">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -707,7 +607,7 @@
     if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= filtered.length);
 
     const statusChip = {
-      draft:     `<span class="meta-chip yellow">Draft — Pending Review</span>`,
+      draft:     `<span class="meta-chip yellow">Draft: Pending Review</span>`,
       published: `<span class="meta-chip green">Published</span>`,
       removed:   `<span class="meta-chip red">Removed</span>`,
       sold:      `<span class="meta-chip blue">Sold</span>`,
@@ -756,7 +656,7 @@
     if (!_inquiries.length) {
       area.innerHTML = `<div class="empty-state">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <h3>No inquiries yet</h3>
+        <h2 data-i="noinq">No inquiries yet</h2>
         <p>Buyers will appear here when they contact you about your listings.</p>
       </div>`;
       return;
@@ -777,7 +677,7 @@
           ${inq.reply_text ? `<div style="font-size:0.72rem;color:#4ade80;padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
           ${!isReplied ? `
             <div class="reply-area">
-              <textarea class="reply-textarea" placeholder="Type your reply… (optional — you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
+              <textarea class="reply-textarea" placeholder="Type your reply… (optional, you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
               <div class="inq-actions">
                 <button class="btn-sm primary" data-action="reply" data-id="${e(inq.id)}">Send Reply + Mark Replied</button>
                 <button class="btn-sm" data-action="close" data-id="${e(inq.id)}">Close</button>
@@ -794,80 +694,14 @@
     });
   }
 
-  /* ── Render orders ──────────────────────────────────────────────────────── */
-  function renderOrders() {
-    const e = escHtml;
-    const area = document.getElementById('content-area');
-    if (!area) return;
-
-    /* Earnings summary */
-    const released = _orders.filter(o => o.status === 'released');
-    const inEscrow = _orders.filter(o => o.status === 'escrow_hold');
-    const totalEarned  = released.reduce((s,o) => s + Number(o.price||0)*0.95, 0);
-    const totalEscrow  = inEscrow.reduce((s,o) => s + Number(o.price||0)*0.95, 0);
-
-    if (!_orders.length) {
-      area.innerHTML = `<div class="empty-state">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-        <h3>No orders yet</h3>
-        <p>Orders appear here when buyers purchase your published listings.</p>
-      </div>`;
-      return;
-    }
-
-    const earningsHtml = `
-      <div class="earnings-card">
-        <div class="earnings-total">PHP ${totalEarned.toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-        <div class="earnings-lbl">Total earned (after 5% platform fee)</div>
-        <div class="earnings-row">
-          <div class="ecard"><div class="ecard-num" style="color:#29B6D9;">PHP ${totalEscrow.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</div><div class="ecard-lbl">In Escrow</div></div>
-          <div class="ecard"><div class="ecard-num" style="color:#F7A21B;">${released.length}</div><div class="ecard-lbl">Completed Orders</div></div>
-        </div>
-      </div>`;
-
-    const ordersHtml = _orders.map(ord => {
-      const e  = escHtml;
-      const st = STATUS_ORDER_LABEL[ord.status] || { label: ord.status, color: '#7B8794' };
-      const listingTitle = ord.marketplace_listings?.title || 'Listing';
-      const sellerNet    = (Number(ord.price || 0) * 0.95).toFixed(2);
-      const isDisputed   = ord.status === 'disputed';
-
-      return `
-        <div class="order-item" style="${isDisputed ? 'border-left:3px solid #f87171;' : ''}">
-          <div class="order-header">
-            <span class="order-amount" style="${isDisputed ? 'color:#f87171;' : ''}">PHP ${Number(sellerNet).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
-            <span class="order-status" style="background:rgba(255,255,255,0.06);color:${e(st.color)};">${e(st.label)}</span>
-          </div>
-          <div class="order-meta">
-            ${e(listingTitle)}<br>
-            Buyer: <strong>${e(ord.buyer_name)}</strong> &nbsp;·&nbsp; ${e(timeAgo(ord.created_at))}
-            ${ord.status === 'escrow_hold' && ord.escrow_release_at ? `<br>Auto-releases: ${new Date(ord.escrow_release_at).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}` : ''}
-            ${ord.stripe_transfer_id ? `<br>Transfer ID: ${e(ord.stripe_transfer_id)}` : ''}
-          </div>
-          ${isDisputed ? `
-            <div id="dispute-block-${e(ord.id)}" style="margin-top:0.75rem;padding:0.75rem;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:0.625rem;">
-              <div style="font-size:0.72rem;font-weight:700;color:#f87171;margin-bottom:0.4rem;">DISPUTE OPEN</div>
-              <div style="font-size:0.72rem;color:#7B8794;margin-bottom:0.625rem;">The buyer has opened a dispute. Reply within 48 hours or an admin will intervene.</div>
-              <textarea class="reply-textarea" id="reply-${e(ord.id)}" placeholder="Explain your side clearly — what was shipped, when, any tracking info…" aria-label="Your response to this order" style="margin-bottom:0.4rem;font-size:1rem;"></textarea>
-              <button class="btn-sm primary" data-action="dispute-reply" data-order-id="${e(ord.id)}">Send Reply to Admin</button>
-            </div>` : ''}
-        </div>`;
-    }).join('');
-
-    /* Wire dispute reply buttons after render */
-    setTimeout(() => {
-      document.querySelectorAll('[data-action="dispute-reply"]').forEach(btn => {
-        btn.addEventListener('click', () => handleSellerDisputeReply(btn.dataset.orderId || ''));
-      });
-    }, 0);
-
-    area.innerHTML = earningsHtml + `<div class="item-list" style="margin-top:0.75rem;">${ordersHtml}</div>`;
-  }
 
   /* ── Skeletons ──────────────────────────────────────────────────────────── */
   function showSkeletons() {
     const area = document.getElementById('content-area');
     if (!area) return;
+    // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js, row
+    // variant) — this was the THIRD page-local skeleton copy; the pattern now lives once.
+    if (typeof whCardSkeleton === 'function') { whCardSkeleton(area, 3, { variant: 'row' }); return; }
     area.innerHTML = Array(3).fill(0).map(() => `
       <div class="listing-item draft skel-pulse skeleton">
         <div class="li-body">
@@ -1124,66 +958,6 @@
     } catch (_) { showToast('Failed. Try again.', 'error'); }
   }
 
-  /* ── Check Stripe Connect status ───────────────────────────────────────── */
-  async function checkStripeStatus(showResult) {
-    const recheckBtn = document.getElementById('btn-stripe-recheck');
-    if (recheckBtn) { recheckBtn.disabled = true; recheckBtn.textContent = 'Checking…'; }
-
-    try {
-      const res = await fetch('https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-connect-status', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ worker_name: WORKER_NAME })
-      });
-      const data = await res.json();
-      if (data.error) { if (showResult) showToast(data.error, 'error'); return; }
-
-      if (data.verified) {
-        /* Update local seller profile and badges */
-        if (_seller) _seller.kyb_verified = true;
-        const badgesEl  = document.getElementById('profile-badges');
-        const bannerEl  = document.getElementById('stripe-banner');
-        const recheckRow = document.getElementById('stripe-recheck-row');
-        if (badgesEl) {
-          const tier = _seller?.tier || 'bronze';
-          badgesEl.innerHTML = `
-            <span class="badge-tier ${escHtml(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
-            <span class="badge-kyb"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB Verified</span>`;
-        }
-        if (bannerEl) bannerEl.style.display = 'none';
-        if (recheckRow) recheckRow.style.display = 'none';
-        if (showResult) showToast('KYB verified! You can now receive payments.', 'success');
-      } else {
-        /* Not yet verified — show pending requirements if any */
-        const bannerText = document.getElementById('stripe-banner-text');
-        if (bannerText && data.requirements_due?.length) {
-          bannerText.textContent = 'Stripe needs more info: ' + data.requirements_due.join(', ') + '. Click Connect Stripe to continue.';
-        } else if (bannerText && data.details_submitted && !data.charges_enabled) {
-          bannerText.textContent = 'Your Stripe account is under review. This usually takes 1-2 business days.';
-        }
-        if (showResult) showToast('Not verified yet. Complete the Stripe onboarding to enable payments.', 'info');
-      }
-    } catch (_) { if (showResult) showToast('Could not check Stripe status. Try again.', 'error'); }
-    finally {
-      if (recheckBtn) { recheckBtn.disabled = false; recheckBtn.textContent = 'Re-check Stripe status'; }
-    }
-  }
-
-  /* ── Stripe Connect onboard ─────────────────────────────────────────────── */
-  async function handleStripeConnect() {
-    const btn = document.getElementById('btn-stripe-connect');
-    if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
-    try {
-      const res = await fetch('https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-connect-onboard', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ worker_name: WORKER_NAME, return_url: window.location.href.split('?')[0] + '?onboard=success', refresh_url: window.location.href.split('?')[0] + '?onboard=refresh' })
-      });
-      const data = await res.json();
-      if (data.error) { showToast(data.error, 'error'); return; }
-      window.location.href = data.url;
-    } catch (_) { showToast('Could not start onboarding. Try again.', 'error'); }
-    finally { if (btn) { btn.disabled = false; btn.textContent = 'Connect Stripe'; } }
-  }
-
   /* Arc X A3 (list-state persistence): mirror the active tab + listing status filter
      into the URL so a reload / leave-and-back returns to the same view. */
   function _selSyncUrl() {
@@ -1205,9 +979,8 @@
     });
     const filterRow = document.getElementById('listing-filter');
     if (filterRow) filterRow.style.display = tab === 'listings' ? 'flex' : 'none';
-    if (tab === 'listings')  loadListings();
+    if (tab === 'listings')  Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
     if (tab === 'inquiries') loadInquiries();
-    if (tab === 'orders')    loadOrders();
     if (tab === 'analytics') loadAnalytics();
     _selSyncUrl();
   }
@@ -1300,19 +1073,19 @@
         <div style="display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;">
           <div>
             <div style="font-size:1.6rem;font-weight:800;color:${e(respColor)};line-height:1;">
-              ${myAvgH == null ? '—' : myAvgH < 1 ? '<1h' : Math.round(myAvgH) + 'h'}
+              ${myAvgH == null ? '-' : myAvgH < 1 ? '<1h' : Math.round(myAvgH) + 'h'}
             </div>
-            <div style="font-size:0.65rem;color:#7B8794;margin-top:0.2rem;">YOUR AVERAGE</div>
+            <div style="font-size:0.65rem;color:var(--wh-steel-bright);margin-top:0.2rem;">YOUR AVERAGE</div>
           </div>
           <div>
-            <div style="font-size:1.1rem;font-weight:600;color:#7B8794;line-height:1;">
-              ${platformAvgH == null ? '—' : platformAvgH < 1 ? '<1h' : Math.round(platformAvgH) + 'h'}
+            <div style="font-size:1.1rem;font-weight:600;color:var(--wh-steel-bright);line-height:1;">
+              ${platformAvgH == null ? '-' : platformAvgH < 1 ? '<1h' : Math.round(platformAvgH) + 'h'}
             </div>
-            <div style="font-size:0.65rem;color:#7B8794;margin-top:0.2rem;">PLATFORM AVG</div>
+            <div style="font-size:0.65rem;color:var(--wh-steel-bright);margin-top:0.2rem;">PLATFORM AVG</div>
           </div>
           <div style="flex:1;min-width:140px;">
             <div style="font-size:0.78rem;color:${e(respColor)};font-weight:600;">${e(respCmp)}</div>
-            <div style="font-size:0.7rem;color:#7B8794;margin-top:0.2rem;">Quick Reply badge unlocks at &lt;4h with 5+ replies.</div>
+            <div style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.2rem;">Quick Reply badge unlocks at &lt;4h with 5+ replies.</div>
           </div>
         </div>
       </div>
@@ -1334,14 +1107,14 @@
           <div style="background:rgba(31,46,69,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.75rem;display:flex;align-items:center;gap:0.75rem;${!isPub ? 'opacity:0.55;' : ''}">
             <div style="flex:1;min-width:0;">
               <div style="font-size:0.78rem;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e(l.title)}</div>
-              <div style="font-size:0.65rem;color:#7B8794;margin-top:0.15rem;">
+              <div style="font-size:0.65rem;color:var(--wh-steel-bright);margin-top:0.15rem;">
                 ${e(l.section)} &nbsp;·&nbsp; ${e(l.status)}${isPub ? '' : ' (not visible)'}
               </div>
             </div>
             <div style="display:flex;gap:0.875rem;text-align:right;">
-              <div><div style="font-size:0.95rem;font-weight:700;">${views}</div><div style="font-size:0.6rem;color:#7B8794;">VIEWS</div></div>
-              <div><div style="font-size:0.95rem;font-weight:700;color:#29B6D9;">${inq}</div><div style="font-size:0.6rem;color:#7B8794;">INQUIRIES</div></div>
-              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? '#4ade80' : '#7B8794'};">${views ? conv + '%' : '—'}</div><div style="font-size:0.6rem;color:#7B8794;">CONV</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;">${views}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">VIEWS</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:#29B6D9;">${inq}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">INQUIRIES</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? '#4ade80' : '#7B8794'};">${views ? conv + '%' : '-'}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">CONV</div></div>
             </div>
           </div>`;
       });
@@ -1371,6 +1144,7 @@
     try {
       const { error } = await db.from('marketplace_sellers').upsert({
         worker_name:        WORKER_NAME,
+        auth_uid:           _authUid || null,  // attribution FK (was dropped)
         messenger_username: raw || null,
         updated_at:         new Date().toISOString(),
       }, { onConflict: 'worker_name' });
@@ -1420,7 +1194,7 @@
          when the seller edits their cert list — admin must re-review on changes. */
       const wasVerified = _seller?.cert_verified;
       const verifiedChanged = wasVerified && (normalized !== (_seller?.certifications || null));
-      const update = { worker_name: WORKER_NAME, certifications: normalized, updated_at: new Date().toISOString() };
+      const update = { worker_name: WORKER_NAME, auth_uid: _authUid || null, certifications: normalized, updated_at: new Date().toISOString() };
       if (verifiedChanged || !normalized) {
         update.cert_verified = false;
         update.cert_verified_at = null;
@@ -1457,49 +1231,9 @@
     }
   }
 
-  /* ── Seller dispute reply ───────────────────────────────────────────────── */
-  async function handleSellerDisputeReply(orderId) {
-    const textarea = document.getElementById('reply-' + orderId);
-    const replyText = (textarea?.value || '').trim();
-    if (replyText.length < 10) { showToast('Please write a reply of at least 10 characters.', 'error'); return; }
-
-    const btn = document.querySelector(`[data-action="dispute-reply"][data-order-id="${orderId}"]`);
-    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
-
-    try {
-      const now = new Date().toISOString();
-      const { error } = await db
-        .from('marketplace_disputes')
-        .update({ seller_reply: replyText, seller_replied_at: now, status: 'seller_responded' })
-        .eq('order_id', orderId);
-      if (error) throw error;
-
-      writeAuditLog('reply_dispute', 'marketplace_disputes', orderId, orderId,
-        { reply_length: replyText.length, new_status: 'seller_responded' });
-
-      showToast('Reply sent. An admin will review the dispute.', 'success');
-      await loadOrders();
-    } catch (_) {
-      showToast('Failed to send reply. Try again.', 'error');
-      if (btn) { btn.disabled = false; btn.textContent = 'Send Reply to Admin'; }
-    }
-  }
-
   /* ── Init ───────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', async () => {
     if (!WORKER_NAME) return;
-
-    /* Hide payment-only UI when payments disabled (contact-only marketplace) */
-    if (!PAYMENTS_ENABLED) {
-      const ordersTab    = document.getElementById('tab-orders');
-      const earnedStat   = document.getElementById('pstat-earned');
-      const stripeBanner = document.getElementById('stripe-banner');
-      const recheckRow   = document.getElementById('stripe-recheck-row');
-      if (ordersTab)    ordersTab.style.display    = 'none';
-      if (earnedStat)   earnedStat.style.display   = 'none';
-      if (stripeBanner) stripeBanner.style.display = 'none';
-      if (recheckRow)   recheckRow.style.display   = 'none';
-    }
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
@@ -1507,7 +1241,7 @@
       chip.addEventListener('click', () => {
         _statusFilter = chip.dataset.status;
         _sellerDisplayCount = 30;  // reset slice on status-chip change
-        document.querySelectorAll('[data-status]').forEach(c => c.classList.toggle('active', c === chip));
+        document.querySelectorAll('[data-status]').forEach(c => { const on = c === chip; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); });
         renderListings();
       });
     });
@@ -1516,20 +1250,22 @@
 
     document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
+    // a11y (deep-walk dim 8, 2026-07-06): Escape closes the edit sheet (it had role/aria but no Escape).
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('overlay-edit')?.classList.contains('open')) {
+        document.getElementById('overlay-edit')?.classList.remove('open');
+        document.getElementById('sheet-edit')?.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
     wireEditImagePicker();
     document.getElementById('btn-save-messenger')?.addEventListener('click', handleSaveMessenger);
     document.getElementById('btn-save-certs')?.addEventListener('click', handleSaveCerts);
-    if (PAYMENTS_ENABLED) {
-      document.getElementById('btn-stripe-connect')?.addEventListener('click', handleStripeConnect);
-      document.getElementById('btn-stripe-recheck')?.addEventListener('click', () => checkStripeStatus(true));
-    }
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    /* Skip orders fetch when payments disabled — saves a round-trip on each load */
     const tasks = [loadProfile(), loadListings(), loadInquiries()];
-    if (PAYMENTS_ENABLED) tasks.push(loadOrders());
     await Promise.all(tasks);
 
     /* Arc X A3: restore the listing status filter + active tab from the URL so a
@@ -1538,30 +1274,12 @@
       const _stParam = urlParams.get('status');
       if (_stParam && _stParam !== 'all') {
         _statusFilter = _stParam;
-        document.querySelectorAll('[data-status]').forEach(c => c.classList.toggle('active', c.dataset.status === _stParam));
+        document.querySelectorAll('[data-status]').forEach(c => { const on = c.dataset.status === _stParam; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); });
         renderListings();
       }
       const _tabParam = urlParams.get('tab');
-      if (_tabParam && ['inquiries', 'orders', 'analytics'].includes(_tabParam)) switchTab(_tabParam);
+      if (_tabParam && ['inquiries', 'analytics'].includes(_tabParam)) switchTab(_tabParam);
     } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
-
-    /* After profile loads: show re-check button if seller has Stripe but KYB pending */
-    if (PAYMENTS_ENABLED && _seller?.stripe_account_id && !_seller?.kyb_verified) {
-      const recheckRow = document.getElementById('stripe-recheck-row');
-      if (recheckRow) recheckRow.style.display = 'block';
-    }
-
-    /* Auto-check Stripe status on return from onboarding */
-    if (PAYMENTS_ENABLED && urlParams.get('onboard') === 'success') {
-      showToast('Checking Stripe account status…', 'info');
-      await checkStripeStatus(true);
-      /* Clean URL so refresh doesn't re-trigger */
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-    if (PAYMENTS_ENABLED && urlParams.get('onboard') === 'refresh') {
-      showToast('Onboarding session expired. Click Connect Stripe to try again.', 'info');
-      window.history.replaceState({}, '', window.location.pathname);
-    }
   });
 
 })();
@@ -1572,5 +1290,25 @@
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('ms-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'ms-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');  // G1 (Nielsen #1): this in-content provenance chip IS the page's system-status/freshness region
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'v_marketplace_inquiries_truth + v_marketplace_listings_truth + marketplace_sellers',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE={savecerts:'I-save ang mga sertipiko',f_all:'Lahat',f_pub:'Nai-publish',f_draft:'Draft',f_rem:'Inalis',noinq:'Wala pang inquiry'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

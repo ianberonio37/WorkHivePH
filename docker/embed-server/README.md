@@ -32,6 +32,21 @@ docker run -d --name embed-server --network supabase_network_<project> workhive-
 ```
 Then the edge resolves it as `http://embed-server:8901/embed`.
 
+**Hands-free self-healing (one container = embedder + auto-heal):** set `WH_EMBED_SELFHEAL_MIN`
+to run the idempotent dirty-row re-embed sweep on a timer, so any row embedded in a foreign
+space during a past outage re-heals into bge-local space with zero founder ops. It is a cheap
+no-op when the corpus is already in lockstep. Give it the DB DSN reachable from the container:
+```bash
+docker run -d --name embed-server --network supabase_network_<project> -p 8901:8901 \
+  --restart unless-stopped \
+  -e WH_EMBED_SELFHEAL_MIN=15 \
+  -e WH_DB_DSN="host=supabase_db_<project> port=5432 dbname=postgres user=postgres password=postgres" \
+  -e WH_EMBED_URL="http://localhost:8901/embed" \
+  workhive-embed-server
+```
+`--restart unless-stopped` makes it survive reboots/crashes. (Prod: point `WH_DB_DSN` at the
+managed Postgres. The self-heal is the same `tools/reembed_dirty_knowledge.py` sweep, baked in.)
+
 ## Wire the edge to it
 
 The embedding model is pinned per corpus (see `_shared/embedding-chain.ts`). Point the

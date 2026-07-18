@@ -45,6 +45,7 @@ NON_TOOL_PAGES = {
     "index.html",                    # landing page
     "architecture.html",             # RETIRED 2026-05-13 — kept on disk for archival, never in nav
     "marketplace-admin.html",        # platform admin only, not a worker tool
+    "platform-actions.html",         # platform admin ops console (governance queues), not a worker tool
     "marketplace-seller.html",       # seller dashboard, gated separately
     "marketplace-seller-profile.html",  # seller profile editor
     "public-feed.html",              # public community feed (no auth required)
@@ -58,6 +59,7 @@ NON_TOOL_PAGES = {
     "status.html",                   # Pillar O (Observability/SLO) local status page — admin/devops, not a worker tool (mirrors llm-observability)
     "offline-fallback.html",         # PWA offline fallback shown by the service worker when the network is down — not a worker tool
     "promo-poster.html",             # marketing poster/OG-image generator (admin/marketing), not a worker maintenance tool
+    "design-system.html",            # FULLSTACK_COMPONENT_LIBRARY F-P4 — living design-system gallery (internal design/dev reference, Ian 2026-07-17: internal tool page, NOT family)
 }
 
 # ── Suffix patterns for test/scratch variants (skipped without complaint) ─────

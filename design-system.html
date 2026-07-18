@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- dashboard-allow: internal design-system gallery; every specimen cites its source file inline -->
+  <title>Design System | WorkHive</title>
+  <meta name="description" content="WorkHive living design system: every canonical token, component and renderer, rendered live from the real tokens.css / components.css / utils.js with measured adoption." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="manifest" href="manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
+  <script src="utils.js"></script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="components.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--wh-font, 'Poppins', sans-serif); background: #0f1923; color: var(--wh-cloud); min-height: 100vh; padding-bottom: 90px; }
+    .page { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 0; }
+    h1 { font-size: 1.35rem; font-weight: 800; }
+    .page-sub { font-size: .75rem; color: rgba(255,255,255,0.72); margin-top: 4px; max-width: 620px; }
+    .ds-class { margin-top: 1.75rem; }
+    .ds-class > h2 { font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--wh-orange); margin-bottom: .75rem; }
+    .ds-row { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; margin-bottom: 12px; }
+    .ds-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .ds-id { font-size: .6rem; font-weight: 800; color: var(--wh-blue-light); letter-spacing: .05em; }
+    .ds-name { font-size: .92rem; font-weight: 700; }
+    .ds-dim { font-size: .58rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; background: rgba(167,139,250,0.14); color: #a78bfa; }
+    .ds-api { font-family: ui-monospace, monospace; font-size: .68rem; color: rgba(255,255,255,0.72); margin-top: 6px; word-break: break-word; }
+    .ds-guide { font-size: .72rem; color: rgba(255,255,255,0.72); margin-top: 6px; line-height: 1.5; }
+    .ds-guide b { color: rgba(255,255,255,0.9); }
+    .ds-spec { margin-top: 12px; padding: 14px; border: 1px dashed rgba(255,255,255,0.14); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .ds-spec-label { font-size: .55rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,0.62); margin-bottom: 8px; }
+    .ds-adopt { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+    .ds-adopt-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .ds-adopt-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-blue), #4ade80); }
+    .ds-adopt-txt { font-size: .68rem; font-weight: 700; color: rgba(255,255,255,0.85); white-space: nowrap; }
+    .ds-adopt-txt .wh-num { font-variant-numeric: tabular-nums; }
+    .ds-src { font-size: .6rem; color: rgba(255,255,255,0.62); margin-top: 8px; font-family: ui-monospace, monospace; }
+    .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .swatch { width: 120px; }
+    .swatch .sw { height: 44px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+    .swatch .sw-name { font-family: ui-monospace, monospace; font-size: .58rem; color: rgba(255,255,255,0.72); margin-top: 4px; word-break: break-all; }
+    .demo-table { border-collapse: collapse; font-size: .72rem; min-width: 720px; }
+    .demo-table th, .demo-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; white-space: nowrap; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <h1>WorkHive Design System</h1>
+  <p class="page-sub">The living component library (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer F). Every
+    specimen below renders LIVE from the real <code>tokens.css</code> / <code>components.css</code> /
+    <code>utils.js</code>: nothing is copied. Adoption bars are the measured census
+    (<code>component_adoption_baseline.json</code>), the same floors the platform gate ratchets.</p>
+  <p id="ds-provenance" class="ds-src"></p>
+
+  <details class="wh-help">
+    <summary>How this page works</summary>
+    <p>Each card is one canonical primitive from the registry: what it is, when to use it, and its live
+    rendering. If a specimen looks wrong here, it is wrong everywhere: fix the shared source, never a page.</p>
+  </details>
+
+  <div id="ds-root"><!-- classes render here --></div>
+</div>
+
+<script>
+(async function () {
+  const root = document.getElementById('ds-root');
+  if (typeof whListSkeleton === 'function') whListSkeleton(root, 6); // dogfood: G1 while the registry loads
+
+  let reg, base, apiReg = null, apiBase = null;
+  try {
+    [reg, base] = await Promise.all([
+      fetch('design_component_registry.json').then(r => r.json()),
+      fetch('component_adoption_baseline.json').then(r => r.json()),
+    ]);
+    // Layer A (APIs) — optional: the gallery renders it when the registry is present.
+    try {
+      [apiReg, apiBase] = await Promise.all([
+        fetch('api_component_registry.json').then(r => r.json()),
+        fetch('api_adoption_baseline.json').then(r => r.json()),
+      ]);
+    } catch (_) { /* empty-catch-allow: Layer A section simply omitted */ }
+  } catch (e) {
+    if (typeof whListError === 'function') whListError(root, 'Could not load the registry JSON. Serve this page from the project root.', () => location.reload());
+    return;
+  }
+  const adoption = {};
+  (base.rows || []).forEach(r => { adoption[r.id] = r; });
+  const prov = document.getElementById('ds-provenance');
+  prov.textContent = 'source: design_component_registry.json v' + reg.version + ' · census: ' + (base.generated || '').slice(0, 10) + ' · ' + (base.family_pages || 0) + ' family pages';
+
+  const e = escHtml;
+
+  // ── live specimens per component id ──────────────────────────────────────
+  const SPEC = {
+    FT1() { const names = ['--wh-orange','--wh-blue','--wh-navy','--wh-steel','--wh-cloud','--wh-text-muted'];
+      return '<div class="swatch-row">' + names.map(n => {
+        const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '—';
+        return '<div class="swatch"><div class="sw" style="background:var(' + n + ')"></div><div class="sw-name">' + e(n) + '<br>' + e(v) + '</div></div>';
+      }).join('') + '</div>'; },
+    FT2() { return [4,8,12,16,24,32].map(px => '<div style="display:flex;align-items:center;gap:10px;margin:4px 0;"><div style="width:' + px + 'px;height:12px;background:var(--wh-blue);border-radius:3px;"></div><span style="font-size:.62rem;color:rgba(255,255,255,0.62);">' + px + 'px</span></div>').join(''); },
+    FT3() { return '<div style="display:flex;gap:12px;flex-wrap:wrap;">' + [['--wh-radius-sm','sm'],['--wh-radius','base'],['--wh-radius-lg','lg']].map(([t,l]) => '<div style="width:90px;height:56px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(' + t + ',12px);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:rgba(255,255,255,0.7);">' + l + '</div>').join('') + '</div>'; },
+    FT4() { return '<button class="wh-tap" style="background:rgba(41,182,217,0.15);border:1px solid rgba(41,182,217,0.4);border-radius:8px;color:var(--wh-blue-light);font-family:inherit;cursor:pointer;">.wh-tap ≥44px</button>'; },
+    FT5() { return '<p class="wh-text-muted" style="font-size:.8rem;">.wh-text-muted: secondary text at the AA floor</p><p class="wh-text-faint" style="font-size:.8rem;">.wh-text-faint: tertiary text</p>'; },
+    FT6() { return '<span class="wh-num" style="font-size:1.2rem;font-weight:800;">1,234,567.89</span> <span style="font-size:.62rem;color:rgba(255,255,255,0.6);">(tabular: digits don\'t jitter when they tick)</span>'; },
+    FC1() { return '<div class="simple-card" style="max-width:220px;"><span class="sc-label">MTBF</span><span class="sc-hero">6.4d</span><span class="sc-sub">across 12 assets</span><span class="sc-tag tag-ok">healthy</span></div>'; },
+    FC2() { return '<div class="sum-card" style="max-width:140px;"><span class="sn">27</span><span class="sl">Open jobs</span></div>'; },
+    FC3() { return '<div class="wh-scroll-x"><table class="demo-table" aria-label="Example asset reliability table"><thead><tr><th>Asset</th><th>MTBF</th><th>MTTR</th><th>Availability</th><th>Last failure</th><th>Next PM</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr><td>Compressor C-102</td><td class="wh-num">6.4d</td><td class="wh-num">3.1h</td><td class="wh-num">97.2%</td><td>Jul 12, 2026</td><td>Jul 21, 2026</td><td>R. Santos</td><td>OK</td></tr></tbody></table></div><p style="font-size:.6rem;color:rgba(255,255,255,0.6);margin-top:6px;">← the wrapper scrolls; the page never does</p>'; },
+    FI1() { return '<details class="wh-disclose"><summary><span class="wh-disclose-title">Ops detail (.wh-disclose)</span></summary><div class="wh-disclose-body"><p style="font-size:.75rem;color:rgba(255,255,255,0.72);">Deferred complexity lives here.</p></div></details><details class="wh-help"><summary>Inline help (.wh-help)</summary><p>How-this-works copy lives here.</p></details>'; },
+    FI2() { return '<button class="wh-tap-h" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:8px;color:#f87171;font-family:inherit;font-size:.75rem;padding:0 14px;cursor:pointer;" onclick="whConfirm(\'Delete this demo row?\', { danger: true }).then(ok => whToast && whToast(ok ? \'Confirmed\' : \'Cancelled\'))">whConfirm demo</button>'; },
+    FI3() { return '<div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="filter-chip active" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">All</span><span class="filter-chip" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">Overdue</span></div>'; },
+    FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') whListSkeleton(el, 3); }, 0); return '<div id="' + id + '"></div>'; },
+    FF2() { return (typeof whOhBadge === 'function' ? whOhBadge('critical', '2 overdue') + ' ' + whOhBadge('ok', 'on track') : '') + (typeof whProgressStrip === 'function' ? whProgressStrip('PM this week', 4, 6) : ''); },
+    FD1a() { return '<code style="font-size:.75rem;">whFmtDate(now) → ' + e(whFmtDate(new Date())) + ' · {time:true} → ' + e(whFmtDate(new Date(), { time: true })) + ' · {year:false, weekday:"short"} → ' + e(whFmtDate(new Date(), { year: false, weekday: 'short' })) + '</code>'; },
+    FD1b() { return '<code style="font-size:.75rem;">whFmtNum(1234567.891, 1) → ' + e(whFmtNum(1234567.891, 1)) + '</code>'; },
+    FD1c() { return '<code style="font-size:.75rem;">whFmtPeso(85000) → ' + e(whFmtPeso(85000)) + ' · {decimals:2} → ' + e(whFmtPeso(85000, { decimals: 2 })) + '</code>'; },
+    FD1d() { return '<code style="font-size:.75rem;">whFmtDuration(6.4) → ' + e(whFmtDuration(6.4)) + ' · (1, "hours") → ' + e(whFmtDuration(1, 'hours')) + '</code>'; },
+    FD1e() { return '<code style="font-size:.75rem;">whFmtAgo(90s ago) → ' + e(whFmtAgo(new Date(Date.now() - 90000))) + ' · (3d ago) → ' + e(whFmtAgo(new Date(Date.now() - 3 * 86400000))) + '</code>'; },
+    FD2() { return (typeof renderKpiTile === 'function') ? renderKpiTile({ label: 'PM compliance', value: '92%', sub: 'SMRP 2.1.1 · this month', tone: 'ok' }) : '<em style="font-size:.7rem;">renderKpiTile not exposed</em>'; },
+    FD3() { return (typeof renderSourceChip === 'function') ? renderSourceChip({ source: 'v_pm_compliance_truth', freshness: new Date().toISOString() }) : ''; },
+  };
+
+  const order = [];
+  const byClass = {};
+  (reg.components || []).forEach(c => { if (!byClass[c.class]) { byClass[c.class] = []; order.push(c.class); } byClass[c.class].push(c); });
+
+  root.innerHTML = order.map(cls => {
+    const rows = byClass[cls].map(c => {
+      const a = adoption[c.id];
+      let adopt = '';
+      if (a && a.mode === 'measured') {
+        adopt = '<div class="ds-adopt"><div class="ds-adopt-bar"><div class="ds-adopt-fill" style="width:' + (a.pct || 0) + '%"></div></div>' +
+                '<span class="ds-adopt-txt"><span class="wh-num">' + a.adopters_n + '/' + a.need_n + '</span> · <span class="wh-num">' + (a.pct == null ? 'n/a' : a.pct + '%') + '</span> adopted</span></div>';
+      } else if (a && a.mode === 'census-only') {
+        adopt = '<div class="ds-adopt"><span class="ds-adopt-txt wh-text-muted">census: <span class="wh-num">' + a.adopters_n + '</span> page(s) use it (optional vocabulary)</span></div>';
+      } else if (a && a.mode === 'delegated') {
+        adopt = '<div class="ds-adopt"><span class="ds-adopt-txt wh-text-muted">governed by <code>' + e(a.gate || '') + '</code></span></div>';
+      }
+      let spec = '';
+      try { spec = SPEC[c.id] ? SPEC[c.id]() : ''; } catch (err) { spec = '<em style="font-size:.68rem;color:#f87171;">specimen error: ' + e(String(err)) + '</em>'; }
+      return '<div class="ds-row">' +
+        '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">satisfies ' + e(c.satisfies) + '</span></div>' +
+        '<div class="ds-api">' + e(c.api) + '</div>' +
+        '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
+        (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.join(', ').replace(/\.html/g, '')) + ' <span class="wh-text-faint">(' + e(c.exempt_reason || '') + ')</span>' : '') + '</div>' +
+        (spec ? '<div class="ds-spec"><div class="ds-spec-label">Live specimen</div>' + spec + '</div>' : '') +
+        adopt +
+        '<div class="ds-src">defined in ' + e(c.defined_in) + ' · reference: ' + e(c.reference_impl || '-') + '</div>' +
+        '</div>';
+    }).join('');
+    return '<section class="ds-class"><h2>' + e(cls) + '</h2>' + rows + '</section>';
+  }).join('');
+
+  // ── Layer A (APIs): canonical _shared/ modules — adoption over edge functions ──
+  if (apiReg && apiBase) {
+    const aAdopt = {};
+    (apiBase.rows || []).forEach(r => { aAdopt[r.id] = r; });
+    root.innerHTML += '<section class="ds-class"><h2>Layer A · API canonical modules (' + (apiBase.functions || 0) + ' edge functions)</h2>' +
+      (apiReg.components || []).map(c => {
+        const a = aAdopt[c.id];
+        let adopt = '';
+        if (a && a.mode === 'measured') {
+          adopt = '<div class="ds-adopt"><div class="ds-adopt-bar"><div class="ds-adopt-fill" style="width:' + (a.pct || 0) + '%"></div></div>' +
+                  '<span class="ds-adopt-txt"><span class="wh-num">' + a.adopters_n + '/' + a.need_n + '</span> · <span class="wh-num">' + (a.pct == null ? 'n/a' : a.pct + '%') + '</span> adopted</span></div>';
+        } else if (a) {
+          adopt = '<div class="ds-adopt"><span class="ds-adopt-txt wh-text-muted">census: <span class="wh-num">' + a.adopters_n + '</span> fn(s)</span></div>';
+        }
+        return '<div class="ds-row">' +
+          '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">' + e(c.satisfies) + '</span></div>' +
+          '<div class="ds-api">' + e(c.api) + '</div>' +
+          '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
+          (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.join(', ')) : '') + '</div>' +
+          adopt +
+          '<div class="ds-src">defined in ' + e(c.defined_in || 'supabase/functions/_shared/') + '</div>' +
+          '</div>';
+      }).join('') + '</section>';
+  }
+
+  // ── Layers D / AU / AV: the same optional-layer renderer, one config each ──
+  const LAYERS = [
+    { reg: 'db_component_registry.json',  base: 'db_adoption_baseline.json',  title: 'Layer D · Database canonical patterns', unit: d => (d.tables || 0) + ' tables · ' + (d.views || 0) + ' views', src: 'substrate table-rls/view' },
+    { reg: 'au_component_registry.json',  base: 'au_adoption_baseline.json',  title: 'Layer AU · Auth session/identity floor', unit: d => (d.pages || 0) + ' family pages', src: 'utils.js auth floor' },
+    { reg: 'av_component_registry.json',  base: 'av_adoption_baseline.json',  title: 'Layer AV · Availability (offline set)', unit: () => 'per family page', src: 'offline set (repo root)' },
+  ];
+  for (const L of LAYERS) {
+    let lreg, lbase;
+    try {
+      [lreg, lbase] = await Promise.all([fetch(L.reg).then(r => r.json()), fetch(L.base).then(r => r.json())]);
+    } catch (_) { continue; }  // layer simply omitted if its registry isn't present
+    const ad = {};
+    (lbase.rows || []).forEach(r => { ad[r.id] = r; });
+    root.innerHTML += '<section class="ds-class"><h2>' + e(L.title) + ' (' + e(L.unit(lbase)) + ')</h2>' +
+      (lreg.components || []).map(c => {
+        const a = ad[c.id];
+        let adopt = '';
+        if (a && a.mode === 'measured') {
+          adopt = '<div class="ds-adopt"><div class="ds-adopt-bar"><div class="ds-adopt-fill" style="width:' + (a.pct || 0) + '%"></div></div>' +
+                  '<span class="ds-adopt-txt"><span class="wh-num">' + a.adopters_n + '/' + a.need_n + '</span> · <span class="wh-num">' + (a.pct == null ? 'n/a' : a.pct + '%') + '</span> adopted</span></div>';
+        } else if (a && a.mode === 'delegated') {
+          adopt = '<div class="ds-adopt"><span class="ds-adopt-txt wh-text-muted">delegated to a gated fn</span></div>';
+        } else if (a) {
+          adopt = '<div class="ds-adopt"><span class="ds-adopt-txt wh-text-muted">census: <span class="wh-num">' + (a.adopters_n || 0) + '</span></span></div>';
+        }
+        return '<div class="ds-row">' +
+          '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">' + e(c.satisfies || '-') + '</span></div>' +
+          '<div class="ds-api">' + e(c.api || '') + '</div>' +
+          '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
+          (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.map(x => String(x).replace('.html', '')).join(', ')) : '') + '</div>' +
+          adopt +
+          '<div class="ds-src">' + e(c.defined_in || L.src) + '</div>' +
+          '</div>';
+      }).join('') + '</section>';
+  }
+})();
+</script>
+</body>
+</html>

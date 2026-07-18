@@ -48,7 +48,7 @@
  * contract-allow: orchestrating sub-stage LLM calls, output schema documented below.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -329,6 +329,35 @@ async function routerStage(question: string, db: SupabaseClient, hiveId: string 
     if (isLiveQuery) {
       parsed.route = "semantic";
       parsed.reasoning = "demoted from cold_archive (question contains live-data temporal keyword)";
+    }
+  }
+
+  // Period-comparison backstop (deep-walk CL3, 2026-07-08): the Router reliably
+  // routes CLEAR temporal phrasings ("this month vs last month", "year over year")
+  // to temporal, but mis-routes some PERIOD-COMPARISON questions live — "MTBF this
+  // year vs last year" -> semantic, "compare 2026 vs 2025" / "Q1 vs Q2 MTBF" ->
+  // cold_archive (the LLM tags a borderline->18mo from-date so the promotion above
+  // holds and the "no records >2yr ago" deflection ships for a RECENT comparison).
+  // ROUTER_SYSTEM already says "temporal: year vs year, month vs month" — the weak
+  // model violates a STATED rule, so enforce it in code (same WAT pattern as the
+  // three route-correction guards above). A comparison intent + a RECENT period
+  // pair is temporal; a genuine deep-archive comparison (all named years >18mo old)
+  // is left where the >18mo promotion put it.
+  if (parsed.route === "semantic" || parsed.route === "cold_archive") {
+    const lq = question.toLowerCase();
+    const hasCompare =
+      /\b(compare[ds]?|comparison|versus|vs\.?|compared to|higher or lower|year[- ]over[- ]year|month[- ]over[- ]month|quarter[- ]over[- ]quarter|period[- ]over[- ]period|trend)\b/.test(lq);
+    const yrs = (lq.match(/\b20\d{2}\b/g) || []).map(Number);
+    const nowYr = new Date().getFullYear();
+    const hasRecentPeriod =
+      /\b(this|last|previous)\s+(month|quarter|year)\b/.test(lq) ||
+      /\bq[1-4]\b/.test(lq) ||
+      /\b(year over year|month over month|quarter over quarter|period over period)\b/.test(lq) ||
+      yrs.some((y) => y >= nowYr - 1);               // a year within the last ~2 calendar years
+    const allArchivalYears = yrs.length > 0 && yrs.every((y) => y <= nowYr - 2);
+    if (hasCompare && hasRecentPeriod && !allArchivalYears) {
+      parsed.route = "temporal";
+      parsed.reasoning = "backstop: recent period-comparison forced to temporal (deep-walk CL3)";
     }
   }
 
@@ -1076,7 +1105,7 @@ async function lookupHierarchicalSummaries(
 
 // ── Server entry point ───────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("agentic-rag-loop", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });

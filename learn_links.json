@@ -1,0 +1,216 @@
+{
+ "logbook.html": [
+  {
+   "slug": "start-digital-logbook-philippine-factory",
+   "title": "How to Start a Digital Logbook in a Philippine Factory"
+  },
+  {
+   "slug": "mtbf-vs-mttr-for-supervisors",
+   "title": "MTBF vs MTTR for Supervisors, Engineers, and Planners"
+  }
+ ],
+ "analytics-report.html": [
+  {
+   "slug": "what-is-oee-how-to-calculate",
+   "title": "What is OEE and How Do I Calculate It?"
+  },
+  {
+   "slug": "predictive-maintenance-on-a-budget-philippines",
+   "title": "Predictive Maintenance on a Budget (Philippines)"
+  },
+  {
+   "slug": "ai-quality-and-roi-stage-2-plants",
+   "title": "Measuring AI Quality and ROI for Stage 2+ Industrial Plants"
+  },
+  {
+   "slug": "ph-industrial-benchmarks-intelligence",
+   "title": "PH Industrial Benchmarks and Intelligence Reports (Free)"
+  },
+  {
+   "slug": "power-plant-reliability-metrics-philippines",
+   "title": "Power Plant Reliability Metrics in the Philippines"
+  },
+  {
+   "slug": "print-ready-maintenance-analytics-report",
+   "title": "The Print-Ready Maintenance Report Your Management Actually Reads"
+  }
+ ],
+ "shift-brain.html": [
+  {
+   "slug": "maintenance-shift-handover-template",
+   "title": "How to Write a Maintenance Shift Handover (Template Included)"
+  },
+  {
+   "slug": "autonomous-shift-planning-philippine-plants",
+   "title": "Autonomous Shift Planning: the AI Brief That Tells Your Crew What to Fix First"
+  }
+ ],
+ "inventory.html": [
+  {
+   "slug": "spare-parts-inventory-philippine-plants",
+   "title": "Spare Parts Inventory for Philippine Plants"
+  }
+ ],
+ "pm-scheduler.html": [
+  {
+   "slug": "free-pm-checklist-templates",
+   "title": "Free PM Checklist Templates for Industrial Maintenance"
+  },
+  {
+   "slug": "reliability-centered-maintenance-philippine-plants",
+   "title": "Reliability-Centered Maintenance (RCM) for Philippine Plants"
+  },
+  {
+   "slug": "thermography-for-pm-philippine-plants",
+   "title": "Thermography for Preventive Maintenance in Philippine Plants"
+  }
+ ],
+ "skillmatrix.html": [
+  {
+   "slug": "skill-matrix-for-maintenance-technicians",
+   "title": "How to Build a Skill Matrix for Maintenance Technicians"
+  },
+  {
+   "slug": "tesda-nc-mapping-to-skill-matrix",
+   "title": "Mapping TESDA NC II and NC III to Your Skill Matrix"
+  },
+  {
+   "slug": "ofw-engineer-portable-portfolio",
+   "title": "How OFW-Track Engineers Build a Portable Maintenance Portfolio"
+  }
+ ],
+ "dayplanner.html": [
+  {
+   "slug": "dilo-wilo-day-planner-supervisors",
+   "title": "DILO, WILO, MILO, YILO: Day Planner Method for Supervisors"
+  }
+ ],
+ "engineering-design.html": [
+  {
+   "slug": "free-engineering-calculators-philippine-plants",
+   "title": "Free Engineering Design Calculators for Philippine Plants"
+  }
+ ],
+ "assistant.html": [
+  {
+   "slug": "ai-work-assistant-maintenance-technicians",
+   "title": "AI Work Assistant for Every Industrial Worker"
+  },
+  {
+   "slug": "workhive-ai-companion-complete-capabilities",
+   "title": "The WorkHive AI Companion: Everything It Can Do (and How to Get the Most From It)"
+  }
+ ],
+ "hive.html": [
+  {
+   "slug": "connecting-workhive-to-sap-maximo-cmms",
+   "title": "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS"
+  },
+  {
+   "slug": "maintenance-project-planning-template",
+   "title": "Maintenance Project Planning (Free Template for PH Plants)"
+  },
+  {
+   "slug": "joining-and-growing-your-hive",
+   "title": "Joining and Growing Your WorkHive Hive (Multi-Tenant Guide)"
+  },
+  {
+   "slug": "gamifying-maintenance-for-engagement",
+   "title": "Gamifying Maintenance for Technician Engagement"
+  },
+  {
+   "slug": "predictive-alert-thresholds-plants",
+   "title": "Predictive Alert Thresholds for Industrial Plants"
+  },
+  {
+   "slug": "sensor-cmms-gateway-operations",
+   "title": "Sensor and CMMS Gateway Operations for Industrial Plants"
+  },
+  {
+   "slug": "food-beverage-plant-maintenance-philippines",
+   "title": "Maintenance in Philippine Food and Beverage Plants"
+  },
+  {
+   "slug": "bms-facilities-maintenance-peza-buildings",
+   "title": "BMS and Facilities Maintenance in PEZA Buildings"
+  }
+ ],
+ "voice-journal.html": [
+  {
+   "slug": "voice-to-text-maintenance-philippine-plant-floor",
+   "title": "Voice-to-Text on the Philippine Plant Floor"
+  },
+  {
+   "slug": "vibration-analysis-on-a-phone-budget",
+   "title": "Vibration Analysis on a Phone Budget (Philippine PdM)"
+  }
+ ],
+ "asset-hub.html": [
+  {
+   "slug": "building-asset-register-zero-budget",
+   "title": "Building an Asset Register from Scratch (Zero-Budget, ISO 14224)"
+  },
+  {
+   "slug": "fmea-worked-example-philippine-bottling-line",
+   "title": "FMEA Worked Example: a Philippine Bottling Line"
+  },
+  {
+   "slug": "asset-brain-360-one-machine-history-philippine-plant",
+   "title": "Asset Brain 360: Every Machine's Full History in One QR Scan"
+  }
+ ],
+ "community.html": [
+  {
+   "slug": "industrial-community-of-practice-philippines",
+   "title": "Industrial Community of Practice for Philippine Plant Teams"
+  },
+  {
+   "slug": "psme-iiee-piche-which-association-to-join",
+   "title": "PSME, IIEE, PIChE: Which Philippine Engineering Association?"
+  }
+ ],
+ "marketplace.html": [
+  {
+   "slug": "industrial-marketplace-philippine-specialists",
+   "title": "Industrial Marketplace for Philippine Specialists"
+  }
+ ],
+ "audit-log.html": [
+  {
+   "slug": "dole-iso-audit-trail-from-logbook",
+   "title": "DOLE OSHS and ISO Audit Trail from Your Logbook"
+  },
+  {
+   "slug": "loto-procedures-dole-oshs-template",
+   "title": "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template"
+  },
+  {
+   "slug": "ra-11285-energy-efficiency-plant-checklist",
+   "title": "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist"
+  }
+ ],
+ "resume.html": [
+  {
+   "slug": "resume-builder-for-filipino-industrial-workers",
+   "title": "Build an ATS-Ready Resume from Your Plant Work History"
+  }
+ ],
+ "alert-hub.html": [
+  {
+   "slug": "plant-alert-inbox-amc-daily-brief",
+   "title": "One Alert Inbox for the Whole Plant: Risk, PM, Stock, and the 6 AM Brief"
+  }
+ ],
+ "analytics.html": [
+  {
+   "slug": "four-phases-maintenance-analytics-philippine-plants",
+   "title": "The 4 Phases of Maintenance Analytics: From What Happened to What To Do Next"
+  }
+ ],
+ "index.html": [
+  {
+   "slug": "what-is-workhive-complete-platform-guide",
+   "title": "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams"
+  }
+ ]
+}

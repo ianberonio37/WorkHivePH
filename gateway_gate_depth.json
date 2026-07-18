@@ -1,7 +1,7 @@
 {
-  "_overall_pct": 66.7,
+  "_overall_pct": 67.9,
   "axis_totals": {
-    "gateway": 8.5,
+    "gateway": 9.0,
     "gate": 11.0,
     "prod_real": 6.5
   },
@@ -110,11 +110,11 @@
     {
       "code": "AV",
       "name": "Availability & Recovery",
-      "gateway": 0.5,
+      "gateway": 1.0,
       "gate": 1.0,
       "prod_real": 0.0,
-      "composite_pct": 50.0,
-      "gateway_basis": "m: bypass=47 via health_surface_discovery_report.json (measured-partial)",
+      "composite_pct": 66.7,
+      "gateway_basis": "m: bypass=0 via health_surface_discovery_report.json (measured)",
       "gate_basis": "m: game-day-readiness ratchet (game_day + verify_backups + RTO/RPO present)",
       "prod_basis": "f: prod failover / multi-AZ / PITR drill are external/unbuilt"
     },

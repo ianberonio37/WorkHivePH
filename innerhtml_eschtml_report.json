@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 31,
-    "total_assignments": 510,
+    "pages_scanned": 29,
+    "total_assignments": 511,
     "total_risk": 0,
     "baseline": 0
   },
@@ -75,10 +75,6 @@
       "risks": []
     },
     {
-      "page": "platform-health.html",
-      "risks": []
-    },
-    {
       "page": "project-manager.html",
       "risks": []
     },
@@ -92,10 +88,6 @@
     },
     {
       "page": "project-report.html",
-      "risks": []
-    },
-    {
-      "page": "predictive.html",
       "risks": []
     },
     {

@@ -56,11 +56,9 @@ REPORT_FILE   = "gateway_tenancy_report.json"
 # Each needs a one-line justification (mirrors GATEWAY_BYPASS_OK in spirit).
 # Code-verified 2026-06-15 — NOT a blanket "looks internal" pass.
 TENANCY_VERIFY_EXEMPT = {
-    "marketplace-checkout":
-        "Cross-hive BY DESIGN (a buyer purchases another hive's listing). "
-        "Client hive_id is buyer-context metadata written to the order row only "
-        "(index.ts:163); price/listing/seller fetched server-side from canonical "
-        "views by listing_id — hive_id never scopes a protected read.",
+    # NOTE: marketplace-checkout was here ("cross-hive BY DESIGN — a buyer purchases
+    # another hive's listing"). Stripe was removed entirely 2026-06-30 (the marketplace
+    # is now free + contact-only) and the fn was deleted; exemption removed with it.
     # NOTE: resume-extract + resume-polish were here ("hive_id rate-limit only").
     # Pillar P (2026-06-15) moved them OFF the client hive_id entirely — they now
     # rate-limit per-IDENTITY (checkSoloRateLimit), read no client hive_id at all,

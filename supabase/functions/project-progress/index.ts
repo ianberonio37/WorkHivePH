@@ -20,7 +20,8 @@
  * Standards: PMBOK 7th ed., AACE 17R-97, IDCON 6-Phase, ISO 21500.
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -29,6 +30,8 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { resolveIdentity, resolveTenancy } from '../_shared/tenant-context.ts';
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -84,7 +87,12 @@ async function callPythonProject(payload: Record<string, unknown>): Promise<Reco
 }
 
 /* ── Handler ────────────────────────────────────────────────────────────── */
-serve(async (req: Request) => {
+serveObserved("project-progress", async (req: Request) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "project-progress", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req) });
   }
@@ -115,6 +123,11 @@ serve(async (req: Request) => {
     if (!isServiceRole) {
       const tenancy = await resolveTenancy(db, authUid, hive_id);
       if (!tenancy.ok) return errJson(tenancy.message, tenancy.status, req);
+    
+      // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+      if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req));
     }
   }
 

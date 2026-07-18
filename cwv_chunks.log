@@ -1,0 +1,123 @@
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  ================================================================
+    [ 1/43] index.html                                           LCP=[92m64[0mms INP=[92m16[0mms CLS=[92m0[0m
+    [ 2/43] learn                                                LCP=[92m252[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 3/43] about                                                LCP=[92m196[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 4/43] privacy-policy                                       LCP=[92m196[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 5/43] terms-of-service                                     LCP=[92m208[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 6/43] learn/ai-companion-hezekiah-zaniah-personas          LCP=[92m216[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 6 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 1] -> MORE 6
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 6 already measured · 37 to go · this chunk: 6
+  ================================================================
+    [ 7/43] learn/ai-quality-and-roi-stage-2-plants              LCP=[92m236[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 8/43] learn/ai-work-assistant-maintenance-technicians      LCP=[92m236[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [ 9/43] learn/bms-facilities-maintenance-peza-buildings      LCP=[92m248[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [10/43] learn/building-asset-register-zero-budget            LCP=[92m224[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [11/43] learn/connecting-workhive-to-sap-maximo-cmms         LCP=[92m236[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [12/43] learn/dilo-wilo-day-planner-supervisors              LCP=[92m240[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 12 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 2] -> MORE 12
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 12 already measured · 31 to go · this chunk: 6
+  ================================================================
+    [13/43] learn/dole-iso-audit-trail-from-logbook              LCP=[92m224[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [14/43] learn/fmea-worked-example-philippine-bottling-line   LCP=[92m192[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [15/43] learn/food-beverage-plant-maintenance-philippines    LCP=[92m228[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [16/43] learn/free-engineering-calculators-philippine-plants LCP=[92m232[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [17/43] learn/free-pm-checklist-templates                    LCP=[92m212[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [18/43] learn/gamifying-maintenance-for-engagement           LCP=[92m196[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 18 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 3] -> MORE 18
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 18 already measured · 25 to go · this chunk: 6
+  ================================================================
+    [19/43] learn/industrial-community-of-practice-philippines   LCP=[92m236[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [20/43] learn/industrial-marketplace-philippine-specialists  LCP=[92m216[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [21/43] learn/joining-and-growing-your-hive                  LCP=[92m204[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [22/43] learn/loto-procedures-dole-oshs-template             LCP=[92m228[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [23/43] learn/maintenance-project-planning-template          LCP=[92m208[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [24/43] learn/maintenance-shift-handover-template            LCP=[92m236[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 24 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 4] -> MORE 24
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 24 already measured · 19 to go · this chunk: 6
+  ================================================================
+    [25/43] learn/mtbf-vs-mttr-for-supervisors                   LCP=[92m244[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [26/43] learn/ofw-engineer-portable-portfolio                LCP=[92m212[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [27/43] learn/ph-industrial-benchmarks-intelligence          LCP=[92m212[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [28/43] learn/power-plant-reliability-metrics-philippines    LCP=[92m216[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [29/43] learn/predictive-alert-thresholds-plants             LCP=[92m220[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [30/43] learn/predictive-maintenance-on-a-budget-philippines LCP=[92m228[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 30 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 5] -> MORE 30
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 30 already measured · 13 to go · this chunk: 6
+  ================================================================
+    [31/43] learn/psme-iiee-piche-which-association-to-join      LCP=[92m220[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [32/43] learn/ra-11285-energy-efficiency-plant-checklist     LCP=[92m204[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [33/43] learn/reliability-centered-maintenance-philippine-plants LCP=[92m220[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [34/43] learn/resume-builder-for-filipino-industrial-workers LCP=[92m248[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [35/43] learn/sensor-cmms-gateway-operations                 LCP=[92m224[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [36/43] learn/skill-matrix-for-maintenance-technicians       LCP=[92m228[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 36 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 6] -> MORE 36
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 36 already measured · 7 to go · this chunk: 6
+  ================================================================
+    [37/43] learn/spare-parts-inventory-philippine-plants        LCP=[92m228[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [38/43] learn/start-digital-logbook-philippine-factory       LCP=[92m228[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [39/43] learn/tesda-nc-mapping-to-skill-matrix               LCP=[92m216[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [40/43] learn/thermography-for-pm-philippine-plants          LCP=[92m212[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [41/43] learn/vibration-analysis-on-a-phone-budget           LCP=[92m204[0mms INP=[90m—[0mms CLS=[92m0[0m
+    [42/43] learn/voice-to-text-maintenance-philippine-plant-floor LCP=[92m236[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 42 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 7] -> MORE 42
+
+  CWV PROBE · 43 public surfaces × 3 runs · http://127.0.0.1:5000/workhive/
+  resuming: 42 already measured · 1 to go · this chunk: 1
+  ================================================================
+    [43/43] learn/what-is-oee-how-to-calculate                   LCP=[92m284[0mms INP=[90m—[0mms CLS=[92m0[0m
+  ----------------------------------------------------------------
+  measured 43 surfaces → .\cwv_measurements.json
+  over threshold:  LCP 0 · INP 0 · CLS 0
+  next:  python tools/cwv_gate.py --update-baseline   (establish ratchet)
+
+[chunk 8] -> DONE 43
+=== LOOP FINISHED ===

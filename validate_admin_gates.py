@@ -33,7 +33,6 @@ ROOT = Path(__file__).resolve().parent
 ADMIN_SURFACES = [
     "founder-console.html",
     "marketplace-admin.html",
-    "platform-health.html",
 ]
 
 

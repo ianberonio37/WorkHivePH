@@ -127,9 +127,16 @@ def check_select_filters(pages, tables):
 def check_realtime_subscription_scope(pages, tables):
     """
     Realtime channel .on('postgres_changes', {...}) subscriptions on shared
-    tables must include a filter like 'hive_id=eq.XXX' or 'worker_name=eq.XXX'.
-    Without it, the client receives events from ALL tenants, potentially
-    exposing other hives' logbook entries or inventory changes in real time.
+    tables must include a filter like 'hive_id=eq.XXX', 'worker_name=eq.XXX',
+    or 'auth_uid=eq.XXX'. Without it, the client receives events from ALL
+    tenants, potentially exposing other hives' logbook entries or inventory
+    changes in real time.
+
+    auth_uid=eq. is a VALID (indeed stricter, per-user) ownership scope: it is
+    the canonical owner key (a UUID mirroring auth.uid() in RLS) used by
+    owner-scoped personal tables such as schedule_items, which have no hive_id
+    column at all (RLS: auth_uid = auth.uid()). This mirrors the C3 rule already
+    honored by check_select_filters, which accepts auth_uid/_authUid scoping.
     """
     issues = []
     for page in pages:
@@ -146,7 +153,7 @@ def check_realtime_subscription_scope(pages, tables):
             # Get the surrounding channel block (~200 chars after the .on call)
             block = content[m.start():m.start() + 300]
             has_filter = bool(re.search(
-                r"filter\s*:\s*['\"](?:hive_id|worker_name)=eq\.",
+                r"filter\s*:\s*['\"](?:hive_id|worker_name|auth_uid)=eq\.",
                 block
             ))
             if not has_filter:

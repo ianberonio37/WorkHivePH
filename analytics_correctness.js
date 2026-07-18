@@ -65,7 +65,7 @@
 
   // ── MANIFEST ────────────────────────────────────────────────────────────────
   // Each table spec: { name, headerHas[], oracle:'path.to.array', key:{header,field},
-  //   cols:[{header, field, pct?, tol?}] }. A cell rendered "—" (no data) is SKIPPED
+  //   cols:[{header, field, pct?, tol?}] }. A cell rendered "-" (no data) is SKIPPED
   //   (the renderer prints — when the oracle field is null), so absence isn't a defect.
   // Each scalar spec: { name, sel, oracle:(o)=>value, tol? } — headline heroes/counts.
   const MANIFEST = {
@@ -85,7 +85,7 @@
       scalars: [
         // summary heroes (renderAnalyticsSummary): OEE avg, worst MTBF, PM overall.
         // Oracles return NUMBERS (the runner num()-parses the "87%" / "5.6d" hero text);
-        // a null → '—' hero is reported as null so an absent value isn't a false mismatch.
+        // a null → '-' hero is reported as null so an absent value isn't a false mismatch.
         { name: 'an-oee-hero', sel: '#an-oee-hero', oracle: (o) => { const a = (path(o, 'oee.oee_by_asset') || []).filter((r) => r.oee_pct != null).map((r) => +r.oee_pct); return a.length ? round(avg(a)) : null; }, tol: 0.5 },
         { name: 'an-mtbf-hero', sel: '#an-mtbf-hero', oracle: (o) => { const a = (path(o, 'mtbf.mtbf_by_asset') || []).filter((r) => r.mtbf_days != null); if (!a.length) return null; const w = a.reduce((m, r) => (r.mtbf_days < m.mtbf_days ? r : m)); return +w.mtbf_days; }, tol: 0.05 },
         { name: 'an-pm-hero', sel: '#an-pm-hero', oracle: (o) => { const p = path(o, 'pm_compliance.overall_pct'); return p == null ? null : round(p); }, tol: 0.5 },
@@ -163,7 +163,7 @@
           const cells = tr.children; if (!cells || cells.length <= Math.max(keyCol, ci)) continue;
           const k = norm(cells[keyCol].textContent); if (!k) continue;
           const raw = norm(cells[ci].textContent);
-          if (raw === '—' || raw === '') continue;                 // renderer prints — for null oracle → skip
+          if (raw === '-' || raw === '') continue;                 // renderer prints — for null oracle → skip
           dom[k] = col.pct || /[\d.]/.test(raw) ? num(raw) : raw;
           const orow = lookupO(oMap, k); if (orow) ora[k] = orow[col.field];
         }

@@ -73,32 +73,32 @@ test.describe('Cross-page data flows', () => {
     expect(n, 'stat-open should be a non-negative number').toBeGreaterThanOrEqual(0);
   });
 
-  test('hive Open Issues card NEVER contradicts stat-open count', async ({ whPage }) => {
+  test('your-open-jobs tile is a valid subset of hive open WOs', async ({ whPage }) => {
     test.slow();
     await whPage.goto('/workhive/hive.html');
 
-    // Wait for both stat-open and Plain-Read cards to settle
+    // Wait for both stat-open and the v4 open-work action tile to settle
     await whPage.waitForFunction(() => {
       const statEl = document.getElementById('stat-open');
-      const issueEl = document.getElementById('ss-issues-hero');
+      const jobsEl = document.getElementById('ss-jobs-hero');
       const labelEl = document.getElementById('ss-verdict-label');
-      if (!statEl || !issueEl || !labelEl) return false;
+      if (!statEl || !jobsEl || !labelEl) return false;
       const statT  = (statEl.textContent  || '').trim();
-      const issueT = (issueEl.textContent || '').trim();
+      const jobsT  = (jobsEl.textContent || '').trim();
       const labelT = (labelEl.textContent || '').trim();
-      return !!statT && !!issueT && issueT !== '—' &&
+      return !!statT && !!jobsT && jobsT !== '—' &&
              !labelT.startsWith('Computing');
     }, { timeout: 25000 }).catch(() => {});
 
     const statText  = await whPage.locator('#stat-open').textContent().catch(() => '0');
-    const issueText = await whPage.locator('#ss-issues-hero').textContent().catch(() => '0');
-    const statCount  = parseInt(statText?.trim()  || '0', 10);
-    const issueCount = parseInt(issueText?.trim() || '0', 10);
+    const jobsText  = await whPage.locator('#ss-jobs-hero').textContent().catch(() => '0');
+    const statCount = parseInt(statText?.trim()  || '0', 10);
+    const jobsCount = parseInt(jobsText?.trim() || '0', 10);
 
-    if (statCount > 0) {
-      expect(issueCount, `Open Issues card (${issueCount}) should include the ${statCount} open WOs shown in stat-open`)
-        .toBeGreaterThan(0);
-    }
+    // v4 (2026-07-15): tile 3 is the current user's OWN open jobs (personal), a SUBSET of the
+    // hive-wide open WOs in #stat-open — the personal count must never exceed the hive count.
+    expect(jobsCount, `your-open-jobs (${jobsCount}) should not exceed hive open WOs (${statCount})`)
+      .toBeLessThanOrEqual(statCount);
   });
 
   test('inventory add → part appears in inventory list', async ({ whPage, testMarker }) => {

@@ -73,7 +73,7 @@
   // The trigger raises SQLSTATE 23P01 (exclusion_violation); the
   // PostgREST response surfaces this as code "23P01".
   const RATE_LIMIT_MSG =
-    "You've already sent 5 messages this hour — please try again later.";
+    "You've already sent 5 messages this hour. Please try again later.";
 
   // Mount only after DOM is ready, so body exists.
   if (document.readyState === 'loading') {
@@ -363,8 +363,13 @@
 
     // Populate the auto-captured meta line. Use textContent so any
     // weirdness in location/userAgent can never inject HTML.
+    // B5 (no raw internals in user copy — match-system-real-world): show a PLAIN summary, NOT the raw
+    // path + user-agent string ("/workhive/logbook.html · Mozilla/5.0 (Windows NT 10.0…"), which reads
+    // as technical noise. The full path + UA are still captured in the SUBMISSION payload for support
+    // (see user_agent below); the user just sees what's attached, in their own language.
     const meta = panel.querySelector('#wh-fb-meta');
-    meta.textContent = `Auto-captured: ${location.pathname || '/'} · ${navigator.userAgent.slice(0, 60)}`;
+    const pageName = (document.title || '').replace(/\s*[·|–—-]\s*WorkHive.*$/i, '').trim() || 'this page';
+    meta.textContent = `Auto-attached: ${pageName} + your device details (helps us reproduce the issue)`;
   }
 
   // ── State + wiring ─────────────────────────────────────────────────────────
@@ -509,7 +514,7 @@
         if (error.code === '23P01' || /rate limit/i.test(error.message || '')) {
           setStatus('error', RATE_LIMIT_MSG);
         } else {
-          setStatus('error', 'Could not send — please try again in a moment.');
+          setStatus('error', 'Could not send, please try again in a moment.');
           console.error('[wh-feedback-fab] insert failed', error);
         }
         return;
@@ -520,7 +525,7 @@
       setTimeout(() => closePanel(), 1500);
     } catch (e) {
       console.error('[wh-feedback-fab] unexpected error', e);
-      setStatus('error', 'Network hiccup — please try again.');
+      setStatus('error', 'Network hiccup, please try again.');
     } finally {
       state.submitting = false;
       submitBtn.disabled = false;

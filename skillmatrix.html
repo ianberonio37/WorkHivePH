@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,7 +43,7 @@
     /* ── Header ── */
     .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; }
-    .page-header p { font-size: 0.8rem; color: var(--wh-steel); margin-top: 0.25rem; }
+    .page-header p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
 
     /* ── Toast ── */
     #toast {
@@ -67,18 +67,18 @@
     .chart-section { margin-bottom: 1.5rem; }
     .chart-section .card { display: flex; flex-direction: column; align-items: center; }
     .chart-title { font-size: 0.9rem; font-weight: 600; color: #fff; align-self: flex-start; margin-bottom: 0.5rem; }
-    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.7rem; color: var(--wh-steel); }
+    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.7rem; color: var(--wh-steel-bright); }
     .chart-legend span { display: flex; align-items: center; gap: 0.35rem; }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
     #radar-canvas { max-width: 280px; max-height: 280px; }
     .chart-fallback { display: none; width: 100%; }
     .chart-fallback table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
     .chart-fallback td { padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .chart-fallback .label { color: var(--wh-steel); }
+    .chart-fallback .label { color: var(--wh-steel-bright); }
     .chart-fallback .val { text-align: right; font-weight: 600; }
 
     /* ── Discipline cards ── */
-    .section-title { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+    .section-title { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
     .discipline-cards { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
 
     .disc-card {
@@ -111,7 +111,7 @@
     .progress-bar-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
     .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--disc-color); transition: width 0.5s; }
     .disc-card-footer { display: flex; align-items: center; justify-content: space-between; }
-    .disc-target-row { font-size: 0.7rem; color: var(--wh-steel); }
+    .disc-target-row { font-size: 0.7rem; color: var(--wh-steel-bright); }
     .disc-cta { font-size: 0.7rem; font-weight: 600; color: var(--disc-color); display: flex; align-items: center; gap: 0.25rem; }
     .disc-cta svg { width: 12px; height: 12px; }
     .disc-card.primary-badge .disc-card-name::after {
@@ -140,7 +140,7 @@
     .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .step-val { font-size: 0.85rem; font-weight: 700; color: #fff; width: 18px; text-align: center; }
     .target-save-btn {
-      width: 100%; margin-top: 0.75rem;
+      width: 100%; margin-top: 0.75rem; min-height: 44px; box-sizing: border-box;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border: none; border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.875rem; cursor: pointer;
@@ -153,12 +153,12 @@
     #onboarding-section { display: none; margin-bottom: 1.5rem; }
     .onboard-card { text-align: center; padding: 2rem 1.5rem; }
     .onboard-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .onboard-card p { font-size: 0.8rem; color: var(--wh-steel); margin-bottom: 1.5rem; }
+    .onboard-card p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-bottom: 1.5rem; }
     .primary-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
     .primary-option {
       padding: 0.75rem 0.5rem; border-radius: 0.75rem; border: 2px solid rgba(255,255,255,0.1);
       background: rgba(22,32,50,0.4); cursor: pointer; font-size: 0.75rem; font-weight: 600;
-      color: var(--wh-steel); transition: all 0.2s; text-align: center;
+      color: var(--wh-steel-bright); transition: all 0.2s; text-align: center;
     }
     .primary-option:active { transform: scale(0.96); }
     .primary-option.selected { border-color: var(--disc-color); color: var(--disc-color); background: rgba(255,255,255,0.04); }
@@ -187,10 +187,10 @@
       padding: 1rem 1.25rem 0.75rem;
     }
     .modal-title { font-size: 1rem; font-weight: 700; color: #fff; }
-    .modal-subtitle { font-size: 0.7rem; color: var(--wh-steel); margin-top: 0.15rem; }
+    .modal-subtitle { font-size: 0.7rem; color: var(--wh-steel-bright); margin-top: 0.15rem; }
     .modal-close-btn {
       width: 36px; height: 36px; border-radius: 0.5rem; border: none;
-      background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.62);
       cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
       min-width: 44px; min-height: 44px;
     }
@@ -203,9 +203,9 @@
     .lesson-body p { margin-bottom: 0.75rem; }
     .lesson-read-gate {
       display: flex; align-items: center; gap: 0.5rem;
-      font-size: 0.75rem; color: var(--wh-steel); margin-bottom: 0.75rem;
+      font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.75rem;
     }
-    .scroll-hint { font-size: 0.7rem; color: var(--wh-steel); text-align: center; margin-bottom: 0.5rem; }
+    .scroll-hint { font-size: 0.7rem; color: var(--wh-steel-bright); text-align: center; margin-bottom: 0.5rem; }
     .btn-primary {
       width: 100%; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border: none; border-radius: 0.75rem;
@@ -216,7 +216,7 @@
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
     .btn-ghost {
-      width: 100%; background: transparent; color: rgba(255,255,255,0.5);
+      width: 100%; background: transparent; color: rgba(255,255,255,0.62);
       border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.85rem; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; margin-top: 0.5rem;
@@ -227,7 +227,7 @@
     /* ── Exam modal ── */
     .exam-progress-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 999px; margin-bottom: 1rem; overflow: hidden; }
     .exam-progress-fill { height: 100%; background: var(--wh-blue); border-radius: 999px; transition: width 0.3s; }
-    .exam-progress-label { font-size: 0.7rem; color: var(--wh-steel); text-align: right; margin-top: -0.85rem; margin-bottom: 0.75rem; }
+    .exam-progress-label { font-size: 0.7rem; color: var(--wh-steel-bright); text-align: right; margin-top: -0.85rem; margin-bottom: 0.75rem; }
     .exam-question { font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.5; margin-bottom: 1rem; }
     .exam-options { display: flex; flex-direction: column; gap: 0.5rem; }
     .exam-option {
@@ -247,7 +247,7 @@
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.7rem; font-weight: 700;
-      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.62);
     }
     .exam-option.selected .option-letter { background: var(--wh-blue); color: var(--wh-navy); }
     .exam-option.correct .option-letter { background: #4ade80; color: var(--wh-navy); }
@@ -278,7 +278,7 @@
     }
     @keyframes badgePop { from { transform: scale(0) rotate(-15deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
     .result-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem; }
-    .result-score { font-size: 0.85rem; color: var(--wh-steel); margin-bottom: 0.5rem; }
+    .result-score { font-size: 0.85rem; color: var(--wh-steel-bright); margin-bottom: 0.5rem; }
     .result-msg { font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
     .result-review { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .result-review-item {
@@ -313,7 +313,7 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #sm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #sm-summary-details.open { display:block; }
@@ -335,12 +335,12 @@
 
 <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No skills logged yet — skill badges build from logged work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
 
 
   <!-- Header -->
   <header class="page-header">
-    <h1>Growth</h1>
+    <h1 data-i="growth">Growth</h1>
     <p id="header-sub">Track your industrial competency across all disciplines</p>
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
@@ -354,12 +354,12 @@
   <!-- Onboarding (first-time setup) -->
   <section id="onboarding-section">
     <div class="card onboard-card">
-      <h2>Choose Your Primary Discipline</h2>
+      <h2 data-i="chooseprimary">Choose Your Primary Discipline</h2>
       <p>Your primary skill is set to target Level 5. All other skills default to Level 2. You can adjust targets anytime.</p>
       <div class="primary-picker" id="primary-picker">
         <!-- injected by JS -->
       </div>
-      <button class="btn-primary" id="onboard-save-btn" disabled>Set Primary Discipline →</button>
+      <button class="btn-primary" id="onboard-save-btn" disabled data-i="setprimary">Set Primary Discipline →</button>
     </div>
   </section>
 
@@ -384,36 +384,36 @@
     </div>
     <div class="simple-row">
       <div class="simple-card hero tag-grey" id="sm-card-ontrack" data-rag-tile="skillmatrix:on_target" data-rag-label="On target workers">
-        <div class="sc-label">On target</div>
+        <h3 class="sc-label" style="margin:0;" data-i="ontarget">On target</h3>
         <div class="sc-hero" id="sm-ontrack-hero">0</div>
         <div class="sc-sub" id="sm-ontrack-sub">Loading...</div>
-        <span class="sc-tag" id="sm-ontrack-tag">—</span>
+        <span class="sc-tag" id="sm-ontrack-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sm-card-quizzes" data-rag-tile="skillmatrix:quizzes_available" data-rag-label="Quizzes available">
-        <div class="sc-label">Quizzes available</div>
+        <h3 class="sc-label" style="margin:0;" data-i="quizzesavail">Quizzes available</h3>
         <div class="sc-hero" id="sm-quizzes-hero">0</div>
         <div class="sc-sub" id="sm-quizzes-sub">Loading...</div>
-        <span class="sc-tag" id="sm-quizzes-tag">—</span>
+        <span class="sc-tag" id="sm-quizzes-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sm-card-badges" data-rag-tile="skillmatrix:total_badges" data-rag-label="Total badges earned">
-        <div class="sc-label">Total badges</div>
+        <h3 class="sc-label" style="margin:0;" data-i="totalbadges">Total badges</h3>
         <div class="sc-hero" id="sm-badges-hero">0</div>
         <div class="sc-sub" id="sm-badges-sub">Loading...</div>
-        <span class="sc-tag" id="sm-badges-tag">—</span>
+        <span class="sc-tag" id="sm-badges-tag">-</span>
       </div>
     </div>
     <div class="action-card">
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="sm-action-text">Computing recommendation...</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details">
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="sm-summary-details" role="region" aria-label="Skill progress explainer"
     data-rag-tile="skillmatrix:detail_panel"
     data-rag-label="Skill matrix detail">
       <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.62);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
         <li><strong>Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
@@ -427,7 +427,7 @@
       <div class="chart-title">Skill Overview</div>
       <canvas id="radar-canvas" width="280" height="280"></canvas>
       <div class="chart-fallback" id="chart-fallback">
-        <!-- table-name-allow: skill matrix data table --> <table><tbody id="fallback-table"></tbody></table>
+        <!-- table-name-allow: skill matrix data table --> <div class="wh-scroll-x"><table><tbody id="fallback-table"></tbody></table></div>
       </div>
       <div class="chart-legend">
         <span><span class="legend-dot" style="background:#29B6D9"></span>Target</span>
@@ -439,7 +439,7 @@
     <section class="target-section">
       <div class="section-title">Your Targets</div>
       <div class="target-grid" id="target-grid"><!-- injected --></div>
-      <button class="target-save-btn" id="target-save-btn">Save Targets</button>
+      <button class="target-save-btn" id="target-save-btn" data-i="savetargets">Save Targets</button>
     </section>
 
     <!-- Discipline Cards -->
@@ -470,8 +470,8 @@
     </div>
     <div class="modal-footer">
       <p class="scroll-hint" id="lesson-scroll-hint">Scroll to the bottom to unlock the exam</p>
-      <button class="btn-primary" id="lesson-exam-btn" disabled>Take Exam →</button>
-      <button class="btn-ghost" id="lesson-back-btn">Back to Matrix</button>
+      <button class="btn-primary" id="lesson-exam-btn" disabled data-i="takeexam">Take Exam →</button>
+      <button class="btn-ghost" id="lesson-back-btn" data-i="backmatrix">Back to Matrix</button>
     </div>
   </div>
 </div>
@@ -498,7 +498,7 @@
     <div class="modal-footer">
       <div class="exam-nav">
         <div class="nav-dots" id="exam-nav-dots"></div>
-        <button class="btn-next" id="exam-next-btn" disabled>Next →</button>
+        <button class="btn-next" id="exam-next-btn" disabled data-i="nextq">Next →</button>
       </div>
     </div>
   </div>
@@ -520,7 +520,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-primary" id="result-primary-btn" aria-label="Continue"></button>
-      <button class="btn-ghost" id="result-back-btn">Back to Matrix</button>
+      <button class="btn-ghost" id="result-back-btn" data-i="backmatrix">Back to Matrix</button>
     </div>
   </div>
 </div>
@@ -572,9 +572,17 @@ let _examQuestions     = [];
 // ─── Toast ────────────────────────────────────────────────────────────────────
 async function embedSkillEntry(entry) {
   try {
+    // Forward the USER's session JWT: embed-entry's Pillar I tenancy check
+    // (verify_jwt=false fn on a service-role client) requires a resolvable
+    // identity when hive_id is set, else it 401s and the embedding is silently
+    // dropped (skill never reaches the RAG index). apikey stays the anon
+    // publishable key for the functions gateway. Same fix analytics-orchestrator
+    // got 2026-06-07 (see analytics.html fetchPhase).
+    const { data: { session: _s } } = await db.auth.getSession();
+    const _tok = _s?.access_token || SUPABASE_KEY;
     await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tok },
       body: JSON.stringify({
         type: 'skill',
         hive_id: HIVE_ID || null,
@@ -610,8 +618,8 @@ async function init() {
   if (_smChip && typeof renderSourceChip === 'function') {
     _smChip.innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
-      source:    'skill_profiles + skill_badges',
-      notes:     [
+      source:    'skill_profiles + v_skill_badges_truth',
+      method:    [
         'Disciplines: ' + (typeof DISCIPLINES !== 'undefined' ? DISCIPLINES.join(', ') : 'Mechanical, Electrical, Instrumentation, Facilities Management, Production Lines'),
         'Level 1-5 per discipline; target configurable per worker',
         'Primary skill target defaults to 5; others default to 2',
@@ -619,6 +627,9 @@ async function init() {
     });
   }
   // Load profile and badges in parallel
+  // G1 (FF1): canonical skeleton on the target grid while profile/badges load.
+  const _tg = document.getElementById('target-grid');
+  if (_tg && !_tg.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_tg, 3);
   let profileRes, badgesRes;
   try {
     [profileRes, badgesRes] = await Promise.all([
@@ -629,7 +640,7 @@ async function init() {
     // E2 consistent states: a failed profile/badges fetch surfaces a toast
     // instead of silently falling through to onboarding.
     console.warn('skill matrix load failed:', err.message || err);
-    if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix — please retry.', '✗');
+    if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix. Please retry.', '✗');
     profileRes = { data: null, error: err };
     badgesRes  = { data: null };
   }
@@ -637,7 +648,7 @@ async function init() {
   // Handle DB errors gracefully: use cached data if available
   if (profileRes.error && profileRes.error.code !== 'PGRST116') {
     console.warn('skill_profiles fetch error:', profileRes.error.message);
-    if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix — please retry.', '✗');
+    if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix. Please retry.', '✗');
   }
 
   _profile = profileRes.data || null;
@@ -897,13 +908,13 @@ function renderSkillSummary() {
 
   setCard('ontrack',
     `${onTarget}/${totalDisc}`,
-    onTarget === totalDisc ? 'Every discipline at or above target' : `${totalDisc - onTarget} discipline${(totalDisc - onTarget) === 1 ? '' : 's'} still behind target`,
+    onTarget === totalDisc ? `All ${totalDisc} tracked disciplines at or above target` : `${totalDisc - onTarget} discipline${(totalDisc - onTarget) === 1 ? '' : 's'} still behind target`,
     onTarget === totalDisc ? 'COMPLETE' : onTarget >= totalDisc / 2 ? 'PROGRESSING' : 'EARLY',
     onTarget === totalDisc ? 'green' : onTarget >= totalDisc / 2 ? 'amber' : 'amber'
   );
   setCard('quizzes',
     String(quizzesAvail),
-    quizzesAvail === 0 ? 'All targets reached or quizzes on cooldown' : `${quizzesAvail} discipline${quizzesAvail === 1 ? '' : 's'} have a quiz you can take now`,
+    quizzesAvail === 0 ? 'All targets reached or quizzes on cooldown' : `${quizzesAvail} discipline${quizzesAvail === 1 ? ' has' : 's have'} a quiz you can take now`,
     quizzesAvail === 0 ? 'NONE' : 'READY',
     quizzesAvail === 0 ? 'grey' : 'green'
   );
@@ -918,7 +929,7 @@ function renderSkillSummary() {
   let tone, label, sub;
   if (primaryGap >= 2) {
     tone = 'attn'; label = `Primary discipline ${primaryGap} levels behind target`;
-    sub  = `${primaryDisc} is your declared primary skill. Quiz on it before anything else — every other discipline target depends on your primary momentum.`;
+    sub  = `${primaryDisc} is your declared primary skill. Quiz on it before anything else: every other discipline target depends on your primary momentum.`;
   } else if (anyBehind || primaryGap > 0) {
     tone = 'watch'; label = 'Skill matrix is climbing';
     sub  = `${onTarget}/${totalDisc} disciplines on target · ${quizzesAvail} quiz${quizzesAvail === 1 ? '' : 'zes'} available right now.`;
@@ -927,7 +938,7 @@ function renderSkillSummary() {
     // verdict was previously firing red against a phantom gap. Now we
     // surface the data mismatch instead of a contradiction.
     tone = 'watch'; label = 'Primary skill not yet trackable';
-    sub  = `Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget}/${totalDisc} tracked disciplines are at or above target — set primary to one of those to enable per-skill goal tracking.`;
+    sub  = `Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget}/${totalDisc} tracked disciplines are at or above target, so set primary to one of those to enable per-skill goal tracking.`;
   } else if (totalBadges === 0) {
     tone = 'empty'; label = 'No badges earned yet';
     sub  = 'Pick the easiest discipline + the easiest level, take the quiz, and the radar chart will start filling in.';
@@ -948,9 +959,9 @@ function renderSkillSummary() {
     if (totalBadges === 0) {
       text = 'Click the easiest discipline card below and take its Level 1 quiz. 5 questions, ~5 minutes. The radar above starts filling in immediately.';
     } else if (primaryGap >= 2) {
-      text = `Take a ${primaryDisc} quiz first — your primary discipline is ${primaryGap} levels behind. The next level unlocks once you pass.`;
+      text = `Take a ${primaryDisc} quiz first: your primary discipline is ${primaryGap} levels behind. The next level unlocks once you pass.`;
     } else if (quizzesAvail > 0) {
-      text = `${quizzesAvail} discipline${quizzesAvail === 1 ? '' : 's'} have quizzes available right now. Tap a discipline card below and "Take quiz" to push one level.`;
+      text = `${quizzesAvail} discipline${quizzesAvail === 1 ? ' has a quiz' : 's have quizzes'} available right now. Tap a discipline card below and "Take quiz" to push one level.`;
     } else if (!anyBehind) {
       text = 'Every discipline is on target. Raise a target via the "Target Adjustment" section if you want to push higher, or wait for cooldowns to unlock more quizzes.';
     } else {
@@ -986,12 +997,18 @@ function renderRadarChart() {
         ]
       },
       options: {
+        // Arc P · Wave 2 (§C bug #1): the radar drew edge-to-edge in the fixed 280px
+        // canvas, so the 5 pointLabels (Mech/Elec/Inst/Fac Mgmt/Prod) clipped against
+        // the canvas bounds ("ic Mgmt" fragments). maintainAspectRatio keeps it square;
+        // layout.padding reserves a ring of interior space so every label fits.
+        maintainAspectRatio: true,
+        layout: { padding: 22 },
         scales: {
           r: {
             min: 0, max: 5, ticks: { stepSize: 1, display: false },
             grid: { color: 'rgba(255,255,255,0.07)' },
             angleLines: { color: 'rgba(255,255,255,0.07)' },
-            pointLabels: { color: '#7B8794', font: { family: 'Poppins', size: 11 } },
+            pointLabels: { color: '#94A3B8', font: { family: 'Poppins', size: 11 }, padding: 6 },  /* was #7B8794 4.46:1 (fails AA); slate-400 passes, matches #header-sub */
           }
         },
         plugins: { legend: { display: false } },
@@ -1216,6 +1233,7 @@ document.getElementById('exam-close-btn').addEventListener('click', closeExam);
 
 async function submitExam() {
   _examSubmitted = true;
+  // Client-side score is for INSTANT DISPLAY only; the SERVER grader is authoritative (K1).
   const score = _examAnswers.reduce((acc, chosen, i) =>
     acc + (chosen === _examQuestions[i].answer ? 1 : 0), 0);
   const passed = score >= 7;
@@ -1226,44 +1244,24 @@ async function submitExam() {
   const draftKey = `wh_exam_draft_${WORKER_NAME}_${disc}_${level}`;
   localStorage.removeItem(draftKey);
 
-  // Save attempt to DB
-  const attemptData = {
-    worker_name: WORKER_NAME,
-    auth_uid:    _authUid || null,  // C3b
-    discipline: disc,
-    level,
-    score,
-    passed,
-    answers: _examAnswers.map((chosen, i) => ({
-      q: i, chosen, correct: chosen === _examQuestions[i].answer
-    })),
-    attempted_at: new Date().toISOString(),
-  };
-
-  const { error: attemptErr } = await db.from('skill_exam_attempts').insert(attemptData);
-  if (attemptErr) {
-    console.error('attempt save error:', attemptErr.message);
-    showToast('Could not save attempt. Check connection.', '✗');
-  }
-
-  // Save badge if passed (UNIQUE constraint prevents duplication)
-  if (passed) {
-    const { error: badgeErr } = await db.from('skill_badges').upsert({
-      worker_name: WORKER_NAME,
-      auth_uid:    _authUid || null,  // C3b
-      discipline: disc,
-      level,
-      exam_score: score,
-      earned_at: new Date().toISOString(),
-    }, { onConflict: 'worker_name,discipline,level', ignoreDuplicates: true });
-
-    if (badgeErr) {
-      console.error('badge save error:', badgeErr.message);
-      showToast('Badge save failed. Please contact support.', '✗');
-    } else {
-      // Update local badge state
+  // K1 — SERVER-SIDE GRADING. The exam is graded inside grade_skill_exam(), a SECURITY DEFINER RPC
+  // that scores the answers against the write-locked skill_exam_keys table, records the attempt, and
+  // (only on a real >=7/10 pass) awards the badge + its +250 XP. Client writes to skill_badges /
+  // skill_exam_attempts are RLS-locked, so a console-forged badge/XP is impossible (was: the client
+  // scored itself and self-upserted the badge). The server result is authoritative for the outcome.
+  let srvScore = score, srvPassed = passed;
+  const { data: graded, error: gradeErr } = await db.rpc('grade_skill_exam', {
+    p_discipline: disc, p_level: level, p_answers: _examAnswers,
+  });
+  if (gradeErr || !graded) {
+    console.error('grade_skill_exam error:', gradeErr?.message);
+    showToast('Could not save your result. Check connection and try again.', '✗');
+  } else {
+    srvScore  = graded.score;
+    srvPassed = graded.passed;
+    if (srvPassed) {
+      // Update local badge state + embed the new skill level in the background.
       if (!_badges[disc].includes(level)) _badges[disc].push(level);
-      // Embed new skill level in background
       embedSkillEntry({
         worker_name:   WORKER_NAME,
         discipline:    disc,
@@ -1274,7 +1272,7 @@ async function submitExam() {
   }
 
   closeModal('exam-modal');
-  openResult(disc, level, score, passed);
+  openResult(disc, level, srvScore, srvPassed);
 }
 
 // ─── Result Modal ─────────────────────────────────────────────────────────────
@@ -1406,10 +1404,32 @@ if (window.whModalA11y) {
 if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-init();
+Promise.resolve(init()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    growth:        'Paglago',
+    chooseprimary: 'Piliin ang Iyong Pangunahing Disiplina',
+    setprimary:    'Itakda ang Pangunahing Disiplina →',
+    ontarget:      'Nasa target',
+    quizzesavail:  'Mga available na quiz',
+    totalbadges:   'Kabuuang badge',
+    showdetails:   'Ipakita ang detalye',
+    savetargets:   'I-save ang Mga Target',
+    takeexam:      'Kunin ang Exam →',
+    backmatrix:    'Bumalik sa Matrix',
+    nextq:         'Susunod →',
+  };
+</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

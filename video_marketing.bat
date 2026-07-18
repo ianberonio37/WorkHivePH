@@ -15,6 +15,28 @@ set "PROJ=c:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-l
 :: Map project root to Z: -- the & in the folder name breaks cmd.exe without this
 subst Z: "%PROJ%" >nul 2>&1
 
+:: == First-run social setup: the ONE file Ian pastes his accounts into ========
+:: If social_accounts.env is missing, create it from the template and open it
+:: so he can paste his tokens once. Wait until he saves + closes Notepad.
+if not exist "%PROJ%\social_accounts.env" (
+    echo.
+    echo ============================================================
+    echo  FIRST-TIME SETUP -- your social media accounts
+    echo ============================================================
+    echo  To let WorkHive auto-post your videos, paste whatever account
+    echo  tokens you have into the file that is about to open. Fill in
+    echo  what you have, LEAVE THE REST BLANK, then SAVE and close it.
+    echo.
+    echo  You can re-open it anytime: social_accounts.env
+    echo  (Nothing posts for real until you flip SOCIAL_PUBLISH_MODE=live.)
+    echo.
+    copy /Y "%PROJ%\social_accounts.env.example" "%PROJ%\social_accounts.env" >nul
+    echo  Opening social_accounts.env in Notepad...
+    start "" /wait notepad "%PROJ%\social_accounts.env"
+    echo  Saved. Continuing to the dashboard...
+    echo.
+)
+
 :: ── Already running? Just pop the browser. ──────────────────
 netstat -ano | findstr ":5001 " | findstr LISTENING >nul 2>&1
 if %errorlevel%==0 (

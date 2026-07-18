@@ -19,6 +19,11 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/ai-gateway/index.ts"
 
+[functions.marketplace-listing-assist]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/marketplace-listing-assist/index.ts"
+
 [functions.ai-eval-runner]
 enabled = true
 verify_jwt = false
@@ -200,31 +205,6 @@ entrypoint = "./functions/voice-transcribe/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/voice-journal-agent/index.ts"
-
-[functions.marketplace-checkout]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/marketplace-checkout/index.ts"
-
-[functions.marketplace-webhook]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/marketplace-webhook/index.ts"
-
-[functions.marketplace-connect-onboard]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/marketplace-connect-onboard/index.ts"
-
-[functions.marketplace-release]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/marketplace-release/index.ts"
-
-[functions.marketplace-connect-status]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/marketplace-connect-status/index.ts"
 
 [functions.project-progress]
 enabled = true

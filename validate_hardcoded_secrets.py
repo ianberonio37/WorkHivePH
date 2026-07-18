@@ -6,7 +6,7 @@ code. Sister gate to `validate_service_role_exposure` (which catches
 SUPABASE service-role keys specifically) and `validate_env_secret_coverage`
 (which catches missing env-var declarations on the deploy side). This
 gate covers the third dimension: tokens for OpenAI, Anthropic, Resend,
-Stripe, GitHub, etc. that should live in `.env` / Deno.env.get(...) but
+GitHub, etc. that should live in `.env` / Deno.env.get(...) but
 sometimes get pasted into source during a debug session and never moved
 out.
 
@@ -15,7 +15,6 @@ Layer 1 -- Provider-specific token prefix in source                     [FAIL]
     sk-...              OpenAI
     sk-ant-...          Anthropic
     re_...              Resend
-    sk_live_..., sk_test_..., pk_live_..., pk_test_..., rk_...   Stripe
     ghp_..., gho_..., ghu_...   GitHub
     xoxb-..., xoxa-..., xoxp-...   Slack
     AIza...             Google Cloud / Gemini
@@ -82,10 +81,6 @@ PROVIDER_PATTERNS = [
     ("OpenAI",     re.compile(r"\bsk-[A-Za-z0-9]{32,}")),
     ("Anthropic",  re.compile(r"\bsk-ant-[A-Za-z0-9_\-]{32,}")),
     ("Resend",     re.compile(r"\bre_[A-Za-z0-9]{16,}")),
-    ("Stripe live key", re.compile(r"\bsk_live_[A-Za-z0-9]{24,}")),
-    ("Stripe test key", re.compile(r"\bsk_test_[A-Za-z0-9]{24,}")),
-    ("Stripe pub key",  re.compile(r"\bpk_live_[A-Za-z0-9]{24,}|\bpk_test_[A-Za-z0-9]{24,}")),
-    ("Stripe restricted", re.compile(r"\brk_live_[A-Za-z0-9]{24,}|\brk_test_[A-Za-z0-9]{24,}")),
     ("GitHub",     re.compile(r"\b(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}")),
     ("Slack",      re.compile(r"\b(xoxb|xoxa|xoxp|xoxs|xoxr)-[A-Za-z0-9\-]{16,}")),
     ("Google API", re.compile(r"\bAIza[0-9A-Za-z\-_]{35}")),

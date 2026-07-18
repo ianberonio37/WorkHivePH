@@ -309,7 +309,13 @@ def _extract_consumer_keys(html_src: str, alias: str) -> set[str]:
     NOISE = {"length", "map", "filter", "reduce", "forEach", "join", "slice",
              "splice", "push", "pop", "shift", "unshift", "concat", "indexOf",
              "includes", "find", "some", "every", "sort", "reverse", "constructor",
-             "prototype", "toString", "valueOf"}
+             "prototype", "toString", "valueOf",
+             # DOM element methods/props: a variable named like a JSONB column (e.g. `brief`)
+             # that is actually a DOM element reads these — never data keys. (2026-07-06)
+             "classList", "onclick", "setAttribute", "getAttribute", "textContent",
+             "innerHTML", "innerText", "appendChild", "removeChild", "addEventListener",
+             "removeEventListener", "querySelector", "querySelectorAll", "style",
+             "dataset", "remove", "closest", "focus", "blur", "value", "checked"}
     for m in pat.finditer(html_src):
         k = m.group("k") or m.group("k2")
         if k and k not in NOISE:

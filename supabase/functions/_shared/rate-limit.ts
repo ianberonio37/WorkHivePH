@@ -25,49 +25,149 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 export const DEFAULT_RATE_LIMIT_PER_HOUR =
   Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
 
+// Q4 (2026-07-05): a per-DAY ceiling alongside the hourly one. The LLM is the
+// scarcest free-tier resource (Groq ~9,000 req/day SHARED across all hives); an
+// hourly-only cap lets a hive sit just under the hourly limit all day and still
+// drain a big slice of the shared daily budget. Default 300/day/hive keeps one
+// hive from monopolising the pool while staying generous for a real team.
+export const DEFAULT_RATE_LIMIT_PER_DAY =
+  Number(Deno.env.get("WH_RATE_LIMIT_PER_DAY_OVERRIDE") || 300);
+
 export interface RateLimitResult {
   allowed:   boolean;
   remaining: number;
+  /** Set when the DENY was due to the per-day ceiling (vs the hourly window). */
+  scope?:    "hour" | "day";
 }
 
 export async function checkAIRateLimit(
   db: SupabaseClient,
   hiveId: string,
   limitPerHour: number = DEFAULT_RATE_LIMIT_PER_HOUR,
+  limitPerDay:  number = DEFAULT_RATE_LIMIT_PER_DAY,
 ): Promise<RateLimitResult> {
   if (!hiveId) {
     // Solo-worker mode (no hive context). Allow without tracking — these
     // calls are by definition single-user and bounded.
     return { allowed: true, remaining: limitPerHour };
   }
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
+  const now     = Date.now();
+  const hourAgo = new Date(now - 60 * 60 * 1000);
+  const dayAgo  = new Date(now - 24 * 60 * 60 * 1000);
   const { data } = await db.from("ai_rate_limits")
-    .select("call_count, window_start")
+    .select("call_count, window_start, day_count, day_window_start")
     .eq("hive_id", hiveId)
     .maybeSingle();
-  if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
-      hive_id:      hiveId,
-      call_count:   1,
-      window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
+
+  // Each window resets independently once its start ages past its span.
+  const hourFresh = Boolean(data && new Date(data.window_start) >= hourAgo);
+  const dayFresh  = Boolean(data && data.day_window_start && new Date(data.day_window_start) >= dayAgo);
+  const hourCount = hourFresh ? data!.call_count : 0;
+  const dayCount  = dayFresh  ? (data!.day_count ?? 0) : 0;
+
+  // Daily ceiling first — the scarcest budget. A hive that has burned its day is
+  // blocked even when the hour is fresh.
+  if (dayCount >= limitPerDay) {
+    return { allowed: false, remaining: 0, scope: "day" };
   }
-  if (data.call_count >= limitPerHour) {
-    return { allowed: false, remaining: 0 };
+  if (hourCount >= limitPerHour) {
+    return { allowed: false, remaining: 0, scope: "hour" };
   }
-  await db.from("ai_rate_limits")
-    .update({ call_count: data.call_count + 1 })
-    .eq("hive_id", hiveId);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
+  const nowIso = new Date().toISOString();
+  await db.from("ai_rate_limits").upsert({
+    hive_id:          hiveId,
+    call_count:       hourCount + 1,
+    window_start:     hourFresh ? data!.window_start : nowIso,
+    day_count:        dayCount + 1,
+    day_window_start: dayFresh ? data!.day_window_start : nowIso,
+  });
+  return { allowed: true, remaining: limitPerHour - (hourCount + 1) };
 }
 
-export function rateLimitedResponse(corsHeaders: Record<string, string>): Response {
+export function rateLimitedResponse(
+  corsHeaders: Record<string, string>,
+  scope: "hour" | "day" = "hour",
+): Response {
+  const error = scope === "day"
+    ? "Daily AI limit reached for this hive. Resets tomorrow."
+    : "AI call limit reached for this hive. Try again in an hour.";
   return new Response(
-    JSON.stringify({
-      error: "AI call limit reached for this hive. Try again in an hour.",
-    }),
+    JSON.stringify({ error, scope }),
     { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+
+
+// ── GLOBAL platform-wide LLM budget guard (Q6, 2026-07-05) ─────────────────
+//
+// The org-shared-pool layer. Every gate ABOVE keys on a tenant (hive/user/solo/
+// route) — none protect the ONE resource that binds first at scale: the LLM
+// provider budget is ORG-LEVEL, a single key shared across ALL tenants. Verified
+// 2026 free-tier: Groq 30 RPM / 1,000 RPD good-models (org-level). Per-hive 300 +
+// solo 100 caps do NOT sum-protect that shared pool (40 hives × 300 = 12k/day).
+//
+// This calls the ATOMIC consume_ai_global_budget() RPC (row-locked — a single hot
+// counter row must not lose updates under the concurrent burst it exists to smooth;
+// the per-tenant gates' read-then-upsert is racy but acceptable per-tenant, NOT here).
+//
+// Policy: day pool exhausted -> circuit-breaker (deny all); minute burst wall ->
+// SHED background/deferrable calls, PASS interactive (voice). FAILS OPEN: a counter
+// error must never block AI platform-wide.
+export const DEFAULT_GLOBAL_RPM = Number(Deno.env.get("WH_GLOBAL_RPM") || 120);
+export const DEFAULT_GLOBAL_RPD = Number(Deno.env.get("WH_GLOBAL_RPD") || 12000);
+
+export interface GlobalBudgetResult {
+  allowed:          boolean;
+  scope?:           "global-day" | "global-minute";
+  minute_remaining: number;
+  day_remaining:    number;
+}
+
+/** Platform-wide LLM budget gate. Runs AFTER the per-tenant gate (so only calls a
+ *  tenant is allowed to make consume the shared pool) and BEFORE the model call.
+ *  `trafficClass` 'background' is shed at the per-minute wall; 'voice' passes. */
+export async function checkGlobalAIBudget(
+  db:           SupabaseClient,
+  trafficClass: TrafficClass = "voice",
+  rpm:          number = DEFAULT_GLOBAL_RPM,
+  rpd:          number = DEFAULT_GLOBAL_RPD,
+): Promise<GlobalBudgetResult> {
+  try {
+    // canonical-allow: ai_global_budget is the platform-wide LLM pool counter (rate_limit_infra), not a user-facing KPI source.
+    const { data, error } = await db.rpc("consume_ai_global_budget", {
+      p_rpm: rpm,
+      p_rpd: rpd,
+      p_is_background: trafficClass === "background",
+    });
+    const row = Array.isArray(data) ? data[0] : data;
+    if (error || !row) {
+      // Fail OPEN — a global chokepoint must never hard-fail all AI on a counter glitch.
+      return { allowed: true, minute_remaining: rpm, day_remaining: rpd };
+    }
+    return {
+      allowed:          row.allowed,
+      scope:            row.scope ?? undefined,
+      minute_remaining: row.minute_remaining,
+      day_remaining:    row.day_remaining,
+    };
+  } catch {
+    return { allowed: true, minute_remaining: rpm, day_remaining: rpd };
+  }
+}
+
+export function globalBudgetResponse(
+  corsHeaders: Record<string, string>,
+  scope: "global-day" | "global-minute" = "global-minute",
+): Response {
+  const error = scope === "global-day"
+    ? "The platform's shared AI budget for today is fully used. Please try again tomorrow."
+    : "AI is handling a burst of activity right now. Please retry in a few seconds.";
+  // 503 (transient, retry-soon) for the per-minute burst; 429 (rate) for the daily pool.
+  const status = scope === "global-minute" ? 503 : 429;
+  const extra  = scope === "global-minute" ? { "Retry-After": "5" } : {};
+  return new Response(
+    JSON.stringify({ error, scope }),
+    { status, headers: { ...corsHeaders, "Content-Type": "application/json", ...extra } },
   );
 }
 
@@ -326,6 +426,12 @@ export function userRateLimitedResponse(
 export const DEFAULT_SOLO_RATE_LIMIT_PER_HOUR =
   Number(Deno.env.get("WH_SOLO_RATE_LIMIT_OVERRIDE") || 30);
 
+// Q4 (2026-07-05): per-day ceiling for solo/anon identities too. The public
+// (verify_jwt=false) fns are the prime LLM-drain surface for a bot rotating
+// under the hourly cap; 100/day/identity bounds the daily damage.
+export const DEFAULT_SOLO_RATE_LIMIT_PER_DAY =
+  Number(Deno.env.get("WH_SOLO_RATE_LIMIT_PER_DAY_OVERRIDE") || 100);
+
 /** Build the namespaced solo rate-limit key from the best available identity.
  *  Prefers auth_uid (per-person); falls back to a namespaced client IP. Returns
  *  "" when neither is available (degenerate — caller should fail open, there is
@@ -338,41 +444,82 @@ export function soloRateLimitKey(authUid?: string | null, clientIp?: string | nu
   return "";
 }
 
+// I5 (2026-07-09): CGNAT-aware IP CEILING multiplier. The always-on per-IP ceiling is
+// this many times the per-identity cap, so many distinct phone workers behind ONE CGNAT
+// carrier IP rarely hit it, but a single IP rotating spoofed auth_uids DOES. Env-tunable.
+export const SOLO_IP_CEILING_MULTIPLIER =
+  Number(Deno.env.get("WH_SOLO_IP_CEILING_MULTIPLIER") || 5);
+
+/** Check + increment ONE ai_user_rate_limits bucket (hour + day windows). Returns the
+ *  gate result; does NOT increment when already over a cap. */
+async function bumpSoloBucket(
+  db: SupabaseClient, key: string, limitPerHour: number, limitPerDay: number,
+): Promise<RateLimitResult> {
+  const now     = Date.now();
+  const hourAgo = new Date(now - 60 * 60 * 1000);
+  const dayAgo  = new Date(now - 24 * 60 * 60 * 1000);
+  // canonical-allow: ai_user_rate_limits is an infrastructure counter table (rate_limit_infra), not a KPI source.
+  const { data } = await db.from("ai_user_rate_limits")
+    .select("call_count, window_start, day_count, day_window_start")
+    .eq("user_id", key)
+    .maybeSingle();
+
+  const hourFresh = Boolean(data && new Date(data.window_start) >= hourAgo);
+  const dayFresh  = Boolean(data && data.day_window_start && new Date(data.day_window_start) >= dayAgo);
+  const hourCount = hourFresh ? data!.call_count : 0;
+  const dayCount  = dayFresh  ? (data!.day_count ?? 0) : 0;
+
+  if (dayCount >= limitPerDay)   return { allowed: false, remaining: 0, scope: "day" };
+  if (hourCount >= limitPerHour) return { allowed: false, remaining: 0, scope: "hour" };
+
+  const nowIso = new Date().toISOString();
+  // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
+  await db.from("ai_user_rate_limits").upsert({
+    user_id:          key,
+    hive_id:          null,
+    call_count:       hourCount + 1,
+    window_start:     hourFresh ? data!.window_start : nowIso,
+    day_count:        dayCount + 1,
+    day_window_start: dayFresh ? data!.day_window_start : nowIso,
+  });
+  return { allowed: true, remaining: limitPerHour - (hourCount + 1) };
+}
+
 /** Per-identity rate-limit gate for solo / personal features with NO hive
  *  context. Keyed by `soloRateLimitKey(auth_uid, ip)`. Mirrors checkAIRateLimit
- *  but on ai_user_rate_limits (user_id TEXT PK), so no hive_id uuid is needed. */
+ *  but on ai_user_rate_limits (user_id TEXT PK), so no hive_id uuid is needed.
+ *
+ *  I5: pass `clientIp` to ALSO enforce an always-on CGNAT-aware IP ceiling on top of
+ *  the per-identity cap. Without it, a caller rotating a spoofed auth_uid in the request
+ *  body mints a fresh per-identity bucket each call and is effectively unlimited on the
+ *  public (verify_jwt=false) URL. */
 export async function checkSoloRateLimit(
   db:           SupabaseClient,
   identityKey:  string,
   limitPerHour: number = DEFAULT_SOLO_RATE_LIMIT_PER_HOUR,
+  limitPerDay:  number = DEFAULT_SOLO_RATE_LIMIT_PER_DAY,
+  clientIp:     string | null = null,
 ): Promise<RateLimitResult> {
   if (!identityKey) {
     // No identity AND no IP header — nothing to bucket on. Fail open; rare
     // degenerate case (no session + no x-forwarded-for).
     return { allowed: true, remaining: limitPerHour };
   }
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
-  // canonical-allow: ai_user_rate_limits is an infrastructure counter table (rate_limit_infra), not a KPI source.
-  const { data } = await db.from("ai_user_rate_limits")
-    .select("call_count, window_start")
-    .eq("user_id", identityKey)
-    .maybeSingle();
-  if (!data || new Date(data.window_start) < windowStart) {
-    // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
-    await db.from("ai_user_rate_limits").upsert({
-      user_id:      identityKey,
-      hive_id:      null,
-      call_count:   1,
-      window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
+  // Primary per-identity cap (auth_uid-first; the anon path already passes an `ip:` key).
+  const primary = await bumpSoloBucket(db, identityKey, limitPerHour, limitPerDay);
+  if (!primary.allowed) return primary;
+
+  // I5: always-on CGNAT-aware IP ceiling ON TOP of the per-identity cap. Only when the
+  // identity is a real uid (not already an `ip:` key — that bucket IS the primary, no
+  // double count) and we have an IP to bucket on. The ceiling is well ABOVE the per-user
+  // cap, so co-located phone workers rarely hit it but a rotating-uuid script does.
+  const ip = String(clientIp ?? "").trim();
+  if (ip && !identityKey.startsWith("ip:")) {
+    const ipGate = await bumpSoloBucket(db, `ip:${ip}`,
+      limitPerHour * SOLO_IP_CEILING_MULTIPLIER, limitPerDay * SOLO_IP_CEILING_MULTIPLIER);
+    if (!ipGate.allowed) return { allowed: false, remaining: 0, scope: ipGate.scope };
   }
-  if (data.call_count >= limitPerHour) return { allowed: false, remaining: 0 };
-  // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
-  await db.from("ai_user_rate_limits")
-    .update({ call_count: data.call_count + 1 })
-    .eq("user_id", identityKey);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
+  return primary;
 }
 
 export function soloRateLimitedResponse(corsHeaders: Record<string, string>): Response {

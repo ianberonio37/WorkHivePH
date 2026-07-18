@@ -1,0 +1,10 @@
+# Layout rhythm & spatial harmony harvest (Ian, 2026-07-15: "top-to-bottom should be harmonious;
+# gaps, not uniform, cluttered, misarranged"). Extends the UFAI rubric with the spacing-system /
+# vertical-rhythm / alignment / container-uniformity dimensions the current rubric under-covers.
+# Gestalt proximity/whitespace is ALREADY in the bag (external-ux-gestalt-proximity-grouping-whitespace)
+# so it is intentionally NOT re-crawled here (retrieve-first).
+# url | topic | pages,depth
+https://m2.material.io/design/layout/spacing-methods.html | layout spacing 8dp grid keylines
+https://m2.material.io/design/layout/understanding-layout.html | layout regions hierarchy whitespace
+https://www.nngroup.com/articles/gestalt-common-region/ | gestalt common region grouping containers
+https://www.nngroup.com/articles/gestalt-similarity/ | gestalt similarity uniform treatment

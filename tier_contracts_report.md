@@ -6,14 +6,16 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 238 | 12 |
-| E (Engine) | `canonical/formula_contracts.json` | 22 | 11 | 8 |
-| B (Brain) | `canonical/agent_contracts.json` | 7 | 96 | 14 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 233 | 16 |
+| E (Engine) | `canonical/formula_contracts.json` | 22 | 19 | 16 |
+| B (Brain) | `canonical/agent_contracts.json` | 7 | 98 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (12)
+## Tier F (Fuel) — pending registrations (16)
 
 - `cl-text`
+- `f-loto`
+- `f-permit-ref`
 - `file-any`
 - `file-photo`
 - `filter-route`
@@ -21,21 +23,31 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `group-filter`
 - `ideal_cycle_time_seconds`
 - `jd-input`
+- `post-part-number`
+- `post-source-item-id`
 - `promote-dedupe`
 - `rm-current-title`
 - `status-filter`
 - `window`
 
-## Tier E (Engine) — pending registrations (8)
+## Tier E (Engine) — pending registrations (16)
 
 - `get_adoption_risk_current`
+- `get_community_reputation`
+- `get_community_reputation_by_auth`
 - `get_downtime_pareto`
 - `get_failure_frequency`
 - `get_hive_board_dashboard`
 - `get_hive_dashboard`
 - `get_hive_readiness_current`
+- `get_hive_trade_peers`
+- `get_marketplace_parts_for_my_assets`
+- `get_marketplace_price_comps`
+- `get_marketplace_trust_badges`
 - `get_pm_compliance_smrp`
 - `get_repeat_failures`
+- `get_saved_search_matches`
+- `get_seller_community_reputation`
 
 ## Tier B (Brain) — pending registrations (14)
 

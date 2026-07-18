@@ -32,6 +32,17 @@ import time
 import requests
 from pathlib import Path
 
+# Single-source the reasoning-strip (mirror TS stripReasoningBlocks) from lib.ai_chain
+# so the <think>/untagged-persona-scaffold regexes never drift between the two Python mirrors.
+try:
+    from lib.ai_chain import _strip_reasoning_blocks
+except ImportError:  # invoked as `python -m tools.ai_chain` or from repo root
+    try:
+        from tools.lib.ai_chain import _strip_reasoning_blocks
+    except ImportError:
+        def _strip_reasoning_blocks(t):  # last-resort no-op (keeps tools working)
+            return (t or "").strip()
+
 
 def _load_env():
     """Mirror the loader pattern used by video_idea_generator.py +
@@ -201,12 +212,13 @@ def call_ai_chain(
                   f"parse fail: {exc} — trying next")
             continue
 
+        content = _strip_reasoning_blocks(content or "")
         if content:
             print(f"  [ai-chain] served by {entry['provider']} / {entry['model']}")
             return content
 
         print(f"  [ai-chain] {entry['provider']}/{entry['model']} "
-              f"returned empty content — trying next")
+              f"returned empty/reasoning-only content — trying next")
 
     print("  [ai-chain] ALL providers exhausted. Returning empty JSON.")
     return "{}"

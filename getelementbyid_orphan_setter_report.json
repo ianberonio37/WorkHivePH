@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 30,
-    "total_lookups": 2428,
+    "pages_scanned": 28,
+    "total_lookups": 2489,
     "total_orphans": 0,
     "baseline": 0
   },
@@ -71,10 +71,6 @@
       "orphans": []
     },
     {
-      "page": "platform-health.html",
-      "orphans": []
-    },
-    {
       "page": "project-manager.html",
       "orphans": []
     },
@@ -88,10 +84,6 @@
     },
     {
       "page": "project-report.html",
-      "orphans": []
-    },
-    {
-      "page": "predictive.html",
       "orphans": []
     },
     {

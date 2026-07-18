@@ -7,7 +7,7 @@
   <title>Community: WorkHive</title>
   <!-- capture: community_post_v1 (form) -->
   <meta name="robots" content="noindex, follow" />
-  <meta name="description" content="WorkHive Community — hive-scoped discussion board for your maintenance team. Post, reply, react, and stay connected." />
+  <meta name="description" content="WorkHive Community: hive-scoped discussion board for your maintenance team. Post, reply, react, and stay connected." />
   <meta property="og:title" content="Community: WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="manifest" href="manifest.json" />
@@ -75,6 +75,34 @@
     .btn-icon:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
     .btn-icon:active { background: rgba(255,255,255,0.12); transform: scale(0.93); }
 
+    /* ── Clickable author identity (person card trigger) ── */
+    .author-link {
+      background: none; border: none; padding: 0; margin: 0; font: inherit; font-weight: 700;
+      color: inherit; cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 4px;
+      min-height: 44px; /* WCAG 2.5.8 / F1 — name links are primary identity taps */
+    }
+    .author-link:hover { color: var(--wh-orange); text-decoration: underline; }
+    .author-link:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; border-radius: 3px; }
+    .avatar-btn { background: none; border: none; padding: 0; cursor: pointer; border-radius: 999px; }
+    .avatar-btn:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
+
+    /* ── Person card (identity + reputation + marketplace bridge) ── */
+    .pc-stat { text-align: center; padding: 0.5rem 0.25rem; background: rgba(255,255,255,0.04); border-radius: 0.6rem; }
+    .pc-stat b { display: block; font-size: 1.1rem; font-weight: 800; color: white; }
+    .pc-stat span { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.55); }
+    .pc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .pc-tier.voice_of_the_hive { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.4); }
+    .pc-tier.top_contributor  { background: rgba(41,182,217,0.14); color: #6fd3ef; border: 1px solid rgba(41,182,217,0.4); }
+    .pc-tier.active_contributor { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.35); }
+    .pc-tier.new_member { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+    .pc-seller-link {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; text-decoration: none;
+      background: linear-gradient(135deg, rgba(247,162,27,0.12), rgba(41,182,217,0.10));
+      border: 1px solid rgba(247,162,27,0.3); border-radius: 0.75rem; padding: 0.75rem 1rem; margin-top: 0.85rem;
+      color: white; min-height: 44px; transition: border-color 0.2s;
+    }
+    .pc-seller-link:hover { border-color: rgba(247,162,27,0.6); }
+
     /* ── Connection dot ── */
     .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .conn-dot.live         { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse-dot 2s infinite; }
@@ -108,6 +136,7 @@
     .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
     .filter-chip.cat-technical.active  { background: rgba(41,182,217,0.12); border-color: rgba(41,182,217,0.4); color: #6fd3ef; }
     .filter-chip.cat-announce.active   { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.4); color: #c084fc; }
+    .filter-chip.cat-marketplace.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
 
     /* ── Post cards ── */
     .post-card {
@@ -121,6 +150,7 @@
     .post-card.cat-safety      { border-left-color: #ef4444; }
     .post-card.cat-technical   { border-left-color: var(--wh-blue); }
     .post-card.cat-announcement{ border-left-color: #c084fc; }
+    .post-card.cat-marketplace { border-left-color: var(--wh-orange); }
     .post-card.pinned          { border-left-color: var(--wh-orange); }
     @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
 
@@ -132,6 +162,7 @@
     .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
     .cat-safety      { background: rgba(239,68,68,0.15); color: #fca5a5; }
     .cat-technical   { background: rgba(41,182,217,0.12); color: #6fd3ef; }
+    .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange); }
     .cat-announcement{ background: rgba(168,85,247,0.12); color: #c084fc; }
     .badge-pinned    { background: rgba(247,162,27,0.15); color: var(--wh-orange); }
     .badge-mod       { background: rgba(239,68,68,0.12); color: #fca5a5; }
@@ -153,12 +184,20 @@
       color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.15s;
       min-height: 44px;
     }
+    /* R3 one-shape-per-role: the reply/open-thread button reuses .reaction-btn (pill) but is a
+       PRESS action (openThread), while the emoji reactions are SELECT toggles (aria-pressed).
+       Give the press one the rect silhouette so pill stays select-only. */
+    .reaction-btn[onclick*="openThread"] { border-radius: var(--wh-radius-sm); }
     .reaction-btn:hover  { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
     .reaction-btn.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.35); color: var(--wh-orange); }
 
     /* ── Reply thread ── */
     .reply-card {
       border-left: 2px solid rgba(255,255,255,0.06); margin-left: 12px; padding-left: 14px;
+    }
+    .reply-card.accepted {
+      border-left-color: #4ade80; background: rgba(74,222,128,0.06);
+      border-radius: 0 0.5rem 0.5rem 0; padding-top: 8px; padding-bottom: 8px; margin-bottom: 6px;
     }
 
     /* ── Leaderboard row ── */
@@ -252,8 +291,14 @@
     @media (max-width: 767px) { .skeleton { animation: none !important; } }
 
     /* ── Desktop layout ── */
+    /* D1 U5 (FAB shell-occlusion fork — extended to DESKTOP 2026-07-01): the supervisor
+       desktop walk caught the SAME axe target-size occlusion at 1280px that mobile had —
+       the global bottom-right widget stack (#wh-hub + #wh-feedback-fab @ z9998) sits on top
+       of the page FAB, leaving only ~16px exposed. The stack is fixed bottom-RIGHT at every
+       width, so keep the FAB bottom-LEFT on desktop too (clear of the stack), mirroring the
+       pm-scheduler.html fix. Bottom-left is clear of all wh-* widgets (verified ≥24px). */
     @media (min-width: 768px) {
-      #fab-post { bottom: 32px; right: 32px; }
+      #fab-post { bottom: 32px; left: 32px; right: auto; }
     }
     /* D3 A1 (responsive 360→1920): the 1fr + rigid-320px sidebar can't coexist below
        ~1024px — at 768px the main column hits its min-content floor and the grid
@@ -274,7 +319,7 @@
       position: absolute; left: 0; right: 0; z-index: 60;
       background: var(--wh-navy-mid);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 0.625rem;
+      border-radius: var(--wh-radius);
       box-shadow: 0 8px 24px rgba(0,0,0,0.4);
       max-height: 200px; overflow-y: auto;
       display: none;
@@ -330,7 +375,7 @@
 <!-- ── NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div style="max-width:900px; margin:0 auto; padding:0 1.25rem; height:56px; display:flex; align-items:center; justify-content:space-between;">
-    <a href="index.html" style="display:flex; align-items:center; gap:8px; min-height:44px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+    <a href="index.html" class="home-link" aria-label="WorkHive home" style="display:flex; align-items:center; gap:8px; min-height:44px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
     </a>
@@ -364,38 +409,45 @@
 
     <!-- Page header -->
     <div style="margin-bottom:1.25rem;">
-      <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;">Community</h1>
+      <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;" data-i="comm_title">Community</h1>
       <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin:0;">Your hive's discussion board</p>
-      <p id="community-source-chip" style="margin-top:3px;"></p>
+      <p id="community-source-chip" style="margin-top:3px; min-height:1.1em;"></p>
     </div>
 
     <!-- Presence bar -->
     <!-- Y6 silent-loop: the green-dot bar had no label or basis. Name it + state what "online" means, inline (field phones have no hover). -->
     <p style="font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.55); margin:0 0 2px;">Online now</p>
-    <p style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
-    <div id="presence-bar" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:1.25rem; scrollbar-width:none;"></div>
+    <p style="font-size:0.62rem; color:rgba(255,255,255,0.6); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
+    <div id="presence-bar" tabindex="0" role="region" aria-label="Members online" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:1.25rem; scrollbar-width:none; min-height:40px; align-items:center;"></div>
 
     <!-- Layout grid (feed + sidebar on desktop) -->
     <div class="layout-grid">
 
       <!-- ── LEFT: Feed ── -->
       <div>
+        <h2 class="wh-section-title" data-i="comm_feed_heading">Discussion feed</h2>
         <!-- Tabs (feed / mod queue) -->
         <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
-          <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')">Feed</button>
-          <button class="tab-btn" id="tab-global" onclick="switchTab('global')">🌐 Global</button>
-          <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;">Mod Queue <span id="mod-count" style="display:none; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.6rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
+          <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')" data-i="c_feed">Feed</button>
+          <button class="tab-btn" id="tab-global" onclick="switchTab('global')" data-i="c_global">🌐 Global</button>
+          <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;"><span data-i="c_mod">Mod Queue</span> <span id="mod-count" data-wh-prov="1" style="display:none; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.6rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
+        <!-- a11y (WCAG 4.1.2 nested-interactive): mod-count carries data-wh-prov="1" so the
+             global provenance-hover.js enhancer SKIPS it (its attach() bails on dataset.whProv).
+             The count badge lives INSIDE the #tab-mod <button>, so an injected provenance info-
+             <button> would land afterend-of-badge = nested inside the tab button = invalid.
+             The provenance for this transient supervisor-only count is self-evident in context. -->
         </div>
 
         <!-- Search + filter -->
         <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;" id="panel-feed-controls">
           <input type="text" id="search-input" class="wh-input" placeholder="Search posts…" autocomplete="off" style="font-size:1rem;" aria-label="Search posts" />
           <div id="filter-chips" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none;">
-            <button class="filter-chip active" data-cat="all" onclick="setFilter('all')">All</button>
-            <button class="filter-chip" data-cat="general" onclick="setFilter('general')">General</button>
-            <button class="filter-chip cat-safety" data-cat="safety" onclick="setFilter('safety')">Safety</button>
-            <button class="filter-chip cat-technical" data-cat="technical" onclick="setFilter('technical')">Technical</button>
-            <button class="filter-chip cat-announce" data-cat="announcement" onclick="setFilter('announcement')">Announcements</button>
+            <button class="filter-chip active" data-cat="all" onclick="setFilter('all')" aria-pressed="true" data-i="c_all">All</button>
+            <button class="filter-chip" data-cat="general" onclick="setFilter('general')" aria-pressed="false" data-i="c_general">General</button>
+            <button class="filter-chip cat-safety" data-cat="safety" onclick="setFilter('safety')" aria-pressed="false" data-i="c_safety">Safety</button>
+            <button class="filter-chip cat-technical" data-cat="technical" onclick="setFilter('technical')" aria-pressed="false" data-i="c_tech">Technical</button>
+            <button class="filter-chip cat-marketplace" data-cat="marketplace" onclick="setFilter('marketplace')" aria-pressed="false" data-i="c_parts">Parts / Service</button>
+            <button class="filter-chip cat-announce" data-cat="announcement" onclick="setFilter('announcement')" aria-pressed="false" data-i="c_announce">Announcements</button>
           </div>
         </div>
 
@@ -410,8 +462,8 @@
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-posts" onclick="loadMorePosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
-              Load more posts
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
+              <span data-i="c_loadmore">Load more posts</span>
             </button>
           </div>
         </div>
@@ -424,7 +476,7 @@
           <div id="global-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="global-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-global" onclick="loadMoreGlobalPosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:0.625rem; padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;">
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;">
               Load more
             </button>
           </div>
@@ -450,20 +502,42 @@
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
-              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:#F7A21B;">—</p>
+              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange);">-</p>
               <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
-              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:#29B6D9;">—</p>
+              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue);">-</p>
               <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
+          <!-- Belonging / contribution ladder (heavyweight-U): show the member their next rung so
+               participation feels progressive, not a one-off. Computed from server-truth post count. -->
+          <p id="profile-next-milestone" style="display:none; font-size:0.75rem; color:var(--wh-orange); font-weight:600; margin:0.85rem 0 0; line-height:1.5;"></p>
+          <!-- Recognition legibility (heavyweight-U): a member can always explain WHY they earned their XP. -->
+          <details style="margin-top:0.85rem;">
+            <summary style="font-size:0.72rem; font-weight:700; color:var(--wh-blue); cursor:pointer;">How do I earn Community XP?</summary>
+            <ul style="font-size:0.72rem; color:rgba(255,255,255,0.75); line-height:1.65; margin:0.5rem 0 0; padding-left:1.1rem;">
+              <li><b>+50</b> for your first post: welcome to the hive</li>
+              <li><b>+25</b> for a safety post: keeping the team safe matters</li>
+              <li><b>+20</b> when one of your posts gets 3 reactions: the team found it useful</li>
+              <li><b>🐝 Voice of the Hive</b> badge at your 10th post</li>
+            </ul>
+            <p style="font-size:0.68rem; color:rgba(255,255,255,0.55); margin:0.5rem 0 0; line-height:1.5;">XP rewards real help, never logins, streaks, or giving reactions.</p>
+          </details>
+        </div>
+
+        <!-- "My people" — same-trade discovery (U-axis belonging). Hidden until the
+             get_hive_trade_peers RPC returns hive-mates who share the worker's trade. -->
+        <div class="wh-card" style="padding:1.25rem; display:none;" id="trade-peers-card">
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.2rem;">People in your trade</p>
+          <p style="font-size:0.72rem; color:rgba(255,255,255,0.65); margin:0 0 0.75rem;">Hive-mates who work the same discipline as you. Start here.</p>
+          <div id="trade-peers-list"></div>
         </div>
 
         <!-- Leaderboard -->
         <div class="wh-card" style="padding:1.25rem;" id="leaderboard-card">
           <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.75rem;">Top Posters</p>
-          <div id="leaderboard-list">
+          <div id="leaderboard-list" style="min-height:132px;">
             <div style="height:16px; width:80%; border-radius:4px;" class="skeleton"></div>
             <div style="height:16px; width:70%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
             <div style="height:16px; width:60%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
@@ -497,8 +571,14 @@
       <option value="general">General</option>
       <option value="safety">Safety</option>
       <option value="technical">Technical</option>
+      <option value="marketplace">Parts / Service / Wanted</option>
       <option value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
     </select>
+    <!-- Knowledge->commerce bridge: a commerce-intent post points to the FREE marketplace -->
+    <p id="marketplace-hint" style="display:none; font-size:0.72rem; color:rgba(255,255,255,0.7); background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:0.6rem; padding:0.6rem 0.75rem; margin:-0.5rem 0 1rem; line-height:1.5;">
+      🛒 Buying or selling parts, or offering a service? Post it here to reach your hive, and list it on the
+      <a href="marketplace.html" style="color:var(--wh-orange); font-weight:700; text-decoration:none;">free Marketplace →</a>
+    </p>
 
     <!-- Share publicly (supervisor-only); auto-locked ON for announcements -->
     <label id="post-public-row" for="post-public" style="display:none; align-items:center; gap:10px; margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:0.625rem; cursor:pointer;">
@@ -516,15 +596,15 @@
     </div>
     <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.6); margin:4px 0 1rem;">0 / 2000</p>
 
-    <details style="margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.625rem; font-size:0.78rem; color:rgba(255,255,255,0.7);">
-      <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px;">
+    <details class="wh-help" style="font-size:0.78rem; color:rgba(255,255,255,0.7);">
+      <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px; min-height:44px;">
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         Community guidelines
         <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400;">tap to read</span>
       </summary>
       <ul style="margin:0.6rem 0 0; padding-left:1.2rem; line-height:1.55;">
-        <li>Be respectful — no harassment, bullying, or personal attacks.</li>
-        <li>Stay on-topic — keep posts related to your team's work.</li>
+        <li>Be respectful: no harassment, bullying, or personal attacks.</li>
+        <li>Stay on-topic: keep posts related to your team's work.</li>
         <li>Flag safety issues clearly. For emergencies, call your supervisor first.</li>
         <li>Do not share personal data (phone numbers, addresses, IDs).</li>
         <li>No spam, advertising, or unrelated external links.</li>
@@ -552,6 +632,8 @@
     </div>
     <div id="thread-post"></div>
     <div id="thread-replies" style="margin-top:1rem; display:flex; flex-direction:column; gap:0.5rem;"></div>
+    <!-- Knowledge->commerce: a thread about a failing part/asset surfaces matching free-marketplace listings -->
+    <div id="thread-related-listings" style="display:none; margin-top:1rem;"></div>
     <div style="margin-top:1rem; display:flex; gap:8px; align-items:flex-start;">
       <textarea id="reply-content" class="wh-input" rows="2" placeholder="Write a reply…" maxlength="1000" aria-label="Reply content" style="resize:none;"></textarea>
       <button id="btn-submit-reply" class="btn-primary" style="min-width:80px; padding:0.75rem 1rem;" onclick="submitReply()">Reply</button>
@@ -589,8 +671,21 @@
   </div>
 </div>
 
+<!-- ── SHEET: Person card (X-axis bridge) — a member's identity + community standing + their marketplace listings ── -->
+<div id="person-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="person-title">
+  <div class="sheet-inner" id="person-sheet" style="max-width:420px; margin:0 auto;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <h2 id="person-title" style="font-size:1rem; font-weight:800; margin:0;">Member</h2>
+      <button class="btn-icon" onclick="closePersonCard()" aria-label="Close member card">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="person-body"></div>
+  </div>
+</div>
+
 <!-- Elements must be before the script block -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   'use strict';
@@ -611,6 +706,14 @@
   // C4: redirects deferred to DOMContentLoaded — checks auth session first
   if (!HIVE_ID)     { window.location.href = 'hive.html'; }
 
+  // nav-hub activity badge — per-hive "last seen" stamp read by nav-hub.js on every
+  // other page to show an unread count on the Community tile + a dot on the FAB.
+  // Key is hive-scoped so switching hives never wrongly clears another hive's badge.
+  function _markCommunitySeen() {
+    try { localStorage.setItem('wh_community_last_seen:' + HIVE_ID, new Date().toISOString()); /* storage-key-allow: read in nav-hub.js via computed key seenKey='wh_community_last_seen:'+hiveId - literal-only regex can't see the variable getItem */ }
+    catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  }
+
   // ── State ─────────────────────────────────────────────────────────────────────
   // ── Virtual list constants ────────────────────────────────────────────────────
   const CARD_H_EST = 140; // estimated post card height (px) for stub placeholders
@@ -621,6 +724,11 @@
   let allPosts            = [];
   let pinnedPosts         = []; // always shown at top, fetched separately
   let replyCountMap       = {}; // { postId: count }
+  // AI axis: live community context fed to the floating companion via WHAssistant.setContext,
+  // so it can answer real questions ("what's being discussed?", "who works my trade?",
+  // "which threads have no reply yet?") grounded in THIS hive's actual board, not just how-to.
+  let _aiTopContributors  = [];  // ["Name (N XP)", ...] captured from the leaderboard
+  let _aiTradePeers       = [];  // ["Name (Electrical, ...)", ...] captured from get_hive_trade_peers
   const myPostIds         = new Set(); // post IDs authored by WORKER_NAME — for reply notifications
   let _authUid            = null; // C3: populated at init from Supabase Auth session
   // D Phase 2: cross-hive global feed state
@@ -634,9 +742,11 @@
   let activeFilter        = 'all';
   let activeTab      = 'feed';
   let activeThreadId = null;
+  let _threadPostAuthor = null;  // author of the open thread's post — gates the "mark best answer" control
   let presenceChannel, feedChannel, globalFeedChannel;
   let replyingToPostId = null;
   let _editingPostId   = null; // when set, the composer is in edit mode
+  let _editSnapshot    = null; // updated_at captured when the editor opened (optimistic-concurrency guard)
 
   // Client-side rate limit (UX guard; DB trigger should enforce real protection)
   const POST_COOLDOWN_MS  = 5000;
@@ -648,6 +758,7 @@
   let _hiveMembers = [];          // [{ worker_name, role }]
   let _workerTiers = {};          // { workerName: topLevel } — populated on post load
   let _myTopLevel  = 0;           // current user's highest achievement level
+  let _myServerPostCount = null;  // server-truth count of my posts at page load — for a TRUE first-post signal
   let _mentionActive = false;
   let _mentionStartIdx = -1;      // index of '@' in textarea, when dropdown is open
   let _mentionResults = [];       // currently filtered candidates
@@ -697,12 +808,53 @@
       }
     } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 
-    await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers()]);
+    await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers(), loadTradePeers()]);
+    if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
+    // E3 provenance (FAMILY F3): sources = this page's verified truth-view reads.
+    (function () {
+      var el = document.getElementById('cm-source-chip');
+      if (!el) { el = document.createElement('div'); el.id = 'cm-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f && / f ||) */ var host = (f && f.parentElement) || document.querySelector('.page') || document.body; host.insertBefore(el, f || null); }
+      if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+        freshness: 'Live · refreshed on load + realtime',
+        source: 'v_community_posts_truth + leaderboard + trade peers',
+      });
+    })();
+
+    // ── nav-hub activity badge — "seen" marker ─────────────────────────────────
+    // Being on this page IS the consume event: stamp the per-hive last-seen time so
+    // the cross-page nav-hub community badge (nav-hub.js) clears. Re-stamp on leave
+    // so posts that arrived via Realtime while the worker was reading don't re-badge.
+    _markCommunitySeen();
+    window.addEventListener('pagehide', _markCommunitySeen);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') _markCommunitySeen(); });
+
+    // AI axis: now that posts + leaderboard + trade peers are all loaded, hand the
+    // floating companion a grounded snapshot of this hive's community board.
+    _setCommunityAiContext();
 
     // Deep-link: open the thread for ?post=<uuid> after the feed is rendered
-    const deepLinkId = new URLSearchParams(location.search).get('post');
+    const _params = new URLSearchParams(location.search);
+    const deepLinkId = _params.get('post');
     if (deepLinkId) openThread(deepLinkId);
+
+    // X-axis reverse deep-link: ?person=<name>[&phive=<hive_id>] opens that member's card
+    // (e.g. arriving from a marketplace seller profile's "View in forum" link). phive lets the
+    // DEFINER reputation RPC resolve the correct hive even when the viewer is in a different one.
+    const deepLinkPerson = _params.get('person');
+    if (deepLinkPerson) openPersonCard(deepLinkPerson, _params.get('phive') || undefined);
   });
+
+  // Contribution-ladder nudge — the next rung on the commitment curve (belonging, heavyweight-U).
+  function _renderNextMilestone(postCount) {
+    const el = document.getElementById('profile-next-milestone');
+    if (!el || postCount === null || postCount === undefined) return;
+    let msg;
+    if      (postCount === 0)   msg = '🐝 Write your first post to join the conversation. Earns +50 XP';
+    else if (postCount < 10)    { const n = 10 - postCount; msg = `🐝 ${n} more ${n === 1 ? 'post' : 'posts'} to earn the Voice of the Hive badge`; }
+    else                        msg = '🐝 You’re a Voice of the Hive. Thanks for helping the team';
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
 
   // ── Profile card ──────────────────────────────────────────────────────────────
   function renderProfileCard() {
@@ -718,8 +870,9 @@
       db.from('community_xp').select('xp_total')
         .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle(),
     ]);
-    if (!postsRes.error) document.getElementById('profile-posts').textContent = postsRes.count ?? 0;
+    if (!postsRes.error) { document.getElementById('profile-posts').textContent = postsRes.count ?? 0; _myServerPostCount = postsRes.count ?? 0; }
     document.getElementById('profile-xp').textContent = xpRes.data?.xp_total ?? 0;
+    _renderNextMilestone(_myServerPostCount);
     const myTiers = await loadWorkerTiers(db, [WORKER_NAME]);
     _myTopLevel = myTiers[WORKER_NAME] || 0;
     renderProfileCard();
@@ -840,6 +993,9 @@
 
     const lbNames  = data.map(r => r.worker_name);
     const lbTiers  = await loadWorkerTiers(db, lbNames);
+    // Capture the top contributors for the AI companion's live community context.
+    _aiTopContributors = data.slice(0, 3).map(r => `${r.worker_name} (${r.xp_total} XP)`);
+    _setCommunityAiContext();
 
     el.innerHTML = data.map((row, i) => {
       const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
@@ -849,11 +1005,109 @@
         <div class="lb-rank ${rankClass}">${rankIcon}</div>
         <div style="flex-shrink:0;padding-bottom:${(lbTiers[row.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(row.worker_name, lbTiers[row.worker_name] || 0, 28)}</div>
         <div style="flex:1; min-width:0;">
-          <p style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? '#F7A21B' : 'white'};">${escHtml(row.worker_name)}</p>
+          <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(row.worker_name)}')" aria-label="View ${escHtml(row.worker_name)}'s member card" style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? 'var(--wh-orange)' : 'white'};">${escHtml(row.worker_name)}</button>
         </div>
-        <div style="font-size:0.75rem; font-weight:700; color:#29B6D9;">${row.xp_total} XP</div>
+        <div style="font-size:0.75rem; font-weight:700; color:var(--wh-blue);">${row.xp_total} XP</div>
       </div>`;
     }).join('');
+  }
+
+  // ── "My people" — same-trade discovery (U-axis belonging) ──────────────────────
+  // A new member sees a wall of names but not WHO shares their trade. This surfaces
+  // hive-mates who hold a Practitioner+ (level>=2) discipline the worker also holds,
+  // via the get_hive_trade_peers DEFINER RPC (skill_badges RLS is self-only, so a
+  // client-side join can't see peers' levels — the RPC is the built structure).
+  async function loadTradePeers() {
+    const card = document.getElementById('trade-peers-card');
+    const el   = document.getElementById('trade-peers-list');
+    if (!card || !el) return;
+    let rows = [];
+    try {
+      const { data, error } = await db.rpc('get_hive_trade_peers', { p_hive_id: HIVE_ID });
+      if (error) return;                      // best-effort; card stays hidden
+      rows = Array.isArray(data) ? data : [];
+    } catch (_) { return; }
+    if (!rows.length) return;                 // no trade-mates → don't show an empty card
+
+    const names = rows.map(r => r.worker_name).filter(Boolean);
+    const tiers = await loadWorkerTiers(db, names);
+    // Capture trade-mates for the AI companion's live community context.
+    _aiTradePeers = rows.map(r => {
+      const d = Array.isArray(r.shared_disciplines) ? r.shared_disciplines.map(x => x.discipline) : [];
+      return `${r.worker_name} (${d.slice(0, 2).join(', ')})`;
+    });
+    _setCommunityAiContext();
+
+    el.innerHTML = rows.map(r => {
+      const disc = Array.isArray(r.shared_disciplines) ? r.shared_disciplines : [];
+      // Top 2 shared disciplines as chips; "+N" if the overlap is larger.
+      const chips = disc.slice(0, 2).map(d =>
+        `<span style="display:inline-block; font-size:0.62rem; font-weight:600; color:var(--wh-blue-light); background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.25); border-radius:6px; padding:1px 6px; margin:2px 4px 0 0;">${escHtml(d.discipline)}</span>`
+      ).join('');
+      const more = disc.length > 2
+        ? `<span style="font-size:0.62rem; color:rgba(255,255,255,0.55);">+${disc.length - 2} more</span>` : '';
+      const roleLabel = r.role === 'supervisor' ? 'Supervisor' : 'Technician';
+      return `<div style="display:flex; align-items:flex-start; gap:0.6rem; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
+        <div style="flex-shrink:0;padding-bottom:${(tiers[r.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(r.worker_name, tiers[r.worker_name] || 0, 32)}</div>
+        <div style="flex:1; min-width:0;">
+          <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(r.worker_name)}')" aria-label="View ${escHtml(r.worker_name)}'s member card" style="display:block; font-size:0.8rem; font-weight:600; color:white; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(r.worker_name)}</button>
+          <span style="font-size:0.65rem; color:rgba(255,255,255,0.55);">${roleLabel} · you both work:</span>
+          <div style="margin-top:2px;">${chips}${more}</div>
+        </div>
+      </div>`;
+    }).join('');
+    card.style.display = '';
+  }
+
+  // ── AI axis: ground the floating companion in THIS hive's live community state ──
+  // Builds a compact, plain-language summary from data already loaded (recent topics,
+  // which threads are still unanswered, the worker's own standing, top contributors,
+  // trade-mates) and hands it to the shared companion via WHAssistant.setContext, whose
+  // summary is injected into the gateway system prompt (companion-launcher.js). This turns
+  // the community companion from generic how-to into a board-aware assistant. Best-effort:
+  // no-ops if the launcher hasn't mounted yet (re-called after each data load).
+  function _setCommunityAiContext() {
+    try {
+      if (!window.WHAssistant || typeof window.WHAssistant.setContext !== 'function') return;
+      const feed = [...pinnedPosts, ...allPosts];
+      if (!feed.length && !_aiTradePeers.length) return;
+      // ★ PII-SAFE BY CONSTRUCTION: this context is transmitted to the LLM, so it must
+      // emit ONLY non-PII computed fields — NEVER another worker's NAME and NEVER raw
+      // post free-text (a post body can contain names/phone/notes). Same discipline as
+      // the gateway's ops-snapshot ("PII-free by construction"). So: category COUNTS
+      // (not content), the unanswered COUNT, the viewer's OWN standing, and trade-mates
+      // by DISCIPLINE + COUNT (disciplines are not PII; names stay out — the UI's
+      // "People in your trade" panel is where names live).
+      const catCount = {};
+      feed.forEach(p => { const c = (p.category || 'general'); catCount[c] = (catCount[c] || 0) + 1; });
+      const catLine = Object.entries(catCount).sort((a, b) => b[1] - a[1])
+        .map(([c, n]) => `${n} ${c}`).join(', ');
+      const myPosts   = feed.filter(p => p.author_name === WORKER_NAME).length;
+      const unanswered = feed.filter(p => !(replyCountMap[p.id] > 0) && p.author_name !== WORKER_NAME).length;
+      // trade-mate DISCIPLINES only (dedupe), never names
+      const discSet = new Set();
+      _aiTradePeers.forEach(s => { const m = s.match(/\(([^)]*)\)/); if (m) m[1].split(',').forEach(d => discSet.add(d.trim())); });
+      const myDisc = [...discSet].filter(Boolean);
+      const lines = [
+        `Live snapshot of the "${HIVE_NAME || 'this hive'}" community board (facts to ground your answers; PII-free by design).`,
+        `Categories are General, Safety, Technical, Parts/Service, Announcements. Members post, reply, react, mark a best answer, and earn Community XP (+50 first post, +25 safety post, +20 when a post gets 3 reactions, Voice-of-the-Hive badge at 10 posts).`,
+        catLine ? `Recent feed mix: ${catLine} thread(s).` : '',
+        `${unanswered} recent thread(s) by other members still have no reply (good places to help).`,
+        myDisc.length ? `${_aiTradePeers.length} hive-mate(s) share your trade (${myDisc.join(', ')}); point the worker to the "People in your trade" panel for who they are.` : '',
+        `Your standing: ${myPosts} of your own post(s) are in the current feed.`,
+        `If asked "who should I ask about X" or "who posted Y", do NOT guess names; tell the worker to open that thread or the trade panel on the board. Answer counts/topics/how-to from this snapshot; if it is not here, say so.`,
+      ].filter(Boolean);
+      window.WHAssistant.setContext({
+        key: 'community:' + HIVE_ID,
+        summary: lines.join('\n'),
+        badge: 'Community',
+        // piiSafe: this summary is PII-free BY CONSTRUCTION (counts/disciplines/own-standing,
+        // no other-worker names, no post free-text). ONLY a piiSafe context is transmitted to
+        // the LLM gateway (companion-launcher gates on this flag), so a page that hasn't audited
+        // its summary never leaks PII into the model context.
+        piiSafe: true,
+      });
+    } catch (_) { /* empty-catch-allow: AI context is best-effort, never blocks the board */ }
   }
 
   // ── Load posts ────────────────────────────────────────────────────────────────
@@ -867,7 +1121,7 @@
     const raw  = document.getElementById('search-input').value.trim();
     const safQ = raw.replace(/%/g, '\\%').replace(/_/g, '\\_');
     let q = db.from('v_community_posts_truth')
-      .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
+      .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
       .order('created_at', { ascending: false }).limit(20);
     if (HIVE_ROLE !== 'supervisor') q = q.eq('flagged', false);
@@ -878,13 +1132,18 @@
   }
 
   async function loadPosts() {
+    // G1 (FF1) converge: the canonical skeleton renders the wait state once JS runs; the
+    // static 3×90 placeholder divs stay in markup ONLY as the pre-JS first-paint reserve
+    // (hidden-block CLS rule: reserve >= filled). One-time swap, then display-toggled as before.
+    const _fsk = document.getElementById('feed-skeleton');
+    if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3); _fsk.dataset.whSkel = '1'; }
     document.getElementById('feed-skeleton').style.display = 'flex';
     document.getElementById('feed-list').style.display     = 'none';
     _resetFeed();
 
     const [pinnedRes, pageRes] = await Promise.all([
       db.from('v_community_posts_truth')
-        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
+        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
         .order('created_at', { ascending: false }).limit(500),
       _fetchPage(),
@@ -959,10 +1218,10 @@
           </p>
           <ul style="margin:0 0 1.25rem; padding-left:1.2rem; font-size:0.82rem; color:rgba(255,255,255,0.7); line-height:1.7;">
             <li><strong>Tap the orange + button</strong> to write a post.</li>
-            <li>Use categories to organise — <span style="color:#f87171;">Safety</span>, <span style="color:#29B6D9;">Technical</span>, General.</li>
+            <li>Use categories to organise: <span style="color:#f87171;">Safety</span>, <span style="color:var(--wh-blue);">Technical</span>, General.</li>
             <li>React with 👍 🔧 🔥 👀 or open a thread to reply.</li>
             <li>Type <strong>@</strong> in the message to mention a teammate.</li>
-            ${HIVE_ROLE === 'supervisor' ? '<li>As supervisor: tick "Share with all WorkHive teams" to publish a post globally.</li>' : '<li>See something off? Use the ⚠️ report button — your supervisor will review it.</li>'}
+            ${HIVE_ROLE === 'supervisor' ? '<li>As supervisor: tick "Share with all WorkHive teams" to publish a post globally.</li>' : '<li>See something off? Use the ⚠️ report button, your supervisor will review it.</li>'}
           </ul>
           <button class="btn-primary" onclick="openComposer()" style="width:auto; padding:0.65rem 1.25rem;">
             Write the first post
@@ -1062,7 +1321,7 @@
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
       const aria = d.mine ? `${label}, ${d.count} reactions, you reacted` : `${label}, ${d.count} reactions`;
-      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${escJsAttr(p.id)}', '${escJsAttr(p.hive_id)}', '${escJsAttr(emoji)}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
 
     return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
@@ -1070,7 +1329,7 @@
         <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
-            <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
+            <button type="button" translate="no" class="author-link" style="font-size:0.8rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}')" aria-label="View ${escHtml(p.author_name)}'s member card">${escHtml(p.author_name)}</button>
             ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
             <span style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
@@ -1177,7 +1436,11 @@
   function setFilter(cat) {
     activeFilter = cat;
     document.querySelectorAll('.filter-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.cat === cat);
+      const on = c.dataset.cat === cat;
+      c.classList.toggle('active', on);
+      // R3/a11y: a filter chip is a SELECT toggle — expose aria-pressed so the shape lens
+      // (and screen readers) read it as select, not as a press button sharing the pill.
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     loadPosts(); // resets cursor and refetches from DB
     _commSyncUrl();
@@ -1295,14 +1558,14 @@
     function rxBtn(emoji, label, icon) {
       const d = _rx[emoji] || { count: 0, mine: false };
       const aria = d.mine ? `${label}, ${d.count} reactions, you reacted` : `${label}, ${d.count} reactions`;
-      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${p.id}', '${escHtml(p.hive_id)}', '${emoji}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+      return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${escJsAttr(p.id)}', '${escJsAttr(p.hive_id)}', '${escJsAttr(emoji)}')" aria-label="${aria}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
     }
     return `<div class="post-card ${catClass}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
       <div style="display:flex; align-items:flex-start; gap:10px;">
         <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
-            <span style="font-size:0.8rem; font-weight:700;">${escHtml(p.author_name)}</span>
+            <button type="button" translate="no" class="author-link" style="font-size:0.8rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}','${escJsAttr(p.hive_id)}')" aria-label="View ${escHtml(p.author_name)}'s member card">${escHtml(p.author_name)}</button>
             <span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>
             <span style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
@@ -1446,6 +1709,8 @@
     document.getElementById('post-content').value = '';
     document.getElementById('post-char-count').textContent = '0 / 2000';
     document.getElementById('post-category').value = 'general';
+    const _mh = document.getElementById('marketplace-hint');
+    if (_mh) _mh.style.display = 'none';
     const cb = document.getElementById('post-public');
     if (cb) { cb.checked = false; cb.disabled = false; }
     const row = document.getElementById('post-public-row');
@@ -1453,6 +1718,11 @@
     document.getElementById('composer-overlay').classList.add('open');
     if (_focusTrapCleanup) _focusTrapCleanup();
     _focusTrapCleanup = trapFocus(document.getElementById('composer-sheet'));
+    // First-post friction: land the caret in the message field so a member can just start typing.
+    // trapFocus() moves initial focus to the first focusable (Close) at 60ms; run after that (80ms)
+    // so the message field wins. Keyboard users still Tab through the trap normally.
+    const _msg = document.getElementById('post-content');
+    if (_msg) setTimeout(() => _msg.focus(), 80);
   }
 
   function openEditor(postId) {
@@ -1462,6 +1732,7 @@
       showToast('You can only edit your own posts', 'error'); return;
     }
     _editingPostId = postId;
+    _editSnapshot = post.updated_at || null; // snapshot for the OC guard on save
     document.getElementById('composer-title').textContent = 'Edit Post';
     document.getElementById('btn-submit-post').textContent = 'Save changes';
     document.getElementById('post-content').value = post.content || '';
@@ -1489,6 +1760,9 @@
       cb.disabled = false;
       row.style.opacity = '1';
     }
+    // Knowledge->commerce: surface the free-marketplace pointer for a Parts/Service/Wanted post
+    const mh = document.getElementById('marketplace-hint');
+    if (mh) mh.style.display = (this.value === 'marketplace') ? 'block' : 'none';
   });
 
   function closeComposer() {
@@ -1547,7 +1821,7 @@
       const since = Date.now() - _lastPostTs;
       if (since < POST_COOLDOWN_MS) {
         const remaining = Math.ceil((POST_COOLDOWN_MS - since) / 1000);
-        showToast(`Slow down — wait ${remaining}s before posting again`, 'error');
+        showToast(`Slow down, wait ${remaining}s before posting again`, 'error');
         return;
       }
     }
@@ -1571,14 +1845,27 @@
         showToast('Cannot edit this post', 'error'); return;
       }
       const editedAt = new Date().toISOString();
-      const { error: editErr } = await db.from('community_posts')
+      let editQ = db.from('community_posts')
         .update({ content, category, public: isPublic, mentions, edited_at: editedAt })
         .eq('id', editId).eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME);
+      // Optimistic-concurrency guard: only overwrite the row still at the snapshot we loaded.
+      // Catches a lost-update (this author's other session) OR a moderation action (a supervisor
+      // hid the post via public=false) that landed since the editor opened.
+      if (_editSnapshot) editQ = editQ.eq('updated_at', _editSnapshot);
+      const { data: editRows, error: editErr } = await editQ.select('updated_at');
       btn.disabled = false; btn.textContent = 'Save changes';
       if (editErr) { showToast('Could not save changes', 'error'); return; }
+      if (!editRows || editRows.length === 0) {
+        // Conflict: the post changed since it was opened. Reload authoritative state, don't clobber.
+        showToast('This post changed since you opened it, reloading', 'error');
+        closeComposer();
+        loadPosts();
+        return;
+      }
       // Local cache + DOM
       post.content = content; post.category = category;
       post.public = isPublic; post.edited_at = editedAt; post.mentions = mentions;
+      post.updated_at = editRows[0].updated_at; // refresh snapshot source for a subsequent edit
       _updateRenderedCard(editId);
       closeComposer();
       showToast('Post updated');
@@ -1596,8 +1883,10 @@
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
 
-    // XP toast — DB trigger handles the actual award server-side
-    const isFirstPost = myPostIds.size === 0;
+    // XP toast — DB trigger handles the actual award server-side.
+    // TRUE first-post signal = server-truth (0 posts at page load) AND none this session — so a
+    // returning member whose older posts aren't in the loaded page never gets a false "First Post! +50".
+    const isFirstPost = (_myServerPostCount === 0) && (myPostIds.size === 0);
     const isSafety    = category === 'safety';
     if      (isFirstPost && isSafety) showToast('+75 XP · First Post + Safety! 🎉🛡️');
     else if (isFirstPost)             showToast('+50 XP · First Hive Post! 🎉');
@@ -1605,6 +1894,7 @@
     else                              showToast('Posted!');
 
     myPostIds.add(data.id);
+    if (_myServerPostCount !== null) _myServerPostCount++; // keep the first-post signal correct across multiple posts this session
     allPosts.unshift(data); // new posts are never pinned on creation
     _prependPostCard(data);
 
@@ -1622,6 +1912,100 @@
   }
 
   // ── Thread view ───────────────────────────────────────────────────────────────
+  // ── Person card (X-axis bridge): a member's identity + community standing + their marketplace listings ──
+  const _PC_TIER = {
+    voice_of_the_hive:  { label: 'Voice of the Hive',  icon: '🐝' },
+    top_contributor:    { label: 'Top Contributor',    icon: '⭐' },
+    active_contributor: { label: 'Active Contributor', icon: '💬' },
+    new_member:         { label: 'New Member',         icon: '🌱' },
+  };
+
+  async function openPersonCard(name, hiveId) {
+    hiveId = hiveId || HIVE_ID;
+    const body = document.getElementById('person-body');
+    document.getElementById('person-title').textContent = name;
+    body.innerHTML = '<p style="font-size:0.8rem;color:rgba(255,255,255,0.6);padding:0.5rem 0;">Loading…</p>';
+    document.getElementById('person-overlay').classList.add('open');
+    if (_focusTrapCleanup) _focusTrapCleanup();
+    _focusTrapCleanup = trapFocus(document.getElementById('person-sheet'));
+
+    // Reputation via the DEFINER RPC (within- AND cross-hive safe; public-scoped aggregates only).
+    // Seller status from the anon-readable roster. Both hive-scoped to avoid worker_name ambiguity.
+    const [repRes, sellerRes] = await Promise.all([
+      db.rpc('get_community_reputation', { p_worker_name: name, p_hive_id: hiveId }),
+      db.from('v_marketplace_sellers_truth')
+        .select('worker_name, tier, total_sales, rating_avg, rating_count')
+        .eq('worker_name', name).eq('hive_id', hiveId).maybeSingle(),
+    ]);
+    if (!document.getElementById('person-overlay').classList.contains('open')) return; // closed mid-fetch
+    const rep    = (repRes    && repRes.data && repRes.data[0]) || null;
+    const seller = (sellerRes && sellerRes.data) || null;
+    body.innerHTML = renderPersonCard(name, rep, seller);
+  }
+
+  function renderPersonCard(name, rep, seller) {
+    const tier    = _workerTiers[name] || 0;
+    const isMe    = name === WORKER_NAME;
+    const tierKey = rep ? rep.trust_tier : 'new_member';
+    const t       = _PC_TIER[tierKey] || _PC_TIER.new_member;
+
+    const head = `
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:0.85rem;">
+        <div style="flex-shrink:0;">${renderWorkerAvatar(name, tier, 48)}</div>
+        <div style="min-width:0;">
+          <p style="font-size:0.95rem; font-weight:800; margin:0;">${escHtml(name)}${isMe ? ' <span style="font-weight:500;color:rgba(255,255,255,0.5);">(you)</span>' : ''}</p>
+          <span class="pc-tier ${tierKey}" style="margin-top:4px;">${t.icon} ${escHtml(t.label)}</span>
+        </div>
+      </div>`;
+
+    let repBlock;
+    if (rep) {
+      repBlock = `
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+          <div class="pc-stat"><b>${rep.xp_total}</b><span>Community XP</span></div>
+          <div class="pc-stat"><b>${rep.public_posts}</b><span>Public posts</span></div>
+          <div class="pc-stat"><b>${rep.public_reactions_received}</b><span>Reactions</span></div>
+        </div>
+        ${rep.is_voice_of_hive ? `<p style="font-size:0.72rem;color:var(--wh-orange);margin:0.6rem 0 0;display:flex;align-items:center;gap:5px;line-height:1.4;">🐝 Trusted in the community, earned by helping teammates in the hive forum</p>` : ''}`;
+    } else {
+      repBlock = `<p style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.5;margin:0;">This member hasn't shared publicly yet. Their private hive activity stays private.</p>`;
+    }
+
+    let sellerBlock = '';
+    if (seller) {
+      const rating = Number(seller.rating_avg || 0).toFixed(1);
+      const url    = 'marketplace-seller-profile.html?worker=' + encodeURIComponent(name);
+      const meta   = (seller.rating_count > 0) ? `★ ${rating} · ${seller.total_sales || 0} sales` : `${seller.total_sales || 0} sales`;
+      sellerBlock = `
+        <a class="pc-seller-link" href="${url}">
+          <div style="min-width:0;">
+            <p style="font-size:0.8rem;font-weight:700;margin:0;">🛒 Sells on the Marketplace</p>
+            <p style="font-size:0.72rem;color:rgba(255,255,255,0.65);margin:2px 0 0;">${escHtml(meta)}</p>
+          </div>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange);white-space:nowrap;">View listings →</span>
+        </a>`;
+    } else if (isMe) {
+      sellerBlock = `
+        <a class="pc-seller-link" href="marketplace.html">
+          <div style="min-width:0;">
+            <p style="font-size:0.8rem;font-weight:700;margin:0;">🛒 Sell your parts or services</p>
+            <p style="font-size:0.72rem;color:rgba(255,255,255,0.65);margin:2px 0 0;">Turn your community standing into jobs &amp; trades</p>
+          </div>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange);white-space:nowrap;">Open →</span>
+        </a>`;
+    }
+
+    return head + repBlock + sellerBlock;
+  }
+
+  function closePersonCard() {
+    document.getElementById('person-overlay').classList.remove('open');
+    if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
+  }
+  document.getElementById('person-overlay').addEventListener('click', function (e) {
+    if (e.target === this) closePersonCard();
+  });
+
   async function openThread(postId) {
     activeThreadId = postId;
     let post = [...pinnedPosts, ...allPosts].find(p => p.id === postId);
@@ -1630,7 +2014,7 @@
     // hive-scoped, so cross-hive links return null and we surface "not found".
     if (!post) {
       const { data } = await db.from('v_community_posts_truth')
-        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at')
+        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
         .eq('id', postId).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
       if (!data) {
         showToast('Post not found in this hive', 'error');
@@ -1641,6 +2025,7 @@
     }
 
     document.getElementById('thread-title').textContent = 'Thread';
+    _threadPostAuthor = post.author_name;  // who asked — gates who can mark the best answer
     document.getElementById('thread-post').innerHTML = renderPostCard(post);
     document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6);">Loading replies…</p>';
     document.getElementById('reply-content').value = '';
@@ -1662,10 +2047,13 @@
     replyingToPostId = postId;
     await loadReplies(postId);
     await loadReactions([postId]);
+    loadRelatedListings(post); // knowledge->commerce (best-effort, non-blocking)
   }
 
   function closeThread() {
     document.getElementById('thread-overlay').classList.remove('open');
+    const _rl = document.getElementById('thread-related-listings');
+    if (_rl) { _rl.style.display = 'none'; _rl.innerHTML = ''; }
     if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
     activeThreadId = null;
     replyingToPostId = null;
@@ -1708,21 +2096,74 @@
     const replyAuthors = [...new Set(data.map(r => r.author_name).filter(Boolean))];
     if (replyAuthors.length) Object.assign(_workerTiers, await loadWorkerTiers(db, replyAuthors));
 
-    el.innerHTML = data.map(r => {
-      const isMine = r.author_name === WORKER_NAME;
-      return `<div class="reply-card">
+    // Durable knowledge: the accepted "best answer" floats to the top so a future reader finds the fix first.
+    const sorted = [...data].sort((a, b) =>
+      (b.is_accepted === true) - (a.is_accepted === true) || new Date(a.created_at) - new Date(b.created_at));
+    // Only the person who asked (post author) or a supervisor may mark the best answer.
+    const canMark = (WORKER_NAME === _threadPostAuthor) || (HIVE_ROLE === 'supervisor');
+
+    el.innerHTML = sorted.map(r => {
+      const accepted = r.is_accepted === true;
+      const badge = accepted
+        ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.35);">✓ Best answer</span>`
+        : '';
+      const markBtn = canMark
+        ? `<button type="button" class="reaction-btn" style="font-size:0.66rem;padding:3px 9px;min-height:44px;" onclick="markAnswer('${escJsAttr(r.id)}', ${accepted ? 'false' : 'true'})" aria-pressed="${accepted}">${accepted ? 'Unmark' : '✓ Mark as answer'}</button>`
+        : '';
+      return `<div class="reply-card${accepted ? ' accepted' : ''}">
         <div style="display:flex; align-items:flex-start; gap:8px;">
           <div style="flex-shrink:0;">${renderWorkerAvatar(r.author_name, _workerTiers[r.author_name] || 0, 26)}</div>
           <div style="flex:1; min-width:0;">
-            <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-              <span style="font-size:0.75rem; font-weight:700;">${escHtml(r.author_name)}</span>
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px; flex-wrap:wrap;">
+              <button type="button" translate="no" class="author-link" style="font-size:0.75rem;" onclick="openPersonCard('${escJsAttr(r.author_name)}')" aria-label="View ${escHtml(r.author_name)}'s member card">${escHtml(r.author_name)}</button>
+              ${badge}
               <span style="font-size:0.65rem; color:rgba(255,255,255,0.6);">${escHtml(formatTimeAgo(r.created_at))}</span>
             </div>
-            <p style="font-size:0.82rem; line-height:1.5; color:rgba(255,255,255,0.78); margin:0; word-break:break-word;">${escHtml(r.content)}</p>
+            <p style="font-size:0.82rem; line-height:1.5; color:rgba(255,255,255,0.78); margin:0 0 ${markBtn ? '6px' : '0'}; word-break:break-word;">${escHtml(r.content)}</p>
+            ${markBtn}
           </div>
         </div>
       </div>`;
     }).join('');
+  }
+
+  async function markAnswer(replyId, accepted) {
+    const { error } = await db.rpc('set_community_best_answer', { p_reply_id: replyId, p_accepted: accepted });
+    if (error) { showToast(error.message || 'Could not update the best answer', 'error'); return; }
+    showToast(accepted ? '✓ Marked as the best answer' : 'Best answer removed');
+    if (activeThreadId) await loadReplies(activeThreadId);
+  }
+
+  // Knowledge->commerce: match a thread's part/asset keywords against public marketplace listings.
+  const _RL_STOP = new Set(['this','that','with','have','need','from','they','your','some','what','when','will','been','just','like','make','more','were','looking','anyone','please','about','there','their','would','could','should','tomorrow','today']);
+  async function loadRelatedListings(post) {
+    const el = document.getElementById('thread-related-listings');
+    if (!el) return;
+    el.style.display = 'none'; el.innerHTML = '';
+    // Alphanumeric tokens only (>=4 chars) — no ilike metacharacters can reach the query, so it's injection-safe.
+    const words = ((post && post.content) || '').toLowerCase().match(/[a-z0-9]{4,}/g) || [];
+    const keywords = [...new Set(words.filter(w => !_RL_STOP.has(w)))].slice(0, 5);
+    if (!keywords.length) return;
+    let data = null;
+    try {
+      const res = await db.from('v_marketplace_listings_truth')
+        .select('id, title, price')
+        .eq('status', 'published')
+        .or(keywords.map(w => { const kw = w.replace(/%/g, '').replace(/_/g, ''); return `title.ilike.%${kw}%`; }).join(','))
+        .limit(3);
+      data = res.data;
+    } catch (_) { return; }
+    if (!data || !data.length) return;
+    el.innerHTML = `
+      <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.2); border-radius:0.75rem; padding:0.85rem;">
+        <p style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--wh-orange); margin:0 0 0.5rem;">🛒 Related on the free Marketplace</p>
+        ${data.map(l => `
+          <a href="marketplace.html?listing=${encodeURIComponent(l.id)}" style="display:flex; align-items:center; justify-content:space-between; gap:8px; text-decoration:none; color:white; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
+            <span style="font-size:0.8rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(l.title)}</span>
+            <span style="font-size:0.75rem; color:var(--wh-orange); white-space:nowrap; font-weight:700;">${l.price ? whFmtPeso(l.price) : 'View'} →</span>
+          </a>`).join('')}
+      </div>`;
+    el.style.display = 'block';
   }
 
   async function submitReply() {
@@ -1733,7 +2174,7 @@
     const sinceR = Date.now() - _lastReplyTs;
     if (sinceR < REPLY_COOLDOWN_MS) {
       const remaining = Math.ceil((REPLY_COOLDOWN_MS - sinceR) / 1000);
-      showToast(`Slow down — wait ${remaining}s between replies`, 'error');
+      showToast(`Slow down, wait ${remaining}s between replies`, 'error');
       return;
     }
 
@@ -2185,7 +2626,8 @@
   // Escape closes whichever sheet is currently open
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (document.getElementById('composer-overlay')?.classList.contains('open')) closeComposer();
+    if (document.getElementById('person-overlay')?.classList.contains('open')) closePersonCard();
+    else if (document.getElementById('composer-overlay')?.classList.contains('open')) closeComposer();
     else if (document.getElementById('thread-overlay')?.classList.contains('open')) closeThread();
     else if (document.getElementById('report-overlay')?.classList.contains('open')) closeReport();
   });
@@ -2231,15 +2673,12 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
   function formatTimeAgo(ts) {
-    const diff = Date.now() - new Date(ts).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1)   return 'just now';
-    if (m < 60)  return `${m}m ago`;
-    const h = Math.floor(m / 60);
-    if (h < 24)  return `${h}h ago`;
-    const d = Math.floor(h / 24);
-    if (d < 7)   return `${d}d ago`;
-    return new Date(ts).toLocaleDateString();
+    // FD1e/FD1a: <7d delegates to canonical whFmtAgo; older falls to canonical whFmtDate
+    // (named short month — keeps the unambiguous-for-PH-readers property the en-GB fix added).
+    const d = (Date.now() - new Date(ts).getTime()) / 86400000;
+    if (d < 7 && typeof whFmtAgo === 'function') return whFmtAgo(ts);
+    if (typeof whFmtDate === 'function') return whFmtDate(ts);
+    return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   // ── Cleanup ───────────────────────────────────────────────────────────────────
@@ -2253,5 +2692,13 @@
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+
+<script>window.WH_FIL_PAGE={comm_title:'Komunidad',c_feed:'Feed',c_global:'🌐 Global',c_mod:'Mod Queue',c_all:'Lahat',c_general:'Pangkalahatan',c_safety:'Kaligtasan',c_tech:'Teknikal',c_parts:'Parts / Serbisyo',c_announce:'Mga Anunsyo',c_loadmore:'Mag-load pa ng posts'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

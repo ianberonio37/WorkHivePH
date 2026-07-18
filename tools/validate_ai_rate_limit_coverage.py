@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: ai:* D12
 """validate_ai_rate_limit_coverage.py — Arc H H7/I: every frontend-direct AI fn must rate-limit (LLM10).
 
 OWASP LLM10 Unbounded Consumption: an LLM-invoking edge function that the FRONTEND calls DIRECTLY (not via

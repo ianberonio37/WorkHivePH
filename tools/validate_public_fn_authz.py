@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D9
 """
 validate_public_fn_authz.py - Arc R (Z-lens, OWASP A01): every verify_jwt=false edge fn that
 calls an LLM must enforce its OWN guard (auth OR rate-limit).
@@ -37,7 +38,7 @@ G = "\033[92m"; R = "\033[91m"; Y = "\033[93m"; B = "\033[1m"; X = "\033[0m"
 CHECK_NAMES = ["validate_public_fn_authz"]
 
 # Self-authenticating / public-by-design (verify their own signature or are the auth entrypoint).
-EXEMPT = {"login", "marketplace-webhook", "cmms-webhook-receiver"}
+EXEMPT = {"login", "cmms-webhook-receiver"}
 
 LLM_MARKERS = re.compile(
     r"callAIMultimodal|callAI\b|callGroq|chat/completions|api\.groq\.com|api\.openai|"

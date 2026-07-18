@@ -89,7 +89,6 @@ SUSPICIOUS_ENV_PATTERNS = [
     re.compile(r"\bSECRET[A-Z_]*KEY\b"),
     re.compile(r"\bPRIVATE_KEY\b"),
     re.compile(r"\bWEBHOOK_SECRET\b"),
-    re.compile(r"\bSTRIPE_SECRET\b"),
     re.compile(r"\bRESEND_API_KEY\b"),
     re.compile(r"\bOPENAI_API_KEY\b"),
     re.compile(r"\bANTHROPIC_API_KEY\b"),

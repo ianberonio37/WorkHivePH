@@ -63,7 +63,7 @@ def build_feature_matrix(
     if log.empty or "machine" not in log.columns:
         return pd.DataFrame()
 
-    log["created_at"] = pd.to_datetime(log["created_at"], utc=True, errors="coerce")
+    log["created_at"] = pd.to_datetime(log["created_at"], utc=True, errors="coerce", format="ISO8601")
     now = pd.Timestamp.now(tz="UTC")
 
     corr = _corrective_only(log)
@@ -108,7 +108,7 @@ def _build_pm_lookup(
 
     if "completed_at" in comps.columns:
         comps = comps.copy()
-        comps["completed_at"] = pd.to_datetime(comps["completed_at"], utc=True, errors="coerce")
+        comps["completed_at"] = pd.to_datetime(comps["completed_at"], utc=True, errors="coerce", format="ISO8601")
 
     last_comp: dict[str, pd.Timestamp] = {}
     if "asset_id" in comps.columns and "asset_id" in scope.columns:
@@ -146,7 +146,7 @@ def _build_parts_rates(txns: pd.DataFrame, now: pd.Timestamp) -> dict:
     if txns.empty or "created_at" not in txns.columns:
         return {}
     txns = txns.copy()
-    txns["created_at"] = pd.to_datetime(txns["created_at"], utc=True, errors="coerce")
+    txns["created_at"] = pd.to_datetime(txns["created_at"], utc=True, errors="coerce", format="ISO8601")
     cutoff = now - pd.Timedelta(days=30)
     recent = txns[txns["created_at"] >= cutoff]
     if recent.empty or "qty_change" not in recent.columns:

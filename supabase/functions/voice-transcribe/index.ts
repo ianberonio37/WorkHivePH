@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -21,7 +22,12 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
 //         omit to auto-detect (used by voice-journal for multilingual capture).
 // Output: { text: "transcribed text", lang: "en" }
 
-serve(async (req) => {
+serveObserved("voice-transcribe", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "voice-transcribe", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -44,6 +50,9 @@ serve(async (req) => {
     const language  = typeof langField === "string" && langField.trim()
       ? langField.trim().toLowerCase()
       : undefined;
+    // Optional hive_id → prime + repair the indigenous ASR with this hive's real asset tags (CL12).
+    const hiveId = typeof form.get("hive_id") === "string"
+      ? (form.get("hive_id") as string).trim() || null : null;
 
     if (!audioFile || audioFile.size === 0) {
       return new Response(
@@ -72,18 +81,43 @@ serve(async (req) => {
     }
 
     const filename = audioFile.name || "audio.mp4";
-    const result   = await transcribeAudio(audioFile, filename, language);
+    // Fetch this hive's real asset tags so the indigenous ASR primes on them + repairs garbled codes
+    // (CL12). Best-effort: any failure just means no vocab (transcription still works). Tags are not
+    // sensitive (equipment codes) and only steer decoding — never returned/leaked.
+    let vocab: string[] | undefined;
+    if (hiveId) {
+      try {
+        // canonical-allow: ASR vocabulary priming only (equipment tags steer decoding, never returned/leaked);
+        // this is not a displayed metric, so v_asset_truth (the display view) is not the read path here.
+        const { data: tagRows } = await _rlDb
+          .from("asset_nodes").select("tag").eq("hive_id", hiveId).not("tag", "is", null).limit(200);
+        const tags = (tagRows || []).map((r: { tag: string | null }) => (r.tag || "").trim()).filter(Boolean);
+        if (tags.length) vocab = tags;
+      } catch (_) { /* best-effort: ASR priming/repair is optional */ }
+    }
+    const result   = await transcribeAudio(audioFile, filename, language, vocab);
 
+    // X-FIND (2026-07-12): surface a low-confidence flag so the client CLARIFIES ("did I hear that
+    // right?") instead of sending a mis-heard question to the companion, which then confabulates
+    // (caught live on a garbled Cebuano transcript, ASR 40%, grounded to a real asset). avg_logprob
+    // is the indigenous ASR's mean per-segment confidence. Floor CALIBRATED against real synth audio
+    // (verify_asr_conf.py): clean English -0.236, clean Taglish -0.178, GARBLED Cebuano -0.489 -> the
+    // discriminating band is ~-0.45. NOTE (honest): avg_logprob is a PARTIAL signal - Whisper is often
+    // confidently WRONG on out-of-distribution audio, so this catches only clearer garble; the real
+    // Cebuano fix is the large-v3 model (V-axis V4). null (Groq fallback = no signal) is NEVER flagged,
+    // so the cloud path is unchanged. A false-flag only asks to re-record (non-destructive), so the
+    // floor errs slightly toward catching garble.
+    const LOW_CONF_FLOOR = -0.45;
+    const lp = typeof result.avg_logprob === "number" ? result.avg_logprob : null;
+    const low_confidence = lp !== null && lp < LOW_CONF_FLOOR;
     return new Response(
-      JSON.stringify({ text: result.text, lang: result.lang }),
+      JSON.stringify({ text: result.text, lang: result.lang, avg_logprob: lp, low_confidence }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
     log.error(null, "voice-transcribe error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-transcribe", "voice_transcribe_error", err);
   }
 });

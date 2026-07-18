@@ -2,8 +2,8 @@
   "tool": "tools/validate_export_value_contract.py",
   "subject": "each CSV-export column read resolves to a real source table/view field",
   "exports": 2,
-  "fields_total": 17,
-  "fields_resolved": 17,
+  "fields_total": 22,
+  "fields_resolved": 22,
   "resolved_pct": 100.0,
   "drift_cells": [],
   "new_drift": [],
@@ -13,15 +13,20 @@
       "source": "logbook",
       "fields": [
         "date",
+        "worker_name",
         "machine",
         "category",
         "maintenance_type",
         "problem",
         "root_cause",
         "action",
+        "failure_consequence",
+        "loto_applied",
+        "permit_reference",
         "knowledge",
         "downtime_hours",
-        "status"
+        "status",
+        "closed_at"
       ],
       "drift": []
     },

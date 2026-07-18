@@ -27,8 +27,17 @@
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   let _db = null;
   function _getDb() {
-    if (!_db && window.supabase) {
-      _db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Finding #6 / deep-walk dim-14: route through the shared getDb() singleton so this
+    // module inherits the idle/expired-session token refresh (autoRefreshToken + the
+    // visibilitychange getSession() refresh) and the fail-fast timeout fetch, and does NOT
+    // spin up a SECOND GoTrueClient racing on the same localStorage auth key. Fall back to a
+    // raw client only if utils.js/getDb isn't present on the host page.
+    if (!_db) {
+      if (typeof window.getDb === 'function') {
+        _db = window.getDb(SUPABASE_URL, SUPABASE_KEY);
+      } else if (window.supabase) {
+        _db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
     }
     return _db;
   }

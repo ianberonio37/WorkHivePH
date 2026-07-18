@@ -52,7 +52,10 @@
     if (path.includes('dayplanner'))    return { page: 'dayplanner',    label: 'Day Planner',            hint: 'Help me schedule tasks, prioritise my day, or plan my maintenance shift.' };
     if (path.includes('voice-journal')) return { page: 'voice-journal', label: 'Voice Journal',           hint: 'Speak any thought, lesson, or reflection. WorkHive transcribes (any language, auto-detected), saves it privately, and reflects back in the same language. Use the journal page directly to record; this widget can answer questions about how the journal works.' };
     if (path.includes('pm-scheduler'))  return { page: 'pm-scheduler',  label: 'PM Scheduler',           hint: 'Help me set up PM scope, suggest frequencies, or explain maintenance tasks for this equipment.' };
-    if (path.includes('hive'))          return { page: 'hive',          label: 'WorkHive Board',         hint: 'Ask about team performance, PM health, downtime trends, or how to use the board.' };
+    // Match the /hive page SEGMENT, not the '/workhive/' mount prefix. `path.includes('hive')`
+    // matched EVERY page under /workhive/ (work + hive), so ~21 pages checked below here wrongly
+    // got the "WorkHive Board" label/hint (deep-walk dim-13, 2026-07-07).
+    if (/\/hive(\.html)?(?:$|[\/?#])/.test(path)) return { page: 'hive', label: 'WorkHive Board', hint: 'Ask about team performance, PM health, downtime trends, or how to use the board.' };
     if (path.includes('inventory'))     return { page: 'inventory',     label: 'Inventory Manager',      hint: 'Help me with stock levels, reorder points, or parts management best practices.' };
     if (path.includes('achievements'))  return { page: 'achievements',  label: 'Achievements',           hint: 'Ask me about your achievement levels, how to earn XP in each domain (Wrench Chronicle, Uptime Guardian, Safety Sentinel, etc.), what the tier system means, or how close you are to your next level.' };
     if (path.includes('skillmatrix'))   return { page: 'skillmatrix',   label: 'Skill Matrix',           hint: 'Ask about discipline requirements, exam tips, or how to progress through skill levels.' };
@@ -73,9 +76,9 @@
     if (path.includes('project-manager'))    return { page: 'project-manager', label: 'Project Manager', hint: 'Ask me about projects - scope items, critical path, budget, progress, and sign-off. Use the Print Report button at the top to open the print-ready Project Report.' };
     if (path.includes('project-report'))    return { page: 'project-report', label: 'Project Report', hint: 'Ask me about printable project reports - exec summary, scope tables, sign-off block, lessons learned for sharing or archiving.' };
     if (path.includes('community'))     return { page: 'community',     label: 'Community Board',        hint: 'Ask about how to use the community board — posting, replying, categories (General, Safety, Technical, Announcements), reactions, leaderboard, or moderation tools for supervisors.' };
-    if (path.includes('marketplace-admin'))           return { page: 'marketplace-admin',           label: 'Marketplace Admin',     hint: 'Approve or reject pending listings, mark sellers as Verified. Currently in contact-only mode — payments and disputes will activate once Stripe live mode is set up.' };
+    if (path.includes('marketplace-admin'))           return { page: 'marketplace-admin',           label: 'Marketplace Admin',     hint: 'Approve or reject pending listings, mark sellers as Verified. The marketplace is a free, contact-only directory with no payments or fees.' };
     if (path.includes('marketplace-seller-profile'))  return { page: 'marketplace-seller-profile',  label: 'Seller Profile',         hint: 'Public view of a seller — their badge, response time, stats, reviews, and active listings. Tap any listing to inquire about it.' };
-    if (path.includes('marketplace-seller'))          return { page: 'marketplace-seller',          label: 'Seller Dashboard',       hint: 'Manage your listings and reply to buyer inquiries. Currently in contact-only mode — buyers reach you via phone or email; payments will activate once Stripe live mode is set up.' };
+    if (path.includes('marketplace-seller'))          return { page: 'marketplace-seller',          label: 'Seller Dashboard',       hint: 'Manage your listings and reply to buyer inquiries. The marketplace is free and contact-only: buyers reach you via phone or email.' };
     if (path.includes('marketplace'))  return { page: 'marketplace',   label: 'Marketplace',            hint: 'Browse Parts, Training and Jobs listings. Currently a contact-only directory — tap Contact Seller on any listing to message the seller directly via phone or email. Ask me to help find a specific part number, compare sellers, or write your own listing.' };
     return                              { page: 'home',                 label: 'WorkHive Home',          hint: 'Ask me anything about the platform or industrial maintenance.' };
   }
@@ -188,6 +191,13 @@
 
   // ─── Render HTML ─────────────────────────────────────────────────────────────
   function buildWidget() {
+    // N1 safe translator -- identical convention to nav-hub.js + the utils.js renderers.
+    // utils.js installs the locale floor (window._t + WH_LANG) and loads first; the
+    // pass-through keeps a page without it rendering EN rather than throwing.
+    // This companion is shared chrome on 29 pages: ONE edit, 29 pages (the design-system
+    // lever), instead of 29 edits that drift apart. Brand ("WorkHive AI") and the page
+    // label (${ctx.label}) are identity/DATA and stay EN, per the recipe.
+    const _tt = (typeof window._t === 'function') ? window._t : function (en) { return en; };
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-ai-widget';
     wrapper.innerHTML = `
@@ -527,14 +537,14 @@
       </style>
 
       <!-- Trigger Button: persona avatar (Companion Streamline Step A+B) -->
-      <button id="wh-ai-trigger" aria-label="Open companion">
-        <span id="wh-ai-tooltip">Talk to your companion</span>
+      <button id="wh-ai-trigger" aria-label="${_tt('Open companion', 'Buksan ang katulong')}">
+        <span id="wh-ai-tooltip">${_tt('Talk to your companion', 'Kausapin ang iyong katulong')}</span>
         <span id="wh-ai-trigger-avatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"></span>
         <span id="wh-ai-nudge-badge" aria-hidden="true"></span>
       </button>
 
       <!-- Chat Panel -->
-      <div id="wh-ai-panel" role="dialog" aria-label="AI Assistant">
+      <div id="wh-ai-panel" role="dialog" aria-label="${_tt('AI Assistant', 'AI na Katulong')}">
 
         <!-- Header -->
         <div id="wh-ai-header">
@@ -543,7 +553,7 @@
             <strong id="wh-ai-header-name">WorkHive AI</strong>
             <span id="wh-ai-page-label">${ctx.label}</span>
           </div>
-          <button id="wh-ai-close" aria-label="Close">✕</button>
+          <button id="wh-ai-close" aria-label="${_tt('Close', 'Isara')}">✕</button>
         </div>
 
         <!-- Page Context Tag -->
@@ -555,12 +565,13 @@
           Context: <strong style="color:#fff; font-weight:600;">${ctx.label}</strong>
         </div>
 
-        <!-- Messages -->
-        <div id="wh-ai-messages"></div>
+        <!-- Messages — tabindex=0 so keyboard users can scroll the log (axe scrollable-region-focusable);
+             role=log + aria-live so a screen reader announces new assistant messages. -->
+        <div id="wh-ai-messages" tabindex="0" role="log" aria-live="polite" aria-label="${_tt('Assistant conversation', 'Usapan sa katulong')}"></div>
 
         <!-- Input -->
         <div id="wh-ai-input-row">
-          <button id="wh-ai-mic" aria-label="Voice command" title="Voice command">
+          <button id="wh-ai-mic" aria-label="${_tt('Voice command', 'Utos sa boses')}" title="${_tt('Voice command', 'Utos sa boses')}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
               <path d="M19 10v2a7 7 0 01-14 0v-2"/>
@@ -568,8 +579,8 @@
               <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
           </button>
-          <textarea id="wh-ai-input" rows="1" placeholder="Ask anything…" aria-label="Message"></textarea>
-          <button id="wh-ai-send" aria-label="Send">
+          <textarea id="wh-ai-input" rows="1" placeholder="${_tt('Ask anything…', 'Magtanong ng kahit ano…')}" aria-label="${_tt('Message', 'Mensahe')}"></textarea>
+          <button id="wh-ai-send" aria-label="${_tt('Send', 'Ipadala')}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M22 2L11 13" stroke="#162032" stroke-width="2.5" stroke-linecap="round"/>
               <path d="M22 2L15 22l-4-9-9-4 20-7z" stroke="#162032" stroke-width="2.5" stroke-linejoin="round"/>
@@ -707,9 +718,11 @@
     const workerName = (typeof window !== 'undefined' && window.localStorage)
       ? (localStorage.getItem('wh_last_worker') || null)
       : null;
-    const personaName = (typeof window.getCurrentPersona === 'function')
-      ? window.getCurrentPersona()
-      : (/* storage-key-allow: persona pref */ localStorage.getItem('wh_persona') || 'zaniah');
+    // CL9 fix (2026-07-08): real resolver getPersonaKey() + canonical key (see gateway path below) so
+    // ai_reply_feedback.persona records the persona the worker actually selected, not a hardcoded 'zaniah'.
+    const personaName = (typeof window.getPersonaKey === 'function')
+      ? window.getPersonaKey()
+      : (/* storage-key-allow: canonical persona pref */ localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
     try {
       // auth_uid is intentionally OMITTED — the table DEFAULT stamps it to
       // auth.uid() and the RLS WITH CHECK binds the row to the caller, so a
@@ -819,7 +832,7 @@ PLATFORM TOOLS (so you can answer "where do I find X?" questions):
 - Engineering Design Calculator (engineering-design.html): 46 calc types across Mechanical, HVAC, Electrical, Fire Protection, Plumbing, Structural, Machine Design. BOM and Scope of Works reports. Engineering diagrams. Philippine standards (PEC 2017, PSME, NSCP, ASHRAE, NFPA).
 - Day Planner (dayplanner.html): DILO/WILO/MILO/YILO multi-resolution scheduler for daily, weekly, monthly, and yearly maintenance work planning. Add tasks, set durations, drag to reorder.
 - My Work Assistant (assistant.html): Full AI assistant with access to the worker's own logbook records for personalised insights.
-- Marketplace (marketplace.html): Browse and post Parts, Training, and Jobs listings for Philippine industrial plants. Currently a contact-only directory: buyers reach sellers via phone or email through the inquiry form. Verified sellers carry a trust badge. Stripe payments and escrow are built but disabled — they activate once business registration is complete.
+- Marketplace (marketplace.html): Browse and post Parts, Training, and Jobs listings for Philippine industrial plants. A free, contact-only directory: buyers reach sellers via phone or email through the inquiry form, with no platform fees or payment processing. Verified sellers carry a trust badge.
 - Project Manager (project-manager.html): Plan and track maintenance work projects across four flavors covering work-order bundles, multi-week plant shutdowns or turnarounds, CAPEX improvement and equipment retrofit projects, and outside-contractor job folders with scope, BOM, sign-off; manages scope items via WBS, predecessor-driven critical path, daily progress logs, earned-value SPI and CPI tracking, plus linked logbook entries, PM completions, parts, and engineering calculations.
 - Project Report (project-report.html): Print-ready single-project report compiled from a Project Manager project. Includes executive cover with hero finding, scope breakdown grouped by phase, linked work tables, daily progress timeline, sign-off block, lessons learned section, and appendix. Mirrors the Analytics Report PDF pattern. Used for handover packets, contractor sign-off, and shutdown close-out documentation.
 - Achievements (achievements.html): XP milestone system across 12 domains (Wrench Chronicle, Uptime Guardian, Safety Sentinel, Failure Hunter, Skill Climber, Knowledge Forger, Hive Architect, Voice of the Hive, Shift Keeper, Iron Worker, Parts Warden, Blueprint Master). Earn XP from logbook, PM, community, and badge actions. Levels 1-100.
@@ -882,9 +895,14 @@ happens to know maintenance, not a manual.`;
     // ignores `history` and `platform_brief` (it runs its own memory layer
     // via agent_memory and the system prompt is built from the persona
     // name + a voice-journal-specific rules block).
-    const personaName = (typeof window.getCurrentPersona === 'function')
-      ? window.getCurrentPersona()
-      : (/* storage-key-allow: persona pref, set by voice-journal / persona switcher */ localStorage.getItem('wh_persona') || 'zaniah');
+    // CL9 fix (2026-07-08): use the REAL resolver window.getPersonaKey() (wh-persona.js) — it reads the
+    // canonical key 'wh_voice_journal_persona' + clamps. The old code called window.getCurrentPersona
+    // (NEVER defined) and fell back to 'wh_persona' (WRONG key) → always 'zaniah': a worker who selected
+    // Hezekiah got Zaniah ANSWERS (while the avatar, which uses getPersonaKey, correctly showed Hezekiah —
+    // a visible mismatch), and ai-gateway only fills persona when absent so the account pref was overridden too.
+    const personaName = (typeof window.getPersonaKey === 'function')
+      ? window.getPersonaKey()
+      : (/* storage-key-allow: canonical persona pref */ localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
     const hiveId = (typeof window !== 'undefined' && window.localStorage)
       ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
       : null;
@@ -897,6 +915,16 @@ happens to know maintenance, not a manual.`;
         // page kept for future agent variants that want page-aware replies
         page:    (ctx && ctx.page) || null,
         source:  'floating-launcher',
+        // Page RAG-light context set via WHAssistant.setContext (e.g. community.html's
+        // live board snapshot). Previously the client built this into a `system` prompt
+        // that was NEVER sent (gatewayBody omitted it) — so every page's setContext was
+        // dead. Transmit it here (bounded) so the gateway can fold it into the agent's
+        // grounding snapshot. ★ ONLY when the page explicitly marks the context piiSafe:
+        // it reaches the LLM, so a page that hasn't audited its summary for worker names /
+        // free-text (which the ops-snapshot excludes BY CONSTRUCTION) never leaks PII.
+        page_context: (_ragContext && _ragContext.piiSafe === true && _ragContext.summary)
+          ? String(_ragContext.summary).slice(0, 2000)
+          : undefined,
       },
     };
 
@@ -999,11 +1027,25 @@ happens to know maintenance, not a manual.`;
       // configuration", which a field worker can't act on). Other meaningful
       // gateway errors pass through; only opaque network failures fall back.
       const m = String((err && err.message) || '');
-      const friendly = /limit reached|rate.?limit|too many|\/hour|per-user/i.test(m)
-        ? "⚠️ You've used up your AI questions for this hour. Try again in a little while — your teammates aren't affected."
-        : (m && !/non-2xx|failed to fetch|networkerror|load failed/i.test(m))
-          ? '⚠️ ' + m
-          : "⚠️ Couldn't reach the assistant just now. Check your connection and try again.";
+      // Graceful, SCOPE-AWARE 429 UX (Q5 §7-11): each rate-limit scope has its own honest
+      // reset hint. Order matters — check the more specific scopes before the generic hourly
+      // ("Daily AI limit reached" also contains "limit reached"). Scopes map to the gateway
+      // bodies: global-minute burst (Q6 503), global-day platform pool (Q6), per-hive/solo
+      // daily (Q4 "Resets tomorrow"), per-user/hour hourly.
+      let friendly;
+      if (/burst of activity|handling a burst|very busy/i.test(m)) {
+        friendly = "⚠️ The assistant is very busy right now. Give it a few seconds and try again.";
+      } else if (/platform.*budget|shared ai budget/i.test(m)) {
+        friendly = "⚠️ The shared AI budget for today is used up across all teams. It resets tomorrow.";
+      } else if (/resets tomorrow|daily ai limit|daily .*limit/i.test(m)) {
+        friendly = "⚠️ You've reached today's AI limit. It resets tomorrow — your teammates aren't affected.";
+      } else if (/limit reached|rate.?limit|too many|\/hour|per-user/i.test(m)) {
+        friendly = "⚠️ You've used up your AI questions for this hour. Try again in a little while — your teammates aren't affected.";
+      } else if (m && !/non-2xx|failed to fetch|networkerror|load failed/i.test(m)) {
+        friendly = '⚠️ ' + m;
+      } else {
+        friendly = "⚠️ Couldn't reach the assistant just now. Check your connection and try again.";
+      }
       addMessage('assistant', friendly);
       console.error('[WorkHive AI]', err);
     } finally {
@@ -1059,7 +1101,11 @@ happens to know maintenance, not a manual.`;
   // not lost. Requires the page Supabase client + a hive + a resolved identity.
   async function checkProactive() {
     try {
-      const db = (typeof window !== 'undefined') ? window.WH_DB : null;
+      // CL8 fix (2026-07-08): the legacy `window.WH_DB` is assigned NOWHERE (same dead global that
+      // no-opped _recordReplyFeedback), so this client-peek proactive-followup nudge ALWAYS returned
+      // here → due follow-ups NEVER surfaced client-side. Route through the shared getDb() singleton
+      // via _whClient(), exactly like _recordReplyFeedback. Live-proven dead+fixed on dayplanner.
+      const db = _whClient();
       if (!db || !db.from) return;
 
       const hiveId = (typeof window !== 'undefined' && window.localStorage)
@@ -1071,6 +1117,21 @@ happens to know maintenance, not a manual.`;
         ? await window.restoreIdentityFromSession(db)
         : (localStorage.getItem('wh_last_worker') || '');
       if (!workerName) return;
+
+      // AI-9 (deep-arc P5): ensure the client's auth session is restored BEFORE this RLS-gated
+      // read. getDb() loads the stored session asynchronously; firing the query immediately races
+      // it out with no JWT -> a 401 in the console on every page load. Await the session and fail
+      // closed (no nudge) if truly unauthenticated, so the proactive fetch never 401s.
+      let _sess = null;
+      try { _sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { _sess = null; }
+      if (!_sess) return;
+      // AI-9b (2026-07-12, live-caught): getSession() resolves the token from storage but on a
+      // COLD page load (first load / hard refresh) supabase-js has NOT yet attached the JWT to its
+      // PostgREST client, so the RLS read below still 401s in the console (seen: proactive peek +
+      // community badge 401 on a cold index load; the AI-9 guard alone was insufficient). getUser()
+      // forces a validated round-trip that settles the client's auth state, so the follow-up read
+      // carries the Bearer JWT. Fail closed if the user can't be resolved.
+      try { if (!(await db.auth.getUser())?.data?.user) return; } catch (_) { return; }
 
       // canonical-allow: agent-infra prospective queue (agent_followups); no v_*_truth
       // canonical view exists for it. Bounded (.limit) and personally scoped.
@@ -1258,7 +1319,21 @@ happens to know maintenance, not a manual.`;
   // worker's current Hezekiah/Zaniah avatar. Called on init, on persona toggle,
   // and on storage events from other tabs.
   function renderPersonaAvatars() {
-    if (typeof window.personaAvatarHTML !== 'function') return;
+    if (typeof window.personaAvatarHTML !== 'function') {
+      // W2 (shared-chrome consistency — Ian: "avatar not visible on some pages"): the avatar SOURCE
+      // (wh-persona.js → personaAvatarHTML) ships on only a couple of pages, but companion-launcher.js
+      // ships on ~30 — so the trigger avatar came up BLANK everywhere else. Self-heal: load wh-persona.js
+      // ONCE (relative to /workhive/), then re-render. Idempotent + race-safe (guard flag).
+      if (!window.__whPersonaLoading) {
+        window.__whPersonaLoading = true;
+        const s = document.createElement('script');
+        s.src = 'wh-persona.js';
+        s.onload = function () { renderPersonaAvatars(); };
+        s.onerror = function () { window.__whPersonaLoading = false; };
+        (document.head || document.documentElement).appendChild(s);
+      }
+      return;
+    }
     const triggerSlot = document.getElementById('wh-ai-trigger-avatar');
     const headerSlot  = document.getElementById('wh-ai-header-avatar');
     const nameEl      = document.getElementById('wh-ai-header-name');

@@ -14,7 +14,8 @@
  *   ping          — Health check (no auth required)
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -116,12 +117,29 @@ async function handleBenchmarks(db: SupabaseClient, params: URLSearchParams) {
 async function handleFailureModes(db: SupabaseClient, params: URLSearchParams) {
   const period = parseInt(params.get("period") || "90");
   const since  = new Date(Date.now() - period * 86400000).toISOString();
+  // AI grounding floors (mirror handleBenchmarks' gte sample_hives 3): a public "top failure
+  // mode across the network" must not be published off a handful of rows, or a single root
+  // cause surfaces as a "50-100% top mode" at an inflated, ungrounded percentage.
+  const MIN_TOTAL      = 20;  // suppress the whole insight below a credible network sample
+  const MIN_MODE_COUNT = 3;   // a root cause seen < 3x is not a "top failure mode"
 
   const { data: faults } = await db.from("fault_knowledge")
     .select("root_cause, category")
     .not("root_cause", "is", null)
     .gte("created_at", since)
     .limit(2000);
+
+  const total = faults?.length || 0;
+  if (total < MIN_TOTAL) {
+    return {
+      failure_modes: [],
+      meta: {
+        period_days: period, total_records: total, minimum_records: MIN_TOTAL,
+        source: "WorkHive Philippine Industrial Network (anonymized)",
+        note: `Insufficient network data (${total} records; need ${MIN_TOTAL}+) to publish failure modes.`,
+      },
+    };
+  }
 
   const counts: Record<string, { count: number; categories: Set<string> }> = {};
   (faults || []).forEach((f: Record<string, string>) => {
@@ -132,8 +150,8 @@ async function handleFailureModes(db: SupabaseClient, params: URLSearchParams) {
     if (f.category) counts[rc].categories.add(f.category);
   });
 
-  const total = faults?.length || 1;
   const topModes = Object.entries(counts)
+    .filter(([, { count }]) => count >= MIN_MODE_COUNT)   // per-mode floor
     .sort((a, b) => b[1].count - a[1].count)
     .slice(0, 10)
     .map(([cause, { count, categories }]) => ({
@@ -148,6 +166,8 @@ async function handleFailureModes(db: SupabaseClient, params: URLSearchParams) {
     meta: {
       period_days: period,
       total_records: total,
+      minimum_records: MIN_TOTAL,
+      minimum_mode_count: MIN_MODE_COUNT,
       source: "WorkHive Philippine Industrial Network (anonymized)",
     },
   };
@@ -161,14 +181,30 @@ async function handleReport(db: SupabaseClient) {
     .single();
 
   if (!data) return { error: "No report generated yet. Reports are produced monthly." };
-  return { report: data };
+  // AI grounding: flag a STALE report. The old code served the newest row as "the latest
+  // report" with no freshness check, so a months-old narrative surfaced as current. A monthly
+  // report older than this window means the generator likely hasn't run.
+  const STALE_DAYS = 45;
+  const ageDays = Math.floor((Date.now() - new Date(data.generated_at).getTime()) / 86400000);
+  const stale   = ageDays > STALE_DAYS;
+  return {
+    report: data,
+    stale,
+    age_days: ageDays,
+    ...(stale ? { note: `This report is ${ageDays} days old; a fresh monthly report may not have generated.` } : {}),
+  };
 }
 
 // ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("intelligence-api", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "intelligence-api", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "intelligence-api");  // I6 observability
@@ -204,8 +240,7 @@ serve(async (req) => {
       { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "intelligence-api", "intelligence_api_error", err);
   }
 });

@@ -48,7 +48,8 @@
  *   security (inputs clamped; output clamped; no PII echoed)
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -119,7 +120,12 @@ function clampStrArr(v: unknown, max: number, cap: number): string[] {
   return v.slice(0, max).map((x) => clampStr(x, cap)).filter(Boolean);
 }
 
-serve(async (req) => {
+serveObserved("resume-polish", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "resume-polish", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   logRequestStart(req, "resume-polish");  // I6 observability
@@ -133,7 +139,7 @@ serve(async (req) => {
 
     // Rate-limit gate FIRST. The Resume Builder is a SOLO per-user feature (keyed
     // by auth_uid; reads NO hive-scoped data) on a PUBLIC fn (verify_jwt=false).
-    // Pillar P: NEVER key a rate-limit on an UNVERIFIED client hive_id — there is
+    // Pillar P: NEVER key a rate-limit on an UNVERIFIED client hive_id - there is
     // no membership check here, so a spoofed hive_id would let an anon caller
     // drain a victim hive's shared rate bucket. Bucket on the caller's
     // own identity instead (auth_uid, client-IP fallback for anon).
@@ -142,7 +148,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
     const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp));
+    // I5: pass clientIp so the always-on CGNAT-aware IP ceiling floors a rotating-uuid script.
+    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp), undefined, undefined, clientIp);
     if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
 
     let raw: string;
@@ -229,8 +236,7 @@ serve(async (req) => {
     }
     return json({ summary: clampStr(parsed.summary, 900), highlights: clampStrArr(parsed.highlights, 6, 280) });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: "Internal error", detail: msg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "resume-polish", "resume_polish_error", err);
   }
 });

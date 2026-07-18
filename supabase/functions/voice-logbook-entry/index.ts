@@ -12,7 +12,8 @@
  * POST body: { transcript: string, hive_id?: string, worker_name?: string }
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -99,7 +100,12 @@ async function deriveWorkerFromJWT(
   }
 }
 
-serve(async (req) => {
+serveObserved("voice-logbook-entry", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "voice-logbook-entry", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "voice-logbook-entry");  // I6 observability
@@ -181,10 +187,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(
-      JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-logbook-entry", "voice_logbook_entry_error", err);
   }
 });

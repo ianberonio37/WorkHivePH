@@ -1,0 +1,7757 @@
+{
+ "generated": "2026-07-18T04:24:37+00:00",
+ "coverage_pct": 100.0,
+ "page_pct": 100.0,
+ "ai_surface_pct": 100.0,
+ "surfaces": {
+  "pages": 90,
+  "ai_fns": 33
+ },
+ "page_dims": [
+  "D1",
+  "D2",
+  "D3",
+  "D4",
+  "D5",
+  "D6",
+  "D7",
+  "D8",
+  "D9",
+  "D18",
+  "D19",
+  "D20",
+  "D15",
+  "D17",
+  "D22",
+  "D23"
+ ],
+ "ai_dims": [
+  "D10",
+  "D11",
+  "D12",
+  "D13",
+  "D21",
+  "D24",
+  "D25",
+  "D26"
+ ],
+ "cells_total": 1704,
+ "state_counts": {
+  "✅": 1164,
+  "🟡": 0,
+  "⬜": 0,
+  "n/a": 540
+ },
+ "gate_floor": [
+  "audit_displayed_values",
+  "cwv_gate",
+  "validate_agent_memory_persist_complete",
+  "validate_ai_daily_ceiling",
+  "validate_ai_fabrication_contract",
+  "validate_ai_prompt_injection",
+  "validate_ai_rate_limit_coverage",
+  "validate_ai_retrieval_isolation",
+  "validate_asr_confidence_gate",
+  "validate_assistant_recall",
+  "validate_attribution",
+  "validate_benchmark_rollup_faithfulness",
+  "validate_clickable_keyboard_a11y",
+  "validate_client_resilience",
+  "validate_content_page_hygiene",
+  "validate_cumulative_quota_enforcement",
+  "validate_definer_tenant_gate",
+  "validate_destructive_safety",
+  "validate_dom_xss_fields",
+  "validate_edge_observed_coverage",
+  "validate_embedding_no_stale_duplicates",
+  "validate_frontend_floor_cells",
+  "validate_grounding_contract",
+  "validate_indigenous_stack",
+  "validate_interactive_lineage",
+  "validate_inventory_ledger_reconciled",
+  "validate_logbook_asset_linkage",
+  "validate_memory_pii_redaction",
+  "validate_no_ai_gateway_bypass",
+  "validate_plain_language",
+  "validate_private_memory_isolation",
+  "validate_public_fn_authz",
+  "validate_public_fn_write_authz",
+  "validate_quota_coverage",
+  "validate_reactivity_wiring",
+  "validate_redact_iso",
+  "validate_reliability_kpi_faithfulness",
+  "validate_rls_tenant_isolation",
+  "validate_rpc_write_integrity",
+  "validate_sast_owasp_complete",
+  "validate_session_resilience",
+  "validate_setcontext_pii_safe",
+  "validate_supervisor_approval_backstop"
+ ],
+ "gates_failed": [],
+ "regressed_cells": [],
+ "next_target": null,
+ "drive_plan": "grid DRY — nothing to drive",
+ "orphan_oracles": [
+  "ai_eval_gate",
+  "audit_ai_prompt_standards",
+  "audit_calm_dashboard_canonical",
+  "audit_fullstack_gate_coverage",
+  "audit_page_bundle_coverage",
+  "audit_partial_label_honesty",
+  "audit_phantom_captures",
+  "audit_phantom_columns",
+  "audit_standards_alignment",
+  "audit_table_collision",
+  "audit_tier_contracts",
+  "ci_gate",
+  "companion_delivery_gate",
+  "companion_memory_health_gate",
+  "content_grounding_gate",
+  "extractability_gate",
+  "landing_extractability_gate",
+  "measure_gateway_gate",
+  "memory_health_gate",
+  "meta_gate",
+  "mine_ai_seams",
+  "mine_artifact_map",
+  "mine_cache_name_drift",
+  "mine_cache_signals",
+  "mine_canonical_drift_platform",
+  "mine_canonical_registry",
+  "mine_capacity_signals",
+  "mine_ci_signals",
+  "mine_column_terminus",
+  "mine_deploy_signals",
+  "mine_edge_function_cascades",
+  "mine_edge_patterns",
+  "mine_field_blast_radius",
+  "mine_frontend_ufai_surfaces",
+  "mine_health_surface",
+  "mine_html_patterns",
+  "mine_js_module_patterns",
+  "mine_lineage_map",
+  "mine_migration_patterns",
+  "mine_narrative_surfaces",
+  "mine_perf_scale_surfaces",
+  "mine_python_tool_patterns",
+  "mine_rate_limit_signals",
+  "mine_render_surfaces",
+  "mine_rls_policies",
+  "mine_seeder_patterns",
+  "mine_skill_rules",
+  "mine_truth_view_signal_trust",
+  "mine_validator_patterns",
+  "orphan_depth_gate",
+  "pre_deploy_gate",
+  "seo_technical_gate",
+  "validate_account_deactivation",
+  "validate_ai_input_caps",
+  "validate_ai_live_invoke",
+  "validate_analytics_correctness",
+  "validate_analytics_page",
+  "validate_analytics_synthesis_grounding",
+  "validate_analytics_ufai_scoreboard",
+  "validate_anomaly_status_forward",
+  "validate_anon_key_retirement",
+  "validate_arc_u_focus_trap",
+  "validate_arc_x_befamily",
+  "validate_arc_x_cfamily",
+  "validate_article_taxonomy",
+  "validate_artifact_alignment",
+  "validate_attribution_pinned",
+  "validate_auth_live_db",
+  "validate_auth_live_flows",
+  "validate_auth_live_gotrue",
+  "validate_axe_live",
+  "validate_bom_sow_grounding",
+  "validate_calc_api_serializable",
+  "validate_calc_formula_accuracy",
+  "validate_calc_live_value",
+  "validate_causal_cascade_coverage",
+  "validate_client_singleton",
+  "validate_cmms_webhook_security_live",
+  "validate_committed_env_secret",
+  "validate_companion_output_escaping",
+  "validate_cron_batch_gate",
+  "validate_cron_health",
+  "validate_csp",
+  "validate_data_completeness",
+  "validate_debug_echo_prod_safe",
+  "validate_diagram_value_alignment",
+  "validate_display_correctness_fixes",
+  "validate_edge_symbol_imports",
+  "validate_embed_auth",
+  "validate_embedding_chain_consistency",
+  "validate_embedding_retention",
+  "validate_engdesign_a11y",
+  "validate_engdesign_ai",
+  "validate_engdesign_ai_citations",
+  "validate_engdesign_registry",
+  "validate_engdesign_silent_zero",
+  "validate_engdesign_units",
+  "validate_engdesign_write_isolation",
+  "validate_engdesign_xss",
+  "validate_engines_live_value",
+  "validate_export_value_contract",
+  "validate_faithfulness_rail",
+  "validate_family_rubric_ratchet",
+  "validate_file_upload_safety",
+  "validate_gateway_bypass",
+  "validate_global_ai_budget",
+  "validate_growth_write_isolation",
+  "validate_hive_battery",
+  "validate_hive_board",
+  "validate_hive_isolation",
+  "validate_hive_write_isolation",
+  "validate_i18n_coverage",
+  "validate_improvement_loop_integrity",
+  "validate_inline_image_guard",
+  "validate_integration_configs_authz_live",
+  "validate_intelligence_jsonb_shape",
+  "validate_intelligence_write_isolation",
+  "validate_inventory_txn_isolation",
+  "validate_landing",
+  "validate_leave_audit_ordering",
+  "validate_lineage_status_drift",
+  "validate_logbook_quota",
+  "validate_login_proxy_lockout",
+  "validate_migration_grant_regression",
+  "validate_ml_deps",
+  "validate_narrative_grounding",
+  "validate_night_crawler_freshness",
+  "validate_no_client_counter_write",
+  "validate_oc_updated_at_backed",
+  "validate_oee_quality_derivation",
+  "validate_page_battery",
+  "validate_page_crud",
+  "validate_password_recovery",
+  "validate_persona_echo_live",
+  "validate_persona_knowledge_wiring",
+  "validate_ph_intelligence_benchmark",
+  "validate_pm_compliance_weighted",
+  "validate_pm_write_isolation",
+  "validate_projects_correctness",
+  "validate_python_api_auth",
+  "validate_python_api_deps",
+  "validate_read_battery",
+  "validate_readonly_p6_no_edit",
+  "validate_realtime_channel_cap",
+  "validate_realtime_live",
+  "validate_realtime_subscription_isolation",
+  "validate_reliability_correctness",
+  "validate_report_email_escaping",
+  "validate_response_format_validation",
+  "validate_resume",
+  "validate_rls_coverage",
+  "validate_rls_no_permissive_bypass",
+  "validate_rpc_return_shape",
+  "validate_signup_bot_protection",
+  "validate_signup_enumeration_safety",
+  "validate_sri",
+  "validate_ssrf_egress",
+  "validate_substrate_freshness",
+  "validate_text_cap_coverage",
+  "validate_truth_view_read_isolation",
+  "validate_truth_view_security_invoker",
+  "validate_view_security_invoker",
+  "validate_visual_defect_confidence",
+  "validate_voice_alert_order",
+  "validate_voice_journal_single_write",
+  "validate_voice_kb_context",
+  "validate_voice_response_latency",
+  "video_quality_gate",
+  "workflow_gate"
+ ],
+ "newly_joined": [],
+ "surface_set_hash": "9f26fa121503",
+ "oracle_set_hash": "a37a355e1fa9",
+ "live_bonus": {
+  "live_cells": 28,
+  "live_cell_ids": [
+   "H1/F",
+   "H1/I",
+   "H1/M",
+   "H1/U",
+   "H10/F",
+   "H11/F",
+   "H12/F",
+   "H13/F",
+   "H14/F",
+   "H15/F",
+   "H2/A",
+   "H2/F",
+   "H2/I",
+   "H2/U",
+   "H3/A",
+   "H3/F",
+   "H3/U",
+   "H4/A",
+   "H4/U",
+   "H5/A",
+   "H5/F",
+   "H5/I",
+   "H5/U",
+   "H6/A",
+   "H7/F",
+   "H7/U",
+   "H8/A",
+   "H8/I"
+  ],
+  "breaches": 0,
+  "fresh": true,
+  "age_days": 0.0,
+  "proven_ever": 32,
+  "this_run": 28
+ },
+ "cells": {
+  "achievements|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "achievements|D2": {
+   "state": "n/a"
+  },
+  "achievements|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "achievements|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "achievements|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "achievements|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "achievements|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "achievements|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "achievements|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "achievements|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "achievements|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "achievements|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "achievements|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "achievements|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "achievements|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "achievements|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "agentic-rag-observability|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "agentic-rag-observability|D2": {
+   "state": "n/a"
+  },
+  "agentic-rag-observability|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "agentic-rag-observability|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "agentic-rag-observability|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "agentic-rag-observability|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "agentic-rag-observability|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "agentic-rag-observability|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "agentic-rag-observability|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "agentic-rag-observability|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "agentic-rag-observability|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "agentic-rag-observability|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "agentic-rag-observability|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "agentic-rag-observability|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "agentic-rag-observability|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "agentic-rag-observability|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "ai-quality|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "ai-quality|D2": {
+   "state": "n/a"
+  },
+  "ai-quality|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "ai-quality|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "ai-quality|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "ai-quality|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "ai-quality|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "ai-quality|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "ai-quality|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "ai-quality|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "ai-quality|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "ai-quality|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "ai-quality|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "ai-quality|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "ai-quality|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "ai-quality|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "alert-hub|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "alert-hub|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "alert-hub|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "alert-hub|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "alert-hub|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "alert-hub|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "alert-hub|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "alert-hub|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "alert-hub|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "alert-hub|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "alert-hub|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "alert-hub|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "alert-hub|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "alert-hub|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "alert-hub|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "alert-hub|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "analytics-report|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "analytics-report|D2": {
+   "state": "n/a"
+  },
+  "analytics-report|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "analytics-report|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "analytics-report|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "analytics-report|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "analytics-report|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "analytics-report|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "analytics-report|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "analytics-report|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "analytics-report|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "analytics-report|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "analytics-report|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "analytics-report|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "analytics-report|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "analytics-report|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "analytics|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "analytics|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "analytics|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "analytics|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "analytics|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "analytics|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "analytics|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "analytics|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "analytics|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "analytics|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "analytics|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "analytics|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "analytics|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "analytics|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "analytics|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "analytics|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "architecture|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "architecture|D2": {
+   "state": "n/a"
+  },
+  "architecture|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "architecture|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "architecture|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "architecture|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "architecture|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "architecture|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "architecture|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "architecture|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "architecture|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "architecture|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "architecture|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "architecture|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "architecture|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "architecture|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "asset-hub|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "asset-hub|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "asset-hub|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "asset-hub|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "asset-hub|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "asset-hub|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "asset-hub|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "asset-hub|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "asset-hub|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "asset-hub|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "asset-hub|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "asset-hub|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "asset-hub|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "asset-hub|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "asset-hub|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "asset-hub|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "assistant|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "assistant|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "assistant|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "assistant|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "assistant|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "assistant|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "assistant|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "assistant|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "assistant|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "assistant|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "assistant|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "assistant|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "assistant|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "assistant|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "assistant|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "assistant|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "audit-log|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "audit-log|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "audit-log|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "audit-log|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "audit-log|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "audit-log|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "audit-log|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "audit-log|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "audit-log|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "audit-log|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "audit-log|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "audit-log|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "audit-log|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "audit-log|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "audit-log|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "audit-log|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "community|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "community|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "community|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "community|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "community|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "community|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "community|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "community|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "community|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "community|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "community|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "community|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "community|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "community|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "community|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "community|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "dayplanner|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "dayplanner|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "dayplanner|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "dayplanner|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "dayplanner|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "dayplanner|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "dayplanner|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "dayplanner|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "dayplanner|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "dayplanner|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "dayplanner|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "dayplanner|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "dayplanner|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "dayplanner|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "dayplanner|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "dayplanner|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "design-system|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "design-system|D2": {
+   "state": "n/a"
+  },
+  "design-system|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "design-system|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "design-system|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "design-system|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "design-system|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "design-system|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "design-system|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "design-system|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "design-system|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "design-system|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "design-system|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "design-system|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "design-system|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "design-system|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "engineering-design|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "engineering-design|D2": {
+   "state": "n/a"
+  },
+  "engineering-design|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "engineering-design|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "engineering-design|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "engineering-design|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "engineering-design|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "engineering-design|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "engineering-design|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "engineering-design|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "engineering-design|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "engineering-design|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "engineering-design|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "engineering-design|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "engineering-design|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "engineering-design|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "founder-console|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "founder-console|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "founder-console|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "founder-console|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "founder-console|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "founder-console|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "founder-console|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "founder-console|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "founder-console|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "founder-console|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "founder-console|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "founder-console|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "founder-console|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "founder-console|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "founder-console|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "founder-console|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "hive|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "hive|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "hive|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "hive|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "hive|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "hive|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "hive|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "hive|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "hive|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "hive|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "hive|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "hive|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "hive|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "hive|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "hive|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "hive|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "index|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "index|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "index|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "index|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "index|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "index|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "index|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "index|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "index|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "index|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "index|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "index|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "index|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "index|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "index|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "index|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "integrations|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "integrations|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "integrations|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "integrations|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "integrations|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "integrations|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "integrations|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "integrations|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "integrations|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "integrations|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "integrations|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "integrations|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "integrations|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "integrations|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "integrations|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "integrations|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "inventory|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "inventory|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "inventory|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "inventory|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "inventory|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "inventory|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "inventory|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "inventory|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "inventory|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "inventory|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "inventory|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "inventory|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "inventory|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "inventory|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "inventory|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "inventory|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "llm-observability|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "llm-observability|D2": {
+   "state": "n/a"
+  },
+  "llm-observability|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "llm-observability|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "llm-observability|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "llm-observability|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "llm-observability|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "llm-observability|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "llm-observability|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "llm-observability|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "llm-observability|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "llm-observability|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "llm-observability|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "llm-observability|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "llm-observability|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "llm-observability|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "logbook|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "logbook|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "logbook|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "logbook|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "logbook|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "logbook|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "logbook|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "logbook|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "logbook|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "logbook|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "logbook|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "logbook|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "logbook|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "logbook|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "logbook|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "logbook|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "marketplace-admin|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "marketplace-admin|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "marketplace-admin|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "marketplace-admin|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "marketplace-admin|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-admin|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "marketplace-admin|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "marketplace-admin|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "marketplace-admin|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "marketplace-admin|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "marketplace-admin|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "marketplace-admin|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "marketplace-admin|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-admin|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-admin|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "marketplace-admin|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "marketplace-seller-profile|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "marketplace-seller-profile|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "marketplace-seller-profile|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "marketplace-seller-profile|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "marketplace-seller-profile|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-seller-profile|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "marketplace-seller-profile|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "marketplace-seller-profile|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "marketplace-seller-profile|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "marketplace-seller-profile|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "marketplace-seller-profile|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "marketplace-seller-profile|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "marketplace-seller-profile|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-seller-profile|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-seller-profile|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "marketplace-seller-profile|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "marketplace-seller|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "marketplace-seller|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "marketplace-seller|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "marketplace-seller|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "marketplace-seller|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-seller|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "marketplace-seller|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "marketplace-seller|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "marketplace-seller|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "marketplace-seller|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "marketplace-seller|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "marketplace-seller|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "marketplace-seller|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-seller|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace-seller|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "marketplace-seller|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "marketplace|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "marketplace|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "marketplace|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "marketplace|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "marketplace|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "marketplace|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "marketplace|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "marketplace|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "marketplace|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "marketplace|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "marketplace|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "marketplace|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "marketplace|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "marketplace|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "offline-fallback|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "offline-fallback|D2": {
+   "state": "n/a"
+  },
+  "offline-fallback|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "offline-fallback|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "offline-fallback|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "offline-fallback|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "offline-fallback|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "offline-fallback|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "offline-fallback|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "offline-fallback|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "offline-fallback|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "offline-fallback|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "offline-fallback|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "offline-fallback|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "offline-fallback|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "offline-fallback|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "ph-intelligence|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "ph-intelligence|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "ph-intelligence|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "ph-intelligence|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "ph-intelligence|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "ph-intelligence|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "ph-intelligence|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "ph-intelligence|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "ph-intelligence|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "ph-intelligence|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "ph-intelligence|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "ph-intelligence|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "ph-intelligence|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "ph-intelligence|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "ph-intelligence|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "ph-intelligence|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "plant-connections|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "plant-connections|D2": {
+   "state": "n/a"
+  },
+  "plant-connections|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "plant-connections|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "plant-connections|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "plant-connections|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "plant-connections|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "plant-connections|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "plant-connections|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "plant-connections|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "plant-connections|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "plant-connections|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "plant-connections|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "plant-connections|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "plant-connections|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "plant-connections|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "platform-actions|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "platform-actions|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "platform-actions|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "platform-actions|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "platform-actions|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "platform-actions|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "platform-actions|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "platform-actions|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "platform-actions|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "platform-actions|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "platform-actions|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "platform-actions|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "platform-actions|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "platform-actions|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "platform-actions|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "platform-actions|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "pm-scheduler|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "pm-scheduler|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "pm-scheduler|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "pm-scheduler|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "pm-scheduler|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "pm-scheduler|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "pm-scheduler|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "pm-scheduler|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "pm-scheduler|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "pm-scheduler|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "pm-scheduler|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "pm-scheduler|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "pm-scheduler|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "pm-scheduler|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "pm-scheduler|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "pm-scheduler|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "project-manager|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "project-manager|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "project-manager|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "project-manager|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "project-manager|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "project-manager|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "project-manager|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "project-manager|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "project-manager|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "project-manager|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "project-manager|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "project-manager|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "project-manager|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "project-manager|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "project-manager|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "project-manager|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "project-report|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "project-report|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "project-report|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "project-report|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "project-report|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "project-report|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "project-report|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "project-report|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "project-report|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "project-report|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "project-report|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "project-report|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "project-report|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "project-report|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "project-report|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "project-report|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "promo-poster|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "promo-poster|D2": {
+   "state": "n/a"
+  },
+  "promo-poster|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "promo-poster|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "promo-poster|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "promo-poster|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "promo-poster|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "promo-poster|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "promo-poster|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "promo-poster|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "promo-poster|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "promo-poster|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "promo-poster|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "promo-poster|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "promo-poster|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "promo-poster|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "public-feed|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "public-feed|D2": {
+   "state": "n/a"
+  },
+  "public-feed|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "public-feed|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "public-feed|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "public-feed|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "public-feed|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "public-feed|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "public-feed|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "public-feed|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "public-feed|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "public-feed|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "public-feed|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "public-feed|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "public-feed|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "public-feed|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "report-sender|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "report-sender|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "report-sender|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "report-sender|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "report-sender|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "report-sender|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "report-sender|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "report-sender|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "report-sender|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "report-sender|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "report-sender|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "report-sender|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "report-sender|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "report-sender|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "report-sender|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "report-sender|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "resume|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "resume|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "resume|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "resume|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "resume|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "resume|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "resume|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "resume|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "resume|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "resume|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "resume|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "resume|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "resume|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "resume|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "resume|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "resume|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "shift-brain|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "shift-brain|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "shift-brain|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "shift-brain|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "shift-brain|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "shift-brain|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "shift-brain|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "shift-brain|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "shift-brain|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "shift-brain|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "shift-brain|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "shift-brain|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "shift-brain|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "shift-brain|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "shift-brain|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "shift-brain|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "skillmatrix|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "skillmatrix|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "skillmatrix|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "skillmatrix|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "skillmatrix|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "skillmatrix|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "skillmatrix|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "skillmatrix|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "skillmatrix|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "skillmatrix|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "skillmatrix|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "skillmatrix|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "skillmatrix|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "skillmatrix|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "skillmatrix|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "skillmatrix|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "status|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "status|D2": {
+   "state": "n/a"
+  },
+  "status|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "status|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "status|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "status|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "status|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "status|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "status|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "status|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "status|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "status|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "status|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "status|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "status|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "status|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "symbol-gallery|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "symbol-gallery|D2": {
+   "state": "n/a"
+  },
+  "symbol-gallery|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "symbol-gallery|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "symbol-gallery|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "symbol-gallery|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "symbol-gallery|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "symbol-gallery|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "symbol-gallery|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "symbol-gallery|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "symbol-gallery|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "symbol-gallery|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "symbol-gallery|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "symbol-gallery|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "symbol-gallery|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "symbol-gallery|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "validator-catalog|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "validator-catalog|D2": {
+   "state": "n/a"
+  },
+  "validator-catalog|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "validator-catalog|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "validator-catalog|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "validator-catalog|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "validator-catalog|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "validator-catalog|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "validator-catalog|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "validator-catalog|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "validator-catalog|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "validator-catalog|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "validator-catalog|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "validator-catalog|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "validator-catalog|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "validator-catalog|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "voice-journal|D1": {
+   "state": "✅",
+   "oracle": "audit_displayed_values",
+   "locked": true
+  },
+  "voice-journal|D2": {
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
+  },
+  "voice-journal|D3": {
+   "state": "✅",
+   "oracle": "validate_reactivity_wiring",
+   "locked": true
+  },
+  "voice-journal|D4": {
+   "state": "✅",
+   "oracle": "validate_clickable_keyboard_a11y",
+   "locked": true
+  },
+  "voice-journal|D5": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "voice-journal|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "voice-journal|D7": {
+   "state": "✅",
+   "oracle": "validate_dom_xss_fields",
+   "locked": true
+  },
+  "voice-journal|D8": {
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
+  },
+  "voice-journal|D9": {
+   "state": "✅",
+   "oracle": "validate_public_fn_authz",
+   "locked": true
+  },
+  "voice-journal|D18": {
+   "state": "✅",
+   "oracle": "validate_destructive_safety",
+   "locked": true
+  },
+  "voice-journal|D19": {
+   "state": "✅",
+   "oracle": "validate_session_resilience",
+   "locked": true
+  },
+  "voice-journal|D20": {
+   "state": "✅",
+   "oracle": "validate_client_resilience",
+   "locked": true
+  },
+  "voice-journal|D15": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "voice-journal|D17": {
+   "state": "✅",
+   "oracle": "validate_frontend_floor_cells",
+   "locked": true
+  },
+  "voice-journal|D22": {
+   "state": "✅",
+   "oracle": "validate_interactive_lineage",
+   "locked": true
+  },
+  "voice-journal|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "about|D1": {
+   "state": "n/a"
+  },
+  "about|D2": {
+   "state": "n/a"
+  },
+  "about|D3": {
+   "state": "n/a"
+  },
+  "about|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "about|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "about|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "about|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "about|D8": {
+   "state": "n/a"
+  },
+  "about|D9": {
+   "state": "n/a"
+  },
+  "about|D18": {
+   "state": "n/a"
+  },
+  "about|D19": {
+   "state": "n/a"
+  },
+  "about|D20": {
+   "state": "n/a"
+  },
+  "about|D15": {
+   "state": "n/a"
+  },
+  "about|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "about|D22": {
+   "state": "n/a"
+  },
+  "about|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D1": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D2": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D3": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D8": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D9": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D18": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D19": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D20": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D15": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D22": {
+   "state": "n/a"
+  },
+  "learn/ai-companion-hezekiah-zaniah-personas|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D1": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D2": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D3": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D8": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D9": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D18": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D19": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D20": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D15": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D22": {
+   "state": "n/a"
+  },
+  "learn/ai-work-assistant-maintenance-technicians|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D1": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D2": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D3": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D8": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D9": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D18": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D19": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D20": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D15": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D22": {
+   "state": "n/a"
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/autonomous-shift-planning-philippine-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D1": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D2": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D3": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D8": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D9": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D18": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D19": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D20": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D15": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D22": {
+   "state": "n/a"
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/building-asset-register-zero-budget|D1": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D2": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D3": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/building-asset-register-zero-budget|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/building-asset-register-zero-budget|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/building-asset-register-zero-budget|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/building-asset-register-zero-budget|D8": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D9": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D18": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D19": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D20": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D15": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/building-asset-register-zero-budget|D22": {
+   "state": "n/a"
+  },
+  "learn/building-asset-register-zero-budget|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D1": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D2": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D3": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D8": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D9": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D18": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D19": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D20": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D15": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D22": {
+   "state": "n/a"
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D1": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D2": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D3": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D8": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D9": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D18": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D19": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D20": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D15": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D22": {
+   "state": "n/a"
+  },
+  "learn/dilo-wilo-day-planner-supervisors|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D1": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D2": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D3": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D8": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D9": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D18": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D19": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D20": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D15": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D22": {
+   "state": "n/a"
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D1": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D2": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D3": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D8": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D9": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D18": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D19": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D20": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D15": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D22": {
+   "state": "n/a"
+  },
+  "learn/fmea-worked-example-philippine-bottling-line|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D1": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D2": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D3": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D8": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D9": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D18": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D19": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D20": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D15": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D22": {
+   "state": "n/a"
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/free-engineering-calculators-philippine-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/free-pm-checklist-templates|D1": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D2": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D3": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-pm-checklist-templates|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-pm-checklist-templates|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/free-pm-checklist-templates|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-pm-checklist-templates|D8": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D9": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D18": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D19": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D20": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D15": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/free-pm-checklist-templates|D22": {
+   "state": "n/a"
+  },
+  "learn/free-pm-checklist-templates|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D1": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D2": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D3": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D8": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D9": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D18": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D19": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D20": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D15": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D22": {
+   "state": "n/a"
+  },
+  "learn/gamifying-maintenance-for-engagement|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/industrial-community-of-practice-philippines|D1": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D2": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D3": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-community-of-practice-philippines|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-community-of-practice-philippines|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/industrial-community-of-practice-philippines|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-community-of-practice-philippines|D8": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D9": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D18": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D19": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D20": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D15": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-community-of-practice-philippines|D22": {
+   "state": "n/a"
+  },
+  "learn/industrial-community-of-practice-philippines|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D1": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D2": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D3": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D8": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D9": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D18": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D19": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D20": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D15": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D22": {
+   "state": "n/a"
+  },
+  "learn/industrial-marketplace-philippine-specialists|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/joining-and-growing-your-hive|D1": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D2": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D3": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/joining-and-growing-your-hive|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/joining-and-growing-your-hive|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/joining-and-growing-your-hive|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/joining-and-growing-your-hive|D8": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D9": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D18": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D19": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D20": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D15": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/joining-and-growing-your-hive|D22": {
+   "state": "n/a"
+  },
+  "learn/joining-and-growing-your-hive|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D1": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D2": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D3": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D8": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D9": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D18": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D19": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D20": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D15": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D22": {
+   "state": "n/a"
+  },
+  "learn/loto-procedures-dole-oshs-template|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/maintenance-project-planning-template|D1": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D2": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D3": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-project-planning-template|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-project-planning-template|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/maintenance-project-planning-template|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-project-planning-template|D8": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D9": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D18": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D19": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D20": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D15": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-project-planning-template|D22": {
+   "state": "n/a"
+  },
+  "learn/maintenance-project-planning-template|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D1": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D2": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D3": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D8": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D9": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D18": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D19": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D20": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D15": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D22": {
+   "state": "n/a"
+  },
+  "learn/maintenance-shift-handover-template|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D1": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D2": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D3": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D8": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D9": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D18": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D19": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D20": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D15": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D22": {
+   "state": "n/a"
+  },
+  "learn/mtbf-vs-mttr-for-supervisors|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D1": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D2": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D3": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D8": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D9": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D18": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D19": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D20": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D15": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D22": {
+   "state": "n/a"
+  },
+  "learn/ofw-engineer-portable-portfolio|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D1": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D2": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D3": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D8": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D9": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D18": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D19": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D20": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D15": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D22": {
+   "state": "n/a"
+  },
+  "learn/ph-industrial-benchmarks-intelligence|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D1": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D2": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D3": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D8": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D9": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D18": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D19": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D20": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D15": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D22": {
+   "state": "n/a"
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/power-plant-reliability-metrics-philippines|D1": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D2": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D3": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/power-plant-reliability-metrics-philippines|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/power-plant-reliability-metrics-philippines|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/power-plant-reliability-metrics-philippines|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/power-plant-reliability-metrics-philippines|D8": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D9": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D18": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D19": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D20": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D15": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/power-plant-reliability-metrics-philippines|D22": {
+   "state": "n/a"
+  },
+  "learn/power-plant-reliability-metrics-philippines|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/predictive-alert-thresholds-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D1": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D2": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D3": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D8": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D9": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D18": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D19": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D20": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D15": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D22": {
+   "state": "n/a"
+  },
+  "learn/predictive-maintenance-on-a-budget-philippines|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D1": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D2": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D3": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D8": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D9": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D18": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D19": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D20": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D15": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D22": {
+   "state": "n/a"
+  },
+  "learn/print-ready-maintenance-analytics-report|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D1": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D2": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D3": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D8": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D9": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D18": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D19": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D20": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D15": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D22": {
+   "state": "n/a"
+  },
+  "learn/psme-iiee-piche-which-association-to-join|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D1": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D2": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D3": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D8": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D9": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D18": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D19": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D20": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D15": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D22": {
+   "state": "n/a"
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/reliability-centered-maintenance-philippine-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D1": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D2": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D3": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D8": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D9": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D18": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D19": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D20": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D15": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D22": {
+   "state": "n/a"
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/sensor-cmms-gateway-operations|D1": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D2": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D3": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/sensor-cmms-gateway-operations|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/sensor-cmms-gateway-operations|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/sensor-cmms-gateway-operations|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/sensor-cmms-gateway-operations|D8": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D9": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D18": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D19": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D20": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D15": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/sensor-cmms-gateway-operations|D22": {
+   "state": "n/a"
+  },
+  "learn/sensor-cmms-gateway-operations|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D1": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D2": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D3": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D8": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D9": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D18": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D19": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D20": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D15": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D22": {
+   "state": "n/a"
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/spare-parts-inventory-philippine-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/spare-parts-inventory-philippine-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/spare-parts-inventory-philippine-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/spare-parts-inventory-philippine-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/spare-parts-inventory-philippine-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/spare-parts-inventory-philippine-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/spare-parts-inventory-philippine-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D1": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D2": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D3": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D8": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D9": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D18": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D19": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D20": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D15": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D22": {
+   "state": "n/a"
+  },
+  "learn/start-digital-logbook-philippine-factory|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D1": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D2": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D3": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D8": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D9": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D18": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D19": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D20": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D15": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D22": {
+   "state": "n/a"
+  },
+  "learn/tesda-nc-mapping-to-skill-matrix|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D1": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D2": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D3": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D8": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D9": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D18": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D19": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D20": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D15": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D22": {
+   "state": "n/a"
+  },
+  "learn/thermography-for-pm-philippine-plants|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D1": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D2": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D3": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D8": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D9": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D18": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D19": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D20": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D15": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D22": {
+   "state": "n/a"
+  },
+  "learn/vibration-analysis-on-a-phone-budget|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D1": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D2": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D3": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D8": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D9": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D18": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D19": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D20": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D15": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D22": {
+   "state": "n/a"
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/what-is-oee-how-to-calculate|D1": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D2": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D3": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-oee-how-to-calculate|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-oee-how-to-calculate|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/what-is-oee-how-to-calculate|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-oee-how-to-calculate|D8": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D9": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D18": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D19": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D20": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D15": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-oee-how-to-calculate|D22": {
+   "state": "n/a"
+  },
+  "learn/what-is-oee-how-to-calculate|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D1": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D2": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D3": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D8": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D9": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D18": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D19": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D20": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D15": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D22": {
+   "state": "n/a"
+  },
+  "learn/what-is-workhive-complete-platform-guide|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D1": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D2": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D3": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D8": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D9": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D18": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D19": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D20": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D15": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D22": {
+   "state": "n/a"
+  },
+  "learn/workhive-ai-companion-complete-capabilities|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "privacy-policy|D1": {
+   "state": "n/a"
+  },
+  "privacy-policy|D2": {
+   "state": "n/a"
+  },
+  "privacy-policy|D3": {
+   "state": "n/a"
+  },
+  "privacy-policy|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "privacy-policy|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "privacy-policy|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "privacy-policy|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "privacy-policy|D8": {
+   "state": "n/a"
+  },
+  "privacy-policy|D9": {
+   "state": "n/a"
+  },
+  "privacy-policy|D18": {
+   "state": "n/a"
+  },
+  "privacy-policy|D19": {
+   "state": "n/a"
+  },
+  "privacy-policy|D20": {
+   "state": "n/a"
+  },
+  "privacy-policy|D15": {
+   "state": "n/a"
+  },
+  "privacy-policy|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "privacy-policy|D22": {
+   "state": "n/a"
+  },
+  "privacy-policy|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "terms-of-service|D1": {
+   "state": "n/a"
+  },
+  "terms-of-service|D2": {
+   "state": "n/a"
+  },
+  "terms-of-service|D3": {
+   "state": "n/a"
+  },
+  "terms-of-service|D4": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "terms-of-service|D5": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "terms-of-service|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "terms-of-service|D7": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "terms-of-service|D8": {
+   "state": "n/a"
+  },
+  "terms-of-service|D9": {
+   "state": "n/a"
+  },
+  "terms-of-service|D18": {
+   "state": "n/a"
+  },
+  "terms-of-service|D19": {
+   "state": "n/a"
+  },
+  "terms-of-service|D20": {
+   "state": "n/a"
+  },
+  "terms-of-service|D15": {
+   "state": "n/a"
+  },
+  "terms-of-service|D17": {
+   "state": "✅",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true
+  },
+  "terms-of-service|D22": {
+   "state": "n/a"
+  },
+  "terms-of-service|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "agent-memory-store|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "agent-memory-store|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "agent-memory-store|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "agent-memory-store|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "agent-memory-store|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "agent-memory-store|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "agent-memory-store|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "agent-memory-store|D26": {
+   "state": "✅",
+   "oracle": "validate_agent_memory_persist_complete",
+   "locked": true
+  },
+  "agentic-rag-loop|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "agentic-rag-loop|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "agentic-rag-loop|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "agentic-rag-loop|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "agentic-rag-loop|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "agentic-rag-loop|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "agentic-rag-loop|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "agentic-rag-loop|D26": {
+   "state": "n/a"
+  },
+  "ai-eval-runner|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "ai-eval-runner|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "ai-eval-runner|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "ai-eval-runner|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "ai-eval-runner|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "ai-eval-runner|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "ai-eval-runner|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "ai-eval-runner|D26": {
+   "state": "n/a"
+  },
+  "ai-gateway|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "ai-gateway|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "ai-gateway|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "ai-gateway|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "ai-gateway|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "ai-gateway|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "ai-gateway|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "ai-gateway|D26": {
+   "state": "✅",
+   "oracle": "validate_assistant_recall",
+   "locked": true
+  },
+  "ai-orchestrator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "ai-orchestrator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "ai-orchestrator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "ai-orchestrator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "ai-orchestrator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "ai-orchestrator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "ai-orchestrator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "ai-orchestrator|D26": {
+   "state": "n/a"
+  },
+  "amc-orchestrator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "amc-orchestrator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "amc-orchestrator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "amc-orchestrator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "amc-orchestrator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "amc-orchestrator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "amc-orchestrator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "amc-orchestrator|D26": {
+   "state": "n/a"
+  },
+  "analytics-orchestrator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "analytics-orchestrator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "analytics-orchestrator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "analytics-orchestrator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "analytics-orchestrator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "analytics-orchestrator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "analytics-orchestrator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "analytics-orchestrator|D26": {
+   "state": "n/a"
+  },
+  "asset-brain-query|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "asset-brain-query|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "asset-brain-query|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "asset-brain-query|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "asset-brain-query|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "asset-brain-query|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "asset-brain-query|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "asset-brain-query|D26": {
+   "state": "n/a"
+  },
+  "batch-risk-scoring|D10": {
+   "state": "n/a"
+  },
+  "batch-risk-scoring|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "batch-risk-scoring|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "batch-risk-scoring|D13": {
+   "state": "n/a"
+  },
+  "batch-risk-scoring|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "batch-risk-scoring|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "batch-risk-scoring|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "batch-risk-scoring|D26": {
+   "state": "n/a"
+  },
+  "cold-archive-query|D10": {
+   "state": "n/a"
+  },
+  "cold-archive-query|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "cold-archive-query|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "cold-archive-query|D13": {
+   "state": "n/a"
+  },
+  "cold-archive-query|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "cold-archive-query|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "cold-archive-query|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "cold-archive-query|D26": {
+   "state": "n/a"
+  },
+  "data-fabric-normalizer|D10": {
+   "state": "n/a"
+  },
+  "data-fabric-normalizer|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "data-fabric-normalizer|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "data-fabric-normalizer|D13": {
+   "state": "n/a"
+  },
+  "data-fabric-normalizer|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "data-fabric-normalizer|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "data-fabric-normalizer|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "data-fabric-normalizer|D26": {
+   "state": "n/a"
+  },
+  "embed-entry|D10": {
+   "state": "n/a"
+  },
+  "embed-entry|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "embed-entry|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "embed-entry|D13": {
+   "state": "n/a"
+  },
+  "embed-entry|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "embed-entry|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "embed-entry|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "embed-entry|D26": {
+   "state": "n/a"
+  },
+  "engineering-bom-sow|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "engineering-bom-sow|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "engineering-bom-sow|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "engineering-bom-sow|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "engineering-bom-sow|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "engineering-bom-sow|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "engineering-bom-sow|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "engineering-bom-sow|D26": {
+   "state": "n/a"
+  },
+  "engineering-calc-agent|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "engineering-calc-agent|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "engineering-calc-agent|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "engineering-calc-agent|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "engineering-calc-agent|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "engineering-calc-agent|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "engineering-calc-agent|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "engineering-calc-agent|D26": {
+   "state": "n/a"
+  },
+  "equipment-label-ocr|D10": {
+   "state": "n/a"
+  },
+  "equipment-label-ocr|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "equipment-label-ocr|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "equipment-label-ocr|D13": {
+   "state": "n/a"
+  },
+  "equipment-label-ocr|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "equipment-label-ocr|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "equipment-label-ocr|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "equipment-label-ocr|D26": {
+   "state": "n/a"
+  },
+  "failure-signature-scan|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "failure-signature-scan|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "failure-signature-scan|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "failure-signature-scan|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "failure-signature-scan|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "failure-signature-scan|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "failure-signature-scan|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "failure-signature-scan|D26": {
+   "state": "n/a"
+  },
+  "fmea-populator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "fmea-populator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "fmea-populator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "fmea-populator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "fmea-populator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "fmea-populator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "fmea-populator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "fmea-populator|D26": {
+   "state": "n/a"
+  },
+  "hierarchical-summarizer|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "hierarchical-summarizer|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "hierarchical-summarizer|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "hierarchical-summarizer|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "hierarchical-summarizer|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "hierarchical-summarizer|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "hierarchical-summarizer|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "hierarchical-summarizer|D26": {
+   "state": "n/a"
+  },
+  "intelligence-report|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "intelligence-report|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "intelligence-report|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "intelligence-report|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "intelligence-report|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "intelligence-report|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "intelligence-report|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "intelligence-report|D26": {
+   "state": "n/a"
+  },
+  "pdf-ingest|D10": {
+   "state": "n/a"
+  },
+  "pdf-ingest|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "pdf-ingest|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "pdf-ingest|D13": {
+   "state": "n/a"
+  },
+  "pdf-ingest|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "pdf-ingest|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "pdf-ingest|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "pdf-ingest|D26": {
+   "state": "n/a"
+  },
+  "project-orchestrator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "project-orchestrator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "project-orchestrator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "project-orchestrator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "project-orchestrator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "project-orchestrator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "project-orchestrator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "project-orchestrator|D26": {
+   "state": "n/a"
+  },
+  "scheduled-agents|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "scheduled-agents|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "scheduled-agents|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "scheduled-agents|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "scheduled-agents|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "scheduled-agents|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "scheduled-agents|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "scheduled-agents|D26": {
+   "state": "n/a"
+  },
+  "semantic-fact-extractor|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "semantic-fact-extractor|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "semantic-fact-extractor|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "semantic-fact-extractor|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "semantic-fact-extractor|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "semantic-fact-extractor|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "semantic-fact-extractor|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "semantic-fact-extractor|D26": {
+   "state": "n/a"
+  },
+  "shift-planner-orchestrator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "shift-planner-orchestrator|D26": {
+   "state": "n/a"
+  },
+  "temporal-rag-orchestrator|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "temporal-rag-orchestrator|D26": {
+   "state": "n/a"
+  },
+  "visual-defect-capture|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "visual-defect-capture|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "visual-defect-capture|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "visual-defect-capture|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "visual-defect-capture|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "visual-defect-capture|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "visual-defect-capture|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "visual-defect-capture|D26": {
+   "state": "n/a"
+  },
+  "voice-action-router|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "voice-action-router|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "voice-action-router|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "voice-action-router|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "voice-action-router|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "voice-action-router|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "voice-action-router|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "voice-action-router|D26": {
+   "state": "n/a"
+  },
+  "voice-embeddings|D10": {
+   "state": "n/a"
+  },
+  "voice-embeddings|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "voice-embeddings|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "voice-embeddings|D13": {
+   "state": "n/a"
+  },
+  "voice-embeddings|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "voice-embeddings|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "voice-embeddings|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "voice-embeddings|D26": {
+   "state": "n/a"
+  },
+  "voice-journal-agent|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "voice-journal-agent|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "voice-journal-agent|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "voice-journal-agent|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "voice-journal-agent|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "voice-journal-agent|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "voice-journal-agent|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "voice-journal-agent|D26": {
+   "state": "n/a"
+  },
+  "voice-logbook-entry|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "voice-logbook-entry|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "voice-logbook-entry|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "voice-logbook-entry|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "voice-logbook-entry|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "voice-logbook-entry|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "voice-logbook-entry|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "voice-logbook-entry|D26": {
+   "state": "n/a"
+  },
+  "voice-report-intent|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "voice-report-intent|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "voice-report-intent|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "voice-report-intent|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "voice-report-intent|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "voice-report-intent|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "voice-report-intent|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "voice-report-intent|D26": {
+   "state": "n/a"
+  },
+  "voice-semantic-rag|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "voice-semantic-rag|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "voice-semantic-rag|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "voice-semantic-rag|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "voice-semantic-rag|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "voice-semantic-rag|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "voice-semantic-rag|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "voice-semantic-rag|D26": {
+   "state": "n/a"
+  },
+  "walkthrough-analyzer|D10": {
+   "state": "✅",
+   "oracle": "validate_grounding_contract",
+   "locked": true
+  },
+  "walkthrough-analyzer|D11": {
+   "state": "✅",
+   "oracle": "validate_ai_prompt_injection",
+   "locked": true
+  },
+  "walkthrough-analyzer|D12": {
+   "state": "✅",
+   "oracle": "validate_ai_daily_ceiling",
+   "locked": true
+  },
+  "walkthrough-analyzer|D13": {
+   "state": "✅",
+   "oracle": "validate_ai_fabrication_contract",
+   "locked": true
+  },
+  "walkthrough-analyzer|D21": {
+   "state": "✅",
+   "oracle": "validate_edge_observed_coverage",
+   "locked": true
+  },
+  "walkthrough-analyzer|D24": {
+   "state": "✅",
+   "oracle": "validate_ai_retrieval_isolation",
+   "locked": true
+  },
+  "walkthrough-analyzer|D25": {
+   "state": "✅",
+   "oracle": "validate_memory_pii_redaction",
+   "locked": true
+  },
+  "walkthrough-analyzer|D26": {
+   "state": "n/a"
+  }
+ },
+ "di_subreport": {
+  "pages": 16,
+  "cells_covered": 109.0,
+  "cells_total": 109,
+  "coverage_pct": 100.0
+ },
+ "delta_vs_last": 4.9,
+ "dry_streak": 0,
+ "dry": false
+}

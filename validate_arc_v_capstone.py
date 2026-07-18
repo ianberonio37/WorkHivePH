@@ -17,6 +17,9 @@ Enforced via sys.exit(main()) - NOT the flywheel "reporting-only" path.
 import json
 import os
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 RESULTS = "arc_v_capstone_results.json"
 BASELINE = "arc_v_capstone_baseline.json"

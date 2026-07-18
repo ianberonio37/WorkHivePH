@@ -57,7 +57,7 @@
       }
     },
     "Transformer Sizing": {
-      "svg_len": 155237,
+      "svg_len": 155216,
       "not_implemented": null,
       "cells": {
         "rated_kva": {
@@ -93,7 +93,7 @@
       }
     },
     "AHU Sizing": {
-      "svg_len": 96725,
+      "svg_len": 97506,
       "not_implemented": null,
       "cells": {
         "T_mixed": {
@@ -104,7 +104,7 @@
       }
     },
     "Duct Sizing": {
-      "svg_len": 111060,
+      "svg_len": 104318,
       "not_implemented": null,
       "cells": {
         "sections.0.circular.D_std_mm": {

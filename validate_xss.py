@@ -61,6 +61,7 @@ LIVE_PAGES = [
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",
+    "platform-actions.html",
     "project-manager.html",
     "integrations.html",
     "ph-intelligence.html",

@@ -310,6 +310,11 @@
       .node { width: 136px; }
     }
   </style>
+  <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
+       token source this page cannot CONFORM to the design system even in principle -- the
+       rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
+       render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
+  <link rel="stylesheet" href="tokens.css">
 </head>
 <body>
 <main>

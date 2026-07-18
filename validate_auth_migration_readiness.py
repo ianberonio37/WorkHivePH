@@ -213,12 +213,44 @@ AUTH_UID_COL_RE = re.compile(
 )
 
 
+_CREATE_TABLE_HEAD_RE = re.compile(
+    r"""CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+(?:"?public"?\.)?"?(?P<name>\w+)"?\s*\(""",
+    re.IGNORECASE,
+)
+_ALTER_ADD_AUTH_UID_RE = re.compile(
+    r"""ALTER\s+TABLE\s+(?:ONLY\s+)?(?:"?public"?\.)?"?(?P<name>\w+)"?\s+ADD\s+COLUMN(?:\s+IF\s+NOT\s+EXISTS)?\s+"?auth_uid\b""",
+    re.IGNORECASE,
+)
+
+
 def _tables_with_auth_uid(migrations: str) -> set[str]:
+    """Robust detection: an ALTER ... ADD COLUMN auth_uid, OR a CREATE TABLE whose
+    BALANCED-paren body contains an auth_uid column. Walking the balanced body (not a
+    `[^)]*` window) is what makes it survive both the pg_dump quoted form
+    (`"auth_uid" "uuid"`) and columns whose types contain parens (`gen_random_uuid()`,
+    `numeric(3,2)`) appearing BEFORE auth_uid — the exact shape that hid marketplace_sellers'
+    baseline declaration and produced a false "column not declared" failure (fixed 2026-07-11)."""
     out: set[str] = set()
-    for m in AUTH_UID_COL_RE.finditer(migrations):
-        t = (m.group("t2") or m.group("t1") or "").strip()
-        if t:
-            out.add(t)
+    for m in _ALTER_ADD_AUTH_UID_RE.finditer(migrations):
+        out.add(m.group("name"))
+    for cm in _CREATE_TABLE_HEAD_RE.finditer(migrations):
+        # Extract the balanced-paren table body starting at the opening '('.
+        i = cm.end() - 1
+        depth = 0
+        body_start = i
+        n = len(migrations)
+        while i < n:
+            ch = migrations[i]
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+                if depth == 0:
+                    break
+            i += 1
+        body = migrations[body_start:i]
+        if re.search(r'"?\bauth_uid\b"?', body, re.IGNORECASE):
+            out.add(cm.group("name"))
     return out
 
 

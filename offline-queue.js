@@ -223,9 +223,15 @@
       // recovered while we never left 'online' — drains without needing an
       // offline→online flip. _due() gates per-item backoff so this isn't a hammer.
       const period = periodMs || 60000;
-      // timer-cleanup-allow: lifetime auto-sync drain poll (Arc S D-002) — one per page,
-      // runs for the page's entire life by design; no teardown/clearInterval needed.
-      if (typeof setInterval === 'function') setInterval(tick, period);
+      // Lifetime auto-sync drain poll (Arc S D-002) — one per page, runs for the
+      // page's entire life by design. Stored so it can be cleared on unload
+      // (defence-in-depth against a leaked timer; the page usually unloads first).
+      if (typeof setInterval === 'function') {
+        const _syncTimer = setInterval(tick, period);
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+          window.addEventListener('beforeunload', () => clearInterval(_syncTimer));
+        }
+      }
     }
 
     return { enqueue, getPending, remove, clear, drain, startAutoSync, _cfg: cfg };

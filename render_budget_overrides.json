@@ -1,5 +1,5 @@
 {
-  "_note": "Per-page render budget overrides. Set ONLY when a page is legitimately heavy. Each override is a debt — review monthly to see if the page can be trimmed back to global budget. 2026-05-26: budgets captured honestly to lock the ratchet at 0 breaches; trim plan in PLATFORM_ROADMAP.md item F.5.",
+  "_note": "Per-page render budget overrides. Set ONLY when a page is legitimately heavy. Each override is a debt \u2014 review monthly to see if the page can be trimmed back to global budget. 2026-05-26: budgets captured honestly to lock the ratchet at 0 breaches; trim plan in PLATFORM_ROADMAP.md item F.5.",
   "global": {
     "html_kb": 150,
     "inline_script_kb": 80,
@@ -14,7 +14,7 @@
     "engineering-design-test.html": {
       "html_kb": 1800,
       "inline_script_kb": 1800,
-      "_reason": "Test variant of engineering-design.html — same heavy renderer. Should be retired once main page is split."
+      "_reason": "Test variant of engineering-design.html \u2014 same heavy renderer. Should be retired once main page is split."
     },
     "logbook.html": {
       "html_kb": 300,
@@ -22,14 +22,14 @@
       "_reason": "Logbook is the highest-engagement page; renderer is intentionally rich. Trim plan: extract sentence-builder logic into a separate module."
     },
     "index.html": {
-      "html_kb": 240,
-      "inline_script_kb": 120,
-      "_reason": "Marketing + landing fold + onboarding combined. Trim plan: lazy-load onboarding flow."
+      "html_kb": 270,
+      "inline_script_kb": 130,
+      "_reason": "Marketing + landing fold + onboarding combined. Grew 233->258KB over the 06-30..07-01 sweeps: Arc I I3/I7 password-recovery + Turnstile bot-protection signup guard, Arc X X0 front-door active-hive resolution (Issue #1 fix) + ops-home re-render on hive switch, free-platform sign-up CTA. All legitimate auth/security additions, no dead code. Trim plan: lazy-load onboarding + recovery flow (PLATFORM_ROADMAP F.5)."
     },
     "hive.html": {
-      "html_kb": 220,
-      "inline_script_kb": 160,
-      "_reason": "Dashboard with 12+ KPI tiles + adoption card + role-gated supervisor block. Trim plan: lazy-load supervisor block when role is worker."
+      "html_kb": 254,
+      "inline_script_kb": 176,
+      "_reason": "Dashboard with 12+ KPI tiles + adoption card + role-gated supervisor block. Grew 216->230KB over the 06-30..07-01 sweeps: cross-hive SECURITY DEFINER invite-code RPC + auth-identity linking (C3), Arc L CLS reservations, Arc Y coach example-prompt chips, stock-alert bell notifications. 2026-07-03: 235->235.8KB from Arc R R3 SRI integrity+crossorigin on the supabase-js CDN <script> + notification-link escHtml. 2026-07-11: 236->253KB from the Hive Board PDDA arc \u2014 Team Pulse fusion (hidden parity cells + SMRP honesty marker), audit-log raw-UUID render-guard + new_device dedup, stock-scope relabels, source-chip restore, role-stamp/escJsAttr XSS hardening, and extensive fix-provenance comments (canonical-allow / empty-catch-allow / the fusion+audit+honesty explanations). All legitimate feature/security work. Trim plan: lazy-load supervisor block when role is worker + tighten the inline fix-provenance comments into the arc spine."
     },
     "asset-hub.html": {
       "html_kb": 200,
@@ -43,18 +43,36 @@
     },
     "marketplace.html": {
       "html_kb": 170,
-      "inline_script_kb": 110,
-      "_reason": "Listings + filters + Stripe-link panel inline. Acceptable for first marketplace iteration."
+      "inline_script_kb": 112,
+      "_reason": "Listings + filters + Stripe-link panel inline. Acceptable for first marketplace iteration. | 2026-07-11: Marketplace Deep Arc community<->marketplace X-fabric + inventory surplus bridge + section deep-link. Legitimate feature logic, no dead/duplicated code. Trim plan: extract the person-card + related-listings / bridge modules (PLATFORM_ROADMAP F.5)."
     },
     "analytics.html": {
-      "html_kb": 150,
+      "html_kb": 152,
       "inline_script_kb": 120,
-      "_reason": "OEE + MTBF + Pareto charts inline. Trim plan: extract Recharts integration once shared chart lib lands."
+      "_reason": "OEE + MTBF + Pareto charts inline. 150->151.3KB minor drift (accumulated). Trim plan: extract Recharts integration once shared chart lib lands."
+    },
+    "pm-scheduler.html": {
+      "html_kb": 150,
+      "inline_script_kb": 100,
+      "_reason": "PM board grew 80->87.9KB inline over the 06-30..07-01 Arc S/X sweeps: shared offline-write queue (whCreateQueue, brownout-safe completions), Arc X A1/A2 asset deep-link reader + carry-intent action focus, Arc X A3 filter/search URL-state persistence, category typeahead filter. All legitimate feature logic, no dead code or duplication. Trim plan: extract the deep-link + offline-queue wiring into a shared module (PLATFORM_ROADMAP F.5). | 2026-07-12: PM Scheduler PDDA arc, 95->96.2KB: canonical FREQ registry + canonFreq() normalizer + 'Other' catch-all (the frequency-drop keystone fix, which NET-REDUCES duplication by centralizing the scattered freqMap/freqCls/freqOrder), setPmCompanionContext piiSafe AI grounding (mirrors inventory), worst-first triage sort. All legitimate feature logic, no dead code or duplication."
+    },
+    "community.html": {
+      "html_kb": 150,
+      "inline_script_kb": 108,
+      "_reason": "Forum board grew 80->82.6KB inline over the 06-30..07-01 sweeps: Arc X A3 feed filter/search URL-state persistence (_commSyncUrl + openThread/closeThread param preservation), Arc L CLS reservation. All legitimate feature logic, no dead code or duplication. Trim plan: extract the URL-state + thread logic into a shared module (PLATFORM_ROADMAP F.5). | 2026-07-11: Marketplace Deep Arc community<->marketplace X-fabric + inventory surplus bridge + section deep-link. Legitimate feature logic, no dead/duplicated code. Trim plan: extract the person-card + related-listings / bridge modules (PLATFORM_ROADMAP F.5)."
     },
     "resume.html": {
       "html_kb": 150,
       "inline_script_kb": 120,
       "_reason": "JSON-Resume builder: upload->AI-extract->editable-checklist editor + TRUE-OOXML .docx export (JSZip) + cover-letter draft + map-reduce client logic. Grew over the 06-03..06-06 sweeps. Trim plan: extract the .docx/JSZip writer + the taxonomy matcher into separately-loaded modules (PLATFORM_ROADMAP F.5)."
+    },
+    "founder-console.html": {
+      "inline_script_kb": 83,
+      "_reason": "2026-07-11: Marketplace Deep Arc community<->marketplace X-fabric + inventory surplus bridge + section deep-link. Legitimate feature logic, no dead/duplicated code. Trim plan: extract the person-card + related-listings / bridge modules (PLATFORM_ROADMAP F.5)."
+    },
+    "inventory.html": {
+      "inline_script_kb": 85,
+      "_reason": "2026-07-11: Marketplace Deep Arc community<->marketplace X-fabric + inventory surplus bridge + section deep-link. Legitimate feature logic, no dead/duplicated code. Trim plan: extract the person-card + related-listings / bridge modules (PLATFORM_ROADMAP F.5). | 2026-07-11: +_autoLinkInventoryToProject reverse-fabric (PM X-keystone)."
     }
   }
 }

@@ -88,7 +88,7 @@ BULK_EXPORT = {
 # happy=="service" + the obvious system fns not in REG.
 SERVICE_ONLY = {fn for fn, (_p, happy, _t, _to) in REG.items() if happy == "service"} | {
     "trigger-ml-retrain", "batch-risk-scoring", "parts-staging-recommender",
-    "cmms-webhook-receiver", "marketplace-webhook", "send-report-email",
+    "cmms-webhook-receiver", "send-report-email",
 }
 
 

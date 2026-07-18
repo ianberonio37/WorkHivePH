@@ -23,7 +23,7 @@
  * voice-embeddings edge fn — not invoked here.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, trackHandled } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
@@ -105,7 +105,7 @@ function adaptGeneric(source: Source, payload: Record<string, unknown>): { event
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("data-fabric-normalizer", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -199,6 +199,8 @@ serve(async (req) => {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    // T2b (shape-preserving): aggregate this HANDLED failure to wh_traces, keep the batch-result shape.
+    await trackHandled(req, "data-fabric-normalizer", "normalize_error", error);
     return new Response(JSON.stringify({ ok: false, written: 0, deduped: 0, errors: [error.message] }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

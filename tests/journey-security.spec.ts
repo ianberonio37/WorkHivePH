@@ -2,7 +2,7 @@
  * Tier 8 — Security & multi-tenancy (6 scenarios, P0)
  *
  * RLS isolation, console-call escalation prevention, onclick role guards,
- * XSS, service_role exposure, Stripe webhook signature.
+ * XSS, service_role exposure, tenant boundary predicates.
  *
  * I4, I5 are static (real assertions). Others are fixme until live test
  * environment is reachable.
@@ -102,14 +102,7 @@ test.describe('Tier 8 — Security & multi-tenancy', () => {
     expect(offenders, 'no frontend file should contain a service_role JWT').toEqual([]);
   });
 
-  test('I6_stripe_webhook_signature_verifier_present: marketplace-webhook implements HMAC SHA-256 verification', async () => {
-    // WHY: signature verification is the only barrier against forged webhooks (security skill)
-    // STATIC: marketplace-webhook/index.ts must contain all 3 components (per validate_marketplace.webhook_signature)
-    const fn = readFileSync(resolve(ROOT, 'supabase', 'functions', 'marketplace-webhook', 'index.ts'), 'utf-8');
-    expect(fn, 'reads stripe-signature header').toMatch(/['"]stripe-signature['"]/i);
-    expect(fn, 'uses HMAC SHA-256 via crypto.subtle').toMatch(/crypto\.subtle\.(?:importKey|sign)/);
-    expect(fn, 'imports key with HMAC + SHA-256').toMatch(/HMAC[\s\S]{0,60}SHA-256/);
-    // Raw body must be read via req.text() (not req.json() — that loses signed bytes).
-    expect(fn, 'reads raw body via req.text() not req.json()').toMatch(/await\s+req\.text\(\)/);
-  });
+  // I6 (Stripe webhook HMAC verification) removed 2026-06-30: the marketplace is
+  // now free + contact-only and the marketplace-webhook edge fn was deleted with
+  // the rest of the Stripe payment rail.
 });

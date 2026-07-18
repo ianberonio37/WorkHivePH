@@ -8,7 +8,7 @@ at the UI layer.
 
 ## Summary
 
-- Pages scanned:                    **31**
+- Pages scanned:                    **29**
 - Partial formulas tracked:         **7**
 - Pages that display a partial:     **3**
 - Pages with at-least-one honesty marker: **3**

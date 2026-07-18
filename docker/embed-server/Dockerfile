@@ -21,11 +21,19 @@ WORKDIR /app
 RUN pip install --no-cache-dir fastembed
 
 # Cache the model INSIDE the image at build time so startup is instant + offline.
+# Kept BEFORE the psycopg2 layer so adding/changing the self-heal deps never invalidates this
+# ~130MB model-download layer (that re-download stalls on a slow build network).
 ENV FASTEMBED_CACHE_PATH=/app/models
 RUN python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-en-v1.5'); print('bge-small baked into image')"
 
-# The server (stdlib HTTP, binds 0.0.0.0:8901).
+# psycopg2-binary lets the OPTIONAL self-heal thread (WH_EMBED_SELFHEAL_MIN) re-embed dirty corpus
+# rows so THIS one container is the complete hands-free self-healing embedder. Its own layer so it
+# doesn't bust the model cache above.
+RUN pip install --no-cache-dir psycopg2-binary
+
+# The server (stdlib HTTP, binds 0.0.0.0:8901) + the self-heal sweep it shells out to.
 COPY tools/embed_server.py /app/embed_server.py
+COPY tools/reembed_dirty_knowledge.py /app/reembed_dirty_knowledge.py
 
 EXPOSE 8901
 

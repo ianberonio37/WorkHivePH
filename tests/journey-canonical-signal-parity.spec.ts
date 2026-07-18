@@ -39,6 +39,10 @@ type ParityCase = {
   filterIn?:     { col: string; values: string[] }; // .in() filter for enum columns
   extraEq?:      { col: string; value: string }[];  // additional .eq() filters (compound)
   extraIsNull?:  string[];        // columns required to be NULL (soft-delete filter)
+  // 'assets' mode only: subtract asset_ids that ALSO have this boolean column true. Models a
+  // worst-status-wins display where a higher-priority tier claims the asset — e.g. pm-scheduler's
+  // #stat-duesoon excludes assets that are also overdue (they show under Overdue, not Due Soon).
+  excludeAssetsWhere?: string;
   // Counting mode: 'rows'   = COUNT WHERE filter=true
   //                'assets' = COUNT DISTINCT asset_id WHERE filter=true
   //                'all'    = COUNT all rows (no filter; for "X tracked" totals)
@@ -105,11 +109,17 @@ const CASES: ParityCase[] = [
     expectExact:   true,
   },
   {
-    name:          'check_pm_overdue_home_tile: home tile == hive Team Pulse count (both v_pm_scope_items_truth.is_overdue / v_pm_compliance_truth.is_due rollup)',
+    // 2026-07-11: canonical corrected is_due → is_overdue. index.html's pm-overdue tile was migrated
+    // (index.html:3823-3833) from v_pm_compliance_truth.is_due to v_pm_scope_items_truth.is_overdue
+    // (the SAME frequency-aware is_overdue signal pm-scheduler #stat-overdue + the hive RPC + hive
+    // Team Pulse #pulse-pm-overdue use), but this check was left on the retired is_due canonical — so
+    // it drifted (tile=4 is_overdue vs is_due=21) once the date advanced and is_due grew. Now matches
+    // check_pm_overdue_scope_items_count, so the home tile is verified against the value it displays.
+    name:          'check_pm_overdue_home_tile: index.html pm-overdue tile == COUNT(v_pm_scope_items_truth WHERE is_overdue) (== hive #pulse-pm-overdue)',
     page:          '/workhive/index.html',
     domSelector:   '[data-kpi="pm-overdue"] .oh-tile-num',
-    view:          'v_pm_compliance_truth',
-    filterColumn:  'is_due',
+    view:          'v_pm_scope_items_truth',
+    filterColumn:  'is_overdue',
     mode:          'rows',
     expectExact:   true,
   },
@@ -133,12 +143,18 @@ const CASES: ParityCase[] = [
   // 2026-05-20 — expanding to cover more of the 30-page surface set per
   // the canonical-page-inventory memory.
   {
-    name:          'check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id) WHERE is_due_soon',
+    // 2026-07-11: added excludeAssetsWhere is_overdue. pm-scheduler groups scope items into asset
+    // cards and applies WORST-STATUS-WINS (pm-scheduler.html:1377 checks is_overdue before is_due_soon),
+    // so an asset that is BOTH overdue and due-soon displays under Overdue, not Due Soon. The flat
+    // canonical DISTINCT(asset_id WHERE is_due_soon)=29 over-counted by the 4 also-overdue assets;
+    // subtracting DISTINCT(asset_id WHERE is_overdue) yields the 25 the tile correctly shows.
+    name:          'check_pm_duesoon_assets_count: pm-scheduler #stat-duesoon == DISTINCT(asset_id WHERE is_due_soon) minus also-overdue assets',
     page:          '/workhive/pm-scheduler.html',
     domSelector:   '#stat-duesoon',
     view:          'v_pm_scope_items_truth',
     filterColumn:  'is_due_soon',
     mode:          'assets',
+    excludeAssetsWhere: 'is_overdue',
     expectExact:   true,
   },
   {
@@ -171,63 +187,13 @@ const CASES: ParityCase[] = [
     // We just guard the floor (no fewer than the risk subset).
     expectExact:   false,
   },
-  // 2026-05-20 — Predictive Maintenance per-tier risk counts. Each tier
-  // count comes from _scores which loads v_risk_truth wholesale; the
-  // displayed number must equal the canonical count for the same level.
-  {
-    name:          'check_predictive_critical_count: predictive #count-critical == COUNT(v_risk_truth WHERE risk_level=critical)',
-    page:          '/workhive/predictive.html',
-    domSelector:   '#count-critical',
-    view:          'v_risk_truth',
-    filterIn:      { col: 'risk_level', values: ['critical'] },
-    mode:          'rows',
-    expectExact:   true,
-  },
-  {
-    name:          'check_predictive_high_count: predictive #count-high == COUNT(v_risk_truth WHERE risk_level=high)',
-    page:          '/workhive/predictive.html',
-    domSelector:   '#count-high',
-    view:          'v_risk_truth',
-    filterIn:      { col: 'risk_level', values: ['high'] },
-    mode:          'rows',
-    expectExact:   true,
-  },
-  {
-    name:          'check_predictive_medium_count: predictive #count-medium == COUNT(v_risk_truth WHERE risk_level=medium)',
-    page:          '/workhive/predictive.html',
-    domSelector:   '#count-medium',
-    view:          'v_risk_truth',
-    filterIn:      { col: 'risk_level', values: ['medium'] },
-    mode:          'rows',
-    expectExact:   true,
-  },
-  {
-    name:          'check_predictive_low_count: predictive #count-low == COUNT(v_risk_truth WHERE risk_level=low)',
-    page:          '/workhive/predictive.html',
-    domSelector:   '#count-low',
-    view:          'v_risk_truth',
-    filterIn:      { col: 'risk_level', values: ['low'] },
-    mode:          'rows',
-    expectExact:   true,
-  },
-  {
-    name:          'check_predictive_hot_hero: predictive #pr-hot-hero == COUNT(v_risk_truth WHERE risk_level IN critical/high)',
-    page:          '/workhive/predictive.html',
-    domSelector:   '#pr-hot-hero',
-    view:          'v_risk_truth',
-    filterIn:      { col: 'risk_level', values: ['critical', 'high'] },
-    mode:          'rows',
-    expectExact:   true,
-  },
-  {
-    name:          'check_predictive_healthy_hero: predictive #pr-healthy-hero == COUNT(v_risk_truth WHERE risk_level=low)',
-    page:          '/workhive/predictive.html',
-    domSelector:   '#pr-healthy-hero',
-    view:          'v_risk_truth',
-    filterIn:      { col: 'risk_level', values: ['low'] },
-    mode:          'rows',
-    expectExact:   true,
-  },
+  // 2026-05-20 — Predictive Maintenance per-tier risk counts (predictive.html #count-critical/
+  // high/medium/low + #pr-hot-hero/#pr-healthy-hero). RETIRED 2026-07-11: predictive.html was
+  // decommissioned (its risk analytics folded into asset-hub + analytics.html); the page 404s and
+  // those DOM ids no longer exist anywhere, so these 6 checks were failing on a dead page.
+  // v_risk_truth parity is still guarded by check_alert_hub_critical_count (alert-hub #ah-critical-hero,
+  // floor) + the asset-hub critical checks below. Removed rather than re-homed because the retired
+  // page's granular per-tier count cells were not reproduced on the successor surfaces.
   // 2026-05-20 — Marketplace per-section listing counts. loadCounts() pulls
   // `section` from v_marketplace_listings_truth (published only).
   {
@@ -360,7 +326,7 @@ test.describe('canonical signal parity', () => {
 
       // ── Query the canonical view independently ────────────────────────
       const canonicalCount = await whPage.evaluate(
-        async ({ view, column, filterIn, extraEq, extraIsNull, mode, crossHive, scopeByWorker }) => {
+        async ({ view, column, filterIn, extraEq, extraIsNull, excludeAssetsWhere, mode, crossHive, scopeByWorker }) => {
           // @ts-expect-error db is a page-scope Supabase client
           if (typeof db === 'undefined' || !db) return -1;
           // Several canonical views (v_risk_truth, v_pm_scope_items_truth,
@@ -415,11 +381,22 @@ test.describe('canonical signal parity', () => {
             const { data, error } = await q;
             if (error) return -1;
             const ids = new Set((data || []).map((r: any) => r.asset_id).filter(Boolean));
+            if (excludeAssetsWhere) {
+              // worst-status precedence: an asset that ALSO matches excludeAssetsWhere (e.g.
+              // is_overdue) is displayed under that higher-priority tier, so it's not counted here.
+              // @ts-expect-error
+              let xq = db.from(view).select('asset_id').eq(excludeAssetsWhere, true);
+              xq = scopeHive(xq); xq = scopeWorker(xq);
+              const { data: xdata, error: xerr } = await xq;
+              if (xerr) return -1;
+              for (const r of (xdata || [])) ids.delete((r as any).asset_id);
+            }
             return ids.size;
           }
         },
         { view: c.view, column: c.filterColumn, filterIn: c.filterIn,
-          extraEq: c.extraEq, extraIsNull: c.extraIsNull, mode: c.mode,
+          extraEq: c.extraEq, extraIsNull: c.extraIsNull,
+          excludeAssetsWhere: c.excludeAssetsWhere, mode: c.mode,
           crossHive: !!c.crossHive, scopeByWorker: c.scopeByWorker },
       );
 

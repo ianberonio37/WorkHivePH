@@ -1,9 +1,9 @@
 {
   "_doc": "Per-page display provenance (Phase E2). Powers the 'where did this come from?' hover. Keyed page -> element-id -> {rung, via, label, lines[]}. ONLY high-confidence anchors appear (formula-contract match sharing a specific token with the formula) so the hover never shows a confidently-WRONG source; loose js-heuristic + no-shared-token matches are the E3 residual (Phase B.2 hardening), excluded not faked. Built by tools/build_display_provenance.py from display_anchor_sources.json + display_ladder.json.",
   "totals": {
-    "trustworthy_shown": 64,
-    "excluded_low_confidence": 1,
-    "pages_with_provenance": 21
+    "trustworthy_shown": 58,
+    "excluded_low_confidence": 4,
+    "pages_with_provenance": 18
   },
   "pages": {
     "hive.html": {
@@ -332,19 +332,6 @@
         ]
       }
     },
-    "marketplace-seller.html": {
-      "ps-earned": {
-        "rung": "descriptive",
-        "rung_label": "Current measure",
-        "via": "verified_bind",
-        "label": "Your total earnings (after the 5% platform fee)",
-        "source": "v_marketplace_orders_truth",
-        "lines": [
-          "Shows: Your total earnings (after the 5% platform fee)",
-          "Based on: your marketplace orders"
-        ]
-      }
-    },
     "dayplanner.html": {
       "dp-verdict-label": {
         "rung": "diagnostic",
@@ -377,41 +364,6 @@
         "lines": [
           "Shows: Open logbook items on your plan",
           "Based on: your logbook entries"
-        ]
-      }
-    },
-    "platform-health.html": {
-      "health-label": {
-        "rung": "diagnostic",
-        "rung_label": "What's happening",
-        "via": "verified_bind",
-        "label": "Overall status: healthy, review, or action",
-        "source": "platform_health.json",
-        "lines": [
-          "Shows: Overall status: healthy, review, or action",
-          "Based on: the platform status report"
-        ]
-      },
-      "health-num": {
-        "rung": "diagnostic",
-        "rung_label": "What's happening",
-        "via": "verified_bind",
-        "label": "Overall platform health score (0-100)",
-        "source": "platform_health.json",
-        "lines": [
-          "Shows: Overall platform health score (0-100)",
-          "Based on: the platform status report"
-        ]
-      },
-      "streak-num": {
-        "rung": "descriptive",
-        "rung_label": "Current measure",
-        "via": "verified_bind",
-        "label": "How many checks in a row passed cleanly",
-        "source": "wh_guard_hist (localStorage validator run history)",
-        "lines": [
-          "Shows: How many checks in a row passed cleanly",
-          "Based on: this device's check history"
         ]
       }
     },
@@ -462,30 +414,6 @@
         "lines": [
           "Shows: A plain-language read of the latest regional report",
           "Based on: the Philippine maintenance benchmark"
-        ]
-      }
-    },
-    "predictive.html": {
-      "pr-verdict-label": {
-        "rung": "predictive",
-        "rung_label": "Forecast",
-        "via": "verified_bind",
-        "label": "A plain-language read of your fleet's risk",
-        "source": "v_risk_truth",
-        "lines": [
-          "Shows: A plain-language read of your fleet's risk",
-          "Based on: the risk scores"
-        ]
-      },
-      "trend-label": {
-        "rung": "predictive",
-        "rung_label": "Forecast",
-        "via": "verified_bind",
-        "label": "Whether breakdowns are trending up or down",
-        "source": "analytics-orchestrator",
-        "lines": [
-          "Shows: Whether breakdowns are trending up or down",
-          "Based on: the analytics engine"
         ]
       }
     },
@@ -758,7 +686,25 @@
   "e3_residual": [
     {
       "page": "hive.html",
+      "id": "audit-log-count",
+      "kind": "data_needs_bind",
+      "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
+    },
+    {
+      "page": "hive.html",
+      "id": "roster-count",
+      "kind": "data_needs_bind",
+      "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
+    },
+    {
+      "page": "hive.html",
       "id": "hive-focus-label",
+      "kind": "data_needs_bind",
+      "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
+    },
+    {
+      "page": "marketplace.html",
+      "id": "post-ai-assist-label",
       "kind": "data_needs_bind",
       "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
     }

@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
 // capability: ai_specialist_engineering
 
 // contract-allow: deterministic engineering calcs; not a brain output
@@ -1560,6 +1560,29 @@ function calcHotWaterDemand(inputs: Record<string, number | string>): Record<str
   };
 }
 
+// AI-1 (deep-arc P5): grounding rail for the spoken `narration` field, which the prompt
+// contracts to "quote the single headline design value verbatim". An LLM can instead voice a
+// fabricated figure. If narration quotes numbers, at least one must match a value we actually
+// computed (within 2% / 0.05 tolerance for rounding); otherwise it is ungrounded and we drop
+// it. Conservative by design — only the OPTIONAL spoken field is affected (the formal report
+// fields are untouched), so a false negative never removes report content, and a real
+// fabrication in the voice line is silenced rather than spoken.
+function narrationQuotesResult(narration: string, results: Record<string, unknown>): boolean {
+  const nums = String(narration).match(/-?\d[\d,]*(?:\.\d+)?/g);
+  if (!nums) return true;                 // no numeric claim to verify — nothing to fabricate
+  const ground: number[] = [];
+  const collect = (o: unknown) => {
+    if (typeof o === "number") ground.push(o);
+    else if (typeof o === "string") { const m = o.match(/-?\d+(?:\.\d+)?/g); if (m) m.forEach((x) => ground.push(parseFloat(x))); }
+    else if (o && typeof o === "object") Object.values(o as Record<string, unknown>).forEach(collect);
+  };
+  collect(results);
+  return nums.some((nStr) => {
+    const n = parseFloat(nStr.replace(/,/g, ""));
+    return ground.some((g) => Math.abs(g - n) <= Math.max(0.05, Math.abs(g) * 0.02));
+  });
+}
+
 async function generateReportNarrative(
   calcType: string,
   inputs: Record<string, number | string>,
@@ -1576,6 +1599,11 @@ Write three short professional sections (2-4 sentences each):
 1. OBJECTIVE - what this calculation determines and why
 2. ASSUMPTIONS - key design assumptions and conditions used
 3. RECOMMENDATIONS - what to specify or install based on results
+
+CITATION RULE (AI-6 grounding): when you name an engineering standard, cite ONLY a real, published
+standard by its correct issuing body (e.g. NFPA, PEC, ASHRAE, ISO, ASME, IEC, PSME, NSCP, DPWH,
+DENR, DOH, ASTM, AISI). Do NOT invent standards, and do NOT cite a regulator or licensing body (e.g.
+the PRC) as if it were a design standard. If unsure of the exact standard number, name the body only.
 
 Respond in JSON format only:
 {
@@ -1597,6 +1625,8 @@ Respond in JSON format only:
       const parsed = JSON.parse(cleaned);
       if (parsed.objective && parsed.assumptions && parsed.recommendations) {
         if (parsed.narration) parsed.narration = String(parsed.narration).trim().slice(0, 280);
+        // AI-1 grounding rail: silence the spoken line if it quotes an unverifiable figure.
+        if (parsed.narration && !narrationQuotesResult(parsed.narration, results)) parsed.narration = null;
         return parsed;
       }
     }
@@ -5984,7 +6014,7 @@ function calcRefrigPipeSizing(inputs: Record<string, unknown>): Record<string, u
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("engineering-calc-agent", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -6168,9 +6198,7 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "engineering-calc-agent", "engineering_calc_agent_error", err);
   }
 });

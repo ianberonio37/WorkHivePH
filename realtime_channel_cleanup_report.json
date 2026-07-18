@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 31,
-    "total_channels": 23,
+    "pages_scanned": 29,
+    "total_channels": 22,
     "unsafe_pages": 0,
     "baseline": 0
   },
@@ -15,7 +15,7 @@
     {
       "page": "hive.html",
       "channels": 8,
-      "removes": 25,
+      "removes": 27,
       "has_unmount": true
     },
     {
@@ -109,12 +109,6 @@
       "has_unmount": false
     },
     {
-      "page": "platform-health.html",
-      "channels": 0,
-      "removes": 0,
-      "has_unmount": true
-    },
-    {
       "page": "project-manager.html",
       "channels": 1,
       "removes": 2,
@@ -137,12 +131,6 @@
       "channels": 0,
       "removes": 0,
       "has_unmount": false
-    },
-    {
-      "page": "predictive.html",
-      "channels": 1,
-      "removes": 1,
-      "has_unmount": true
     },
     {
       "page": "ai-quality.html",

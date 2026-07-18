@@ -1,56 +1,85 @@
 {
-  "_doc": [
-    "Documented LEGITIMATE surface-pair overlaps and phantom-table exceptions.",
-    "",
-    "validate_canonical_overlap.py reads canonical_registry.json + this file.",
-    "Any surface-pair overlap NOT in `overlaps` below is treated as a new",
-    "duplicate-creation candidate and FAILs the gate.",
-    "",
-    "Adding an entry here is the explicit 'this is intentional' switch.",
-    "Each entry MUST cite the reason -- usually 'role-based views over",
-    "shared canonical sources' (admin / seller / worker accessing the",
-    "same data model from different angles)."
-  ],
-  "overlaps": [
-    {
-      "surfaces": ["marketplace-admin.html", "marketplace-seller.html"],
-      "reason": "Role-views over marketplace canonical sources. marketplace-admin moderates listings + resolves disputes (platform staff role); marketplace-seller manages their own listings + reads disputes against them (seller role). Both legitimately read marketplace_listings / marketplace_orders / marketplace_disputes / hive_audit_log -- the data model is the same, the access predicate differs.",
-      "reviewed": "2026-05-19"
-    },
-    {
-      "surfaces": ["marketplace-admin.html", "marketplace.html"],
-      "reason": "Role-views over marketplace canonical sources. marketplace-admin = platform moderation; marketplace.html = buyer-facing browse + checkout. Different audiences, same data backbone.",
-      "reviewed": "2026-05-19"
-    },
-    {
-      "surfaces": ["marketplace-seller.html", "marketplace.html"],
-      "reason": "Role-views over marketplace canonical sources. marketplace-seller = seller managing own listings; marketplace.html = buyer browse + checkout. Different audiences, same backbone.",
-      "reviewed": "2026-05-19"
-    },
-    {
-      "surfaces": ["logbook.html", "pm-scheduler.html"],
-      "reason": "Role-views over PM/asset canonical sources. logbook = worker field-recording entry point (also wraps OCR / voice / visual defect intake + inventory transactions); pm-scheduler = supervisor cadence planning (uniquely owns pm_scope_items). Both legitimately touch pm_assets + pm_completions + logbook + asset_nodes. Different role + each surface owns a distinct unique table (logbook: inventory_items/transactions, equipment_reading_templates, fault_knowledge; pm-scheduler: pm_scope_items).",
-      "reviewed": "2026-05-19"
-    }
-  ],
-  "near_duplicate_columns": [
-    {
-      "table": "marketplace_sellers",
-      "columns": ["kyb_verified", "kyb_verified_at"],
-      "reason": "Boolean flag + timestamp pair -- canonical Postgres convention, not drift. kyb_verified is the gating boolean; kyb_verified_at records when verification happened.",
-      "reviewed": "2026-05-19"
-    },
-    {
-      "table": "marketplace_sellers",
-      "columns": ["cert_verified", "cert_verified_at"],
-      "reason": "Same boolean + timestamp pattern as kyb_verified / kyb_verified_at. Legit.",
-      "reviewed": "2026-05-19"
-    },
-    {
-      "table": "unified_events",
-      "columns": ["source", "source_id"],
-      "reason": "Two-axis identity per Agentic RAG Phase 5 data fabric design: `source` is the event-class enum (sap_pm, maximo, opc_ua, mqtt, voice, photo_ocr, ...) — the WHICH-adapter axis. `source_id` is the per-source primary key (e.g. the SAP work-order number or MQTT message UUID) — the WHICH-row-within-adapter axis. Both are needed to round-trip an event back to its origin. The near-duplicate detector reads them as similar tokens; they are intentionally orthogonal.",
-      "reviewed": "2026-05-25"
-    }
-  ]
+ "_doc": [
+  "Documented LEGITIMATE surface-pair overlaps and phantom-table exceptions.",
+  "",
+  "validate_canonical_overlap.py reads canonical_registry.json + this file.",
+  "Any surface-pair overlap NOT in `overlaps` below is treated as a new",
+  "duplicate-creation candidate and FAILs the gate.",
+  "",
+  "Adding an entry here is the explicit 'this is intentional' switch.",
+  "Each entry MUST cite the reason -- usually 'role-based views over",
+  "shared canonical sources' (admin / seller / worker accessing the",
+  "same data model from different angles)."
+ ],
+ "overlaps": [
+  {
+   "surfaces": [
+    "marketplace-admin.html",
+    "marketplace-seller.html"
+   ],
+   "reason": "Role-views over marketplace canonical sources. marketplace-admin moderates listings + resolves disputes (platform staff role); marketplace-seller manages their own listings + reads disputes against them (seller role). Both legitimately read marketplace_listings / marketplace_orders / marketplace_disputes / hive_audit_log -- the data model is the same, the access predicate differs.",
+   "reviewed": "2026-05-19"
+  },
+  {
+   "surfaces": [
+    "logbook.html",
+    "pm-scheduler.html"
+   ],
+   "reason": "Role-views over PM/asset canonical sources. logbook = worker field-recording entry point (also wraps OCR / voice / visual defect intake + inventory transactions); pm-scheduler = supervisor cadence planning (uniquely owns pm_scope_items). Both legitimately touch pm_assets + pm_completions + logbook + asset_nodes. Different role + each surface owns a distinct unique table (logbook: inventory_items/transactions, equipment_reading_templates, fault_knowledge; pm-scheduler: pm_scope_items).",
+   "reviewed": "2026-05-19"
+  },
+  {
+   "surfaces": [
+    "marketplace-admin.html",
+    "platform-actions.html"
+   ],
+   "reason": "Role-views over marketplace canonical sources. platform-actions.html is the Operator Console (platform-staff/operator role) that moderates the marketplace family -- approve/reject listings, verify seller KYB/cert, resolve disputes -- reading marketplace_listings / marketplace_sellers / marketplace_disputes / hive_audit_log from the operator angle. Same data model as marketplace-admin, different access predicate. Same class as the marketplace-admin<->marketplace-seller entry above. NOTE: platform-actions<->marketplace-admin Jaccard 0.75 is high; flagged for a future consolidation review, kept distinct for now (Operator Console is the platform-wide superset, marketplace-admin is marketplace-scoped).",
+   "reviewed": "2026-07-18"
+  },
+  {
+   "surfaces": [
+    "marketplace-seller.html",
+    "platform-actions.html"
+   ],
+   "reason": "Role-views over marketplace canonical sources. platform-actions.html is the Operator Console (platform-staff/operator role) that moderates the marketplace family -- approve/reject listings, verify seller KYB/cert, resolve disputes -- reading marketplace_listings / marketplace_sellers / marketplace_disputes / hive_audit_log from the operator angle. Same data model as marketplace-seller, different access predicate. Same class as the marketplace-admin<->marketplace-seller entry above. NOTE: platform-actions<->marketplace-admin Jaccard 0.75 is high; flagged for a future consolidation review, kept distinct for now (Operator Console is the platform-wide superset, marketplace-admin is marketplace-scoped).",
+   "reviewed": "2026-07-18"
+  },
+  {
+   "surfaces": [
+    "founder-console.html",
+    "platform-actions.html"
+   ],
+   "reason": "Role-views over marketplace canonical sources. platform-actions.html is the Operator Console (platform-staff/operator role) that moderates the marketplace family -- approve/reject listings, verify seller KYB/cert, resolve disputes -- reading marketplace_listings / marketplace_sellers / marketplace_disputes / hive_audit_log from the operator angle. Same data model as founder-console, different access predicate. Same class as the marketplace-admin<->marketplace-seller entry above. NOTE: platform-actions<->marketplace-admin Jaccard 0.75 is high; flagged for a future consolidation review, kept distinct for now (Operator Console is the platform-wide superset, marketplace-admin is marketplace-scoped).",
+   "reviewed": "2026-07-18"
+  }
+ ],
+ "near_duplicate_columns": [
+  {
+   "table": "marketplace_sellers",
+   "columns": [
+    "kyb_verified",
+    "kyb_verified_at"
+   ],
+   "reason": "Boolean flag + timestamp pair -- canonical Postgres convention, not drift. kyb_verified is the gating boolean; kyb_verified_at records when verification happened.",
+   "reviewed": "2026-05-19"
+  },
+  {
+   "table": "marketplace_sellers",
+   "columns": [
+    "cert_verified",
+    "cert_verified_at"
+   ],
+   "reason": "Same boolean + timestamp pattern as kyb_verified / kyb_verified_at. Legit.",
+   "reviewed": "2026-05-19"
+  },
+  {
+   "table": "unified_events",
+   "columns": [
+    "source",
+    "source_id"
+   ],
+   "reason": "Two-axis identity per Agentic RAG Phase 5 data fabric design: `source` is the event-class enum (sap_pm, maximo, opc_ua, mqtt, voice, photo_ocr, ...) — the WHICH-adapter axis. `source_id` is the per-source primary key (e.g. the SAP work-order number or MQTT message UUID) — the WHICH-row-within-adapter axis. Both are needed to round-trip an event back to its origin. The near-duplicate detector reads them as similar tokens; they are intentionally orthogonal.",
+   "reviewed": "2026-05-25"
+  }
+ ]
 }

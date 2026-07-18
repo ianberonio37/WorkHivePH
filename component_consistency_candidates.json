@@ -1,5 +1,50 @@
 {
   "_doc": "Component battery critic candidates (sweep_critiques schema). Route: python ufai_ingest.py component_consistency_candidates.json",
-  "generated": "2026-06-09T13:56:31.954491+00:00",
-  "candidates": []
+  "generated": "2026-07-15T05:41:38.365010+00:00",
+  "candidates": [
+    {
+      "key": "sweep:component:simple-card:missing-sc-label:hive",
+      "page": "hive.html",
+      "wave": 0,
+      "title": ".simple-card on hive is missing required .sc-label",
+      "pillar": "U/Component",
+      "severity": "Minor",
+      "effort": "S",
+      "flag": "TASTE",
+      "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+    },
+    {
+      "key": "sweep:component:simple-card:missing-sc-label:hive",
+      "page": "hive.html",
+      "wave": 0,
+      "title": ".simple-card on hive is missing required .sc-label",
+      "pillar": "U/Component",
+      "severity": "Minor",
+      "effort": "S",
+      "flag": "TASTE",
+      "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+    },
+    {
+      "key": "sweep:component:simple-card:missing-sc-label:hive",
+      "page": "hive.html",
+      "wave": 0,
+      "title": ".simple-card on hive is missing required .sc-label",
+      "pillar": "U/Component",
+      "severity": "Minor",
+      "effort": "S",
+      "flag": "TASTE",
+      "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+    },
+    {
+      "key": "sweep:component:simple-card:shape-variants",
+      "page": "achievements.html",
+      "wave": 0,
+      "title": ".simple-card renders in 2 different shapes across pages",
+      "pillar": "U/Component",
+      "severity": "Polish",
+      "effort": "M",
+      "flag": "TASTE",
+      "should_be": "the modal .simple-card shape is ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag'] (45 instances); 1 minority variant(s) exist e.g. on hive (delta ['.sc-label', '.sc-sub', '.sc-tag']). Converge to one shape (Jakob/consistency) or document the intentional variant."
+    }
+  ]
 }

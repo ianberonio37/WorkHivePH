@@ -19,6 +19,10 @@ def seed_risk_scores(client, log, ctx: dict) -> dict:
         log("  no assets in ctx — risk scores skipped")
         return {"risk_scores_count": 0}
 
+    # (level, score, factors, fallback_mtbf). mtbf_days is sourced from the CANONICAL
+    # get_mtbf_by_machine engine below when the asset has failure history; the fallback is
+    # only used for assets with no failures in the window (those aren't compared to the live
+    # engine by validate_reliability_kpi_faithfulness, which inner-joins on the machine).
     spread = [
         ("critical", 0.90, ["pm_overdue", "repeat_fault", "high_fault_freq"], 12.0),
         ("high",     0.78, ["high_fault_freq", "mtbf_approaching"],          22.0),
@@ -31,11 +35,30 @@ def seed_risk_scores(client, log, ctx: dict) -> dict:
     for hive_id, assets in assets_by_hive.items():
         if not assets:
             continue
+        # Canonical MTBF per machine (the SAME engine batch-risk-scoring uses) so the seeded
+        # cache is FAITHFUL to get_mtbf_by_machine. Without this the seeder writes synthetic
+        # mtbf_days that diverge from the live engine -> validate_reliability_kpi_faithfulness
+        # FAILs on every reseed (the cross-session reliability-KPI seesaw). Runs after logbook
+        # is seeded (orchestrator order), so the RPC returns real values.
+        mtbf_by_machine: dict = {}
+        try:
+            rpc = client.rpc("get_mtbf_by_machine",
+                             {"p_hive_id": hive_id, "p_worker": None, "p_period_days": 365}
+                             ).execute().data or []
+            for r in rpc:
+                m = (r.get("machine") or "").strip().lower()
+                v = r.get("mtbf_days")
+                if m and v is not None:
+                    mtbf_by_machine[m] = round(float(v), 1)
+        except Exception as e:  # RPC unavailable -> fall back (rows just won't be canonical)
+            log(f"  get_mtbf_by_machine unavailable ({e}); using fallback mtbf")
         chosen = random.sample(assets, min(len(spread), len(assets)))
-        for asset, (level, score, factors, mtbf) in zip(chosen, spread):
+        for asset, (level, score, factors, fallback_mtbf) in zip(chosen, spread):
+            asset_name = asset.get("asset_id") or asset.get("name") or "Unnamed"
+            mtbf = mtbf_by_machine.get(asset_name.strip().lower(), fallback_mtbf)
             rows.append({
                 "hive_id":            hive_id,
-                "asset_name":         asset.get("asset_id") or asset.get("name") or "Unnamed",
+                "asset_name":         asset_name,
                 "risk_score":         score,
                 "risk_level":         level,
                 "health_score":       round((1.0 - score) * 100, 1),

@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // capability: report_email_dispatch
@@ -47,6 +48,17 @@ function isValidEmail(e: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
 }
 
+// HTML-escape for any string rendered into the email body. EVERY dynamic sink
+// must pass through this — not just `summary`. `r.type` (→ meta.label on the
+// unknown-type fallback) is client-controlled and `hiveName` is stored DB text;
+// both are attacker-influenceable → HTML/link-injection in an authed, branded
+// email relay if left raw. (Analytics Engine arc, I3/I6, 2026-07-10.)
+function esc(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 function buildEmailHtml(
   hiveName: string,
   reports: Array<{ type: string; summary: string }>,
@@ -54,13 +66,11 @@ function buildEmailHtml(
 ): string {
   const cards = reports.map(r => {
     const meta  = REPORT_META[r.type] ?? { label: r.type, color: "#F7A21B", link: "https://workhiveph.com" };
-    // Escape for HTML context — prevent stored XSS from summary content
-    const safeSummary = r.summary
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    const safeSummary = esc(r.summary);
+    const safeLabel   = esc(meta.label);   // r.type on the unknown-type fallback = client-controlled
     return `
       <div style="background:#1a2a3d;border-left:3px solid ${meta.color};padding:16px 20px;margin-bottom:8px;border-radius:0 8px 8px 0;">
-        <div style="font-size:10px;font-weight:700;color:${meta.color};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${meta.label}</div>
+        <div style="font-size:10px;font-weight:700;color:${meta.color};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${safeLabel}</div>
         <p style="color:#d4dce8;font-size:14px;line-height:1.55;margin:0 0 10px;">${safeSummary}</p>
         <a href="${meta.link}" style="font-size:11px;font-weight:600;color:${meta.color};text-decoration:none;">View in WorkHive &rarr;</a>
       </div>`;
@@ -79,7 +89,7 @@ function buildEmailHtml(
     <div style="background:#162032;border-radius:12px 12px 0 0;padding:24px 28px;border-bottom:1px solid rgba(247,162,27,0.2);">
       <div style="font-size:10px;font-weight:700;color:#F7A21B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">WorkHive</div>
       <h1 style="color:#ffffff;font-size:20px;font-weight:800;margin:0 0 4px;line-height:1.2;">Maintenance Report</h1>
-      <p style="color:#7B8794;font-size:12px;margin:0;">${hiveName} &middot; ${sentAt}</p>
+      <p style="color:#7B8794;font-size:12px;margin:0;">${esc(hiveName)} &middot; ${esc(sentAt)}</p>
     </div>
 
     <div style="background:#111e2d;padding:20px 28px;">
@@ -99,7 +109,12 @@ function buildEmailHtml(
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("send-report-email", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "send-report-email", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -284,9 +299,7 @@ serve(async (req) => {
 
   } catch (err) {
     log.error(null, "send-report-email error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "send-report-email", "send_report_email_error", err);
   }
 });

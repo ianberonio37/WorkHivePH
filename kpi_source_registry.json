@@ -81,7 +81,7 @@
       ],
       "required_signal": "risk_level",
       "consumers": [
-        "shift-brain.html",
+        "utils.js",
         "supabase/functions/shift-planner-orchestrator/index.ts"
       ],
       "forbidden": [

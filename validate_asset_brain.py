@@ -480,7 +480,12 @@ def check_edge_fn_uses_callai(text):
 def check_edge_fn_rate_limit_gate(text):
     if not text:
         return [{"check": "edge_fn_rate_limit_gate", "reason": f"{EDGE_FN_PATH} missing."}]
-    if 'checkAIRateLimit' not in text or 'ai_rate_limits' not in text:
+    # 2026-07-17 (FULLSTACK_COMPONENT_LIBRARY Layer A): the fn's local checkAIRateLimit copy
+    # was DELEGATED to the canonical _shared/rate-limit.ts (which owns the ai_rate_limits SQL
+    # and adds the daily ceiling). The canonical-import form satisfies this gate — the literal
+    # table name now lives in the shared module, not the fn.
+    delegated = "checkAIRateLimit" in text and "_shared/rate-limit.ts" in text
+    if 'checkAIRateLimit' not in text or ('ai_rate_limits' not in text and not delegated):
         return [{
             "check": "edge_fn_rate_limit_gate",
             "reason": (

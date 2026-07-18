@@ -182,6 +182,11 @@ PY_AUDIT_ACTION_RE = re.compile(
 
 
 def _harvest_actions_from_sql(src: str) -> set:
+    # Strip SQL line comments FIRST. A commented-out `-- INSERT INTO hive_audit_log (action, ...)`
+    # example, or an aside like `-- gen_random_uuid() (pg_catalog)`, must never be parsed as a real
+    # audit insert — otherwise the crude positional scan harvests a schema/keyword ('pg_catalog') as
+    # a phantom action. (2026-07-11: fixed a false-positive from 20260707000006_fix_delete_worker_data_audit_hive.sql.)
+    src = re.sub(r"--[^\n]*", "", src)
     out = set()
     for m in SQL_INSERT_AUDIT_RE.finditer(src):
         col_list = [c.strip() for c in m.group(1).split(',')]

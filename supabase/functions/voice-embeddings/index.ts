@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -32,7 +33,12 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
  *   - method: "jina" | "local" | "none" (which provider was used)
  */
 
-serve(async (req) => {
+serveObserved("voice-embeddings", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "voice-embeddings", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "voice-embeddings");  // I6 observability
@@ -134,13 +140,7 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    log.error(null, "Unexpected error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-embeddings", "voice_embeddings_error", err);
   }
 });

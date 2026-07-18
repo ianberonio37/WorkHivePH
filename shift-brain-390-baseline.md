@@ -1,0 +1,285 @@
+- generic [active] [ref=f4e1]:
+  - link "Skip to main content" [ref=f4e2] [cursor=pointer]:
+    - /url: "#wh-main-content"
+  - main [ref=f4e3]:
+    - alert: Shift handover generated for this window.
+    - generic [ref=f4e4]:
+      - generic [ref=f4e5]:
+        - link "Back" [ref=f4e6] [cursor=pointer]:
+          - /url: hive.html
+        - generic [ref=f4e9]:
+          - heading "Shift Brain" [level=1] [ref=f4e10]
+          - generic [ref=f4e11]: Autonomous shift planner for your hive
+          - paragraph [ref=f4e12]:
+            - paragraph [ref=f4e13]: Live · shift plan generated on load · Based on your shift plan, risk scores & PM schedule
+            - group [ref=f4e14]:
+              - generic "ⓘ How this is computed" [ref=f4e15] [cursor=pointer]
+      - generic [ref=f4e16]:
+        - button "06-14 Morning" [ref=f4e17] [cursor=pointer]
+        - button "14-22 Afternoon" [ref=f4e18] [cursor=pointer]
+        - button "22-06 Night" [ref=f4e19] [cursor=pointer]
+      - generic [ref=f4e20]:
+        - img "warning" [ref=f4e91]
+        - generic [ref=f4e22]:
+          - text: "Heavy shift: prioritize hot assets and carry-forward"
+          - button "Where did this come from? Show data source." [ref=f4e23] [cursor=pointer]: ⓘ
+          - generic [ref=f4e24]: 2 high-risk · 1 PMs · 17 carry-forward · 3 parts to stage.
+      - generic [ref=f4e25]:
+        - generic [ref=f4e26]:
+          - generic [ref=f4e27]: Top risk this shift
+          - generic [ref=f4e28]: "2"
+          - generic [ref=f4e29]: 2 assets flagged for this window
+          - generic [ref=f4e30]: WATCH
+        - generic [ref=f4e31]:
+          - generic [ref=f4e32]: PMs due
+          - generic [ref=f4e33]: "1"
+          - generic [ref=f4e34]: 1 preventive task due this window
+          - generic [ref=f4e35]: PLAN
+        - generic [ref=f4e36]:
+          - generic [ref=f4e37]: Carry-forward
+          - generic [ref=f4e38]: "17"
+          - generic [ref=f4e39]: 17 open items carried over
+          - generic [ref=f4e40]: STACKING
+      - generic [ref=f4e41]:
+        - generic [ref=f4e42]: What to do next
+        - generic [ref=f4e43]: 17 open items carried forward. Close out the simplest ones first to clear the queue, then attack the rest with the freed-up time.
+        - link "Do the recommended next action" [ref=f4e93] [cursor=pointer]:
+          - /url: "#"
+          - text: Clear 17 carry-forward →
+      - button "Show details" [ref=f4e44] [cursor=pointer]
+      - generic [ref=f4e45]:
+        - generic [ref=f4e46]:
+          - generic [ref=f4e47]: 14-22
+          - generic [ref=f4e48]: Jul 12, 04:49 PM
+          - generic [ref=f4e49]: draft
+        - generic [ref=f4e171]:
+          - paragraph [ref=f4e172]: Action Brief
+          - generic [ref=f4e173]: shift
+      - generic [ref=f4e51]:
+        - generic [ref=f4e52]:
+          - generic [ref=f4e53]: Top risk assets
+          - generic [ref=f4e54]: "2"
+          - button "Where did this come from? Show data source." [ref=f4e55] [cursor=pointer]: ⓘ
+        - generic [ref=f4e95]:
+          - link "critical GEN-003 90%" [ref=f4e96] [cursor=pointer]:
+            - /url: asset-hub.html?tag=GEN-003
+            - generic [ref=f4e97]:
+              - generic [ref=f4e98]: critical
+              - generic [ref=f4e99]: GEN-003
+            - generic [ref=f4e100]: 90%
+          - link "high FL-001 78%" [ref=f4e102] [cursor=pointer]:
+            - /url: asset-hub.html?tag=FL-001
+            - generic [ref=f4e103]:
+              - generic [ref=f4e104]: high
+              - generic [ref=f4e105]: FL-001
+            - generic [ref=f4e106]: 78%
+      - generic [ref=f4e56]:
+        - generic [ref=f4e57]:
+          - generic [ref=f4e58]: PMs due
+          - generic [ref=f4e59]: "1"
+          - button "Where did this come from? Show data source." [ref=f4e60] [cursor=pointer]: ⓘ
+        - link "OVERDUE Kaeser CSD 105 Medium Overdue by 2d" [ref=f4e110] [cursor=pointer]:
+          - /url: pm-scheduler.html?asset=Kaeser%20CSD%20105
+          - generic [ref=f4e111]:
+            - generic [ref=f4e112]: OVERDUE
+            - generic [ref=f4e113]: Kaeser CSD 105
+          - generic [ref=f4e114]:
+            - generic [ref=f4e115]: Medium
+            - generic [ref=f4e116]: Overdue by 2d
+      - generic [ref=f4e61]:
+        - generic [ref=f4e62]:
+          - generic [ref=f4e63]: Carry-forward (open from prior shift)
+          - generic [ref=f4e64]: "17"
+          - button "Where did this come from? Show data source." [ref=f4e65] [cursor=pointer]: ⓘ
+        - generic [ref=f4e117]:
+          - generic [ref=f4e118]:
+            - generic [ref=f4e119]:
+              - strong [ref=f4e120]: BLR-001
+              - text: · Breakdown / Corrective
+            - generic [ref=f4e121]: Water level low alarm during peak demand
+            - generic [ref=f4e122]: opened Apr 15, 09:49 AM by David Velasco
+          - generic [ref=f4e123]:
+            - generic [ref=f4e124]:
+              - strong [ref=f4e125]: BF-002
+              - text: · Breakdown / Corrective
+            - generic [ref=f4e126]: Bag broken on row 3, dust emission
+            - generic [ref=f4e127]: opened Apr 30, 04:02 AM by David Velasco
+          - generic [ref=f4e128]:
+            - generic [ref=f4e129]:
+              - strong [ref=f4e130]: GEN-003
+              - text: · Breakdown / Corrective
+            - generic [ref=f4e131]: Engine failed to start on auto
+            - generic [ref=f4e132]: opened May 5, 12:48 AM by Dennis Aquino
+          - generic [ref=f4e133]:
+            - generic [ref=f4e134]:
+              - strong [ref=f4e135]: HPU-001
+              - text: · Breakdown / Corrective
+            - generic [ref=f4e136]: Hydraulic oil temp 75°C alarm
+            - generic [ref=f4e137]: opened May 5, 06:15 AM by David Velasco
+          - generic [ref=f4e138]:
+            - generic [ref=f4e139]:
+              - strong [ref=f4e140]: HPU-001
+              - text: · Breakdown / Corrective
+            - generic [ref=f4e141]: Hydraulic oil temp 75°C alarm
+            - generic [ref=f4e142]: opened May 6, 10:27 PM by David Velasco
+          - generic [ref=f4e143]:
+            - generic [ref=f4e144]:
+              - strong [ref=f4e145]: UPS-001
+              - text: · Breakdown / Corrective
+            - generic [ref=f4e146]: Static bypass active, inverter offline
+            - generic [ref=f4e147]: opened May 8, 07:21 AM by Dennis Aquino
+          - button "Show all 17 ↓" [ref=f4e148] [cursor=pointer]
+      - generic [ref=f4e66]:
+        - generic [ref=f4e67]:
+          - generic [ref=f4e68]: Parts pre-stage (low stock)
+          - generic [ref=f4e69]: "3"
+          - button "Where did this come from? Show data source." [ref=f4e70] [cursor=pointer]: ⓘ
+        - generic [ref=f4e150]:
+          - link "LOW Loctite 567 thread sealant on hand 2 / min 4" [ref=f4e151] [cursor=pointer]:
+            - /url: inventory.html?q=Loctite%20567%20thread%20sealant
+            - generic [ref=f4e152]:
+              - generic [ref=f4e153]: LOW
+              - generic [ref=f4e154]: Loctite 567 thread sealant
+            - generic [ref=f4e155]: on hand 2 / min 4
+          - link "LOW Bearing 6310 C3 on hand 3 / min 4" [ref=f4e156] [cursor=pointer]:
+            - /url: inventory.html?q=Bearing%206310%20C3
+            - generic [ref=f4e157]:
+              - generic [ref=f4e158]: LOW
+              - generic [ref=f4e159]: Bearing 6310 C3
+            - generic [ref=f4e160]: on hand 3 / min 4
+          - link "LOW Secondary fuel filter on hand 3 / min 4" [ref=f4e161] [cursor=pointer]:
+            - /url: inventory.html?q=Secondary%20fuel%20filter
+            - generic [ref=f4e162]:
+              - generic [ref=f4e163]: LOW
+              - generic [ref=f4e164]: Secondary fuel filter
+            - generic [ref=f4e165]: on hand 3 / min 4
+      - generic [ref=f4e166]:
+        - button "Re-run plan" [ref=f4e167] [cursor=pointer]
+        - button "Publish to crew" [ref=f4e168] [cursor=pointer]
+        - button "Archive plan" [ref=f4e169] [cursor=pointer]
+  - group [ref=f4e71]:
+    - generic "▸ About this dashboard's data sources" [ref=f4e72] [cursor=pointer]
+  - button "Connectivity status" [ref=f4e73] [cursor=pointer]:
+    - generic [ref=f4e75]: Online
+  - generic [ref=f4e76]:
+    - button "Open navigation hub" [ref=f4e77] [cursor=pointer]:
+      - generic: WorkHive
+    - dialog "Navigation hub":
+      - generic:
+        - generic: WorkHive
+        - strong: WorkHive
+      - button "Open global search":
+        - generic: Search assets, jobs, parts, PMs
+        - generic: ⌘K
+      - generic:
+        - searchbox "Search tools"
+        - generic: Ctrl K
+      - tablist "Tool view mode":
+        - tab "⊞ All" [selected]:
+          - generic: ⊞
+          - text: All
+        - tab "wrench Field":
+          - generic:
+            - img "wrench"
+          - text: Field
+        - tab "user Supervisor":
+          - generic:
+            - img "user"
+          - text: Supervisor
+        - tab "gear Engineer":
+          - generic:
+            - img "gear"
+          - text: Engineer
+      - generic:
+        - paragraph: Recent
+        - generic:
+          - link "Home":
+            - /url: index.html
+          - link "Logbook":
+            - /url: logbook.html
+          - link "Inventory":
+            - /url: inventory.html
+          - link "Day":
+            - /url: dayplanner.html
+      - paragraph: All Tools
+      - region:
+        - link "Home":
+          - /url: index.html
+        - paragraph: Field Work
+        - link "Logbook":
+          - /url: logbook.html
+        - link "Inventory":
+          - /url: inventory.html
+        - link "Day Planner":
+          - /url: dayplanner.html
+        - paragraph: Your Team
+        - link "WorkHive":
+          - /url: hive.html
+        - link "PM Scheduler":
+          - /url: pm-scheduler.html
+        - link "Community":
+          - /url: community.html
+        - paragraph: Intelligence
+        - link "Analytics":
+          - /url: analytics.html
+        - link "AI Assistant":
+          - /url: assistant.html
+        - link "Asset Hub":
+          - /url: asset-hub.html
+        - link "Alert Hub":
+          - /url: alert-hub.html
+        - paragraph: Build & Projects
+        - link "Eng. Design":
+          - /url: engineering-design.html
+        - link "Project Manager":
+          - /url: project-manager.html
+        - paragraph: Grow
+        - link "Growth":
+          - /url: skillmatrix.html
+        - link "Resume Builder":
+          - /url: resume.html
+        - paragraph: Connect
+        - link "Marketplace":
+          - /url: marketplace.html
+        - link "Connections":
+          - /url: integrations.html
+  - generic:
+    - button "Open companion":
+      - generic: Talk to your companion
+      - generic:
+        - img "Companion Zaniah":
+          - img "Zaniah"
+    - dialog "AI Assistant":
+      - generic:
+        - generic:
+          - img "Companion Zaniah":
+            - img "Zaniah"
+        - generic:
+          - strong: Zaniah
+          - text: Shift Brain
+        - button "Close":
+          - img "x"
+      - generic:
+        - text: "Context:"
+        - strong: Shift Brain
+      - log "Assistant conversation":
+        - generic:
+          - text: Hi! I'm WorkHive AI. You're on the
+          - strong: WorkHive Home
+          - text: page. Ask me anything about the platform or industrial maintenance. What do you need?
+        - generic: What did I log in the logbook last week? Give me the exact entries.
+        - generic: I can see the most recent logbook entries in the snapshot, but it doesn't specify a date range like "last week." The snapshot shows entries for CR-001, MILL-001, RC-001, and BF-001. For the exact entries from last week, you'd want to check the Logbook page directly.
+      - generic:
+        - button "Voice command"
+        - textbox "Message":
+          - /placeholder: Ask anything…
+        - button "Send"
+  - button "Send feedback to WorkHive" [ref=f4e78] [cursor=pointer]:
+    - img "chat" [ref=f4e79]
+  - generic [ref=f4e81]:
+    - 'link "Read the guide: How to Write a Maintenance Shift Handover (Template Included)" [ref=f4e82] [cursor=pointer]':
+      - /url: /learn/maintenance-shift-handover-template/
+      - generic [ref=f4e87]:
+        - generic [ref=f4e88]: New to this page?
+        - generic [ref=f4e89]: Read the guide
+    - button "Dismiss guide link" [ref=f4e90] [cursor=pointer]: ×

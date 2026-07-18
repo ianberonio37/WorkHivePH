@@ -23,7 +23,8 @@
  * (hive_id on every read), devops (getCorsHeaders dynamic CORS).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -79,6 +80,11 @@ Write a 4-6 sentence morning briefing for the incoming supervisor. Rules:
 4. No em dashes. Use colons, commas, parentheses, or restructure.
 5. Filipino industrial vocabulary is fine (PEC, PSME, ISO 14224 terms).
 6. Plain text only, no JSON, no markdown.
+7. READABILITY (a field supervisor reads this on a phone at shift start):
+   - Keep EVERY sentence under 20 words. If one runs long, split it into two.
+   - Write at an 8th-grade reading level: short, plain words over long ones.
+   - Name at most 5 specific asset codes total; if more are affected, say "and N more"
+     instead of listing them all inline (a wall of codes is unreadable).
 
 Output the briefing paragraph directly. Nothing else.`;
 
@@ -136,8 +142,11 @@ async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<An
   // Open logbook entries created more than 8h ago.
   // Canonical: logbook_truth (drop-in column-compatible with logbook).
   const cutoff = new Date(Date.now() - 8 * 3600 * 1000).toISOString();
+  // loto_applied/permit_reference (Extension 3): surface OPEN jobs still under active energy
+  // isolation as a safety-critical "Active Isolations" signal for the incoming shift — read the
+  // first-class column (deliberate) instead of regex-inferring LOTO from free-text problem.
   const { data } = await db.from("v_logbook_truth")
-    .select("id, machine, problem, maintenance_type, status, created_at, worker_name, downtime_hours")
+    .select("id, machine, problem, maintenance_type, status, created_at, worker_name, downtime_hours, loto_applied, permit_reference")
     .eq("hive_id", hiveId)
     .eq("status", "Open")
     .lt("created_at", cutoff)
@@ -172,7 +181,11 @@ async function synthesizeBriefing(
     shift_window: shiftWindow,
     risk_top: payload.risk_top.slice(0, 5).map(r => `${r.asset_name}|score=${r.risk_score}|${r.risk_level}`).join("\n"),
     pms_due: payload.pms_due.slice(0, 8).map(r => `${r.tag_id || r.asset_name}|${r.category}|crit=${r.criticality}`).join("\n"),
-    carry_forward: payload.carry_forward.slice(0, 8).map(r => `${r.machine}|${r.maintenance_type}|${r.problem}`.slice(0, 120)).join("\n"),
+    carry_forward: payload.carry_forward.slice(0, 8).map(r => `${r.machine}|${r.maintenance_type}|${r.problem}${r.loto_applied ? " [UNDER LOTO/PERMIT]" : ""}`.slice(0, 140)).join("\n"),
+    // Extension 3: safety-critical Active Isolations — OPEN jobs still under energy isolation the
+    // incoming shift MUST acknowledge before touching the asset (ISO 45001 operational control).
+    active_isolations: payload.carry_forward.filter(r => r.loto_applied)
+      .slice(0, 8).map(r => `${r.machine}${r.permit_reference ? " (permit " + r.permit_reference + ")" : ""}`).join("\n"),
     parts_prestage: payload.parts_prestage.slice(0, 8).map(r => `${r.part_name}|qty=${r.qty_on_hand}|min=${r.min_qty}`).join("\n"),
   };
 
@@ -182,6 +195,16 @@ async function synthesizeBriefing(
   // DEFAULT_PERSONA so a hive that pre-dates the column still gets signed.
   const hivePersonaKey = clampPersona(hivePersona);
   const signedBy = buildPersonaBlock(hivePersonaKey, "briefing-signature");
+  // WAT-split (Extension 3): the ACTIVE ISOLATIONS list is safety-critical (ISO 45001 operational
+  // control) — it is prepended DETERMINISTICALLY from the loto_applied column, never left to the
+  // model to remember. An incoming shift must acknowledge every open LOTO/permit before touching the
+  // asset; a free-tier LLM that omits it from a terse briefing is a safety miss, so we don't rely on it.
+  const _iso = payload.carry_forward.filter(r => r.loto_applied);
+  const isoBanner = _iso.length
+    ? `[SAFETY] ACTIVE ISOLATIONS (${_iso.length}) - verify zero-energy before touching:\n`
+      + _iso.slice(0, 8).map(r => `  - ${r.machine}${r.permit_reference ? " (permit " + r.permit_reference + ")" : ""}`).join("\n")
+      + "\n\n"
+    : "";
   try {
     const text = await callAI(JSON.stringify(compact), {
       systemPrompt: BRIEFING_SYSTEM_PROMPT,
@@ -189,10 +212,10 @@ async function synthesizeBriefing(
       maxTokens:    BRIEFING_MAX_TOKENS,
       jsonMode:     false,
     });
-    return `${text.trim()}\n\n${signedBy}`;
+    return `${isoBanner}${text.trim()}\n\n${signedBy}`;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return `(Briefing synthesis unavailable: ${msg}). Risk: ${payload.risk_top.length}, PMs due: ${payload.pms_due.length}, carry-forward: ${payload.carry_forward.length}, low-stock parts: ${payload.parts_prestage.length}.\n\n${signedBy}`;
+    return `${isoBanner}(Briefing synthesis unavailable: ${msg}). Risk: ${payload.risk_top.length}, PMs due: ${payload.pms_due.length}, carry-forward: ${payload.carry_forward.length}, low-stock parts: ${payload.parts_prestage.length}.\n\n${signedBy}`;
   }
 }
 
@@ -217,6 +240,15 @@ async function planForHive(
   const carry_forward  = results[2].status === "fulfilled" ? results[2].value : [];
   const parts_prestage = results[3].status === "fulfilled" ? results[3].value : [];
 
+  // F14 (silent-zero guard): a rejected lane above becomes an EMPTY array, so a DB blip
+  // produces a plausible "No assets above threshold / No PMs due" plan indistinguishable
+  // from a genuinely-quiet shift. Record which lanes actually FAILED so the row is honest —
+  // the consumer (shift-brain) shows a degraded banner instead of a falsely-reassuring plan.
+  const LANE_NAMES = ["risk_top", "pms_due", "carry_forward", "parts_prestage"];
+  const fetch_errors = results
+    .map((r, i) => (r.status === "rejected" ? LANE_NAMES[i] : null))
+    .filter((x): x is string => x !== null);
+
   // Persona Contract: read the hive's preferred_persona so the briefing footer
   // wears the right voice (autonomous hive-level brief, no per-worker context).
   const { data: hiveRow } = await db.from("v_hives_truth")
@@ -227,12 +259,29 @@ async function planForHive(
     risk_top, pms_due, carry_forward, parts_prestage,
   }, hivePersona);
 
-  const payload = { risk_top, pms_due, carry_forward, parts_prestage };
+  // F16: flag which sections hit their server-side cap, so shift-brain can show "N+" instead of
+  // a silently-truncated count (a hive with 45 overdue PMs must not read a flat "30").
+  const caps = {
+    risk_top:       risk_top.length >= RISK_TOP_LIMIT,
+    pms_due:        pms_due.length >= PMS_DUE_LIMIT,
+    carry_forward:  carry_forward.length >= CARRY_FWD_LIMIT,
+    parts_prestage: parts_prestage.length >= PARTS_LIMIT,
+  };
+
+  // F14: carry the failed-lane list into the payload. degraded=true means at least one data
+  // source didn't load, so an empty section is "we couldn't check", NOT "all clear".
+  const payload = {
+    risk_top, pms_due, carry_forward, parts_prestage,
+    fetch_errors,
+    degraded: fetch_errors.length > 0,
+    caps,
+  };
   const counts = {
     risk_top:       risk_top.length,
     pms_due:        pms_due.length,
     carry_forward:  carry_forward.length,
     parts_prestage: parts_prestage.length,
+    fetch_errors:   fetch_errors.length,
   };
 
   // Upsert one row per (hive_id, shift_date, shift_window). Re-runs replace the draft.
@@ -256,7 +305,12 @@ async function planForHive(
 // Handler
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("shift-planner-orchestrator", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "shift-planner-orchestrator", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
 
   if (req.method === "OPTIONS") {
@@ -351,11 +405,7 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // Inline JSON.stringify({ error: ... }) for static error-contract scan.
-    return new Response(
-      JSON.stringify({ error: "Internal error", detail: msg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "shift-planner-orchestrator", "shift_planner_orchestrator_error", err);
   }
 });

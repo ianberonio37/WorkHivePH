@@ -41,11 +41,14 @@ test.describe('cross-surface KPI parity', () => {
   test('check_pm_overdue_parity: hive tile and pm-scheduler hero agree on direction', async ({ whPage }) => {
     // ── Read PM Overdue from home dashboard ────────────────────────────────
     await whPage.goto(HIVE_URL, { waitUntil: 'domcontentloaded' });
-    // Team Pulse tile populates after loadPMHealth() resolves; the cell starts
-    // as "—" (em dash). Poll until it's a number or 5s passes.
+    // Team Pulse populates after loadPMHealth() resolves; the cell starts as "—" (em dash).
+    // NOTE (2026-07-11): Team Pulse was FUSED — the visible PM-overdue tile was removed as
+    // redundant with the alert cards + Open-Issues glance, so #pulse-pm-overdue is now a HIDDEN
+    // canonical parity cell (still populated by loadTeamPulse). This test verifies the VALUE matches
+    // pm-scheduler, not the tile's visibility, so wait for 'attached' (in DOM) not 'visible'.
     // pw-selector-allow: #pulse-pm-overdue lives in hive.html (HIVE_URL constant; validator's GOTO_RE matches literals only)
     const pulseLocator = whPage.locator('#pulse-pm-overdue');
-    await pulseLocator.waitFor({ state: 'visible', timeout: 10_000 });
+    await pulseLocator.waitFor({ state: 'attached', timeout: 10_000 });
     await whPage.waitForFunction(() => {
       const el = document.getElementById('pulse-pm-overdue');
       return el && /^\d+$/.test((el.textContent || '').trim());
@@ -245,18 +248,24 @@ test.describe('cross-surface KPI parity', () => {
     // pw-selector-allow: #stat-members lives in hive.html (HIVE_URL constant; validator's GOTO_RE matches literals only)
     const tileCount = await readIntFromText(await whPage.locator('#stat-members').textContent());
 
+    // 2026-07-11: canonical corrected v_worker_truth → hive_members. #stat-members is set by
+    // loadMembers() from hive_members (active), so THAT is its source of truth. v_worker_truth
+    // (= worker_profiles ⨝ hive_members) exposes email/persona, so worker_profiles RLS correctly
+    // restricts it to the caller's OWN row (privacy) — it returns 1, not the hive member count, so it
+    // was never a valid canonical for a member COUNT and drifted to 1-vs-5. Compare to hive_members
+    // active (page-scoped, RLS-visible to any member) — the tile's real source.
     const viewCount: number = await whPage.evaluate(async () => {
       const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id');
       // @ts-expect-error db is a global hydrated by utils.js
-      const { count } = await db.from('v_worker_truth')
+      const { count } = await db.from('hive_members')
         .select('worker_name', { count: 'exact', head: true })
         .eq('hive_id', hiveId)
-        .eq('hive_status', 'active');
+        .eq('status', 'active');
       return count || 0;
     });
 
     expect(Number.isFinite(tileCount), `hive #stat-members did not resolve to a number`).toBe(true);
-    expect(tileCount, `v_worker_truth active count = ${viewCount} but hive #stat-members shows ${tileCount} — canonical drift, page's hive_members count diverged from view`).toBe(viewCount);
+    expect(tileCount, `hive_members active count = ${viewCount} but hive #stat-members shows ${tileCount} — the members tile diverged from its hive_members source`).toBe(viewCount);
   });
 
   test('check_inventory_reads_canonical_view: data load wires to v_inventory_items_truth', async ({ whPage }) => {

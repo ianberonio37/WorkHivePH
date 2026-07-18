@@ -74,7 +74,9 @@ LENSES = {
             ("python_api_auth",       "validate_python_api_auth",           "A01", "compute API auth/key"),
             ("service_role_exposure", "validate_service_role_exposure",     "A01", "service-role not client-reachable"),
             ("public_fn_internal_authz", "validate_public_fn_authz",         "A01", "60 verify_jwt=false fns re-verify auth (R2)"),
+            ("public_fn_write_authz", "validate_public_fn_write_authz",      "A01", "no anon-triggerable service-role writer / BFLA (R2)"),
             ("ssrf_egress",           "validate_ssrf_egress",               "A10", "no user-controlled fetch egress (R2)"),
+            ("migration_grant_regression", "validate_migration_grant_regression", "A01", "a revoked anon/auth lock not silently re-granted by a later migration (R0)"),
             ("login_lockout",         "validate_login_proxy_lockout",       "A07", "brute-force login lockout (auth failures)"),
         ],
     },
@@ -110,6 +112,23 @@ def _resolve(stem: str) -> Path | None:
     return None
 
 
+# Per-validator timeout override (seconds). A few cells do MANY sequential live edge-fn /
+# two-tenant DB probes — legitimately thorough, not hung — and exceed the 180s default. Giving
+# them adequate time is correct: the board must MEASURE a slow-but-passing live check, not time
+# it out into a fail-closed cell (2026-07-17: gateway_tenancy runs 39 live edge-fn tenancy probes
+# ~5-8s each; standalone it PASSes with 0 unverified but exceeds 180s under the board).
+SLOW_CELLS = {
+    "validate_gateway_tenancy":  600,
+    "validate_gateway_bypass":   480,
+    "validate_public_fn_authz":  480,
+    "validate_rls_tenant_isolation": 480,
+    # network CVE scan (pip-audit → OSV database over the internet); slow when the network is,
+    # and fail-closed (not a code hole) when the external DB is unreachable.
+    "validate_python_api_deps":  360,
+}
+DEFAULT_CELL_TIMEOUT = 180
+
+
 def _run(stem: str | None) -> str:
     if stem is None:
         return "MISSING"          # NEW surface, no gate yet -> unscanned
@@ -117,7 +136,8 @@ def _run(stem: str | None) -> str:
     if p is None:
         return "MISSING"
     try:
-        r = subprocess.run([PY, str(p)], cwd=str(ROOT), capture_output=True, text=True, timeout=180)
+        r = subprocess.run([PY, str(p)], cwd=str(ROOT), capture_output=True, text=True,
+                           timeout=SLOW_CELLS.get(stem, DEFAULT_CELL_TIMEOUT))
         return "PASS" if r.returncode == 0 else "FINDINGS"
     except subprocess.TimeoutExpired:
         return "TIMEOUT"
@@ -125,7 +145,70 @@ def _run(stem: str | None) -> str:
         return "ERROR"
 
 
+def _verdict(lens_out, baseline, baseline_error, baseline_missing, update):
+    """Pure board verdict (no I/O) so --self-test can prove the anti-false-green rules bite.
+
+    Fail-closed precedence: a corrupt ratchet, an infra-broken gate, a below-baseline regression,
+    or an unmet floor ALL force exit 1 — none may resolve to the green PASS. --update-baseline is
+    blocked whenever the board is currently regressed/below-floor (ratchet only ever moves UP)."""
+    floors_ok, regressions, infra_errors = True, [], []
+    for lens, L in lens_out.items():
+        if L["pct"] < L["floor"]:
+            floors_ok = False
+        # An ERROR/TIMEOUT cell is an INFRA failure (gate could not run), not a clean measurement —
+        # surface it explicitly so a broken validator can never masquerade as a benign non-PASS.
+        for c in L["cells"]:
+            if c.get("status") in ("ERROR", "TIMEOUT"):
+                infra_errors.append(f"{lens}/{c['key']}={c['status']}")
+        base_pct = baseline.get(lens, {}).get("pct")
+        if base_pct is not None and L["pct"] < base_pct - 0.05:
+            regressions.append(f"{lens}: {L['pct']} < baseline {base_pct}")
+    update_blocked = bool(update and (regressions or not floors_ok))
+    code = 1 if (baseline_error or infra_errors or regressions or not floors_ok) else 0
+    return {"floors_ok": floors_ok, "regressions": regressions, "infra_errors": infra_errors,
+            "update_blocked": update_blocked, "exit_code": code}
+
+
+def _self_test() -> int:
+    """Teeth for the board's own anti-false-green logic — the three holes the roadmap named."""
+    def lens(pct, floor, statuses):
+        cells = [{"key": f"c{i}", "status": s, "owasp": "A01"} for i, s in enumerate(statuses)]
+        passed = sum(1 for s in statuses if s == "PASS")
+        return {"title": "t", "pct": pct, "passed": passed, "total": len(statuses),
+                "floor": floor, "cells": cells}
+    green = {"X": lens(100, 100, ["PASS"]), "P": lens(100, 90, ["PASS"])}
+    base_green = {"X": {"pct": 100}, "P": {"pct": 100}}
+    cases = [
+        ("happy path green -> 0",
+         _verdict(green, base_green, False, False, False)["exit_code"] == 0),
+        ("above-floor regression with a LOADED baseline -> 1 (not a silent pass)",
+         _verdict({"S": lens(97, 95, ["PASS"])}, {"S": {"pct": 100}}, False, False, False)["exit_code"] == 1),
+        ("above-floor regression with a MISSING baseline still can't hide -> update stays blocked",
+         _verdict({"S": lens(97, 95, ["PASS"])}, {}, False, True, True)["exit_code"] == 0
+         and _verdict({"S": lens(80, 95, ["PASS"])}, {}, False, True, True)["exit_code"] == 1),
+        ("corrupt baseline -> hard 1 even when floors read met",
+         _verdict(green, {}, True, False, False)["exit_code"] == 1),
+        ("infra ERROR cell -> hard 1 (not a benign non-PASS)",
+         _verdict({"X": lens(100, 100, ["ERROR"])}, base_green, False, False, False)["exit_code"] == 1),
+        ("floor miss -> 1",
+         _verdict({"P": lens(66.7, 90, ["PASS", "FINDINGS", "PASS"])}, base_green, False, False, False)["exit_code"] == 1),
+        ("--update-baseline BLOCKED on a regression (no ratcheting-in the regression)",
+         _verdict({"S": lens(97, 95, ["PASS"])}, {"S": {"pct": 100}}, False, False, True)["update_blocked"] is True),
+        ("--update-baseline ALLOWED on a clean ratchet-up",
+         _verdict(green, base_green, False, False, True)["update_blocked"] is False),
+    ]
+    ok = True
+    for name, passed in cases:
+        print(f"  [{(G+'PASS'+X) if passed else (R+'FAIL'+X)}] {name}")
+        ok = ok and passed
+    print((G + "self-test PASS - board false-green logic has teeth." + X) if ok
+          else (R + "self-test FAILED." + X))
+    return 0 if ok else 1
+
+
 def main() -> int:
+    if "--self-test" in sys.argv:
+        return _self_test()
     cache: dict[str, str] = {}
     lens_out = {}
     for lens, spec in LENSES.items():
@@ -154,36 +237,46 @@ def main() -> int:
                           "clean": all(c["status"] == "PASS" for c in cells if c["covered"]) if cells else False,
                           "covered": any(c["covered"] for c in cells)}
 
-    baseline = {}
+    # Load the ratchet baseline. A baseline file that EXISTS but is unreadable/corrupt is a
+    # HARD FAIL (baseline_error) — never silently fall back to "no baseline", because that
+    # disengages regression detection and lets an above-floor regression exit 0 (a false-green).
+    # A genuinely-absent baseline (first run) is allowed but flagged so the ratchet-disengaged
+    # state is loud rather than silent.
+    baseline, baseline_error, baseline_missing = {}, False, False
     if BASELINE.exists():
         try:
             baseline = json.loads(BASELINE.read_text(encoding="utf-8")).get("lenses", {})
-        except Exception:
+        except Exception as e:
+            baseline_error = True
             baseline = {}
+            print(f"{R}BASELINE CORRUPT ({BASELINE.name}: {e}) — ratchet cannot load; failing closed.{X}")
+    else:
+        baseline_missing = True
 
-    floors_ok, regressions = True, []
-    for lens, L in lens_out.items():
-        if L["pct"] < L["floor"]:
-            floors_ok = False
-        base_pct = baseline.get(lens, {}).get("pct")
-        if base_pct is not None and L["pct"] < base_pct - 0.05:
-            regressions.append(f"{lens}: {L['pct']} < baseline {base_pct}")
+    update = "--update-baseline" in sys.argv
+    v = _verdict(lens_out, baseline, baseline_error, baseline_missing, update)
+    floors_ok = v["floors_ok"]; regressions = v["regressions"]
+    infra_errors = v["infra_errors"]; update_blocked = v["update_blocked"]
 
     result = {
         "scored_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "lenses": {k: {"title": v["title"], "pct": v["pct"], "passed": v["passed"],
-                       "total": v["total"], "floor": v["floor"], "cells": v["cells"]}
-                   for k, v in lens_out.items()},
+        "lenses": {k: {"title": lv["title"], "pct": lv["pct"], "passed": lv["passed"],
+                       "total": lv["total"], "floor": lv["floor"], "cells": lv["cells"]}
+                   for k, lv in lens_out.items()},
         "owasp_top10": owasp_cov,
         "floors_ok": floors_ok, "regressions": regressions,
+        "infra_errors": infra_errors, "baseline_error": baseline_error,
+        "baseline_missing": baseline_missing, "exit_code": v["exit_code"],
     }
     RESULTS.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
-    update = "--update-baseline" in sys.argv
-    if update:
+    # Ratchet is UP-ONLY: --update-baseline REFUSES to write when a lens is currently below its
+    # stored baseline or below its floor — otherwise it would lock a REGRESSION in as the new
+    # "baseline" and the next run would silently exit 0 (the false-green the roadmap flagged).
+    if update and not update_blocked:
         BASELINE.write_text(json.dumps(
             {"updated_at": result["scored_at"],
-             "lenses": {k: {"pct": v["pct"]} for k, v in lens_out.items()}}, indent=2),
+             "lenses": {k: {"pct": lv["pct"]} for k, lv in lens_out.items()}}, indent=2),
             encoding="utf-8")
 
     print(f"{B}{C}Arc R - Security / Adversarial sweep{X}")
@@ -195,20 +288,47 @@ def main() -> int:
             if c["status"] != "PASS":
                 col = Y if c["status"] == "MISSING" else R
                 print(f"      {col}{c['status']:<9}{X} {c['key']}  ({c['owasp']}) - {c['note']}")
-    print(f"  {B}OWASP Top-10 coverage:{X} " +
-          " ".join((G + cat + X) if owasp_cov[cat]["covered"] else (R + cat + X) for cat in owasp_all))
+    # OWASP line: GREEN only when a category is BOTH covered AND clean. A category with a scanner
+    # that is actively FAILING prints yellow with a '!' — never a green that masks an open finding
+    # (the very "false sense of coverage" anti-pattern Meta-finding #1 called out in sast_scan).
+    def _owasp_col(cat: str) -> str:
+        oc = owasp_cov[cat]
+        if not oc["covered"]:
+            return R + cat + X
+        if not oc["clean"]:
+            return Y + cat + "!" + X
+        return G + cat + X
+    print(f"  {B}OWASP Top-10 coverage:{X} " + " ".join(_owasp_col(c) for c in owasp_all))
     uncovered = [c for c in owasp_all if not owasp_cov[c]["covered"]]
+    dirty = [c for c in owasp_all if owasp_cov[c]["covered"] and not owasp_cov[c]["clean"]]
     if uncovered:
         print(f"  {Y}OWASP categories with NO scanner: {', '.join(uncovered)}{X}")
+    if dirty:
+        print(f"  {R}OWASP categories with an OPEN finding: {', '.join(dirty)}{X}")
 
-    if update:
+    if update_blocked:
+        print(f"{R}baseline NOT updated — refusing to ratchet in a regression/floor-miss.{X}")
+    elif update:
         print(f"{G}baseline updated.{X}")
+    # Fail-closed order: a corrupt ratchet file or an infra-broken gate is a HARD fail — neither
+    # may resolve to the green PASS line, even when floors happen to read met.
+    if baseline_error:
+        print(f"{R}FAIL — baseline file corrupt; ratchet cannot be trusted.{X}")
+        return 1
+    if infra_errors:
+        print(f"{R}FAIL — validator infra error/timeout (not a clean measurement): {'; '.join(infra_errors)}{X}")
+        return 1
     if regressions:
         print(f"{R}REGRESSION: {'; '.join(regressions)}{X}")
         return 1
     if not floors_ok:
         print(f"{Y}floors not yet met (expected during the arc - ratchet up).{X}")
         return 1
+    if baseline_missing:
+        # First-ever run with no ratchet on disk: floors are met, but say so honestly rather than
+        # printing a green that implies a ratchet is protecting the score.
+        print(f"{Y}PASS on floors — no baseline on disk yet (ratchet disengaged; run --update-baseline to arm it).{X}")
+        return 0
     print(f"{G}PASS - all lens floors met, no regression.{X}")
     return 0
 

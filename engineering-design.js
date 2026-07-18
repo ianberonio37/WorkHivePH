@@ -1,5 +1,11 @@
 'use strict';
 
+/* timer-cleanup-allow: every setTimeout in this file is a fire-once UI delay (defer-select, toast
+ * auto-dismiss, diagram-build-after-loading-state, scroll-into-view, aria-live re-announce,
+ * URL.revokeObjectURL cleanup, a Promise timeout race). None is assigned to a variable or used as a
+ * debounce/interval, so there is nothing to clearTimeout — they run once and are done. Verified 2026-07-11:
+ * grep `= setTimeout(` / `clearTimeout` / `setInterval` = 0 matches. */
+
 /*
  * L2 anchor — sentinel scenario `all_builders_covered` in
  * journey-engineering-design.spec.ts: the page must declare at least one
@@ -33,6 +39,12 @@ let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let _discipline  = 'HVAC & Cooling';
 let _calcType    = null;
 let _lastResults = null;
+// Arc P · P4: display transform for calc-type NAMES. ct.id doubles as the === identity
+// key (30+ comparisons + dataset.id + search + object keys), so it MUST keep its literal
+// em dash ("Chiller System — Air Cooled"). whCalcLabel renders it with a colon for DISPLAY
+// ONLY (never used where the id feeds logic), so the P4 no-em-dash rule holds on the glass
+// without breaking selection/routing.
+function whCalcLabel(s) { return String(s == null ? '' : s).replace(/\s—\s/g, ': '); }
 let _lastNarrative = null;
 let _lastInputs  = null;
 let _currentStep = 1;
@@ -63,7 +75,7 @@ function renderRecentCalcs() {
       <div class="text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em;">Recent</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${recents.map(ct => `<button class="recent-chip" onclick="quickSelectCalc('${ct.id.replace(/'/g,"\\'")}')">
-          ${ct.icon} ${ct.id}
+          ${ct.icon} ${whCalcLabel(ct.id)}
         </button>`).join('')}
       </div>`;
   } catch (_) { row.style.display = 'none'; }
@@ -116,77 +128,10 @@ function searchCalcs(query) {
   }
 }
 
-// ─── Calc type definitions (restructured: HVAC merged, VT → Machine Design) ───
-const CALC_TYPES = {
-  /* ── LEGACY KEYS kept so renderInputForm() still works ── */
-  Mechanical: [
-    { id: 'HVAC Cooling Load',    icon: '❄️',  desc: 'Room heat gain, AC capacity in kW / TR', available: true  },
-    { id: 'Ventilation / ACH',    icon: '💨',  desc: 'Air changes per hour, fan CMH / CFM',     available: true  },
-    { id: 'Pump Sizing (TDH)',    icon: '💧',  desc: 'Total Dynamic Head, pump HP selection',   available: true  },
-    { id: 'Pipe Sizing',          icon: '🔩',  desc: 'Flow velocity, pipe diameter selection',  available: true  },
-    { id: 'Compressed Air',       icon: '🌬️', desc: 'Compressor CFM demand, receiver, pipe',   available: true  },
-    { id: 'Boiler System',        icon: '🔥',  desc: 'Steam/hot water boiler capacity (kW/BHP), fuel consumption, safety valve, blowdown: PD 8 / ASME BPVC / PSME', available: true },
-  ],
-  Plumbing: [
-    { id: 'Water Supply Pipe Sizing', icon: '🚰', desc: "Hunter's Fixture Unit Method",          available: true  },
-    { id: 'Hot Water Demand',         icon: '🌡️', desc: 'Daily hot water demand, heater sizing', available: true  },
-    { id: 'Drainage Pipe Sizing',     icon: '🏗️', desc: 'Drainage fixture units, pipe diameter', available: true  },
-    { id: 'Septic Tank Sizing',       icon: '🏭', desc: 'Tank capacity per occupancy',            available: true  },
-    { id: 'Water Softener Sizing',    icon: '💧', desc: 'Ion exchange resin sizing, salt & brine tank, regeneration schedule: NSF/ANSI 44 / WQA', available: true },
-    { id: 'Water Treatment System',   icon: '🏭', desc: 'Treatment train, filter sizing, chlorination dosing, iron removal: PNS 1998 / DOH / WHO', available: true },
-    { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'Sewage treatment plant sizing: activated sludge, aeration, sludge: DENR DAO 2016-08 / DOH PD 856', available: true },
-    { id: 'Storm Drain / Stormwater',   icon: '🌧️', desc: 'Rational Method catchment flow, pipe sizing (Manning\'s), velocity check: DPWH / PAGASA', available: true },
-    { id: 'Grease Trap Sizing',         icon: '🪣', desc: 'PDI BH-201 flow rate method, fixture-based, PDI standard size, grease retention, cleaning interval: PDI BH-201 / ASPE / PPC', available: true },
-    { id: 'Roof Drain Sizing',          icon: '🏠', desc: 'Roof drain body, vertical leader, horizontal leader, overflow drain: Rational Method, IPC §1106 / Philippine Plumbing Code', available: true },
-  ],
-  Electrical: [
-    { id: 'Load Estimation',  icon: '📋', desc: 'Panel schedule, demand factor, service size', available: true  },
-    { id: 'Voltage Drop',     icon: '📉', desc: 'VD % check, conductor length limits',         available: true  },
-    { id: 'Wire Sizing',      icon: '🔌', desc: 'Ampacity, conductor size per PEC Table 3.10', available: true  },
-    { id: 'Short Circuit',    icon: '⚡', desc: 'Fault current, breaker interrupting capacity', available: true  },
-    { id: 'Lighting Design',   icon: '💡', desc: 'Lumen method, number of fixtures per room',   available: true  },
-    { id: 'Generator Sizing', icon: '🔋', desc: 'Running kVA, starting kVA (motor surge), genset size, diesel fuel consumption: ISO 8528-1 / PEC / NFPA 110', available: true  },
-    { id: 'Solar PV System',  icon: '☀️', desc: 'Array kWp, panel count, string sizing, inverter kW, battery bank (off-grid/hybrid), annual yield, roof area: IEC 62548 / PEC Art. 6 / DOE Net Metering', available: true  },
-    { id: 'Power Factor Correction', icon: '🔋', desc: 'Capacitor bank kVAR, PF improvement, kVA reduction, feeder current reduction, Meralco PF surcharge check: IEEE 18 / IEEE 1036 / PEC 2017', available: true  },
-    { id: 'Cable Tray Sizing', icon: '📐', desc: 'Fill area, tray width selection, NEMA VE 1 load class, span load, NEC 310.15 ampacity derating: NEMA VE 1 / NEC 392 / PEC 2017 Art. 3.92', available: true  },
-    { id: 'UPS Sizing', icon: '🔌', desc: 'UPS kVA selection, loading %, battery Ah, battery config, input breaker, autonomy verification: IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 Art. 7', available: true  },
-    { id: 'Lightning Protection System (LPS)', icon: '🌩️', desc: 'Collection area, annual strike frequency, LPL selection, rolling sphere / mesh, down conductor count, earth termination: IEC 62305 / NFPA 780 / PEC', available: true  },
-    { id: 'Earthing / Grounding System', icon: '⚡', desc: 'Ground electrode resistance (Dwight/Sunde formulas), parallel rods, GEC conductor sizing, pass/fail vs. resistance limit: PEC 2017 Art. 2.50 / IEEE 80 / IEC 62305', available: true  },
-  ],
-  'Fire Protection': [
-    { id: 'Fire Sprinkler Hydraulic', icon: '🚿', desc: 'NFPA 13 design area method, flow and pressure', available: true  },
-    { id: 'Fire Pump Sizing',         icon: '🔥', desc: 'Required flow and pressure, motor HP, NFPA 20',  available: true  },
-    { id: 'Stairwell Pressurization', icon: '🪜', desc: 'Airflow to maintain pressure differential, NFPA 92', available: true  },
-    { id: 'Fire Alarm Battery',       icon: '🔋', desc: '24h standby + 5-min alarm, battery Ah, NFPA 72', available: true  },
-    { id: 'Clean Agent Suppression', icon: '💨', desc: 'FK-5-1-12, FM-200, Inergen or CO2 agent mass, cylinder count, NOAEL check: NFPA 2001 / ISO 14520', available: true  },
-  ],
-  'Vertical Transportation': [
-    { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity: ASME A17.1 / EN 81', available: true  },
-    { id: 'Hoist Capacity',            icon: '🏗️', desc: 'SWL, wire rope safety factor, hoist motor sizing',      available: true  },
-  ],
-  'Machine Design': [
-    { id: 'V-Belt Drive Design',   icon: '🔄', desc: 'Sheave sizing, belt length, no. of belts: RMA / ASME',                     available: true  },
-    { id: 'Bearing Life (L10)',    icon: '⚙️', desc: 'Dynamic load rating, L10 hours: ISO 281',                                  available: true  },
-    { id: 'Shaft Design',          icon: '🔩', desc: 'Torsion + bending, DE-Goodman fatigue, critical speed: ASME B106.1M',      available: true  },
-    { id: 'Bolt Torque & Preload', icon: '🔧', desc: 'Fastener tightening torque, preload: ISO 898',                             available: true  },
-    { id: 'Beam / Column Design',  icon: '🏗️', desc: 'Steel beam/column LRFD (AISC 360) + RC beam/column (ACI 318): NSCP 2015', available: true  },
-    { id: 'Pressure Vessel',       icon: '🫙', desc: 'ASME VIII-1 shell thickness, MAWP, heads, nozzle reinforcement, hydro test', available: true  },
-    { id: 'Heat Exchanger',        icon: '🌡️', desc: 'LMTD/NTU-ε, overall U, tube count, shell ID: TEMA / ASME Sec. VIII',      available: true  },
-    { id: 'Vibration Analysis',    icon: '📳', desc: 'SDOF natural freq, transmissibility, ISO 10816-3 severity zones',           available: true  },
-    { id: 'Fluid Power',           icon: '🔴', desc: 'Hydraulic cylinder force/speed, pump sizing, accumulator: ISO 4413',       available: true  },
-    { id: 'Noise / Acoustics',     icon: '🔊', desc: 'Room SPL, barrier IL, OSHA TWA dose, NC rating: ISO 9613 / DOLE D.O. 13', available: true  },
-  ],
-  'HVAC Systems': [
-    { id: 'Chiller System — Air Cooled',   icon: '🧊', desc: 'Chiller tonnage, COP, compressor kW, condenser airflow: ASHRAE', available: true },
-    { id: 'Chiller System — Water Cooled', icon: '💧', desc: 'Water-cooled chiller: COP, CW loop, cooling tower heat rejection: ASHRAE 90.1', available: true },
-    { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow (CMH/CFM), cooling coil (kW/TR), CHW flow, fan HP: ASHRAE 62.1 / 90.1', available: true },
-    { id: 'Cooling Tower Sizing',          icon: '🌊', desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor: CTI Std-201 / ASHRAE 90.1', available: true },
-    { id: 'Duct Sizing (Equal Friction)',  icon: '🌀', desc: 'Circular / rectangular duct sizing, velocity check, segment pressure drop, fan static pressure, fan motor HP: ASHRAE Ch.21 / SMACNA / PSME', available: true },
-    { id: 'Refrigerant Pipe Sizing',       icon: '🧊', desc: 'ACR copper tube sizing for suction, discharge, and liquid lines: velocity check, pressure drop, ΔT equivalent: R-410A/R-32/R-22/R-407C/R-134a: ASHRAE Refrigeration / ASTM B280 / PSME', available: true },
-    { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room: CHW flow rate, main pipe sizing, diversity factor: ASHRAE HVAC Systems / PSME', available: true },
-    { id: 'Expansion Tank Sizing',         icon: '🫙', desc: 'Bladder/diaphragm expansion tank for closed hydronic loops: CHW, HHW, CW: ASHRAE acceptance ratio method / ASME VIII / PSME', available: true },
-  ],
-};
+// Calc registry: CALC_TYPES_UI (below) is the SOLE source of truth (deep-arc P1/F-6).
+// The legacy CALC_TYPES duplicate was deleted 2026-07-08 — it was declared but never
+// read (renderInputForm resolves by id from its own form-builder switch), and had
+// drifted (missing Transformer Sizing + Harmonic Distortion). One registry, no drift.
 
 // ─── Restructured discipline view (new UI groupings) ─────────────────────────
 // Calc IDs are unchanged: renderInputForm() still works perfectly
@@ -198,11 +143,11 @@ const CALC_TYPES_UI = {
     // Equipment Selection
     { id: 'Chiller System — Air Cooled',   icon: '🧊',  desc: 'Chiller tonnage, COP, compressor kW, condenser airflow: ASHRAE', available: true, subcat: 'Equipment Selection' },
     { id: 'Chiller System — Water Cooled', icon: '💧',  desc: 'COP, CW loop, cooling tower heat rejection: ASHRAE 90.1', available: true, subcat: 'Equipment Selection' },
-    { id: 'Cooling Tower Sizing',          icon: '🌊',  desc: 'Heat rejection, circ water flow, evaporation/makeup water, fan motor: CTI / ASHRAE', available: true, subcat: 'Equipment Selection' },
+    { id: 'Cooling Tower Sizing',          icon: '🌊',  desc: 'Sizes heat rejection, water flow, evaporation and make-up water, fan motor. Standards: CTI, ASHRAE', available: true, subcat: 'Equipment Selection' },
     { id: 'AHU Sizing',                    icon: '🌬️', desc: 'Supply airflow, cooling coil, CHW flow, fan HP: ASHRAE 62.1 / 90.1', available: true, subcat: 'Equipment Selection' },
-    { id: 'FCU Selection',                 icon: '🌡️', desc: 'Fan coil unit selection per room: CHW flow, diversity factor: ASHRAE / PSME', available: true, subcat: 'Equipment Selection' },
+    { id: 'FCU Selection',                 icon: '🌡️', desc: 'Picks the fan coil unit per room from CHW flow and diversity factor. Standards: ASHRAE, PSME', available: true, subcat: 'Equipment Selection' },
     // Distribution
-    { id: 'Duct Sizing (Equal Friction)',  icon: '🌀',  desc: 'Circular/rectangular duct sizing, pressure drop, fan motor: ASHRAE / SMACNA / PSME', available: true, subcat: 'Distribution' },
+    { id: 'Duct Sizing (Equal Friction)',  icon: '🌀',  desc: 'Sizes round or rectangular ducts, pressure drop, fan motor. Standards: ASHRAE, SMACNA, PSME', available: true, subcat: 'Distribution' },
     { id: 'Refrigerant Pipe Sizing',       icon: '🧊',  desc: 'ACR copper tube sizing for suction, discharge, liquid lines: ASHRAE Refrig. / ASTM B280', available: true, subcat: 'Distribution' },
     { id: 'Expansion Tank Sizing',         icon: '🫙',  desc: 'Bladder/diaphragm expansion tank for closed hydronic loops: ASHRAE / ASME VIII', available: true, subcat: 'Distribution' },
   ],
@@ -2584,7 +2529,7 @@ function renderGuide() {
     el/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
       <h2 class="font-bold text-lg mb-3" style="color:#F7A21B;">Calculation Guide</h2>
       <p class="text-sm" style="color:rgba(255,255,255,0.5);">
-        ${_calcType ? `No guide available yet for "${escHtml(_calcType)}". Select a different calculation type or check back after it is built.` : 'Select a discipline and calculation type first, then open the Guide tab to see field descriptions, formulas, and tips.'}
+        ${_calcType ? `No guide available yet for "${escHtml(whCalcLabel(_calcType))}". Select a different calculation type or check back after it is built.` : 'Select a discipline and calculation type first, then open the Guide tab to see field descriptions, formulas, and tips.'}
       </p>`;
     return;
   }
@@ -2674,7 +2619,7 @@ function makeCalcCard(ct, showDisc) {
     <div class="flex items-center gap-2">
       <span style="font-size:1.2rem;flex-shrink:0;">${ct.icon}</span>
       <div class="min-w-0 flex-1">
-        <div class="font-semibold text-sm">${ct.id}</div>
+        <div class="font-semibold text-sm">${whCalcLabel(ct.id)}</div>
         <div class="calc-desc text-xs" style="color:rgba(255,255,255,0.6);">${ct.desc}</div>
       </div>
       ${showDisc ? `<span class="calc-disc-tag">${ct._disc || ''}</span>` : ''}
@@ -2712,6 +2657,124 @@ function renderCalcTypes(calcs, showDisc) {
   }
 }
 
+// U-2 (deep-arc P3): give every input a REAL accessible name derived from its visible
+// .field-label (was aria-label="0"/"3.0"/"Auto" — the placeholder, which tells a screen-reader
+// user nothing). A runtime pass so all 55 hand-written forms are covered at once and any new
+// calc inherits it, without editing hundreds of template strings. WCAG 2.2 SC 3.3.2 / 2.4.6.
+function labelizeInputs() {
+  const area = document.getElementById('input-form-area');
+  if (!area) return;
+  area.querySelectorAll('input, select, textarea').forEach(el => {
+    let label = null, node = el.closest('.input-group') || el;
+    while (node && node !== area && !label) {
+      let sib = node.previousElementSibling;
+      while (sib && !label) {
+        if (sib.classList && sib.classList.contains('field-label')) label = sib;
+        else if (sib.querySelector) { const inner = sib.querySelector('.field-label'); if (inner) label = inner; }
+        sib = sib.previousElementSibling;
+      }
+      node = node.parentElement;
+    }
+    if (!label) return;
+    const clone = label.cloneNode(true);
+    clone.querySelectorAll('span').forEach(s => s.remove());   // drop parenthetical hint spans
+    const name = (clone.textContent || '').trim().replace(/\s+/g, ' ');
+    if (!name) return;
+    const unitEl = (el.closest('.input-group') || el.parentElement || el).querySelector
+      ? (el.closest('.input-group') || el.parentElement).querySelector('.input-unit') : null;
+    const unit = unitEl ? unitEl.textContent.trim() : '';
+    el.setAttribute('aria-label', unit ? `${name} (${unit})` : name);
+  });
+}
+
+// ── A-6 (deep-arc P6): SCOPED SI/IP units toggle ──────────────────────────────
+// Converts ONLY unambiguous DIMENSIONAL units. Universal units (V, A, kW, RPM), dimensionless
+// (%, persons, ratio), and ambiguous ones (kW = power OR cooling) are LEFT ALONE — a blind
+// conversion there would produce WRONG engineering values. The engine always receives SI: when
+// the user is in Imperial mode, runCalculation() converts the mapped fields back to SI just for
+// the submit, then restores the Imperial display. Each factor is a standard, exact conversion.
+const UNIT_CONV = {
+  // SI unit label -> { ip, toIP(x), toSI(x) }
+  'm':     { ip: 'ft',    toIP: x => x * 3.28084,    toSI: x => x / 3.28084 },
+  'm²':    { ip: 'ft²',   toIP: x => x * 10.7639,    toSI: x => x / 10.7639 },
+  'mm':    { ip: 'in',    toIP: x => x * 0.0393701,  toSI: x => x / 0.0393701 },
+  '°C':    { ip: '°F',    toIP: x => x * 9 / 5 + 32, toSI: x => (x - 32) * 5 / 9 },
+  'bar':   { ip: 'psi',   toIP: x => x * 14.5038,    toSI: x => x / 14.5038 },
+  'kPa':   { ip: 'psi',   toIP: x => x * 0.145038,   toSI: x => x / 0.145038 },
+  'kg':    { ip: 'lb',    toIP: x => x * 2.20462,    toSI: x => x / 2.20462 },
+  'L/min': { ip: 'GPM',   toIP: x => x * 0.264172,   toSI: x => x / 0.264172 },
+  'mm/hr': { ip: 'in/hr', toIP: x => x * 0.0393701,  toSI: x => x / 0.0393701 },
+  'kN':    { ip: 'kip',   toIP: x => x * 0.224809,   toSI: x => x / 0.224809 },
+};
+const _SI_BY_IP = Object.fromEntries(Object.entries(UNIT_CONV).map(([si, c]) => [c.ip, { si, ...c }]));
+let _unitSystem = 'SI';
+const _uRound = x => String(Math.round(x * 100) / 100);
+
+// [{inp, uEl, conv, mode}] for each mapped dimensional field currently in the form.
+function _formUnitInputs() {
+  const out = [];
+  document.querySelectorAll('#input-form-area .input-group').forEach(g => {
+    const inp = g.querySelector('input[type="number"]');
+    const uEl = g.querySelector('.input-unit');
+    if (!inp || !uEl) return;
+    const label = uEl.textContent.trim();
+    if (UNIT_CONV[label])      out.push({ inp, uEl, conv: UNIT_CONV[label], mode: 'SI' });
+    else if (_SI_BY_IP[label]) out.push({ inp, uEl, conv: _SI_BY_IP[label], mode: 'IP', siLabel: _SI_BY_IP[label].si });
+  });
+  return out;
+}
+
+// User clicked the toggle: convert the displayed values + swap the unit labels.
+function toggleUnitSystem() {
+  const toIP = _unitSystem === 'SI';
+  _formUnitInputs().forEach(({ inp, uEl, conv, mode, siLabel }) => {
+    const has = inp.value !== '' && !isNaN(parseFloat(inp.value));
+    if (toIP && mode === 'SI') {
+      if (has) inp.value = _uRound(conv.toIP(parseFloat(inp.value)));
+      uEl.textContent = conv.ip;
+    } else if (!toIP && mode === 'IP') {
+      if (has) inp.value = _uRound(conv.toSI(parseFloat(inp.value)));
+      uEl.textContent = siLabel;
+    }
+  });
+  _unitSystem = toIP ? 'IP' : 'SI';
+  const btn = document.getElementById('units-toggle-btn');
+  if (btn) btn.textContent = _unitSystem === 'IP' ? '⇄ Units: Imperial' : '⇄ Units: Metric (SI)';
+}
+
+// A freshly-rendered form is always in SI; if the user is in Imperial mode, convert it to display IP.
+function applyUnitSystem() {
+  if (_unitSystem !== 'IP') return;
+  _formUnitInputs().forEach(({ inp, uEl, conv, mode }) => {
+    if (mode !== 'SI') return;
+    if (inp.value !== '' && !isNaN(parseFloat(inp.value))) inp.value = _uRound(conv.toIP(parseFloat(inp.value)));
+    uEl.textContent = conv.ip;
+  });
+}
+
+// Before collectInputs(): write SI values for the SI-expecting engine; return a restore list.
+function _toSIForSubmit() {
+  const restore = [];
+  if (_unitSystem !== 'IP') return restore;
+  _formUnitInputs().forEach(({ inp, conv, mode }) => {
+    if (mode === 'IP' && inp.value !== '' && !isNaN(parseFloat(inp.value))) {
+      restore.push([inp, inp.value]);
+      inp.value = String(conv.toSI(parseFloat(inp.value)));
+    }
+  });
+  return restore;
+}
+function _restoreInputDisplay(restore) { restore.forEach(([inp, v]) => { inp.value = v; }); }
+
+// F-5 (deep-arc P7): resolve-or-"n/a" for a PRIMARY result value that can never legitimately be 0
+// (a diameter, an airflow, a life). If the engine result is missing that key (a rename / new mode),
+// render an honest "n/a" instead of a dangerous fabricated "0 mm" spec. Use ONLY on fields whose 0
+// is unambiguously a missing value — NOT on fields where 0 is a real reading (vibration, DCR).
+function _orNA(v, dec) {
+  const n = Number(v);
+  return (v == null || v === '' || isNaN(n) || n === 0) ? 'n/a' : n.toFixed(dec);
+}
+
 function selectCalcType(id) {
   _calcType = id;
   trackRecentCalc(id);
@@ -2720,6 +2783,8 @@ function selectCalcType(id) {
   });
   setStep(3);
   renderInputForm(id);
+  labelizeInputs();   // U-2: real accessible names from the visible labels
+  applyUnitSystem();  // A-6: re-display in Imperial if the user chose that unit system
   showEmpty();
 }
 
@@ -6003,11 +6068,11 @@ function renderInputForm(calcType) {
         <div>Order</div><div>Description</div><div style="text-align:center;">% of I₁</div>
       </div>
       ${[
-        ['f-h3',  '3rd',  'Triplen — neutral overload (motors, transformers)', 25],
-        ['f-h5',  '5th',  '5th — VFDs, switching power supplies',              18],
-        ['f-h7',  '7th',  '7th — VFDs, switching power supplies',              10],
-        ['f-h11', '11th', '11th — 12-pulse drives',                             6],
-        ['f-h13', '13th', '13th — 12-pulse drives',                             4],
+        ['f-h3',  '3rd',  'Triplen: neutral overload (motors, transformers)', 25],
+        ['f-h5',  '5th',  '5th: VFDs, switching power supplies',              18],
+        ['f-h7',  '7th',  '7th: VFDs, switching power supplies',              10],
+        ['f-h11', '11th', '11th: 12-pulse drives',                             6],
+        ['f-h13', '13th', '13th: 12-pulse drives',                             4],
       ].map(([id, ord, desc, def]) => `
         <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;margin-bottom:0.4rem;">
           <div style="font-weight:700;color:#F7A21B;font-size:0.8rem;min-width:36px;">${ord}</div>
@@ -6247,10 +6312,10 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Clean Agent Type</div>
         <div class="toggle-group" id="tg-ca-agent" style="flex-wrap:wrap;">
-          <button class="toggle-btn active" data-val="FK-5-1-12" onclick="toggle('tg-ca-agent','FK-5-1-12')">FK-5-1-12 (Novec 1230) — GWP=1</button>
-          <button class="toggle-btn" data-val="FM-200" onclick="toggle('tg-ca-agent','FM-200')">FM-200 / HFC-227ea — GWP=3220</button>
-          <button class="toggle-btn" data-val="Inergen" onclick="toggle('tg-ca-agent','Inergen')">Inergen IG-541 — GWP=0</button>
-          <button class="toggle-btn" data-val="CO2" onclick="toggle('tg-ca-agent','CO2')">CO2 — toxic, unoccupied only</button>
+          <button class="toggle-btn active" data-val="FK-5-1-12" onclick="toggle('tg-ca-agent','FK-5-1-12')">FK-5-1-12 (Novec 1230): GWP=1</button>
+          <button class="toggle-btn" data-val="FM-200" onclick="toggle('tg-ca-agent','FM-200')">FM-200 / HFC-227ea: GWP=3220</button>
+          <button class="toggle-btn" data-val="Inergen" onclick="toggle('tg-ca-agent','Inergen')">Inergen IG-541: GWP=0</button>
+          <button class="toggle-btn" data-val="CO2" onclick="toggle('tg-ca-agent','CO2')">CO2: toxic, unoccupied only</button>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -6512,9 +6577,9 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— from HVAC Cooling Load calc or measured demand</span></div>
+        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">(from HVAC Cooling Load calc or measured demand)</span></div>
         <div class="input-group">
-          <input aria-label="Total Cooling Load (kW) — from HVAC Cooling Load calc or measured demand" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) (from HVAC Cooling Load calc or measured demand)" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -6572,7 +6637,7 @@ function renderInputForm(calcType) {
           <div class="field-label">COP <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">water-cooled is higher than air-cooled</span></div>
           <div class="input-group">
             <input aria-label="COP water-cooled is higher than air-cooled" id="f-cop" class="wh-input" type="number" value="5.5" min="2.0" max="9.0" step="0.1" />
-            <span class="input-unit">—</span>
+            <span class="input-unit">-</span>
           </div>
         </div>
         <div>
@@ -6598,7 +6663,7 @@ function renderInputForm(calcType) {
         <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
           <input aria-label="e.g. 6.5" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
-          <span class="input-unit">—</span>
+          <span class="input-unit">-</span>
         </div>
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: Centrifugal 6.28 / 7.19 / 8.27 (by size) · Screw 5.32 / 5.86 · Scroll 5.32 · Recip 4.32</div>
       </div>
@@ -6620,9 +6685,9 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— from HVAC Cooling Load calc or measured demand</span></div>
+        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">(from HVAC Cooling Load calc or measured demand)</span></div>
         <div class="input-group">
-          <input aria-label="Total Cooling Load (kW) — from HVAC Cooling Load calc or measured demand" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) (from HVAC Cooling Load calc or measured demand)" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -6661,7 +6726,7 @@ function renderInputForm(calcType) {
           <div class="field-label">COP (Coefficient of Performance) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">ASHRAE min: 2.84</span></div>
           <div class="input-group">
             <input aria-label="COP (Coefficient of Performance) ASHRAE min: 2.84" id="f-cop" class="wh-input" type="number" value="3.0" min="1.5" max="6.0" step="0.1" />
-            <span class="input-unit">—</span>
+            <span class="input-unit">-</span>
           </div>
         </div>
         <div>
@@ -6687,7 +6752,7 @@ function renderInputForm(calcType) {
         <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
           <input aria-label="e.g. 3.6" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
-          <span class="input-unit">—</span>
+          <span class="input-unit">-</span>
         </div>
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: 3.50 (&lt;150 TR) · 3.45 (≥150 TR)</div>
       </div>
@@ -6721,9 +6786,9 @@ function renderInputForm(calcType) {
       </div>
 
       <div class="mb-4">
-        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">— zone/AHU served area, from HVAC Cooling Load calc</span></div>
+        <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">(zone/AHU served area, from HVAC Cooling Load calc)</span></div>
         <div class="input-group">
-          <input aria-label="Total Cooling Load (kW) — zone/AHU served area, from HVAC Cooling Load calc" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) (zone/AHU served area, from HVAC Cooling Load calc)" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -6733,7 +6798,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Sensible Heat Ratio (SHR)</div>
           <div class="input-group">
             <input aria-label="Sensible Heat Ratio" id="f-shr" class="wh-input" type="number" value="0.75" min="0.50" max="1.00" step="0.01" />
-            <span class="input-unit">—</span>
+            <span class="input-unit">-</span>
           </div>
         </div>
         <div>
@@ -6875,9 +6940,9 @@ function renderInputForm(calcType) {
       </div>
 
       <div id="ct-direct-row" class="mb-4">
-        <div class="field-label">Heat Rejection Load <span style="color:#F7A21B;font-size:0.75rem;">— total heat rejected by tower</span></div>
+        <div class="field-label">Heat Rejection Load <span style="color:#F7A21B;font-size:0.75rem;">(total heat rejected by tower)</span></div>
         <div class="input-group">
-          <input aria-label="Heat Rejection Load — total heat rejected by tower" id="f-q-rejection" class="wh-input" type="number" value="0" min="1" step="10" />
+          <input aria-label="Heat Rejection Load (total heat rejected by tower)" id="f-q-rejection" class="wh-input" type="number" value="0" min="1" step="10" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7652,7 +7717,7 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Avg. Absorption Coeff α</div><div class="input-group"><input aria-label="Avg. Absorption Coeff α" id="f-alpha" class="wh-input" type="number" value="0.15" min="0.01" max="0.99" step="0.01"/><span class="input-unit">—</span></div></div>
+        <div><div class="field-label">Avg. Absorption Coeff α</div><div class="input-group"><input aria-label="Avg. Absorption Coeff α" id="f-alpha" class="wh-input" type="number" value="0.15" min="0.01" max="0.99" step="0.01"/><span class="input-unit">-</span></div></div>
         <div><div class="field-label">Total Room Surface Area</div><div class="input-group"><input aria-label="Total Room Surface Area" id="f-room-surface" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">m²</span></div></div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
@@ -9504,7 +9569,11 @@ function setCTLoadFields() {
 
 // ─── Run calculation ──────────────────────────────────────────────────────────
 async function runCalculation() {
+  // A-6 (deep-arc P6): the engine expects SI. If the user is in Imperial mode, convert the mapped
+  // dimensional inputs to SI just for the collect, then restore the Imperial display.
+  const _ipRestore = _toSIForSubmit();
   const inputs = collectInputs();
+  _restoreInputDisplay(_ipRestore);
 
   if (_calcType === 'Pump Sizing (TDH)' || _calcType === 'Pipe Sizing') {
     if (!inputs.flow_rate || inputs.flow_rate <= 0) {
@@ -9890,9 +9959,9 @@ async function runCalculation() {
   showLoading();
 
   try {
-    const { data, error } = await db.functions.invoke('engineering-calc-agent', {
+    const { data, error } = await invokeWithTimeout('engineering-calc-agent', {
       body: { calc_type: _calcType, inputs }
-    });
+    });   // AI-4: bounded by a client-side timeout
 
     if (error || !data) throw new Error(error?.message || 'No response from calculation engine.');
     if (data.error) throw new Error(data.error);
@@ -10084,7 +10153,7 @@ async function runCalculation() {
 
   } catch (err) {
     showEmpty();
-    showToast('Error: ' + err.message, 5000);
+    showToast(friendlyAiError(err), 5000);   // AI-8: friendly, non-leaking message
     console.error(err);
   }
 }
@@ -10096,16 +10165,35 @@ function showEmpty() {
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.add('hidden');
 }
-// ─── Rotating loading messages: generic, works for all calc types ─────────────
+// AI-4 (deep-arc P5): bound every AI edge-fn call with a client timeout so a hung/slow function
+// can't leave an infinite spinner — Promise.race against a timeout that rejects into the catch.
+function invokeWithTimeout(name, opts, ms = 45000) {
+  return Promise.race([
+    db.functions.invoke(name, opts),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+  ]);
+}
+
+// AI-8 (deep-arc P5): map failures to friendly, actionable copy — never dump a raw provider
+// error to the user (leaks internals + unhelpful). The full error still goes to console.error.
+function friendlyAiError(err) {
+  const m = (err && err.message || '').toLowerCase();
+  if (m.includes('timeout')) return 'This is taking longer than expected. Please try again.';
+  if (m.includes('network') || m.includes('failed to fetch')) return 'Network issue: check your connection and try again.';
+  if (m.includes('rate') || m.includes('429') || m.includes('quota')) return 'The engineering service is busy right now. Please try again in a moment.';
+  return 'Could not generate the report right now. Please try again.';
+}
+
+// ─── Rotating loading messages: honest about the 2-stage pipeline (compute → AI narrative) ────
+// AI-5 (deep-arc P5): don't claim the AI "validates inputs" / "checks compliance" — the engine
+// computes deterministic values, then the AI drafts the written narrative. Say that truthfully.
 const LOADING_MESSAGES = [
-  'Connecting to WorkHive Engineering AI...',
-  'Running standards-grade analysis...',
-  'Applying relevant engineering codes...',
-  'Validating inputs against design parameters...',
-  'Cross-referencing calculation results...',
-  'Checking compliance with applicable standards...',
-  'Generating your engineering report...',
-  'Almost there...',
+  'Computing your design values...',
+  'Applying the engineering formulas...',
+  'Preparing standards references...',
+  'Drafting the engineering report...',
+  'Formatting your report...',
+  'Almost ready...',
 ];
 
 let _loadingInterval = null;
@@ -10136,11 +10224,72 @@ function showLoading() {
   document.getElementById('report-output').classList.add('hidden');
   startLoadingMessages();
 }
+// U-3 (deep-arc P3): SC 4.1.3 status message — announce report readiness to assistive tech
+// without moving focus (a screen-reader user waited 22s and otherwise gets no signal a full
+// report now exists below). Visually-hidden polite live region, reused across reports.
+function announceStatus(msg) {
+  let live = document.getElementById('eng-live-status');
+  if (!live) {
+    live = document.createElement('div');
+    live.id = 'eng-live-status';
+    live.setAttribute('role', 'status');
+    live.setAttribute('aria-live', 'polite');
+    live.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;';
+    document.body.appendChild(live);
+  }
+  live.textContent = '';
+  setTimeout(() => { live.textContent = msg; }, 60);   // reset+set so repeats re-announce
+}
+
+// U-8 (deep-arc P3): the report's contenteditable signature fields (Prepared by / PRC License
+// No. / Checked by) are bare spans with no accessible name. Give each role=textbox + a name
+// derived from its inline "Label:" text (or a preceding .field-label). Runtime pass over the
+// rendered panel so all ~75 renderers are covered. WCAG 2.2 SC 3.3.2 / 4.1.2.
+function labelizeReportEditables() {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  panel.querySelectorAll('[contenteditable="true"]').forEach(el => {
+    if (el.getAttribute('aria-label')) { el.setAttribute('role', 'textbox'); return; }
+    let name = '';
+    const parent = el.parentElement;
+    // 1) inline "Label: <span>" — parent text minus the editable children
+    if (parent) {
+      const clone = parent.cloneNode(true);
+      clone.querySelectorAll('[contenteditable], .editable-field, input').forEach(s => s.remove());
+      name = (clone.textContent || '').replace(/\s+/g, ' ').replace(/[:\s]+$/, '').trim();
+    }
+    // 2) key/value table cell — the previous <td> in the row is the label
+    if (!name) {
+      const td = el.closest('td');
+      if (td && td.previousElementSibling) {
+        name = (td.previousElementSibling.textContent || '').replace(/\s+/g, ' ').replace(/[:\s]+$/, '').trim();
+      }
+    }
+    // 3) a preceding .field-label sibling of the parent
+    if (!name && parent) {
+      let sib = parent.previousElementSibling;
+      while (sib && !name) {
+        if (sib.classList && sib.classList.contains('field-label')) name = sib.textContent.trim();
+        sib = sib.previousElementSibling;
+      }
+    }
+    // Guard: a real field label is short. If derivation grabbed a big container's whole text
+    // (a few editables sit directly under a large block), it's not a label — drop it rather
+    // than read the entire report as the field's name.
+    if (name.length > 60) name = '';
+    // Only promote to role=textbox when we actually have a name — a named-less ARIA textbox is
+    // itself a WCAG failure; an un-role'd contenteditable is still focusable + editable.
+    if (name) { el.setAttribute('aria-label', name); el.setAttribute('role', 'textbox'); }
+  });
+}
+
 function showReport() {
   stopLoadingMessages();
   document.getElementById('report-empty').style.display   = 'none';
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.remove('hidden');
+  labelizeReportEditables();                                                  // U-8
+  announceStatus(`${_calcType} report ready. Results are shown in the report panel below.`); // U-3
   if (window.innerWidth < 768) {
     setTimeout(() => document.getElementById('report-output').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
   }
@@ -10199,7 +10348,7 @@ function showReport() {
     } else if (_calcType === 'Duct Sizing (Equal Friction)' && descEl) {
       descEl.textContent = 'Generates an ASHRAE equal friction duct sizing chart with your selected duct highlighted (ASHRAE 2021 Ch.21 / SMACNA / PSME Code)';
     } else if (_calcType === 'Harmonic Distortion' && descEl) {
-      descEl.textContent = 'Generates a harmonic spectrum bar chart with IEEE 519-2022 individual and TDD limits — identifies non-compliant harmonics requiring mitigation';
+      descEl.textContent = 'Generates a harmonic spectrum bar chart with IEEE 519-2022 individual and TDD limits, identifying non-compliant harmonics requiring mitigation';
     } else if (_calcType === 'Transformer Sizing' && descEl) {
       descEl.textContent = 'Generates a power transformer single line diagram showing HV/LV connections, VCB, surge arresters, CT/VT, MCCB, bus bar and earthing per IEC 60617 / PEC 2017';
     } else if (_calcType === 'Clean Agent Suppression' && descEl) {
@@ -10252,15 +10401,15 @@ function showReport() {
     } else if (_calcType === 'Hoist Capacity' && descEl) {
       descEl.textContent = 'Generates a rigging diagram showing overhead crane beam, drum, motor, rope parts of line, hook block, load and MBF safety factor check per ASME B30.2 / ISO 4301';
     } else if (_calcType === 'Water Supply Pipe Sizing' && descEl) {
-      descEl.textContent = 'Generates a plumbing riser diagram showing water meter, main riser, floor branches and fixture groups — with pressure and velocity PASS/FAIL badges per Hunter\'s Method / Philippine Plumbing Code';
+      descEl.textContent = 'Generates a plumbing riser diagram showing water meter, main riser, floor branches and fixture groups, with pressure and velocity PASS/FAIL badges per Hunter\'s Method / Philippine Plumbing Code';
     } else if (_calcType === 'Hot Water Demand' && descEl) {
-      descEl.textContent = 'Generates a hot water system schematic showing cold water inlet, storage tank with heater element, PRV, and hot water distribution — with daily energy kWh and recovery time per Philippine Plumbing Code';
+      descEl.textContent = 'Generates a hot water system schematic showing cold water inlet, storage tank with heater element, PRV, and hot water distribution, with daily energy kWh and recovery time per Philippine Plumbing Code';
     } else if (_calcType === 'Drainage Pipe Sizing' && descEl) {
-      descEl.textContent = 'Generates a drainage riser elevation showing soil/waste stack, sloped floor branches, fixture connections, cleanout, and building drain — with velocity compliance per Philippine Plumbing Code / IPC';
+      descEl.textContent = 'Generates a drainage riser elevation showing soil/waste stack, sloped floor branches, fixture connections, cleanout, and building drain, with velocity compliance per Philippine Plumbing Code / IPC';
     } else if (_calcType === 'Septic Tank Sizing' && descEl) {
       descEl.textContent = 'Generates a septic tank cross-section showing 2-compartment layout with scum/liquid/sludge layers, inlet, outlet, leach field note and DENR BOD compliance badge per DENR DAO 2016-08 / DOH';
     } else if (_calcType === 'Grease Trap Sizing' && descEl) {
-      descEl.textContent = 'Generates a grease trap cross-section showing grease/water/sludge layers, baffles, inlet from kitchen sinks, outlet to sewer, and cleaning interval — per PDI BH-201 / Philippine Plumbing Code';
+      descEl.textContent = 'Generates a grease trap cross-section showing grease/water/sludge layers, baffles, inlet from kitchen sinks, outlet to sewer, and cleaning interval, per PDI BH-201 / Philippine Plumbing Code';
     } else if (_calcType === 'Roof Drain Sizing' && descEl) {
       descEl.textContent = 'Generates a roof drain schematic showing drain bodies, vertical leaders, horizontal collector, overflow drains and flow badge per IPC §1106 / Philippine Plumbing Code';
     } else if (_calcType === 'Water Softener Sizing' && descEl) {
@@ -10432,17 +10581,17 @@ function renderReport(inputs, results, narrative) {
       <div>
         <div class="sig-line">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
       <div>
         <div class="sig-line">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
-        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
       <div>
         <div class="sig-line">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
-        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
     </div>
   `;
@@ -10570,17 +10719,17 @@ function renderVentReport(inputs, results, narrative) {
       <div>
         <div class="sig-line">Prepared by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;">${escHtml(WORKER_NAME)}</div>
-        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
       <div>
         <div class="sig-line">Checked by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
-        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
       <div>
         <div class="sig-line">Approved by</div>
         <div contenteditable="true" class="editable-field" style="font-size:0.78rem;margin-top:0.25rem;min-width:120px;display:inline-block;">&nbsp;</div>
-        <div style="font-size:0.75rem;color:#999;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
+        <div style="font-size:0.75rem;color:#595959;margin-top:0.25rem;">PRC License No.: <span contenteditable="true" class="editable-field" style="min-width:120px;display:inline-block;"></span></div>
       </div>
     </div>
   `;
@@ -10971,22 +11120,22 @@ function renderAirReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Required FAD</div>
           <div class="res-value">${results.design_cfm} CFM</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.design_lps} L/s / ${results.design_m3min} m3/min</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.design_lps} L/s / ${results.design_m3min} m3/min</div>
         </div>
         <div>
           <div class="res-label">Recommended Compressor</div>
           <div class="res-value">${results.recommended_hp} HP</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.recommended_cfm} CFM rated</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.recommended_cfm} CFM rated</div>
         </div>
         <div>
           <div class="res-label">Receiver Tank</div>
           <div class="res-value">${results.recommended_receiver_L} L</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Computed: ${results.receiver_litres} L</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Computed: ${results.receiver_litres} L</div>
         </div>
         <div>
           <div class="res-label">Distribution Pipe</div>
           <div class="res-value">${results.recommended_pipe_mm} mm</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Nominal diameter @ 8 m/s</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Nominal diameter @ 8 m/s</div>
         </div>
       </div>
     </div>
@@ -11398,20 +11547,20 @@ function renderGeneratorReport(inputs, results, narrative) {
       <p>Total Demand = ${(r.total_demand_va||0).toLocaleString()} VA = ${r.total_demand_kva||0} kVA</p>
       <p>Overall PF = ${r.overall_pf||0.85}</p>
       <p>Running kW = ${r.running_kw||0} kW</p>
-      <p>Running kVA = ${r.running_kva||0} kVA</p>
+      <p>Running kVA = ${r.running_kva || 'n/a'} kVA</p>
 
       <p><strong>Step 2: Starting kVA (Largest Motor Surge)</strong></p>
-      <p>Largest motor: ${r.motor_hp||0} HP = ${r.motor_kw||0} kW (${e(r.start_method||'DOL')} start)</p>
+      <p>Largest motor: ${r.motor_hp || 'n/a'} HP = ${r.motor_kw||0} kW (${e(r.start_method||'DOL')} start)</p>
       <p>Starting kVA multiplier: ${r.start_multiplier||0}×</p>
-      <p>Starting kVA = ${r.starting_kva||0} kVA</p>
+      <p>Starting kVA = ${r.starting_kva || 'n/a'} kVA</p>
 
       <p><strong>Step 3: Design kVA</strong></p>
-      <p>Controlling kVA = max(Running ${r.running_kva||0} kVA, Starting ${r.starting_kva||0} kVA) = ${r.controlling_kva||0} kVA</p>
+      <p>Controlling kVA = max(Running ${r.running_kva || 'n/a'} kVA, Starting ${r.starting_kva || 'n/a'} kVA) = ${r.controlling_kva || 'n/a'} kVA</p>
       <p>Safety Factor = ${r.safety_factor||1.25}×</p>
-      <p>Design kVA = ${r.design_kva||0} kVA</p>
+      <p>Design kVA = ${r.design_kva || 'n/a'} kVA</p>
 
       <p><strong>Step 4: Standard Generator Size Selection</strong></p>
-      <p>Next standard size ≥ ${r.design_kva||0} kVA → <strong>${r.selected_kva||0} kVA</strong></p>
+      <p>Next standard size ≥ ${r.design_kva || 'n/a'} kVA → <strong>${r.selected_kva || 'n/a'} kVA</strong></p>
       <p>Rated kW output = ${r.selected_kw||0} kW (at PF 0.8)</p>
       <p>% Loading at running demand = ${r.loading_pct||0}%</p>
 
@@ -11428,14 +11577,14 @@ function renderGeneratorReport(inputs, results, narrative) {
           <td style="width:50%;padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#f0f4ff;border:2px solid #162032;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
               <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Selected Generator</div>
-              <div style="font-size:1.5rem;font-weight:800;color:#162032;">${r.selected_kva||0} kVA</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#162032;">${r.selected_kva || 'n/a'} kVA</div>
               <div style="font-size:0.82rem;color:#333;">${r.selected_kw||0} kW @ PF 0.8</div>
             </div>
           </td>
           <td style="width:50%;padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#fff8e1;border:2px solid #F7A21B;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
               <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Running kVA</div>
-              <div style="font-size:1.5rem;font-weight:800;color:#D88A0E;">${r.running_kva||0} kVA</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#D88A0E;">${r.running_kva || 'n/a'} kVA</div>
               <div style="font-size:0.82rem;color:#333;">${r.running_kw||0} kW demand</div>
             </div>
           </td>
@@ -11444,8 +11593,8 @@ function renderGeneratorReport(inputs, results, narrative) {
           <td style="padding:0;vertical-align:top;">
             <div class="result-highlight" style="background:#fff0f0;border:2px solid #c0392b;border-radius:0.6rem;padding:0.85rem 1rem;text-align:center;page-break-inside:avoid;break-inside:avoid;">
               <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Starting kVA (surge)</div>
-              <div style="font-size:1.5rem;font-weight:800;color:#c0392b;">${r.starting_kva||0} kVA</div>
-              <div style="font-size:0.82rem;color:#333;">${r.motor_hp||0} HP motor, ${e(r.start_method||'DOL')}</div>
+              <div style="font-size:1.5rem;font-weight:800;color:#c0392b;">${r.starting_kva || 'n/a'} kVA</div>
+              <div style="font-size:0.82rem;color:#333;">${r.motor_hp || 'n/a'} HP motor, ${e(r.start_method||'DOL')}</div>
             </div>
           </td>
           <td style="padding:0;vertical-align:top;">
@@ -11534,25 +11683,25 @@ function renderSolarPVReport(inputs, results, narrative) {
           <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Array Capacity</div>
           <div style="font-size:2rem;font-weight:800;color:#162032;">${e(results.actual_array_kwp || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kWp (actual)</div>
-          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">Required: ${e(results.required_array_kwp || 0)} kWp</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">Required: ${e(results.required_array_kwp || 0)} kWp</div>
         </div>
         <div class="result-highlight" style="background:#f0fff4;border:2px solid #22c55e;border-radius:0.5rem;padding:1rem;text-align:center;">
           <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Panel Count</div>
           <div style="font-size:2rem;font-weight:800;color:#1a6b3c;">${e(results.panel_qty || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">panels × ${e(inputs.panel_wp || 450)} Wp</div>
-          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">${e(results.panels_per_string || 0)} panels/string × ${e(results.num_strings || 0)} strings</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">${e(results.panels_per_string || 0)} panels/string × ${e(results.num_strings || 0)} strings</div>
         </div>
         <div class="result-highlight" style="background:#fffbf0;border:2px solid #F7A21B;border-radius:0.5rem;padding:1rem;text-align:center;">
           <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Inverter Capacity</div>
           <div style="font-size:2rem;font-weight:800;color:#7a5200;">${e(results.inverter_kw || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kW</div>
-          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">DC/AC ratio ≈ 1.0</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">DC/AC ratio ≈ 1.0</div>
         </div>
         <div class="result-highlight" style="background:#fef3f2;border:2px solid #ef4444;border-radius:0.5rem;padding:1rem;text-align:center;">
           <div style="font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Annual Yield</div>
           <div style="font-size:2rem;font-weight:800;color:#991b1b;">${e(results.annual_yield_kwh || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kWh/year</div>
-          <div style="font-size:0.75rem;color:#888;margin-top:0.3rem;">CO₂ saved: ${e(results.co2_reduction_kg || 0)} kg/yr</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">CO₂ saved: ${e(results.co2_reduction_kg || 0)} kg/yr</div>
         </div>
       </div>
     </div>
@@ -11617,7 +11766,7 @@ function renderSolarPVReport(inputs, results, narrative) {
           <div style="font-size:0.74rem;color:#555;">${ef('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${ef('_____________')}</div>
           <div style="font-size:0.74rem;color:#555;">PTR No.: ${ef('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
@@ -11626,7 +11775,7 @@ function renderSolarPVReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${ef('Project Engineer / Manager')}</div>
           <div style="font-size:0.74rem;color:#555;">Company: ${ef('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
@@ -11635,7 +11784,7 @@ function renderSolarPVReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${ef('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -11674,7 +11823,7 @@ function renderPFCReport(inputs, results, narrative) {
   const meralcoRate     = inputs.meralco_rate       || '';
 
   const savingsLine = (monthlyKwh && meralcoRate && meralcoPenalty)
-    ? `<tr><td>Estimated Monthly PF Surcharge Savings <span style="font-size:0.75rem;color:#888;">(est. on distribution charge ~18% of bill)</span></td><td class="num">${e(results.monthly_savings_php ?? '—')}</td><td>PHP/month</td></tr>`
+    ? `<tr><td>Estimated Monthly PF Surcharge Savings <span style="font-size:0.75rem;color:#595959;">(est. on distribution charge ~18% of bill)</span></td><td class="num">${e(results.monthly_savings_php ?? '-')}</td><td>PHP/month</td></tr>`
     : '';
 
   const reportHTML = `
@@ -11717,8 +11866,8 @@ function renderPFCReport(inputs, results, narrative) {
       <tr><td>3</td><td>Target Power Factor (PF₂)</td><td class="num">${e(pfTarget)}</td><td>lagging</td></tr>
       <tr><td>4</td><td>φ₁ = arccos(PF₁)</td><td class="num">${e(results.phi1_deg ?? '')}</td><td>degrees</td></tr>
       <tr><td>5</td><td>φ₂ = arccos(PF₂)</td><td class="num">${e(results.phi2_deg ?? '')}</td><td>degrees</td></tr>
-      <tr><td>6</td><td>tan φ₁</td><td class="num">${e(results.tan_phi1 ?? '')}</td><td>—</td></tr>
-      <tr><td>7</td><td>tan φ₂</td><td class="num">${e(results.tan_phi2 ?? '')}</td><td>—</td></tr>
+      <tr><td>6</td><td>tan φ₁</td><td class="num">${e(results.tan_phi1 ?? '')}</td><td>-</td></tr>
+      <tr><td>7</td><td>tan φ₂</td><td class="num">${e(results.tan_phi2 ?? '')}</td><td>-</td></tr>
       <tr><td>8</td><td>Required Q_C = kW × (tan φ₁ − tan φ₂)</td><td class="num">${e(kvarRequired)}</td><td>kVAR</td></tr>
       <tr class="total-row"><td>9</td><td><strong>Selected Standard Capacitor Bank</strong></td><td class="num"><strong>${e(selectedKvar)}</strong></td><td><strong>kVAR (IEC 60831-1 standard size)</strong></td></tr>
     </table>
@@ -11726,13 +11875,13 @@ function renderPFCReport(inputs, results, narrative) {
     <h2>5. kVA AND CURRENT ANALYSIS</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Parameter</th><th class="num">Before Correction</th><th class="num">After Correction</th><th>Unit</th></tr>
-      <tr><td>Power Factor</td><td class="num">${e(pfExisting)}</td><td class="num">${e(pfTarget)}</td><td>—</td></tr>
+      <tr><td>Power Factor</td><td class="num">${e(pfExisting)}</td><td class="num">${e(pfTarget)}</td><td>-</td></tr>
       <tr><td>Apparent Power (kVA)</td><td class="num">${e(kvaBefore)}</td><td class="num">${e(kvaAfter)}</td><td>kVA</td></tr>
       <tr><td>Feeder Current</td><td class="num">${e(currentBefore)}</td><td class="num">${e(currentAfter)}</td><td>A</td></tr>
       <tr class="total-row">
         <td><strong>Reduction</strong></td>
         <td class="num" colspan="2" style="text-align:center;"><strong>kVA: −${e(kvaReduction)} kVA | Current: −${e(currentReduction)} A (${e(currentRedPct)}%)</strong></td>
-        <td>—</td>
+        <td>-</td>
       </tr>
     </table>
 
@@ -11755,32 +11904,32 @@ function renderPFCReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Required kVAR</div>
           <div class="res-value">${e(kvarRequired)} kVAR</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Calculated Q_C</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Calculated Q_C</div>
         </div>
         <div>
           <div class="res-label">Selected Capacitor Bank</div>
           <div class="res-value">${e(selectedKvar)} kVAR</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Standard IEC 60831-1 size</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Standard IEC 60831-1 size</div>
         </div>
         <div>
           <div class="res-label">Feeder Current Reduction</div>
           <div class="res-value">${e(currentReduction)} A</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(currentRedPct)}% reduction</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${e(currentRedPct)}% reduction</div>
         </div>
         <div>
           <div class="res-label">kVA Reduction</div>
           <div class="res-value">${e(kvaReduction)} kVA</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(kvaBefore)} → ${e(kvaAfter)} kVA</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${e(kvaBefore)} → ${e(kvaAfter)} kVA</div>
         </div>
         <div>
           <div class="res-label">PF Improvement</div>
           <div class="res-value">${e(pfExisting)} → ${e(pfTarget)}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Lagging PF</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Lagging PF</div>
         </div>
         <div>
           <div class="res-label">Meralco Surcharge</div>
           <div class="res-value" style="color:${meralcoPenalty ? '#c00' : '#0a0'};">${meralcoPenalty ? 'APPLIES: eliminate' : 'N/A'}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${meralcoPenalty ? `PF ${pfExisting} < 0.85` : `PF ≥ 0.85 OK`}</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${meralcoPenalty ? `PF ${pfExisting} < 0.85` : `PF ≥ 0.85 OK`}</div>
         </div>
       </div>
     </div>
@@ -11795,7 +11944,7 @@ function renderPFCReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
@@ -11803,7 +11952,7 @@ function renderPFCReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
@@ -11811,7 +11960,7 @@ function renderPFCReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -11934,9 +12083,9 @@ function renderCableTrayReport(inputs, results, narrative) {
       <tr><td>Total Cable Weight per Metre</td><td class="num">${e(totalWeightPm)}</td><td>kg/m</td></tr>
       <tr><td>Support Span</td><td class="num">${e(spanM)}</td><td>m</td></tr>
       <tr><td>Load per Span</td><td class="num">${e(loadPerSpan)}</td><td>kg/span</td></tr>
-      <tr class="total-row"><td><strong>Required NEMA VE 1 Load Class</strong></td><td class="num"><strong>${e(nemaClass)}</strong></td><td><strong>—</strong></td></tr>
+      <tr class="total-row"><td><strong>Required NEMA VE 1 Load Class</strong></td><td class="num"><strong>${e(nemaClass)}</strong></td><td><strong>-</strong></td></tr>
     </table>
-    <div style="font-size:0.78rem;color:#888;margin-top:0.5rem;">
+    <div style="font-size:0.78rem;color:#595959;margin-top:0.5rem;">
       NEMA VE 1 Classes: 8A ≤ 11.9 kg/m, 12A ≤ 17.9 kg/m, 16A ≤ 23.8 kg/m, 20A ≤ 29.8 kg/m, 24A ≤ 35.7 kg/m, 32A ≤ 47.6 kg/m.
       Loads exceeding 47.6 kg/m: consult manufacturer for heavy-duty custom tray.
     </div>
@@ -11947,7 +12096,7 @@ function renderCableTrayReport(inputs, results, narrative) {
       <tr><td>Actual Fill Percentage</td><td>${e(fillActual)}%</td></tr>
       <tr><td>Derating Threshold</td><td>${trayType === 'Solid Bottom' ? '40% of inside tray cross-section (NEC 392.80: Solid Bottom)' : '30% of inside tray cross-section (NEC 392.80: Ladder / Ventilated Trough)'}</td></tr>
       <tr class="total-row"><td><strong>Derating Factor</strong></td>
-        <td><strong style="color:${deratingApplies ? '#c60' : '#0a0'};">${e(deratingFactor)}× ${deratingApplies ? `— Conductors must be derated to 80% of base ampacity (fill ${e(fillActual)}% exceeds ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold per NEC 392.80)` : `— No derating required (fill ${e(fillActual)}% ≤ ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold for ${trayType} tray)`}</strong></td>
+        <td><strong style="color:${deratingApplies ? '#c60' : '#0a0'};">${e(deratingFactor)}× ${deratingApplies ? `: Conductors must be derated to 80% of base ampacity (fill ${e(fillActual)}% exceeds ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold per NEC 392.80)` : `: No derating required (fill ${e(fillActual)}% ≤ ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold for ${trayType} tray)`}</strong></td>
       </tr>
     </table>
 
@@ -11957,7 +12106,7 @@ function renderCableTrayReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Selected Tray Width</div>
           <div class="res-value">${e(selWidth)} mm</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(trayType)}, ${e(depthMm)} mm deep</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${e(trayType)}, ${e(depthMm)} mm deep</div>
         </div>
         <div>
           <div class="res-label">Actual Fill</div>
@@ -11967,22 +12116,22 @@ function renderCableTrayReport(inputs, results, narrative) {
         <div>
           <div class="res-label">NEMA Load Class</div>
           <div class="res-value">${e(nemaClass)}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(loadPerSpan)} kg per ${e(spanM)} m span</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${e(loadPerSpan)} kg per ${e(spanM)} m span</div>
         </div>
         <div>
           <div class="res-label">Derating Factor</div>
           <div class="res-value" style="color:${deratingApplies ? '#c60' : 'inherit'};">${e(deratingFactor)}×</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${deratingApplies ? '80% ampacity: fill > 30%' : 'No derating: fill ≤ 30%'}</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${deratingApplies ? '80% ampacity: fill > 30%' : 'No derating: fill ≤ 30%'}</div>
         </div>
         <div>
           <div class="res-label">Total Fill Area</div>
           <div class="res-value">${e(totalFillArea)} mm²</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${cables.length} cable group(s)</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${cables.length} cable group(s)</div>
         </div>
         <div>
           <div class="res-label">Tray Run Length</div>
           <div class="res-value">${e(runLengthM)} m</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(selWidth)}mm × ${e(depthMm)}mm × ${e(runLengthM)}m</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${e(selWidth)}mm × ${e(depthMm)}mm × ${e(runLengthM)}m</div>
         </div>
       </div>
     </div>
@@ -11997,7 +12146,7 @@ function renderCableTrayReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
@@ -12005,7 +12154,7 @@ function renderCableTrayReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
@@ -12013,7 +12162,7 @@ function renderCableTrayReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -12101,7 +12250,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
     <h2>3. DESIGN BASIS</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Parameter</th><th>Value</th></tr>
-      <tr><td>UPS Topology</td><td>${e(topology)} <span style="color:#888;font-size:0.78rem;">(IEC 62040-3 ${topology === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topology === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111'})</span></td></tr>
+      <tr><td>UPS Topology</td><td>${e(topology)} <span style="color:#595959;font-size:0.78rem;">(IEC 62040-3 ${topology === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topology === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111'})</span></td></tr>
       <tr><td>Phase Configuration</td><td>${e(phase)}</td></tr>
       <tr><td>Design Backup Time</td><td>${e(backupMin)} minutes</td></tr>
       <tr><td>Growth Factor</td><td>${e(growthFactor)} × connected load</td></tr>
@@ -12178,32 +12327,32 @@ function renderUPSSizingReport(inputs, results, narrative) {
       <div class="result-highlight">
         <div class="res-label">Selected UPS</div>
         <div class="res-value">${e(selectedKVA)} kVA</div>
-        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${e(topology)}</div>
+        <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${e(topology)}</div>
       </div>
       <div class="result-highlight">
         <div class="res-label">System Loading</div>
         <div class="res-value" style="color:${loadingOK ? '#22c55e' : '#ef4444'};">${e(loadingPct)}%</div>
-        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${loadingOK ? 'PASS: ≤ 80%' : 'FAIL: > 80%'}</div>
+        <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${loadingOK ? 'PASS: ≤ 80%' : 'FAIL: > 80%'}</div>
       </div>
       <div class="result-highlight">
         <div class="res-label">Battery Bank</div>
         <div class="res-value" style="font-size:0.9rem;">${e(battConfig)}</div>
-        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">VRLA @ ${e(battV)}V DC bus</div>
+        <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">VRLA @ ${e(battV)}V DC bus</div>
       </div>
       <div class="result-highlight">
         <div class="res-label">Backup Autonomy</div>
         <div class="res-value" style="color:${runtimeOK ? '#22c55e' : '#ef4444'};">${e(runtimeMin)} min</div>
-        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${runtimeOK ? `PASS: ≥ ${backupMin} min` : `FAIL: < ${backupMin} min`}</div>
+        <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${runtimeOK ? `PASS: ≥ ${backupMin} min` : `FAIL: < ${backupMin} min`}</div>
       </div>
       <div class="result-highlight">
         <div class="res-label">Input Breaker</div>
         <div class="res-value">${e(inputBreakerA)} A</div>
-        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Dedicated circuit</div>
+        <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Dedicated circuit</div>
       </div>
       <div class="result-highlight">
         <div class="res-label">Output Current</div>
         <div class="res-value">${e(outputCurrentA)} A</div>
-        <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${phase === '3-Phase' ? '415V 3-Phase' : '230V 1-Phase'}</div>
+        <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${phase === '3-Phase' ? '415V 3-Phase' : '230V 1-Phase'}</div>
       </div>
     </div>
 
@@ -12217,7 +12366,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
@@ -12225,7 +12374,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Electrical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
@@ -12233,7 +12382,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -12264,9 +12413,9 @@ function buildTransformerSLDSvg(inputs, results) {
   const winding   = String(r.winding_connection  || 'Dyn11');
   const impPct    = Number(r.impedance_pct       || 5.0);
   const loadPct   = Number(r.loading_pct         || 0);
-  const I1        = Number(r.I1_full_load_A      || 0).toFixed(2);
+  const I1        = _orNA(r.I1_full_load_A, 2);
   const I2        = Number(r.I2_full_load_A      || 0).toFixed(2);
-  const IscKA     = Number(r.Isc_secondary_kA   || 0).toFixed(3);
+  const IscKA     = _orNA(r.Isc_secondary_kA, 3);
   const etaFl     = Number(r.efficiency_fl_pct  || 0).toFixed(2);
   const VR        = Number(r.voltage_regulation_pct || 0).toFixed(2);
   const numUnits  = Number(r.num_units           || 1);
@@ -12346,7 +12495,7 @@ function buildTransformerSLDSvg(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title (per skill: drawing title at top centre) ───────────────────────────
-  p.push(T(W/2, 27, 'POWER TRANSFORMER — SINGLE LINE DIAGRAM', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 27, 'POWER TRANSFORMER: SINGLE LINE DIAGRAM', {sz:12, c:CC, w:'700'}));
   p.push(T(W/2, 41, `IEC 60617 / PEC 2017 Art. 4.50 / IEEE C57.12.00  |  ${ratedKva} kVA × ${numUnits} unit(s)`, {sz:9, c:SC}));
 
   // ── OLD BLOCK REMOVED — SLD_X, Y positions, RP_X already set above ──────────
@@ -12393,7 +12542,7 @@ function buildTransformerSLDSvg(inputs, results) {
   p.push(SA_sym(SA_X, Y_SA_TAP + 18));                        // SA body (IEC 60617)
   // Label RIGHT via DL (per drawing-standards skill: label to the SIDE)
   p.push(DL(SLD_X+4, Y_SA_TAP, SLD_X+40, Y_SA_TAP, HV));
-  p.push(T(SLD_X+42, Y_SA_TAP-6, `SA — ${is3ph?'3×':'1×'} sets`, {a:'start', sz:8, c:HV, w:'700'}));
+  p.push(T(SLD_X+42, Y_SA_TAP-6, `SA: ${is3ph?'3×':'1×'} sets`, {a:'start', sz:8, c:HV, w:'700'}));
   p.push(T(SLD_X+42, Y_SA_TAP+6, `Station class, ${v1} V, IEC 60099-4`, {a:'start', sz:7.5, c:SC}));
 
   // ── 4. VCB / LOAD-BREAK SWITCH — drawSymbol('breaker') [library, IEC 60617] ─
@@ -12461,7 +12610,7 @@ function buildTransformerSLDSvg(inputs, results) {
   const afW = 210;
   p.push(`<rect x="${SLD_X+90}" y="${Y_MCCB_C-16}" width="${afW}" height="26" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.2"/>`);
   p.push(T(SLD_X+90+afW/2, Y_MCCB_C-4, '⚡ ARC FLASH HAZARD', {sz:7.5, c:'#e65100', w:'700'}));
-  p.push(T(SLD_X+90+afW/2, Y_MCCB_C+8, 'Arc flash study required — NFPA 70E / PEC 2017', {sz:6.5, c:'#b74500'}));
+  p.push(T(SLD_X+90+afW/2, Y_MCCB_C+8, 'Arc flash study required (NFPA 70E / PEC 2017)', {sz:6.5, c:'#b74500'}));
 
   // ── 9. LV BUS BAR ─────────────────────────────────────────────────────────────
   // MCCB bottom port at Y_MCCB_C+30 = bus level
@@ -12476,7 +12625,7 @@ function buildTransformerSLDSvg(inputs, results) {
   }
   // Bus label RIGHT
   p.push(DL(SLD_X+90, Y_BUS_C, SLD_X+110, Y_BUS_C));
-  p.push(T(SLD_X+112, Y_BUS_C-6, `LV Bus  —  ${lvLabel}`, {a:'start', sz:8, c:SC}));
+  p.push(T(SLD_X+112, Y_BUS_C-6, `LV Bus:  ${lvLabel}`, {a:'start', sz:8, c:SC}));
 
   // ── 10. EARTHING — drawSymbol('ground') [library: IEC 60617] ──────────────────
   // Neutral earth from bus (left end): GEC
@@ -12567,25 +12716,25 @@ function buildTransformerSLDSvg(inputs, results) {
 // ─── Transformer SLD Title Block ─────────────────────────────────────────────
 function buildTransformerSLDTitleBlockHtml(inputs, results) {
   const r = results || {};
-  const ratedKva = r.rated_kva || '—';
-  const v1 = r.primary_voltage || '—';
-  const v2 = r.secondary_voltage || '—';
+  const ratedKva = r.rated_kva || '-';
+  const v1 = r.primary_voltage || '-';
+  const v2 = r.secondary_voltage || '-';
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
   return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('ELEC-XFMR-SLD-001')}</td>
-    ${TD('width:35%;')}${LBL('Transformer Rating')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${ratedKva} kVA &mdash; ${v1}/${v2} V</div></td>
+    ${TD('width:35%;')}${LBL('Transformer Rating')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${ratedKva} kVA: ${v1}/${v2} V</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
-    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Power Transformer — Single Line Diagram')}</td>
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Power Transformer: Single Line Diagram')}</td>
     ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">IEC 60076-1 / IEC 60617 / PEC 2017</div></td>
     ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
   </tr>
@@ -12594,7 +12743,7 @@ function buildTransformerSLDTitleBlockHtml(inputs, results) {
     ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
-    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#595959;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -12610,7 +12759,7 @@ function renderTransformerReport(inputs, results, narrative) {
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div><!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
-        <div style="font-size:0.8rem;color:#555;">Transformer Sizing — IEC 60076-1 / IEEE C57.12.00 / PEC 2017</div></div>
+        <div style="font-size:0.8rem;color:#555;">Transformer Sizing: IEC 60076-1 / IEEE C57.12.00 / PEC 2017</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <div style="margin-bottom:0.75rem;"><strong>Project:</strong> ${e(inputs.project_name||'Untitled')}</div>
@@ -12658,7 +12807,7 @@ function renderHarmonicReport(inputs, results, narrative) {
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div><!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
-        <div style="font-size:0.8rem;color:#555;">Harmonic Distortion Analysis — IEEE 519-2022 / IEC 61000-3-2</div></div>
+        <div style="font-size:0.8rem;color:#555;">Harmonic Distortion Analysis: IEEE 519-2022 / IEC 61000-3-2</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <div style="margin-bottom:0.75rem;"><strong>Project:</strong> ${e(inputs.project_name||'Untitled')}</div>
@@ -12669,7 +12818,7 @@ function renderHarmonicReport(inputs, results, narrative) {
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">TDD (Total Demand Distortion)</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">${e(r.TDD_pct)} %</td><td style="padding:5px 8px;border:1px solid #ccc;color:${r.TDD_pass?'#2e7d32':'#c62828'};font-weight:700;">${r.TDD_pass?'PASS':'FAIL'} (limit ${r.TDD_limit_pct}%)</td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">ISC/IL Ratio</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.isc_il_ratio)}</td><td style="padding:5px 8px;border:1px solid #ccc;"></td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">K-Factor (transformer de-rating)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.K_factor)}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:0.78rem;color:#555;">${r.K_factor>9?'Use K-20 rated transformer':r.K_factor>4?'Use K-13 rated transformer':r.K_factor>1?'Use K-4 rated transformer':'K-1 standard transformer OK'}</td></tr>
-      <tr><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">Overall IEEE 519-2022 Compliance</td><td colspan="2" style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${r.overall_pass?'COMPLIANT':'NON-COMPLIANT — Harmonic mitigation required'}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;">Overall IEEE 519-2022 Compliance</td><td colspan="2" style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${r.overall_pass?'COMPLIANT':'NON-COMPLIANT: Harmonic mitigation required'}</td></tr>
     </table>
     <h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">2. Individual Harmonic Analysis</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
@@ -12717,7 +12866,7 @@ function buildCleanAgentSVG(inputs, results) {
   const cDesign     = Number(r.design_concentration_pct || 5);
   const cMin        = Number(r.c_min_pct         || 4);
   const noael       = Number(r.noael_pct         || 10);
-  const Wcalc       = Number(r.W_calculated_kg   || 0).toFixed(1);
+  const Wcalc       = _orNA(r.W_calculated_kg, 1);
   const Wdesign     = Number(r.W_design_kg       || 0).toFixed(1);
   const cylKg       = Number(r.recommended_cylinder_kg || 16);
   const cylQty      = Number(r.recommended_qty   || 1);
@@ -12781,7 +12930,7 @@ function buildCleanAgentSVG(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
-  p.push(T(W/2, 27, 'CLEAN AGENT FIRE SUPPRESSION SYSTEM — SCHEMATIC', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 27, 'CLEAN AGENT FIRE SUPPRESSION SYSTEM: SCHEMATIC', {sz:12, c:CC, w:'700'}));
   p.push(T(W/2, 41, `NFPA 2001:2022 / ISO 14520:2015  |  ${esc(agentLabel)}  |  ${vol} m³ × ${nZones} zone(s)`, {sz:9, c:SC}));
 
   // ── LAYOUT ───────────────────────────────────────────────────────────────
@@ -12841,7 +12990,7 @@ function buildCleanAgentSVG(inputs, results) {
   p.push(`<polygon points="${PV_X-6},${PV_Y} ${PV_X},${PV_Y-6} ${PV_X},${PV_Y+6}" fill="${AO}"/>`);
   p.push(DL(PV_X-8, PV_Y, PV_X-30, PV_Y, AO));
   p.push(T(PV_X-32, PV_Y-6, 'Pressure Relief', {a:'end', sz:7.5, c:AO, w:'700'}));
-  p.push(T(PV_X-32, PV_Y+5, 'Vent — NFPA 2001 §3.6', {a:'end', sz:7, c:SC}));
+  p.push(T(PV_X-32, PV_Y+5, 'Vent (NFPA 2001 §3.6)', {a:'end', sz:7, c:SC}));
 
   // ── AGENT CYLINDER BANK (right of room) ──────────────────────────────────
   const CYL_X0 = 445, CYL_Y0 = 120;
@@ -12984,20 +13133,20 @@ function buildCleanAgentTitleBlockHtml(inputs, results) {
   const r = results || {};
   const proj = String(inputs?.project_name || 'Clean Agent System').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
   return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('FP-CAS-SCH-001')}</td>
-    ${TD('width:35%;')}${LBL('Agent / System')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${(r.agent_label||'FK-5-1-12').replace(/[<>]/g,'')} &mdash; ${r.total_agent_kg||''}kg total</div></td>
+    ${TD('width:35%;')}${LBL('Agent / System')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${(r.agent_label||'FK-5-1-12').replace(/[<>]/g,'')}:${r.total_agent_kg||''}kg total</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
-    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Clean Agent Suppression System — Schematic')}</td>
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Clean Agent Suppression System: Schematic')}</td>
     ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">NFPA 2001:2022 / ISO 14520:2015 / BFP IRR RA 9514</div></td>
     ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
   </tr>
@@ -13006,7 +13155,7 @@ function buildCleanAgentTitleBlockHtml(inputs, results) {
     ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
-    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -13022,7 +13171,7 @@ function renderCleanAgentReport(inputs, results, narrative) {
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
       <div><!-- heading-allow: standalone calc report template --><h1 style="font-size:1.3rem;font-weight:700;margin:0 0 2px 0;">DESIGN CALCULATION</h1>
-        <div style="font-size:0.8rem;color:#555;">Clean Agent Suppression System — NFPA 2001:2022 / ISO 14520:2015</div></div>
+        <div style="font-size:0.8rem;color:#555;">Clean Agent Suppression System: NFPA 2001:2022 / ISO 14520:2015</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
     <div style="margin-bottom:0.75rem;"><strong>Project:</strong> ${e(inputs.project_name||'Untitled')}</div>
@@ -13208,17 +13357,17 @@ function renderEarthingReport(inputs, results, narrative) {
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e(WORKER_NAME || 'Engineer of Record')}</div>
-        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Reviewed by')}</div>
-        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Approved by')}</div>
-        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
       </div>
     </div>
   </div>`;
@@ -13290,11 +13439,11 @@ function renderLPSReport(inputs, results, narrative) {
     </div>
 
     <div class="report-section">
-      <div class="report-section-title">2. Risk Assessment &mdash; IEC 62305-2</div>
+      <div class="report-section-title">2. Risk Assessment: IEC 62305-2</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table class="results-table">
         <thead><tr><th>Parameter</th><th>Symbol</th><th>Value</th><th>Reference</th></tr></thead>
         <tbody>
-          <tr><td>Ground Flash Density</td><td>Ng</td><td>${e(ng)} fl/km&sup2;/yr</td><td>PAGASA &mdash; ${e(loc)}</td></tr>
+          <tr><td>Ground Flash Density</td><td>Ng</td><td>${e(ng)} fl/km&sup2;/yr</td><td>PAGASA: ${e(loc)}</td></tr>
           <tr><td>Building Footprint</td><td>L &times; W</td><td>${e(L)} m &times; ${e(W)} m</td><td>Given</td></tr>
           <tr><td>Building Height</td><td>H</td><td>${e(H)} m</td><td>Given</td></tr>
           <tr><td>Collection Area</td><td>Ad</td><td>${e(Ad)} m&sup2;</td><td>IEC 62305-2 Annex A: Ad = LW + 6H(L+W) + 9&pi;H&sup2;</td></tr>
@@ -13308,7 +13457,7 @@ function renderLPSReport(inputs, results, narrative) {
     </div>
 
     <div class="report-section">
-      <div class="report-section-title">3. Lightning Protection Level (LPL) &mdash; IEC 62305-3</div>
+      <div class="report-section-title">3. Lightning Protection Level (LPL): IEC 62305-3</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table class="results-table">
         <thead><tr><th>Parameter</th><th>Value</th><th>Basis</th></tr></thead>
         <tbody>
@@ -13332,7 +13481,7 @@ function renderLPSReport(inputs, results, narrative) {
           <tr><td>Rolling Sphere Radius (R)</td><td>${e(rR)} m</td><td>Defines protected zone boundary</td></tr>
           <tr><td>Mesh Size (if mesh method)</td><td>${e(meshSz)} m &times; ${e(meshSz)} m</td><td>IEC 62305-3 Table 4 max</td></tr>
           <tr><td>Estimated Air Terminals / Masts</td><td>${e(nAT)} units</td><td>Based on roof area / mesh or rolling sphere</td></tr>
-          <tr><td>Conductor Specification</td><td>${e(dcMat)} &mdash; min 50mm&sup2; Cu / 70mm&sup2; Al / 50mm&sup2; Galv. Steel</td><td>IEC 62305-3 Table 6</td></tr>
+          <tr><td>Conductor Specification</td><td>${e(dcMat)}: min 50mm&sup2; Cu / 70mm&sup2; Al / 50mm&sup2; Galv. Steel</td><td>IEC 62305-3 Table 6</td></tr>
         </tbody>
       </table>
     </div>
@@ -13343,38 +13492,38 @@ function renderLPSReport(inputs, results, narrative) {
         <thead><tr><th>Parameter</th><th>Value</th><th>Basis</th></tr></thead>
         <tbody>
           <tr><td>Building Perimeter</td><td>${e(perim)} m</td><td>2(L+W)</td></tr>
-          <tr><td>Max Spacing (IEC 62305-3)</td><td>${e(dcSpacing)} m</td><td>IEC 62305-3 Table 4 &mdash; ${e(lpl)}</td></tr>
-          <tr><td>Number of Down Conductors</td><td>${e(nDC)}</td><td>max(2, &lceil;perimeter / spacing&rceil;) &mdash; min 2 required</td></tr>
+          <tr><td>Max Spacing (IEC 62305-3)</td><td>${e(dcSpacing)} m</td><td>IEC 62305-3 Table 4: ${e(lpl)}</td></tr>
+          <tr><td>Number of Down Conductors</td><td>${e(nDC)}</td><td>max(2, &lceil;perimeter / spacing&rceil;): min 2 required</td></tr>
           <tr><td>Material</td><td>${e(dcMat)}</td><td>Per project specification</td></tr>
           <tr><td>Min Cross-Section</td><td>50 mm&sup2; Cu / 70 mm&sup2; Al / 50 mm&sup2; Fe (hot-dip galv.)</td><td>IEC 62305-3 Table 6</td></tr>
           <tr><td>Test Joint</td><td>Required at base of each down conductor</td><td>IEC 62305-3 &sect;5.3.5</td></tr>
-          <tr><td>Separation Distance</td><td>Per IEC 62305-3 &sect;6.3 &mdash; avoid dangerous sparking</td><td>Based on LPL, separation material, path length</td></tr>
+          <tr><td>Separation Distance</td><td>Per IEC 62305-3 &sect;6.3: avoid dangerous sparking</td><td>Based on LPL, separation material, path length</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="report-section">
-      <div class="report-section-title">6. Earth Termination System &mdash; IEC 62305-3 &sect;5.4 / PEC 2017 Art. 2.50</div>
+      <div class="report-section-title">6. Earth Termination System: IEC 62305-3 &sect;5.4 / PEC 2017 Art. 2.50</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table class="results-table">
         <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
         <tbody>
           <tr><td>Earth Electrode Type</td><td>${e(earthType)}</td><td>Selected per soil conditions</td></tr>
           <tr><td>Number of Electrodes</td><td>${e(nElec)}</td><td>One per down conductor (IEC 62305-3 &sect;5.4.2)</td></tr>
           <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>max(5m, 0.5&times;H) per IEC 62305-3 Annex E</td></tr>
-          <tr><td>Target Earth Resistance</td><td>&le; 10 &Omega; (complete ring)</td><td>IEC 62305-3 &sect;5.4 &mdash; as low as practicable</td></tr>
+          <tr><td>Target Earth Resistance</td><td>&le; 10 &Omega; (complete ring)</td><td>IEC 62305-3 &sect;5.4: as low as practicable</td></tr>
           <tr><td>Integration with LV Earthing</td><td>Bond at main equipotential bar</td><td>PEC 2017 Art. 2.50 / IEC 62305-3 &sect;6.2</td></tr>
-          <tr><td>Below-Grade Connections</td><td>Exothermic weld (Cadweld) or listed compression fitting</td><td>IEC 62305-3 &sect;5.4.3 &mdash; no solder joints</td></tr>
+          <tr><td>Below-Grade Connections</td><td>Exothermic weld (Cadweld) or listed compression fitting</td><td>IEC 62305-3 &sect;5.4.3: no solder joints</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="report-section">
-      <div class="report-section-title">7. Internal LPS &mdash; Surge Protective Devices (SPDs) &mdash; IEC 62305-4</div>
+      <div class="report-section-title">7. Internal LPS: Surge Protective Devices (SPDs): IEC 62305-4</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table class="results-table">
         <thead><tr><th>Location</th><th>SPD Class / Type</th><th>Standard</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td>Main Distribution Board (MDB) / LV Entry</td><td>${e(spdClass)}</td><td>IEC 62305-4 / IEC 61643-11</td><td>Primary protection &mdash; 10/350&mu;s waveform; Up &le; 2.5kV for LPL I/II</td></tr>
-          <tr><td>Sub-Distribution Boards (SDB)</td><td>Type 2 (Class II)</td><td>IEC 61643-11</td><td>Secondary &mdash; 8/20&mu;s; Up &le; 1.5kV</td></tr>
+          <tr><td>Main Distribution Board (MDB) / LV Entry</td><td>${e(spdClass)}</td><td>IEC 62305-4 / IEC 61643-11</td><td>Primary protection:10/350&mu;s waveform; Up &le; 2.5kV for LPL I/II</td></tr>
+          <tr><td>Sub-Distribution Boards (SDB)</td><td>Type 2 (Class II)</td><td>IEC 61643-11</td><td>Secondary:8/20&mu;s; Up &le; 1.5kV</td></tr>
           <tr><td>Equipment / Sensitive Electronics</td><td>Type 3 (Class III)</td><td>IEC 61643-11</td><td>Point-of-use; Up &le; 1.0kV; within 10m of equipment</td></tr>
           <tr><td>Telecommunications / Data Lines</td><td>Type 2/3 Data Line SPD</td><td>IEC 61643-21</td><td>All metallic signal cables (RJ45, RS-485, coax) require SPD at entry</td></tr>
         </tbody>
@@ -13404,15 +13553,15 @@ function renderLPSReport(inputs, results, narrative) {
     <div class="report-section">
       <div class="report-section-title">10. References</div>
       <div class="editable-field" contenteditable="true" style="line-height:1.9;color:#333;font-size:0.82rem;">
-        1. IEC 62305-1:2010 &mdash; Protection Against Lightning: General Principles<br>
-        2. IEC 62305-2:2010 &mdash; Protection Against Lightning: Risk Management<br>
-        3. IEC 62305-3:2010 &mdash; Protection Against Lightning: Physical Damage to Structures and Life Hazard<br>
-        4. IEC 62305-4:2010 &mdash; Protection Against Lightning: Electrical and Electronic Systems within Structures<br>
-        5. NFPA 780:2023 &mdash; Standard for the Installation of Lightning Protection Systems<br>
-        6. PEC 2017, Article 2.50 &mdash; Grounding and Bonding<br>
-        7. PAGASA Isoceraunic Map &mdash; Thunderstorm Day Data by Region (Philippines)<br>
-        8. IEC 61643-11:2011 &mdash; Low-voltage Surge Protective Devices connected to LV power systems<br>
-        9. IEEE Std 81-2012 &mdash; Guide for Measuring Earth Resistivity, Ground Impedance, and Earth Surface Potentials
+        1. IEC 62305-1:2010: Protection Against Lightning: General Principles<br>
+        2. IEC 62305-2:2010: Protection Against Lightning: Risk Management<br>
+        3. IEC 62305-3:2010: Protection Against Lightning: Physical Damage to Structures and Life Hazard<br>
+        4. IEC 62305-4:2010: Protection Against Lightning: Electrical and Electronic Systems within Structures<br>
+        5. NFPA 780:2023: Standard for the Installation of Lightning Protection Systems<br>
+        6. PEC 2017, Article 2.50: Grounding and Bonding<br>
+        7. PAGASA Isoceraunic Map: Thunderstorm Day Data by Region (Philippines)<br>
+        8. IEC 61643-11:2011:Low-voltage Surge Protective Devices connected to LV power systems<br>
+        9. IEEE Std 81-2012: Guide for Measuring Earth Resistivity, Ground Impedance, and Earth Surface Potentials
       </div>
     </div>
 
@@ -13420,18 +13569,18 @@ function renderLPSReport(inputs, results, narrative) {
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e(WORKER_NAME)}</div>
-        <div style="font-size:0.72rem;color:#888;">Electrical Engineer &mdash; PRC Lic. No. ${e('_______')}</div>
-        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+        <div style="font-size:0.72rem;color:#595959;">Electrical Engineer:PRC Lic. No. ${e('_______')}</div>
+        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Reviewed by')}</div>
-        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>
         <div style="font-size:0.85rem;font-weight:600;">${e('Approved by')}</div>
-        <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+        <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
       </div>
     </div>
   </div>`;
@@ -13593,7 +13742,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
           <div style="font-size:0.74rem;color:#555;">${e('Mechanical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
           <div style="font-size:0.74rem;color:#555;">PTR No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
@@ -13601,7 +13750,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Project Engineer / Manager')}</div>
           <div style="font-size:0.74rem;color:#555;">Company: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
@@ -13609,7 +13758,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -13636,15 +13785,15 @@ function renderExpansionTankReport(inputs, results, narrative) {
   const maxPressG   = inputs.max_pressure_kpa_g ?? 400;
 
   const Ew          = Number(results.expansion_ratio      || 0);
-  const netExpL     = Number(results.V_expansion_L        || 0).toFixed(2);
-  const reqTankL    = Number(results.required_volume_L    || 0).toFixed(2);
-  const selTankL    = results.selected_tank_L             || '—';
+  const netExpL     = _orNA(results.V_expansion_L, 2);
+  const reqTankL    = _orNA(results.required_volume_L, 2);
+  const selTankL    = results.selected_tank_L             || '-';
   const alpha       = Number(results.acceptance_factor    || 0);
-  const prechargeG  = results.precharge_kpa_g             || '—';
-  const fillPressG  = results.fill_pressure_kpa_g         || '—';
+  const prechargeG  = results.precharge_kpa_g             || '-';
+  const fillPressG  = results.fill_pressure_kpa_g         || '-';
   const fillPressA  = (Number(results.fill_pressure_kpa_g || 0) + 101.3).toFixed(1);
   const maxPressA   = (Number(maxPressG) + 101.3).toFixed(1);
-  const pressCheck  = results.pressure_check              || '—';
+  const pressCheck  = results.pressure_check              || '-';
   const vFillNum    = Number(results.v_fill               || 0);
   const vMaxNum     = Number(results.v_max                || 0);
   const vFill       = vFillNum.toFixed(5);
@@ -13668,15 +13817,15 @@ function renderExpansionTankReport(inputs, results, narrative) {
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;margin-top:1rem;border-collapse:collapse;">
         <tr>
           <td style="width:50%;vertical-align:top;">
-            <div style="font-size:0.8rem;color:#888;">Project / System</div>
+            <div style="font-size:0.8rem;color:#595959;">Project / System</div>
             <div style="font-weight:600;">${e(projName)}</div>
           </td>
           <td style="width:25%;vertical-align:top;">
-            <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+            <div style="font-size:0.8rem;color:#595959;">Prepared by</div>
             <div>${e('Engineer')}</div>
           </td>
           <td style="width:25%;vertical-align:top;">
-            <div style="font-size:0.8rem;color:#888;">Date</div>
+            <div style="font-size:0.8rem;color:#595959;">Date</div>
             <div>${e(dateStr)}</div>
           </td>
         </tr>
@@ -13765,12 +13914,12 @@ function renderExpansionTankReport(inputs, results, narrative) {
       <div>
         <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
         <div style="font-size:0.8rem;color:#555;">${e('Mechanical Engineer')} | PRC License No. ${e('XXXXXXX')}</div>
-        <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+        <div style="font-size:0.8rem;color:#595959;">Prepared by</div>
       </div>
       <div>
         <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
         <div style="font-size:0.8rem;color:#555;">${e('Principal / Project Manager')}</div>
-        <div style="font-size:0.8rem;color:#888;">Reviewed by</div>
+        <div style="font-size:0.8rem;color:#595959;">Reviewed by</div>
       </div>
     </div>
   </div>`;
@@ -13794,13 +13943,13 @@ function renderFCUSelectionReport(inputs, results, narrative) {
   const divF      = inputs.diversity_factor ?? 0.85;
   const rooms     = inputs.rooms || [];
 
-  const totalConnKW  = Number(results.total_connected_kw  || 0).toFixed(2);
-  const totalConnTR  = Number(results.total_connected_tr  || 0).toFixed(2);
-  const totalReqKW   = Number(results.total_required_kw   || 0).toFixed(2);
-  const totalDesKW   = Number(results.total_design_kw     || 0).toFixed(2);
-  const totalDesTR   = Number(results.total_design_tr     || 0).toFixed(2);
-  const totalChwLps  = Number(results.total_chw_lps       || 0).toFixed(3);
-  const mainNps      = results.main_pipe_nps_mm  || '—';
+  const totalConnKW  = _orNA(results.total_connected_kw, 2);
+  const totalConnTR  = _orNA(results.total_connected_tr, 2);
+  const totalReqKW   = _orNA(results.total_required_kw, 2);
+  const totalDesKW   = _orNA(results.total_design_kw, 2);
+  const totalDesTR   = _orNA(results.total_design_tr, 2);
+  const totalChwLps  = _orNA(results.total_chw_lps, 3);
+  const mainNps      = results.main_pipe_nps_mm  || '-';
   const mainVel      = Number(results.main_pipe_vel_ms || 0).toFixed(2);
   const totalUnits   = results.total_units || 0;
   const roomResults  = results.rooms || [];
@@ -13808,13 +13957,13 @@ function renderFCUSelectionReport(inputs, results, narrative) {
   const roomRows = roomResults.map((r, i) => `
     <tr>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(r.room_name || rooms[i]?.room_name || '')}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(rooms[i]?.area_m2 || '—'))}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.load_kw || r.cooling_load_kw || 0).toFixed(2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(rooms[i]?.area_m2 || '-'))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${_orNA(r.load_kw || r.cooling_load_kw, 2)}</td>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(r.qty || 1))}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${escHtml(r.selected_model || '—')}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.selected_kw || 0).toFixed(2)}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.selected_tr || 0).toFixed(2)}</td>
-      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(r.airflow_cmh || '—'))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:600;">${escHtml(r.selected_model || '-')}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${_orNA(r.selected_kw, 2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${_orNA(r.selected_tr, 2)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${escHtml(String(r.airflow_cmh || '-'))}</td>
       <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:center;">${Number(r.chw_flow_lps_total || 0).toFixed(3)}</td>
     </tr>`).join('');
 
@@ -13831,15 +13980,15 @@ function renderFCUSelectionReport(inputs, results, narrative) {
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;margin-top:1rem;border-collapse:collapse;">
         <tr>
           <td style="width:50%;vertical-align:top;">
-            <div style="font-size:0.8rem;color:#888;">Project / System</div>
+            <div style="font-size:0.8rem;color:#595959;">Project / System</div>
             <div style="font-weight:600;">${e(projName)}</div>
           </td>
           <td style="width:25%;vertical-align:top;">
-            <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+            <div style="font-size:0.8rem;color:#595959;">Prepared by</div>
             <div>${e('Engineer')}</div>
           </td>
           <td style="width:25%;vertical-align:top;">
-            <div style="font-size:0.8rem;color:#888;">Date</div>
+            <div style="font-size:0.8rem;color:#595959;">Date</div>
             <div>${e(dateStr)}</div>
           </td>
         </tr>
@@ -13974,12 +14123,12 @@ function renderFCUSelectionReport(inputs, results, narrative) {
       <div>
         <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
         <div style="font-size:0.8rem;color:#555;">${e('Mechanical Engineer')} | PRC License No. ${e('XXXXXXX')}</div>
-        <div style="font-size:0.8rem;color:#888;">Prepared by</div>
+        <div style="font-size:0.8rem;color:#595959;">Prepared by</div>
       </div>
       <div>
         <div style="border-bottom:1px solid #333;margin-bottom:0.3rem;min-height:2rem;"></div>
         <div style="font-size:0.8rem;color:#555;">${e('Principal / Project Manager')}</div>
-        <div style="font-size:0.8rem;color:#888;">Reviewed by</div>
+        <div style="font-size:0.8rem;color:#595959;">Reviewed by</div>
       </div>
     </div>
   </div>`;
@@ -14015,7 +14164,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
       <td>${escHtml(l.name || inpLines[i]?.name || '')}</td>
       <td>${escHtml(l.line_type || '')}</td>
       <td class="num">${l.equiv_length_m}</td>
-      <td class="num">${l.selected_od_mm}<br><span style="font-size:0.72rem;color:#888;">ID ${l.selected_id_mm}</span></td>
+      <td class="num">${l.selected_od_mm}<br><span style="font-size:0.72rem;color:#595959;">ID ${l.selected_id_mm}</span></td>
       <td class="num">${l.velocity_ms}</td>
       <td class="num" style="color:${velColour(l.vel_check)};font-weight:700;">${escHtml(l.vel_check || '')}</td>
       <td class="num">${l.dp_total_pa}</td>
@@ -14128,7 +14277,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
           <div style="font-size:0.74rem;color:#555;">${e('Mechanical Engineer')}</div>
           <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: ${e('_____________')}</div>
           <div style="font-size:0.74rem;color:#555;">PTR No.: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
@@ -14136,7 +14285,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Project Engineer / Manager')}</div>
           <div style="font-size:0.74rem;color:#555;">Company: ${e('_____________')}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
         </div>
       </div>
       <div>
@@ -14144,7 +14293,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________________')}</div>
           <div style="font-size:0.74rem;color:#555;">${e('Owner / Client Representative')}</div>
           <div style="font-size:0.74rem;color:#555;">Date: ${e(dateStr)}</div>
-          <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -14238,22 +14387,22 @@ function renderLoadReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Total Connected Load</div>
           <div class="res-value">${results.total_connected_kva} kVA</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.total_connected_kw} kW</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.total_connected_kw} kW</div>
         </div>
         <div>
           <div class="res-label">Total Demand Load</div>
           <div class="res-value">${results.total_demand_kva} kVA</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.total_demand_kw} kW</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.total_demand_kw} kW</div>
         </div>
         <div>
           <div class="res-label">Service Ampacity</div>
           <div class="res-value">${results.ampacity_with_spare} A</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">incl. 25% spare</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">incl. 25% spare</div>
         </div>
         <div>
           <div class="res-label">Recommended MCCB</div>
           <div class="res-value">${results.recommended_breaker_A} A</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(results.phase_config)}</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${escHtml(results.phase_config)}</div>
         </div>
       </div>
     </div>
@@ -14351,22 +14500,22 @@ function renderVDReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Voltage Drop</div>
           <div class="res-value">${results.vd_volts} V</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.vd_pct}% of ${results.voltage} V</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.vd_pct}% of ${results.voltage} V</div>
         </div>
         <div>
           <div class="res-label">PEC Compliance</div>
           <div class="res-value" style="color:${passColor};">${results.pass ? 'PASS' : 'FAIL'}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Limit: ${results.vd_limit}%</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Limit: ${results.vd_limit}%</div>
         </div>
         <div>
           <div class="res-label">Conductor Size</div>
           <div class="res-value">${results.conductor_mm2} mm²</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(results.conductor_mat)} THHN</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${escHtml(results.conductor_mat)} THHN</div>
         </div>
         <div>
           <div class="res-label">Max Safe Length</div>
           <div class="res-value">${results.max_length_m} m</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">at this wire size and load</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">at this wire size and load</div>
         </div>
       </div>
     </div>
@@ -14452,22 +14601,22 @@ function renderWireSizingReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Design Current</div>
           <div class="res-value">${results.design_current} A</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.demand_multiplier}x multiplier applied</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.demand_multiplier}x multiplier applied</div>
         </div>
         <div>
           <div class="res-label">Recommended Wire</div>
           <div class="res-value">${results.recommended_size_mm2} mm²</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Copper THHN/THWN-2</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Copper THHN/THWN-2</div>
         </div>
         <div>
           <div class="res-label">Corrected Ampacity</div>
           <div class="res-value">${results.recommended_ampacity} A</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">after temp & fill correction</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">after temp & fill correction</div>
         </div>
         <div>
           <div class="res-label">Recommended Breaker</div>
           <div class="res-value">${results.recommended_breaker_A} A</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">next standard size</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">next standard size</div>
         </div>
       </div>
     </div>
@@ -14589,22 +14738,22 @@ function renderSepticReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Daily Sewage Flow</div>
           <div class="res-value">${results.daily_flow_L} L/day</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.occupants} persons x ${results.ww_rate} L/p/day</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.occupants} persons x ${results.ww_rate} L/p/day</div>
         </div>
         <div>
           <div class="res-label">Total Tank Volume</div>
           <div class="res-value">${results.design_volume_L} L</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.design_volume_m3} m3</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.design_volume_m3} m3</div>
         </div>
         <div>
           <div class="res-label">Tank Dimensions</div>
           <div class="res-value">${results.tank_length_m} x ${results.tank_width_m} m</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">depth ${results.total_depth_m} m (incl. freeboard)</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">depth ${results.total_depth_m} m (incl. freeboard)</div>
         </div>
         <div>
           <div class="res-label">Compartments</div>
           <div class="res-value">${comp}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${comp >= 2 ? `${results.comp1_L} L + ${results.comp2_L} L` : 'single chamber'}</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${comp >= 2 ? `${results.comp1_L} L + ${results.comp2_L} L` : 'single chamber'}</div>
         </div>
       </div>
     </div>
@@ -14679,8 +14828,8 @@ function renderGreaseTrapReport(inputs, results, narrative) {
     <tr>
       <td style="width:50%;padding:6px 0;vertical-align:top;">
         <strong>Project Name:</strong><br>${e(inp.project_name || 'Project Name')}<br>
-        <strong>Facility Type:</strong><br>${e(inp.facility_type || '—')}<br>
-        <strong>Meals per Day:</strong><br>${e(inp.meals_per_day || '—')}
+        <strong>Facility Type:</strong><br>${e(inp.facility_type || '-')}<br>
+        <strong>Meals per Day:</strong><br>${e(inp.meals_per_day || '-')}
       </td>
       <td style="width:50%;padding:6px 0 6px 24px;vertical-align:top;">
         <strong>Calculated by:</strong><br>${e('Engineer')}<br>
@@ -14798,7 +14947,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <tr style="background:#f8fafc;">
         <td style="padding:7px 12px;border:1px solid #e2e8f0;width:55%;">Meals served per day</td>
-        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${inp.meals_per_day || '—'}</td>
+        <td style="padding:7px 12px;border:1px solid #e2e8f0;">${inp.meals_per_day || '-'}</td>
       </tr>
       <tr>
         <td style="padding:7px 12px;border:1px solid #e2e8f0;">Assumed FOG per meal</td>
@@ -15007,22 +15156,22 @@ function renderDrainageReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Total DFU</div>
           <div class="res-value">${results.total_dfu} DFU</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.fixture_breakdown?.length || 0} fixture type(s)</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.fixture_breakdown?.length || 0} fixture type(s)</div>
         </div>
         <div>
           <div class="res-label">Recommended Pipe</div>
           <div class="res-value">${results.recommended_dia_mm} mm</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(results.pipe_material || inputs.pipe_material)}</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${escHtml(results.pipe_material || inputs.pipe_material)}</div>
         </div>
         <div>
           <div class="res-label">Flow Capacity</div>
           <div class="res-value">${results.capacity_q_ls} L/s</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">at half-full, ${slopeLabel}</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">at half-full, ${slopeLabel}</div>
         </div>
         <div>
           <div class="res-label">Velocity Check</div>
           <div class="res-value" style="color:${results.velocity_ok ? '#2e7d32' : '#b71c1c'};">${results.velocity_ok ? 'PASS' : 'FAIL'}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.design_velocity} m/s (min 0.6)</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.design_velocity} m/s (min 0.6)</div>
         </div>
       </div>
     </div>
@@ -15152,22 +15301,22 @@ function renderHotWaterReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Total Daily Demand</div>
           <div class="res-value">${results.total_daily_L} L/day</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">incl. ${results.pipe_loss_pct}% pipe loss</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">incl. ${results.pipe_loss_pct}% pipe loss</div>
         </div>
         <div>
           <div class="res-label">Peak Hour Demand</div>
           <div class="res-value">${results.peak_hour_L} L/hr</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">at ${Math.round((results.peak_fraction||0.25)*100)}% peak fraction</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">at ${Math.round((results.peak_fraction||0.25)*100)}% peak fraction</div>
         </div>
         <div>
           <div class="res-label">Storage Tank</div>
           <div class="res-value">${results.recommended_storage_L} L</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">computed: ${results.storage_L_computed} L min.</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">computed: ${results.storage_L_computed} L min.</div>
         </div>
         <div>
           <div class="res-label">Water Heater</div>
           <div class="res-value">${results.recommended_heater_kW} kW</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">recovery: ${results.recovery_rate_lph} L/hr</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">recovery: ${results.recovery_rate_lph} L/hr</div>
         </div>
       </div>
     </div>
@@ -15323,22 +15472,22 @@ function renderWaterSupplyReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Total WFU</div>
           <div class="res-value">${results.total_wfu} WFU</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">Water Fixture Units</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Water Fixture Units</div>
         </div>
         <div>
           <div class="res-label">Peak Design Flow</div>
           <div class="res-value">${results.peak_lps} L/s</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.peak_lpm} L/min via Hunter's Curve</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.peak_lpm} L/min via Hunter's Curve</div>
         </div>
         <div>
           <div class="res-label">Recommended Pipe</div>
           <div class="res-value">${results.recommended_dia_mm} mm</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${escHtml(String(inputs.pipe_material || 'PVC'))} at ${results.pipe_velocity} m/s</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${escHtml(String(inputs.pipe_material || 'PVC'))} at ${results.pipe_velocity} m/s</div>
         </div>
         <div>
           <div class="res-label">Pressure Check</div>
           <div class="res-value" style="color:${results.pressure_ok ? '#2e7d32' : '#b71c1c'};">${results.pressure_ok ? 'PASS' : 'FAIL'}</div>
-          <div style="font-size:0.78rem;color:#888;margin-top:0.1rem;">${results.pressure_available} m available</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.pressure_available} m available</div>
         </div>
       </div>
     </div>
@@ -15758,7 +15907,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
-        <div id="ld-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.objective || `To determine the number of luminaires required to achieve ${inputs.target_lux} lux average maintained illuminance in the subject ${inputs.space_type.toLowerCase()} in accordance with IES recommended practice and PEC 2017 Article 3.60.`}</div>
+        <div id="ld-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.objective || `To determine the number of luminaires required to achieve ${inputs.target_lux} lux average maintained illuminance in the subject ${inputs.space_type.toLowerCase()} in accordance with IES recommended practice and PEC 2017 Article 3.60.`)}</div>
       </div>
 
       <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">REFERENCES</div>
@@ -15836,12 +15985,12 @@ function renderLightingDesignReport(inputs, results, narrative) {
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
-        <div id="ld-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || `Room surface reflectances: ceiling 80%, walls 50%, floor 20% (IES typical). Work plane height assumed at 0.85 m (standard desk height). CU derived from IES Zonal Cavity tables for specified RCR and reflectance values. LLF of ${inputs.llf} applied for expected maintenance category.`}</div>
+        <div id="ld-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.assumptions || `Room surface reflectances: ceiling 80%, walls 50%, floor 20% (IES typical). Work plane height assumed at 0.85 m (standard desk height). CU derived from IES Zonal Cavity tables for specified RCR and reflectance values. LLF of ${inputs.llf} applied for expected maintenance category.`)}</div>
       </div>
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
-        <div id="ld-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
+        <div id="ld-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.recommendations || 'See calculation above.')}</div>
       </div>
 
       <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;">
@@ -15887,7 +16036,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
-        <div id="sc-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.objective || 'To determine the available 3-phase symmetrical fault current at the subject distribution panel and verify that the installed overcurrent protective device has sufficient interrupting capacity in accordance with PEC 2017 and IEC 60909.'}</div>
+        <div id="sc-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.objective || 'To determine the available 3-phase symmetrical fault current at the subject distribution panel and verify that the installed overcurrent protective device has sufficient interrupting capacity in accordance with PEC 2017 and IEC 60909.')}</div>
       </div>
 
       <div style="font-weight:700;font-size:0.85rem;color:#162032;border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-bottom:1rem;">REFERENCES</div>
@@ -15968,12 +16117,12 @@ function renderShortCircuitReport(inputs, results, narrative) {
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
-        <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected: conservative). Cable impedance includes both resistance (R) and reactance (X) at 50 Hz per XLPE/PVC LV cable data; Z_cable = √(R² + X²). Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.'}</div>
+        <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected: conservative). Cable impedance includes both resistance (R) and reactance (X) at 50 Hz per XLPE/PVC LV cable data; Z_cable = √(R² + X²). Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.')}</div>
       </div>
 
       <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
-        <div id="sc-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${narrative?.recommendations || 'See calculation above.'}</div>
+        <div id="sc-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.recommendations || 'See calculation above.')}</div>
       </div>
 
       <div class="sig-block" style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;">
@@ -16063,7 +16212,7 @@ function renderFireSprinklerReport(inputs, results, narrative) {
     <p style="font-size:0.82rem;color:#444;">
       Formula: hL (bar/m) = 6.05 x 10^4 x Q^1.85 / (C^1.85 x d^4.87)<br>
       Given: Q = ${r.Q_sprinklers_total} L/min, C = ${r.inputs_used.C}, d = ${r.pipe_dia} mm, L = ${inputs.pipe_length} m<br>
-      Pipe velocity = ${r.velocity} m/s &mdash; <strong style="color:${r.velocity > 3.0 ? '#c0392b' : '#27ae60'};">${r.velocity > 3.0 ? `EXCEEDS NFPA 13 LIMIT (max 3.0 m/s); pipe undersized, upsize to next standard diameter` : 'OK (under NFPA 13 max 3.0 m/s)'}</strong><br>
+      Pipe velocity = ${r.velocity} m/s:<strong style="color:${r.velocity > 3.0 ? '#c0392b' : '#27ae60'};">${r.velocity > 3.0 ? `EXCEEDS NFPA 13 LIMIT (max 3.0 m/s); pipe undersized, upsize to next standard diameter` : 'OK (under NFPA 13 max 3.0 m/s)'}</strong><br>
       <strong>Total friction loss H_f = ${r.H_friction} bar over ${inputs.pipe_length} m</strong>
     </p>
 
@@ -16491,7 +16640,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
     : 0;
   const stdSizes  = [12,15,16,17,18,19,20,22,24,25,28,30,32,35,38,40,42,45,48,50,55,60,65,70,75,80,85,90,95,100,110,120];
   const d_twist_std_mm = stdSizes.find(d => d >= d_twist_required_mm) || stdSizes[stdSizes.length - 1];
-  // n_key value for Recommendations text (read from calc engine; fall back to '—')
+  // n_key value for Recommendations text (read from calc engine; fall back to '-')
   const n_key      = Number(results.n_key || 0);
   const key_ok     = Boolean(results.key_ok ?? (n_key >= 1.5));
   const nf_good    = Number(results.nf_goodman || 0);
@@ -16524,7 +16673,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
     Kb:              shk.Kb,
     Kt:              shk.Kt,
     combined_Nm:     comb.toFixed(1),
-    d_cubed_m3:      Ss_allow > 0 ? ((16 / Math.PI) * comb / (Ss_allow * 1e6)).toExponential(3) : '—',
+    d_cubed_m3:      Ss_allow > 0 ? ((16 / Math.PI) * comb / (Ss_allow * 1e6)).toExponential(3) : '-',
     J_m4:            J_m4.toExponential(3),
     twist_rad:       tw_rad.toFixed(6),
     twist_deg:       tw_deg.toFixed(3),
@@ -16612,7 +16761,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
       d³ = (16 / π) × ${r.combined_Nm} / ${r.Ss_allow_Pa} = ${r.d_cubed_m3} m³<br>
       d<sub>min</sub> (ASME elliptic) = <strong>${r.d_min_mm} mm</strong>
     </p>
-    ${r.d_min_goodman_mm ? `<p style="font-size:0.83rem;color:#333;"><strong>Cross-check — Shigley DE-Goodman fatigue:</strong> d<sub>min</sub> = ${r.d_min_goodman_mm} mm (includes Kf, Kfs stress concentration factors). Governing minimum: <strong>${Math.max(Number(r.d_min_mm), Number(r.d_min_goodman_mm)).toFixed(1)} mm</strong>.</p>` : ''}
+    ${r.d_min_goodman_mm ? `<p style="font-size:0.83rem;color:#333;"><strong>Cross-check (Shigley DE-Goodman fatigue):</strong> d<sub>min</sub> = ${r.d_min_goodman_mm} mm (includes Kf, Kfs stress concentration factors). Governing minimum: <strong>${Math.max(Number(r.d_min_mm), Number(r.d_min_goodman_mm)).toFixed(1)} mm</strong>.</p>` : ''}
     <p style="font-size:0.83rem;color:#333;"><strong>Standard shaft diameter selected: <strong>${r.d_std_mm} mm</strong> (next standard size ≥ governing d<sub>min</sub>)</strong></p>
 
     <h2>6. Angle of Twist Check</h2>
@@ -16652,7 +16801,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Solid circular cross-section shaft.\n2. Simply supported beam model for bending: transverse load applied at midspan between the two bearing supports.\n3. Shock factors Kb = ${r.Kb} and Kt = ${r.Kt} per ASME B106.1M Table for ${inputs.shock_type.toLowerCase()} shock loading.\n4. Allowable shear stress Ss = ${inputs.keyway === 'Yes' ? '0.18' : '0.30'} × Sut = ${r.Ss_allow_MPa} MPa (${inputs.keyway === 'Yes' ? 'keyway present: ASME B106.1M reduction applied' : 'no keyway'}).\n5. Shear modulus G = 80 GPa for steel.\n6. Bending moment simplified to F×L/4 (point load at midspan). If the load is applied at a different location, revise M accordingly.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${twistOk ? r.d_std_mm : d_twist_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar)${twistOk ? '' : ` — UPSIZED from strength-only minimum ${r.d_std_mm} mm to satisfy 1°/m angle-of-twist limit (required d ≥ ${d_twist_required_mm} mm)`}. Strength-only minimum: ${r.d_min_mm} mm.\n2. ${inputs.keyway === 'Yes' ? `Design keyway per ASME B17.1: key width = d/4, key height = d/6, key length ≥ 1.5d.${n_key > 0 ? ` Computed key shear safety factor n_key = ${n_key.toFixed(2)} ${key_ok ? '(meets 1.5 minimum).' : '(BELOW 1.5 minimum per ASME B17.1: increase key length, use higher-grade key material, or upsize shaft to lower torque-induced shear stress).'}` : ''}` : 'No keyway: use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m: ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : `EXCEEDS ASME 1°/m limit by ${(Number(r.twist_deg_per_m) / 1.0).toFixed(1)}x. Required diameter ≥ ${d_twist_required_mm} mm (next standard: ${d_twist_std_mm} mm).`}\n4. Verify shaft critical speed${ncritRpm > 0 ? ` (computed: ${ncritRpm.toLocaleString()} RPM)` : ''}: operating speed must be below 75% of the first critical (whirling) speed and above 125% if running supercritical.\n5. Source ${inputs.material} round bar from a PNS/ASTM-certified supplier per ASTM A108 (cold-drawn) or DIN 1652. Verify mill certificate Sut (≥ ${r.Sut_MPa} MPa) before fabrication.\n6. Apply tolerance per ISO 286: bearing seats h6, coupling fits k6, keyway tolerance JS9. Surface finish Ra ≤ 1.6 μm at bearing journals; Ra ≤ 3.2 μm elsewhere.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${twistOk ? r.d_std_mm : d_twist_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar)${twistOk ? '' : `: UPSIZED from strength-only minimum ${r.d_std_mm} mm to satisfy 1°/m angle-of-twist limit (required d ≥ ${d_twist_required_mm} mm)`}. Strength-only minimum: ${r.d_min_mm} mm.\n2. ${inputs.keyway === 'Yes' ? `Design keyway per ASME B17.1: key width = d/4, key height = d/6, key length ≥ 1.5d.${n_key > 0 ? ` Computed key shear safety factor n_key = ${n_key.toFixed(2)} ${key_ok ? '(meets 1.5 minimum).' : '(BELOW 1.5 minimum per ASME B17.1: increase key length, use higher-grade key material, or upsize shaft to lower torque-induced shear stress).'}` : ''}` : 'No keyway: use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m: ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : `EXCEEDS ASME 1°/m limit by ${(Number(r.twist_deg_per_m) / 1.0).toFixed(1)}x. Required diameter ≥ ${d_twist_required_mm} mm (next standard: ${d_twist_std_mm} mm).`}\n4. Verify shaft critical speed${ncritRpm > 0 ? ` (computed: ${ncritRpm.toLocaleString()} RPM)` : ''}: operating speed must be below 75% of the first critical (whirling) speed and above 125% if running supercritical.\n5. Source ${inputs.material} round bar from a PNS/ASTM-certified supplier per ASTM A108 (cold-drawn) or DIN 1652. Verify mill certificate Sut (≥ ${r.Sut_MPa} MPa) before fabrication.\n6. Apply tolerance per ISO 286: bearing seats h6, coupling fits k6, keyway tolerance JS9. Surface finish Ra ≤ 1.6 μm at bearing journals; Ra ≤ 3.2 μm elsewhere.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -16725,7 +16874,7 @@ function renderBearingLifeReport(inputs, results, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
       <tr><td>Bearing Type</td><td>${escHtml(inputs.bearing_type)} Bearing</td></tr>
-      <tr><td>Bearing Number (reference)</td><td>${inputs.bearing_no ? escHtml(inputs.bearing_no) : '—'}</td></tr>
+      <tr><td>Bearing Number (reference)</td><td>${inputs.bearing_no ? escHtml(inputs.bearing_no) : '-'}</td></tr>
       <tr><td>Basic Dynamic Load Rating (C)</td><td class="num">${escHtml(String(inputs.C_kN))} kN</td></tr>
       <tr><td>Life Exponent (p)</td><td class="num">${r.p_exp} (${inputs.bearing_type === 'Ball' ? 'ball bearing' : 'roller bearing'})</td></tr>
       <tr><td>Operating Speed (n)</td><td class="num">${escHtml(String(inputs.speed_rpm))} RPM</td></tr>
@@ -16962,7 +17111,7 @@ function renderGearBeltDriveReport(inputs, results, narrative) {
   const r = results;
   const driveType  = r.drive_type || inputs.drive_type || 'Drive';
   const ratio      = Number(r.overall_ratio || r.speed_ratio || 0).toFixed(3);
-  const powerKW    = Number(r.power_kW || inputs.power_kW || 0).toFixed(1);
+  const powerKW    = _orNA(r.power_kW || inputs.power_kW, 1);
   const nDriver    = r.n_driver_rpm || inputs.n_driver_rpm || 0;
   const nDriven    = r.n_driven_rpm || inputs.n_driven_rpm || 0;
   const isGear     = driveType.includes('Gear');
@@ -17253,7 +17402,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
           </td>
         </tr>
       </table>`;
-    })() : `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table><tr><th>IPLV/NPLV</th><td style="color:#888;">Not provided: enter value from AHRI 550/590 chiller datasheet to enable part-load compliance check.</td></tr><tr><th>Note</th><td>A chiller can pass the full-load COP check and still fail IPLV. IPLV check is mandatory for ASHRAE 90.1 compliance.</td></tr></table>`}
+    })() : `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table><tr><th>IPLV/NPLV</th><td style="color:#595959;">Not provided: enter value from AHRI 550/590 chiller datasheet to enable part-load compliance check.</td></tr><tr><th>Note</th><td>A chiller can pass the full-load COP check and still fail IPLV. IPLV check is mandatory for ASHRAE 90.1 compliance.</td></tr></table>`}
 
     <h3>Step 9: Electrical Supply Requirements</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
@@ -17267,42 +17416,42 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
     <div class="result-highlight">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Design Load</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Design Load</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_design_kW} kW</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_design_TR} TR (with ${inputs.safety_factor}× safety)</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Selected Chiller(s)</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Selected Chiller(s)</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${inputs.n_units} × ${r.nominal_TR_each} TR</div>
           <div style="font-size:0.8rem;color:#555;">${inputs.chiller_type} | ${r.nominal_kW_each} kW each</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Cooling Tower Capacity</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Cooling Tower Capacity</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_rejection_TR} TR</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_rejection_kW} kW heat rejection</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">COP Check</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">COP Check</div>
           <div style="font-size:1.5rem;font-weight:800;color:${copColor};">${r.cop_check}</div>
           <div style="font-size:0.8rem;color:#555;">COP ${inputs.cop} vs min ${r.ashrae_min_cop} (ASHRAE 90.1)</div>
         </div>
         <div>
           ${r.iplv !== null ? (() => {
             const ic = r.iplv_check === 'PASS' ? '#2e7d32' : '#c62828';
-            return `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
+            return `<div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">IPLV Check</div>
             <div style="font-size:1.5rem;font-weight:800;color:${ic};">${r.iplv_check}</div>
             <div style="font-size:0.8rem;color:#555;">IPLV ${r.iplv} vs min ${r.ashrae_min_iplv} (ASHRAE 90.1)</div>`;
-          })() : `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
-            <div style="font-size:1.1rem;font-weight:700;color:#999;">Not provided</div>
-            <div style="font-size:0.8rem;color:#aaa;">Enter IPLV from AHRI 550/590 datasheet</div>`}
+          })() : `<div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">IPLV Check</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#595959;">Not provided</div>
+            <div style="font-size:0.8rem;color:#6b6b6b;">Enter IPLV from AHRI 550/590 datasheet</div>`}
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CHW Flow Rate</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">CHW Flow Rate</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_chw_lps} L/s</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_chw_m3h} m³/h | ${r.Q_chw_GPM} GPM</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CW Flow Rate</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">CW Flow Rate</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_cw_lps} L/s</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_cw_m3h} m³/h | ${r.Q_cw_GPM} GPM</div>
         </div>
@@ -17460,7 +17609,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
           </td>
         </tr>
       </table>`;
-    })() : `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table><tr><th>IPLV/NPLV</th><td style="color:#888;">Not provided: enter value from AHRI 550/590 chiller datasheet to enable part-load compliance check.</td></tr><tr><th>Note</th><td>A chiller can pass the full-load COP check and still fail IPLV. IPLV check is mandatory for ASHRAE 90.1 compliance.</td></tr></table>`}
+    })() : `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table><tr><th>IPLV/NPLV</th><td style="color:#595959;">Not provided: enter value from AHRI 550/590 chiller datasheet to enable part-load compliance check.</td></tr><tr><th>Note</th><td>A chiller can pass the full-load COP check and still fail IPLV. IPLV check is mandatory for ASHRAE 90.1 compliance.</td></tr></table>`}
 
     <h3>Step 9: Electrical Supply Requirements</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
@@ -17474,42 +17623,42 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
     <div class="result-highlight">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Design Load</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Design Load</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_design_kW} kW</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_design_TR} TR (with ${inputs.safety_factor}× safety)</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Selected Chiller(s)</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Selected Chiller(s)</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${inputs.n_units} × ${r.nominal_TR_each} TR</div>
           <div style="font-size:0.8rem;color:#555;">${r.nominal_kW_each} kW each | ${r.nominal_total_TR} TR total</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Compressor Power</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Compressor Power</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.P_total_kW} kW</div>
           <div style="font-size:0.8rem;color:#555;">${r.P_per_unit_kW} kW per unit | ${r.total_kVA} kVA</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">COP Check</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">COP Check</div>
           <div style="font-size:1.5rem;font-weight:800;color:${copColor};">${r.cop_check}</div>
           <div style="font-size:0.8rem;color:#555;">COP ${inputs.cop} vs min ${r.ashrae_min_cop} (ASHRAE 90.1)</div>
         </div>
         <div>
           ${r.iplv !== null ? (() => {
             const ic = r.iplv_check === 'PASS' ? '#2e7d32' : '#c62828';
-            return `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
+            return `<div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">IPLV Check</div>
             <div style="font-size:1.5rem;font-weight:800;color:${ic};">${r.iplv_check}</div>
             <div style="font-size:0.8rem;color:#555;">IPLV ${r.iplv} vs min ${r.ashrae_min_iplv} (ASHRAE 90.1)</div>`;
-          })() : `<div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">IPLV Check</div>
-            <div style="font-size:1.1rem;font-weight:700;color:#999;">Not provided</div>
-            <div style="font-size:0.8rem;color:#aaa;">Enter IPLV from AHRI 550/590 datasheet</div>`}
+          })() : `<div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">IPLV Check</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#595959;">Not provided</div>
+            <div style="font-size:0.8rem;color:#6b6b6b;">Enter IPLV from AHRI 550/590 datasheet</div>`}
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">CHW Flow Rate</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">CHW Flow Rate</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_flow_lps} L/s</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_flow_m3h} m³/h | ${r.Q_flow_GPM} GPM</div>
         </div>
         <div>
-          <div style="font-size:0.78rem;color:#888;margin-bottom:0.25rem;">Condenser Airflow</div>
+          <div style="font-size:0.78rem;color:#595959;margin-bottom:0.25rem;">Condenser Airflow</div>
           <div style="font-size:1.5rem;font-weight:800;color:#1a1a1a;">${r.Q_airflow_CMH} CMH</div>
           <div style="font-size:0.8rem;color:#555;">${r.Q_airflow_CMH_per_unit} CMH/unit | ${r.Q_airflow_CFM} CFM total</div>
         </div>
@@ -17799,7 +17948,7 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Up-peak scenario (morning arrival) used as the critical design case.\n2. Car loading efficiency of 80% of rated capacity per CIBSE Guide D.\n3. Average stops (S) computed using CIBSE formula: S = n × [1 − (1 − 1/n)^P] where n = floors and P = effective passengers.\n4. Loading/unloading time estimated proportional to car capacity.\n5. All elevators in the group operate simultaneously under group supervisory control.\n6. Floor heights are uniform throughout the building.`)}</p>
 
     <h2>8. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. Computed interval of ${r.interval_s} s (${intervalGrade}) and HC% of ${r.HC_pct}% (${hcGrade}): ${(intervalGrade === 'Poor' || hcGrade === 'Poor') ? 'REMEDIATION REQUIRED before building permit submission — consider increasing speed, adding an elevator to the group, or adjusting group supervisory control.' : (intervalGrade === 'Excellent' && hcGrade === 'Excellent') ? 'design exceeds CIBSE Guide D targets for the occupancy type; proceed to detailed equipment specification.' : 'acceptable for the occupancy type per CIBSE Guide D; design meets grade of service requirements.'}\n2. Install group supervisory control to optimize dispatching and minimize passenger waiting time; modern destination-dispatch systems reduce interval by 10 to 20 percent vs. up/down collective control.\n3. Specify door operator with re-opening device (light curtain or safety edge) per ASME A17.1 Section 2.11 and BP 344 accessibility requirements; reopening response time not more than 0.5 s.\n4. At least one elevator in the group must comply with BP 344 / RA 10754: minimum car size 1100 mm x 1400 mm, Braille and tactile controls, audible floor announcements, mirror at rear wall, handrail at not more than 900 mm above floor.\n5. Specify VVVF (variable-voltage variable-frequency) drive, regenerative type preferred to recover braking energy (15 to 25 percent power saving for high-rise buildings).\n6. Automatic Rescue Device (ARD) required for buildings 4 floors and above per ASME A17.1: brings car to nearest floor on mains power failure, allowing safe egress within 30 seconds.\n7. Pit equipment: spring or oil-type buffers sized per contract speed (oil buffers required for speed not less than 2.5 m/s), pit stop switch, pit lighting, sump pump in flood-prone locations.\n8. Submit elevator specifications, traffic analysis report, and Factory Acceptance Test (FAT) certificates to DPWH / LGU Building Official as part of the building permit application; ASME A17.1 acceptance inspection witnessed by OSHC-accredited elevator inspector before commissioning.\n9. Establish annual mandatory inspection program per DOLE OSHC (Department of Labor and Employment, Occupational Safety and Health Center); maintain O&M manual and log book for each elevator.\n10. A PRC-licensed Mechanical Engineer must sign and seal this document before building-permit submission.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. Computed interval of ${r.interval_s} s (${intervalGrade}) and HC% of ${r.HC_pct}% (${hcGrade}): ${(intervalGrade === 'Poor' || hcGrade === 'Poor') ? 'REMEDIATION REQUIRED before building permit submission: consider increasing speed, adding an elevator to the group, or adjusting group supervisory control.' : (intervalGrade === 'Excellent' && hcGrade === 'Excellent') ? 'design exceeds CIBSE Guide D targets for the occupancy type; proceed to detailed equipment specification.' : 'acceptable for the occupancy type per CIBSE Guide D; design meets grade of service requirements.'}\n2. Install group supervisory control to optimize dispatching and minimize passenger waiting time; modern destination-dispatch systems reduce interval by 10 to 20 percent vs. up/down collective control.\n3. Specify door operator with re-opening device (light curtain or safety edge) per ASME A17.1 Section 2.11 and BP 344 accessibility requirements; reopening response time not more than 0.5 s.\n4. At least one elevator in the group must comply with BP 344 / RA 10754: minimum car size 1100 mm x 1400 mm, Braille and tactile controls, audible floor announcements, mirror at rear wall, handrail at not more than 900 mm above floor.\n5. Specify VVVF (variable-voltage variable-frequency) drive, regenerative type preferred to recover braking energy (15 to 25 percent power saving for high-rise buildings).\n6. Automatic Rescue Device (ARD) required for buildings 4 floors and above per ASME A17.1: brings car to nearest floor on mains power failure, allowing safe egress within 30 seconds.\n7. Pit equipment: spring or oil-type buffers sized per contract speed (oil buffers required for speed not less than 2.5 m/s), pit stop switch, pit lighting, sump pump in flood-prone locations.\n8. Submit elevator specifications, traffic analysis report, and Factory Acceptance Test (FAT) certificates to DPWH / LGU Building Official as part of the building permit application; ASME A17.1 acceptance inspection witnessed by OSHC-accredited elevator inspector before commissioning.\n9. Establish annual mandatory inspection program per DOLE OSHC (Department of Labor and Employment, Occupational Safety and Health Center); maintain O&M manual and log book for each elevator.\n10. A PRC-licensed Mechanical Engineer must sign and seal this document before building-permit submission.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -17924,7 +18073,7 @@ function renderAHUSizingReport(inputs, results, narrative) {
       <tr><th>Outside Air Flow</th><td>Q_OA = ${r.Q_sa_CMH} × ${r.oa_pct_used}% = <strong>${r.Q_oa_CMH} m³/h (${(r.Q_oa_CMH/3.6).toFixed(1)} L/s)</strong></td></tr>
       <tr><th>Return / Recirculation Air</th><td>Q_RA = ${r.Q_sa_CMH} − ${r.Q_oa_CMH} = <strong>${r.Q_ra_CMH} m³/h</strong></td></tr>
       <tr><th>Mixed Air Temperature</th><td><strong>${r.T_mixed}°C</strong></td></tr>
-      ${r.persons > 0 ? `<tr><th>OA per Person</th><td>${r.oa_per_person_lps} L/s/person: ASHRAE 62.1 minimum: ${r.ashrae_oa_min_lps_person} L/s/person: <strong style="color:${oaColor};">${r.oa_check}</strong></td></tr>` : `<tr><th>OA Compliance Check</th><td style="color:#888;">N/A: occupant count not entered. Enter persons for ASHRAE 62.1 check.</td></tr>`}
+      ${r.persons > 0 ? `<tr><th>OA per Person</th><td>${r.oa_per_person_lps} L/s/person: ASHRAE 62.1 minimum: ${r.ashrae_oa_min_lps_person} L/s/person: <strong style="color:${oaColor};">${r.oa_check}</strong></td></tr>` : `<tr><th>OA Compliance Check</th><td style="color:#595959;">N/A: occupant count not entered. Enter persons for ASHRAE 62.1 check.</td></tr>`}
     </table>
 
     <h2>Step 4: Cooling Coil Capacity</h2>
@@ -17962,9 +18111,9 @@ function renderAHUSizingReport(inputs, results, narrative) {
     <h2>Step 7: Air Changes Per Hour (ACH) Check</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       ${(r.ach_actual > 0 || r.floor_area > 0) ? `
-      <tr><th>Zone Volume</th><td>${r.zone_volume || '—'} m³ (${r.floor_area || '—'} m² × ${r.ceiling_height || '—'} m H)</td></tr>
+      <tr><th>Zone Volume</th><td>${r.zone_volume || '-'} m³ (${r.floor_area || '-'} m² × ${r.ceiling_height || '-'} m H)</td></tr>
       <tr><th style="background:#fffde7;">Actual ACH</th><td><strong>${r.ach_actual} ACH</strong> (${r.Q_sa_CMH} m³/h supply)</td></tr>
-      ` : `<tr><th>ACH Check</th><td style="color:#888;">Floor area not entered - enter floor area and ceiling height for ACH calculation.</td></tr>`}
+      ` : `<tr><th>ACH Check</th><td style="color:#595959;">Floor area not entered - enter floor area and ceiling height for ACH calculation.</td></tr>`}
     </table>
 
     <h2>Step 8: Summary of Results</h2>
@@ -18010,21 +18159,21 @@ function renderAHUSizingReport(inputs, results, narrative) {
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">PREPARED BY</div>
           <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field">${escHtml(WORKER_NAME)}</div>
-          <div style="font-size:0.72rem;color:#888;">Mechanical Engineer / Designer</div>
+          <div style="font-size:0.72rem;color:#595959;">Mechanical Engineer / Designer</div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">CHECKED BY</div>
           <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field"> </div>
-          <div style="font-size:0.72rem;color:#888;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
+          <div style="font-size:0.72rem;color:#595959;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
         </div>
       </div>
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">APPROVED BY</div>
           <div style="font-size:0.75rem;color:#555;" contenteditable="true" class="editable-field"> </div>
-          <div style="font-size:0.72rem;color:#888;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
+          <div style="font-size:0.72rem;color:#595959;">PRC Lic. No.: <span contenteditable="true" class="editable-field"> </span></div>
         </div>
       </div>
     </div>
@@ -18101,15 +18250,19 @@ function _fallbackHtml2pdf(reportEl, fileName) {
 
   const origWidth    = reportEl.style.width;
   const origMaxWidth = reportEl.style.maxWidth;
-  reportEl.style.width    = '688px';
-  reportEl.style.maxWidth = '688px';
+  // A-5 (deep-arc P6): a report table with >6 columns clips off the right edge in portrait A4.
+  // Detect the widest table and switch to landscape + a wider render width so nothing is cut.
+  const maxCols = Math.max(0, ...[...reportEl.querySelectorAll('table tr')].map(tr => tr.children.length));
+  const wide = maxCols > 6;
+  reportEl.style.width    = wide ? '980px' : '688px';
+  reportEl.style.maxWidth = wide ? '980px' : '688px';
 
   const opt = {
     margin:      [14, 14, 14, 14],
     filename:    fileName,
     image:       { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: wide ? 'landscape' : 'portrait' }
   };
 
   html2pdf().set(opt).from(reportEl).save().then(() => {
@@ -18203,20 +18356,20 @@ function buildAHUTitleBlockHtml(inputs, results) {
   const fanCheck = String(r.fan_power_check || 'PASS');
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
   return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-AHU-SCH-001')}</td>
-    ${TD('width:35%;')}${LBL('AHU Rating')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${nU} &times; ${ahuCMH.toLocaleString()} m&sup3;/h &mdash; Coil ${coilKW} kW (${coilTR} TR)</div></td>
+    ${TD('width:35%;')}${LBL('AHU Rating')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${nU} &times; ${ahuCMH.toLocaleString()} m&sup3;/h: Coil${coilKW} kW (${coilTR} TR)</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
-    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('AHU Psychrometric Process Line &mdash; ASHRAE 2021 Fundamentals')}</td>
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('AHU Psychrometric Process Line:ASHRAE 2021 Fundamentals')}</td>
     ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">ASHRAE 62.1 / 90.1 / PSME Code</div></td>
     ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
   </tr>
@@ -18225,7 +18378,7 @@ function buildAHUTitleBlockHtml(inputs, results) {
     ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Fan Power')}<div style="font-size:11px;font-weight:700;color:${fanCheck==='PASS'?'#2e7d32':'#c62828'};">${fanCheck}</div></td>
-    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#595959;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -18235,25 +18388,25 @@ function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
   const r = results || {};
   const THD = Number(r.THD_I_pct || 0).toFixed(2);
   const TDD = Number(r.TDD_pct || 0).toFixed(2);
-  const tddLim = r.TDD_limit_pct || '—';
+  const tddLim = r.TDD_limit_pct || '-';
   const kF = Number(r.K_factor || 0).toFixed(2);
   const status = r.overall_pass ? 'COMPLIANT' : 'NON-COMPLIANT';
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
   return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('ELEC-HD-SCH-001')}</td>
-    ${TD('width:35%;')}${LBL('Analysis Result')}<div style="font-size:11px;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${status} &mdash; THD ${THD}% / TDD ${TDD}%</div></td>
+    ${TD('width:35%;')}${LBL('Analysis Result')}<div style="font-size:11px;font-weight:700;color:${r.overall_pass?'#2e7d32':'#c62828'};">${status}:THD ${THD}% / TDD ${TDD}%</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
-    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Harmonic Distortion Spectrum &mdash; IEEE 519-2022')}</td>
+    ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Harmonic Distortion Spectrum:IEEE 519-2022')}</td>
     ${TD(`${BR}`)}${LBL('Standard / Code')}<div style="font-size:10px;color:#1a2e4a;">IEEE 519-2022 / IEC 61000-3-2 / PEC 2017</div></td>
     ${TD('')}${LBL('Date Prepared')}${EF(now)}</td>
   </tr>
@@ -18262,7 +18415,7 @@ function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
     ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('K-Factor')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${kF}</div></td>
-    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#595959;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -18272,9 +18425,9 @@ function buildDuctSizingTitleBlockHtml(inputs, results) {
   const r        = results || {};
   const segs     = Array.isArray(r.segments) ? r.segments : [];
   const nSeg     = segs.length || Number(r.n_segments || 0);
-  const maxFlow  = Number(r.max_flow_lps || 0).toFixed(0);
-  const fanStat  = Number(r.fan_static_pa || 0).toFixed(0);
-  const fanHP    = Number(r.fan_motor_hp_std || 0).toFixed(2);
+  const maxFlow  = _orNA(r.max_flow_lps, 0);
+  const fanStat  = _orNA(r.fan_static_pa, 0);
+  const fanHP    = _orNA(r.fan_motor_hp_std, 2);
   const totalDP  = Number(r.total_dp_pa || 0).toFixed(1);
   const ductMat  = String(r.duct_material || inputs?.duct_material || 'Galvanized Steel');
   const anyHigh  = segs.some(s => String(s?.vel_check || '').includes('HIGH'));
@@ -18283,17 +18436,17 @@ function buildDuctSizingTitleBlockHtml(inputs, results) {
   const velColor  = anyHigh ? '#c62828' : anyWarn ? '#ef6c00' : '#2e7d32';
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
   return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-DS-SCH-001')}</td>
-    ${TD('width:35%;')}${LBL('Duct System')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${nSeg} segment(s) ${ductMat} &mdash; Max ${maxFlow} L/s</div></td>
+    ${TD('width:35%;')}${LBL('Duct System')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${nSeg} segment(s) ${ductMat}:Max ${maxFlow} L/s</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Duct Sizing - Equal Friction Method (ASHRAE Chart)')}</td>
@@ -18304,8 +18457,8 @@ function buildDuctSizingTitleBlockHtml(inputs, results) {
     ${TD(`${BR}width:22%;`)}${LBL('Prepared By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Checked By')}${SIG()}</td>
     ${TD(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
-    ${TD(`${BR}width:17%;`)}${LBL('Fan Static / HP')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${fanStat} Pa / ${fanHP} HP</div><div style="font-size:8px;color:#888;">Total &Delta;P ${totalDP} Pa</div></td>
-    ${TD('')}${LBL('Velocity / Sheet')}<div style="font-size:11px;font-weight:700;color:${velColor};">${velStatus}</div><div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+    ${TD(`${BR}width:17%;`)}${LBL('Fan Static / HP')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${fanStat} Pa / ${fanHP} HP</div><div style="font-size:8px;color:#595959;">Total &Delta;P ${totalDP} Pa</div></td>
+    ${TD('')}${LBL('Velocity / Sheet')}<div style="font-size:11px;font-weight:700;color:${velColor};">${velStatus}</div><div style="font-size:8px;color:#595959;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -18333,7 +18486,7 @@ async function _runDrawing() {
         'Pump Sizing (TDH)':            'Q-H Pump Performance Curve',
         'AHU Sizing':                   'Psychrometric Chart: AHU Process Line',
         'Duct Sizing (Equal Friction)': 'ASHRAE Equal Friction Duct Chart',
-        'Harmonic Distortion':          'Harmonic Spectrum — IEEE 519-2022 Bar Chart',
+        'Harmonic Distortion':          'Harmonic Spectrum: IEEE 519-2022 Bar Chart',
       };
       const svg = await _callPythonDiagram(ct, _lastInputs, _lastResults);
       const titleBlockHtml = (ct === 'Harmonic Distortion')          ? buildHarmonicSpectrumTitleBlockHtml(_lastInputs, _lastResults)
@@ -18382,17 +18535,17 @@ async function _runDrawing() {
     } else if (ct === 'Fire Pump Sizing') {
       const svg = buildFirePumpPIDSvg(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _flowLpm  = Number(_r.Q_Lmin || _r.req_flow_lpm || _r.required_flow_lpm || 0).toFixed(0);
-      const _presBar  = Number(_r.P_req_bar || _r.TDH_bar || _r.req_pressure_bar || 0).toFixed(2);
-      const _motorHP  = Number(_r.selected_HP || _r.motor_hp || _r.required_hp || 0).toFixed(0);
+      const _flowLpm  = _orNA(_r.Q_Lmin || _r.req_flow_lpm || _r.required_flow_lpm, 0);
+      const _presBar  = _orNA(_r.P_req_bar || _r.TDH_bar || _r.req_pressure_bar, 2);
+      const _motorHP  = _orNA(_r.selected_HP || _r.motor_hp || _r.required_hp, 0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_flowLpm} L/min @ ${_presBar} bar  |  ${_motorHP} HP`,
-        { drawingNo:'FP-PUMP-PID-001', drawingTitle:'Fire Pump System — P&ID Schematic', standard:'NFPA 20:2022 / ISA-5.1:2009 / PSME Code' }));
+        { drawingNo:'FP-PUMP-PID-001', drawingTitle:'Fire Pump System: P&ID Schematic', standard:'NFPA 20:2022 / ISA-5.1:2009 / PSME Code' }));
     } else if (ct === 'Ventilation / ACH') {
       const svg = buildVentilationSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _ach   = Number(_r.required_ach || _r.ach_required || _r.ach || 0).toFixed(1);
-      const _cmh   = Number(_r.supply_airflow_m3h || _r.total_airflow_m3h || _r.airflow_m3h || 0).toFixed(0);
+      const _ach   = _orNA(_r.required_ach || _r.ach_required || _r.ach, 1);
+      const _cmh   = _orNA(_r.supply_airflow_m3h || _r.total_airflow_m3h || _r.airflow_m3h, 0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_ach} ACH  |  ${_cmh} m³/h`,
         { drawingNo:'MECH-VENT-SCH-001', drawingTitle:'Ventilation System Schematic', standard:'ASHRAE 62.1:2022 / PSME Code / ASHRAE 90.1' }));
@@ -18405,26 +18558,26 @@ async function _runDrawing() {
       const _model = String(_z0.selected_model || _r.selected_fcu || 'FCU');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_capKW} kW / ${_capTR} TR  |  ${_model}`,
-        { drawingNo:'MECH-FCU-SCH-001', drawingTitle:'Fan Coil Unit — System Schematic', standard:'ARI 440 / ASHRAE 62.1 / ASHRAE 90.1 / PSME Code' }));
+        { drawingNo:'MECH-FCU-SCH-001', drawingTitle:'Fan Coil Unit: System Schematic', standard:'ARI 440 / ASHRAE 62.1 / ASHRAE 90.1 / PSME Code' }));
     } else if (ct === 'Refrigerant Pipe Sizing') {
       const svg = buildRefrigPipeSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       const _ref   = String(_r.refrigerant || _r.refrig || _lastInputs?.refrigerant || 'R-410A');
-      const _capKW = Number(_r.capacity_kw || _r.capacity_kW || 0).toFixed(1);
+      const _capKW = _orNA(_r.capacity_kw || _r.capacity_kW, 1);
       const _evapT = Number(_r.evap_temp_c || _r.evaporating_temp_c || _lastInputs?.evap_temp_c || 0).toFixed(0);
       const _condT = Number(_r.cond_temp_c || _r.condensing_temp_c || _lastInputs?.cond_temp_c || 0).toFixed(0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_ref}  |  ${_capKW} kW  |  Tevap ${_evapT}°C / Tcond ${_condT}°C`,
-        { drawingNo:'MECH-REFRIG-PID-001', drawingTitle:'Refrigerant Pipe Sizing — Circuit P&ID', standard:'ASHRAE Refrigeration Hbk / ASTM B280 / ASHRAE 15 / PSME Code' }));
+        { drawingNo:'MECH-REFRIG-PID-001', drawingTitle:'Refrigerant Pipe Sizing: Circuit P&ID', standard:'ASHRAE Refrigeration Hbk / ASTM B280 / ASHRAE 15 / PSME Code' }));
     } else if (ct === 'Cooling Tower Sizing') {
       const svg = buildCoolingTowerSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _qKW    = Number(_r.q_rejection_kw || _r.heat_rejection_kw || 0).toFixed(0);
-      const _qTR    = Number(_r.q_rejection_tr || _r.heat_rejection_tr || 0).toFixed(1);
+      const _qKW    = _orNA(_r.q_rejection_kw || _r.heat_rejection_kw, 0);
+      const _qTR    = _orNA(_r.q_rejection_tr || _r.heat_rejection_tr, 1);
       const _nCells = Number(_r.n_cells || 1);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_qKW} kW / ${_qTR} TR  |  ${_nCells} cell(s)`,
-        { drawingNo:'MECH-CT-SCH-001', drawingTitle:'Cooling Tower — Counter-Flow Induced Draft Schematic', standard:'CTI Std-201 / ASHRAE 90.1 / ASME PTC 23 / PSME Code' }));
+        { drawingNo:'MECH-CT-SCH-001', drawingTitle:'Cooling Tower: Counter-Flow Induced Draft Schematic', standard:'CTI Std-201 / ASHRAE 90.1 / ASME PTC 23 / PSME Code' }));
     } else if (ct === 'Chiller System — Air Cooled' || ct === 'Chiller System — Water Cooled') {
       const svg = buildChillerSVG(_lastInputs, _lastResults, ct);
       const _r = _lastResults || {};
@@ -18434,53 +18587,53 @@ async function _runDrawing() {
       const _isAC  = ct.includes('Air');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_nU} × ${(Number(_trTot)/_nU).toFixed(1)} TR = ${_trTot} TR total  |  COP ${_cop}`,
-        { drawingNo:`MECH-CHLR-SCH-001`, drawingTitle:`${_isAC ? 'Air-Cooled' : 'Water-Cooled'} Chiller Plant — System Schematic`, standard:'ASHRAE 90.1 / AHRI 550/590 / PSME Code' }));
+        { drawingNo:`MECH-CHLR-SCH-001`, drawingTitle:`${_isAC ? 'Air-Cooled' : 'Water-Cooled'} Chiller Plant: System Schematic`, standard:'ASHRAE 90.1 / AHRI 550/590 / PSME Code' }));
     } else if (ct === 'Expansion Tank Sizing') {
       const svg = buildExpansionTankSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _tankL = _r.selected_tank_L || '—';
+      const _tankL = _r.selected_tank_L || '-';
       const _alpha = Number(_r.acceptance_factor || 0).toFixed(3);
       const _stype = String(_lastInputs?.system_type || 'Chilled Water');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_tankL} L Bladder  |  α = ${_alpha}  |  ${_stype}`,
-        { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank — Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
+        { drawingNo:'MECH-ET-SCH-001', drawingTitle:'Expansion Tank: Hydronic System Schematic', standard:'ASHRAE 2023 Ch.12 / ASME BPVC Sec.VIII / PSME Code' }));
     } else if (ct === 'Heat Exchanger') {
       const svg = buildHeatExchangerSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.duty_kW||0).toFixed(1)} kW  |  LMTD ${Number(_r.lmtd_corrected_K||_r.lmtd_K||0).toFixed(2)} K  |  A=${Number(_r.A_required_m2||0).toFixed(2)} m²`,
-        { drawingNo:'MECH-HX-SCH-001', drawingTitle:'Heat Exchanger — Shell-and-Tube Cross-Section', standard:'TEMA 10th Ed. / ASME Sec.VIII' }));
+        `${_orNA(_r.duty_kW, 1)} kW  |  LMTD ${Number(_r.lmtd_corrected_K||_r.lmtd_K||0).toFixed(2)} K  |  A=${_orNA(_r.A_required_m2, 2)} m²`,
+        { drawingNo:'MECH-HX-SCH-001', drawingTitle:'Heat Exchanger: Shell-and-Tube Cross-Section', standard:'TEMA 10th Ed. / ASME Sec.VIII' }));
     } else if (ct === 'Pressure Vessel') {
       const svg = buildPressureVesselSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Ø${Number(_r.outer_diameter_mm||0).toFixed(0)}mm  |  MAWP ${Number(_r.mawp_bar||0).toFixed(2)} bar  |  ${String(_r.material||_lastInputs?.material||'CS')}`,
-        { drawingNo:'MECH-PV-SCH-001', drawingTitle:'Pressure Vessel — Cross-Section', standard:'ASME BPVC Sec.VIII Div.1' }));
+        `Ø${_orNA(_r.outer_diameter_mm, 0)}mm  |  MAWP ${_orNA(_r.mawp_bar, 2)} bar  |  ${String(_r.material||_lastInputs?.material||'CS')}`,
+        { drawingNo:'MECH-PV-SCH-001', drawingTitle:'Pressure Vessel: Cross-Section', standard:'ASME BPVC Sec.VIII Div.1' }));
     } else if (ct === 'Fluid Power') {
       const svg = buildFluidPowerSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       const _cyl = _r.cylinder || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_lastInputs?.system_pressure_bar||0).toFixed(0)} bar  |  Ø${Number(_r.bore_selected_mm||_lastInputs?.cylinder_bore_mm||0).toFixed(0)}mm  |  ${Number(_cyl.F_extend_kN||0).toFixed(1)} kN`,
-        { drawingNo:'MECH-HYD-PID-001', drawingTitle:'Hydraulic Circuit — Fluid Power P&ID', standard:'ISO 4413 / ISO 1219' }));
+        `${Number(_lastInputs?.system_pressure_bar||0).toFixed(0)} bar  |  Ø${_orNA(_r.bore_selected_mm||_lastInputs?.cylinder_bore_mm, 0)}mm  |  ${Number(_cyl.F_extend_kN||0).toFixed(1)} kN`,
+        { drawingNo:'MECH-HYD-PID-001', drawingTitle:'Hydraulic Circuit: Fluid Power P&ID', standard:'ISO 4413 / ISO 1219' }));
     } else if (ct === 'V-Belt Drive Design') {
       const svg = buildVBeltDriveSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${Number(_r.n_belts||1)} × Section ${String(_r.section||_r.belt_designation||'B')}  |  Ratio ${Number(_r.overall_ratio||0).toFixed(2)}:1`,
-        { drawingNo:'MECH-VBD-SCH-001', drawingTitle:'V-Belt Drive — Schematic', standard:'RMA IP-20 / ASME B17.1' }));
+        { drawingNo:'MECH-VBD-SCH-001', drawingTitle:'V-Belt Drive: Schematic', standard:'RMA IP-20 / ASME B17.1' }));
     } else if (ct === 'Vibration Analysis') {
       const svg = buildVibrationSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `fn=${Number(_r.fn_Hz||0).toFixed(2)} Hz  |  v_rms=${Number(_r.V_rms_mm_s||0).toFixed(2)} mm/s  |  ${String(_r.iso_zone||'Zone A')}`,
-        { drawingNo:'MECH-VIB-SCH-001', drawingTitle:'Vibration Analysis — SDOF Response', standard:'ISO 10816-3 / ISO 20816' }));
+        { drawingNo:'MECH-VIB-SCH-001', drawingTitle:'Vibration Analysis: SDOF Response', standard:'ISO 10816-3 / ISO 20816' }));
     } else if (ct === 'Noise / Acoustics') {
       const svg = buildNoiseAcousticsSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `Lp=${Number(_r.Lp_at_distance_dB||0).toFixed(1)} dB @ ${Number(_r.distance_m||5).toFixed(1)}m  |  NC-${Number(_r.NC_limit||35).toFixed(0)}`,
-        { drawingNo:'MECH-ACO-SCH-001', drawingTitle:'Noise / Acoustics — Room SPL Plan', standard:'ISO 9613 / DOLE D.O.13-1998' }));
+        { drawingNo:'MECH-ACO-SCH-001', drawingTitle:'Noise / Acoustics: Room SPL Plan', standard:'ISO 9613 / DOLE D.O.13-1998' }));
     } else if (ct === 'Shaft Design') {
       const svg = buildShaftDesignSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -18488,109 +18641,109 @@ async function _runDrawing() {
       const _twistOk  = _twistDPM <= 1.0;
       const _twistTag = _twistDPM > 0 ? ` | twist ${_twistDPM.toFixed(2)}deg/m${_twistOk ? '' : ' FAIL'}` : '';
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Ø${Number(_r.d_standard_mm||0).toFixed(0)}mm  |  nf=${Number(_r.nf_goodman||0).toFixed(2)}  |  T=${Number(_r.torque_Nm||0).toFixed(1)} N·m${_twistTag}`,
-        { drawingNo:'MECH-SHF-SCH-001', drawingTitle:'Shaft Design — Free Body Diagram', standard:'ASME B106.1M / DE-Goodman' }));
+        `Ø${_orNA(_r.d_standard_mm, 0)}mm  |  nf=${Number(_r.nf_goodman||0).toFixed(2)}  |  T=${_orNA(_r.torque_Nm, 1)} N·m${_twistTag}`,
+        { drawingNo:'MECH-SHF-SCH-001', drawingTitle:'Shaft Design: Free Body Diagram', standard:'ASME B106.1M / DE-Goodman' }));
     } else if (ct === 'Beam / Column Design') {
       const svg = buildBeamColumnSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${String(_r.section||_lastInputs?.section||'W250x33')}  |  DCR_M=${Number(_r.DCR_moment||0).toFixed(3)}  |  Span ${Number(_r.span_m||_lastInputs?.span_m||6).toFixed(1)}m`,
-        { drawingNo:'MECH-BM-SCH-001', drawingTitle:'Beam / Column Design — Loading Diagram', standard:'AISC 360 / ACI 318 / NSCP 2015' }));
+        { drawingNo:'MECH-BM-SCH-001', drawingTitle:'Beam / Column Design: Loading Diagram', standard:'AISC 360 / ACI 318 / NSCP 2015' }));
     } else if (ct === 'Bearing Life (L10)') {
       const svg = buildBearingLifeSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `L10h_adj = ${Number(_r.L10h_adj||0).toFixed(0)} h  |  C/P = ${Number(_r.C_over_P||0).toFixed(2)}`,
-        { drawingNo:'MECH-BRG-SCH-001', drawingTitle:'Bearing Life (L10) — Cross-Section', standard:'ISO 281 / ISO 14728' }));
+        `L10h_adj = ${_orNA(_r.L10h_adj, 0)} h  |  C/P = ${Number(_r.C_over_P||0).toFixed(2)}`,
+        { drawingNo:'MECH-BRG-SCH-001', drawingTitle:'Bearing Life (L10): Cross-Section', standard:'ISO 281 / ISO 14728' }));
     } else if (ct === 'Bolt Torque & Preload') {
       const svg = buildBoltTorqueSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `M${Number(_r.d_mm||_lastInputs?.bolt_size_mm||16).toFixed(0)} Grade ${String(_r.bolt_grade||_lastInputs?.grade||'8.8')}  |  T=${Number(_r.torque_Nm||0).toFixed(1)} N·m`,
-        { drawingNo:'MECH-BLT-SCH-001', drawingTitle:'Bolt Torque & Preload — Joint Cross-Section', standard:'ISO 898 / ASME B18.2 / VDI 2230' }));
+        `M${Number(_r.d_mm||_lastInputs?.bolt_size_mm||16).toFixed(0)} Grade ${String(_r.bolt_grade||_lastInputs?.grade||'8.8')}  |  T=${_orNA(_r.torque_Nm, 1)} N·m`,
+        { drawingNo:'MECH-BLT-SCH-001', drawingTitle:'Bolt Torque & Preload: Joint Cross-Section', standard:'ISO 898 / ASME B18.2 / VDI 2230' }));
     } else if (ct === 'Elevator Traffic Analysis') {
       const svg = buildElevatorTrafficSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `RTT=${Number(_r.RTT_s||0).toFixed(0)}s  |  Interval=${Number(_r.interval_s||0).toFixed(0)}s  |  HC=${Number(_r.HC_pct||0).toFixed(1)}%`,
+        `RTT=${_orNA(_r.RTT_s, 0)}s  |  Interval=${Number(_r.interval_s||0).toFixed(0)}s  |  HC=${Number(_r.HC_pct||0).toFixed(1)}%`,
         { drawingNo:'VT-ETA-SCH-001', drawingTitle:'Elevator Traffic Analysis - Building Diagram', standard:'ASME A17.1 / EN 81-20 / CIBSE Guide D' }));
     } else if (ct === 'Hoist Capacity') {
       const svg = buildHoistCapacitySVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `SWL ${Number(_lastInputs?.swl_kN||(_lastInputs?.rated_load_kg||0)*9.81/1000).toFixed(1)} kN  |  MBF ${Number(_r.MBF_kN||0).toFixed(1)} kN  |  ${Number(_r.motor_hp_std||0).toFixed(1)} HP`,
-        { drawingNo:'MECH-HST-SCH-001', drawingTitle:'Hoist Capacity — Rigging Diagram', standard:'ASME B30.2 / ISO 4301 / DOLE OSH' }));
+        `SWL ${Number(_lastInputs?.swl_kN||(_lastInputs?.rated_load_kg||0)*9.81/1000).toFixed(1)} kN  |  MBF ${_orNA(_r.MBF_kN, 1)} kN  |  ${_orNA(_r.motor_hp_std, 1)} HP`,
+        { drawingNo:'MECH-HST-SCH-001', drawingTitle:'Hoist Capacity: Rigging Diagram', standard:'ASME B30.2 / ISO 4301 / DOLE OSH' }));
     } else if (ct === 'Water Supply Pipe Sizing') {
       const svg = buildWaterSupplyPipeSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Ø${Number(_r.recommended_dia_mm||0).toFixed(0)}mm  |  ${Number(_r.peak_lps||0).toFixed(2)} L/s  |  ${Number(_r.total_wfu||0).toFixed(0)} WSFU`,
-        { drawingNo:'PLMB-WSP-SCH-001', drawingTitle:'Water Supply Pipe Sizing — Riser Diagram', standard:"Hunter's Method / Philippine Plumbing Code / IPC" }));
+        `Ø${_orNA(_r.recommended_dia_mm, 0)}mm  |  ${_orNA(_r.peak_lps, 2)} L/s  |  ${_orNA(_r.total_wfu, 0)} WSFU`,
+        { drawingNo:'PLMB-WSP-SCH-001', drawingTitle:'Water Supply Pipe Sizing: Riser Diagram', standard:"Hunter's Method / Philippine Plumbing Code / IPC" }));
     } else if (ct === 'Hot Water Demand') {
       const svg = buildHotWaterDemandSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.recommended_storage_L||0).toFixed(0)} L Storage  |  ${Number(_r.recommended_heater_kW||0).toFixed(1)} kW Heater`,
-        { drawingNo:'PLMB-HWD-SCH-001', drawingTitle:'Hot Water Demand — System Schematic', standard:'Philippine Plumbing Code / AS/NZS 3500' }));
+        `${_orNA(_r.recommended_storage_L, 0)} L Storage  |  ${_orNA(_r.recommended_heater_kW, 1)} kW Heater`,
+        { drawingNo:'PLMB-HWD-SCH-001', drawingTitle:'Hot Water Demand: System Schematic', standard:'Philippine Plumbing Code / AS/NZS 3500' }));
     } else if (ct === 'Drainage Pipe Sizing') {
       const svg = buildDrainagePipeSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Ø${Number(_r.recommended_dia_mm||0).toFixed(0)}mm  |  ${Number(_r.total_dfu||0).toFixed(0)} DFU  |  Slope ${Number(_r.slope_mm_per_m||20).toFixed(0)} mm/m`,
-        { drawingNo:'PLMB-DRN-SCH-001', drawingTitle:'Drainage Pipe Sizing — Riser Elevation', standard:'Philippine Plumbing Code / IPC Table 710' }));
+        `Ø${_orNA(_r.recommended_dia_mm, 0)}mm  |  ${_orNA(_r.total_dfu, 0)} DFU  |  Slope ${Number(_r.slope_mm_per_m||20).toFixed(0)} mm/m`,
+        { drawingNo:'PLMB-DRN-SCH-001', drawingTitle:'Drainage Pipe Sizing: Riser Elevation', standard:'Philippine Plumbing Code / IPC Table 710' }));
     } else if (ct === 'Septic Tank Sizing') {
       const svg = buildSepticTankSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.design_volume_m3||0).toFixed(2)} m³  |  ${Number(_r.tank_length_m||0).toFixed(2)}×${Number(_r.tank_width_m||0).toFixed(2)} m`,
-        { drawingNo:'PLMB-SEP-SCH-001', drawingTitle:'Septic Tank — Cross-Section', standard:'DENR DAO 2016-08 / DOH / Philippine Plumbing Code' }));
+        `${_orNA(_r.design_volume_m3, 2)} m³  |  ${_orNA(_r.tank_length_m, 2)}×${_orNA(_r.tank_width_m, 2)} m`,
+        { drawingNo:'PLMB-SEP-SCH-001', drawingTitle:'Septic Tank: Cross-Section', standard:'DENR DAO 2016-08 / DOH / Philippine Plumbing Code' }));
     } else if (ct === 'Grease Trap Sizing') {
       const svg = buildGreaseTrapSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.liquid_cap_l||0).toFixed(0)} L  |  ${Number(_r.pdi_gpm||0).toFixed(1)} GPM`,
-        { drawingNo:'PLMB-GT-SCH-001', drawingTitle:'Grease Trap — Cross-Section', standard:'PDI BH-201 / ASPE / Philippine Plumbing Code' }));
+        `${_orNA(_r.liquid_cap_l, 0)} L  |  ${_orNA(_r.pdi_gpm, 1)} GPM`,
+        { drawingNo:'PLMB-GT-SCH-001', drawingTitle:'Grease Trap: Cross-Section', standard:'PDI BH-201 / ASPE / Philippine Plumbing Code' }));
     } else if (ct === 'Roof Drain Sizing') {
       const svg = buildRoofDrainSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.n_drains||0)}× Ø${Number(_r.drain_size_mm||0).toFixed(0)}mm  |  ${Number(_r.q_total_ls||0).toFixed(2)} L/s`,
-        { drawingNo:'PLMB-RD-SCH-001', drawingTitle:'Roof Drain Sizing — Schematic', standard:'IPC §1106 / Philippine Plumbing Code' }));
+        `${Number(_r.n_drains||0)}× Ø${_orNA(_r.drain_size_mm, 0)}mm  |  ${_orNA(_r.q_total_ls, 2)} L/s`,
+        { drawingNo:'PLMB-RD-SCH-001', drawingTitle:'Roof Drain Sizing: Schematic', standard:'IPC §1106 / Philippine Plumbing Code' }));
     } else if (ct === 'Water Softener Sizing') {
       const svg = buildWaterSoftenerSVG(_lastInputs, _lastResults);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${Number(_lastInputs?.daily_volume_m3||0).toFixed(1)} m³/day  |  ${Number(_lastInputs?.raw_hardness_mg_l||0).toFixed(0)}→${Number(_lastInputs?.target_hardness_mg_l||0).toFixed(0)} mg/L`,
-        { drawingNo:'PLMB-WS-SCH-001', drawingTitle:'Water Softener — Flow Diagram', standard:'NSF/ANSI 44 / WQA' }));
+        { drawingNo:'PLMB-WS-SCH-001', drawingTitle:'Water Softener: Flow Diagram', standard:'NSF/ANSI 44 / WQA' }));
     } else if (ct === 'Water Treatment System') {
       const svg = buildWaterTreatmentSVG(_lastInputs, _lastResults);
       const _wtFlowM3d = Number(_lastResults?.demand_m3d ?? (_lastInputs?.demand_lpd ? Number(_lastInputs.demand_lpd) / 1000 : 0));
       const _wtSource  = String(_lastInputs?.raw_source ?? 'Deep Well / Bore');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_wtFlowM3d.toFixed(1)} m³/day  |  ${_wtSource}`,
-        { drawingNo:'PLMB-WT-SCH-001', drawingTitle:'Water Treatment — Process Train', standard:'PNS 1998 / DOH AO 2017-0010 / WHO' }));
+        { drawingNo:'PLMB-WT-SCH-001', drawingTitle:'Water Treatment: Process Train', standard:'PNS 1998 / DOH AO 2017-0010 / WHO' }));
     } else if (ct === 'Wastewater Treatment (STP)') {
       const svg = buildWastewaterSTPSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.flow_m3_day||0).toFixed(1)} m³/day  |  BOD out ${Number(_r.effluent_bod||0).toFixed(1)} mg/L`,
-        { drawingNo:'PLMB-STP-SCH-001', drawingTitle:'Wastewater STP — Activated Sludge Process', standard:'DENR DAO 2016-08 / DOH PD 856' }));
+        `${_orNA(_r.flow_m3_day, 1)} m³/day  |  BOD out ${Number(_r.effluent_bod||0).toFixed(1)} mg/L`,
+        { drawingNo:'PLMB-STP-SCH-001', drawingTitle:'Wastewater STP: Activated Sludge Process', standard:'DENR DAO 2016-08 / DOH PD 856' }));
     } else if (ct === 'Storm Drain / Stormwater') {
       const svg = buildStormDrainSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `Ø${Number(_r.d_selected_mm||0).toFixed(0)}mm  |  Q=${Number(_r.design_flow_lps||0).toFixed(1)} L/s  |  ${Number(_r.total_area_ha||0).toFixed(2)} ha`,
-        { drawingNo:'PLMB-SD-SCH-001', drawingTitle:'Storm Drain — Rational Method Schematic', standard:'DPWH / PAGASA / Rational Method / Manning' }));
+        `Ø${_orNA(_r.d_selected_mm, 0)}mm  |  Q=${_orNA(_r.design_flow_lps, 1)} L/s  |  ${_orNA(_r.total_area_ha, 2)} ha`,
+        { drawingNo:'PLMB-SD-SCH-001', drawingTitle:'Storm Drain: Rational Method Schematic', standard:'DPWH / PAGASA / Rational Method / Manning' }));
     } else if (ct === 'Stairwell Pressurization') {
       const svg = buildStairwellPressSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `ΔP = ${Number(_r.delta_P_Pa||0).toFixed(0)} Pa  |  Q = ${Number(_r.Q_design_CMH||0).toFixed(0)} m³/h  |  ${Number(_r.selected_HP||0).toFixed(1)} HP fan`,
+        `ΔP = ${Number(_r.delta_P_Pa||0).toFixed(0)} Pa  |  Q = ${_orNA(_r.Q_design_CMH, 0)} m³/h  |  ${_orNA(_r.selected_HP, 1)} HP fan`,
         { drawingNo:'FP-STAIR-SCH-001', drawingTitle:'Stairwell Pressurization Schematic', standard:'NFPA 92:2021 / PSME Code / PEC 2017' }));
     } else if (ct === 'Fire Alarm Battery') {
       const svg = buildFireAlarmBatterySVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${Number(_r.selected_Ah||0).toFixed(0)} Ah  |  ${Number(_r.standby_hours||24).toFixed(0)}h Standby  |  ${Number(_r.system_voltage||24).toFixed(0)}V`,
+        `${_orNA(_r.selected_Ah, 0)} Ah  |  ${Number(_r.standby_hours||24).toFixed(0)}h Standby  |  ${Number(_r.system_voltage||24).toFixed(0)}V`,
         { drawingNo:'FA-BATT-SCH-001', drawingTitle:'Fire Alarm Battery Standby Block Diagram', standard:'NFPA 72:2022 §10.6.7 / UL 864 / PEC 2017 Art.7' }));
     } else if (ct === 'Pipe Sizing') {
       const svg = buildPipeSizingSVG(_lastInputs, _lastResults);
@@ -18599,7 +18752,7 @@ async function _runDrawing() {
       const _mat = String(_lastInputs?.pipe_material || 'Carbon Steel');
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `Ø${_d}mm ${_mat}  |  v = ${Number(_r.pipe_velocity||_r.velocity||0).toFixed(2)} m/s  |  ΔP = ${Number(_r.pressure_drop_kpa||0).toFixed(2)} kPa`,
-        { drawingNo:'MECH-PIPE-SCH-001', drawingTitle:'Pipe Sizing — Hydraulic Schematic', standard:'ASHRAE 2021 Ch.22 / PSME Code / PNS ISO 4427' }));
+        { drawingNo:'MECH-PIPE-SCH-001', drawingTitle:'Pipe Sizing: Hydraulic Schematic', standard:'ASHRAE 2021 Ch.22 / PSME Code / PNS ISO 4427' }));
     } else if (ct === 'Compressed Air') {
       const svg = buildCompressedAirSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -18607,13 +18760,13 @@ async function _runDrawing() {
       const _hp = Number(_r.recommended_hp || 0);
       const _bar = Number(_r.working_pressure_bar_g || _lastInputs?.operating_pressure_bar || 7).toFixed(1);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${_hp} HP / ${_kw} kW  |  ${_bar} bar g  |  ${Number(_r.total_demand_m3min||0).toFixed(2)} m³/min FAD`,
-        { drawingNo:'MECH-CA-PID-001', drawingTitle:'Compressed Air System — P&ID', standard:'ISO 1217 / ISO 8573-1 / ASME B31.3 / CAGI' }));
+        `${_hp} HP / ${_kw} kW  |  ${_bar} bar g  |  ${_orNA(_r.total_demand_m3min, 2)} m³/min FAD`,
+        { drawingNo:'MECH-CA-PID-001', drawingTitle:'Compressed Air System: P&ID', standard:'ISO 1217 / ISO 8573-1 / ASME B31.3 / CAGI' }));
     } else if (ct === 'Boiler System') {
       const svg = buildBoilerSystemSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       const _kw = Number(_r.total_capacity_kw || 0).toFixed(1);
-      const _bhp = Number(_r.total_capacity_bhp || 0).toFixed(1);
+      const _bhp = _orNA(_r.total_capacity_bhp, 1);
       const _bar = Number(_lastInputs?.steam_pressure_barg || _lastInputs?.pressure_barg || 7).toFixed(1);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_kw} kW / ${_bhp} BHP  |  ${_bar} bar g  |  ${String(_r.boiler_type||'Steam')}`,
@@ -18621,49 +18774,49 @@ async function _runDrawing() {
     } else if (ct === 'AHU Sizing') {
       const svg = buildAHUSizingSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _m3h = Number(_r.supply_flow_m3hr || 0).toFixed(0);
-      const _kw  = Number(_r.coil_total_kw || 0).toFixed(1);
-      const _tr  = Number(_r.coil_total_tr || 0).toFixed(2);
+      const _m3h = _orNA(_r.supply_flow_m3hr, 0);
+      const _kw  = _orNA(_r.coil_total_kw, 1);
+      const _tr  = _orNA(_r.coil_total_tr, 2);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `${_m3h} m³/h  |  ${_kw} kW / ${_tr} TR  |  ${Number(_r.fan_motor_kw||_r.recommended_motor_kw||0).toFixed(2)} kW fan`,
-        { drawingNo:'MECH-AHU-SCH-001', drawingTitle:'Air Handling Unit — System Schematic', standard:'ASHRAE 62.1 / ASHRAE 90.1 / SMACNA / PSME Code' }));
+        `${_m3h} m³/h  |  ${_kw} kW / ${_tr} TR  |  ${_orNA(_r.fan_motor_kw||_r.recommended_motor_kw, 2)} kW fan`,
+        { drawingNo:'MECH-AHU-SCH-001', drawingTitle:'Air Handling Unit: System Schematic', standard:'ASHRAE 62.1 / ASHRAE 90.1 / SMACNA / PSME Code' }));
     } else if (ct === 'Duct Sizing (Equal Friction)') {
       const svg = buildDuctSizingSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _d  = Number(_r.D_std_mm || _r.D_calc_mm || 0).toFixed(0);
+      const _d  = _orNA(_r.D_std_mm || _r.D_calc_mm, 0);
       const _v  = Number(_r.circular_velocity_ms || 0).toFixed(2);
       const _dp = Number(_r.circular_dp_pam || 0).toFixed(3);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `Ø${_d}mm  |  v = ${_v} m/s  |  ${_dp} Pa/m`,
-        { drawingNo:'MECH-DUCT-SCH-001', drawingTitle:'Duct Sizing — Equal Friction Method', standard:'ASHRAE 2021 Ch.21 / SMACNA HVAC Duct Design / PSME Code' }));
+        { drawingNo:'MECH-DUCT-SCH-001', drawingTitle:'Duct Sizing: Equal Friction Method', standard:'ASHRAE 2021 Ch.21 / SMACNA HVAC Duct Design / PSME Code' }));
     } else if (ct === 'Solar PV System') {
       const svg = buildSolarPVSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _kwp = Number(_r.array_kWp || _r.actual_array_kwp || 0).toFixed(2);
+      const _kwp = _orNA(_r.array_kWp || _r.actual_array_kwp, 2);
       const _pan = Number(_r.total_panels || _r.panel_qty || 0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_kwp} kWp  |  ${_pan} panels  |  ${String(_lastInputs?.system_type || 'Grid-Tied')}`,
-        { drawingNo:'ELEC-PV-SLD-001', drawingTitle:'Solar PV System — One-Line Diagram', standard:'IEC 62548 / PEC 2017 Art.6 / DOE Net Metering' }));
+        { drawingNo:'ELEC-PV-SLD-001', drawingTitle:'Solar PV System: One-Line Diagram', standard:'IEC 62548 / PEC 2017 Art.6 / DOE Net Metering' }));
     } else if (ct === 'Power Factor Correction') {
       const svg = buildPFCSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${Number(_r.selected_kvar||0).toFixed(0)} kVAR  |  PF ${Number(_r.pf_existing||0).toFixed(2)}→${Number(_r.pf_target||0).toFixed(2)}`,
-        { drawingNo:'ELEC-PFC-SLD-001', drawingTitle:'Power Factor Correction — Single-Line Diagram', standard:'IEEE 18 / IEEE 1036 / PEC 2017' }));
+        { drawingNo:'ELEC-PFC-SLD-001', drawingTitle:'Power Factor Correction: Single-Line Diagram', standard:'IEEE 18 / IEEE 1036 / PEC 2017' }));
     } else if (ct === 'UPS Sizing') {
       const svg = buildUPSSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
-      const _kva = Number(_r.recommended_kVA || _r.selected_kva || 0).toFixed(1);
+      const _kva = _orNA(_r.recommended_kVA || _r.selected_kva, 1);
       const _rt  = Number(_r.backup_minutes_actual || _r.actual_runtime_min || 0).toFixed(0);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_kva} kVA  |  ${_rt} min runtime  |  ${String(_r.topology||'Double-Conversion')}`,
-        { drawingNo:'ELEC-UPS-BLK-001', drawingTitle:'UPS System — Block Diagram', standard:'IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017' }));
+        { drawingNo:'ELEC-UPS-BLK-001', drawingTitle:'UPS System: Block Diagram', standard:'IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017' }));
     } else if (ct === 'Earthing / Grounding System') {
       const svg = buildEarthingSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
       const _r2 = Number(_r.r_parallel_ohm || 0).toFixed(3);
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
-        `R = ${_r2} Ω  |  GEC ${Number(_r.gec_mm2||0).toFixed(0)}mm²  |  ${String(_lastInputs?.electrode_type||'Vertical Rod')}`,
+        `R = ${_r2} Ω  |  GEC ${_orNA(_r.gec_mm2, 0)}mm²  |  ${String(_lastInputs?.electrode_type||'Vertical Rod')}`,
         { drawingNo:'ELEC-EARTH-SCH-001', drawingTitle:'Earthing / Grounding System Layout', standard:'PEC 2017 Art.2.50 / IEEE 80 / IEC 62305' }));
     }
   }, 100);
@@ -18685,10 +18838,10 @@ function _buildGenericTitleBlock(inputs, ratingStr, opts) {
   const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const proj  = esc2(inputs?.project_name || 'Untitled Project');
   const now   = new Date().toLocaleDateString('en-PH', {year:'numeric', month:'long', day:'numeric'});
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${esc2(v)}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
   return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
@@ -18707,7 +18860,7 @@ function _buildGenericTitleBlock(inputs, ratingStr, opts) {
     ${TD(BR+'width:22%;')}${LBL('Checked By')}${SIG()}</td>
     ${TD(BR+'width:22%;')}${LBL('Approved By')}${SIG()}</td>
     ${TD(BR+'width:17%;')}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
-    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#888;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
+    ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}<div style="font-size:8px;color:#595959;margin-top:5px;white-space:nowrap;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -19437,7 +19590,7 @@ function buildFirePumpPIDSvg(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CP}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
-  p.push(T(W/2, 27, 'FIRE PUMP SYSTEM — P&ID SCHEMATIC', {sz:12, c:CP, w:'700'}));
+  p.push(T(W/2, 27, 'FIRE PUMP SYSTEM: P&ID SCHEMATIC', {sz:12, c:CP, w:'700'}));
   p.push(T(W/2, 41, `NFPA 20:2022 / ISA-5.1:2009  |  ${reqFlow} L/min @ ${reqPress} bar  |  ${motorHP} HP ${driveType}  |  ${redundancy}`, {sz:9, c:'#5a6a7a'}));
 
   // ── WATER SUPPLY SOURCE ───────────────────────────────────────────────────
@@ -19569,7 +19722,7 @@ function buildFirePumpPIDSvg(inputs, results) {
   p.push(`<rect x="${CTRL_X}" y="${CTRL_Y}" width="120" height="60" fill="${isDiesel?'#fff8e1':'#e8f5e9'}" stroke="${CG}" stroke-width="1.8" rx="3"/>`);
   p.push(`<rect x="${CTRL_X}" y="${CTRL_Y}" width="120" height="18" fill="${CG}" rx="3"/>`);
   p.push(T(CTRL_X+60, CTRL_Y+12, isDiesel ? 'ENGINE CONTROLLER' : 'PUMP CONTROLLER', {sz:7.5, c:'#fff', w:'700'}));
-  p.push(T(CTRL_X+60, CTRL_Y+28, isDiesel ? 'Diesel — NFPA 20 §12' : 'Electric — NFPA 20 §10', {sz:7, c:CG}));
+  p.push(T(CTRL_X+60, CTRL_Y+28, isDiesel ? 'Diesel (NFPA 20 §12)' : 'Electric (NFPA 20 §10)', {sz:7, c:CG}));
   p.push(T(CTRL_X+60, CTRL_Y+40, `${redundancy} configuration`, {sz:7, c:'#666'}));
   p.push(T(CTRL_X+60, CTRL_Y+52, 'UL listed / FM approved', {sz:7, c:'#888'}));
   // Controller wiring to pump motor (dashed green)
@@ -19617,7 +19770,7 @@ function buildFirePumpPIDSvg(inputs, results) {
   p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CP, w:'700'}));
   [
     `1. Fire pump rated per NFPA 20:2022. ${redundancy} configuration: duty + standby or duty + jockey.`,
-    `2. OS&Y valves (HV-201, HV-202) supervisory monitored per NFPA 20 §4.12 — must remain open.`,
+    `2. OS&Y valves (HV-201, HV-202) supervisory monitored per NFPA 20 §4.12, must remain open.`,
     `3. Check valve (CK-201) prevents back-flow through pump at shutoff per NFPA 20 §4.13.`,
     `4. Relief valve (RV-201) protects pump from deadhead pressure per NFPA 20 §4.17.`,
     `5. Duty-cycle test: rated (100%), peak (150% Q, 65% P), churn (0% Q, 121% P) per NFPA 20 §14.`,
@@ -19639,10 +19792,10 @@ function buildLPSTitleBlockHtml(inputs, results) {
   const rSph  = Number(r.rolling_sphere_R_m || 45);
   const meshSz = Number(r.mesh_size_m || 10);
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
 
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
@@ -19652,7 +19805,7 @@ function buildLPSTitleBlockHtml(inputs, results) {
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / Structure Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('LPS-EL-001')}</td>
-    ${TD('width:35%;')}${LBL('LPL / Method')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${lpl} &mdash; ${method} (R=${rSph}m, Mesh=${meshSz}m)</div></td>
+    ${TD('width:35%;')}${LBL('LPL / Method')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${lpl}:${method} (R=${rSph}m, Mesh=${meshSz}m)</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Lightning Protection Zone Diagram')}</td>
@@ -19665,7 +19818,7 @@ function buildLPSTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -19690,7 +19843,7 @@ function buildElectricalSLDSvg(inputs, results) {
   const isThreePhase = String(r.phase_config || '').includes('3');
   const voltageLabel = isThreePhase ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz';
   const mainBkr  = r.recommended_breaker_A || 100;
-  const demandKW = Number(r.total_demand_kw  || 0).toFixed(1);
+  const demandKW = _orNA(r.total_demand_kw, 1);
   const demandA  = Number(r.ampacity_with_spare || 0).toFixed(1);
   const breakdown = Array.isArray(r.load_breakdown) ? r.load_breakdown : [];
   const numBranches = Math.min(breakdown.length, 8);
@@ -19943,14 +20096,14 @@ function buildSLDTitleBlockHtml(inputs, results) {
   const isThreePhase = String(r.phase_config || '').includes('3');
   const voltageLabel = isThreePhase ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz';
   const mainBkr  = r.recommended_breaker_A || 100;
-  const demandKW = Number(r.total_demand_kw  || 0).toFixed(1);
+  const demandKW = _orNA(r.total_demand_kw, 1);
   const proj = String(inputs.project_name || 'Untitled Panel').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now  = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
 
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
@@ -19960,7 +20113,7 @@ function buildSLDTitleBlockHtml(inputs, results) {
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / Panel Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('SLD-EL-001')}</td>
-    ${TD('width:35%;')}${LBL('System / Total Demand')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${voltageLabel} &mdash; ${demandKW}&thinsp;kW / ${mainBkr}&thinsp;A Main CB</div></td>
+    ${TD('width:35%;')}${LBL('System / Total Demand')}<div style="font-size:11px;font-weight:700;color:#1a2e4a;">${voltageLabel}:${demandKW}&thinsp;kW / ${mainBkr}&thinsp;A Main CB</div></td>
   </tr>
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}`)}${LBL('Drawing Title')}${EF('Electrical Single Line Diagram')}</td>
@@ -19973,7 +20126,7 @@ function buildSLDTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -19988,9 +20141,9 @@ function buildGeneratorConnectionSvg(inputs, results) {
   const selKva   = Number(r.selected_kva    || 0);
   const selKw    = Number(r.selected_kw     || 0);
   const runKva   = Number(r.running_kva     || 0);
-  const fuel100  = Number(r.fuel_100pct_lhr || 0).toFixed(1);
-  const tank8    = Number(r.tank_8hr_litres || 0).toFixed(0);
-  const startKva = Number(r.starting_kva    || 0).toFixed(0);
+  const fuel100  = _orNA(r.fuel_100pct_lhr, 1);
+  const tank8    = _orNA(r.tank_8hr_litres, 0);
+  const startKva = _orNA(r.starting_kva, 0);
   const rawLoad  = Number(r.loading_pct     || (selKva > 0 ? runKva / selKva * 100 : 0));
   const loadPct  = rawLoad.toFixed(0);
   const designKva= Number(r.design_kva      || selKva).toFixed(0);
@@ -20264,8 +20417,8 @@ function buildGeneratorConnectionSvg(inputs, results) {
 
 function buildGeneratorTitleBlockHtml(inputs, results) {
   const r       = results || {};
-  const selKva  = Number(r.selected_kva || 0).toFixed(0);
-  const selKw   = Number(r.selected_kw  || 0).toFixed(0);
+  const selKva  = _orNA(r.selected_kva, 0);
+  const selKw   = _orNA(r.selected_kw, 0);
   const phaseConf = String(inputs.phase_config || r.phase_config || '3-Phase 4-Wire (400V)');
   const is3Ph   = phaseConf.includes('3');
   const app     = String(inputs.application || r.application || 'Standby (ESP)');
@@ -20273,10 +20426,10 @@ function buildGeneratorTitleBlockHtml(inputs, results) {
   const now     = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
   const ratingLine = `${selKva} kVA / ${selKw} kW | ${is3Ph ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz'} | ${app}`;
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
 
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
@@ -20299,7 +20452,7 @@ function buildGeneratorTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -20326,14 +20479,14 @@ function buildPumpPIDSvg(inputs, results) {
 
   // ── Calc values ────────────────────────────────────────────────────────────
   const flowLpm  = Number(r.flow_lpm      || inputs.flow_rate    || 0);
-  const flowM3hr = Number(r.flow_m3hr     || 0).toFixed(2);
-  const tdh      = Number(r.TDH           || 0).toFixed(1);
+  const flowM3hr = _orNA(r.flow_m3hr, 2);
+  const tdh      = _orNA(r.TDH, 1);
   const pipeDia  = Number(r.pipe_dia_mm   || inputs.pipe_diameter || 0);
   const pipeMat  = String(r.inputs_used?.pipe_material || inputs.pipe_material || 'PVC');
   const velocity = Number(r.pipe_velocity || 0).toFixed(2);
   const velOk    = r.velocity_ok !== false;
-  const motorKw  = Number(r.recommended_kw   || 0).toFixed(1);
-  const motorHp  = Number(r.recommended_hp   || 0).toFixed(0);
+  const motorKw  = _orNA(r.recommended_kw, 1);
+  const motorHp  = _orNA(r.recommended_hp, 0);
   const pumpEff  = Number(r.inputs_used?.pump_efficiency  || inputs.pump_efficiency  || 70);
   const motorEff = Number(r.inputs_used?.motor_efficiency || inputs.motor_efficiency || 90);
   const npshA    = Number(r.npsh_available || 0).toFixed(2);
@@ -20480,7 +20633,7 @@ function buildPumpPIDSvg(inputs, results) {
   ${tx(165, 223, 'LEVEL', 6.5, '#666', 'middle')}
 
   <!-- ─── SUCTION PIPE LABEL ─────────────────────────────────── -->
-  ${tx(260, PIPE_Y-14, '— SUCTION LINE —', 8.5, '#666', 'middle')}
+  ${tx(260, PIPE_Y-14, '- SUCTION LINE -', 8.5, '#666', 'middle')}
 
   <!-- ─── PROCESS PIPE: SUCTION SIDE ───────────────────────── -->
   ${ln(SRC_R, PIPE_Y, STR_X-STR_R, PIPE_Y, CP, 3)}
@@ -20535,7 +20688,7 @@ function buildPumpPIDSvg(inputs, results) {
   ${ln(FIT_X+FIT_R, PIPE_Y, DST_L, PIPE_Y, CP, 3)}
 
   <!-- Discharge pipe label + size annotation -->
-  ${tx((PMP_CX+PMP_R+DST_L)/2+20, PIPE_Y-14, '— DISCHARGE LINE —', 8.5, '#666', 'middle')}
+  ${tx((PMP_CX+PMP_R+DST_L)/2+20, PIPE_Y-14, '- DISCHARGE LINE -', 8.5, '#666', 'middle')}
   ${tx((PMP_CX+PMP_R+DST_L)/2+20, PIPE_Y+12, escHtml(`DN${pipeDia} ${pipeMat} | v = ${velocity} m/s`), 7.5, VV, 'middle', '600')}
 
   <!-- ─── PIT-103: DISCHARGE PRESSURE (remote) ─────────────── -->
@@ -20574,20 +20727,20 @@ function buildPumpPIDSvg(inputs, results) {
 
 function buildPumpPIDTitleBlockHtml(inputs, results) {
   const r      = results || {};
-  const tdh    = Number(r.TDH           || 0).toFixed(1);
-  const flowM3 = Number(r.flow_m3hr     || 0).toFixed(2);
+  const tdh    = _orNA(r.TDH, 1);
+  const flowM3 = _orNA(r.flow_m3hr, 2);
   const pipeDia= Number(r.pipe_dia_mm   || inputs.pipe_diameter || 0);
   const pipeMat= String(r.inputs_used?.pipe_material || inputs.pipe_material || 'PVC');
-  const motorKw= Number(r.recommended_kw || 0).toFixed(1);
-  const motorHp= Number(r.recommended_hp || 0).toFixed(0);
+  const motorKw= _orNA(r.recommended_kw, 1);
+  const motorHp= _orNA(r.recommended_hp, 0);
   const proj   = String(inputs.project_name || 'Untitled Pump System').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const now    = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
   const ratingLine = `${flowM3} m³/hr @ ${tdh} m TDH | DN${pipeDia} ${pipeMat} | ${motorKw} kW / ${motorHp} HP`;
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
-    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
   const TDB = (s='') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
@@ -20609,7 +20762,7 @@ function buildPumpPIDTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -20901,17 +21054,17 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
   const r      = results || {};
   const hazard = escHtml(String(r.hazard || inputs.occupancy_hazard || 'Ordinary Group 1'));
   const nH     = Number(r.N_sprinklers || 0);
-  const qT     = Number(r.Q_total      || 0).toFixed(0);
-  const pS     = Number(r.P_source     || 0).toFixed(2);
+  const qT     = _orNA(r.Q_total, 0);
+  const pS     = _orNA(r.P_source, 2);
   const durMin = Number(r.duration     || 0);
   const proj   = escHtml(String(inputs.project_name || 'Untitled Sprinkler System'));
   const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
   const ratingLine = `${hazard} | ${nH} heads | Q=${qT}\u00a0L/min | P\u209b=${pS}\u00a0bar | ${durMin}\u00a0min`;
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v = '') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>` +
-    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (s = '') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
   const TDB = (s = '') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
@@ -20933,7 +21086,7 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -20997,9 +21150,9 @@ function buildChillerSVG(inputs, results, calcType) {
 
   // ── Values ─────────────────────────────────────────────────────────────────
   const nUnits    = Number(r.n_units || inputs?.n_units || 1);
-  const trEach    = Number(r.nominal_TR_each   || r.recommended_TR || 0).toFixed(1);
+  const trEach    = _orNA(r.nominal_TR_each   || r.recommended_TR, 1);
   const kWEach    = Number(r.nominal_kW_each   || r.recommended_kW || 0);
-  const trTotal   = Number(r.nominal_total_TR  || 0).toFixed(1);
+  const trTotal   = _orNA(r.nominal_total_TR, 1);
   const cop       = Number(r.cop_used || r.COP_full_load || r.cop || 0).toFixed(2);
   const iplvProvided = (r.iplv != null && r.iplv !== '');
   const iplv      = iplvProvided ? Number(r.iplv).toFixed(2) : 'N/A';
@@ -21009,14 +21162,14 @@ function buildChillerSVG(inputs, results, calcType) {
   const chws      = Number(r.chw_supply_C || r.chw_supply_c || inputs?.chw_supply_C || 7);
   const chwr      = Number(r.chw_return_C || r.chw_return_c || inputs?.chw_return_C || 12);
   const dTchw     = Number(r.dT_chw_C || chwr - chws).toFixed(1);
-  const chwFlowLs = Number(r.Q_flow_lps || r.chw_flow_lps || r.Q_chw_lps || 0).toFixed(2);
-  const chwFlowM3 = Number(r.Q_flow_m3h || r.chw_flow_m3hr || r.Q_chw_m3h || 0).toFixed(1);
+  const chwFlowLs = _orNA(r.Q_flow_lps || r.chw_flow_lps || r.Q_chw_lps, 2);
+  const chwFlowM3 = _orNA(r.Q_flow_m3h || r.chw_flow_m3hr || r.Q_chw_m3h, 1);
   // Water-cooled specific
   const cws       = Number(r.cw_supply_C || r.cw_supply_c || inputs?.cw_supply_C || 29);
   const cwr       = Number(r.cw_return_C || r.cw_return_c || inputs?.cw_return_C || 35);
   const dTcw      = Number(r.dT_cw_C || cwr - cws).toFixed(1);
-  const cwFlowLs  = Number(r.Q_cw_lps || r.Q_cw_flow_lps || r.cw_flow_lps || 0).toFixed(2);
-  const cwFlowM3  = Number(r.Q_cw_m3h || r.Q_cw_flow_m3h || r.cw_flow_m3hr || 0).toFixed(1);
+  const cwFlowLs  = _orNA(r.Q_cw_lps || r.Q_cw_flow_lps || r.cw_flow_lps, 2);
+  const cwFlowM3  = _orNA(r.Q_cw_m3h || r.Q_cw_flow_m3h || r.cw_flow_m3hr, 1);
   const rejKW_n   = Number(r.Q_rejection_kW || r.q_rejection_kW || 0);
   const rejTR     = Number(r.Q_rejection_TR || r.q_rejection_TR || (rejKW_n / 3.517) || 0).toFixed(1);
   const rejKW     = rejKW_n.toFixed(0);
@@ -21069,7 +21222,7 @@ function buildChillerSVG(inputs, results, calcType) {
 
   // ── Title ─────────────────────────────────────────────────────────────────
   const typeLabel = isWC ? 'WATER-COOLED CHILLER PLANT' : 'AIR-COOLED CHILLER PLANT';
-  p.push(T(W/2, 27, `${typeLabel} — SYSTEM SCHEMATIC`, {sz:11, c:CC, w:'700'}));
+  p.push(T(W/2, 27, `${typeLabel}: SYSTEM SCHEMATIC`, {sz:11, c:CC, w:'700'}));
   p.push(T(W/2, 41, `ASHRAE 90.1-2019 / AHRI 550-590 / PSME Code  |  ${nUnits}× ${trEach} TR = ${trTotal} TR total  |  COP ${cop}`, {sz:9, c:SC}));
 
   // ── CHILLER BODY (centre) ─────────────────────────────────────────────────
@@ -21150,7 +21303,7 @@ function buildChillerSVG(inputs, results, calcType) {
 
   // CHW flow label on supply duct
   p.push(T(CHW_PX+10, PCHW_Y+80, `CHW = ${chwFlowM3} m³/h`, {a:'start', sz:8, c:CHW, w:'700'}));
-  p.push(T(CHW_PX+10, PCHW_Y+91, `= ${chwFlowLs} L/s  (${Number(r.Q_flow_GPM||r.Q_chw_GPM||0).toFixed(0)} GPM)`, {a:'start', sz:7, c:SC}));
+  p.push(T(CHW_PX+10, PCHW_Y+91, `= ${chwFlowLs} L/s  (${_orNA(r.Q_flow_GPM||r.Q_chw_GPM, 0)} GPM)`, {a:'start', sz:7, c:SC}));
 
   if (isWC) {
     // ── WATER-COOLED: CW LOOP (right side, green) ───────────────────────────
@@ -21255,7 +21408,7 @@ function buildChillerSVG(inputs, results, calcType) {
   const bx = isWC ? 310 : CX;
   const by = isWC ? 420 : CB+32;
   p.push(Badge(bx, by, copOk&&iplvOk ? `ASHRAE 90.1 COMPLIANT  COP ${cop}` : `ASHRAE 90.1 NON-COMPLIANT  COP ${cop}`, copOk&&iplvOk?CW:'#c62828'));
-  const iplvBadgeText  = iplvProvided ? `IPLV: ${iplv}  ${iplvOk?'✓':'✗ BELOW LIMIT'}` : `IPLV: N/A — enter from datasheet`;
+  const iplvBadgeText  = iplvProvided ? `IPLV: ${iplv}  ${iplvOk?'✓':'✗ BELOW LIMIT'}` : `IPLV: N/A, enter from datasheet`;
   const iplvBadgeColor = iplvProvided ? (iplvOk?CW:'#c62828') : SC;
   // Stack IPLV badge directly BELOW ASHRAE badge to avoid overlap (was: side-by-side in WC mode caused 60px overlap)
   p.push(Badge(bx, by+22, iplvBadgeText, iplvBadgeColor));
@@ -21267,9 +21420,9 @@ function buildChillerSVG(inputs, results, calcType) {
 
   p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
   const legItems = [
-    [CHW, 3, '', 'Chilled Water (CHW) — supply/return'],
-    [isWC?'#c62828':AIR, 3, '', isWC ? 'Condenser Water (CW) — warm side' : 'Condenser Air discharge'],
-    [isWC?CW:CC, 3, '', isWC ? 'Condenser Water (CW) — cool side / tower' : 'Chiller body'],
+    [CHW, 3, '', 'Chilled Water (CHW): supply/return'],
+    [isWC?'#c62828':AIR, 3, '', isWC ? 'Condenser Water (CW): warm side' : 'Condenser Air discharge'],
+    [isWC?CW:CC, 3, '', isWC ? 'Condenser Water (CW): cool side / tower' : 'Chiller body'],
   ];
   legItems.forEach(([clr, sw, dash, lbl], i) => {
     const ly = STRIP_Y + 22 + i * 14;
@@ -21281,7 +21434,7 @@ function buildChillerSVG(inputs, results, calcType) {
   [
     `1. Chiller rated per AHRI 550/590 at ARI standard conditions (44°F CHW, 85°F CW entering or 95°F DB ambient).`,
     `2. COP ${cop} ${copOk?'meets':'DOES NOT meet'} ASHRAE 90.1-2019 Table 6.8.1 minimum requirement.`,
-    `3. IPLV ${iplvProvided ? `${iplv} ${iplvOk?'meets':'DOES NOT meet'} ASHRAE 90.1-2019 minimum` : 'not provided — enter IPLV from AHRI 550/590 chiller datasheet to verify ASHRAE 90.1 part-load compliance'}.`,
+    `3. IPLV ${iplvProvided ? `${iplv} ${iplvOk?'meets':'DOES NOT meet'} ASHRAE 90.1-2019 minimum` : 'not provided, enter IPLV from AHRI 550/590 chiller datasheet to verify ASHRAE 90.1 part-load compliance'}.`,
     isWC ? `4. Cooling tower sized for ${rejTR} TR heat rejection. Drift eliminator required per DOLE-OSHC Legionella guidelines.`
           : `4. Air-cooled condenser: ${Number(airCMH).toLocaleString()} m³/h at ${ambient}°C DB. Ensure 1.5 m clearance on all sides per PSME Code.`,
     `5. Refrigerant ${refrig}: check F-gas compliance. Annual leak check required (DENR DAO 2021-19).`,
@@ -21310,14 +21463,14 @@ function buildFCUSVG(inputs, results) {
   const chwFlowLps = Number(zone.chw_flow_lps_total || r.chw_flow_lps_total || 0).toFixed(3);
   const qty        = Number(zone.qty || r.qty || 1);
   const roomName   = String(zone.room_name || r.room_name || 'Zone 1');
-  const loadKW     = Number(zone.cooling_load_kw || zone.load_kw || r.q_total_kW || 0).toFixed(1);
+  const loadKW     = _orNA(zone.cooling_load_kw || zone.load_kw || r.q_total_kW, 1);
   const chws       = Number(r.chw_supply_c || r.cw_ewt_c || inputs?.chw_supply_c || 7);
   const chwr       = Number(r.chw_return_c || r.cw_lwt_c || inputs?.chw_return_c || 12);
   const dTchw      = (chwr - chws).toFixed(1);
   const supT       = Number(r.supply_temp_c || 13).toFixed(1);
   const shr        = Number(r.shr          || 0.7).toFixed(2);
   const oaLps      = Number(zone.oa_required_lps || r.oa_required_lps || 0).toFixed(1);
-  const fanKW      = Number(zone.fan_power_kw    || r.fan_power_kW || 0).toFixed(3);
+  const fanKW      = _orNA(zone.fan_power_kw    || r.fan_power_kW, 3);
   const fanWLps    = Number(zone.fan_power_w_lps || r.fan_power_w_lps || 0).toFixed(2);
   const fanOk      = Boolean(zone.fan_power_ok ?? r.fan_power_ok ?? true);
   const pipeSystem = String(inputs?.pipe_system || '2-Pipe (Cooling Only)');
@@ -21372,13 +21525,13 @@ function buildFCUSVG(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
-  p.push(T(W/2, 27, 'FAN COIL UNIT — SYSTEM SCHEMATIC', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 27, 'FAN COIL UNIT: SYSTEM SCHEMATIC', {sz:12, c:CC, w:'700'}));
   p.push(T(W/2, 41, `ARI 440 / ASHRAE 62.1 / ASHRAE 90.1 / PSME Code  |  ${fcuModel} × ${qty}  |  ${capKW} kW / ${capTR} TR  |  ${mountType}`, {sz:9, c:SC}));
 
   // ── ROOM BOUNDARY ─────────────────────────────────────────────────────────
   const RM_X = 120, RM_Y = 220, RM_W = 600, RM_H = 200;
   p.push(`<rect x="${RM_X}" y="${RM_Y}" width="${RM_W}" height="${RM_H}" fill="#f8fafb" stroke="${CC}" stroke-width="2" stroke-dasharray="8 4" rx="4"/>`);
-  p.push(T(RM_X+10, RM_Y+14, `CONDITIONED SPACE — ${roomName}`, {a:'start', sz:8, c:CC, w:'700'}));
+  p.push(T(RM_X+10, RM_Y+14, `CONDITIONED SPACE: ${roomName}`, {a:'start', sz:8, c:CC, w:'700'}));
   p.push(T(RM_X+10, RM_Y+27, `Load: ${loadKW} kW  |  SHR: ${shr}  |  OA: ${oaLps} L/s  |  ${pipeSystem}`, {a:'start', sz:7.5, c:SC}));
 
   // ── FCU BODY (ceiling-mounted) ────────────────────────────────────────────
@@ -21583,7 +21736,7 @@ function buildRefrigPipeSVG(inputs, results) {
   const capKW   = Number(inputs?.capacity_kw || 50);
   const evapT   = Number(r.evap_temp_c  || inputs?.evap_temp_c  || 7);
   const condT   = Number(r.cond_temp_c  || inputs?.cond_temp_c  || 45);
-  const massKgs = Number(r.mass_flow_kgs || 0).toFixed(4);
+  const massKgs = _orNA(r.mass_flow_kgs, 4);
   const applic  = String(inputs?.application || 'AC');
 
   const sucOD   = Number(suc.selected_od_mm || suc.od_mm || 0).toFixed(2);
@@ -21639,7 +21792,7 @@ function buildRefrigPipeSVG(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
-  p.push(T(W/2, 27, 'REFRIGERANT PIPE SIZING — CIRCUIT P&ID', {sz:12, c:CC, w:'700'}));
+  p.push(T(W/2, 27, 'REFRIGERANT PIPE SIZING: CIRCUIT P&ID', {sz:12, c:CC, w:'700'}));
   p.push(T(W/2, 41, `ASHRAE Refrigeration Handbook / ASTM B280 (ACR Cu) / ASHRAE 15  |  ${refrig}  |  ${capKW} kW  |  Tevap ${evapT}°C / Tcond ${condT}°C`, {sz:9, c:SC}));
 
   // ── LAYOUT: Outdoor unit (left) ── pipes ── Indoor unit (right) ─────────
@@ -21824,9 +21977,9 @@ function buildRefrigPipeSVG(inputs, results) {
 
   p.push(T(18, STRIP_Y+13, 'LEGEND', {a:'start', sz:7, c:CC, w:'700'}));
   // ISA-5.1 line types (mandatory P&ID checklist)
-  [[SUC, 4, '', `Suction line — LP vapor  OD ${sucOD}mm  v=${sucV} m/s`],
-   [DIS, 3.5, '', `Discharge line — HP vapor  OD ${disOD}mm  v=${disV} m/s`],
-   [LIQ, 3.5, '', `Liquid line — HP liquid  OD ${liqOD}mm  v=${liqV} m/s`],
+  [[SUC, 4, '', `Suction line: LP vapor  OD ${sucOD}mm  v=${sucV} m/s`],
+   [DIS, 3.5, '', `Discharge line: HP vapor  OD ${disOD}mm  v=${disV} m/s`],
+   [LIQ, 3.5, '', `Liquid line: HP liquid  OD ${liqOD}mm  v=${liqV} m/s`],
    [SC,  1, '4 3', 'Instrument signal (ISA-5.1)'],
   ].forEach(([clr, sw, dash, lbl], i) => {
     const ly = STRIP_Y + 20 + i * 13;
@@ -21837,9 +21990,9 @@ function buildRefrigPipeSVG(inputs, results) {
   p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
   [
     `1. Pipe sizing per ASHRAE Refrigeration Handbook Ch.2. All ACR copper per ASTM B280 (cleaned, dehydrated, sealed).`,
-    `2. Suction OD ${sucOD}mm v=${sucV}m/s (target 4-18 m/s horiz.) — ${sucOk?'OK':'CHECK VELOCITY'}. Insulate full length (25mm minimum).`,
-    `3. Discharge OD ${disOD}mm v=${disV}m/s (target 8-18 m/s) — ${disOk?'OK':'CHECK VELOCITY'}. dT=${disDT}K equiv. sat. temp. loss.`,
-    `4. Liquid OD ${liqOD}mm v=${liqV}m/s (target 0.5-1.5 m/s) — ${liqOk?'OK':'CHECK VELOCITY'}. Filter drier + sight glass mandatory.`,
+    `2. Suction OD ${sucOD}mm v=${sucV}m/s (target 4-18 m/s horiz.): ${sucOk?'OK':'CHECK VELOCITY'}. Insulate full length (25mm minimum).`,
+    `3. Discharge OD ${disOD}mm v=${disV}m/s (target 8-18 m/s): ${disOk?'OK':'CHECK VELOCITY'}. dT=${disDT}K equiv. sat. temp. loss.`,
+    `4. Liquid OD ${liqOD}mm v=${liqV}m/s (target 0.5-1.5 m/s): ${liqOk?'OK':'CHECK VELOCITY'}. Filter drier + sight glass mandatory.`,
     `5. All refrigerant systems per ASHRAE 15 (Safety Code). Annual leak check per DENR DAO 2021-19 (F-gas reporting).`,
     `6. ${insul}. Brazed joints per AWS B2.2. Pressure test to 1.5× MAWP with dry nitrogen before charging.`,
   ].forEach((note, i) => p.push(T(LX2+8, STRIP_Y+27+i*12, note, {a:'start', sz:7, c:SC})));
@@ -21856,7 +22009,7 @@ function buildCoolingTowerSVG(inputs, results) {
   const r = results || {};
 
   // ── Values ─────────────────────────────────────────────────────────────────
-  const qKW      = Number(r.q_rejection_kw  || r.heat_rejection_kw || 0).toFixed(1);
+  const qKW      = _orNA(r.q_rejection_kw  || r.heat_rejection_kw, 1);
   const qTR      = Number(r.q_rejection_tr  || r.heat_rejection_tr || 0).toFixed(2);
   const ewt      = Number(r.ewt  || r.t_hot_in_c  || 37).toFixed(1);
   const lwt      = Number(r.lwt  || r.t_cold_out_c || 29).toFixed(1);
@@ -21867,14 +22020,14 @@ function buildCoolingTowerSVG(inputs, results) {
   const effPct   = Number(r.effectiveness || 0);
   const ntu      = Number(r.ntu || 0).toFixed(2);
   const nCells   = Number(r.n_cells || 1);
-  const qwM3hr   = Number(r.q_w_m3hr || r.water_flow_m3hr || 0).toFixed(1);
-  const qwLps    = Number(r.q_w_lps  || r.water_flow_lps  || 0).toFixed(3);
+  const qwM3hr   = _orNA(r.q_w_m3hr || r.water_flow_m3hr, 1);
+  const qwLps    = _orNA(r.q_w_lps  || r.water_flow_lps, 3);
   const fanCMH   = Number(r.fan_flow_CMH || 0).toFixed(0);
-  const fanHP    = Number(r.fan_hp       || 0).toFixed(1);
+  const fanHP    = _orNA(r.fan_hp, 1);
   const fanKW    = Number(r.fan_kw_std   || r.fan_kw_per_cell || 0).toFixed(2);
   const evapLhr  = Number(r.evap_lhr  || r.evaporation_lps * 3600 || 0).toFixed(1);
   const bdLhr    = Number(r.blowdown_lhr   || 0).toFixed(1);
-  const muLhr    = Number(r.makeup_lhr     || 0).toFixed(1);
+  const muLhr    = _orNA(r.makeup_lhr, 1);
   const driftLhr = Number(r.drift_lhr      || 0).toFixed(2);
   const basin    = Number(r.basin_volume_m3 || 0).toFixed(2);
   const coc      = Number(r.coc || r.cycles_of_concentration || 4).toFixed(1);
@@ -21913,7 +22066,7 @@ function buildCoolingTowerSVG(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
-  p.push(T(W/2, 27, 'COOLING TOWER SYSTEM — SCHEMATIC (COUNTER-FLOW INDUCED DRAFT)', {sz:11, c:CC, w:'700'}));
+  p.push(T(W/2, 27, 'COOLING TOWER SYSTEM: SCHEMATIC (COUNTER-FLOW INDUCED DRAFT)', {sz:11, c:CC, w:'700'}));
   p.push(T(W/2, 41, `CTI Std-201 / ASHRAE 90.1 / ASME PTC 23 / PSME Code  |  ${nCells} cell(s)  |  ${qKW} kW / ${qTR} TR heat rejection`, {sz:9, c:SC}));
 
   // ── TOWER CROSS-SECTION ───────────────────────────────────────────────────
@@ -21979,8 +22132,8 @@ function buildCoolingTowerSVG(inputs, results) {
     }
   }
   p.push(T(FCX, FILL_Y + FILL_H/2, 'FILL MEDIA (PVC Packing)', {sz:8, c:'#7a4a00', w:'700'}));
-  p.push(T(FCX, FILL_Y + FILL_H/2 + 14, `NTU = ${ntu}  |  L/G = ${r.lg_ratio || r.l_over_g || '—'}`, {sz:7.5, c:SC}));
-  p.push(T(FCX, FILL_Y + FILL_H/2 + 26, `Effectiveness = ${(effOk ? (effPct * 100).toFixed(1) : '—')}%`, {sz:7.5, c:effOk?GN:HW}));
+  p.push(T(FCX, FILL_Y + FILL_H/2 + 14, `NTU = ${ntu}  |  L/G = ${r.lg_ratio || r.l_over_g || '-'}`, {sz:7.5, c:SC}));
+  p.push(T(FCX, FILL_Y + FILL_H/2 + 26, `Effectiveness = ${(effOk ? (effPct * 100).toFixed(1) : '-')}%`, {sz:7.5, c:effOk?GN:HW}));
 
   // AIR INLET (sides of fill — counter-flow means air goes up, water goes down)
   const AIR_Y = FILL_Y + FILL_H/2;
@@ -22029,7 +22182,7 @@ function buildCoolingTowerSVG(inputs, results) {
   p.push(Arrow(TX-2, MU_Y, 'right', '#1a237e', 8));
   p.push(T(TX-62, MU_Y-8, 'Make-up Water', {a:'end', sz:7.5, c:'#1a237e', w:'700'}));
   p.push(T(TX-62, MU_Y+3, `${muLhr} L/hr`, {a:'end', sz:7.5, c:'#1a237e'}));
-  p.push(T(TX-62, MU_Y+13, `${r.makeup_m3day?.toFixed?.(2)||'—'} m³/day`, {a:'end', sz:7, c:SC}));
+  p.push(T(TX-62, MU_Y+13, `${r.makeup_m3day?.toFixed?.(2)||'-'} m³/day`, {a:'end', sz:7, c:SC}));
 
   // BLOWDOWN (left side from basin)
   const BD_Y = BASIN_Y + 45;
@@ -22102,8 +22255,8 @@ function buildCoolingTowerSVG(inputs, results) {
 
   p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
   [
-    `1. Cooling tower rated per CTI Std-201 at ${wbt}°C WBT design. Approach ${approach}K ${Number(approach)<3?'— WARN < 3K min recommended':': acceptable'}.`,
-    `2. Drift loss ${driftLhr} L/hr — provide drift eliminators to meet CTI Std-137 (< 0.002% of circulation rate).`,
+    `1. Cooling tower rated per CTI Std-201 at ${wbt}°C WBT design. Approach ${approach}K ${Number(approach)<3?': WARN < 3K min recommended':': acceptable'}.`,
+    `2. Drift loss ${driftLhr} L/hr, provide drift eliminators to meet CTI Std-137 (< 0.002% of circulation rate).`,
     `3. Blowdown ${bdLhr} L/hr required to maintain COC = ${coc}×. Total make-up = Evap + Blowdown + Drift = ${muLhr} L/hr.`,
     `4. Water treatment mandatory: biocide, scale inhibitor, pH control (DOH R.A. 11215 / Legionella prevention).`,
     `5. Fan motor ${fanHP} HP / ${fanKW} kW. ASHRAE 90.1 cooling tower efficiency: ${ashrae}. kW/TR = ${(Number(fanKW)/Number(qTR)).toFixed(3)}.`,
@@ -22123,12 +22276,12 @@ function buildVentilationSVG(inputs, results) {
   const r = results || {};
 
   // ── Values ──────────────────────────────────────────────────────────────────
-  const roomVol    = Number(r.room_volume      || 0).toFixed(1);
-  const vbzLs      = Number(r.vbz_ls          || 0).toFixed(1);
-  const reqACH     = Number(r.required_ach     || 0).toFixed(2);
+  const roomVol    = _orNA(r.room_volume, 1);
+  const vbzLs      = _orNA(r.vbz_ls, 1);
+  const reqACH     = _orNA(r.required_ach, 2);
   const minACH     = Number(r.min_ach_required || 6);
   const supCMH     = Number(r.supply_cmh       || 0);
-  const supLs      = Number(r.supply_ls        || 0).toFixed(1);
+  const supLs      = _orNA(r.supply_ls, 1);
   const supCFM     = Number(r.supply_cfm       || 0);
   const desCMH     = Number(r.design_cmh       || 0);
   const fanCMH     = Number(r.recommended_fan_cmh || 0);
@@ -22210,7 +22363,7 @@ function buildVentilationSVG(inputs, results) {
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
 
   // ── Title ─────────────────────────────────────────────────────────────────
-  p.push(T(W/2, 27, 'VENTILATION SYSTEM SCHEMATIC — ASHRAE 62.1 VENTILATION RATE PROCEDURE', {sz:11, c:CC, w:'700'}));
+  p.push(T(W/2, 27, 'VENTILATION SYSTEM SCHEMATIC: ASHRAE 62.1 VENTILATION RATE PROCEDURE', {sz:11, c:CC, w:'700'}));
   p.push(T(W/2, 41, `ASHRAE 62.1:2022 / PSME Code  |  ${spaceLabel}  |  ${ventType}  |  Required ACH: ${reqACH}`, {sz:9, c:SC}));
 
   // ── ROOM (conditioned space) ──────────────────────────────────────────────
@@ -22399,18 +22552,18 @@ function buildExpansionTankSVG(inputs, results) {
   const inp = inputs  || {};
 
   const sysType    = inp.system_type          || 'Chilled Water';
-  const sysVolL    = Number(r.system_volume_L   || 0).toFixed(1);
+  const sysVolL    = _orNA(r.system_volume_L, 1);
   const fillT      = Number(inp.fill_temp_c     ?? 20);
   const maxT       = Number(inp.max_temp_c      ?? 7);
   const headM      = Number(inp.static_head_m   ?? 10);
   const maxPressG  = Number(inp.max_pressure_kpa_g ?? 400);
-  const selTankL   = r.selected_tank_L          || '—';
-  const reqTankL   = Number(r.required_volume_L || 0).toFixed(1);
+  const selTankL   = r.selected_tank_L          || '-';
+  const reqTankL   = _orNA(r.required_volume_L, 1);
   const alpha      = Number(r.acceptance_factor || 0);
   const prechargeG = Number(r.precharge_kpa_g   || 0);
   const fillPressG = Number(r.fill_pressure_kpa_g || 0);
   const Ew         = Number(r.expansion_ratio   || 0);
-  const netExpL    = Number(r.V_expansion_L     || 0).toFixed(2);
+  const netExpL    = _orNA(r.V_expansion_L, 2);
   const alphaOK    = alpha >= 0.25;
   const pressOK    = (r.pressure_check || '').startsWith('PASS');
 
@@ -22458,13 +22611,13 @@ function buildExpansionTankSVG(inputs, results) {
 
   // Title bar
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${SC}"/>`);
-  p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK — HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
+  p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK: HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
 
   // Divider
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${SC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${SC}" stroke-width="1.2"/>`);
 
   // Panel sub-heading
-  p.push(`<text x="70" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION — PUMP SUCTION SIDE</text>`);
+  p.push(`<text x="70" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION (PUMP SUCTION SIDE)</text>`);
 
   // ── Supply header ──────────────────────────────────────────────────────────
   p.push(`<line x1="${lftX}" y1="${supY}" x2="${sepX-sepR}" y2="${supY}" stroke="${SUP_C}" stroke-width="4"/>`);
@@ -22560,7 +22713,7 @@ function buildExpansionTankSVG(inputs, results) {
   // Tank tag labels (right of tank)
   const tLX = teeX + tnkH2 + 8;
   p.push(`<text x="${tLX}" y="${tnkTop+12}" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="700" fill="${SC}">ET-01</text>`);
-  p.push(`<text x="${tLX}" y="${tnkTop+23}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Bladder Type — ASME VIII</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+23}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Bladder Type (ASME VIII)</text>`);
   p.push(`<text x="${tLX}" y="${tnkTop+36}" font-family="Segoe UI,Arial,sans-serif" font-size="8.5" font-weight="700" fill="${SUP_C}">${selTankL} L</text>`);
   p.push(`<text x="${tLX}" y="${tnkTop+48}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${TANK_C}">Pre-charge: ${prechargeG} kPa g (N₂)</text>`);
   p.push(`<text x="${tLX}" y="${tnkTop+59}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${TANK_C}">MAWP: ${maxPressG} kPa g</text>`);
@@ -22570,7 +22723,7 @@ function buildExpansionTankSVG(inputs, results) {
   const bdX = 375, bdY = supY - 32, bdW = 155, bdH = 28;
   p.push(`<rect x="${bdX}" y="${bdY}" width="${bdW}" height="${bdH}" rx="4" fill="${alphaOK ? '#e8f5e9' : '#ffebee'}" stroke="${ALP_C}" stroke-width="1.5"/>`);
   p.push(`<text x="${bdX+bdW/2}" y="${bdY+11}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${ALP_C}">Acceptance Factor α = ${alpha.toFixed(4)}</text>`);
-  p.push(`<text x="${bdX+bdW/2}" y="${bdY+22}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${ALP_C}">${alphaOK ? 'PASS — ASHRAE min 0.25 ✓' : 'FAIL — below ASHRAE 0.25 ✗'}</text>`);
+  p.push(`<text x="${bdX+bdW/2}" y="${bdY+22}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${ALP_C}">${alphaOK ? 'PASS: ASHRAE min 0.25 ✓' : 'FAIL: below ASHRAE 0.25 ✗'}</text>`);
 
   // ── DATA PANEL ────────────────────────────────────────────────────────────
   const DX = SPLIT_X + 10, DW = W - SPLIT_X - 22;
@@ -22608,7 +22761,7 @@ function buildExpansionTankSVG(inputs, results) {
   dy += 4;  p.push(secHdr('TANK SELECTION'));
   [[`Accept. Factor α`, `${alpha.toFixed(4)}  (min 0.25)`, ALP_C],
    ['Required Volume', `${reqTankL} L`, SC], ['Selected Tank', `${selTankL} L`, SUP_C],
-   ['Tank Type', 'Bladder/Diaphragm — ASME VIII', GY],
+   ['Tank Type', 'Bladder/Diaphragm (ASME VIII)', GY],
    ['PRV Set Pressure', `${Math.round(maxPressG*1.15)} kPa g`, ORG]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
 
   dy += 6;
@@ -22642,7 +22795,7 @@ function buildExpansionTankSVG(inputs, results) {
   ly += 16;
   p.push(`<polygon points="${lx},${ly-5} ${lx+14},${ly-5} ${lx+7},${ly+1}" fill="${GY}"/>`);
   p.push(`<polygon points="${lx},${ly+8} ${lx+14},${ly+8} ${lx+7},${ly+1}" fill="${GY}"/>`);
-  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Gate Valve — Isolation (ISO)</text>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Gate Valve: Isolation (ISO)</text>`);
 
   lx = 560; ly = LY + 25;
   p.push(`<rect x="${lx}" y="${ly-8}" width="20" height="17" rx="3" fill="${TANK_C}" stroke="${SC}" stroke-width="1"/>`);
@@ -22660,7 +22813,7 @@ function buildExpansionTankSVG(inputs, results) {
 
   // Notes
   const notes = [
-    `1. Tank at PNPC (pump suction) per ASHRAE 2023 Ch.12 — set pre-charge with system depressurised.`,
+    `1. Tank at PNPC (pump suction) per ASHRAE 2023 Ch.12: set pre-charge with system depressurised.`,
     `2. PRV at ${Math.round(maxPressG*1.15)} kPa g (115% MAWP). ASME VIII Mfr. Data Report required before commissioning.`,
     `3. TAB contractor to verify fill pressure at ${fillPressG} kPa g and α ≥ 0.25 after commissioning.`,
   ];
@@ -22684,8 +22837,8 @@ function buildPipeSizingSVG(inputs, results) {
 
   const diam   = Number(r.pipe_dia_mm || r.recommended_nominal_mm || 50);
   const vel    = Number(r.pipe_velocity || r.velocity || 0).toFixed(2);
-  const flowLpm= Number(r.flow_lpm || 0).toFixed(1);
-  const flowLps= Number(r.flow_lps || 0).toFixed(2);
+  const flowLpm= _orNA(r.flow_lpm, 1);
+  const flowLps= _orNA(r.flow_lps, 2);
   const hlM    = Number(r.head_loss_m || r.hf_total || 0).toFixed(3);
   const dpKpa  = Number(r.pressure_drop_kpa || 0).toFixed(2);
   const dpKpaM = Number(r.pressure_drop_kpa_per_m || 0).toFixed(4);
@@ -22708,7 +22861,7 @@ function buildPipeSizingSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2, 31, `PIPE SIZING — HYDRAULIC SCHEMATIC  |  ${diam}mm ${esc(mat)}  |  ASHRAE 2021 Ch.22 / PSME / PNS ISO 4427`, {sz:10.5, c:'white', w:'700'}));
+  p.push(T(W/2, 31, `PIPE SIZING: HYDRAULIC SCHEMATIC  |  ${diam}mm ${esc(mat)}  |  ASHRAE 2021 Ch.22 / PSME / PNS ISO 4427`, {sz:10.5, c:'white', w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── SCHEMATIC ──
@@ -22816,7 +22969,7 @@ function buildPipeSizingSVG(inputs, results) {
 
   dy += 4; p.push(secHdr('HYDRAULIC RESULTS'));
   [['Flow Rate', `${flowLpm} L/min  (${flowLps} L/s)`, FLUID_C],
-   ['Velocity', `${vel} m/s  ${velOK ? '— OK' : '— CHECK'}`, VEL_C],
+   ['Velocity', `${vel} m/s  ${velOK ? ': OK' : ': CHECK'}`, VEL_C],
    ['Reynolds Number', Number(Re).toLocaleString(), regimeColor],
    ['Flow Regime', regime, regimeColor],
    ['Friction Factor f', ff, SC],
@@ -22840,7 +22993,7 @@ function buildPipeSizingSVG(inputs, results) {
   p.push(T(lx+34, ly+4, 'Pipe cross-section (fluid inside)', {a:'start', sz:7.5, c:CC}));
   ly+=16;
   p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="#e65100" stroke-width="1.8" stroke-dasharray="6 3"/>`);
-  p.push(T(lx+34, ly+4, 'Hydraulic Grade Line (HGL) — friction head drop', {a:'start', sz:7.5, c:CC}));
+  p.push(T(lx+34, ly+4, 'Hydraulic Grade Line (HGL): friction head drop', {a:'start', sz:7.5, c:CC}));
   ly+=16;
   p.push(`<polygon points="${lx+6},${ly-4} ${lx+18},${ly} ${lx+6},${ly+4}" fill="${FLUID_C}" opacity="0.7"/>`);
   p.push(T(lx+34, ly+4, 'Flow direction / velocity vector', {a:'start', sz:7.5, c:CC}));
@@ -22870,13 +23023,13 @@ function buildCompressedAirSVG(inputs, results) {
     `<line x1="${x}" y1="${y+13}" x2="${x}" y2="${y+20}" stroke="${c}" stroke-width="1.5"/>` +
     T(x, y+30, 'Trap', {sz:6, c});
 
-  const instKW   = Number(r.installed_kw || r.motor_power_kw || 0).toFixed(1);
+  const instKW   = _orNA(r.installed_kw || r.motor_power_kw, 1);
   const instHP   = Number(r.recommended_hp || 0);
-  const flowM3m  = Number(r.total_demand_m3min || 0).toFixed(3);
-  const flowCFM  = Number(r.total_demand_cfm || r.design_cfm || 0).toFixed(1);
+  const flowM3m  = _orNA(r.total_demand_m3min, 3);
+  const flowCFM  = _orNA(r.total_demand_cfm || r.design_cfm, 1);
   const pressBar = Number(r.working_pressure_bar_g || inp.operating_pressure_bar || 7).toFixed(1);
-  const tankL    = Number(r.receiver_volume_L || 0).toFixed(0);
-  const tankM3   = Number(r.receiver_volume_m3 || 0).toFixed(3);
+  const tankL    = _orNA(r.receiver_volume_L, 0);
+  const tankM3   = _orNA(r.receiver_volume_m3, 3);
   const pipeNPS  = Number(r.recommended_pipe_mm || 25);
   const pipeVel  = Number(r.pipe_velocity_ms || 0).toFixed(1);
   const pipeDp   = Number(r.pipe_dp_bar || 0).toFixed(4);
@@ -22892,9 +23045,9 @@ function buildCompressedAirSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2, 31, `COMPRESSED AIR SYSTEM — P&ID  |  ${instHP} HP / ${instKW} kW  |  ${pressBar} bar g  |  ISO 1217 / ASME B31.3 / CAGI`, {sz:10.5, c:'white', w:'700'}));
+  p.push(T(W/2, 31, `COMPRESSED AIR SYSTEM: P&ID  |  ${instHP} HP / ${instKW} kW  |  ${pressBar} bar g  |  ISO 1217 / ASME B31.3 / CAGI`, {sz:10.5, c:'white', w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
-  p.push(T(80, 57, 'P&ID — COMPRESSED AIR GENERATION & DISTRIBUTION', {a:'start', sz:8, c:CC, w:'600'}));
+  p.push(T(80, 57, 'P&ID: COMPRESSED AIR GENERATION & DISTRIBUTION', {a:'start', sz:8, c:CC, w:'600'}));
 
   // Main process pipe at y=300
   const PIPE_Y = 300;
@@ -23020,10 +23173,10 @@ function buildCompressedAirSVG(inputs, results) {
    ['Duty Cycle', `${dutyCyc}%`, SC]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
 
   dy += 4; p.push(secH('COMPRESSOR'));
-  [['ISO Power', `${Number(r.iso_power_kw||0).toFixed(1)} kW`, SC],
-   ['Shaft Power', `${Number(r.shaft_power_kw||0).toFixed(1)} kW`, SC],
+  [['ISO Power', `${_orNA(r.iso_power_kw, 1)} kW`, SC],
+   ['Shaft Power', `${_orNA(r.shaft_power_kw, 1)} kW`, SC],
    ['Motor Power (Installed)', `${instHP} HP / ${instKW} kW`, CC],
-   ['Specific Power', `${specPwr} kW·min/m³  ${specOK ? '— OK' : '— HIGH'}`, specOK ? '#2e7d32' : '#c62828']].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
+   ['Specific Power', `${specPwr} kW·min/m³  ${specOK ? ': OK' : ': HIGH'}`, specOK ? '#2e7d32' : '#c62828']].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
 
   dy += 4; p.push(secH('AIR RECEIVER'));
   [['Required Volume', `${tankM3} m³`, SC],
@@ -23043,7 +23196,7 @@ function buildCompressedAirSVG(inputs, results) {
   p.push(T(18, LY+10, 'LEGEND', {a:'start', sz:8, c:CC, w:'700'}));
   let lx=25, ly=LY+26;
   p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${AIR_C}" stroke-width="3"/>`);
-  p.push(T(lx+34, ly+4, 'Compressed air — process line', {a:'start', sz:7.5, c:CC}));
+  p.push(T(lx+34, ly+4, 'Compressed air: process line', {a:'start', sz:7.5, c:CC}));
   ly+=16;
   p.push(`<rect x="${lx}" y="${ly-8}" width="16" height="16" rx="3" fill="${LGY}" stroke="${COMP_C}" stroke-width="1.5"/>`);
   p.push(T(lx+20, ly+4, 'Screw compressor (COMP)', {a:'start', sz:7.5, c:CC}));
@@ -23076,18 +23229,18 @@ function buildBoilerSystemSVG(inputs, results) {
   const isSteam  = bType === 'Steam';
   const pressBar = Number(inp.steam_pressure_barg || inp.pressure_barg || 7).toFixed(1);
   const tSat     = Number(r.t_sat_c || 0).toFixed(1);
-  const qKW      = Number(r.q_boiler_kw || 0).toFixed(1);
-  const qBHP     = Number(r.q_boiler_bhp || 0).toFixed(1);
-  const totKW    = Number(r.total_capacity_kw || 0).toFixed(1);
-  const totBHP   = Number(r.total_capacity_bhp || 0).toFixed(1);
-  const stmKgHr  = Number(r.design_steam_demand_kg_hr || r.steam_demand_kg_hr || 0).toFixed(0);
-  const fuelKgHr = Number(r.fuel_consumption_kg_hr || 0).toFixed(2);
-  const fuelLHr  = Number(r.fuel_consumption_lhr || 0).toFixed(2);
+  const qKW      = _orNA(r.q_boiler_kw, 1);
+  const qBHP     = _orNA(r.q_boiler_bhp, 1);
+  const totKW    = _orNA(r.total_capacity_kw, 1);
+  const totBHP   = _orNA(r.total_capacity_bhp, 1);
+  const stmKgHr  = _orNA(r.design_steam_demand_kg_hr || r.steam_demand_kg_hr, 0);
+  const fuelKgHr = _orNA(r.fuel_consumption_kg_hr, 2);
+  const fuelLHr  = _orNA(r.fuel_consumption_lhr, 2);
   const fuelType = String(inp.fuel_type || 'Natural Gas');
   const bdPct    = Number(r.blowdown_pct || 0).toFixed(1);
   const bdKgHr   = Number(r.blowdown_kg_hr || 0).toFixed(1);
-  const mkupKg   = Number(r.makeup_water_kg_hr || 0).toFixed(1);
-  const svKgHr   = Number(r.safety_valve_min_kg_hr || 0).toFixed(0);
+  const mkupKg   = _orNA(r.makeup_water_kg_hr, 1);
+  const svKgHr   = _orNA(r.safety_valve_min_kg_hr, 0);
   const nBoilers = Number(inp.num_boilers || 1);
 
   const CC = '#1a2e4a', SC = '#5a6a7a', GY = '#607d8b', LGY = '#eceff1';
@@ -23101,9 +23254,9 @@ function buildBoilerSystemSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2, 31, `BOILER SYSTEM — ${isSteam ? 'STEAM' : 'HOT WATER'} SCHEMATIC  |  ${totKW} kW / ${totBHP} BHP × ${nBoilers}  |  ASME BPVC / PD ACT / PSME`, {sz:10.5, c:'white', w:'700'}));
+  p.push(T(W/2, 31, `BOILER SYSTEM: ${isSteam ? 'STEAM' : 'HOT WATER'} SCHEMATIC  |  ${totKW} kW / ${totBHP} BHP × ${nBoilers}  |  ASME BPVC / PD ACT / PSME`, {sz:10.5, c:'white', w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
-  p.push(T(80, 57, `${isSteam ? 'STEAM GENERATION SYSTEM' : 'HOT WATER BOILER SYSTEM'} — ${pressBar} bar g`, {a:'start', sz:8, c:CC, w:'600'}));
+  p.push(T(80, 57, `${isSteam ? 'STEAM GENERATION SYSTEM' : 'HOT WATER BOILER SYSTEM'}: ${pressBar} bar g`, {a:'start', sz:8, c:CC, w:'600'}));
 
   // ── BOILER VESSEL ──
   const BX = 200, BY = 130, BW = 220, BH = 200;
@@ -23222,7 +23375,7 @@ function buildBoilerSystemSVG(inputs, results) {
 
   dy += 4; p.push(secH('FUEL & WATER'));
   [['Fuel Consumption', `${fuelKgHr} kg/hr  (${fuelLHr} L/hr)`, FUE_C],
-   ['Blowdown', `${bdPct}%  —  ${bdKgHr} kg/hr`, GY],
+   ['Blowdown', `${bdPct}%:  ${bdKgHr} kg/hr`, GY],
    ['Makeup Water', `${mkupKg} kg/hr`, FW_C],
    ['Safety Valve (min)', `${svKgHr} kg/hr  ASME Sec. I`, STM_C]].forEach(([l,v,c],i) => p.push(rowFn(l,v,c,i)));
 
@@ -23271,17 +23424,17 @@ function buildAHUSizingSVG(inputs, results) {
   };
 
   const psych   = r.psychrometrics || {};
-  const saM3hr  = Number(r.supply_flow_m3hr || 0).toFixed(0);
-  const saCFM   = Number(r.supply_flow_cfm  || 0).toFixed(0);
-  const coilKW  = Number(r.coil_total_kw    || 0).toFixed(1);
-  const coilTR  = Number(r.coil_total_tr    || 0).toFixed(2);
+  const saM3hr  = _orNA(r.supply_flow_m3hr, 0);
+  const saCFM   = _orNA(r.supply_flow_cfm, 0);
+  const coilKW  = _orNA(r.coil_total_kw, 1);
+  const coilTR  = _orNA(r.coil_total_tr, 2);
   const coilSHR = Number(r.coil_shr         || 0).toFixed(2);
-  const fanPa   = Number(r.fan_total_static_pa || 0).toFixed(0);
-  const fanKW   = Number(r.recommended_motor_kw || r.fan_motor_kw || 0).toFixed(2);
+  const fanPa   = _orNA(r.fan_total_static_pa, 0);
+  const fanKW   = _orNA(r.recommended_motor_kw || r.fan_motor_kw, 2);
   const fanWLps = Number(r.fan_power_w_lps  || 0).toFixed(2);
   const fanOK   = Boolean(r.fan_power_ok    ?? true);
-  const coilH   = Number(r.coil_height_m    || 0).toFixed(2);
-  const coilW2  = Number(r.coil_width_m     || 0).toFixed(2);
+  const coilH   = _orNA(r.coil_height_m, 2);
+  const coilW2  = _orNA(r.coil_width_m, 2);
   const coilRows= Number(r.coil_rows        || 4);
   const cbf     = Number(r.coil_bypass_factor|| 0).toFixed(3);
   const adp     = Number(r.adp_c || psych.adp_c || 0).toFixed(1);
@@ -23304,14 +23457,14 @@ function buildAHUSizingSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2, 31, `AHU SIZING — SYSTEM SCHEMATIC  |  ${saM3hr} m³/h  |  ${coilKW} kW / ${coilTR} TR  |  ASHRAE 62.1 / 90.1 / SMACNA / PSME`, {sz:10.5, c:'white', w:'700'}));
+  p.push(T(W/2, 31, `AHU SIZING: SYSTEM SCHEMATIC  |  ${saM3hr} m³/h  |  ${coilKW} kW / ${coilTR} TR  |  ASHRAE 62.1 / 90.1 / SMACNA / PSME`, {sz:10.5, c:'white', w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── AHU CASING ──
   const AX = 80, AY = 110, AW = 520, AH = 220;
   const ACX = AX + AW/2, ACY = AY + AH/2;
   p.push(`<rect x="${AX}" y="${AY}" width="${AW}" height="${AH}" rx="4" fill="${LGY}" stroke="${CC}" stroke-width="3"/>`);
-  p.push(T(ACX, AY - 10, 'AIR HANDLING UNIT — AHU-101', {sz:9, c:CC, w:'700'}));
+  p.push(T(ACX, AY - 10, 'AIR HANDLING UNIT: AHU-101', {sz:9, c:CC, w:'700'}));
 
   // Section dividers
   const secX = [AX+80, AX+160, AX+310, AX+400];
@@ -23436,7 +23589,7 @@ function buildAHUSizingSVG(inputs, results) {
   dy+=4; p.push(secH('FAN'));
   [['Fan Static Pressure',`${fanPa} Pa`,FAN_C],
    ['Motor (Installed)',`${fanKW} kW`,FAN_C],
-   ['Fan Power Density',`${fanWLps} W/(L/s)  ${fanOK?'— OK':'— HIGH'}`,fanColor]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+   ['Fan Power Density',`${fanWLps} W/(L/s)  ${fanOK?': OK':': HIGH'}`,fanColor]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
 
   dy+=6;
   p.push(T(DX+DW/2,dy,'ASHRAE 62.1 / ASHRAE 90.1 / SMACNA',{sz:7,c:GY}));
@@ -23482,14 +23635,14 @@ function buildDuctSizingSVG(inputs, results) {
   const dpTot  = Number(r.circular_dp_total_pa || 0).toFixed(1);
   const rA     = Number(r.rect_a_mm || 0).toFixed(0);
   const rB     = Number(r.rect_b_mm || 0).toFixed(0);
-  const rDe    = Number(r.rect_De_mm || 0).toFixed(0);
+  const rDe    = _orNA(r.rect_De_mm, 0);
   const rVel   = Number(r.rect_velocity_ms || 0).toFixed(2);
   const aspect = Number(r.rect_aspect || 0).toFixed(1);
   const fr     = Number(r.friction_rate_pam || 1.0).toFixed(3);
   const app    = String(r.application || inp.application || 'Supply Main');
-  const flowM3h= Number(r.flow_m3hr || 0).toFixed(1);
-  const flowLps= Number(r.max_flow_lps || 0).toFixed(2);
-  const lenM   = Number(r.duct_length_m || inp.duct_length_m || 10).toFixed(0);
+  const flowM3h= _orNA(r.flow_m3hr, 1);
+  const flowLps= _orNA(r.max_flow_lps, 2);
+  const lenM   = _orNA(r.duct_length_m || inp.duct_length_m || 10, 0);
   const velOK  = Boolean(r.velocity_ok ?? true);
   const velNote= String(r.velocity_note || '');
 
@@ -23507,7 +23660,7 @@ function buildDuctSizingSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2,31,`DUCT SIZING — EQUAL FRICTION METHOD  |  Ø${dCirc}mm or ${rA}×${rB}mm  |  v=${velMs} m/s  |  ASHRAE 2021 Ch.21 / SMACNA`,{sz:10.5,c:'white',w:'700'}));
+  p.push(T(W/2,31,`DUCT SIZING: EQUAL FRICTION METHOD  |  Ø${dCirc}mm or ${rA}×${rB}mm  |  v=${velMs} m/s  |  ASHRAE 2021 Ch.21 / SMACNA`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,57,`APPLICATION: ${esc(app.toUpperCase())}  |  Flow: ${flowM3h} m³/h (${flowLps} L/s)  |  Length: ${lenM} m`,{a:'start',sz:8,c:CC,w:'600'}));
 
@@ -23559,7 +23712,7 @@ function buildDuctSizingSVG(inputs, results) {
   p.push(HL(CSX-csRc-5, CSY, CSX+csRc+5, 1, SC));
   p.push(T(CSX, CSY+csRc+14, `Ø${dCirc} mm`, {sz:8.5, c:CC, w:'700'}));
   p.push(T(CSX, CSY+csRc+26, `v = ${velMs} m/s`, {sz:7.5, c:VEL_C, w:'700'}));
-  p.push(T(CSX, CSY+csRc+37, `${velOK ? '— OK' : '— CHECK'}`, {sz:7, c:VEL_C}));
+  p.push(T(CSX, CSY+csRc+37, `${velOK ? ': OK' : ': CHECK'}`, {sz:7, c:VEL_C}));
 
   // Rectangular cross-section (below circular)
   const RCX = CSX, RCY = CSY + csRc + 75;
@@ -23609,9 +23762,9 @@ function buildDuctSizingSVG(inputs, results) {
    ['Design Friction Rate', `${fr} Pa/m`, GY]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
 
   dy+=4; p.push(secH('CIRCULAR DUCT'));
-  [['Calculated Diameter', `${Number(r.D_calc_mm||0).toFixed(0)} mm`, SC],
+  [['Calculated Diameter', `${_orNA(r.D_calc_mm, 0)} mm`, SC],
    ['Standard Diameter', `Ø${dCirc} mm`, CC],
-   ['Air Velocity', `${velMs} m/s  ${velOK?'— OK':'— CHECK'}`, VEL_C],
+   ['Air Velocity', `${velMs} m/s  ${velOK?': OK':': CHECK'}`, VEL_C],
    ['Pressure Drop', `${dpPam} Pa/m  |  ${dpTot} Pa total`, '#e65100']].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
 
   dy+=4; p.push(secH('RECTANGULAR DUCT'));
@@ -23631,7 +23784,7 @@ function buildDuctSizingSVG(inputs, results) {
   p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
   let lx=25, ly=LY+26;
   p.push(`<rect x="${lx}" y="${ly-6}" width="30" height="12" fill="${AIR_C}" opacity="0.2" stroke="${DUCT_C}" stroke-width="1.5"/>`);
-  p.push(T(lx+34,ly+4,'Duct (plan view — top/bottom walls shown)',{a:'start',sz:7.5,c:CC}));
+  p.push(T(lx+34,ly+4,'Duct (plan view: top/bottom walls shown)',{a:'start',sz:7.5,c:CC}));
   ly+=15;
   p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly+8}" stroke="#e65100" stroke-width="1.8" stroke-dasharray="6 3"/>`);
   p.push(T(lx+34,ly+4,'Pressure gradient (Pa/m)',{a:'start',sz:7.5,c:CC}));
@@ -23657,13 +23810,13 @@ function buildSolarPVSVG(inputs, results) {
     (sub?T(x+w2/2,y+h/2+8,sub,{sz:7,c:stk}):'');
 
   const totalPanels=Number(r.total_panels||r.panel_qty||0);
-  const arrayKWp=Number(r.array_kWp||r.actual_array_kwp||0).toFixed(2);
+  const arrayKWp=_orNA(r.array_kWp||r.actual_array_kwp, 2);
   const strPanels=Number(r.panels_per_string||0);
   const nStrings=Number(r.strings_parallel||r.num_strings||1);
-  const vocStr=Number(r.voc_string_cold_V||0).toFixed(1);
-  const vmpStr=Number(r.vmp_string_stc_V||0).toFixed(1);
-  const iscArr=Number(r.isc_array_A||0).toFixed(1);
-  const invKW=Number(r.inverter_kw||0).toFixed(2);
+  const vocStr=_orNA(r.voc_string_cold_V, 1);
+  const vmpStr=_orNA(r.vmp_string_stc_V, 1);
+  const iscArr=_orNA(r.isc_array_A, 1);
+  const invKW=_orNA(r.inverter_kw, 2);
   const yieldKWh=Number(r.energy_yr_kWh||r.annual_yield_kwh||0).toFixed(0);
   const co2=Number(r.co2_offset_kg_yr||r.co2_reduction_kg||0).toFixed(0);
   const batAh=Number(r.battery_ah||0).toFixed(0);
@@ -23680,7 +23833,7 @@ function buildSolarPVSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2,31,`SOLAR PV SYSTEM — ONE-LINE DIAGRAM  |  ${arrayKWp} kWp  |  ${totalPanels} panels  |  IEC 62548 / PEC Art.6 / DOE Net Metering`,{sz:10.5,c:'white',w:'700'}));
+  p.push(T(W/2,31,`SOLAR PV SYSTEM: ONE-LINE DIAGRAM  |  ${arrayKWp} kWp  |  ${totalPanels} panels  |  IEC 62548 / PEC Art.6 / DOE Net Metering`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,57,`${gridType.toUpperCase()}  |  ${arrayKWp} kWp Array  |  ${nStrings} string(s) × ${strPanels} panels  |  Inverter: ${invKW} kW`,{a:'start',sz:8,c:CC,w:'600'}));
 
@@ -23816,10 +23969,10 @@ function buildPFCSVG(inputs, results) {
   const pfAfter  =Number(r.pf_target||inp.target_pf||0.95).toFixed(2);
   const kvarReq  =Number(r.kvar_required||0).toFixed(1);
   const kvarSel  =Number(r.selected_kvar||0).toFixed(0);
-  const kvaBefore=Number(r.kva_before||0).toFixed(1);
-  const kvaAfter =Number(r.kva_after||0).toFixed(1);
-  const iBefore  =Number(r.current_before||0).toFixed(1);
-  const iAfter   =Number(r.current_after||0).toFixed(1);
+  const kvaBefore=_orNA(r.kva_before, 1);
+  const kvaAfter =_orNA(r.kva_after, 1);
+  const iBefore  =_orNA(r.current_before, 1);
+  const iAfter   =_orNA(r.current_after, 1);
   const iRedPct  =Number(r.current_reduction_pct||0).toFixed(1);
   const savings  =Number(r.monthly_savings_php||0).toFixed(0);
   const penalty  =Boolean(r.meralco_penalty??true);
@@ -23833,7 +23986,7 @@ function buildPFCSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2,31,`POWER FACTOR CORRECTION — SINGLE-LINE  |  ${kvarSel} kVAR  |  PF ${pfBefore}→${pfAfter}  |  IEEE 18 / IEEE 1036 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
+  p.push(T(W/2,31,`POWER FACTOR CORRECTION: SINGLE-LINE  |  ${kvarSel} kVAR  |  PF ${pfBefore}→${pfAfter}  |  IEEE 18 / IEEE 1036 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── ONE-LINE DIAGRAM ──
@@ -23853,7 +24006,7 @@ function buildPFCSVG(inputs, results) {
   p.push(T((BUS_X1+BUS_X2)/2,BUS_Y-12,`MAIN BUS  ${vLv}V  |  ${kvaBefore} kVA  |  I = ${iBefore} A  |  PF = ${pfBefore}`,{sz:7.5,c:PF_C,w:'700'}));
 
   // Loads (left side)
-  [['LOAD-A',kw,'kW'],[`PF=${pfBefore}`,'—','']].slice(0,1).forEach((_,i)=>{
+  [['LOAD-A',kw,'kW'],[`PF=${pfBefore}`,'-','']].slice(0,1).forEach((_,i)=>{
     const lx=120+i*80,ly=BUS_Y;
     p.push(VL(lx,ly,ly+60,2,PF_C));
     p.push(Box(lx-28,ly+60,56,36,LGY,GY,'LOADS',`${kw} kW`));
@@ -23952,8 +24105,8 @@ function buildUPSSVG(inputs, results) {
     T(x+w2/2,y+h/2-6,lbl,{sz:8,c:stk,w:'700'})+
     (sub?T(x+w2/2,y+h/2+5,sub,{sz:7,c:stk}):'')+(sub2?T(x+w2/2,y+h/2+16,sub2,{sz:6.5,c:GY}):'');
 
-  const selKVA  =Number(r.recommended_kVA||r.selected_kva||0).toFixed(1);
-  const loadKVA =Number(r.load_kVA||r.design_va/1000||0).toFixed(1);
+  const selKVA  =_orNA(r.recommended_kVA||r.selected_kva, 1);
+  const loadKVA =_orNA(r.load_kVA||r.design_va/1000, 1);
   const ldPct   =Number(r.loading_pct||0).toFixed(0);
   const topo    =String(r.topology||'Online Double-Conversion');
   const redund  =String(r.redundancy||inp.redundancy||'N');
@@ -23961,11 +24114,11 @@ function buildUPSSVG(inputs, results) {
   const batCells=Number(r.cells_in_series||r.battery_cells_per_string||0);
   const batStrs =Number(r.battery_strings||1);
   const totalCells=Number(r.total_battery_cells||(batCells*batStrs)||0);
-  const selAh   =Number(r.recommended_Ah||r.selected_ah||0).toFixed(0);
+  const selAh   =_orNA(r.recommended_Ah||r.selected_ah, 0);
   const runtime =Number(r.backup_minutes_actual||r.actual_runtime_min||0).toFixed(0);
   const iInp    =Number(r.input_current_A||r.input_current_a||0).toFixed(1);
-  const iOut    =Number(r.output_current_A||r.output_current_a||0).toFixed(1);
-  const breakerA=Number(r.recommended_breaker_A||r.input_breaker_a||0).toFixed(0);
+  const iOut    =_orNA(r.output_current_A||r.output_current_a, 1);
+  const breakerA=_orNA(r.recommended_breaker_A||r.input_breaker_a, 0);
   const loadOK  =Boolean(r.loading_ok??(Number(r.loading_pct||0)<=80));
 
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
@@ -23976,7 +24129,7 @@ function buildUPSSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2,31,`UPS SIZING — BLOCK DIAGRAM  |  ${selKVA} kVA  |  ${topo.split(' ')[0]}  |  IEC 62040-3 / IEEE 446 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
+  p.push(T(W/2,31,`UPS SIZING: BLOCK DIAGRAM  |  ${selKVA} kVA  |  ${topo.split(' ')[0]}  |  IEC 62040-3 / IEEE 446 / PEC 2017`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   p.push(T(80,57,`${topo}  |  Redundancy: ${redund}  |  Battery: ${batCells}S×${batStrs}P = ${totalCells} cells  |  Runtime: ${runtime} min`,{a:'start',sz:8,c:CC,w:'600'}));
 
@@ -24034,7 +24187,7 @@ function buildUPSSVG(inputs, results) {
   p.push(T(572,BY+BH/2+4,'LOAD',{sz:8,c:CC,w:'700'}));
   p.push(T(572,BY+BH/2+17,`${loadKVA} kVA`,{sz:7.5,c:AC_C}));
   const ldColor=loadOK?'#2e7d32':'#c62828';
-  p.push(T(572,BY+BH+12,`Loading: ${ldPct}%  ${loadOK?'— OK':'— HIGH'}`,{sz:7,c:ldColor,w:'700'}));
+  p.push(T(572,BY+BH+12,`Loading: ${ldPct}%  ${loadOK?': OK':': HIGH'}`,{sz:7,c:ldColor,w:'700'}));
 
   // UPS unit boundary
   p.push(`<rect x="185" y="${BY-8}" width="${445-185}" height="${BH+16}" rx="6" fill="none" stroke="${CC}" stroke-width="1.5" stroke-dasharray="6 3"/>`);
@@ -24052,7 +24205,7 @@ function buildUPSSVG(inputs, results) {
   p.push(T(DX+DW/2,dy+13,'UPS DESIGN DATA',{sz:8.5,c:'white',w:'700'})); dy+=24;
   p.push(secH('UPS UNIT'));
   [['Selected UPS',`${selKVA} kVA`,CC],['IT Load',`${loadKVA} kVA`,AC_C],
-   ['Loading',`${ldPct}%  ${loadOK?'— OK':'— HIGH'}`,loadOK?'#2e7d32':'#c62828'],
+   ['Loading',`${ldPct}%  ${loadOK?': OK':': HIGH'}`,loadOK?'#2e7d32':'#c62828'],
    ['Topology',esc(topo),GY],['Redundancy',esc(redund),GY]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
   dy+=4; p.push(secH('BATTERY BANK'));
   [['Battery Config',`${batCells}S × ${batStrs}P (${totalCells} cells)`,BAT_C],
@@ -24092,7 +24245,7 @@ function buildEarthingSVG(inputs, results) {
   const rParallel=Number(r.r_parallel_ohm||0).toFixed(3);
   const rLimit  =Number(r.r_limit_ohm||inp.resistance_limit_ohm||1).toFixed(1);
   const pass    =Boolean(r.pass??true);
-  const gecMM2  =Number(r.gec_mm2||0).toFixed(0);
+  const gecMM2  =_orNA(r.gec_mm2, 0);
   const gecLbl  =String(r.gec_label||'');
   const soilRho =Number(inp.soil_resistivity_ohm_m||100);
   const eType   =String(inp.electrode_type||'Vertical Rod');
@@ -24187,7 +24340,7 @@ function buildEarthingSVG(inputs, results) {
   const bdX=350,bdY=GL_Y+50;
   p.push(`<rect x="${bdX}" y="${bdY}" width="160" height="46" rx="6" fill="${pass?'#e8f5e9':'#ffebee'}" stroke="${passClr}" stroke-width="2"/>`);
   p.push(T(bdX+80,bdY+16,`R = ${rParallel} Ω`,{sz:11,c:passClr,w:'700'}));
-  p.push(T(bdX+80,bdY+29,`Limit: ${rLimit} Ω  —  ${pass?'PASS ✓':'FAIL ✗'}`,{sz:8,c:passClr,w:'700'}));
+  p.push(T(bdX+80,bdY+29,`Limit: ${rLimit} Ω:  ${pass?'PASS ✓':'FAIL ✗'}`,{sz:8,c:passClr,w:'700'}));
   p.push(T(bdX+80,bdY+41,`${nElec} electrode(s) in parallel`,{sz:7,c:passClr}));
 
   // ── DATA PANEL ──
@@ -24203,15 +24356,15 @@ function buildEarthingSVG(inputs, results) {
   p.push(secH('SOIL & ELECTRODE'));
   [['Soil Resistivity',`${soilRho} Ω·m`,SOIL_C],['Electrode Type',esc(eType),ROD_C],
    ...(isRod?[['Rod Length',`${rodL} m`,ROD_C],['Rod Diameter',`${rodD} mm`,ROD_C]]:
-             [['Plate Area',`${Number(r.plate_area_m2||0).toFixed(2)} m²`,ROD_C]]),
+             [['Plate Area',`${_orNA(r.plate_area_m2, 2)} m²`,ROD_C]]),
    ['No. of Electrodes',`${nElec}`,CC]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
   dy+=4; p.push(secH('RESISTANCE'));
   [['R (single electrode)',`${rSingle} Ω`,ROD_C],
    ['R (parallel, installed)',`${rParallel} Ω`,passClr],
    ['Resistance Limit',`${rLimit} Ω`,CC],
-   ['Compliance',pass?'PASS ✓':'FAIL — add electrodes',passClr]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+   ['Compliance',pass?'PASS ✓':'FAIL: add electrodes',passClr]].forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
   dy+=4; p.push(secH('GEC SIZING'));
-  [['GEC Size',`${gecMM2} mm² Cu bare`,GEC_C],[...(gecLbl?['Basis',esc(gecLbl),GY]:[])].join(',')&&[gecLbl?'Basis':'—',gecLbl||'—',GY]].filter(a=>Array.isArray(a)&&a.length===3).forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
+  [['GEC Size',`${gecMM2} mm² Cu bare`,GEC_C],[...(gecLbl?['Basis',esc(gecLbl),GY]:[])].join(',')&&[gecLbl?'Basis':'-',gecLbl||'-',GY]].filter(a=>Array.isArray(a)&&a.length===3).forEach(([l,v,c],i)=>p.push(rowFn(l,v,c,i)));
   dy+=6; p.push(T(DX+DW/2,dy,'PEC 2017 Art.2.50 / IEEE 80 / IEC 62305',{sz:7,c:GY}));
   dy+=11; p.push(T(DX+DW/2,dy,'Dwight formula for vertical rod electrodes',{sz:7,c:GY}));
 
@@ -24219,7 +24372,7 @@ function buildEarthingSVG(inputs, results) {
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
   p.push(T(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
   let lx=25,ly=LY+26;
-  [[GEC_C,'GEC — Grounding Electrode Conductor (Cu bare)'],[ROD_C,'Earth electrode (rod/plate)'],
+  [[GEC_C,'GEC: Grounding Electrode Conductor (Cu bare)'],[ROD_C,'Earth electrode (rod/plate)'],
    [SOIL_C,'Soil / earth strata']].forEach(([c2,lbl])=>{
     p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
     p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
@@ -24247,11 +24400,11 @@ function buildStairwellPressSVG(inputs, results) {
   const dPMin    = Number(r.delta_P_min||25).toFixed(0);
   const dPMax    = Number(r.delta_P_max||80).toFixed(0);
   const dPOk     = Boolean(r.delta_P_ok??true);
-  const qCMH     = Number(r.Q_design_CMH||0).toFixed(0);
-  const qM3s     = Number(r.Q_design_m3s||0).toFixed(3);
-  const selHP    = Number(r.selected_HP||0).toFixed(1);
-  const fanKW    = Number(r.P_fan_kW||0).toFixed(2);
-  const fanPa    = Number(r.fan_static_Pa||0).toFixed(0);
+  const qCMH     = _orNA(r.Q_design_CMH, 0);
+  const qM3s     = _orNA(r.Q_design_m3s, 3);
+  const selHP    = _orNA(r.selected_HP, 1);
+  const fanKW    = _orNA(r.P_fan_kW, 2);
+  const fanPa    = _orNA(r.fan_static_Pa, 0);
   const fTotal   = Number(r.F_total_N||0).toFixed(1);
   const fOk      = Boolean(r.door_force_ok??true);
   const doorFit  = String(r.door_fit||inp.door_fit||'Average');
@@ -24266,7 +24419,7 @@ function buildStairwellPressSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(T(W/2,31,`STAIRWELL PRESSURIZATION — ${bldgType}  |  ΔP = ${dP} Pa  |  Q = ${qCMH} m³/h  |  NFPA 92:2021 / PSME`,{sz:10.5,c:'white',w:'700'}));
+  p.push(T(W/2,31,`STAIRWELL PRESSURIZATION: ${bldgType}  |  ΔP = ${dP} Pa  |  Q = ${qCMH} m³/h  |  NFPA 92:2021 / PSME`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── BUILDING ELEVATION ──
@@ -24325,14 +24478,14 @@ function buildStairwellPressSVG(inputs, results) {
   const bd1X=BLD_X+FL_W+30, bd1Y=BLD_TOP+20;
   p.push(`<rect x="${bd1X}" y="${bd1Y}" width="175" height="44" rx="5" fill="${dPOk?'#e8f5e9':'#ffebee'}" stroke="${dPOk?OK_C:FAIL_C}" stroke-width="2"/>`);
   p.push(T(bd1X+87,bd1Y+14,`ΔP = ${dP} Pa`,{sz:10,c:dPOk?OK_C:FAIL_C,w:'700'}));
-  p.push(T(bd1X+87,bd1Y+28,`Range: ${dPMin}–${dPMax} Pa  —  ${dPOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:dPOk?OK_C:FAIL_C,w:'700'}));
+  p.push(T(bd1X+87,bd1Y+28,`Range: ${dPMin}–${dPMax} Pa:  ${dPOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:dPOk?OK_C:FAIL_C,w:'700'}));
   p.push(T(bd1X+87,bd1Y+40,'NFPA 92:2021 §6.4',{sz:6.5,c:SC}));
 
   const bd2X=bd1X, bd2Y=bd1Y+60;
   const fColor=fOk?OK_C:FAIL_C;
   p.push(`<rect x="${bd2X}" y="${bd2Y}" width="175" height="44" rx="5" fill="${fOk?'#e8f5e9':'#ffebee'}" stroke="${fColor}" stroke-width="2"/>`);
   p.push(T(bd2X+87,bd2Y+14,`Door Force = ${fTotal} N`,{sz:10,c:fColor,w:'700'}));
-  p.push(T(bd2X+87,bd2Y+28,`Limit: 133 N  —  ${fOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:fColor,w:'700'}));
+  p.push(T(bd2X+87,bd2Y+28,`Limit: 133 N:  ${fOk?'PASS ✓':'FAIL ✗'}`,{sz:7.5,c:fColor,w:'700'}));
   p.push(T(bd2X+87,bd2Y+40,'NFPA 92:2021 §6.4.2',{sz:6.5,c:SC}));
 
   // Smoke leakage annotation
@@ -24381,7 +24534,7 @@ function buildStairwellPressSVG(inputs, results) {
     p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+28}" y2="${ly}" stroke="${c2}" stroke-width="3"/>`);
     p.push(T(lx+32,ly+4,lbl,{a:'start',sz:7.5,c:CC})); ly+=15;});
   [`1. NFPA 92 §6.4: ΔP = 25–80 Pa (smoke control) for high-rise per BFP / local AHJ.`,
-   `2. Door opening force limit: 133 N (30 lbf) total — closer + pressure per NFPA 92 §6.4.2 / NFPA 101 §7.2.1.4.5.1.`,
+   `2. Door opening force limit: 133 N (30 lbf) total, closer + pressure per NFPA 92 §6.4.2 / NFPA 101 §7.2.1.4.5.1.`,
    `3. Fan sized with safety factor on total leakage area: Q = Cd × A_total × √(2ΔP/ρ).`
   ].forEach((n,i)=>p.push(T(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
 
@@ -24403,10 +24556,10 @@ function buildFireAlarmBatterySVG(inputs, results) {
   const sysV     = Number(r.system_voltage||24).toFixed(0);
   const stbyH    = Number(r.standby_hours||24).toFixed(0);
   const alrmMin  = Number(r.alarm_minutes||5).toFixed(0);
-  const iStbyMA  = Number(r.I_standby_total_mA||0).toFixed(1);
-  const iAlrmMA  = Number(r.I_alarm_total_mA||0).toFixed(1);
-  const ahCalc   = Number(r.Ah_calc||0).toFixed(2);
-  const ahReq    = Number(r.Ah_required||0).toFixed(2);
+  const iStbyMA  = _orNA(r.I_standby_total_mA, 1);
+  const iAlrmMA  = _orNA(r.I_alarm_total_mA, 1);
+  const ahCalc   = _orNA(r.Ah_calc, 2);
+  const ahReq    = _orNA(r.Ah_required, 2);
   // Preserve decimal Ah for non-integer std sizes (2.6, 4.5, etc.)
   const _selAhN  = Number(r.selected_Ah||0);
   const selAh    = _selAhN % 1 === 0 ? _selAhN.toFixed(0) : _selAhN.toFixed(1);
@@ -24515,7 +24668,7 @@ function buildFireAlarmBatterySVG(inputs, results) {
   p.push(T(TL_X+stbyW+alrmW/2,TL_Y+17,`ALARM ${alrmMin}min`,{sz:7.5,c:FA_C,w:'700'}));
   // Labels
   p.push(T(TL_X,TL_Y+42,`Ah calc = (${iStbyMA} mA × ${stbyH}h + ${iAlrmMA} mA × ${alrmMin}/60 min) × ${sf} S.F. = ${ahCalc} Ah → Selected: ${selAh} Ah`,{a:'start',sz:7.5,c:CC}));
-  p.push(T(TL_X,TL_Y+55,`Recharge within 48h: ${rchgOk?'PASS ✓ — charger '+chargerA+'A':'FAIL ✗ — increase charger rating'}`,{a:'start',sz:7.5,c:rchgOk?OK_C:FAIL_C,w:'700'}));
+  p.push(T(TL_X,TL_Y+55,`Recharge within 48h: ${rchgOk?'PASS ✓, charger '+chargerA+'A':'FAIL ✗, increase charger rating'}`,{a:'start',sz:7.5,c:rchgOk?OK_C:FAIL_C,w:'700'}));
 
   // ── DATA PANEL ──
   const DX=SPLIT_X+10,DW=W-SPLIT_X-22,rowH=17;
@@ -24592,7 +24745,7 @@ function buildWaterSupplyPipeSVG(inputs, results) {
   const dMM    = Number(r.recommended_dia_mm||0).toFixed(0);
   const vel    = Number(r.pipe_velocity||0).toFixed(2);
   const velOK  = Boolean(r.velocity_ok??true);
-  const peakLps= Number(r.peak_lps||0).toFixed(2);
+  const peakLps= _orNA(r.peak_lps, 2);
   const wfu    = Number(r.total_wfu||0).toFixed(0);
   const presKpa= Number(r.pressure_available||0).toFixed(1);
   const presOK = Boolean(r.pressure_ok??true);
@@ -24604,7 +24757,7 @@ function buildWaterSupplyPipeSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`WATER SUPPLY PIPE SIZING — Ø${dMM}mm ${mat}  |  ${peakLps} L/s  |  ${wfu} WSFU  |  Hunter's Method`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`WATER SUPPLY PIPE SIZING: Ø${dMM}mm ${mat}  |  ${peakLps} L/s  |  ${wfu} WSFU  |  Hunter's Method`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Plumbing riser schematic (elevation) ──
@@ -24658,7 +24811,7 @@ function buildWaterSupplyPipeSVG(inputs, results) {
   _plumbPanel(p,DX,DW,[],[
     {title:'WATER SUPPLY PIPE SIZING', rows:[
       ['Pipe Material',mat,CC],['Total WSFU',wfu,WC],['Peak Flow',`${peakLps} L/s`,WC],
-      ['Recommended Dia.',`Ø${dMM} mm`,CC],['Velocity',`${vel} m/s  ${velOK?'— OK':'— CHECK'}`,velOK?GRN:ORG],
+      ['Recommended Dia.',`Ø${dMM} mm`,CC],['Velocity',`${vel} m/s  ${velOK?': OK':': CHECK'}`,velOK?GRN:ORG],
       ['Pressure Available',`${presKpa} kPa`,presOK?GRN:ORG],['Min Required',`${minPres} kPa`,SC],
       ['Head Loss',`${hfM} m`,SC],['Pressure',presOK?'PASS ✓':'FAIL ✗',presOK?GRN:ORG]
     ]}
@@ -24676,10 +24829,10 @@ function buildHotWaterDemandSVG(inputs, results) {
   const HW_C='#c0392b',CW_C='#1565c0',GRN='#2e7d32';
   const p=[];
 
-  const stoL   = Number(r.recommended_storage_L||0).toFixed(0);
-  const htrKW  = Number(r.recommended_heater_kW||0).toFixed(1);
-  const peakL  = Number(r.peak_hour_L||0).toFixed(0);
-  const dailyL = Number(r.total_daily_L||0).toFixed(0);
+  const stoL   = _orNA(r.recommended_storage_L, 0);
+  const htrKW  = _orNA(r.recommended_heater_kW, 1);
+  const peakL  = _orNA(r.peak_hour_L, 0);
+  const dailyL = _orNA(r.total_daily_L, 0);
   const tHot   = Number(r.T_hot||r.T_supply||60).toFixed(0);
   const tCold  = Number(r.T_supply||inp.inlet_temp_c||20).toFixed(0);
   const dT     = Number(r.delta_T||40).toFixed(0);
@@ -24770,20 +24923,20 @@ function buildDrainagePipeSVG(inputs, results) {
   const DRN_C='#78909c',OK_C='#2e7d32',ORG='#e65100';
   const p=[];
 
-  const dMM   = Number(r.recommended_dia_mm||100).toFixed(0);
+  const dMM   = _orNA(r.recommended_dia_mm||100, 0);
   const dfu   = Number(r.total_dfu||0).toFixed(0);
   const slope = Number(r.slope_mm_per_m||20).toFixed(0);
   const vel   = Number(r.design_velocity||0).toFixed(2);
   const velOK = Boolean(r.velocity_ok??true);
   const sysType=String(r.system_type||'Sanitary');
   const mat   = String(r.pipe_material||inp.pipe_material||'PVC');
-  const capLs = Number(r.capacity_q_ls||0).toFixed(2);
+  const capLs = _orNA(r.capacity_q_ls, 2);
   const n_man = Number(r.manning_n||0.013).toFixed(3);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`DRAINAGE PIPE SIZING — Ø${dMM}mm ${mat}  |  ${dfu} DFU  |  Slope ${slope} mm/m  |  Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`DRAINAGE PIPE SIZING: Ø${dMM}mm ${mat}  |  ${dfu} DFU  |  Slope ${slope} mm/m  |  Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Drainage riser elevation ──
@@ -24838,7 +24991,7 @@ function buildDrainagePipeSVG(inputs, results) {
       ['System Type',sysType,CC],['Pipe Material',mat,CC],
       ['Total DFU',dfu,DRN_C],['Selected Diameter',`Ø${dMM} mm`,CC],
       ['Slope',`${slope} mm/m`,DRN_C],['Manning n',n_man,SC],
-      ['Design Velocity',`${vel} m/s  ${velOK?'— OK':'— CHECK'}`,velOK?OK_C:ORG],
+      ['Design Velocity',`${vel} m/s  ${velOK?': OK':': CHECK'}`,velOK?OK_C:ORG],
       ['Pipe Capacity',`${capLs} L/s`,DRN_C]
     ]}
   ]);
@@ -24855,14 +25008,14 @@ function buildSepticTankSVG(inputs, results) {
   const TK_C='#795548',EFF_C='#2e7d32',WW_C='#546e7a';
   const p=[];
 
-  const volM3 = Number(r.design_volume_m3||0).toFixed(2);
+  const volM3 = _orNA(r.design_volume_m3, 2);
   const lenM  = Number(r.tank_length_m||0).toFixed(2);
-  const wdM   = Number(r.tank_width_m||0).toFixed(2);
+  const wdM   = _orNA(r.tank_width_m, 2);
   const depM  = Number(r.total_depth_m||0).toFixed(2);
-  const comp1 = Number(r.comp1_L||0).toFixed(0);
-  const comp2 = Number(r.comp2_L||0).toFixed(0);
-  const leachM2=Number(r.leach_field_area_m2||0).toFixed(1);
-  const daily = Number(r.daily_flow_L||0).toFixed(0);
+  const comp1 = _orNA(r.comp1_L, 0);
+  const comp2 = _orNA(r.comp2_L, 0);
+  const leachM2=_orNA(r.leach_field_area_m2, 1);
+  const daily = _orNA(r.daily_flow_L, 0);
   const occ   = Number(r.occupants||inp.num_persons||0);
   const secTx = Boolean(r.secondary_treatment_needed??false);
   const bodEff= Number(r.effluent_bod_mgl||0).toFixed(0);
@@ -24872,7 +25025,7 @@ function buildSepticTankSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`SEPTIC TANK SIZING — ${volM3} m³  |  ${occ} persons  |  ${lenM}×${wdM}×${depM}m  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`SEPTIC TANK SIZING: ${volM3} m³  |  ${occ} persons  |  ${lenM}×${wdM}×${depM}m  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Tank cross-section (longitudinal) ──
@@ -24915,7 +25068,7 @@ function buildSepticTankSVG(inputs, results) {
   const bY=tankBot+50;
   p.push(`<rect x="${TX}" y="${bY}" width="250" height="36" rx="4" fill="${denrOK?'#e8f5e9':'#ffebee'}" stroke="${denrOK?EFF_C:'#c62828'}" stroke-width="1.5"/>`);
   p.push(_plumbT(TX+125,bY+14,`Effluent BOD = ${bodEff} mg/L  ${denrOK?'✓':'✗'}`,{sz:8.5,c:denrOK?EFF_C:'#c62828',w:'700'}));
-  p.push(_plumbT(TX+125,bY+28,`DENR limit: ${denrLim} mg/L  —  ${denrOK?'PASS':'Needs treatment'}`,{sz:7.5,c:denrOK?EFF_C:'#c62828'}));
+  p.push(_plumbT(TX+125,bY+28,`DENR limit: ${denrLim} mg/L:  ${denrOK?'PASS':'Needs treatment'}`,{sz:7.5,c:denrOK?EFF_C:'#c62828'}));
 
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
@@ -24948,11 +25101,11 @@ function buildGreaseTrapSVG(inputs, results) {
   const GT_C='#795548',GRS_C='#f57f17',WW_C='#546e7a',OK_C='#2e7d32';
   const p=[];
 
-  const capL    = Number(r.liquid_cap_l||0).toFixed(0);
-  const grsKg   = Number(r.grease_ret_kg||0).toFixed(1);
+  const capL    = _orNA(r.liquid_cap_l, 0);
+  const grsKg   = _orNA(r.grease_ret_kg, 1);
   const cleanDay= Number(r.clean_interval_days||0).toFixed(0);
-  const pdiGpm  = Number(r.pdi_gpm||0).toFixed(1);
-  const qLpm    = Number(r.q_design_lpm||0).toFixed(1);
+  const pdiGpm  = _orNA(r.pdi_gpm, 1);
+  const qLpm    = _orNA(r.q_design_lpm, 1);
   const fogMgl  = Number(r.fog_effluent_mgl||0).toFixed(0);
   const denrOK  = Boolean(r.fog_denr_compliant??true);
   const nFix    = Number(inp.num_fixtures||3);
@@ -24960,7 +25113,7 @@ function buildGreaseTrapSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`GREASE TRAP SIZING — ${capL} L  |  ${pdiGpm} GPM  |  PDI BH-201 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`GREASE TRAP SIZING: ${capL} L  |  ${pdiGpm} GPM  |  PDI BH-201 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Grease trap cross-section ──
@@ -25030,21 +25183,21 @@ function buildRoofDrainSVG(inputs, results) {
   const RAIN_C='#1565c0',DR_C='#455a64',OK_C='#2e7d32',ORG='#e65100';
   const p=[];
 
-  const drainMM  = Number(r.drain_size_mm||100).toFixed(0);
-  const leaderMM = Number(r.leader_size_mm||100).toFixed(0);
-  const horizMM  = Number(r.horiz_leader_mm||100).toFixed(0);
-  const ovflowMM = Number(r.overflow_drain_mm||100).toFixed(0);
-  const qTotLs   = Number(r.q_total_ls||0).toFixed(2);
-  const qEachLs  = Number(r.q_each_ls||0).toFixed(2);
+  const drainMM  = _orNA(r.drain_size_mm||100, 0);
+  const leaderMM = _orNA(r.leader_size_mm||100, 0);
+  const horizMM  = _orNA(r.horiz_leader_mm||100, 0);
+  const ovflowMM = _orNA(r.overflow_drain_mm||100, 0);
+  const qTotLs   = _orNA(r.q_total_ls, 2);
+  const qEachLs  = _orNA(r.q_each_ls, 2);
   const nDrains  = Number(r.n_drains||inp.num_drains||4);
-  const roofM2   = Number(r.roof_area_m2||inp.roof_area_m2||500).toFixed(0);
-  const intMmhr  = Number(r.intensity_mmhr||100).toFixed(0);
+  const roofM2   = _orNA(r.roof_area_m2||inp.roof_area_m2||500, 0);
+  const intMmhr  = _orNA(r.intensity_mmhr||100, 0);
   const overallOK= String(r.overall_status||'PASS').toUpperCase().includes('PASS');
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`ROOF DRAIN SIZING — ${nDrains}× Ø${drainMM}mm  |  ${qTotLs} L/s  |  ${roofM2} m²  |  IPC §1106 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`ROOF DRAIN SIZING: ${nDrains}× Ø${drainMM}mm  |  ${qTotLs} L/s  |  ${roofM2} m²  |  IPC §1106 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Roof cross-section ──
@@ -25083,7 +25236,7 @@ function buildRoofDrainSVG(inputs, results) {
   const bY=HY+40;
   p.push(`<rect x="${RX}" y="${bY}" width="280" height="40" rx="4" fill="${overallOK?'#e8f5e9':'#ffebee'}" stroke="${overallOK?OK_C:ORG}" stroke-width="1.5"/>`);
   p.push(_plumbT(RX+140,bY+14,`Total Flow: ${qTotLs} L/s  (${qEachLs} L/s/drain)`,{sz:8.5,c:CC,w:'700'}));
-  p.push(_plumbT(RX+140,bY+28,`${nDrains}× Ø${drainMM}mm drain bodies  —  ${overallOK?'PASS ✓':'CHECK ✗'}`,{sz:7.5,c:overallOK?OK_C:ORG,w:'700'}));
+  p.push(_plumbT(RX+140,bY+28,`${nDrains}× Ø${drainMM}mm drain bodies:  ${overallOK?'PASS ✓':'CHECK ✗'}`,{sz:7.5,c:overallOK?OK_C:ORG,w:'700'}));
 
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
@@ -25132,7 +25285,7 @@ function buildWaterSoftenerSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`WATER SOFTENER — ${dailyM3} m³/day  |  ${rawHard}→${tgtHard} mg/L  |  ${resinType}  |  NSF/ANSI 44 / WQA`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`WATER SOFTENER: ${dailyM3} m³/day  |  ${rawHard}→${tgtHard} mg/L  |  ${resinType}  |  NSF/ANSI 44 / WQA`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Flow diagram ──
@@ -25245,7 +25398,7 @@ function buildWaterTreatmentSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`WATER TREATMENT — ${flowM3d} m³/day  |  ${srcType}  |  Turbidity ${turbNtu} NTU  |  PNS 1998 / DOH / WHO`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`WATER TREATMENT: ${flowM3d} m³/day  |  ${srcType}  |  Turbidity ${turbNtu} NTU  |  PNS 1998 / DOH / WHO`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Treatment train flow diagram ──
@@ -25318,22 +25471,22 @@ function buildWastewaterSTPSVG(inputs, results) {
   const WW_C='#795548',OK_C='#2e7d32',AIR_C='#1565c0';
   const p=[];
 
-  const flowM3d  = Number(r.flow_m3_day||0).toFixed(1);
-  const bodLoad  = Number(r.bod_load_kg_day||0).toFixed(1);
-  const aerVolM3 = Number(r.aeration_vol_m3||0).toFixed(1);
-  const blowerKW = Number(r.blower_kw||0).toFixed(2);
+  const flowM3d  = _orNA(r.flow_m3_day, 1);
+  const bodLoad  = _orNA(r.bod_load_kg_day, 1);
+  const aerVolM3 = _orNA(r.aeration_vol_m3, 1);
+  const blowerKW = _orNA(r.blower_kw, 2);
   const bodEff   = Number(r.effluent_bod||0).toFixed(1);
   const denrSt   = String(r.denr_status||'PASS');
   const denrOK   = denrSt.toUpperCase().includes('PASS');
-  const primDiaM = Number(r.prim_dia_m||0).toFixed(2);
-  const secDiaM  = Number(r.sec_dia_m||0).toFixed(2);
+  const primDiaM = _orNA(r.prim_dia_m, 2);
+  const secDiaM  = _orNA(r.sec_dia_m, 2);
   const sludge   = Number(r.sludge_m3_day||0).toFixed(2);
   const pop      = Number(inp.population||r.population||200);
 
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`WASTEWATER STP — ${flowM3d} m³/day  |  BOD out: ${bodEff} mg/L  |  ${denrSt}  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`WASTEWATER STP: ${flowM3d} m³/day  |  BOD out: ${bodEff} mg/L  |  ${denrSt}  |  DENR DAO 2016-08`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Treatment process train ──
@@ -25377,7 +25530,7 @@ function buildWastewaterSTPSVG(inputs, results) {
   // Status badge
   const bY=trainY+bH+100;
   p.push(`<rect x="${startX+20}" y="${bY}" width="300" height="38" rx="4" fill="${denrOK?'#e8f5e9':'#ffebee'}" stroke="${denrOK?OK_C:'#c62828'}" stroke-width="2"/>`);
-  p.push(_plumbT(startX+170,bY+14,`BOD ${bodEff} mg/L  —  DENR DAO 2016-08: ${denrSt}`,{sz:9,c:denrOK?OK_C:'#c62828',w:'700'}));
+  p.push(_plumbT(startX+170,bY+14,`BOD ${bodEff} mg/L  (DENR DAO 2016-08): ${denrSt}`,{sz:9,c:denrOK?OK_C:'#c62828',w:'700'}));
   p.push(_plumbT(startX+170,bY+28,`BOD load: ${bodLoad} kg/day  |  Blower: ${blowerKW} kW`,{sz:7.5,c:CC}));
 
   const LY=STRIP_Y+6;
@@ -25418,11 +25571,11 @@ function buildStormDrainSVG(inputs, results) {
 
   const areaHa   = Number(r.total_area_ha||inp.area_ha||2).toFixed(2);
   const cVal     = Number(r.composite_c||inp.c_value||0.7).toFixed(2);
-  const intMmhr  = Number(r.intensity_mmhr||0).toFixed(0);
+  const intMmhr  = _orNA(r.intensity_mmhr, 0);
   const tcMin    = Number(r.tc_min||inp.tc_min||15).toFixed(0);
   const retYr    = Number(r.return_period_yr||inp.return_period_yr||10).toFixed(0);
-  const qM3s     = Number(r.design_flow_m3s||0).toFixed(3);
-  const qLps     = Number(r.design_flow_lps||0).toFixed(1);
+  const qM3s     = _orNA(r.design_flow_m3s, 3);
+  const qLps     = _orNA(r.design_flow_lps, 1);
   const dSelMM   = Number(r.d_selected_mm||0).toFixed(0);
   const velMs    = Number(r.full_pipe_vel_ms||0).toFixed(2);
   const velNote  = String(r.velocity_note||'');
@@ -25433,7 +25586,7 @@ function buildStormDrainSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`STORM DRAIN — Ø${dSelMM}mm ${mat}  |  Q=${qLps} L/s  |  ${areaHa} ha  |  ${retYr}-yr  |  Rational Method / DPWH`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`STORM DRAIN: Ø${dSelMM}mm ${mat}  |  Q=${qLps} L/s  |  ${areaHa} ha  |  ${retYr}-yr  |  Rational Method / DPWH`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Catchment + pipe cross-section ──
@@ -25492,7 +25645,7 @@ function buildStormDrainSVG(inputs, results) {
       ['Time of Conc.',`${tcMin} min`,SC],['Rainfall Intensity',`${intMmhr} mm/hr`,RAIN_C],
       ['Return Period',`${retYr} years`,SC],['Design Flow',`${qLps} L/s  (${qM3s} m³/s)`,CC],
       ['Selected Pipe',`Ø${dSelMM} mm  ${mat}`,DR_C],['Pipe Slope',`${slopePct}%`,SC],
-      ['Full-Pipe Velocity',`${velMs} m/s  ${velOK?'— OK':'— CHECK'}`,velOK?OK_C:ORG]
+      ['Full-Pipe Velocity',`${velMs} m/s  ${velOK?': OK':': CHECK'}`,velOK?OK_C:ORG]
     ]}
   ]);
 
@@ -25507,13 +25660,13 @@ function buildHeatExchangerSVG(inputs, results) {
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
   const HOT='#c0392b',CLD='#1565c0',STL='#455a64';
   const p=[];
-  const dutyKW=Number(r.duty_kW||0).toFixed(1);
+  const dutyKW=_orNA(r.duty_kW, 1);
   const lmtdK=Number(r.lmtd_corrected_K||r.lmtd_K||0).toFixed(2);
-  const aM2=Number(r.A_required_m2||0).toFixed(2);
+  const aM2=_orNA(r.A_required_m2, 2);
   const nTubes=Number(r.n_tubes||0);
   const tubeOD=Number(r.tube_od_mm||19).toFixed(0);
-  const tubeL=Number(r.tube_length_m||0).toFixed(2);
-  const shellID=Number(r.shell_id_estimate_mm||0).toFixed(0);
+  const tubeL=_orNA(r.tube_length_m, 2);
+  const shellID=_orNA(r.shell_id_estimate_mm, 0);
   const U=Number(r.U_design_W_m2K||0).toFixed(0);
   const eff=Number(r.effectiveness||0).toFixed(3);
   const ntu=Number(r.NTU||0).toFixed(3);
@@ -25525,7 +25678,7 @@ function buildHeatExchangerSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`HEAT EXCHANGER — ${dutyKW} kW  |  LMTD ${lmtdK} K  |  A=${aM2} m²  |  TEMA / ASME Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`HEAT EXCHANGER: ${dutyKW} kW  |  LMTD ${lmtdK} K  |  A=${aM2} m²  |  TEMA / ASME Sec.VIII`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Shell-and-tube cross-section
   const SX=60,SY=100,SW=480,SH=120,SR=SH/2;
@@ -25593,18 +25746,18 @@ function buildPressureVesselSVG(inputs, results) {
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
   const STL='#455a64',OK_C='#2e7d32',ORG='#e65100';
   const p=[];
-  const tShell=Number(r.t_shell_actual_mm||0).toFixed(1);
+  const tShell=_orNA(r.t_shell_actual_mm, 1);
   const OD=Number(r.outer_diameter_mm||0).toFixed(0);
   const ID=Number(inp.inner_diameter_mm||800).toFixed(0);
-  const mawpBar=Number(r.mawp_bar||0).toFixed(2);
+  const mawpBar=_orNA(r.mawp_bar, 2);
   const mawpOK=Boolean(r.mawp_ok??true);
-  const hydBar=Number(r.hydro_test_bar||0).toFixed(2);
-  const desPBar=Number(r.design_pressure_bar||0).toFixed(2);
-  const tHead=Number(r.t_head_actual_mm||0).toFixed(1);
-  const wEmpty=Number(r.weight_empty_kg||0).toFixed(0);
-  const wHydro=Number(r.weight_hydro_kg||0).toFixed(0);
+  const hydBar=_orNA(r.hydro_test_bar, 2);
+  const desPBar=_orNA(r.design_pressure_bar, 2);
+  const tHead=_orNA(r.t_head_actual_mm, 1);
+  const wEmpty=_orNA(r.weight_empty_kg, 0);
+  const wHydro=_orNA(r.weight_hydro_kg, 0);
   const mat=String(r.material||inp.material||'Carbon Steel');
-  const Sallow=Number(r.allowable_stress_MPa||0).toFixed(0);
+  const Sallow=_orNA(r.allowable_stress_MPa, 0);
   const nozPad=Boolean(r.nozzle_reinforcement_pad_required??false);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
@@ -25644,7 +25797,7 @@ function buildPressureVesselSVG(inputs, results) {
     p.push(_plumbT(VX+i*145+70,bY+17,txt,{sz:8,c:clr,w:'700'}));
   });
   p.push(`<rect x="${VX}" y="${bY+40}" width="250" height="28" rx="3" fill="${mawpOK?'#e8f5e9':'#ffebee'}" stroke="${mawpOK?OK_C:ORG}" stroke-width="1.5"/>`);
-  p.push(_plumbT(VX+125,bY+57,`MAWP ${mawpOK?'≥':'<'} Design P  —  ${mawpOK?'PASS ✓':'FAIL ✗'}`,{sz:8,c:mawpOK?OK_C:ORG,w:'700'}));
+  p.push(_plumbT(VX+125,bY+57,`MAWP ${mawpOK?'≥':'<'} Design P:  ${mawpOK?'PASS ✓':'FAIL ✗'}`,{sz:8,c:mawpOK?OK_C:ORG,w:'700'}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
   p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
@@ -25674,10 +25827,10 @@ function buildFluidPowerSVG(inputs, results) {
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
   const HYD='#c0392b',RTN='#1565c0',PUMP_C='#37474f';
   const p=[];
-  const presBar=Number(r.system_pressure_bar||inp.system_pressure_bar||200).toFixed(0);
+  const presBar=_orNA(r.system_pressure_bar||inp.system_pressure_bar||200, 0);
   const cyl=r.cylinder||{};
-  const bore=Number(cyl.bore_mm||r.bore_selected_mm||inp.cylinder_bore_mm||100).toFixed(0);
-  const rod=Number(cyl.rod_mm||r.rod_selected_mm||0).toFixed(0);
+  const bore=_orNA(cyl.bore_mm||r.bore_selected_mm||inp.cylinder_bore_mm||100, 0);
+  const rod=_orNA(cyl.rod_mm||r.rod_selected_mm, 0);
   const forceExt=Number(cyl.F_extend_kN||0).toFixed(1);
   const forceRet=Number(cyl.F_retract_kN||0).toFixed(1);
   const spdExt=Number(cyl.v_extend_m_s||0).toFixed(3);
@@ -25749,7 +25902,7 @@ function buildFluidPowerSVG(inputs, results) {
     ['Rod Diameter',`Ø${rod} mm`,PUMP_C],['Stroke',`${stroke} mm`,GY],
     ['Extend Force',`${forceExt} kN`,HYD],['Retract Force',`${forceRet} kN`,HYD],
     ['Extend Speed',`${spdExt} m/s`,PUMP_C],['Pump Flow',`${flowLpm} L/min`,RTN],
-    ['Pressure Line',pipeOD?`Ø${pipeOD}mm OD`:'—',GY]
+    ['Pressure Line',pipeOD?`Ø${pipeOD}mm OD`:'-',GY]
   ]}]);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
@@ -25764,20 +25917,20 @@ function buildVBeltDriveSVG(inputs, results) {
   const dSmall=Number(r.d_small_mm||r.driven_dia_mm||100).toFixed(0);
   const dLarge=Number(r.d_large_mm||200).toFixed(0);
   const nBelts=Number(r.n_belts||r.n_belts_calc||1).toFixed(0);
-  const beltL=Number(r.belt_length_mm||0).toFixed(0);
+  const beltL=_orNA(r.belt_length_mm, 0);
   const ratio=Number(r.overall_ratio||0).toFixed(2);
   const beltSpd=Number(r.belt_speed_ms||0).toFixed(1);
   const section=String(r.section||r.belt_designation||'B');
   const wrapDeg=Number(r.wrap_angle_deg||r.arc_deg||165).toFixed(1);
   const capMarPct=Number(r.capacity_margin_pct||0).toFixed(1);
-  const powKW=Number(r.power_kW||inp.power_kw||0).toFixed(1);
+  const powKW=_orNA(r.power_kW||inp.power_kw, 1);
   const drvRPM=Number(r.n_driver_rpm||inp.driver_rpm||1450).toFixed(0);
   const drnRPM=Number(r.n_driven_rpm||r.actual_driven_rpm||inp.driven_rpm||720).toFixed(0);
   const cDist=Number(inp.center_dist_mm||500).toFixed(0);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`V-BELT DRIVE — ${nBelts}× Section ${section}  |  Ratio ${ratio}:1  |  ${powKW} kW  |  RMA IP-20 / ASME B17.1`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`V-BELT DRIVE: ${nBelts}× Section ${section}  |  Ratio ${ratio}:1  |  ${powKW} kW  |  RMA IP-20 / ASME B17.1`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Drive schematic
   const rSmall=Math.max(25,Math.min(Number(dSmall)*0.12,55));
@@ -25919,9 +26072,9 @@ function buildVibrationSVG(inputs, results) {
   p.push(_plumbT(bX+ChW/2,bY+28,`MF = ${MF}  |  T = ${T}  |  Isolation = ${isolEff}%  |  Margin ${resMgn}%`,{sz:7.5,c:CC}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
-  p.push(_plumbT(18,LY+10,'LEGEND — ISO 10816-3 Velocity Zones',{a:'start',sz:8,c:CC,w:'700'}));
-  [[ISO_A,'Zone A: < 2.3 mm/s — New machine'],[ISO_B,'Zone B: 2.3–4.5 mm/s — Satisfactory'],
-   [ISO_C,'Zone C: 4.5–7.1 mm/s — Unsatisfactory'],[ISO_D,'Zone D: > 7.1 mm/s — Danger']].forEach(([c,lbl],i)=>{
+  p.push(_plumbT(18,LY+10,'LEGEND: ISO 10816-3 Velocity Zones',{a:'start',sz:8,c:CC,w:'700'}));
+  [[ISO_A,'Zone A: < 2.3 mm/s (New machine)'],[ISO_B,'Zone B: 2.3–4.5 mm/s (Satisfactory)'],
+   [ISO_C,'Zone C: 4.5–7.1 mm/s (Unsatisfactory)'],[ISO_D,'Zone D: > 7.1 mm/s (Danger)']].forEach(([c,lbl],i)=>{
     p.push(`<line x1="25" y1="${LY+26+i*11}" x2="40" y2="${LY+26+i*11}" stroke="${c}" stroke-width="4"/>`);
     p.push(_plumbT(44,LY+30+i*11,lbl,{a:'start',sz:7,c:CC}));
   });
@@ -26034,8 +26187,8 @@ function buildShaftDesignSVG(inputs, results) {
   const STL='#455a64',OK_C='#2e7d32',FAIL_C='#c62828',TRQ='#e65100';
   const p=[];
   const dStd=Number(r.d_standard_mm||0).toFixed(0);
-  const dMin=Number(r.d_min_mm||0).toFixed(1);
-  const torqNm=Number(r.torque_Nm||0).toFixed(1);
+  const dMin=_orNA(r.d_min_mm, 1);
+  const torqNm=_orNA(r.torque_Nm, 1);
   const bendNm=Number(r.bending_moment_Nm||inp.bending_moment_Nm||0).toFixed(1);
   const nfGood=Number(r.nf_goodman||0).toFixed(2);
   const nyYield=Number(r.ny_yield||0).toFixed(2);
@@ -26053,7 +26206,7 @@ function buildShaftDesignSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`SHAFT DESIGN — Ø${dStd}mm  |  T=${torqNm} N·m  |  nf=${nfGood}  |  ASME B106.1M / DE-Goodman`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`SHAFT DESIGN: Ø${dStd}mm  |  T=${torqNm} N·m  |  nf=${nfGood}  |  ASME B106.1M / DE-Goodman`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Shaft FBD (elevation)
   const SHX=60,SHY=170,SHW=460,SHR=Math.max(12,Math.min(Number(dStd)*0.35,35));
@@ -26124,8 +26277,8 @@ function buildBeamColumnSVG(inputs, results) {
   const p=[];
   const section=String(r.section||inp.section||'W250x33');
   const spanM=Number(r.span_m||inp.span_m||6).toFixed(1);
-  const phiMpKNm=Number(r.phi_Mp_kNm||0).toFixed(1);
-  const phiVnKN=Number(r.phi_Vn_kN||0).toFixed(1);
+  const phiMpKNm=_orNA(r.phi_Mp_kNm, 1);
+  const phiVnKN=_orNA(r.phi_Vn_kN, 1);
   const DCRm=Number(r.DCR_moment||0).toFixed(3);
   const DCRv=Number(r.DCR_shear||0).toFixed(3);
   const mOK=Boolean(r.moment_ok??true);
@@ -26225,10 +26378,10 @@ function buildBearingLifeSVG(inputs, results) {
   const p=[];
   const L10h=Number(r.L10h||0).toFixed(0);
   const L10adj=Number(r.L10h_adj||0).toFixed(0);
-  const L10Mrev=Number(r.L10_Mrev||0).toFixed(2);
+  const L10Mrev=_orNA(r.L10_Mrev, 2);
   const lifeChk=String(r.life_check||'OK');
   const lifeOK=lifeChk.toUpperCase().includes('OK')||lifeChk.toUpperCase().includes('PASS');
-  const PkN=Number(r.P_kN||0).toFixed(2);
+  const PkN=_orNA(r.P_kN, 2);
   const CkN=Number(inp.C_kN||25).toFixed(1);
   const CoP=Number(r.C_over_P||0).toFixed(2);
   const a1=Number(r.a1||1).toFixed(2);
@@ -26240,7 +26393,7 @@ function buildBearingLifeSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`BEARING LIFE (L10) — ${Number(L10adj).toLocaleString()} h ${lifeChk}  |  C/P=${CoP}  |  ${bType}  |  ISO 281`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`BEARING LIFE (L10): ${Number(L10adj).toLocaleString()} h ${lifeChk}  |  C/P=${CoP}  |  ${bType}  |  ISO 281`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Bearing cross-section
   const CX=150,CY=220;
@@ -26316,9 +26469,9 @@ function buildBoltTorqueSVG(inputs, results) {
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
   const BLT='#37474f',OK_C='#2e7d32',FAIL_C='#c62828',PRE_C='#1565c0';
   const p=[];
-  const torqNm=Number(r.torque_Nm||0).toFixed(1);
-  const FiKN=Number(r.Fi_kN||0).toFixed(2);
-  const sigMPa=Number(r.sigma_MPa||0).toFixed(1);
+  const torqNm=_orNA(r.torque_Nm, 1);
+  const FiKN=_orNA(r.Fi_kN, 2);
+  const sigMPa=_orNA(r.sigma_MPa, 1);
   const stressChk=String(r.stress_check||'OK');
   const stressOK=stressChk.toUpperCase().includes('OK')||stressChk.toUpperCase().includes('PASS');
   const sepSF=Number(r.separation_sf||0).toFixed(2);
@@ -26327,16 +26480,16 @@ function buildBoltTorqueSVG(inputs, results) {
   const nBolts=Number(r.n_bolts||inp.n_bolts||inp.num_bolts||4).toFixed(0);
   const dMM=Number(r.d_mm||16).toFixed(0);
   const grade=String(r.bolt_grade||inp.bolt_grade||inp.grade||'8.8');
-  const SpMPa=Number(r.Sp_MPa||0).toFixed(0);
-  const FpKN=Number(r.Fp_kN||0).toFixed(2);
+  const SpMPa=_orNA(r.Sp_MPa, 0);
+  const FpKN=_orNA(r.Fp_kN, 2);
   const prePct=Number(r.preload_pct||inp.preload_pct||inp.target_preload_pct||75).toFixed(0);
-  const torq30=Number(r.torque_30pct||0).toFixed(1);
-  const torq70=Number(r.torque_70pct||0).toFixed(1);
+  const torq30=_orNA(r.torque_30pct, 1);
+  const torq70=_orNA(r.torque_70pct, 1);
   const extKN=Number(r.ext_load_kN||inp.ext_load_kN||0).toFixed(2);
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`BOLT TORQUE & PRELOAD — M${dMM} Grade ${grade}  |  T=${torqNm} N·m  |  Fi=${FiKN} kN  |  ISO 898`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`BOLT TORQUE & PRELOAD: M${dMM} Grade ${grade}  |  T=${torqNm} N·m  |  Fi=${FiKN} kN  |  ISO 898`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Bolt joint cross-section
   const JX=80,JY=90,JW=320,JH=180;
@@ -26408,7 +26561,7 @@ function buildElevatorTrafficSVG(inputs, results) {
   const intSnum=Number(r.interval_s||0);
   const HCpct=Number(r.HC_pct||0).toFixed(1);
   const HCnum=Number(r.HC_pct||0);
-  const cap5min=Number(r.capacity_5min||0).toFixed(0);
+  const cap5min=_orNA(r.capacity_5min, 0);
   const intOK=Boolean(r.interval_check??true);
   const HCok=Boolean(r.HC_check??true);
   const overallOK=Boolean(r.overall_check??true);
@@ -26499,14 +26652,14 @@ function buildHoistCapacitySVG(inputs, results) {
   const CC='#1a2e4a',SC='#5a6a7a',GY='#607d8b',LGY='#eceff1';
   const HST='#37474f',ROPE_C='#795548',OK_C='#2e7d32',FAIL_C='#c62828';
   const p=[];
-  const grossKg=Number(r.gross_load_kg||0).toFixed(0);
+  const grossKg=_orNA(r.gross_load_kg, 0);
   const grossKN=Number(r.gross_load_kN||0).toFixed(2);
-  const MBFkg=Number(r.MBF_kg||0).toFixed(0);
+  const MBFkg=_orNA(r.MBF_kg, 0);
   const MBFkN=Number(r.MBF_kN||0).toFixed(1);
-  const ropePull=Number(r.rope_pull_kg||0).toFixed(0);
-  const motorKW=Number(r.motor_kW||0).toFixed(2);
-  const motorHP=Number(r.motor_hp_std||0).toFixed(1);
-  const speedMs=Number(r.speed_ms||0).toFixed(2);
+  const ropePull=_orNA(r.rope_pull_kg, 0);
+  const motorKW=_orNA(r.motor_kW, 2);
+  const motorHP=_orNA(r.motor_hp_std, 1);
+  const speedMs=_orNA(r.speed_ms, 2);
   const sfChk=String(r.safety_factor_check||'OK');
   const sfOK=sfChk.toUpperCase().includes('OK')||sfChk.toUpperCase().includes('PASS');
   const nParts=Number(inp.n_parts||inp.num_parts_line||4).toFixed(0);
@@ -26920,10 +27073,10 @@ function buildHVACTitleBlockHtml(inputs, results) {
   const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
   const ratingLine = `${fn} | ${area}\u00a0m\u00b2 | ${recKW}\u00a0kW\u00a0/\u00a0${recTR}\u00a0TR | ASHRAE\u00a062.1\u00a0/\u00a0PSME\u00a0Code`;
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>` +
-    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
   const TDB = (s='') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
@@ -26945,7 +27098,7 @@ function buildHVACTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -27318,10 +27471,10 @@ function buildLightingTitleBlockHtml(inputs, results) {
   const now     = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
   const rating  = `${spaceTyp} | ${nFix} fixtures | E\u2090\u1D65\u1D67=${Math.round(eActual)}\u00a0lx | LPD=${lpd.toFixed(2)}\u00a0W/m\u00b2 | ${totKW.toFixed(2)}\u00a0kW | ${area.toFixed(1)}\u00a0m\u00b2`;
 
-  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#888;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
+  const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v = '') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>` +
-    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#aaa;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
+    `<div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (s = '') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
   const TDB = (s = '') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
@@ -27343,7 +27496,7 @@ function buildLightingTitleBlockHtml(inputs, results) {
     ${TDB(`${BR}width:22%;`)}${LBL('Approved By')}${SIG()}</td>
     ${TD(`${BR}width:17%;`)}${LBL('Scale')}${EF('NTS (Not to Scale)')}</td>
     ${TD('')}${LBL('Rev. / Sheet')}${EF('Rev. 0')}
-      <div style="font-size:8px;color:#888;margin-top:5px;">Sheet 1 of 1</div></td>
+      <div style="font-size:8px;color:#595959;margin-top:5px;">Sheet 1 of 1</div></td>
   </tr>
 </table>`;
 }
@@ -27851,11 +28004,29 @@ function _downloadHVACPdf(panel, fileName) {
 }
 
 // ─── Save calculation ─────────────────────────────────────────────────────────
+// I-5 (deep-arc P4): a single validate-before-persist gate shared by both save paths. Asserts
+// the core fields exist + are the expected shape before writing to engineering_calcs, so a
+// malformed/aborted calc can't land a junk row (OWASP input validation — allow-list the shape).
+function validateBeforeSave() {
+  const okObj = v => v && typeof v === 'object' && Object.keys(v).length > 0;
+  if (!_calcType || !_discipline) { showToast('Select a calculation before saving.'); return false; }
+  if (!okObj(_lastInputs) || !okObj(_lastResults)) { showToast('Run the calculation before saving.'); return false; }
+  return true;
+}
+
 async function saveCalc() {
   if (!_lastResults || !_lastInputs) return;
+  if (!validateBeforeSave()) return;   // I-5
+
+  // I-1/I-8 (deep-arc P2): resolve the authenticated identity, guard the write on
+  // it, AND stamp auth_uid. worker_name/hive_id come from localStorage (spoofable);
+  // auth_uid is the server-verifiable owner (locked attribution rule).
+  const uid = (await db.auth.getUser())?.data?.user?.id;
+  if (!uid) { showToast('Sign in to save.'); return; }
 
   const payload = {
     hive_id:      HIVE_ID,
+    auth_uid:     uid,
     worker_name:  WORKER_NAME,
     discipline:   _discipline,
     calc_type:    _calcType,
@@ -27875,6 +28046,11 @@ async function saveCalc() {
 
 async function saveWithBomSow() {
   if (!_lastResults || !_lastInputs) { showToast('No calculation to save.'); return; }
+  if (!validateBeforeSave()) return;   // I-5
+
+  // I-1/I-8 (deep-arc P2): guard + attribute (see saveCalc).
+  const uid = (await db.auth.getUser())?.data?.user?.id;
+  if (!uid) { showToast('Sign in to save.'); return; }
 
   // Collect final BOM from preview table inputs
   const bomRows = collectBomFromPreview();
@@ -27883,6 +28059,7 @@ async function saveWithBomSow() {
 
   const payload = {
     hive_id:      HIVE_ID,
+    auth_uid:     uid,
     worker_name:  WORKER_NAME,
     discipline:   _discipline,
     calc_type:    _calcType,
@@ -27925,10 +28102,20 @@ async function loadHistory() {
   const list = document.getElementById('history-list');
   list.innerHTML = '<div class="text-center py-8" style="color:rgba(255,255,255,0.6);">Loading...</div>';
 
-  const { data, error } = await db
-    .from('engineering_calcs')
-    .select('*')
-    .eq('hive_id', HIVE_ID)
+  // I-3 (deep-arc P2): in a hive, scope by hive_id (RLS also enforces membership);
+  // in solo mode (no hive) scope by auth_uid so the creator reads their own rows
+  // back — matching the read policy's `hive_id IS NULL AND auth_uid = auth.uid()`
+  // branch (was `.eq('hive_id', null)` which returns nothing).
+  // unbounded-query-allow: `q` is bounded below — scoped by .eq('hive_id') or .eq('auth_uid') + .order().limit(50);
+  // the validator's single-statement chain window can't follow the `q` variable across the if/else.
+  let q = db.from('engineering_calcs').select('*');
+  if (HIVE_ID) {
+    q = q.eq('hive_id', HIVE_ID);
+  } else {
+    const uid = (await db.auth.getUser())?.data?.user?.id;
+    q = q.is('hive_id', null).eq('auth_uid', uid || '00000000-0000-0000-0000-000000000000');
+  }
+  const { data, error } = await q
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -27940,6 +28127,11 @@ async function loadHistory() {
     return;
   }
 
+  // I-7 (deep-arc P4): key rows by id; the View button passes ONLY the id (a DB uuid), never
+  // the whole row. Serializing user/AI-controlled fields (project_name/inputs/narrative) into an
+  // onclick attribute with hand-rolled `'`→`&#39;` escaping is an OWASP XSS anti-pattern.
+  _historyById = {};
+  data.forEach(r => { _historyById[r.id] = r; });
   list.innerHTML = data.map(row => {
     const d   = new Date(row.created_at);
     const dt  = d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' });
@@ -27958,13 +28150,20 @@ async function loadHistory() {
           <div class="text-right flex-shrink-0">
             <div class="text-xs" style="color:rgba(255,255,255,0.6);">${dt}</div>
             <div class="flex gap-2 mt-2">
-              <button class="btn-ghost text-xs py-1 px-3" onclick='viewHistoryReport(${JSON.stringify(row).replace(/'/g,"&#39;")})'>View</button>
+              <button class="btn-ghost text-xs py-1 px-3" onclick="viewHistoryById('${row.id}')">View</button>
               <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);" onclick="deleteCalc('${row.id}')">Delete</button>
             </div>
           </div>
         </div>
       </div>`;
   }).join('');
+}
+
+// I-7: rows keyed by loadHistory; the View button carries only the uuid.
+let _historyById = {};
+function viewHistoryById(id) {
+  const row = _historyById[id];
+  if (row) viewHistoryReport(row);
 }
 
 function viewHistoryReport(row) {
@@ -28041,11 +28240,14 @@ function viewHistoryReport(row) {
 
 async function deleteCalc(id) {
   if (!(await window.whConfirm('Delete this calculation?', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
-  // Defense-in-depth: scope by worker_name so a console caller can't
-  // delete another worker's calc even if RLS is misconfigured.
-  if (!WORKER_NAME) { showToast('Sign in to delete.'); return; }
+  // I-4 (deep-arc P2): object-level auth — scope the delete by auth_uid (the
+  // server-verified owner), not the spoofable worker_name. The tightened RLS
+  // delete policy enforces the same at the DB; this is defense-in-depth. .eq()
+  // values are parameter-encoded by the client (no PostgREST filter injection).
+  const uid = (await db.auth.getUser())?.data?.user?.id;
+  if (!uid) { showToast('Sign in to delete.'); return; }
   const { error } = await db.from('engineering_calcs').delete()
-    .eq('id', id).eq('worker_name', WORKER_NAME);
+    .eq('id', id).eq('auth_uid', uid);
   if (error) { showToast('Delete failed.'); return; }
   showToast('Deleted.');
   loadHistory();
@@ -28088,7 +28290,7 @@ async function generateBomSowChecklist() {
     if (calcs.includes(_calcType)) { bomDiscipline = disc; break; }
   }
   if (!bomDiscipline) {
-    showToast(`BOM + SOW not yet available for "${_calcType}".`, 4000);
+    showToast(`BOM + SOW not yet available for "${whCalcLabel(_calcType)}".`, 4000);
     return;
   }
 
@@ -28096,14 +28298,14 @@ async function generateBomSowChecklist() {
   document.getElementById('bom-loading').classList.remove('hidden');
 
   try {
-    const { data, error } = await db.functions.invoke('engineering-bom-sow', {
+    const { data, error } = await invokeWithTimeout('engineering-bom-sow', {
       body: {
         discipline:   bomDiscipline,
         calc_type:    _calcType,
         calc_inputs:  _lastInputs,
         calc_results: _lastResults,
       },
-    });
+    });   // AI-4: bounded by a client-side timeout
 
     if (error) throw new Error(error.message);
     if (data?.error) throw new Error(data.error);
@@ -28118,7 +28320,8 @@ async function generateBomSowChecklist() {
   } catch (err) {
     document.getElementById('bom-loading').classList.add('hidden');
     document.getElementById('bom-trigger').classList.remove('hidden');
-    showToast('Error: ' + err.message, 5000);
+    showToast(friendlyAiError(err), 5000);   // AI-8: friendly, non-leaking message
+    console.error(err);
   }
 }
 
@@ -28401,11 +28604,11 @@ function renderBomTablePreview(items) {
     : isVibr
     ? `Machine Design: Vibration Analysis (${_lastInputs?.project_name || ''}, ${_lastInputs?.speed_rpm || ''}rpm, fn=${Number(_lastResults?.fn_Hz||0).toFixed(2)}Hz, ${_lastResults?.iso_zone || ''})`
     : isFluPwr
-    ? `Machine Design: Fluid Power (${_lastInputs?.system_type || 'Hydraulic'}, Cyl Force ${Number(_lastResults?.cylinder?.F_extend_kN||0).toFixed(1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, ${_lastInputs?.system_pressure_bar || ''}bar)`
+    ? `Machine Design: Fluid Power (${_lastInputs?.system_type || 'Hydraulic'}, Cyl Force ${_orNA(_lastResults?.cylinder?.F_extend_kN, 1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, ${_lastInputs?.system_pressure_bar || ''}bar)`
     : isXFMR
     ? `Electrical: Transformer Sizing (${_lastResults?.rated_kva || ''}kVA × ${_lastResults?.num_units || 1}, ${_lastResults?.primary_voltage || ''}/${_lastResults?.secondary_voltage || ''}V, ${_lastResults?.winding_connection || 'Dyn11'}, Uz=${_lastResults?.impedance_pct || ''}%, Isc=${_lastResults?.Isc_secondary_kA || ''}kA, η=${_lastResults?.efficiency_fl_pct || ''}%)`
     : isHarmonic
-    ? `Electrical: Harmonic Distortion Analysis (THD=${_lastResults?.THD_I_pct || ''}%, TDD=${_lastResults?.TDD_pct || ''}% vs limit ${_lastResults?.TDD_limit_pct || ''}%, K-Factor=${_lastResults?.K_factor || ''}, ${_lastResults?.overall_pass ? 'IEEE 519-2022 COMPLIANT' : 'NON-COMPLIANT — mitigation required'})`
+    ? `Electrical: Harmonic Distortion Analysis (THD=${_lastResults?.THD_I_pct || ''}%, TDD=${_lastResults?.TDD_pct || ''}% vs limit ${_lastResults?.TDD_limit_pct || ''}%, K-Factor=${_lastResults?.K_factor || ''}, ${_lastResults?.overall_pass ? 'IEEE 519-2022 COMPLIANT' : 'NON-COMPLIANT: mitigation required'})`
     : isCleanAgt
     ? `Fire Protection: Clean Agent Suppression (${_lastResults?.agent_label || _lastInputs?.agent_type || ''}, ${_lastResults?.hazard_volume_m3 || ''}m³ × ${_lastResults?.num_zones || 1} zone(s), C=${_lastResults?.design_concentration_pct || ''}%, W=${_lastResults?.W_design_kg || ''}kg, ${_lastResults?.recommended_qty || ''}×${_lastResults?.recommended_cylinder_kg || ''}kg cylinders, NFPA 2001:2022)`
     : isPV
@@ -28422,7 +28625,7 @@ function renderBomTablePreview(items) {
     ? `Machine Design: Bearing Life (${_lastInputs?.bearing_type || ''}, C=${_lastInputs?.C_kN || ''}kN, P=${_lastResults?.P_kN || ''}kN, C/P=${_lastResults?.C_over_P || ''}, L10h_adj=${_lastResults?.L10h_adj || ''}h, ISO 281)`
     : isBolt
     ? `Machine Design: Bolt Torque (M${_lastResults?.d_mm || _lastInputs?.bolt_size_mm || ''} Grade ${_lastResults?.bolt_grade || _lastInputs?.grade || ''}, T=${_lastResults?.torque_Nm || ''}N·m, Fi=${_lastResults?.Fi_kN || ''}kN (${_lastResults?.preload_pct || ''}% Fp), SF_sep=${_lastResults?.separation_sf || ''}, ISO 898)`
-    : `${_calcType}`;
+    : `${whCalcLabel(_calcType)}`;
 
   const rows = items.map((it, i) => `
     <tr>
@@ -28560,7 +28763,7 @@ function renderBomTablePreview(items) {
             ? `Quantities are based on the Fire Pump Sizing design calculation result (NFPA 20, BFP IRR, RA 9514 Philippine Fire Code, PSME Code). Engineer shall verify all quantities on-site before procurement. All fire pumps, drivers, controllers, and accessories shall be UL/FM-listed and BFP-accepted. Contractor shall submit pump performance curves, motor data sheets, and factory acceptance test reports for Engineer's approval prior to procurement.`
             : isFSprink
             ? `Quantities are based on the Fire Sprinkler Hydraulic design calculation result (NFPA 13, BFP IRR, RA 9514 Philippine Fire Code). Engineer shall verify all quantities on-site before procurement. All sprinkler heads, pipes, fittings, and hangers shall be UL/FM-listed and BFP-accepted. Contractor shall submit hydraulic calculations, material certifications, and BFP listing certificates for Engineer's approval prior to procurement.`
-            : `Quantities are based on the ${_calcType} design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (${
+            : `Quantities are based on the ${whCalcLabel(_calcType)} design calculation result. Engineer shall verify all quantities on-site before procurement. All materials shall conform to applicable Philippine and international standards (${
                 (isLoadEst || isVD || isWire || isSC || isLight || isLPS || isEG || isUPS || isCT || isPFC || isSolarPV || isGen || isXFMR || isHarmonic) ? 'IEC 60076, IEEE C57, PEC 2017'
                 : (isDrain || isWS || isHW || isSeptic || isWaterSoft || isWT || isSTP || isSD || isGT || isRD) ? 'PNSDW, NPCP, RA 9275, DPWH'
                 : (isFSprink || isFPump || isSPress || isFABatt || isCleanAgt) ? 'NFPA, BFP IRR, RA 9514'
@@ -28588,7 +28791,7 @@ function renderBomTablePreview(items) {
             <div style="font-size:0.74rem;color:#555;">
               PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
@@ -28602,7 +28805,7 @@ function renderBomTablePreview(items) {
             <div style="font-size:0.74rem;color:#555;">
               Company: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
           </div>
         </div>
         <div>
@@ -28616,7 +28819,7 @@ function renderBomTablePreview(items) {
             <div style="font-size:0.74rem;color:#555;">
               Date: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -28771,11 +28974,11 @@ function renderSowDocPreview(sections) {
     : isVibrS
     ? `Vibration Analysis: ${_lastResults?.machine_class || _lastInputs?.machine_class || ''}, n=${_lastInputs?.speed_rpm || ''}rpm, fn=${Number(_lastResults?.fn_Hz||0).toFixed(2)}Hz, Severity: ${_lastResults?.iso_zone || ''}, TR=${_lastResults?.transmissibility || ''}, v_rms=${Number(_lastResults?.V_rms_mm_s||0).toFixed(2)}mm/s, ISO 10816-3`
     : isFluPwrS
-    ? `Fluid Power: ${_lastInputs?.system_type || 'Hydraulic'} system, Cyl Force ${Number(_lastResults?.cylinder?.F_extend_kN||0).toFixed(1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, Pressure ${_lastInputs?.system_pressure_bar || ''}bar`
+    ? `Fluid Power: ${_lastInputs?.system_type || 'Hydraulic'} system, Cyl Force ${_orNA(_lastResults?.cylinder?.F_extend_kN, 1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, Pressure ${_lastInputs?.system_pressure_bar || ''}bar`
     : isXFMR
     ? `Transformer Sizing: ${_lastResults?.rated_kva || ''}kVA × ${_lastResults?.num_units || 1} unit(s), ${_lastResults?.primary_voltage || ''}/${_lastResults?.secondary_voltage || ''}V ${_lastResults?.phases || 3}-Phase, ${_lastResults?.winding_connection || 'Dyn11'}, Uz=${_lastResults?.impedance_pct || ''}%, Isc=${_lastResults?.Isc_secondary_kA || ''}kA, η=${_lastResults?.efficiency_fl_pct || ''}%`
     : isHarmonic
-    ? `Harmonic Distortion Analysis: I₁=${_lastResults?.fundamental_current_A || ''}A, THD=${_lastResults?.THD_I_pct || ''}%, TDD=${_lastResults?.TDD_pct || ''}% (limit ${_lastResults?.TDD_limit_pct || ''}%), K-Factor=${_lastResults?.K_factor || ''}, Status: ${_lastResults?.overall_pass ? 'COMPLIANT' : 'NON-COMPLIANT — mitigation required'}`
+    ? `Harmonic Distortion Analysis: I₁=${_lastResults?.fundamental_current_A || ''}A, THD=${_lastResults?.THD_I_pct || ''}%, TDD=${_lastResults?.TDD_pct || ''}% (limit ${_lastResults?.TDD_limit_pct || ''}%), K-Factor=${_lastResults?.K_factor || ''}, Status: ${_lastResults?.overall_pass ? 'COMPLIANT' : 'NON-COMPLIANT: mitigation required'}`
     : isCleanAgt
     ? `Clean Agent Suppression: ${_lastResults?.agent_label || _lastInputs?.agent_type || ''}, Vol=${_lastResults?.hazard_volume_m3 || ''}m³ × ${_lastResults?.num_zones || 1} zone(s), C=${_lastResults?.design_concentration_pct || ''}%, W_design=${_lastResults?.W_design_kg || ''}kg, ${_lastResults?.recommended_qty || ''}×${_lastResults?.recommended_cylinder_kg || ''}kg cylinders, Discharge ${_lastResults?.discharge_time_req || ''}, ${_lastResults?.safe_for_occupied_spaces ? 'Safe for occupied spaces' : 'EVACUATE before discharge'}`
     : isPVS
@@ -28909,17 +29112,17 @@ ${isLight
   : isDSS
   ? `This Scope of Works is based on the Duct Sizing Design Calculation using the Equal Friction Method (Ref: ${escHtml(calcRef)}) per ASHRAE 2021 Fundamentals Handbook Chapter 21 (Duct Design), SMACNA HVAC Duct Construction Standards (3rd Edition), ASHRAE 62.1 (Ventilation for Acceptable Indoor Air Quality), PSME Code (HVAC mechanical system installation), and PEC 2017 Article 4.30 (fan motor branch circuit). The duct system is designed for ${_lastInputs?.duct_shape || 'Circular'} ${_lastInputs?.duct_material || 'Galvanized Steel'} ductwork at a design friction rate of ${_lastInputs?.friction_rate || 1.0} Pa/m and air density of ${_lastInputs?.air_density || 1.20} kg/m³. The ${(_lastInputs?.segments || []).length}-segment system results in a calculated duct pressure drop of ${_lastResults?.total_dp_pa || ''}Pa, and a fan static pressure of ${_lastResults?.fan_static_pa || ''}Pa (including 50% SMACNA fittings allowance). Fan motor: ${_lastResults?.fan_motor_hp_std || ''}HP standard. The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including: SMACNA HVAC Duct Construction Standards (pressure class, gauge, reinforcement, and support spacing); ASHRAE 62.1 (minimum ventilation rates, supply velocity limits: Main ≤ 8 m/s, Branch ≤ 5 m/s, Return ≤ 6 m/s); ASHRAE 2021 Chapter 21 (equal friction sizing, fitting pressure loss); PSME Code (mechanical equipment, ductwork installation, and LGU Mechanical Permit); PEC 2017 Article 4.30 (fan motor branch circuit, short-circuit protection); DOLE OSH Standards for mechanical equipment installation; and the National Building Code of the Philippines (PD 1096) for HVAC system permits. All ductwork shall be galvanized steel (or approved equivalent) constructed to the appropriate SMACNA pressure class: supply mains: 1 in. w.g. class minimum, branches: ½ in. w.g. class. Leakage testing per SMACNA HVAC Air Duct Leakage Test Manual is required for all mains operating at ≥ 1 in. w.g. static pressure. Flexible duct connections to diffusers shall not exceed 1.5 m in length. The Contractor shall submit the following for Engineer's approval prior to procurement: (a) shop drawings showing duct dimensions, routing, hangers, and pressure class designation, (b) fan performance curve at design flow and static pressure, (c) material certification for galvanized steel gauges, (d) SMACNA leakage test results, and (e) TAB (Testing, Adjusting, Balancing) report after installation confirming design airflows at all terminals within ±10%. A Mechanical Permit and sign-off by a PRC-licensed Mechanical Engineer are required before system start-up. As-built duct layout drawings and TAB report shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isNoiseS
-  ? `This Scope of Works is based on the Noise / Acoustics Assessment Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes and standards including DOLE Department Order No. 13 Series 1998 (Health and Safety in Construction), OSHA 29 CFR 1910.95 (Occupational Noise Exposure), ISO 9613-2 (Outdoor Sound Propagation), ISO 3745 (Sound Power — Precision Methods), IEC 61672-1 (Sound Level Meters), and ASHRAE 2019 Handbook Ch. 8. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with all affected trades to ensure a complete and compliant noise control installation.`
+  ? `This Scope of Works is based on the Noise / Acoustics Assessment Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes and standards including DOLE Department Order No. 13 Series 1998 (Health and Safety in Construction), OSHA 29 CFR 1910.95 (Occupational Noise Exposure), ISO 9613-2 (Outdoor Sound Propagation), ISO 3745 (Sound Power: Precision Methods), IEC 61672-1 (Sound Level Meters), and ASHRAE 2019 Handbook Ch. 8. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with all affected trades to ensure a complete and compliant noise control installation.`
   : isVibrS
-  ? `This Scope of Works is based on the Vibration Analysis Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 10816-3 (Mechanical Vibration — Evaluation of Machine Vibration), ISO 2372 (Vibration Severity Criteria), and ASME B31 piping code requirements for vibration in piping systems. All isolation and damping equipment shall be selected and installed per manufacturer recommendations and ISO guidelines. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  ? `This Scope of Works is based on the Vibration Analysis Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 10816-3 (Mechanical Vibration: Evaluation of Machine Vibration), ISO 2372 (Vibration Severity Criteria), and ASME B31 piping code requirements for vibration in piping systems. All isolation and damping equipment shall be selected and installed per manufacturer recommendations and ISO guidelines. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isFluPwrS
-  ? `This Scope of Works is based on the Fluid Power (Hydraulics / Pneumatics) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 4413 (Safety Requirements for Hydraulic Fluid Power Systems), ISO 4414 (Safety Requirements for Pneumatic Fluid Power Systems), NFPA T3.9.17 (Hydraulic Fluid Power — Pumps), ISO 4399 (Fluid Power — Connections and Components), and applicable DOLE OSH mechanical safety requirements. The Contractor shall coordinate with all affected trades and ensure a complete, safe, and compliant fluid power installation. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  ? `This Scope of Works is based on the Fluid Power (Hydraulics / Pneumatics) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 4413 (Safety Requirements for Hydraulic Fluid Power Systems), ISO 4414 (Safety Requirements for Pneumatic Fluid Power Systems), NFPA T3.9.17 (Hydraulic Fluid Power: Pumps), ISO 4399 (Fluid Power: Connections and Components), and applicable DOLE OSH mechanical safety requirements. The Contractor shall coordinate with all affected trades and ensure a complete, safe, and compliant fluid power installation. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isETS
   ? `This Scope of Works is based on the Expansion Tank Sizing Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASHRAE 2023 Handbook HVAC Systems and Equipment Chapter 12 (Hydronic Heating and Cooling System Design), ASME BPVC Section VIII Division 1 (Pressure Vessels), ASHRAE 90.1, PSME Code, and DOLE OSH Standards. The expansion tank shall be an ASME VIII-listed pre-pressurised bladder type, rated for the system MAWP. Pre-charge pressure shall be set to the system static head pressure with the system depressurised, and the system shall be filled to the design fill pressure before start-up. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
   : isElev
-  ? `This Scope of Works is based on the Elevator Traffic Analysis Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASME A17.1 (Safety Code for Elevators and Escalators), National Building Code of the Philippines (PD 1096), BP 344 and RA 10754 (Accessibility Law — PWD compliance), PEC 2017 (motor circuit and emergency power), and DOLE-OSHC Standards. All elevators shall be installed, tested, and commissioned by the manufacturer's certified technicians, with a factory acceptance test conducted prior to shipment. Acceptance inspection shall be witnessed by a DPWH/LGU building official and an OSHC-accredited elevator inspector. An LGU Elevator Permit and annual mandatory inspection per DOLE-OSHC are required. O&M manual and log book shall be submitted to the Owner upon completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  ? `This Scope of Works is based on the Elevator Traffic Analysis Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASME A17.1 (Safety Code for Elevators and Escalators), National Building Code of the Philippines (PD 1096), BP 344 and RA 10754 (Accessibility Law: PWD compliance), PEC 2017 (motor circuit and emergency power), and DOLE-OSHC Standards. All elevators shall be installed, tested, and commissioned by the manufacturer's certified technicians, with a factory acceptance test conducted prior to shipment. Acceptance inspection shall be witnessed by a DPWH/LGU building official and an OSHC-accredited elevator inspector. An LGU Elevator Permit and annual mandatory inspection per DOLE-OSHC are required. O&M manual and log book shall be submitted to the Owner upon completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isHoist
-  ? `This Scope of Works is based on the Hoist Capacity Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ASME B30.2 (Overhead and Gantry Cranes), ASME B30.16 (Overhead Hoists — Underhung), ASME B30.9 (Slings), DOLE-OSHC Standards (crane and hoist safety), and NBC PD 1096. All hoisting equipment shall undergo a load test at 125% of rated capacity witnessed by an OSHC-accredited crane inspector prior to commissioning. O&M manual and load test certificate shall be submitted to the Owner. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  ? `This Scope of Works is based on the Hoist Capacity Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ASME B30.2 (Overhead and Gantry Cranes), ASME B30.16 (Overhead Hoists: Underhung), ASME B30.9 (Slings), DOLE-OSHC Standards (crane and hoist safety), and NBC PD 1096. All hoisting equipment shall undergo a load test at 125% of rated capacity witnessed by an OSHC-accredited crane inspector prior to commissioning. O&M manual and load test certificate shall be submitted to the Owner. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isFABatt
   ? `This Scope of Works is based on the Fire Alarm Battery Standby Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including NFPA 72 (National Fire Alarm and Signaling Code), RA 9514 (Philippine Fire Code) and its BFP Implementing Rules and Regulations, PEC 2017 (Philippine Electrical Code), and DOLE OSH Standards. All FACP, standby batteries, detectors, notification appliances, conduit, and wiring shall be UL-listed and BFP-listed. The battery system shall maintain the required standby and alarm capacity per NFPA 72 §10.6.7. The system shall undergo a 100% point-to-point test and battery load test witnessed by the BFP Authority Having Jurisdiction (AHJ) prior to acceptance. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
   : isSPress
@@ -28934,7 +29137,7 @@ ${isLight
   ? `This Scope of Works is based on the Harmonic Distortion Analysis (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including IEEE 519-2022 (Recommended Practice for Harmonic Control in Electric Power Systems), IEC 61000-3-2:2018 (Limits for Harmonic Current Emissions), PEC 2017, and distribution utility power quality requirements (Meralco / local DU technical standards). All harmonic mitigation equipment (passive filters, active filters, K-rated transformers) shall be tested and commissioned with post-installation power quality verification per IEEE 519-2022. A power quality acceptance report shall be submitted to the Engineer and distribution utility. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isCleanAgt
   ? `This Scope of Works is based on the Clean Agent Suppression System Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including NFPA 2001:2022 (Standard on Clean Agent Fire Extinguishing Systems), ISO 14520:2015, RA 9514 (Philippine Fire Code) and BFP IRR, NFPA 72 (detection system), PEC 2017, and DOLE OSH Standards. All clean agent equipment shall be UL-listed and BFP-accepted. A room integrity (door fan) pressurization test per NFPA 2001 Annex B shall be conducted prior to agent discharge testing. A simulated discharge test (with nitrogen, no agent) and functional test of all interlocks shall be witnessed by the BFP AHJ. Agent cylinders and weighing systems shall be inspected annually per NFPA 2001 §6. Any deviations from this scope must be approved in writing by the Engineer before execution.`
-  : `This Scope of Works is based on the ${_calcType} Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, ASHRAE, PEC 2017, and DOLE OSH Standards. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
+  : `This Scope of Works is based on the ${whCalcLabel(_calcType)} Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including PSME, ASHRAE, PEC 2017, and DOLE OSH Standards. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with other trades to avoid conflicts and ensure a complete and functional installation.`
 }
         </div>
       </div>
@@ -28961,7 +29164,7 @@ ${isLight
             <div style="font-size:0.74rem;color:#555;">
               PTR No.: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
@@ -28975,7 +29178,7 @@ ${isLight
             <div style="font-size:0.74rem;color:#555;">
               Company: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked / Reviewed by</div>
           </div>
         </div>
         <div>
@@ -28989,7 +29192,7 @@ ${isLight
             <div style="font-size:0.74rem;color:#555;">
               Date: <span class="editable-field" contenteditable="true">_____________</span>
             </div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -29050,7 +29253,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
         <div style="background:#f5f7ff;border:1px solid #dde;border-radius:0.6rem;padding:0.7rem 0.85rem;">
           <div style="font-size:0.7rem;color:#555;margin-bottom:0.2rem;">${escHtml(label)}</div>
           <div style="font-weight:700;font-size:1rem;color:#1a237e;">${escHtml(val)}</div>
-          <div style="font-size:0.68rem;color:#888;">${escHtml(sub)}</div>
+          <div style="font-size:0.68rem;color:#595959;">${escHtml(sub)}</div>
         </div>`).join('')}
     </div>
 
@@ -29105,7 +29308,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
         <tr><td style="padding:0.3rem 0.6rem;">Evaporation</td><td style="padding:0.3rem 0.6rem;text-align:right;">0.085%/°C</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.evap_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">ASHRAE GRP-214; 0.085% × Range × Q_circ</td></tr>
         <tr><td style="padding:0.3rem 0.6rem;">Drift (modern fill)</td><td style="padding:0.3rem 0.6rem;text-align:right;">0.02%</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.drift_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">With drift eliminators per CTI Std-201</td></tr>
         <tr><td style="padding:0.3rem 0.6rem;">Blowdown (CoC = ${r.coc})</td><td style="padding:0.3rem 0.6rem;text-align:right;">E/(CoC−1)</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.blowdown_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">Maintain cycles of concentration = ${r.coc}</td></tr>
-        <tr style="background:#e3f2fd;font-weight:700;"><td style="padding:0.35rem 0.6rem;">Total Makeup Water</td><td style="padding:0.35rem 0.6rem;text-align:right;">—</td><td style="padding:0.35rem 0.6rem;text-align:right;">${r.makeup_lhr} L/hr</td><td style="padding:0.35rem 0.6rem;color:#333;">${r.makeup_m3day} m³/day</td></tr>
+        <tr style="background:#e3f2fd;font-weight:700;"><td style="padding:0.35rem 0.6rem;">Total Makeup Water</td><td style="padding:0.35rem 0.6rem;text-align:right;">-</td><td style="padding:0.35rem 0.6rem;text-align:right;">${r.makeup_lhr} L/hr</td><td style="padding:0.35rem 0.6rem;color:#333;">${r.makeup_m3day} m³/day</td></tr>
       </table>
     </div>
 
@@ -29154,7 +29357,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Mechanical Engineer')}</div>
           <div style="color:#555;">PRC License No.: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div>
@@ -29162,7 +29365,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Project Engineer / Manager')}</div>
           <div style="color:#555;">Company: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Checked / Reviewed by</div>
         </div>
       </div>
       <div>
@@ -29170,7 +29373,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Owner / Client Representative')}</div>
           <div style="color:#555;">Date: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -29207,8 +29410,8 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
       </div>
       <div style="text-align:right;font-size:0.8rem;color:#555;line-height:1.8;">
         <div><strong>Project:</strong> ${e(inputs.project_name || 'Untitled Project')}</div>
-        <div><strong>Location:</strong> ${e(inputs.project_location || '—')}</div>
-        <div><strong>Prepared by:</strong> ${e(inputs.engineer_name || '—')}</div>
+        <div><strong>Location:</strong> ${e(inputs.project_location || '-')}</div>
+        <div><strong>Prepared by:</strong> ${e(inputs.engineer_name || '-')}</div>
         <div><strong>Date:</strong> ${dateStr}</div>
         <div><strong>Rev:</strong> ${e('0')}</div>
       </div>
@@ -29354,7 +29557,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Sanitary / Mechanical Engineer')}</div>
           <div style="color:#555;">PRC License No.: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
@@ -29362,7 +29565,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Project Engineer / Manager')}</div>
           <div style="color:#555;">Company: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Checked / Reviewed by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
@@ -29370,7 +29573,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Owner / Client Representative')}</div>
           <div style="color:#555;">Date: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -29418,8 +29621,8 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
       </div>
       <div style="text-align:right;font-size:0.8rem;color:#555;line-height:1.8;">
         <div><strong>Project:</strong> ${e(inputs.project_name || 'Untitled Project')}</div>
-        <div><strong>Location:</strong> ${e('—')}</div>
-        <div><strong>Prepared by:</strong> ${e('—')}</div>
+        <div><strong>Location:</strong> ${e('-')}</div>
+        <div><strong>Prepared by:</strong> ${e('-')}</div>
         <div><strong>Date:</strong> ${dateStr}</div>
         <div><strong>Rev:</strong> ${e('0')}</div>
       </div>
@@ -29625,7 +29828,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Sanitary / Mechanical Engineer')}</div>
           <div style="color:#555;">PRC License No.: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Prepared by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Prepared by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
@@ -29633,7 +29836,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Project Engineer / Manager')}</div>
           <div style="color:#555;">Company: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Checked / Reviewed by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Checked / Reviewed by</div>
         </div>
       </div>
       <div style="flex:1 1 200px;">
@@ -29641,7 +29844,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
           <div style="font-weight:700;color:#1a1a1a;">${e('________________________')}</div>
           <div style="color:#555;">${e('Owner / Client Representative')}</div>
           <div style="color:#555;">Date: ${e('_____________')}</div>
-          <div style="color:#888;margin-top:0.2rem;">Approved by</div>
+          <div style="color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
     </div>
@@ -29935,7 +30138,7 @@ function renderStormDrainReport(inputs, r, narrative) {
       <!-- HEADER -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
+          <div style="font-size:0.72rem;font-weight:700;color:#595959;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
           <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Storm Drain / Stormwater Sizing: Rational Method</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
@@ -29944,7 +30147,7 @@ function renderStormDrainReport(inputs, r, narrative) {
             Doc No.: <span class="editable-field" contenteditable="true">PLMB-SD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
           </div>
         </div>
-        <div style="text-align:right;font-size:0.72rem;color:#888;white-space:nowrap;">
+        <div style="text-align:right;font-size:0.72rem;color:#595959;white-space:nowrap;">
           <div style="font-weight:700;">DPWH Drainage Guidelines</div>
           <div>PAGASA IDF | Manning's Eq.</div>
         </div>
@@ -30009,7 +30212,7 @@ function renderStormDrainReport(inputs, r, narrative) {
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Pipe Slope (S)</td>
             <td style="padding:0.35rem 0.5rem;">${e(slope)}% &nbsp;(${Math.round(slope / 100 * 1000) / 1000} m/m)</td>
-            <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">-</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Calculated Min. Diameter</td>
@@ -30106,7 +30309,7 @@ function renderStormDrainReport(inputs, r, narrative) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
             <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Civil / Sanitary Engineer</span></div>
             <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
@@ -30114,7 +30317,7 @@ function renderStormDrainReport(inputs, r, narrative) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
             <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
             <div style="font-size:0.74rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
           </div>
         </div>
         <div>
@@ -30122,7 +30325,7 @@ function renderStormDrainReport(inputs, r, narrative) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
             <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
             <div style="font-size:0.74rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -30158,7 +30361,7 @@ function renderSTPReport(inputs, r, narrative) {
       <!-- HEADER -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
+          <div style="font-size:0.72rem;font-weight:700;color:#595959;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;">DESIGN CALCULATION REPORT</div>
           <!-- heading-allow: standalone calc report template --><h1 class="editable-field" contenteditable="true" style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:#1a1a1a;">${e(proj)}</h1>
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Wastewater Treatment Plant: Activated Sludge</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
@@ -30167,7 +30370,7 @@ function renderSTPReport(inputs, r, narrative) {
             Doc No.: <span class="editable-field" contenteditable="true">PLMB-STP-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
           </div>
         </div>
-        <div style="text-align:right;font-size:0.72rem;color:#888;white-space:nowrap;">
+        <div style="text-align:right;font-size:0.72rem;color:#595959;white-space:nowrap;">
           <div style="font-weight:700;">PSME / DENR DAO 2016-08</div>
           <div>DOH PD 856 | Metcalf & Eddy</div>
         </div>
@@ -30227,12 +30430,12 @@ function renderSTPReport(inputs, r, narrative) {
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Clarifier Surface Area</td>
             <td style="padding:0.35rem 0.5rem;">${e(r.prim_area_m2)} m²</td>
-            <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">-</td>
           </tr>
           <tr>
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Clarifier Diameter</td>
             <td style="padding:0.35rem 0.5rem;">${e(r.prim_dia_m)} m (circular)</td>
-            <td style="padding:0.35rem 0.5rem;color:#555;">—</td>
+            <td style="padding:0.35rem 0.5rem;color:#555;">-</td>
           </tr>
           <tr style="background:#f8f9fa;">
             <td style="padding:0.35rem 0.5rem;font-weight:600;">Hydraulic Detention Time (HDT)</td>
@@ -30471,7 +30674,7 @@ function renderSTPReport(inputs, r, narrative) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span></div>
             <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Sanitary / Mechanical Engineer</span></div>
             <div style="font-size:0.74rem;color:#555;">PRC Lic. No.: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Prepared by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Prepared by</div>
           </div>
         </div>
         <div>
@@ -30479,7 +30682,7 @@ function renderSTPReport(inputs, r, narrative) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
             <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Project Engineer / Manager</span></div>
             <div style="font-size:0.74rem;color:#555;">Company: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Checked by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Checked by</div>
           </div>
         </div>
         <div>
@@ -30487,7 +30690,7 @@ function renderSTPReport(inputs, r, narrative) {
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;"><span class="editable-field" contenteditable="true">_________________________</span></div>
             <div style="font-size:0.74rem;color:#555;"><span class="editable-field" contenteditable="true">Owner / Client Representative</span></div>
             <div style="font-size:0.74rem;color:#555;">Date: <span class="editable-field" contenteditable="true">_____________</span></div>
-            <div style="font-size:0.72rem;color:#888;margin-top:0.2rem;">Approved by</div>
+            <div style="font-size:0.72rem;color:#595959;margin-top:0.2rem;">Approved by</div>
           </div>
         </div>
       </div>
@@ -31515,10 +31718,29 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+// F-3/F-6 (deep-arc P1): counts are DERIVED from CALC_TYPES_UI (single source of truth),
+// never hand-typed. Overwrites the static HTML pill counts + search placeholder at boot so
+// the advertised numbers can't drift from the registry (was: search '53', HVAC pill '11', truth 55).
+function syncCalcCounts() {
+  const total = Object.values(CALC_TYPES_UI).flat().length;
+  document.querySelectorAll('.discipline-pill').forEach(pill => {
+    const disc  = pill.getAttribute('data-disc');
+    const badge = pill.querySelector('.pill-count');
+    if (badge) badge.textContent = (CALC_TYPES_UI[disc] || []).length;
+  });
+  const search = document.getElementById('calc-search');
+  if (search) {
+    const ph = `Search all ${total} calculations…`;
+    search.setAttribute('placeholder', ph);
+    search.setAttribute('aria-label', ph);
+  }
+}
+
 async function init() {
   // C4: restore identity from auth session on new device
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
+  syncCalcCounts();
   const _engChip = document.getElementById('eng-source-chip');
   if (_engChip && typeof renderSourceChip === 'function') {
     _engChip.innerHTML = renderSourceChip({

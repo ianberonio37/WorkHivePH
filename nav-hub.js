@@ -102,6 +102,20 @@
     document.head.appendChild(f);
   }
 
+  // ─── learn-link.js: connect this feature PAGE back to its /learn/ GUIDE
+  // (Ian 2026-07-07: "my feature pages and landing page are complete strangers").
+  // A one-tap, dismissible "Read the guide" pill on every tool page, sourced from
+  // /learn_links.json. Absolute src so it loads at any page depth; the script
+  // itself no-ops on the learn hub + inside articles. Defensive, never blocks.
+  if (!document.querySelector('script[data-wh-learn-link]') &&
+      !document.querySelector('script[src*="learn-link.js"]')) {
+    const ll = document.createElement('script');
+    ll.src = '/learn-link.js';
+    ll.async = true;
+    ll.setAttribute('data-wh-learn-link', '1');
+    document.head.appendChild(ll);
+  }
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
   // roles: undefined = universal (visible in every mode) | array = visible only in those modes
@@ -282,8 +296,127 @@
   let isOpen   = false;
   const current = getCurrentTool();
 
+  // ─── Community activity badge (cross-page, mirrors the companion FAB nudge) ────
+  // How many new community posts/replies (by OTHERS) have landed in this worker's
+  // hive since they last opened community.html. Read-only, best-effort, hive-scoped.
+  let _communityUnread = 0;
+
+  // Real Supabase client resolver — same singleton discipline as companion-launcher's
+  // _whClient(): prefer the page's built client, else build the getDb() singleton.
+  // Returns null (→ no badge, no console 401) if supabase-js/getDb aren't ready.
+  function _whNavClient() {
+    try {
+      if (typeof window === 'undefined') return null;
+      if (window._whSupabaseClient && window._whSupabaseClient.functions) return window._whSupabaseClient;
+      if (typeof window.getDb === 'function' && window.supabase) {
+        const url = window.WH_SUPABASE_URL || 'https://hzyvnjtisfgbksicrouu.supabase.co';
+        const key = window.WH_SUPABASE_ANON_KEY || 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
+        return window.getDb(url, key);
+      }
+    } catch (_) { /* empty-catch-allow: best-effort, fall back to no badge */ }
+    return null;
+  }
+
+  // Paint (or clear) the FAB dot + Community-tile count pill from _communityUnread.
+  // Idempotent + re-run after rebuildToolGrids() so a mode switch keeps the badge.
+  function _paintCommunityBadges() {
+    const hub = document.getElementById('wh-hub');
+    if (!hub) return;
+    const n = _communityUnread;
+    const label = n > 9 ? '9+' : String(n);
+    // Every Community tile in the panel (Recent quick row + All Tools grid).
+    hub.querySelectorAll('a[href="community.html"]').forEach(function (tile) {
+      let b = tile.querySelector('.wh-hub-tile-badge');
+      if (n > 0) {
+        if (!b) {
+          if (getComputedStyle(tile).position === 'static') tile.style.position = 'relative';
+          b = document.createElement('span');
+          b.className = 'wh-hub-tile-badge';
+          b.setAttribute('aria-hidden', 'true');
+          tile.appendChild(b);
+        }
+        b.textContent = label;
+      } else if (b) {
+        b.remove();
+      }
+    });
+    // FAB dot + accessible label (screen readers get the count via aria-label).
+    const fab = document.getElementById('wh-hub-fab');
+    if (fab) {
+      let dot = document.getElementById('wh-hub-fab-dot');
+      if (n > 0) {
+        if (!dot) {
+          dot = document.createElement('span');
+          dot.id = 'wh-hub-fab-dot';
+          dot.setAttribute('aria-hidden', 'true');
+          fab.appendChild(dot);
+        }
+        fab.setAttribute('aria-label', 'Open navigation hub: ' + label + ' new in Community');
+      } else {
+        if (dot) dot.remove();
+        fab.setAttribute('aria-label', 'Open navigation hub');
+      }
+    }
+  }
+
+  // Count new community activity (by others) since the per-hive last-seen stamp
+  // written by community.html. Two COUNT-only queries (head:true) → cheap. Fails
+  // closed (no session / no hive / client not ready) so signed-out + landing pages
+  // never query or 401. Skips the badge on community.html itself (it self-clears).
+  async function checkCommunityActivity() {
+    try {
+      if (current && Array.isArray(current.match) && current.match.indexOf('community') !== -1) return;
+      const db = _whNavClient();
+      if (!db || !db.from) return;
+      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+      if (!hiveId) return;
+      let sess = null;
+      try { sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { sess = null; }
+      if (!sess) return; // fail closed — never fire an RLS-gated read without a JWT
+      const worker = (typeof window.restoreIdentityFromSession === 'function')
+        ? await window.restoreIdentityFromSession(db)
+        : (localStorage.getItem('wh_last_worker') || '');
+      // Baseline: if never seen, look back 3 days so a returning worker sees recent
+      // activity without being flooded. community.html stamps the real time on visit.
+      const seenKey = 'wh_community_last_seen:' + hiveId;
+      let since = localStorage.getItem(seenKey);
+      if (!since) since = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+      let postQ = db.from('v_community_posts_truth')
+        .select('id', { count: 'exact', head: true })
+        .eq('hive_id', hiveId).is('deleted_at', null).gt('created_at', since);
+      // canonical-allow: community_replies is forum thread detail (unread-badge reply COUNT for the hive) - single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
+      let replyQ = db.from('community_replies')
+        .select('post_id', { count: 'exact', head: true })
+        .eq('hive_id', hiveId).gt('created_at', since);
+      if (worker) { postQ = postQ.neq('author_name', worker); replyQ = replyQ.neq('author_name', worker); }
+      const [pr, rr] = await Promise.all([postQ, replyQ]);
+      const pc = (pr && typeof pr.count === 'number') ? pr.count : 0;
+      const rc = (rr && typeof rr.count === 'number') ? rr.count : 0;
+      _communityUnread = Math.max(0, pc + rc);
+      _paintCommunityBadges();
+    } catch (_) { /* empty-catch-allow: activity badge is best-effort */ }
+  }
+
+  // Wait for the page to build its Supabase client (many pages create it lazily),
+  // then run the activity check once. Bounded retries so it never spins.
+  function scheduleCommunityCheck() {
+    let tries = 0;
+    (function attempt() {
+      tries++;
+      if (_whNavClient()) { checkCommunityActivity(); return; }
+      if (tries < 4) setTimeout(attempt, 1200);
+    })();
+  }
+
   // ─── Build Widget ─────────────────────────────────────────────────────────────
   function buildWidget() {
+    // N1 safe translator. utils.js installs the locale floor (window._t + WH_LANG) and
+    // loads BEFORE this file on every page that has both, so _t is normally present; the
+    // pass-through keeps a page that somehow lacks it rendering EN rather than throwing.
+    // This nav hub is the platform's most-shared chrome (31 pages) -- translating it here
+    // is the design-system lever: ONE edit, 31 pages, instead of 31 page edits that drift.
+    // Brand ("WorkHive"), the Ctrl-K shortcut and the page label are DATA/identity: EN.
+    const _tt = (typeof window._t === 'function') ? window._t : function (en) { return en; };
     const wrapper = document.createElement('div');
     wrapper.id = 'wh-hub';
 
@@ -382,6 +515,39 @@
         }
         #wh-hub:not(.hub-open) #wh-hub-fab:hover #wh-hub-current-label { opacity: 1; }
 
+        /* ── Community activity: unread dot on the FAB + count pill on the tile ──
+           Mirrors the companion FAB nudge. The dot signals "something new lives in
+           your tools" without opening the hub; the tile pill says exactly where. */
+        #wh-hub-fab-dot {
+          position: absolute;
+          top: -3px; right: -3px;
+          width: 13px; height: 13px;
+          border-radius: 50%;
+          background: #F7A21B;
+          border: 2px solid #162032;
+          box-shadow: 0 0 0 0 rgba(247,162,27,0.5);
+          animation: wh-hub-dot-pulse 1.8s ease-in-out infinite;
+          pointer-events: none;
+        }
+        @keyframes wh-hub-dot-pulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(247,162,27,0.45); }
+          50%     { box-shadow: 0 0 0 5px rgba(247,162,27,0); }
+        }
+        @media (max-width: 767px) { #wh-hub-fab-dot { animation: none; } }
+        .wh-hub-tile-badge {
+          position: absolute;
+          top: 5px; right: 5px;
+          min-width: 16px; height: 16px;
+          padding: 0 4px;
+          border-radius: 8px;
+          background: #F7A21B;
+          color: #10192B;
+          font-size: 9px; font-weight: 700; line-height: 16px;
+          text-align: center;
+          font-family: 'Poppins', sans-serif;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
         /* ── Panel ── */
         #wh-hub-panel {
           position: absolute;
@@ -416,7 +582,7 @@
         #wh-hub-panel-header span {
           font-size: 11px;
           font-weight: 600;
-          color: rgba(255,255,255,0.3);
+          color: rgba(255,255,255,0.6); /* WCAG AA */
           letter-spacing: 0.08em;
           text-transform: uppercase;
         }
@@ -430,7 +596,7 @@
         /* ── Section labels ── */
         .wh-hub-section-label {
           font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-          text-transform: uppercase; color: rgba(255,255,255,0.25);
+          text-transform: uppercase; color: rgba(255,255,255,0.6); /* WCAG AA contrast over dark bg */
           margin: 0 0 8px;
         }
         /* Section breaks inside the all-tools grid span all columns */
@@ -471,7 +637,7 @@
         .wh-hub-quick-tile.active .wh-hub-quick-icon { color: #F7A21B; }
         .wh-hub-quick-icon { color: rgba(255,255,255,0.7); display:flex; }
         .wh-hub-quick-label {
-          font-size: 9px; color: rgba(255,255,255,0.45); font-weight: 500;
+          font-size: 9px; color: rgba(255,255,255,0.72); font-weight: 500; /* WCAG AA: 0.6 measured 4.32:1 (<4.5), 0.72 clears it */
           text-align: center; line-height: 1.2; font-family: 'Poppins', sans-serif;
         }
         .wh-hub-quick-tile.active .wh-hub-quick-label { color: #F7A21B; }
@@ -508,18 +674,18 @@
           font-family: 'Poppins', sans-serif; outline: none;
           transition: border-color 0.15s, background 0.15s;
         }
-        #wh-hub-search::placeholder { color: rgba(255,255,255,0.3); }
+        #wh-hub-search::placeholder { color: rgba(255,255,255,0.6); } /* WCAG AA */
         #wh-hub-search:focus {
           border-color: rgba(247,162,27,0.5); background: rgba(255,255,255,0.09);
         }
         #wh-hub-search-icon {
           position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-          color: rgba(255,255,255,0.3); pointer-events: none; display: flex;
+          color: rgba(255,255,255,0.6); pointer-events: none; display: flex;
         }
         #wh-hub-search-kbd {
           position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
           background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 4px; padding: 1px 5px; font-size: 9px; color: rgba(255,255,255,0.3);
+          border-radius: 4px; padding: 1px 5px; font-size: 9px; color: rgba(255,255,255,0.75); /* C2 AA: 0.6=4.41:1 on the chip bg */
           font-family: monospace; pointer-events: none;
         }
         #wh-hub-no-results {
@@ -592,7 +758,7 @@
         .wh-hub-tile-label {
           font-size: 10px;
           font-weight: 600;
-          color: rgba(255,255,255,0.5);
+          color: rgba(255,255,255,0.72); /* C2 WCAG AA: 0.5 measured 4.32:1 (<4.5) on the panel; 0.72 clears it */
           text-align: center;
           letter-spacing: 0.02em;
           line-height: 1.2;
@@ -630,7 +796,7 @@
           background: transparent;
           border: none;
           border-radius: 7px;
-          color: rgba(255,255,255,0.4);
+          color: rgba(255,255,255,0.6); /* WCAG AA contrast over dark bg */
           font-family: inherit;
           font-size: 10px;
           font-weight: 600;
@@ -671,7 +837,7 @@
       </button>
 
       <!-- Panel -->
-      <div id="wh-hub-panel" role="dialog" aria-label="Navigation hub">
+      <div id="wh-hub-panel" role="dialog" aria-label="${_tt('Navigation hub', 'Nabigasyon')}">
         <div id="wh-hub-panel-header">
           <span>WorkHive</span>
           <strong>${current.label}</strong>
@@ -680,7 +846,7 @@
         <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
         <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:#F7A21B; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="Open global search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span style="flex:1;">Search assets, jobs, parts, PMs</span>
+          <span style="flex:1;">${_tt('Search assets, jobs, parts, PMs', 'Maghanap ng assets, trabaho, parts, PM')}</span>
           <span style="font-size:9px; font-weight:700; padding:2px 5px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:4px;">⌘K</span>
         </button>
 
@@ -707,15 +873,15 @@
 
         <!-- Recent row -->
         <div id="wh-hub-quick">
-          <p class="wh-hub-section-label">Recent</p>
+          <p class="wh-hub-section-label">${_tt('Recent', 'Kamakailan')}</p>
           <div id="wh-hub-quick-row">${quickHTML}</div>
         </div>
 
         <div class="wh-hub-divider"></div>
 
         <!-- All Tools — 4-col grid, always visible, scrollable -->
-        <p class="wh-hub-section-label">All Tools</p>
-        <div id="wh-hub-no-results">No tools match your search.</div>
+        <p class="wh-hub-section-label">${_tt('All Tools', 'Lahat ng Tools')}</p>
+        <div id="wh-hub-no-results">${_tt('No tools match your search.', 'Walang tool na tumugma sa paghahanap.')}</div>
         <div id="wh-hub-tiles" role="region">${tilesHTML}</div>
       </div>
     `;
@@ -948,6 +1114,10 @@
 
       // Empty state — if mode filter eliminates everything visible (rare)
       if (noResults) noResults.style.display = visible.length ? 'none' : 'block';
+
+      // Re-apply the community unread badge — the grid + Recent row were just
+      // re-rendered, so the freshly-created Community tile has no badge yet.
+      _paintCommunityBadges();
     }
 
     function filterTools(q) {
@@ -987,6 +1157,9 @@
     buildWidget();
     loadSavedPosition();
     wireEvents();
+    // Cross-page community unread badge — mirrors the companion FAB nudge. Deferred
+    // so the page can finish building its Supabase client + restoring the session.
+    setTimeout(scheduleCommunityCheck, 800);
   }
 
   if (document.readyState === 'loading') {

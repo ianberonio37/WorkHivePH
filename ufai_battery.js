@@ -215,7 +215,7 @@
         for (const v of r.violations) {
           defects.push(defect('U', 'axe:' + v.id, null,
             `${v.nodes.length} node(s): ${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' | ')}`,
-            'no WCAG 2.2 AA violation', v.help + ' — ' + v.helpUrl,
+            'no WCAG 2.2 AA violation', v.help + '-' + v.helpUrl,
             v.impact === 'critical' || v.impact === 'serious' ? 'Major' : 'Minor'));
         }
       } catch (e) { axe = { ran: false, err: String(e) }; }
@@ -424,14 +424,18 @@
       hrefs.add(h);
     }
     const broken = [];
+    // use the page's bounded fetch so a hung server can't strand the link sweep
+    const _f = (typeof window.fetchWithTimeout === 'function') ? window.fetchWithTimeout : ((u, o) => fetch(u, o).catch(() => null));
+    const _ok = async (href) => { try { const r = await _f(href, { method: 'HEAD' }, 5000); return !!r && r.status < 400; } catch (e) { return false; } };
+    const onMount = location.pathname.startsWith('/workhive/');
     await Promise.all([...hrefs].slice(0, 40).map(async (h) => {
-      try {
-        const url = new URL(h, location.href);
-        // use the page's bounded fetch so a hung server can't strand the link sweep
-        const _f = (typeof window.fetchWithTimeout === 'function') ? window.fetchWithTimeout : ((u, o) => fetch(u, o));
-        const r = await _f(url.href, { method: 'HEAD' }, 5000);
-        if (r && r.status >= 400) broken.push({ href: h, status: r.status });
-      } catch (e) { broken.push({ href: h, status: 'fetch-err' }); }
+      const url = new URL(h, location.href);
+      let ok = await _ok(url.href);
+      // A ROOT-absolute href (/x.html) is prod-correct (prod mounts at root) but resolves to
+      // the bare root here, 404-ing against the local /workhive/ mount. Count it broken only if
+      // it resolves at NEITHER the literal path NOR the /workhive/-mounted path (dual-mount check).
+      if (!ok && onMount && h.startsWith('/')) ok = await _ok(new URL('/workhive' + h, origin).href);
+      if (!ok) broken.push({ href: h, status: 'both-404' });
     }));
     for (const b of broken) defects.push(defect('F', 'broken-internal-link', null, `${b.href} → ${b.status}`, '200', 'fix or remove the dead internal link', 'Major'));
     metrics.links = { checked: Math.min(hrefs.size, 40), broken: broken.length };
@@ -471,7 +475,13 @@
 
     // secret/token exposure — JWT/sk-/private-key shapes in DOM text or storage.
     // The Supabase ANON key is PUBLIC by design → not a leak; flag other shapes.
-    const secretRe = /\b(sk-[A-Za-z0-9]{20,}|sk_live_[A-Za-z0-9]{10,}|AIza[0-9A-Za-z\-_]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|service_role)\b/;
+    // service_role: match the CREDENTIAL SHAPE, not the bare English word. The word
+    // "service_role" legitimately appears in security prose (founder-console's
+    // self-test label "…gated OR service_role-only"); flagging that is a false leak
+    // ([[feedback_classify_by_evidence_not_heuristic]]). A REAL leak is the decoded
+    // role-claim, an env-var key name, or service_role adjacent to a JWT token —
+    // never the noun on its own.
+    const secretRe = /(sk-[A-Za-z0-9]{20,}|sk_live_[A-Za-z0-9]{10,}|AIza[0-9A-Za-z\-_]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"role"\s*:\s*"service_role"|service_role[_-]?key\b|SERVICE_ROLE_KEY|service_role['"]?\s*[:=]\s*['"]?eyJ)/i;
     const exposures = [];
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -771,7 +781,7 @@
   function inventory({ pageId = 'page' } = {}) {
     const norm = (s) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
     // the value a tile renders (its first value-leaf) — enriches the fingerprint
-    // with the LIVE source a static parse can't see (e.g. "3 overdue" vs "—").
+    // with the LIVE source a static parse can't see (e.g. "3 overdue" vs "-").
     const valueOf = (el) => {
       const v = el.querySelector('.sc-hero,.stat-value,.kpi-value,[data-value],output,.value,.metric-value,.hero-num');
       return v ? norm(v.textContent).slice(0, 40) : null;

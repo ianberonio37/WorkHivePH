@@ -1,11 +1,11 @@
 # Sentinel Proposals (v1.4 - check-level)
 
-Generated for 33 uncovered CHECK(s) across 7 per-page validators. Each check is one rule
+Generated for 54 uncovered CHECK(s) across 11 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 88.0% (265 of 301 per-page checks - HONEST behavioral coverage)
+**Check coverage:** 82.5% (269 of 326 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 93.2% (41 of 44 per-page validators - loose, validator-level)
-**Raw coverage:** 79.2% (305 of 385 validators)
+**Raw coverage:** 77.4% (309 of 399 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -138,12 +138,80 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #4: `validate_logbook.py`  -  1 check(s) untested
+## Validator #4: `validate_inventory.py`  -  1 check(s) untested
+
+**Label:** validate_inventory  
+**Likely surface:** inventory.html  
+**Reference pattern:** journey-inventory.spec.ts  
+**Already covered (13):** `auth_gate`, `delete_scoped`, `highlight_escapes`, `hive_id_in_add_transaction`, `hive_id_on_save_payload`, `qty_after_in_transactions`, `status_transitions`, `supervisor_approval_writes`, `supervisor_`
+
+### Uncovered checks (1)
+
+Each line is one rule that needs a Playwright scenario. The check name
+(in backticks) MUST appear in the test() name so the next sentinel run
+matches the new scenario to the rule.
+
+- `stock_state_facet`
+
+### LLM prompt
+
+```
+You are extending Layer 2 of the WorkHive platform.
+
+Validator `validate_inventory.py` (target: `inventory.html`) declares 1
+rules that have NO Playwright test exercising them:
+  - stock_state_facet
+
+Read `inventory.html` for selectors, form IDs, routes.
+Match the canonical pattern in `tests/journey-inventory.spec.ts` (imports from './_fixtures' + './_helpers', uses whPage + testMarker).
+
+Propose ONE test() block per check above. Each test()'s name MUST
+start with the check name (e.g. `test('approval_channel_events: ...', ...)`)
+so the next sentinel run automatically marks the check as covered.
+```
+
+---
+
+## Validator #5: `validate_inventory_integrity.py`  -  1 check(s) untested
+
+**Label:** validate_inventory_integrity.py — Inventory data quality checks.  
+**Likely surface:** inventory.html  
+**Reference pattern:** journey-inventory.spec.ts  
+**Already covered (5):** `min_qty_positive`, `no_negative_qty`, `qty_after_accuracy`, `txn_item_refs`, `txn_type_valid`
+
+### Uncovered checks (1)
+
+Each line is one rule that needs a Playwright scenario. The check name
+(in backticks) MUST appear in the test() name so the next sentinel run
+matches the new scenario to the rule.
+
+- `asset_bom_coverage`
+
+### LLM prompt
+
+```
+You are extending Layer 2 of the WorkHive platform.
+
+Validator `validate_inventory_integrity.py` (target: `inventory.html`) declares 1
+rules that have NO Playwright test exercising them:
+  - asset_bom_coverage
+
+Read `inventory.html` for selectors, form IDs, routes.
+Match the canonical pattern in `tests/journey-inventory.spec.ts` (imports from './_fixtures' + './_helpers', uses whPage + testMarker).
+
+Propose ONE test() block per check above. Each test()'s name MUST
+start with the check name (e.g. `test('approval_channel_events: ...', ...)`)
+so the next sentinel run automatically marks the check as covered.
+```
+
+---
+
+## Validator #6: `validate_logbook.py`  -  1 check(s) untested
 
 **Label:** validate_logbook  
 **Likely surface:** logbook.html  
 **Reference pattern:** journey-logbook.spec.ts  
-**Already covered (24):** `auth_gate`, `await_in_non_async`, `category_values`, `closed_at_consistency`, `closed_at_preservation`, `delete_scoped_by_worker`, `edit_in_place`, `highlight_escapes`, `hive_id_in_txn_insert`, `machi`
+**Already covered (28):** `audit_trail_wiring`, `auth_gate`, `await_in_non_async`, `category_values`, `closed_at_consistency`, `closed_at_preservation`, `delete_scoped_by_worker`, `edit_in_place`, `entry_kind_readings_shaping`,`
 
 ### Uncovered checks (1)
 
@@ -172,7 +240,75 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #5: `validate_notifications.py`  -  1 check(s) untested
+## Validator #7: `validate_marketplace.py`  -  18 check(s) untested
+
+**Label:** validate_marketplace  
+**Likely surface:** marketplace.html  
+**Reference pattern:** journey-marketplace.spec.ts  
+**Already covered (1):** `tables_defined`
+
+### Uncovered checks (18)
+
+Each line is one rule that needs a Playwright scenario. The check name
+(in backticks) MUST appear in the test() name so the next sentinel run
+matches the new scenario to the rule.
+
+- `admin_supervisor_gate`
+- `ai_listing_assist`
+- `check_constraints`
+- `inquiry_insert_sets_seller_name`
+- `migration_timestamps_unique`
+- `parts_for_assets_guarded`
+- `partsflow_bridge_schema`
+- `partsflow_bridge_ui`
+- `price_comps_grounded`
+- `reviews_rls_locked`
+- `saved_search_alerts_selfscoped`
+- `search_uses_existing_columns`
+- `seller_identity_gate`
+- `seller_trust_guard`
+- `storage_bucket_defined`
+- `storage_delete_owner_scoped`
+- `subpage_path_ordering`
+- `triggers_present`
+
+### LLM prompt
+
+```
+You are extending Layer 2 of the WorkHive platform.
+
+Validator `validate_marketplace.py` (target: `marketplace.html`) declares 18
+rules that have NO Playwright test exercising them:
+  - admin_supervisor_gate
+  - ai_listing_assist
+  - check_constraints
+  - inquiry_insert_sets_seller_name
+  - migration_timestamps_unique
+  - parts_for_assets_guarded
+  - partsflow_bridge_schema
+  - partsflow_bridge_ui
+  - price_comps_grounded
+  - reviews_rls_locked
+  - saved_search_alerts_selfscoped
+  - search_uses_existing_columns
+  - seller_identity_gate
+  - seller_trust_guard
+  - storage_bucket_defined
+  - storage_delete_owner_scoped
+  - subpage_path_ordering
+  - triggers_present
+
+Read `marketplace.html` for selectors, form IDs, routes.
+Match the canonical pattern in `tests/journey-marketplace.spec.ts` (imports from './_fixtures' + './_helpers', uses whPage + testMarker).
+
+Propose ONE test() block per check above. Each test()'s name MUST
+start with the check name (e.g. `test('approval_channel_events: ...', ...)`)
+so the next sentinel run automatically marks the check as covered.
+```
+
+---
+
+## Validator #8: `validate_notifications.py`  -  1 check(s) untested
 
 **Label:** validate_notifications  
 **Likely surface:** hive.html  
@@ -205,7 +341,7 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #6: `validate_reliability_workbench.py`  -  16 check(s) untested
+## Validator #9: `validate_reliability_workbench.py`  -  16 check(s) untested
 
 **Label:** validate_reliability_workbench  
 **Likely surface:** asset-hub.html  
@@ -268,7 +404,7 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #7: `validate_renderers.py`  -  3 check(s) untested
+## Validator #10: `validate_renderers.py`  -  3 check(s) untested
 
 **Label:** validate_renderers  
 **Likely surface:** engineering-design.html  
@@ -305,6 +441,40 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
+## Validator #11: `validate_skillmatrix.py`  -  1 check(s) untested
+
+**Label:** validate_skillmatrix  
+**Likely surface:** skillmatrix.html  
+**Reference pattern:** journey-skillmatrix.spec.ts  
+**Already covered (14):** `answer_index_valid`, `auth_gate`, `cooldown_on_failure`, `discipline_colors`, `discipline_icons`, `draft_cleanup`, `esc_html_dynamic`, `exam_array_count`, `exam_question_counts`, `level_content_comple`
+
+### Uncovered checks (1)
+
+Each line is one rule that needs a Playwright scenario. The check name
+(in backticks) MUST appear in the test() name so the next sentinel run
+matches the new scenario to the rule.
+
+- `badge_award_server_side`
+
+### LLM prompt
+
+```
+You are extending Layer 2 of the WorkHive platform.
+
+Validator `validate_skillmatrix.py` (target: `skillmatrix.html`) declares 1
+rules that have NO Playwright test exercising them:
+  - badge_award_server_side
+
+Read `skillmatrix.html` for selectors, form IDs, routes.
+Match the canonical pattern in `tests/journey-skillmatrix.spec.ts` (imports from './_fixtures' + './_helpers', uses whPage + testMarker).
+
+Propose ONE test() block per check above. Each test()'s name MUST
+start with the check name (e.g. `test('approval_channel_events: ...', ...)`)
+so the next sentinel run automatically marks the check as covered.
+```
+
+---
+
 
 ---
 
@@ -317,14 +487,17 @@ page would just duplicate the validator with 50x the runtime.
 - `validate_optimistic_ui.py` (no named checks) - validate_optimistic_ui
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (75)
+## Infrastructure gaps (85)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
 layer; no Playwright scenario is needed.
 
+- `validate_api_adoption.py` (no named checks) - validate_api_adoption
 - `validate_atomic_writes.py` (no named checks) - validate_atomic_writes
+- `validate_au_adoption.py` (no named checks) - validate_au_adoption
 - `validate_auto_discovery.py` (no named checks) - validate_auto_discovery
+- `validate_av_adoption.py` (no named checks) - validate_av_adoption
 - `validate_avatar_state_phase10.py` (no named checks) - validate_avatar_state_phase10
 - `validate_bundle_bloat.py` (4 checks) - validate_bundle_bloat
 - `validate_button_type_in_form.py` (1 checks) - validate_button_type_in_form
@@ -333,6 +506,7 @@ layer; no Playwright scenario is needed.
 - `validate_circuit_breaker.py` (no named checks) - validate_circuit_breaker
 - `validate_clone_debt.py` (no named checks) - validate_clone_debt
 - `validate_cold_start_memoization.py` (4 checks) - validate_cold_start_memoization
+- `validate_component_adoption.py` (no named checks) - validate_component_adoption
 - `validate_connection_pool_saturation.py` (1 checks) - validate_connection_pool_saturation
 - `validate_contact_consistency.py` (3 checks) - validate_contact_consistency
 - `validate_cors_wildcard.py` (4 checks) - validate_cors_wildcard
@@ -342,6 +516,7 @@ layer; no Playwright scenario is needed.
 - `validate_data_retention.py` (4 checks) - validate_data_retention
 - `validate_dataloss_detection.py` (no named checks) - validate_dataloss_detection
 - `validate_date_arithmetic.py` (4 checks) - validate_date_arithmetic
+- `validate_db_adoption.py` (no named checks) - validate_db_adoption
 - `validate_dedup_constraints.py` (no named checks) - validate_dedup_constraints
 - `validate_deeplink_param_contracts.py` (1 checks) - validate_deeplink_param_contracts
 - `validate_degraded_mode.py` (no named checks) - validate_degraded_mode
@@ -361,6 +536,8 @@ layer; no Playwright scenario is needed.
 - `validate_game_day_readiness.py` (1 checks) - validate_game_day_readiness
 - `validate_gateway_coverage.py` (4 checks) - validate_gateway_coverage
 - `validate_gateway_tenancy.py` (no named checks) - validate_gateway_tenancy
+- `validate_grafana_reader_reads.py` (2 checks) - validate_grafana_reader_reads
+- `validate_idempotency.py` (14 checks) - validate_idempotency
 - `validate_industry_defining.py` (8 checks) - validate_industry_defining.py — Phase 6 of STRATEGIC_ROADMAP.
 - `validate_integration.py` (no named checks) - validate_integration
 - `validate_iot_protocols.py` (6 checks) - validate_iot_protocols
@@ -373,14 +550,17 @@ layer; no Playwright scenario is needed.
 - `validate_migration_immutability.py` (4 checks) - validate_migration_immutability
 - `validate_migration_immutability_strict.py` (1 checks) - validate_migration_immutability_strict
 - `validate_multilingual_phase11.py` (no named checks) - validate_multilingual_phase11
+- `validate_no_em_dash.py` (no named checks) - validate_no_em_dash
 - `validate_openapi_sync.py` (1 checks) - validate_openapi_sync
+- `validate_ops_snapshot_agents.py` (no named checks) - validate_ops_snapshot_agents
 - `validate_pdf_pipeline.py` (4 checks) - validate_pdf_pipeline
 - `validate_perf_scale.py` (no named checks) - validate_perf_scale
-- `validate_pii_egress.py` (4 checks) - validate_pii_egress
+- `validate_pii_egress.py` (5 checks) - validate_pii_egress
 - `validate_playwright_coverage.py` (4 checks) - validate_playwright_coverage
 - `validate_playwright_staleness.py` (3 checks) - validate_playwright_staleness
 - `validate_prod_path_leak.py` (no named checks) - validate_prod_path_leak
 - `validate_rate_limit_fairness.py` (1 checks) - validate_rate_limit_fairness
+- `validate_reasoning_scaffold_strip.py` (no named checks) - validate_reasoning_scaffold_strip
 - `validate_render_budget.py` (1 checks) - validate_render_budget
 - `validate_reproducible_build_pin.py` (1 checks) - validate_reproducible_build_pin
 - `validate_reset_coverage.py` (2 checks) - validate_reset_coverage
@@ -390,13 +570,13 @@ layer; no Playwright scenario is needed.
 - `validate_seeder_insert_columns.py` (1 checks) - validate_seeder_insert_columns
 - `validate_sentinel_baseline.py` (no named checks) - validate_sentinel_baseline.py - forward-only ratchet on sentinel coverage.
 - `validate_sitemap_sync.py` (3 checks) - validate_sitemap_sync
+- `validate_slo_rollup.py` (2 checks) - validate_slo_rollup
 - `validate_soft_delete.py` (1 checks) - validate_soft_delete
 - `validate_supabase_object_existence.py` (1 checks) - validate_supabase_object_existence
 - `validate_supabase_singleton.py` (2 checks) - validate_supabase_singleton
 - `validate_tester_coverage.py` (no named checks) - validate_tester_coverage
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
-- `validate_validator_freshness.py` (2 checks) - validate_validator_freshness
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 - `validate_verified_state_wiring.py` (1 checks) - validate_verified_state_wiring
 
-_Generated 7 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 75 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 85 infrastructure._

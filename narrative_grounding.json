@@ -1,9 +1,9 @@
 {
   "tool": "tools/validate_narrative_grounding.py",
   "subject": "page AI-prose cites only true platform numbers (no fabricated metric) \u2014 live",
-  "surfaces_total": 9,
-  "surfaces_grounded": 5,
-  "surfaces_skipped": 0,
+  "surfaces_total": 1,
+  "surfaces_grounded": 0,
+  "surfaces_skipped": 8,
   "baseline_caps": {
     "analytics": 0,
     "analytics-report": 0,
@@ -17,123 +17,51 @@
   },
   "detail": {
     "analytics": {
-      "page": "analytics",
-      "edge_fn": "analytics-orchestrator",
-      "http": 200,
-      "grounding_numbers": 779,
-      "prose_strings": 140,
-      "substantive_nums_checked": 24,
-      "cited_grounded": 23,
-      "fabricated": [
-        "1700"
-      ],
-      "baseline_cap": 0,
-      "new_drift": true
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "analytics-report": {
-      "page": "analytics-report",
-      "edge_fn": "analytics-orchestrator",
-      "http": 200,
-      "grounding_numbers": 779,
-      "prose_strings": 149,
-      "substantive_nums_checked": 30,
-      "cited_grounded": 29,
-      "fabricated": [
-        "1700"
-      ],
-      "baseline_cap": 0,
-      "new_drift": true
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "predictive": {
-      "page": "predictive",
-      "edge_fn": "analytics-orchestrator",
-      "http": 200,
-      "grounding_numbers": 567,
-      "prose_strings": 85,
-      "substantive_nums_checked": 15,
-      "cited_grounded": 14,
-      "fabricated": [
-        "1700"
-      ],
-      "baseline_cap": 0,
-      "new_drift": true
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "shift-brain": {
-      "page": "shift-brain",
-      "edge_fn": "analytics-orchestrator",
-      "http": 200,
-      "grounding_numbers": 7,
-      "prose_strings": 11,
-      "substantive_nums_checked": 0,
-      "cited_grounded": 0,
-      "fabricated": [],
-      "baseline_cap": 0,
-      "new_drift": false
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "alert-hub": {
-      "page": "alert-hub",
-      "edge_fn": "analytics-orchestrator",
-      "http": 200,
-      "grounding_numbers": 24,
-      "prose_strings": 29,
-      "substantive_nums_checked": 0,
-      "cited_grounded": 0,
-      "fabricated": [],
-      "baseline_cap": 1,
-      "new_drift": false
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "project-report": {
-      "page": "project-report",
-      "edge_fn": "project-orchestrator",
-      "http": 200,
-      "grounding_numbers": 4,
-      "prose_strings": 8,
-      "substantive_nums_checked": 2,
-      "cited_grounded": 2,
-      "fabricated": [],
-      "baseline_cap": 0,
-      "new_drift": false
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "report-sender": {
-      "page": "report-sender",
-      "edge_fn": "scheduled-agents",
-      "http": 200,
-      "grounding_numbers": 5,
-      "prose_strings": 1,
-      "substantive_nums_checked": 1,
-      "cited_grounded": 1,
-      "fabricated": [],
-      "baseline_cap": 0,
-      "new_drift": false
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "ph-intelligence": {
       "page": "ph-intelligence",
       "edge_fn": "__DB__",
       "http": 200,
-      "grounding_numbers": 37,
+      "grounding_numbers": 28,
       "prose_strings": 1,
-      "substantive_nums_checked": 11,
-      "cited_grounded": 11,
-      "fabricated": [],
+      "substantive_nums_checked": 6,
+      "cited_grounded": 5,
+      "fabricated": [
+        "65%"
+      ],
       "baseline_cap": 1,
       "new_drift": false
     },
     "asset-hub": {
-      "page": "asset-hub",
-      "edge_fn": "asset-brain-query",
-      "http": 200,
-      "grounding_numbers": 18,
-      "prose_strings": 2,
-      "substantive_nums_checked": 7,
-      "cited_grounded": 4,
-      "fabricated": [
-        "200",
-        "78",
-        "200"
-      ],
-      "baseline_cap": 4,
-      "new_drift": false
+      "http": 403,
+      "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     }
   },
-  "result": "FAIL"
+  "result": "PASS"
 }

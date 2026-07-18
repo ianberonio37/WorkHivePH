@@ -1,10 +1,10 @@
 {
   "summary": {
     "files_scanned": 66,
-    "total_calls": 40,
+    "total_calls": 36,
     "total_drift": 0,
     "baseline": 0,
-    "edge_fns_known": 61
+    "edge_fns_known": 57
   },
   "per_page": [
     {
@@ -76,10 +76,6 @@
       "broken": []
     },
     {
-      "page": "platform-health.html",
-      "broken": []
-    },
-    {
       "page": "project-manager.html",
       "broken": []
     },
@@ -93,10 +89,6 @@
     },
     {
       "page": "project-report.html",
-      "broken": []
-    },
-    {
-      "page": "predictive.html",
       "broken": []
     },
     {
@@ -184,6 +176,10 @@
       "broken": []
     },
     {
+      "page": "learn-link.js",
+      "broken": []
+    },
+    {
       "page": "maturity-gate.js",
       "broken": []
     },
@@ -225,6 +221,10 @@
     },
     {
       "page": "skill-content.js",
+      "broken": []
+    },
+    {
+      "page": "survey_ufai_rubric.js",
       "broken": []
     },
     {

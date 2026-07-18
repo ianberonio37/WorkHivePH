@@ -316,6 +316,53 @@ test.describe('logbook.html - sentinel scenarios', () => {
     expect(hasGuard, 'no parts deduction wiring detected in scripts').toBeTruthy();
   });
 
+  test('entry_kind_readings_shaping: an Inspection (not just Breakdown) can capture readings', async ({ whPage }) => {
+    // LOGBOOK arc keystone: readings were gated to Breakdown-only → 0/645 Inspections could record one.
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await flattenSteps(whPage);
+    const shows = await whPage.evaluate(async () => {
+      const t = document.querySelector('#f-maint-type'), c = document.querySelector('#f-category');
+      if (!t || !c) return null;
+      c.value = 'Mechanical'; c.dispatchEvent(new Event('change', { bubbles: true }));
+      t.value = 'Inspection'; t.dispatchEvent(new Event('change', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 700));
+      const sec = document.querySelector('#readings-section');
+      return sec ? !sec.classList.contains('hidden') : false;
+    });
+    if (shows === null) { test.skip(true, 'maint-type/category controls not found'); return; }
+    expect(shows, 'readings MUST render for Inspection (keystone: they were Breakdown-only)').toBeTruthy();
+  });
+
+  test('loto_first_class: LOTO / Permit-to-Work is a first-class capture field', async ({ whPage }) => {
+    // Extension 3: LOTO was regex-inferred free text; now a stored field with a permit reference.
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    await flattenSteps(whPage);
+    const res = await whPage.evaluate(async () => {
+      const t = document.querySelector('#f-maint-type');
+      if (t) { t.value = 'Breakdown / Corrective'; t.dispatchEvent(new Event('change', { bubbles: true })); }
+      await new Promise(r => setTimeout(r, 500));
+      const box = document.querySelector('#f-loto'), ref = document.querySelector('#f-permit-ref');
+      if (!box || !ref) return { present: false };
+      box.checked = true;
+      // @ts-ignore - page global
+      if (typeof toggleLotoPermit === 'function') toggleLotoPermit();
+      return { present: true, permitRevealed: !ref.classList.contains('hidden') };
+    });
+    if (!res.present) { test.skip(true, 'LOTO controls not found'); return; }
+    expect(res.permitRevealed, 'checking LOTO must reveal the permit-reference input').toBeTruthy();
+  });
+
+  test('audit_trail_wiring: CSV export is audit-grade (Worker + Signed Off columns)', async ({ whPage }) => {
+    // Extension 3 DOLE/ISO trail: the export must record WHO (Worker) + WHEN signed off (Closed At).
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+    const src = await pageSrcWithExternals(whPage);
+    const ok = /Worker/.test(src) && /Signed Off/.test(src) && /e\.worker_name/.test(src) && /e\.closed_at/.test(src);
+    expect(ok, 'CSV audit export must carry Worker (WHO) + Signed Off (Closed At) + emit worker_name/closed_at').toBeTruthy();
+  });
+
   test('hive_id_in_txn_insert: inventory_transactions writes from logbook carry hive_id', async ({ whPage }) => {
     const db = adminClient();
     const { data: txns } = await db.from('inventory_transactions')

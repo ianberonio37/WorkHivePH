@@ -131,8 +131,6 @@ DEFERRED_PAGES_FETCH_TIMEOUT: set[str] = {
     # design ×2, floating-ai). The rest are deferred to a dedicated pass.
     "analytics.html",          # analytics-orchestrator wrap planned next batch
     "analytics-report.html",   # server-side renderer trigger
-    "marketplace-seller.html", # Stripe Connect endpoints (Phase 5 marketplace)
-    "marketplace.html",        # Stripe checkout endpoints (Phase 5 marketplace)
     "platform-health.html",    # retired surface (see memory project_platform_health_retired)
     "report-sender.html",      # email send + voice transcribe + scheduled-agents
     "voice-journal.html",      # voice-transcribe (will be wrapped with Phase 2 voice harden)

@@ -46,6 +46,11 @@ infra/mcp/.env.mcp
 supabase/functions/.env
 supabase/.env.local
 
+# Social-media publishing credentials (tokens/app-passwords Ian pastes once) —
+# real brand-account secrets, NEVER commit. Template lives in social_accounts.env.example.
+social_accounts.env
+.social_publish_log.jsonl
+
 # Test environment migration staging area (originals are restored to migrations/)
 supabase/migrations_archived/
 
@@ -113,3 +118,12 @@ content_dev_runs.jsonl
 .momentum_drive
 .momentum_allow_stop
 .momentum_stop_state.json
+
+# Native/sovereign AI local models + generated voice samples (large binaries, not committed)
+models/piper/
+wh_voice_*.wav
+cand_*.wav
+final_*.wav
+
+# Night Crawler local watchlist (the .example is committed)
+night_crawler_watch.txt

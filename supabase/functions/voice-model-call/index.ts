@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -15,13 +16,21 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
 /**
  * Voice Model Call Edge Function (Phase 2)
  *
+ * ⚠️ DEPRECATED / ORPHANED (verified 2026-07-12, AI Companion arc): this fn is
+ * invoked by NO page and NO runtime caller. The header once said "Called by
+ * voice-handler.js" but that caller does not exist — conversational replies now
+ * route through the canonical `ai-gateway` (tenancy + PII + memory + rate-limit)
+ * → the specialist agents, and the model fallback lives in the shared 19-model
+ * `_shared/ai-chain.ts` PROVIDER_CHAIN. Kept (not deleted) so a deliberate
+ * retirement can drop it + its `canonical_agent_contracts` row together; do NOT
+ * wire new callers here — use ai-gateway.
+ *
  * Multi-model orchestrator with free-tier fallback chain:
  * - Groq Scout (primary): meta-llama/llama-4-scout-17b-16e-instruct
  * - Cerebras Qwen (fallback 1): qwen2.5-7b-instruct
  * - Voyage AI (fallback 2): mistral-large-2411
  * - Jina AI (fallback 3): jina-ai/reader or similar
  *
- * Called by voice-handler.js for conversational replies.
  * Automatically falls back to next model if primary is rate-limited or down.
  *
  * Input:
@@ -36,7 +45,12 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
  *   - latency_ms: how long the call took
  */
 
-serve(async (req) => {
+serveObserved("voice-model-call", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "voice-model-call", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   logRequestStart(req, "voice-model-call");  // I6 observability
@@ -152,14 +166,8 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    log.error(null, "Unexpected error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "voice-model-call", "voice_model_call_error", err);
   }
 });
 

@@ -19,6 +19,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://workhiveph.com/feedback/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://workhiveph.com/privacy-policy/</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>yearly</changefreq>
@@ -255,6 +261,48 @@
   <url>
     <loc>https://workhiveph.com/learn/resume-builder-for-filipino-industrial-workers/</loc>
     <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/asset-brain-360-one-machine-history-philippine-plant/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/autonomous-shift-planning-philippine-plants/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/print-ready-maintenance-analytics-report/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/</loc>
+    <lastmod>2026-07-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://workhiveph.com/learn/workhive-ai-companion-complete-capabilities/</loc>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

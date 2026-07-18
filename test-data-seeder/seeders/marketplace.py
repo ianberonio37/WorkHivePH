@@ -119,3 +119,101 @@ def seed_marketplace(client, log, ctx: dict) -> dict:
     log(f"  inserted {len(rows)} marketplace_listings")
 
     return {"marketplace_listings_count": len(rows)}
+
+
+def seed_marketplace_sellers(client, log, ctx: dict) -> dict:
+    """Seed marketplace_sellers profiles LINKED to community reputation.
+
+    Runs AFTER community + achievements so a seller's community standing already
+    exists. Before this, the seeder created listings with NO seller profiles, and
+    the seeder never granted the `voice_of_the_hive` skill_badge either — so on a
+    fresh reset the whole Community<->Marketplace bridge was dead: no seller pages,
+    no tiers, and the "Community-trusted" chip (grid + detail) never lit up.
+
+    This makes the bridge reproducible out of the box:
+      1. Each hive's TOP community-XP member becomes the hive's "voice of the hive"
+         (grant the skill_badge if absent) + a GOLD seller — so the Community-trusted
+         chip has something real to show after every reset.
+      2. Every published-listing seller + a couple more community-active workers get
+         a seller profile too (tier/rating scaled by community standing).
+    Idempotent: skips already-granted badges; upserts sellers on the unique worker_name.
+    Uses a LOCAL RNG so it never perturbs the global deterministic seeder stream.
+    """
+    import random as _random
+    rng = _random.Random(20260711)
+    hives = ctx.get("hives", [])
+    workers = ctx.get("workers", [])
+
+    def _fetch(table, cols, **eqs):
+        try:
+            q = client.table(table).select(cols)
+            for k, v in eqs.items():
+                q = q.eq(k, v)
+            return q.execute().data or []
+        except Exception as e:  # best-effort: never break a reseed on a linkage miss
+            log(f"  (marketplace_sellers: {table} read skipped: {e})")
+            return []
+
+    voice = {r["worker_name"] for r in _fetch("skill_badges", "worker_name", badge_key="voice_of_the_hive")}
+    xp_by = {(r["hive_id"], r["worker_name"]): (r.get("xp_total") or 0)
+             for r in _fetch("community_xp", "worker_name, hive_id, xp_total")}
+    sellers_by_hive: dict = {}
+    for r in _fetch("marketplace_listings", "hive_id, seller_name", status="published"):
+        if r.get("seller_name"):
+            sellers_by_hive.setdefault(r["hive_id"], set()).add(r["seller_name"])
+
+    new_badges, seller_rows = [], []
+    seen_sellers = set()          # worker_name is globally UNIQUE -> dedupe across hives
+    for hive in hives:
+        hid = hive["id"]
+        hive_workers = [w for w in workers if w["hive_id"] == hid]
+        if not hive_workers:
+            continue
+        # the hive's community voice = its top-XP member (with any real activity)
+        top = max(hive_workers, key=lambda w: xp_by.get((hid, w["display_name"]), 0), default=None)
+        top_name = top["display_name"] if top and xp_by.get((hid, top["display_name"]), 0) > 0 else None
+        if top_name and top_name not in voice:
+            new_badges.append({
+                "worker_name": top_name, "discipline": "Community", "level": 1,
+                "badge_key": "voice_of_the_hive", "exam_score": 0,
+                "auth_uid": (top or {}).get("auth_uid"),
+            })
+            voice.add(top_name)
+
+        # community-active workers (top 3 by XP) + everyone who already has a listing
+        ranked = sorted(hive_workers, key=lambda w: xp_by.get((hid, w["display_name"]), 0), reverse=True)
+        names = set(sellers_by_hive.get(hid, set())) | {w["display_name"] for w in ranked[:3]}
+        by_name = {w["display_name"]: w for w in hive_workers}
+        for name in sorted(names):
+            if name in seen_sellers:
+                continue
+            seen_sellers.add(name)
+            w = by_name.get(name)
+            is_voice = name in voice
+            xp = xp_by.get((hid, name), 0)
+            tier = "gold" if is_voice else ("silver" if xp >= 25 else "bronze")
+            seller_rows.append({
+                "worker_name": name,
+                "hive_id": hid,
+                "auth_uid": (w or {}).get("auth_uid"),
+                "tier": tier,
+                "rating_avg": round(rng.uniform(4.4, 5.0) if is_voice else rng.uniform(3.8, 4.8), 2),
+                "rating_count": rng.randint(6, 14) if is_voice else rng.randint(1, 8),
+                "response_rate": round(rng.uniform(0.85, 1.0), 2),
+                "response_time_h": rng.randint(1, 12),
+                "total_sales": rng.randint(4, 20) if is_voice else rng.randint(0, 8),
+                "kyb_verified": bool(is_voice or rng.random() < 0.4),
+                "cert_verified": bool(is_voice),
+            })
+
+    if new_badges:
+        try:
+            client.table("skill_badges").insert(new_badges).execute()
+        except Exception as e:
+            log(f"  (voice-of-hive grant skipped: {e})")
+    if seller_rows:
+        client.table("marketplace_sellers").upsert(seller_rows, on_conflict="worker_name").execute()
+    log(f"  linked {len(seller_rows)} marketplace_sellers "
+        f"({sum(1 for r in seller_rows if r['tier'] == 'gold')} community-trusted / voice-of-hive; "
+        f"+{len(new_badges)} voice badges granted)")
+    return {"marketplace_sellers_count": len(seller_rows)}

@@ -121,7 +121,7 @@
     .crit-low      { background: rgba(180,180,180,0.18); color: #d6dbe3; }
     .crit-medium   { background: rgba(41,182,217,0.18);  color: #6ed6f0; }
     .crit-high     { background: rgba(247,162,27,0.20);  color: #ffc566; }
-    .crit-critical { background: rgba(239,87,87,0.22);   color: #ff8a8a; }
+    .crit-critical { background: rgba(239,87,87,0.22);   color: var(--wh-red-text); }
 
     /* Empty state */
     .empty {
@@ -267,14 +267,14 @@
     }
     .fmea-rpn {
       font-size: 0.75rem; font-weight: 800;
-      padding: 2px 8px; border-radius: 6px; min-width: 36px; text-align: center;
+      padding: 2px 8px; border-radius: var(--wh-radius-sm); min-width: 36px; text-align: center;
     }
     .fmea-rpn-low      { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
     .fmea-rpn-medium   { background: rgba(247,162,27,0.18);  color: #ffc566; }
     .fmea-rpn-high     { background: rgba(251,146,60,0.20);  color: #ffb072; }
     .fmea-rpn-critical { background: rgba(239,87,87,0.22);   color: #ff8a8a; }
     .fmea-sod {
-      display: inline-flex; gap: 4px; font-size: 0.62rem; color: rgba(255,255,255,0.55);
+      display: inline-flex; gap: 4px; font-size: 0.62rem; color: rgba(255,255,255,0.62);
     }
     .fmea-sod span {
       background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 3px;
@@ -394,7 +394,7 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
     #ah-summary-details.open { display:block; }
@@ -420,7 +420,7 @@
 
   <!-- Hive Gate (hard gate per architect rule) -->
   <div id="hive-gate">
-    <h2>Asset Hub needs a hive</h2>
+    <h2 data-i="gatetitle">Asset Hub needs a hive</h2>
     <p>Asset Brain works only inside a team hive. Join or create one to see your equipment graph and the events tied to it.</p>
     <a href="hive.html">Go to Hive</a>
   </div>
@@ -436,7 +436,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </a>
       <div>
-        <h1 class="page-title" id="page-title">Asset Hub</h1>
+        <h1 class="page-title" id="page-title" translate="no">Asset Hub</h1>
         <div class="page-sub" id="page-sub">360 view of any equipment in your hive</div>
         <p id="wh-page-source-chip"></p>
       </div>
@@ -444,6 +444,7 @@
 
     <!-- LIST VIEW -->
     <div id="list-view">
+      <h2 data-i="allassets" style="margin:0 0 8px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:rgba(255,255,255,0.6);">All assets</h2>
 
       <!-- Plain-Read summary (Layer D — UX Contract).
            Populated by renderAssetSummary() from _allNodes + _pendingNodes. -->
@@ -456,26 +457,28 @@
           <div class="sc-label">Total assets</div>
           <div class="sc-hero" id="ah-total-hero">0</div>
           <div class="sc-sub" id="ah-total-sub">Loading...</div>
-          <span class="sc-tag" id="ah-total-tag">—</span>
+          <span class="sc-tag" id="ah-total-tag">-</span>
         </div>
         <div class="simple-card tag-grey" id="ah-card-critical" data-rag-tile="asset-hub:critical_assets" data-rag-label="Critical assets">
           <div class="sc-label">Critical assets</div>
           <div class="sc-hero" id="ah-critical-hero">0</div>
           <div class="sc-sub" id="ah-critical-sub">Loading...</div>
-          <span class="sc-tag" id="ah-critical-tag">—</span>
+          <span class="sc-tag" id="ah-critical-tag">-</span>
         </div>
         <div class="simple-card tag-grey" id="ah-card-pending" data-rag-tile="asset-hub:pending_approval" data-rag-label="Pending assets">
           <div class="sc-label">Pending assets</div>
           <div class="sc-hero" id="ah-pending-hero">0</div>
           <div class="sc-sub" id="ah-pending-sub">Loading...</div>
-          <span class="sc-tag" id="ah-pending-tag">—</span>
+          <span class="sc-tag" id="ah-pending-tag">-</span>
         </div>
       </div>
       <div class="action-card">
         <div class="ac-label">What to do next</div>
         <div class="ac-text" id="ah-action-text">Computing recommendation...</div>
+        <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
+        <a id="ah-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
       </div>
-      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details">
+      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
         Show details
       </button>
       <div id="ah-summary-details" role="region" aria-label="Asset fleet explainer"
@@ -488,20 +491,20 @@
           <li><strong>Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off (pending or rejected).</li>
           <li><strong>Verdict</strong>: red if 5+ pending; amber if any pending OR no critical assets registered; green when registry is complete.</li>
         </ul>
-        <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
+        <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
       </div>
 
       <div class="search-row" style="display:flex; gap:8px; align-items:center;">
         <input aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
         <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
         <button id="scan-btn" type="button" aria-label="Scan equipment tag with camera"
-                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:10px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
+                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
             <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
             <line x1="7" y1="12" x2="17" y2="12"/>
           </svg>
-          <span class="scan-btn-label">Scan</span>
+          <span class="scan-btn-label" data-i="scan">Scan</span>
         </button>
       </div>
       <div id="asset-list" class="asset-list"></div>
@@ -513,14 +516,14 @@
         </div>
       </div>
       <div id="asset-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-        <button onclick="loadMoreAssets()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+        <button onclick="loadMoreAssets()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
       </div>
 
       <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
            no pending or rejected entries; expanded inline when there are. -->
       <div id="pending-assets-card" class="section-card" style="display:none; border-left:3px solid #f7a21b; margin-top:1rem;">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
-          <span>Pending asset approvals</span>
+          <h2 data-i="pendingapprovals" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Pending asset approvals</h2>
           <span id="pending-assets-count" style="font-size:.7rem; color:var(--muted); background:rgba(247,162,27,0.18); padding:2px 8px; border-radius:8px;"></span>
         </div>
         <div id="pending-assets-list" style="display:flex; flex-direction:column; gap:6px;"></div>
@@ -546,7 +549,11 @@
           <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
           <!-- Generate the scannable tag (the other half of the scan loop) -->
           <button type="button" id="detail-qr-btn" aria-label="Print a scannable QR tag for this asset"
-            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.4);">⤓ Print QR tag</button>
+            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
+          <!-- Cross-page connectivity (ASSET_ALERT_SHIFT): complete the asset<->alert loop —
+               emit alert-hub.html?asset=<tag>, which alert-hub reads (F4) to focus this asset. -->
+          <a id="detail-alerts-link" href="#" aria-label="View this asset's alerts in Alert Hub"
+            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
         </div>
       </div>
 
@@ -572,28 +579,29 @@
       </div><!-- Arc Y Y5: "Edges" stat removed (edges feature CUT per fork#1) -->
 
       <!-- Phase B.5: Risk panel — per-asset risk view that replaces the predictive.html jump -->
+      <!-- capability: display_count_chip — per-asset risk-severity summary (Critical/High/Medium/Low band). Absorbed from the retired predictive.html risk-360 view. Registered Tier G in canonical_capabilities; visual primitive distinct from renderKpiTile + renderCompactStat. -->
       <div class="section-card" id="risk-card" style="display:none;">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Risk Profile</span>
+          <h2 data-i="riskprofile" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Risk Profile</h2>
           <span id="risk-model-chip" style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; padding:.2rem .55rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue-wh); border:1px solid rgba(41,182,217,0.25);">rules-v1</span>
         </div>
         <!-- Arc Y Y4 — ONE risk hierarchy: name this as THE single headline answer so a
              novice doesn't try to reconcile it against the FMEA / Weibull / P-F numbers
              in the Reliability Workbench (those are the engineering detail BEHIND this one). -->
-        <p style="font-size:.7rem; color:rgba(255,255,255,0.55); margin:2px 0 8px; line-height:1.45;">This is the asset's <b style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
+        <p style="font-size:.7rem; color:rgba(255,255,255,0.62); margin:2px 0 8px; line-height:1.45;">This is the asset's <b style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
         <p id="risk-source-chip" style="margin:4px 0 10px;"></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
-            <div id="risk-score-num" style="font-size:2.2rem; font-weight:800; line-height:1;">—</div>
-            <div id="risk-level-badge" style="font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:6px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5);">—</div>
+            <div id="risk-score-num" style="font-size:2.2rem; font-weight:800; line-height:1;">-</div>
+            <div id="risk-level-badge" style="font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:6px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62);">-</div>
           </div>
           <!-- detail strip -->
           <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap;">
-              <div title="ISO 14224:2016 §9.3 partial — calendar time, not operating time"><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">MTBF<small style="font-size:.5rem; font-weight:500; opacity:.55; text-transform:none; letter-spacing:0;"> (partial · cal-time)</small></span><span id="risk-mtbf" style="font-size:.85rem; font-weight:700;">—</span></div>
-              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Days to Failure</span><span id="risk-days" style="font-size:.85rem; font-weight:700;">—</span></div>
-              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.65);">—</span></div>
+              <div title="ISO 14224:2016 §9.3 partial: calendar time, not operating time"><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">MTBF<small style="font-size:.5rem; font-weight:500; opacity:.55; text-transform:none; letter-spacing:0;"> (partial · cal-time)</small></span><span id="risk-mtbf" style="font-size:.85rem; font-weight:700;">-</span></div>
+              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Days to Failure</span><span id="risk-days" style="font-size:.85rem; font-weight:700;">-</span></div>
+              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.65);">-</span></div>
             </div>
             <div id="risk-factors" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:4px;"></div>
           </div>
@@ -602,7 +610,7 @@
 
       <!-- Empty state for assets with no risk score yet (rules engine has not run, or asset too new) -->
       <div class="section-card" id="risk-empty-card" style="display:none;">
-        <div class="section-title">Risk Profile</div>
+        <h2 class="section-title" data-i="riskprofile" style="margin:0;">Risk Profile</h2>
         <p style="font-size:.78rem; color:var(--muted); margin:0;">No risk score yet for this asset. Scores are computed daily at 13:00 PHT by the batch-risk-scoring job. Once enough fault history accumulates, a score will appear here.</p>
       </div>
 
@@ -615,8 +623,8 @@
         <p id="staging-rationale" style="font-size:.78rem; color:var(--muted); margin:6px 0 12px;"></p>
         <div id="staging-parts" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
         <div style="display:flex; gap:8px;">
-          <button id="staging-accept" class="btn-primary" style="flex:1; min-height:44px; background:#fb923c; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
-          <button id="staging-dismiss" class="btn-secondary" style="min-height:44px; padding:0 14px; background:transparent; color:var(--muted); border:1px solid #333; border-radius:6px; cursor:pointer;">Dismiss</button>
+          <button id="staging-accept" class="btn-primary" data-i="stagesel" style="flex:1; min-height:44px; background:#fb923c; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
+          <button id="staging-dismiss" class="btn-secondary" data-i="dismiss" style="min-height:44px; padding:0 14px; background:transparent; color:var(--muted); border:1px solid #333; border-radius:6px; cursor:pointer;">Dismiss</button>
         </div>
       </div>
 
@@ -626,20 +634,20 @@
            The choice persists per device (wh_asset_view). -->
       <button id="asset-view-toggle" type="button" class="add-edge-btn"
               style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 14px; background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.3); color:#c7b6fb; font-size:.74rem; font-weight:700; cursor:pointer;"
-              aria-expanded="false" aria-controls="reliability-card">&#128295; Show Reliability Workbench (engineer view)</button>
+              aria-expanded="false" aria-controls="reliability-card" data-i="showworkbench">&#128295; Show Reliability Workbench (engineer view)</button>
       <!-- Phase R.2: Reliability Engineering Workbench (FMEA / RCM / Weibull / P-F) -->
       <div class="section-card" id="reliability-card" style="display:none; border-left:3px solid #a78bfa;">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
           <span>Reliability</span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 14px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb; font-size:.72rem;" title="Print-ready Reliability Report (Phase R.7) — assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document.">Print Report</button>
+            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 14px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb; font-size:.72rem;" title="Print-ready Reliability Report (Phase R.7): assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document." data-i="printreport">Print Report</button>
             <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#a78bfa;">SAE JA1011 / AIAG-VDA</span>
           </div>
         </div>
         <div class="reliability-tabs" role="tablist" style="display:flex; gap:4px; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.4rem;">
-          <button class="rel-tab active" data-tab="fmea"    role="tab" title="FMEA — Failure Modes & Effects Analysis: list the ways this asset can fail, then rate each by Severity x Occurrence x Detection = RPN (Risk Priority Number; higher = act first).">FMEA</button>
-          <button class="rel-tab"        data-tab="weibull" role="tab" title="Weibull — fits this asset's failure history to a wear curve. beta (shape) > 1 = wearing out with age; eta (scale) = characteristic life in days. Tells you IF and roughly WHEN it wears out.">Weibull</button>
-          <button class="rel-tab"        data-tab="pf"      role="tab" title="P-F interval — the warning window between the first detectable symptom (P) and functional failure (F). Sets how often to inspect so you catch it in time.">P-F</button>
+          <button class="rel-tab active" data-tab="fmea"    role="tab" translate="no" title="FMEA (Failure Modes & Effects Analysis): list the ways this asset can fail, then rate each by Severity x Occurrence x Detection = RPN (Risk Priority Number; higher = act first).">FMEA</button>
+          <button class="rel-tab"        data-tab="weibull" role="tab" translate="no" title="Weibull: fits this asset's failure history to a wear curve. beta (shape) > 1 = wearing out with age; eta (scale) = characteristic life in days. Tells you IF and roughly WHEN it wears out.">Weibull</button>
+          <button class="rel-tab"        data-tab="pf"      role="tab" translate="no" title="P-F interval: the warning window between the first detectable symptom (P) and functional failure (F). Sets how often to inspect so you catch it in time.">P-F</button>
         </div>
         <!-- FMEA panel -->
         <div id="rel-panel-fmea">
@@ -649,8 +657,8 @@
             No FMEA failure modes registered yet. Tap below to add the first one, or use AI auto-populate (Phase R.3) to suggest from logbook history.
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem; flex-wrap:wrap;">
-            <button id="fmea-add-btn" class="add-edge-btn" style="flex:1; min-width:160px; min-height:44px;">+ Add failure mode</button>
-            <button id="fmea-suggest-btn" class="add-edge-btn" style="flex:1; min-width:200px; min-height:44px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb;" title="Cluster the last 365 days of corrective logbook entries by root cause and let the AI draft FMEA rows for supervisor review.">Suggest from history (AI)</button>
+            <button id="fmea-add-btn" class="add-edge-btn" data-i="addfailmode" style="flex:1; min-width:160px; min-height:44px;">+ Add failure mode</button>
+            <button id="fmea-suggest-btn" class="add-edge-btn" style="flex:1; min-width:200px; min-height:44px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb;" title="Cluster the last 365 days of corrective logbook entries by root cause and let the AI draft FMEA rows for supervisor review." data-i="suggesthistory">Suggest from history (AI)</button>
           </div>
           <div id="fmea-suggest-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
@@ -680,7 +688,7 @@
             No Weibull fit computed yet. Tap below to fit from the last 730 days of corrective logbook entries (lifelines.WeibullFitter).
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
-            <button id="weibull-fit-btn" class="add-edge-btn" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute Weibull fit</button>
+            <button id="weibull-fit-btn" class="add-edge-btn" data-i="computeweibull" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute Weibull fit</button>
           </div>
           <div id="weibull-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
@@ -689,27 +697,27 @@
         <div id="rel-panel-pf" style="display:none;">
           <p class="rel-worked-example"><span class="rwe-tag">Example</span>Vibration starts rising <b>14 days</b> before a bearing seizes, so the <b>P-F window = 14 days</b>. Inspect at <b>half the window = every 7 days</b> so at least one check always lands inside the warning period. <b>Guidance:</b> set the inspection interval to P-F &divide; 2; for safety-critical assets use P-F &divide; 3 (here, every ~5 days). Too long an interval and you miss the warning; too short wastes labour.</p>
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
-            <label for="pf-parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
+            <label for="pf-parameter" data-i="parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
             <select id="pf-parameter" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
             <div style="display:flex; gap:8px;">
               <div style="flex:1;">
-                <label for="pf-p-threshold" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
+                <label for="pf-p-threshold" data-i="pwarning" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
                 <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
               </div>
               <div style="flex:1;">
-                <label for="pf-f-threshold" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
+                <label for="pf-f-threshold" data-i="ffailure" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
                 <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <label for="pf-direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
+              <label for="pf-direction" data-i="direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
               <select id="pf-direction" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
                 <option value="above">above (rising = bad)</option>
                 <option value="below">below (falling = bad)</option>
               </select>
               <label style="display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.7rem; color:var(--muted); cursor:pointer;">
                 <input id="pf-safety-critical" type="checkbox" style="width:16px; height:16px;" />
-                Safety-critical (use P-F/3)
+                <span data-i="safetycritical">Safety-critical (use P-F/3)</span>
               </label>
             </div>
           </div>
@@ -735,7 +743,7 @@
             Set thresholds and tap Compute to scan sensor readings from corrective logbook entries.
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
-            <button id="pf-compute-btn" class="add-edge-btn" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute P-F interval</button>
+            <button id="pf-compute-btn" class="add-edge-btn" data-i="computepf" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute P-F interval</button>
           </div>
           <div id="pf-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
@@ -753,7 +761,7 @@
           <div style="flex:1; min-width:0;">
             <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0 0 2px;">Sensor Anomaly Detected</p>
             <p id="sensor-anomaly-headline" style="font-size:.88rem; font-weight:700; color:var(--text); margin:0;"></p>
-            <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.55); margin:3px 0 0;"></p>
+            <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.62); margin:3px 0 0;"></p>
           </div>
         </div>
       </div>
@@ -772,7 +780,7 @@
       </div>
 
       <div class="section-card">
-        <div class="section-title">Timeline</div>
+        <h2 class="section-title" data-i="timeline" style="margin:0;">Timeline</h2>
         <div id="timeline-list"></div>
       </div>
 
@@ -780,27 +788,27 @@
            edge types, confusing to technicians) CUT per fork#1 (Ian, 2026-06-27). -->
 
       <div class="section-card" id="ext-card" style="display:none;">
-        <div class="section-title">External systems</div>
+        <h2 class="section-title" data-i="extsystems" style="margin:0;">External systems</h2>
         <div id="ext-list" class="ext-grid"></div>
         <div id="ext-sync-meta" style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;"></div>
       </div>
 
       <div class="section-card" id="mk-card" style="display:none;">
         <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Marketplace listings for this class</span>
+          <h2 data-i="mklistings" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Marketplace listings for this class</h2>
           <a href="marketplace.html" style="font-size:0.7rem;color:var(--blue-wh);text-decoration:none;">All listings &rsaquo;</a>
         </div>
         <div id="mk-list"></div>
       </div>
 
       <div class="section-card" id="ask-card">
-        <div class="section-title">Ask Asset Brain</div>
+        <h2 class="section-title" data-i="askbrain" style="margin:0;">Ask Asset Brain</h2>
         <div style="font-size:0.74rem;color:var(--muted);margin-bottom:0.6rem;">
           Grounded in this asset's logbook, PMs, neighbors, and peers in the same equipment class.
         </div>
         <div style="display:flex;gap:0.5rem;">
           <input aria-label="When did this asset last fail? Why?" id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
-          <button id="ask-send" class="add-edge-btn" style="background:linear-gradient(135deg,var(--orange-wh),#FDB94A);color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
+          <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),#FDB94A);color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
         </div>
         <div id="ask-output" style="margin-top:0.85rem;display:none;">
           <div id="ask-answer" style="font-size:0.88rem;line-height:1.5;"></div>
@@ -817,16 +825,16 @@
   <!-- Phase R.2: FMEA failure-mode modal -->
   <div id="fmea-modal" role="dialog" aria-modal="true" aria-labelledby="fmea-modal-title">
     <div id="fmea-modal-card">
-      <h2 id="fmea-modal-title">Add failure mode</h2>
-      <label for="fmea-function">Function (what should this asset do?)</label>
+      <h2 id="fmea-modal-title" data-i="addfailmodetitle">Add failure mode</h2>
+      <label for="fmea-function" data-i="fmeafunction">Function (what should this asset do?)</label>
       <input id="fmea-function" type="text" placeholder="e.g. Maintain 2.5 bar discharge pressure" />
-      <label for="fmea-failure-mode">Failure mode</label>
+      <label for="fmea-failure-mode" translate="no">Failure mode</label>
       <input id="fmea-failure-mode" type="text" placeholder="e.g. V-belt slipping under load" />
-      <label for="fmea-effect">Effect (what happens when it fails?)</label>
+      <label for="fmea-effect" data-i="fmeaeffect">Effect (what happens when it fails?)</label>
       <input id="fmea-effect" type="text" placeholder="e.g. Loss of pressure, no flow" />
-      <label for="fmea-cause">Cause (why does it fail?)</label>
+      <label for="fmea-cause" data-i="fmeacause">Cause (why does it fail?)</label>
       <input id="fmea-cause" type="text" placeholder="e.g. Worn belt or misalignment" />
-      <label for="fmea-consequence">Consequence class</label>
+      <label for="fmea-consequence" data-i="consequenceclass">Consequence class</label>
       <select id="fmea-consequence">
         <option value="">(none)</option>
         <option value="safety">safety</option>
@@ -837,15 +845,15 @@
       </select>
       <div style="display:flex; gap:0.5rem;">
         <div style="flex:1;">
-          <label for="fmea-severity">Severity (1-10)</label>
+          <label for="fmea-severity" translate="no">Severity (1-10)</label>
           <input id="fmea-severity" type="number" min="1" max="10" step="1" />
         </div>
         <div style="flex:1;">
-          <label for="fmea-occurrence">Occurrence (1-10)</label>
+          <label for="fmea-occurrence" translate="no">Occurrence (1-10)</label>
           <input id="fmea-occurrence" type="number" min="1" max="10" step="1" />
         </div>
         <div style="flex:1;">
-          <label for="fmea-detection">Detection (1-10)</label>
+          <label for="fmea-detection" translate="no">Detection (1-10)</label>
           <input id="fmea-detection" type="number" min="1" max="10" step="1" />
         </div>
       </div>
@@ -853,8 +861,8 @@
         RPN auto-computed by the database (S x O x D). AIAG-VDA 2019 rubric.
       </div>
       <div class="edge-actions">
-        <button class="cancel" type="button" id="fmea-cancel">Cancel</button>
-        <button class="save"   type="button" id="fmea-save">Save</button>
+        <button class="cancel" type="button" id="fmea-cancel" data-i="cancel">Cancel</button>
+        <button class="save"   type="button" id="fmea-save" data-i="save">Save</button>
       </div>
     </div>
   </div>
@@ -862,26 +870,26 @@
   <!-- Phase R.4: RCM strategy modal (JA1011 decision tree, simplified) -->
   <div id="rcm-modal" role="dialog" aria-modal="true" aria-labelledby="rcm-modal-title">
     <div id="rcm-modal-card">
-      <h2 id="rcm-modal-title">Set RCM strategy</h2>
+      <h2 id="rcm-modal-title" data-i="setrcm">Set RCM strategy</h2>
       <div id="rcm-fmea-context" style="font-size:0.72rem; color:var(--muted); margin-bottom:0.85rem;"></div>
 
-      <label for="rcm-decision">1. JA1011 decision (what task type does this failure deserve?)</label>
+      <label for="rcm-decision" data-i="rcmdecision">1. JA1011 decision (what task type does this failure deserve?)</label>
       <select id="rcm-decision">
         <option value="">(select)</option>
-        <option value="scheduled_on_condition">Scheduled on-condition — predictive (CBM, vibration, temp, oil)</option>
-        <option value="scheduled_restoration">Scheduled restoration — overhaul / restore at age</option>
-        <option value="scheduled_discard">Scheduled discard — replace at fixed interval</option>
-        <option value="failure_finding">Failure-finding — test hidden protective device</option>
-        <option value="run_to_failure">Run to failure — accept; no proactive task</option>
-        <option value="redesign_required">Redesign required — no task is effective</option>
+        <option value="scheduled_on_condition">Scheduled on-condition: predictive (CBM, vibration, temp, oil)</option>
+        <option value="scheduled_restoration">Scheduled restoration: overhaul / restore at age</option>
+        <option value="scheduled_discard">Scheduled discard: replace at fixed interval</option>
+        <option value="failure_finding">Failure-finding: test hidden protective device</option>
+        <option value="run_to_failure">Run to failure: accept; no proactive task</option>
+        <option value="redesign_required">Redesign required: no task is effective</option>
       </select>
 
-      <label for="rcm-task">Task text (what does the technician do?)</label>
+      <label for="rcm-task" data-i="rcmtask">Task text (what does the technician do?)</label>
       <input id="rcm-task" type="text" placeholder="e.g. Vibration trend at bearing housing, alert at 4.5 mm/s RMS" />
 
-      <label for="rcm-interval">Interval</label>
+      <label for="rcm-interval" translate="no">Interval</label>
       <select id="rcm-interval">
-        <option value="">(none — not applicable for run-to-failure / redesign)</option>
+        <option value="">(none: not applicable for run-to-failure / redesign)</option>
         <option value="30">Monthly (30 d)</option>
         <option value="90">Quarterly (90 d)</option>
         <option value="180">Semi-Annual (180 d)</option>
@@ -890,22 +898,22 @@
       </select>
       <input aria-label="Custom interval days" id="rcm-interval-custom" type="number" min="1" max="3650" step="1" placeholder="Custom interval days" style="display:none;" />
 
-      <label for="rcm-rationale">Rationale (why this decision?)</label>
+      <label for="rcm-rationale" data-i="rcmrationale">Rationale (why this decision?)</label>
       <input id="rcm-rationale" type="text" placeholder="e.g. P-F = 14 d from vibration trend, half = 7 d safe interval" />
 
       <div style="font-size:.7rem; color:var(--muted); margin-bottom:0.65rem;">
         Per SAE JA1011 / JA1012. After save you can push the task to PM Scheduler.
       </div>
       <div class="edge-actions">
-        <button class="cancel" type="button" id="rcm-cancel">Cancel</button>
-        <button class="save"   type="button" id="rcm-save">Save strategy</button>
+        <button class="cancel" type="button" id="rcm-cancel" data-i="cancel">Cancel</button>
+        <button class="save"   type="button" id="rcm-save" data-i="savestrategy">Save strategy</button>
       </div>
     </div>
   </div>
 
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script>
     // Supabase client. var keyword so it's accessible from earlier function definitions.
     var SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
@@ -920,9 +928,15 @@
       || localStorage.getItem('workerName') || '';
     let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
     let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    let _authUid  = null; // attribution FK for pm_assets creation (was dropped)
 
     // Cached state
     let _allNodes = [];
+    // Exact (uncapped) hive counts for the summary tiles — the rendered list is capped at
+    // .limit(200), so deriving "Total assets" / "Critical" from _allNodes.length would
+    // undercount a hive with >200 approved assets. null = not yet loaded → fall back to the list length.
+    let _assetTotalCount = null;
+    let _assetCriticalCount = null;
     let _riskByAsset = {};   // C3 salience: asset_name(lc) -> {risk_level, risk_score} from v_risk_truth
     let _assetDisplayCount = 30;  // List View Contract: client-side slice pagination
     let _selectedNodeId = null;
@@ -971,29 +985,17 @@
       if (!r || !r.risk_level) return '';
       const lvl = String(r.risk_level).toLowerCase();
       const col = { critical: '#ef4444', high: '#f97316', medium: '#facc15', low: '#4ade80' }[lvl] || '#9aa6b3';
+      const txt = { critical: '#FCA5A5', high: '#FDBA74', medium: '#FDE047', low: '#86EFAC' }[lvl] || '#c3ccd6';
       const pct = r.risk_score != null ? ' ' + Math.round(Number(r.risk_score) * 100) + '%' : '';
-      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.18rem .5rem;border-radius:999px;background:${col}22;color:${col};border:1px solid ${col}66;white-space:nowrap;">${escHtml(lvl)} risk${pct}</span>`;
+      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.18rem .5rem;border-radius:999px;background:${col}22;color:${txt};border:1px solid ${col}66;white-space:nowrap;">${escHtml(lvl)} risk${pct}</span>`;
     }
 
     function fmtDate(s) {
-      if (!s) return 'never';
-      try {
-        const d = new Date(s);
-        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-      } catch (_) { return s; }
+      if (!s) return 'never'; // 'never synced' semantic kept
+      return (typeof whFmtDate === 'function') ? whFmtDate(s) : String(s); // FD1a: canonical utils.js
     }
 
-    function fmtRelative(s) {
-      if (!s) return '';
-      const d = new Date(s).getTime();
-      if (!d) return '';
-      const diff = (Date.now() - d) / 1000;
-      if (diff < 60) return 'just now';
-      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-      if (diff < 86400*30) return Math.floor(diff/86400) + 'd ago';
-      return fmtDate(s);
-    }
+    function fmtRelative(s) { return (typeof whFmtAgo === 'function') ? whFmtAgo(s) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
 
     // ── Membership validation per multitenant skill ────────────────────────────
     async function validateHiveMembership() {
@@ -1051,6 +1053,18 @@
       } else {
         _allNodes = data || [];
       }
+      // Exact (uncapped) hive counts for the summary tiles — head:true returns the count
+      // with no rows, so "Total assets" / "Critical" stay correct above the 200-row list cap.
+      // criticality is matched case-insensitively (.ilike) to mirror renderAssetSummary's
+      // String(criticality).toLowerCase()==='critical' list filter.
+      try {
+        const [tot, crit] = await Promise.all([
+          db.from('asset_nodes').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'approved'),
+          db.from('asset_nodes').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'approved').ilike('criticality', 'critical'),
+        ]);
+        _assetTotalCount    = tot.error  ? null : (tot.count  ?? null);
+        _assetCriticalCount = crit.error ? null : (crit.count ?? null);
+      } catch (_) { _assetTotalCount = null; _assetCriticalCount = null; }
       // C3 salience (Arc X): surface each asset's LIVE reliability-risk band on its
       // list card (not just static criticality) - the "what needs me now" signal a
       // maintenance user scans for. One read of the canonical v_risk_truth, mapped by
@@ -1099,8 +1113,11 @@
 
     // Layer D — Plain-Read summary for Asset Hub. Reads _allNodes + _pendingNodes.
     function renderAssetSummary() {
-      const total = _allNodes.length;
-      const critical = _allNodes.filter(n => String(n.criticality || '').toLowerCase() === 'critical').length;
+      // Prefer the exact uncapped hive counts (from loadAssetNodes); fall back to the
+      // .limit(200)-capped list length only if the count query didn't complete.
+      const total = (_assetTotalCount != null) ? _assetTotalCount : _allNodes.length;
+      const critical = (_assetCriticalCount != null) ? _assetCriticalCount
+        : _allNodes.filter(n => String(n.criticality || '').toLowerCase() === 'critical').length;
       const pending = (_pendingNodes || []).filter(n => n.status === 'pending').length;
 
       const setCard = (name, hero, sub, tag, tone) => {
@@ -1122,7 +1139,7 @@
       );
       setCard('critical',
         String(critical),
-        critical === 0 ? 'No critical equipment flagged' : `${critical} critical asset${critical === 1 ? '' : 's'} — these drive every reliability KPI`,
+        critical === 0 ? 'No critical equipment flagged' : `${critical} critical asset${critical === 1 ? '' : 's'}: these drive every reliability KPI`,
         critical === 0 ? (total > 0 ? 'NONE FLAGGED' : 'NO DATA') : 'TRACKED',
         critical === 0 ? (total > 0 ? 'amber' : 'grey') : 'green'
       );
@@ -1137,9 +1154,9 @@
       let tone, label, sub;
       if (pending > 5) {
         tone = 'attn'; label = `${pending} asset submissions awaiting your approval`;
-        sub  = 'Open the Pending Approvals card below — workers are blocked from logging entries against unapproved assets.';
+        sub  = 'Open the Pending Approvals card below: workers are blocked from logging entries against unapproved assets.';
       } else if (pending > 0 || (total > 0 && critical === 0)) {
-        tone = 'watch'; label = 'Asset fleet mostly healthy — a couple of things to do';
+        tone = 'watch'; label = 'Asset fleet mostly healthy, a couple of things to do';
         const parts = [];
         if (pending > 0) parts.push(`${pending} pending`);
         if (critical === 0 && total > 0) parts.push('no critical assets flagged');
@@ -1149,7 +1166,7 @@
         sub  = 'Workers add assets from PM Scheduler or Inventory; they appear here once you approve them.';
       } else {
         tone = 'healthy'; label = `${total} asset${total === 1 ? '' : 's'} tracked, ${critical} marked critical`;
-        sub  = 'Registry complete — proceed to PM Scheduler to ensure every critical asset has scope items.';
+        sub  = 'Registry done. Next: open PM Scheduler and give each critical asset a checklist.';
       }
       const vBox = document.getElementById('ah-verdict');
       if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add(tone); }
@@ -1160,17 +1177,30 @@
       // Action
       const actBox = document.getElementById('ah-action-text');
       if (actBox) {
+        // Arc P · Wave 1 (P3 / FUSION 3a): one primary button that scrolls to the
+        // Pending Approvals card or the asset list, per the recommendation.
+        const setCta = (label, scroll) => {
+          const b = document.getElementById('ah-action-btn'); if (!b) return;
+          b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', '#');
+          b.onclick = (e) => { e.preventDefault(); const t = document.querySelector(scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+        };
+        const hideCta = () => { const b = document.getElementById('ah-action-btn'); if (b) b.classList.add('hidden'); };
         let text;
         if (total === 0) {
-          text = 'No assets yet. Workers can submit equipment from PM Scheduler or Inventory — when they do, the submission will land in your Pending Approvals card below.';
+          text = 'No assets yet. Workers can submit equipment from PM Scheduler or Inventory; when they do, the submission will land in your Pending Approvals card below.';
+          hideCta();
         } else if (pending > 5) {
-          text = `${pending} pending asset submissions. Scroll to the Pending Approvals card and approve in bulk — workers can't log breakdowns or PMs against assets that aren't approved.`;
+          text = `${pending} pending asset submissions. Scroll to the Pending Approvals card and approve in bulk: workers can't log breakdowns or PMs against assets that aren't approved.`;
+          setCta(`Approve ${pending} submissions →`, '#pending-assets-card');
         } else if (pending > 0) {
-          text = `${pending} asset${pending === 1 ? '' : 's'} awaiting your sign-off. Open the Pending Approvals card below and review each one — usually a quick yes/no.`;
+          text = `${pending} asset${pending === 1 ? '' : 's'} awaiting your sign-off. Open the Pending Approvals card below and review each one (usually a quick yes/no).`;
+          setCta(`Review ${pending} pending →`, '#pending-assets-card');
         } else if (critical === 0 && total > 0) {
-          text = 'No assets are flagged as critical. Walk through your list below and mark the top 5 production-blocking assets as Critical — this drives where AI focuses its attention.';
+          text = 'No assets are flagged as critical. Walk through your list below and mark the top 5 production-blocking assets as Critical: this drives where AI focuses its attention.';
+          setCta('Mark your critical assets →', '#asset-list');
         } else {
           text = 'Asset registry looks complete. Tap any card for its 360° view (PMs, breakdowns, parts, risk score).';
+          setCta('Browse the asset list →', '#asset-list');
         }
         actBox.textContent = text;
       }
@@ -1224,10 +1254,13 @@
     async function approveAssetNode(nodeId) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       const node = _allNodes.find(n => n.id === nodeId);
-      const { error } = await db.from('asset_nodes')
+      // P6-C1 optimistic lock (sibling of hive.html): only act on a STILL-pending row so a concurrent
+      // approve/reject (e.g. a supervisor on hive.html's queue) cannot re-flip an already-resolved asset.
+      const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
-        .eq('id', nodeId).eq('hive_id', HIVE_ID);
+        .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
       if (error) { showToast('Approve failed: ' + error.message); return; }
+      if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadAssetNodes(); return; }
       writeAuditLog('approve_asset_node', 'asset_nodes', nodeId,
         (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
       showToast('Asset approved.');
@@ -1238,10 +1271,12 @@
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       if (!(await window.whConfirm('Reject this asset? It stays in the queue but will not appear in the approved list.', { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
       const node = _allNodes.find(n => n.id === nodeId);
-      const { error } = await db.from('asset_nodes')
+      // P6-C1 optimistic lock (sibling of hive.html): only reject a STILL-pending row (no re-flip race).
+      const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
-        .eq('id', nodeId).eq('hive_id', HIVE_ID);
+        .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
       if (error) { showToast('Reject failed: ' + error.message); return; }
+      if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadPendingAssets(); return; }
       writeAuditLog('reject_asset_node', 'asset_nodes', nodeId,
         (node && (node.label || node.tag)) || nodeId, { node_type: node && node.node_type });
       showToast('Asset rejected.');
@@ -1274,6 +1309,19 @@
             || (n.name || '').toLowerCase().includes(q)
             || (n.location || '').toLowerCase().includes(q)
             || (n.iso_class || '').toLowerCase().includes(q);
+      });
+
+      // Arc P · P2/P5: surface the vital 20% first — order criticality-desc so the
+      // critical assets lead the list instead of being interleaved alphabetically.
+      // _allNodes is already tag-ASC from the DB query; Array.sort is stable in all
+      // modern browsers, so this keeps the alphabetical order WITHIN each tier. Runs on
+      // `filtered` BEFORE the Load-More slice, so the 6 critical rows land in page 1
+      // (and search results stay critical-first too); paging/count are untouched.
+      const _critRank = { critical: 0, high: 1, medium: 2, low: 3 };
+      filtered.sort((a, b) => {
+        const ra = _critRank[String(a.criticality || 'medium').toLowerCase()] ?? 2;
+        const rb = _critRank[String(b.criticality || 'medium').toLowerCase()] ?? 2;
+        return ra - rb;
       });
 
       const lmWrap = document.getElementById('asset-load-more-wrap');
@@ -1387,11 +1435,28 @@
 
       // Wire the Ask Asset Brain box
       wireAskBox(nodeId);
+
+      // K4 (2026-07-12): ground the FLOATING companion (agent 'voice-journal') on the
+      // viewed asset — the Asset Brain box grounds its own Q&A but the widget was blind.
+      // PII-SAFE (piiSafe:true): equipment attributes only (tag/name/criticality/ISO class).
+      try {
+        const _n = _allNodes.find(n => n.id === nodeId);
+        if (_n && window.WHAssistant?.setContext) {
+          const _tag = _n.tag || _n.name || 'asset';
+          const _facts = [
+            `Asset: ${_tag}${_n.name && _n.name !== _tag ? ' (' + _n.name + ')' : ''}`,
+            _n.criticality ? `Criticality: ${_n.criticality}` : null,
+            _n.iso_class ? `ISO 14224 class: ${_n.iso_class}` : null,
+          ].filter(Boolean).join('\n');
+          window.WHAssistant.setContext({ key: 'asset:' + nodeId, summary: _facts, badge: _tag, piiSafe: true });
+        }
+      } catch (_) { /* empty-catch-allow: best-effort grounding, never blocks the detail view */ }
     }
 
     function closeDetail() {
       _selectedNodeId = null;
       _pfWiredForNode = null;
+      if (window.WHAssistant?.clearContext) window.WHAssistant.clearContext();  // K4: drop asset grounding on exit
       unsubscribeAsset();
       document.getElementById('detail-view').style.display = 'none';
       document.getElementById('list-view').style.display = 'block';
@@ -1433,10 +1498,23 @@
         const tagCode = node.tag || node.name || '';
         qrBtn.style.display = tagCode ? 'inline-flex' : 'none';
         qrBtn.onclick = function () {
-          if (!window.WHAssetQR) { showToast('QR generator still loading — try again.'); return; }
+          if (!window.WHAssetQR) { showToast('QR generator still loading, try again.'); return; }
           WHAssetQR.printTag(tagCode, node.name, node.location)
             .catch(function (e) { showToast((e && e.message) || 'Could not generate the QR tag.'); });
         };
+      }
+
+      // Cross-page connectivity: link to this asset's alerts in Alert Hub (alert-hub reads
+      // ?asset= to focus the matching alert). Completes the asset<->alert loop.
+      const alertsLink = document.getElementById('detail-alerts-link');
+      if (alertsLink) {
+        const tagCode = node.tag || node.name || '';
+        if (tagCode) {
+          alertsLink.href = 'alert-hub.html?asset=' + encodeURIComponent(tagCode);
+          alertsLink.style.display = 'inline-flex';
+        } else {
+          alertsLink.style.display = 'none';
+        }
       }
       if (critEl) {
         critEl.textContent = node.criticality || 'medium';
@@ -1491,12 +1569,12 @@
       if (lb) lb.textContent = _lbv;
       // PM completed: distinguish "0 done" from "not linked to a PM program". A bare
       // 0 on an UNLINKED asset silently hides the missing asset->PM bridge (P9) — show
-      // an honest "—" marker (em dash = N/A, the platform's honest-empty convention)
+      // an honest "-" marker (em dash = N/A, the platform's honest-empty convention)
       // with a tooltip, so a dark tile reads as "no PM program" not "PM never done".
       if (pm) {
         if (!_pmLinked) {
-          pm.textContent = '—';
-          pm.title = 'Not linked to a PM program yet — PM completions can\'t be shown for this asset.';
+          pm.textContent = '-';
+          pm.title = 'Not linked to a PM program yet, so PM completions can\'t be shown for this asset.';
           pm.setAttribute('data-pm-unlinked', '1');
         } else {
           pm.textContent = _pmv;
@@ -1508,7 +1586,7 @@
       // Calm Dashboard Contract: dim zero counts on the asset-360 stat strip.
       if (window.hideZeroStat) {
         hideZeroStat(lb, _lbv);
-        if (_pmLinked) hideZeroStat(pm, _pmv);  // never dim the "—" not-linked marker
+        if (_pmLinked) hideZeroStat(pm, _pmv);  // never dim the "-" not-linked marker
       }
     }
 
@@ -1580,11 +1658,11 @@
         lvlEl.style.background = 'rgba(' + _hexToRgb(levelColor) + ',0.15)';
         lvlEl.style.color      = levelColor;
       }
-      if (mtbfEl) mtbfEl.textContent = row.mtbf_days != null ? Math.round(row.mtbf_days) + 'd' : '—';
+      if (mtbfEl) mtbfEl.textContent = row.mtbf_days != null ? Math.round(row.mtbf_days) + 'd' : '-';
       if (daysEl) {
         const d = row.days_until_failure;
         if (d == null) {
-          daysEl.textContent = '—';
+          daysEl.textContent = '-';
         } else if (d < 0) {
           daysEl.textContent = Math.round(Math.abs(d)) + 'd overdue';
           daysEl.style.color = '#f87171';
@@ -1592,7 +1670,7 @@
           daysEl.textContent = Math.round(d) + 'd';
         }
       }
-      if (genEl) genEl.textContent = row.generated_at ? fmtRelative(row.generated_at) : '—';
+      if (genEl) genEl.textContent = row.generated_at ? fmtRelative(row.generated_at) : '-';
 
       // Top factors. Phase 5a v1 emits structured factors:
       //   [{factor, weight, value, contribution, explanation}]
@@ -1630,7 +1708,7 @@
               +     '</div>'
               +     '<span style="font-size:.65rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
               +   '</div>'
-              + (explain ? '<div style="font-size:.66rem; color:rgba(255,255,255,0.55); line-height:1.35;">' + e(explain) + '</div>' : '')
+              + (explain ? '<div style="font-size:.66rem; color:rgba(255,255,255,0.62); line-height:1.35;">' + e(explain) + '</div>' : '')
               + '</div>';
           }).join('');
         } else {
@@ -1693,8 +1771,24 @@
       const rec = (data || [])[0];
       if (!rec) return;
 
+      // Defensive: a legacy row may store parts as a double-encoded JSON *string*
+      // (jsonb_typeof='string' from an old seeder json.dumps) rather than a jsonb array.
+      // Normalize to a real array so the render + accept paths read it uniformly.
+      rec.parts = _parsePartsField(rec.parts);
+
       _stagingRec = rec;
       _renderStagingCard(rec);
+    }
+
+    // Coerce a parts field into an array whether it arrives as a jsonb array (correct)
+    // or a double-encoded JSON string (legacy). Returns [] on anything unparseable.
+    function _parsePartsField(raw) {
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === 'string' && raw.trim()) {
+        try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; }
+        catch (_) { return []; }
+      }
+      return [];
     }
 
     function _renderStagingCard(rec) {
@@ -1745,7 +1839,7 @@
 
       if (!picked.length) {
         if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
-        toast && toast('Select at least one part');
+        showToast('Select at least one part');
         return;
       }
 
@@ -1763,7 +1857,7 @@
         db.from('parts_staged_reservations').insert(reservations),
         db.from('parts_staging_recommendations')
           .update({ status: 'accepted', acted_at: new Date().toISOString(), acted_by: WORKER_NAME })
-          .eq('id', _stagingRec.id),
+          .eq('id', _stagingRec.id).is('acted_at', null),  // P6-C1: only act on an un-acted recommendation (no double-act re-flip)
       ]);
 
       const insErr = resvRes.status === 'fulfilled' && resvRes.value.error ? resvRes.value.error : null;
@@ -1771,13 +1865,13 @@
       if (insErr || updErr) {
         console.warn('staging accept:', insErr?.message || updErr?.message);
         if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
-        toast && toast('Could not stage parts: ' + (insErr?.message || updErr?.message));
+        showToast('Could not stage parts: ' + (insErr?.message || updErr?.message));
         return;
       }
 
       if (card) card.style.display = 'none';
       _stagingRec = null;
-      toast && toast('Staged ' + picked.length + ' part' + (picked.length === 1 ? '' : 's'));
+      showToast('Staged ' + picked.length + ' part' + (picked.length === 1 ? '' : 's'));
     }
 
     async function _onStagingDismiss() {
@@ -1785,10 +1879,10 @@
       const card = document.getElementById('staging-card');
       const { error } = await db.from('parts_staging_recommendations')
         .update({ status: 'dismissed', acted_at: new Date().toISOString(), acted_by: WORKER_NAME })
-        .eq('id', _stagingRec.id);
+        .eq('id', _stagingRec.id).is('acted_at', null);  // P6-C1: only dismiss an un-acted recommendation
       if (error) {
         console.warn('staging dismiss:', error.message);
-        toast && toast('Could not dismiss: ' + error.message);
+        showToast('Could not dismiss: ' + error.message);
         return;
       }
       if (card) card.style.display = 'none';
@@ -1838,7 +1932,12 @@
       results.forEach((res, idx) => {
         if (res.status !== 'fulfilled' || res.value.error) return;
         const rows = res.value.data || [];
-        if (idx === 0 && node.legacy_asset_id) {
+        // F19: query index 0 is ALWAYS the logbook query (pushed first); the pm_completions
+        // query is index 1 (only present when node.pm_asset_id). The old guard also required
+        // node.legacy_asset_id, but that text bridge was dropped in Phase 5b (see comment above),
+        // so for any asset without a legacy id the logbook rows fell into the else branch and
+        // rendered as "PM completed by unknown". Key purely on the query index.
+        if (idx === 0) {
           rows.forEach(r => events.push({
             kind: 'logbook',
             when: r.created_at,
@@ -1918,7 +2017,7 @@
             const detail   = document.getElementById('sensor-anomaly-detail');
             if (headline) headline.textContent = `${anom.parameter || 'Reading'} reading 3-sigma off baseline`;
             if (detail) {
-              const when = anom.recorded_at ? new Date(anom.recorded_at).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+              const when = anom.recorded_at ? whFmtDate(anom.recorded_at, { time: true }) : '-';
               detail.textContent = `Latest anomaly at ${when}. Value: ${anom.value}. Check the Live Telemetry tile below for the parameter trend.`;
             }
             banner.style.display = 'block';
@@ -2040,7 +2139,7 @@
       if (btn) {
         btn.setAttribute('aria-expanded', eng ? 'true' : 'false');
         btn.innerHTML = eng
-          ? '\u{1F527} Reliability Workbench (engineer view) — tap to hide'
+          ? '\u{1F527} Reliability Workbench (engineer view): tap to hide'
           : '\u{1F527} Show Reliability Workbench (engineer view)';
       }
     }
@@ -2129,10 +2228,10 @@
           +   '<span>D ' + e(String(m.detection ?? '?')) + '</span>'
           + '</span>';
         const aiBadge = (m.source && m.source.startsWith('ai_') && m.ai_confidence != null)
-          ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.45);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
+          ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.62);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
           : '';
         const fmeaActions = isSupervisor && !m.approved_at
-          ? '<button class="approve" data-action="approve" data-id="' + e(m.id) + '">Approve</button>'
+          ? '<button class="approve" data-action="approve" data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '">Approve</button>'
           +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '">Delete</button>'
           : '';
         const cause  = m.cause_text  ? '<div style="font-size:.7rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
@@ -2200,7 +2299,8 @@
           const id     = btn.getAttribute('data-id');
           const modeId = btn.getAttribute('data-mode-id');
           const stratId = btn.getAttribute('data-strategy-id');
-          if (action === 'approve')        approveFmeaMode(id);
+          const modeName = btn.getAttribute('data-mode-name') || '';
+          if (action === 'approve')        approveFmeaMode(id, modeName);
           else if (action === 'delete')    deleteFmeaMode(id);
           else if (action === 'strat-edit')    openStrategyModal(modeId);
           else if (action === 'strat-push')    pushStrategyToPm(stratId);
@@ -2288,14 +2388,16 @@
       await loadDetailFmea(_selectedNodeId);
     }
 
-    async function approveFmeaMode(id) {
+    async function approveFmeaMode(id, modeName) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       const { error } = await db.from('rcm_fmea_modes')
         .update({ approved_by: WORKER_NAME || null, approved_at: new Date().toISOString() })
         .eq('id', id)
         .eq('hive_id', HIVE_ID);
       if (error) { showToast('Approve failed: ' + error.message); return; }
-      writeAuditLog('approve_fmea_mode', 'rcm_fmea_modes', id, id, { node_id: _selectedNodeId });
+      // target_name = the readable failure-mode text (not the uuid) so the Supervisor Action Log
+      // on the hive board reads "Approved FMEA mode <mode>" instead of a raw id.
+      writeAuditLog('approve_fmea_mode', 'rcm_fmea_modes', id, modeName || id, { node_id: _selectedNodeId });
       showToast('FMEA mode approved.');
       await loadDetailFmea(_selectedNodeId);
     }
@@ -2314,11 +2416,16 @@
     }
 
     // ── Phase R.4: RCM strategy modal + write-back to PM Scheduler ─────────────
+    // Canonical PM frequencies (match pm-scheduler.html's FREQ registry). Weekly/Daily buckets
+    // are REQUIRED — without them a 7-day RCM interval wrongly rounded to Monthly, losing the
+    // weekly PM's frequency (PM PDDA cross-page write consistency). 'Annual' not 'Yearly'.
     const RCM_INTERVAL_TO_FREQ = {
+      1:   'Daily',
+      7:   'Weekly',
       30:  'Monthly',
       90:  'Quarterly',
       180: 'Semi-Annual',
-      365: 'Yearly',
+      365: 'Annual',
     };
 
     function _intervalToFrequencyLabel(days) {
@@ -2326,7 +2433,7 @@
       if (!Number.isFinite(n) || n <= 0) return null;
       if (RCM_INTERVAL_TO_FREQ[n]) return RCM_INTERVAL_TO_FREQ[n];
       // Round to the nearest known frequency so PM Scheduler can compute next-due.
-      const buckets = [[30,'Monthly'],[90,'Quarterly'],[180,'Semi-Annual'],[365,'Yearly']];
+      const buckets = [[1,'Daily'],[7,'Weekly'],[30,'Monthly'],[90,'Quarterly'],[180,'Semi-Annual'],[365,'Annual']];
       let best = buckets[0]; let bestDiff = Math.abs(n - best[0]);
       for (const b of buckets) {
         const diff = Math.abs(n - b[0]);
@@ -2343,7 +2450,7 @@
       _strategyFmeaModeId = fmeaModeId;
 
       const ctx = document.getElementById('rcm-fmea-context');
-      if (ctx) ctx.textContent = (mode.failure_mode || '(unspecified)') + ' — ' + (mode.function_text || 'function unset');
+      if (ctx) ctx.textContent = (mode.failure_mode || '(unspecified)') + ': ' + (mode.function_text || 'function unset');
 
       // Pre-fill from existing strategy if present
       const existing = _strategiesByMode[fmeaModeId];
@@ -2442,10 +2549,21 @@
 
       let error = null;
       if (existing) {
-        // Replace policy: update the existing row so we keep one strategy per FMEA mode
-        const upd = await db.from('rcm_strategies')
+        // Replace policy: update the existing row so we keep one strategy per FMEA mode.
+        // Optimistic-concurrency guard: only overwrite the row still at the snapshot we loaded, so a
+        // second engineer editing the SAME FMEA-mode strategy isn't silently clobbered (lost-update).
+        let updQ = db.from('rcm_strategies')
           .update(payload).eq('id', existing.id).eq('hive_id', HIVE_ID);
+        if (existing.updated_at) updQ = updQ.eq('updated_at', existing.updated_at);
+        const upd = await updQ.select('id');
         error = upd.error;
+        if (!error && (!upd.data || upd.data.length === 0)) {
+          // Conflict: someone changed this strategy since it was opened. Reload, don't clobber.
+          if (saveBtn) saveBtn.disabled = false;
+          showToast('This strategy changed since you opened it, reloading.');
+          if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
+          return;
+        }
       } else {
         const ins = await db.from('rcm_strategies').insert(payload);
         error = ins.error;
@@ -2511,6 +2629,7 @@
       const newRow = {
         hive_id:     HIVE_ID,
         worker_name: WORKER_NAME || 'system',
+        auth_uid:    _authUid || null,  // attribution FK (was dropped)
         asset_name:  targetName || 'Untitled asset',
         tag_id:      node.tag || null,
         location:    node.location || null,
@@ -2675,7 +2794,7 @@
         patternEl.className   = 'weibull-pattern-pill weibull-pattern-' + e(pattern);
       }
       if (metaEl) {
-        const when = fit.generated_at ? new Date(fit.generated_at).toLocaleString('en-PH') : '';
+        const when = fit.generated_at ? whFmtDate(fit.generated_at, { time: true }) : '';
         const ll   = (fit.log_likelihood != null) ? ' · log-likelihood ' + Number(fit.log_likelihood).toFixed(2) : '';
         metaEl.textContent = `n_failures ${fit.n_failures || 0} · n_censored ${fit.n_censored || 0} · window ${fit.source_window_days || '--'}d${ll}${when ? ' · last fit ' + when : ''}`;
       }
@@ -2731,7 +2850,7 @@
         // → Predictive · Alert Hub · Analytics on the next recompute. Claim ONLY
         // what fires: insufficient-data fits don't score, so no ripple is claimed.
         showToast(data && data.failure_pattern === 'insufficient_data'
-          ? 'Not enough failures yet — log more breakdowns.'
+          ? 'Not enough failures yet, log more breakdowns.'
           : '✓ Weibull fit saved → feeds this asset’s risk score (wearout factor, β>1) on next recompute → Predictive · Alert Hub · Analytics.',
           data && data.failure_pattern === 'insufficient_data' ? undefined : 6000);
         await loadLatestWeibull(nodeId);
@@ -2819,7 +2938,7 @@
       }
       if (metaEl) {
         const param = result.parameter || '';
-        const when  = result.generated_at ? new Date(result.generated_at).toLocaleString('en-PH') : '';
+        const when  = result.generated_at ? whFmtDate(result.generated_at, { time: true }) : '';
         metaEl.textContent = `parameter ${param} · ${result.n_pairs || 0} P-F pair(s)`
           + (when ? ' · last computed ' + when : '');
       }
@@ -2902,7 +3021,7 @@
             : 'P-F interval saved.';
         }
         showToast(data && data.pf_days == null
-          ? 'No P-F pair detected — see diagnostic.'
+          ? 'No P-F pair detected, see diagnostic.'
           : 'P-F interval computed.');
         // After successful compute we read back from the canonical view so the
         // displayed row matches what other readers see.
@@ -3029,7 +3148,7 @@
       let weibullBlock;
       if (weibull && weibull.beta != null) {
         weibullBlock = `
-          <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table class="meta-table">
+          <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table class="meta-table">
             <tr><th>Beta (shape)</th><td>${esc(Number(weibull.beta).toFixed(2))}</td></tr>
             <tr><th>Eta (characteristic life)</th><td>${esc(Math.round(Number(weibull.eta_days)))} d</td></tr>
             <tr><th>Pattern</th><td>${esc(weibull.failure_pattern)}</td></tr>
@@ -3038,7 +3157,7 @@
             <tr><th>Window</th><td>${esc(weibull.source_window_days || '?')} d</td></tr>
             <tr><th>Log-likelihood</th><td>${weibull.log_likelihood != null ? esc(Number(weibull.log_likelihood).toFixed(2)) : '--'}</td></tr>
             <tr><th>Last fit</th><td>${esc(fmtDate(weibull.generated_at))}</td></tr>
-          </table>`;
+          </table></div>`;
       } else {
         weibullBlock = '<p class="empty">No Weibull fit yet. Compute on the Weibull tab once at least 4 corrective events are logged (IEC 61649).</p>';
       }
@@ -3068,7 +3187,7 @@
       return `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
-<title>Reliability Report — ${esc(node.tag || node.name || 'asset')}</title>
+<title>Reliability Report: ${esc(node.tag || node.name || 'asset')}</title>
 <style>
   /* Phase R.7 print CSS — black-on-white, A4 layout, page-break-friendly */
   @page { size: A4; margin: 12mm 14mm; }
@@ -3089,7 +3208,7 @@
           margin: 4px 0 14px 0; }
   .meta div { white-space: nowrap; }
   .summary { margin: 4px 0 14px 0; padding: 10px 12px;
-             background: #f5f3ff; border: 1px solid #d6cefc; border-radius: 6px;
+             background: #f5f3ff; border: 1px solid #d6cefc; border-radius: var(--wh-radius);
              page-break-inside: avoid; }
   .summary ul { margin: 4px 0 0 0; padding-left: 18px; }
   .summary li { margin-bottom: 3px; }
@@ -3129,7 +3248,7 @@
 
 <header>
   <!-- heading-allow: printable Reliability Report is a self-contained document (own window, window.print/close) and legitimately emits its own h1 -->
-  <h1>Reliability Report — ${esc(node.tag || node.name || 'Untitled asset')}</h1>
+  <h1>Reliability Report: ${esc(node.tag || node.name || 'Untitled asset')}</h1>
   <div class="meta">
     <div><strong>Asset:</strong> ${esc(node.name || node.tag || '--')}</div>
     <div><strong>ISO 14224 class:</strong> ${esc(node.iso_class || '--')}</div>
@@ -3154,23 +3273,23 @@
 
 <section>
   <h2>1. FMEA matrix (AIAG-VDA 2019)</h2>
-  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
     <thead><tr>
       <th>RPN</th><th>Function</th><th>Failure mode</th><th>Effect</th><th>Cause</th>
       <th>S</th><th>O</th><th>D</th><th>Conseq.</th><th>Source</th>
     </tr></thead>
     <tbody>${fmeaRows}</tbody>
-  </table>
+  </table></div>
 </section>
 
 <section>
   <h2>2. RCM strategies (SAE JA1011 / JA1012)</h2>
-  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
     <thead><tr>
       <th>Decision</th><th>Task</th><th>Interval</th><th>Rationale</th><th>PM link</th><th>Source</th>
     </tr></thead>
     <tbody>${rcmRows}</tbody>
-  </table>
+  </table></div>
 </section>
 
 <section>
@@ -3180,22 +3299,22 @@
 
 <section>
   <h2>4. P-F intervals (RCM bathtub curve, ISO 13381-1)</h2>
-  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
     <thead><tr>
       <th>Parameter</th><th>P</th><th>F</th><th>P-F window</th><th>Inspect every</th><th>Basis</th><th>Computed</th>
     </tr></thead>
     <tbody>${pfRows}</tbody>
-  </table>
+  </table></div>
 </section>
 
 <section>
   <h2>5. Recent corrective history (last 365 d)</h2>
-  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <table>
+  <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
     <thead><tr>
       <th>Date</th><th>Type</th><th>Problem</th><th>Root cause</th><th>Downtime</th>
     </tr></thead>
     <tbody>${logRows}</tbody>
-  </table>
+  </table></div>
 </section>
 
 <footer>
@@ -3247,7 +3366,7 @@
             </div>
             <div class="mk-meta">${e(r.seller_name || 'unknown seller')}${r.seller_verified ? ' &middot; verified' : ''}${r.location ? ' &middot; ' + e(r.location) : ''}${r.condition ? ' &middot; ' + e(r.condition) : ''}</div>
           </a>
-          <div class="mk-price">${r.price != null ? '&#8369; ' + Number(r.price).toLocaleString() : ''}</div>
+          <div class="mk-price">${r.price != null ? whFmtPeso(r.price) : ''}</div>
         </div>
       `).join('');
     }
@@ -3575,6 +3694,7 @@
       if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
         WORKER_NAME = await restoreIdentityFromSession(db);
       }
+      try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort */ }
       // CLS fix (Arc L L1): #page-wrap ships VISIBLE (skeleton placeholders only —
       // 'Loading...'/0, no private data), so it paints once in its final layout at
       // first paint and async data fills IN PLACE. We HIDE it only on a gate failure
@@ -3643,7 +3763,7 @@
       if (scanBtn) {
         scanBtn.addEventListener('click', () => {
           if (!window.WHQRScanner) {
-            showToast('Scanner not loaded yet — try again in a moment');
+            showToast('Scanner not loaded yet, try again in a moment');
             return;
           }
           window.WHQRScanner.open({
@@ -3678,7 +3798,7 @@
         _chipEl.innerHTML = renderSourceChip({
           freshness: 'Daily snapshot at 13:00 PHT',
           source:    'v_risk_truth',
-          window:    'MTBF computed over the 365-day failure window',
+          method:    ['MTBF computed over the 365-day failure window'],
         });
       }
       // Phase Tier2.4 (2026-05-12): page-level chip on Asset Hub. The page
@@ -3693,7 +3813,7 @@
           notes:     ['Click any asset for its full 360 (timeline, neighbours, reliability)'],
         });
       }
-      init();
+      Promise.resolve(init()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3): stamp only AFTER the load completed
     });
   </script>
   <script src="companion-launcher.js"></script>
@@ -3776,13 +3896,57 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;
     const live = [val].filter(v => v != null && Number(v) > 0);
     el.style.opacity = (live.length > 0) ? '1' : '0.55';
+  };
+</script>
+
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    gatetitle: 'Kailangan ng hive ang Asset Hub',
+    allassets: 'Lahat ng asset',
+    showdetails: 'Ipakita ang detalye',
+    scan: 'I-scan',
+    loadmore: 'Mag-load pa',
+    pendingapprovals: 'Mga asset na naghihintay ng approval',
+    printqr: '⤓ I-print ang QR tag',
+    riskprofile: 'Profile ng Risk',
+    stagesel: 'I-stage ang napili',
+    dismiss: 'I-dismiss',
+    showworkbench: '🔧 Ipakita ang Reliability Workbench (engineer view)',
+    printreport: 'I-print ang Report',
+    addfailmode: '+ Magdagdag ng failure mode',
+    suggesthistory: 'Imungkahi mula sa history (AI)',
+    computeweibull: 'I-compute ang Weibull fit',
+    parameter: 'Parameter',
+    pwarning: 'P (babala)',
+    ffailure: 'F (pagkasira)',
+    direction: 'Direksyon',
+    safetycritical: 'Safety-critical (gamitin ang P-F/3)',
+    computepf: 'I-compute ang P-F interval',
+    timeline: 'Timeline',
+    extsystems: 'Mga external system',
+    mklistings: 'Mga listing sa Marketplace para sa class na ito',
+    askbrain: 'Itanong sa Asset Brain',
+    ask: 'Itanong',
+    addfailmodetitle: 'Magdagdag ng failure mode',
+    fmeafunction: 'Function (ano ang dapat gawin ng asset na ito?)',
+    fmeaeffect: 'Effect (ano ang nangyayari kapag nasira ito?)',
+    fmeacause: 'Cause (bakit ito nasisira?)',
+    consequenceclass: 'Klase ng consequence',
+    cancel: 'Kanselahin',
+    save: 'I-save',
+    setrcm: 'Itakda ang RCM strategy',
+    rcmdecision: '1. JA1011 decision (anong uri ng task ang nararapat sa failure na ito?)',
+    rcmtask: 'Task text (ano ang gagawin ng technician?)',
+    rcmrationale: 'Rationale (bakit ang desisyong ito?)',
+    savestrategy: 'I-save ang strategy',
   };
 </script>
 </body>

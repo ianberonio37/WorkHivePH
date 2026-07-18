@@ -1708,6 +1708,44 @@ def serve_flagship(filename):
                      download_name=p.name if force else None)
 
 
+# ── Social auto-publisher (distribute the produced video) ────────────────────
+
+@app.route("/api/social/check", methods=["GET"])
+def social_check():
+    """Report which social platforms are armed (have creds / are toggled on),
+    so the dashboard can show the operator what's ready before publishing."""
+    try:
+        from tools import social_publisher as sp
+        cfg = sp.load_config()
+        return jsonify({
+            "success":    True,
+            "creds_file": sp.CREDS_FILE.exists(),
+            "mode":       (cfg.get("SOCIAL_PUBLISH_MODE") or "dry_run").strip().lower(),
+            "armed":      sp.armed_platforms(cfg),
+        })
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/ideas/<idea_id>/publish", methods=["POST"])
+def publish_idea(idea_id):
+    """Publish (or dry-run preview) a produced idea to the armed social platforms.
+    Dry-run is a pure preview — nothing posts and no pages open. live=true posts
+    to the AUTO platforms (Facebook Page / Telegram / Discord) and opens the
+    upload pages for the ASSIST platforms (server-side = on this machine)."""
+    try:
+        from tools import social_publisher as sp
+        body = request.get_json(silent=True) or {}
+        live = bool(body.get("live"))
+        platforms = body.get("platforms") or None
+        result = sp.publish(idea_id, platforms=platforms, live=live)
+        return jsonify({"success": True, **result})
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
 # ── Platform Pack (8-platform social copy from one idea) ─────────────────────
 
 @app.route("/api/ideas/<idea_id>/platform-pack", methods=["GET"])

@@ -50,8 +50,6 @@ EDGE_ROWS: dict[str, list[str]] = {
         "batch-risk-scoring", "parts-staging-recommender", "trigger-ml-retrain",
         "project-progress", "resume-extract", "resume-polish", "ai-eval-runner",
         "asset-brain-query"],
-    "E6 Marketplace & Payments": ["marketplace-checkout", "marketplace-release",
-        "marketplace-webhook", "marketplace-connect-onboard", "marketplace-connect-status"],
     "E7 Integrations & Data Fabric": ["cmms-sync", "cmms-push-completion", "cmms-webhook-receiver",
         "sensor-readings-ingest", "platform-scraper", "cold-archive-query", "intelligence-api",
         "intelligence-report", "export-hive-data"],
@@ -73,7 +71,6 @@ F3_DISPOSITION = {
     "asset-brain-query":           ("na",    "writes ai_rate_limits counter — fire-and-forget correct"),
     "cmms-push-completion":        ("na",    "writes automation_log (audit) — fire-and-forget correct"),
     "intelligence-report":         ("na",    "writes automation_log (audit) — fire-and-forget correct"),
-    "marketplace-connect-onboard": ("proof", "seller upsert + Stripe wrapped in try/catch with log.error"),
     "send-report-email":           ("proof", "writes wrapped in try/catch with log.error"),
 }
 

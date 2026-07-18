@@ -26,7 +26,8 @@
  * Standards: PMBOK 7th ed., AACE 17R-97, IDCON 6-Phase, ISO 21500.
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads.
@@ -314,7 +315,12 @@ Draft the lessons-learned bullets.`;
 }
 
 /* ── Handler ────────────────────────────────────────────────────────── */
-serve(async (req: Request) => {
+serveObserved("project-orchestrator", async (req: Request) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "project-orchestrator", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req) });
   }

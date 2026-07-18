@@ -19,8 +19,8 @@ const _DEFAULT_ALLOWED = [
 // Dynamic CORS: echoes the request origin back if it's allowed.
 // Allows "null" origin so file:// local testing works without CORS errors.
 // `Access-Control-Allow-Methods` covers all POST-based edge fns (the
-// universal case in this codebase). Webhooks that need different methods
-// or `*` origin (e.g., Stripe `marketplace-webhook`) keep their own
+// universal case in this codebase). Webhook receivers that need different
+// methods or a `*` origin (e.g., the CMMS webhook receiver) keep their own
 // inline helper -- documented exceptions, not drift.
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") || "";

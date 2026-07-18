@@ -15,7 +15,8 @@
  * Called by pg_cron daily + can be triggered manually via POST with { hive_id }.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -278,7 +279,12 @@ async function scanHive(
 // Entry point
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("failure-signature-scan", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "failure-signature-scan", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "failure-signature-scan");  // I6 observability
@@ -352,11 +358,7 @@ serve(async (req) => {
     { status: 200, headers: { ...cors, "Content-Type": "application/json" } },
   );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log.error(null, "failure-signature-scan top-level error:", { detail: msg });
-    return new Response(
-      JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "failure-signature-scan", "failure_signature_scan_error", err);
   }
 });

@@ -1,0 +1,55 @@
+
+  [96mMATURITY P2[0m
+  --------------------------------------------------------------------
+  RUN   Cache-Signals Miner (CA G-1.5: CDN _headers + LLM cached() adopters + SW shell precache shape)  [92mPASS[0m   0.1s
+  RUN   Rate-Limit-Signals Miner (RL G-1.5: per-fn rate-limit primitives + verifiedHiveId bucketing-key shape)  [92mPASS[0m   0.1s
+  RUN   Cache Efficiency Ratchet (CA GH: CDN Cache-Control rules present + LLM cached() adopter floor)  [92mPASS[0m   0.1s
+  RUN   Rate-Limit Fairness Sentinel (RL GS: no fn buckets on a spoofable client hive_id; latent ratchet; keystone fair)  [92mPASS[0m   0.2s
+
+  [96mMATURITY P3[0m
+  --------------------------------------------------------------------
+  RUN   Deploy-Signals Miner (H G-1.5: edge fn registration/deploy coverage + rollback/pre-deploy presence)  [92mPASS[0m   0.1s
+  RUN   CI-Signals Miner (CI G-1.5: workflow count/triggers + gate-running + .tool-versions pin)  [92mPASS[0m   0.2s
+  RUN   Deploy-Safety Sentinel (H GS: rollback runbook + pre-deploy gate + undeployed-fn ratchet)  [92mPASS[0m   0.2s
+  RUN   CI-Gate Sentinel (CI GS: local ci_gate + a workflow runs the gate + reproducible pin + wired trigger)  [92mPASS[0m   0.1s
+  RUN   Log-Surface Discovery (L G-1: count of fns logging raw console.* without logger.ts frozen at baseline)  [92mPASS[0m   0.2s
+  RUN   Log-Correlation Sentinel (L GS: structured logger + trace_id correlation + JSON + trace-store aggregation)  [92mPASS[0m   0.1s
+
+  [96mMATURITY P4[0m
+  --------------------------------------------------------------------
+  RUN   OpenAPI Sync (A capability: openapi.json covers every edge fn in ALL_FUNCTIONS, no ghost routes; re-run tools/gen_openapi.py on drift)  [92mPASS[0m   0.1s
+  RUN   Layer sub-discipline COVERAGE (A7.4 §14.5: 99-item rubric checklist across 13 layers; forward-only ratchet — a layer losing validator/tool evidence FAILs. Measures presence-of-mechanism = upper bound on true-scope depth, NOT depth)  [92mPASS[0m   2.3s
+  RUN   Gateway-axis MEASURED (G2 §14.6: derives each layer's PEP-chokepoint grade from REAL bypass reports — gateway_coverage/tenancy/policy-hive-binding/canonical-sources/kpi-canonical; forward-only on bypass count. 7/13 measured; data-gateway bypass = G1 target → 0)  [92mPASS[0m   0.1s
+  RUN   HONEST per-layer depth (§14.6: Gateway PEP × Gate ratchet × Prod-real, 13 layers; forward-only composite ratchet. Stricter than the 13x6 matrix + coverage — requires a PREVENTION chokepoint + prod-real, not detection/local-substitute. Overall 64.1%; Gateway axis 7.5/13 = the frontier, now 7 grades instrument-backed via gateway-bypass)  [92mPASS[0m   0.1s
+  RUN   Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)  [92mPASS[0m   0.2s
+  RUN   AI Self-Improvement: Visual Defect Confidence         [92mPASS[0m   0.1s
+
+  [96mARC L[0m
+  --------------------------------------------------------------------
+  RUN   Arc L Performance & Scale ratchet (forward-only: S/E/R/B pass-counts >= locked baseline; floors S90/E85/R85/B95)  [92mPASS[0m   0.1s
+
+  [96mREADINESS GATE[0m
+  --------------------------------------------------------------------
+  [93mWARN[0m  Git working tree                        5 uncommitted file(s)
+  [96mSKIP[0m  Python API (Render)                     --fast mode
+  [96mSKIP[0m  Supabase edge function                  --fast mode
+
+  FAILURES
+  --------------------------------------------------------------------
+  [91mFAIL[0m  Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)
+         [91mFAIL — broken 1 > baseline 0 (new broken link introduced)[0m
+  [91mFAIL[0m  Loads-Utils-JS (3-layer: required + allowlist-freshness + census)
+         [91mFAIL[0m  L1  Every non-allowlisted root HTML page loads utils.js
+  [91mFAIL[0m  Migration Immutability Strict (sha256 every migration; FAIL on edit-after-first-observation)
+         [91mFAIL: 1 migration(s) edited after first observation[0m
+
+  [91mREGRESSIONS DETECTED[0m (was PASS, now FAIL):
+  [91mREG[0m  Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)
+  [91mREG[0m  Loads-Utils-JS (3-layer: required + allowlist-freshness + census)
+  [91mREG[0m  Migration Immutability Strict (sha256 every migration; FAIL on edit-after-first-observation)
+========================================================================
+
+  [1m[91mBLOCKED — fix failures before deploying[0m[0m
+  437 PASS  3 FAIL  0 WARN  62 SKIP  |  1036.5s total
+
+  Saved platform_health.json

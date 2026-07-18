@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#F7A21B" />
   <link rel="manifest" href="manifest.json" />
-  <title>Seller Profile — WorkHive Marketplace</title>
+  <title>Seller Profile: WorkHive Marketplace</title>
   <!-- dashboard-allow: marketplace seller view; reads v_marketplace_sellers_truth. -->
   <meta name="description" content="Verified seller profile on WorkHive Marketplace: response time, listings, reviews, and direct contact for Philippine industrial parts, training, and services." />
 
   <!-- Open Graph (titles get filled in dynamically by JS once seller name is known) -->
   <meta property="og:type" content="profile" id="og-type" />
-  <meta property="og:title" content="Seller Profile — WorkHive Marketplace" id="og-title" />
+  <meta property="og:title" content="Seller Profile: WorkHive Marketplace" id="og-title" />
   <meta property="og:description" content="Verified seller on WorkHive Marketplace" id="og-description" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="og:locale" content="en_PH" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Seller Profile — WorkHive Marketplace" id="tw-title" />
+  <meta name="twitter:title" content="Seller Profile: WorkHive Marketplace" id="tw-title" />
   <meta name="twitter:description" content="Verified seller on WorkHive Marketplace" id="tw-description" />
 
   <!-- JSON-LD will be injected by JS when seller data loads (Person + ItemList of listings) -->
@@ -65,8 +65,16 @@
     }
     .hero-info { flex: 1; min-width: 200px; }
     .hero-name { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
-    .hero-since { font-size: 0.75rem; color: var(--wh-steel); margin-top: 0.25rem; }
-    .hero-badges { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
+    .hero-since { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
+    /* ★I1/CLS: this row is EMPTY at first paint then fills async from the DB, which pushed the whole
+       card + every section below it down ~79px = a 0.19 layout shift (I1 fail). A wrapping row grows
+       to 2-3 rows for decorated sellers, and reserving that height would leave an empty gap for the
+       typical 1-badge seller. Fix gap-free: a single-row, horizontally-scrollable chip row (standard
+       mobile pattern) so badge COUNT never changes the row's HEIGHT -> zero vertical growth, and
+       reserve exactly that one row up-front (there is always >=1 tier badge, so no gap). */
+    .hero-badges { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: nowrap; overflow-x: auto; min-height: 2rem; align-items: center; scrollbar-width: none; -ms-overflow-style: none; }
+    .hero-badges::-webkit-scrollbar { display: none; }
+    .hero-badges > * { flex: 0 0 auto; }
     .badge-tier { padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
     .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
@@ -74,7 +82,7 @@
     .badge-verified {
       display: inline-flex; align-items: center; gap: 0.25rem;
       padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
-      background: rgba(41,182,217,0.15); color: var(--wh-blue); border: 1px solid rgba(41,182,217,0.3);
+      background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3);
     }
     .hero-cta {
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px;  /* D1 U2: was 41px tap target */
@@ -100,10 +108,10 @@
       padding: 0.875rem 0.5rem;
       text-align: center;
     }
-    .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--wh-orange); line-height: 1.1; }
+    .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--wh-orange); line-height: 1.1; font-variant-numeric: tabular-nums; }
     .stat-num.blue  { color: var(--wh-blue); }
     .stat-num.green { color: #4ade80; }
-    .stat-lbl { font-size: 0.65rem; color: var(--wh-steel); margin-top: 0.25rem; line-height: 1.2; }
+    .stat-lbl { font-size: 0.65rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.2; }
 
     /* Section heading */
     .section-heading {
@@ -126,9 +134,9 @@
     .review-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; gap: 0.5rem; }
     .review-author { font-size: 0.78rem; font-weight: 600; }
     .stars { color: var(--wh-orange); font-size: 0.78rem; letter-spacing: -1px; }
-    .review-date { font-size: 0.7rem; color: var(--wh-steel); }
+    .review-date { font-size: 0.7rem; color: var(--wh-steel-bright); }
     .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
-    .empty-reviews { text-align: center; color: var(--wh-steel); font-size: 0.8rem; padding: 1rem 0; }
+    .empty-reviews { text-align: center; color: var(--wh-steel-bright); font-size: 0.8rem; padding: 1rem 0; }
 
     /* Listing tabs (Parts/Training/Jobs) */
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
@@ -160,7 +168,7 @@
       width: 100%; aspect-ratio: 4 / 3;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
       display: flex; align-items: center; justify-content: center;
-      color: var(--wh-steel); position: relative; overflow: hidden;
+      color: var(--wh-steel-bright); position: relative; overflow: hidden;
     }
     .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-price-pill {
@@ -178,7 +186,7 @@
     .meta-chip {
       padding: 0.12rem 0.45rem; border-radius: 999px;
       font-size: 0.62rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); color: var(--wh-steel);
+      background: rgba(255,255,255,0.06); color: var(--wh-steel-bright);
       border: 1px solid rgba(255,255,255,0.08);
     }
 
@@ -234,9 +242,13 @@
     <div class="hero-top">
       <div class="hero-avatar" id="hero-avatar">?</div>
       <div class="hero-info">
-        <h1 class="hero-name" id="hero-name">Loading…</h1> <!-- D1 a11y/U1: was a div; the page's semantic title must be an h1 -->
+        <h1 class="hero-name" id="hero-name" translate="no">Loading…</h1> <!-- D1 a11y/U1: was a div; the page's semantic title must be an h1 -->
         <div class="hero-since" id="hero-since">&nbsp;</div>
         <div class="hero-badges" id="hero-badges"></div>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>This is a seller’s public profile. Badges show identity checks and community trust. Use the contact button to message them: there are no fees.</p>
+</details>
       </div>
     </div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;" id="hero-cta-row">
@@ -253,13 +265,17 @@
 
   <!-- Stats grid -->
   <div class="stats-grid">
-    <div class="stat-cell"><div class="stat-num" id="stat-listings">—</div><div class="stat-lbl">Active Listings</div></div>
-    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">—</div><div class="stat-lbl">Inquiries Replied</div></div>
-    <div class="stat-cell"><div class="stat-num green" id="stat-response">—</div><div class="stat-lbl">Avg Response</div></div>
-    <div class="stat-cell"><div class="stat-num" id="stat-rating">—</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input — overall buyer rating">Rating</div></div>
+    <div class="stat-cell"><div class="stat-num" id="stat-listings">-</div><div class="stat-lbl">Active Listings</div></div>
+    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">-</div><div class="stat-lbl">Inquiries Replied</div></div>
+    <div class="stat-cell"><div class="stat-num green" id="stat-response">-</div><div class="stat-lbl">Avg Response</div></div>
+    <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
   </div>
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal seller-quality composite). -->
-  <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin:-0.5rem 0 1rem;text-align:center;">Stats per WorkHive Marketplace Seller Score · platform-internal composite</div>
+  <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin:-0.5rem 0 1rem;text-align:center;">Stats per WorkHive Marketplace Seller Score · platform-internal composite</div><!-- D1 a11y: text was rgba(255,255,255,0.4)=3.81:1 on #0f1923 (<4.5:1, WCAG 1.4.3); 0.5=5.23:1 -->
+
+  <!-- X-axis bridge (Community PDDA 7th): Marketplace -> Community reverse cross-link. Shows the seller's
+       community standing (trust built by helping) and links back to the forum where they earned it. -->
+  <div id="community-rep" style="display:none;"></div>
 
   <!-- Certifications (only renders when seller has any) -->
   <div id="cert-section" style="display:none;">
@@ -272,7 +288,7 @@
 
   <!-- Reviews -->
   <div class="section-heading">
-    <h2>Reviews</h2>
+    <h2 data-i="msp_reviews">Reviews</h2>
     <span class="count" id="reviews-count"></span>
   </div>
   <div class="reviews-card" id="reviews-content">
@@ -281,19 +297,19 @@
 
   <!-- Listings -->
   <div class="section-heading" id="listings">
-    <h2>Listings</h2>
+    <h2 data-i="msp_listings">Listings</h2>
     <span class="count" id="listings-count"></span>
   </div>
   <div class="filter-row" id="section-filter" role="tablist" aria-label="Filter by section">
-    <button class="filter-chip active" data-section="all"      role="tab" aria-selected="true">All</button>
-    <button class="filter-chip"        data-section="parts"    role="tab" aria-selected="false">Parts</button>
-    <button class="filter-chip"        data-section="training" role="tab" aria-selected="false">Training</button>
-    <button class="filter-chip"        data-section="jobs"     role="tab" aria-selected="false">Jobs</button>
+    <button class="filter-chip active" data-section="all"      role="tab" aria-selected="true" data-i="f_all">All</button>
+    <button class="filter-chip"        data-section="parts"    role="tab" aria-selected="false" data-i="f_parts">Parts</button>
+    <button class="filter-chip"        data-section="training" role="tab" aria-selected="false" data-i="f_training">Training</button>
+    <button class="filter-chip"        data-section="jobs"     role="tab" aria-selected="false" data-i="f_jobs">Jobs</button>
   </div>
   <div class="listing-grid" id="listing-grid"></div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 (function () {
@@ -329,16 +345,9 @@
   }
   function fmtPrice(price) {
     if (!price || Number(price) === 0) return 'Negotiable';
-    return 'PHP ' + Number(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (typeof whFmtPeso === 'function') ? whFmtPeso(price, { decimals: 2 }) : 'PHP ' + Number(price).toFixed(2); // FD1c canonical (₱); plain fallback only if utils.js ever missing
   }
-  function timeAgo(iso) {
-    if (!iso) return '';
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
-  }
+  function timeAgo(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
   function initials(name) {
     return (name || '?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
   }
@@ -370,6 +379,40 @@
       </div>`;
   }
 
+  let _communityRep = null;  // X-axis bridge: this seller's portable community reputation (or null)
+
+  const _COMMUNITY_TIER = {
+    voice_of_the_hive:  'Voice of the Hive',
+    top_contributor:    'Top Contributor',
+    active_contributor: 'Active Contributor',
+    new_member:         'New Member',
+  };
+
+  /* X-axis reverse cross-link: render the seller's community standing + a deep link back to
+     their person card in the forum. Only shows when the seller has public community activity. */
+  function renderCommunityRep() {
+    const el = document.getElementById('community-rep');
+    if (!el) return;
+    if (!_communityRep) { el.style.display = 'none'; return; }
+    const tierLabel = _COMMUNITY_TIER[_communityRep.trust_tier] || 'Community Member';
+    const link = 'community.html?person=' + encodeURIComponent(WORKER_VIEW)
+      + (_seller?.hive_id ? '&phive=' + encodeURIComponent(_seller.hive_id) : '');
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div style="background:linear-gradient(135deg,rgba(41,182,217,0.10),rgba(247,162,27,0.08));border:1px solid rgba(41,182,217,0.25);border-radius:0.75rem;padding:1rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:0.6rem;">
+          <span style="font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:6px;">🐝 Community standing</span>
+          <a href="${link}" style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-light);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;min-height:44px;">View in forum →</a>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <div><div style="font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.xp_total}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Community XP</div></div>
+          <div><div style="font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Public posts</div></div>
+          <div style="margin-left:auto;"><span style="font-size:0.75rem;font-weight:700;color:var(--wh-blue);">${escHtml(tierLabel)}</span></div>
+        </div>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin:0.6rem 0 0;line-height:1.45;">This seller earned trust by helping teammates in the community forum.</p>
+      </div>`;
+  }
+
   /* ── Load seller profile ────────────────────────────────────────────── */
   async function loadSeller() {
     try {
@@ -377,11 +420,25 @@
       // and is_verified_public so the hero card avoids a follow-up query.
       const { data } = await db
         .from('v_marketplace_sellers_truth')
-        .select('worker_name, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at, active_listings_count, is_verified_public, last_listed_at')
+        .select('worker_name, hive_id, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at, active_listings_count, is_verified_public, last_listed_at')
         .eq('worker_name', WORKER_VIEW)
         .maybeSingle();
       _seller = data;
     } catch (_) { _seller = null; }
+
+    // X-axis bridge (Community PDDA 7th): pull this seller's PORTABLE community reputation
+    // via the DEFINER RPC (public-scoped aggregates only; no post content, no private-hive data).
+    // Community builds trust -> the marketplace realizes it. Hive-scoped to avoid worker_name ambiguity.
+    _communityRep = null;
+    if (_seller?.worker_name && _seller?.hive_id) {
+      // Arc R hardening (2026-07-17): server-side-resolve so the client never handles auth_uid.
+      // get_seller_community_reputation resolves the seller's auth_uid in the DB (gated to actual
+      // sellers) then sums their PUBLIC community standing across all their hives (spoof-safe).
+      try {
+        const { data: rep } = await db.rpc('get_seller_community_reputation', { p_worker_name: _seller.worker_name, p_hive_id: _seller.hive_id });
+        _communityRep = (rep && rep[0]) || null;
+      } catch (_) { _communityRep = null; }
+    }
     renderHero();
   }
 
@@ -407,16 +464,25 @@
         parts.push(`<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>ID Verified</span>`);
       }
       if (_seller?.cert_verified) {
-        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>`);
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet-text);border:1px solid rgba(167,139,250,0.3);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>`);
       }
       if (isQuickReply) {
         parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);">⚡ Quick Reply</span>`);
       }
       if (isTopRated) {
-        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+      }
+      // X-axis: community authority becomes a marketplace trust signal (solves cold-start trust).
+      // Shown only for genuine community authority — Voice of the Hive or a top contributor.
+      if (_communityRep && (_communityRep.is_voice_of_hive || _communityRep.trust_tier === 'top_contributor')) {
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.35);" title="Earned by helping teammates in the WorkHive community forum">🐝 Community-trusted</span>`);
       }
       badgesEl.innerHTML = parts.join('');
     }
+
+    // X-axis reverse cross-link: a "Community" reputation card that points back to the forum
+    // where this seller earned their standing. Rendered for any seller with public community activity.
+    renderCommunityRep();
 
     /* Messenger CTA — only if seller has set their handle */
     const msgr = document.getElementById('hero-messenger');
@@ -433,10 +499,10 @@
     if (certSection && certs.length) {
       certSection.style.display = 'block';
       if (certStatus) certStatus.textContent = _seller?.cert_verified ? '✓ Verified by admin' : 'Pending verification';
-      if (certStatus) certStatus.style.color = _seller?.cert_verified ? '#a78bfa' : '#7B8794';
+      if (certStatus) certStatus.style.color = _seller?.cert_verified ? '#a78bfa' : 'var(--wh-steel)';
       if (certList) {
         certList.innerHTML = certs.map(c =>
-          `<span style="padding:0.4rem 0.75rem;border-radius:999px;font-size:0.75rem;background:${_seller?.cert_verified ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)'};color:${_seller?.cert_verified ? '#a78bfa' : '#7B8794'};border:1px solid ${_seller?.cert_verified ? 'rgba(167,139,250,0.3)' : 'rgba(255,255,255,0.08)'};">${escHtml(c)}</span>`
+          `<span style="padding:0.4rem 0.75rem;border-radius:999px;font-size:0.75rem;background:${_seller?.cert_verified ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)'};color:${_seller?.cert_verified ? '#a78bfa' : 'var(--wh-steel)'};border:1px solid ${_seller?.cert_verified ? 'rgba(167,139,250,0.3)' : 'rgba(255,255,255,0.08)'};">${escHtml(c)}</span>`
         ).join('');
       }
     }
@@ -448,13 +514,13 @@
     const twDescEl   = document.getElementById('tw-description');
     const docTitleEl = document.querySelector('title');
     const tierLabel  = (_seller?.tier || 'bronze');
-    const ogTitle    = `${WORKER_VIEW} — Verified Seller on WorkHive Marketplace`;
-    const ogDesc     = `${WORKER_VIEW} (${tierLabel.charAt(0).toUpperCase() + tierLabel.slice(1)} tier${_seller?.kyb_verified ? ', KYB verified' : ''}). View listings, response time, reviews, and contact options on WorkHive Marketplace.`;
+    const ogTitle    = `${WORKER_VIEW}: Verified Seller on WorkHive Marketplace`;
+    const ogDesc     = `${WORKER_VIEW} (${tierLabel.charAt(0).toUpperCase() + tierLabel.slice(1)} tier${_seller?.kyb_verified ? ', ID-verified' : ''}). View listings, response time, reviews, and contact options on WorkHive Marketplace.`;
     if (ogTitleEl) ogTitleEl.setAttribute('content', ogTitle);
     if (ogDescEl)  ogDescEl.setAttribute('content', ogDesc);
     if (twTitleEl) twTitleEl.setAttribute('content', ogTitle);
     if (twDescEl)  twDescEl.setAttribute('content', ogDesc);
-    if (docTitleEl) docTitleEl.textContent = `${WORKER_VIEW} — WorkHive Marketplace`;
+    if (docTitleEl) docTitleEl.textContent = `${WORKER_VIEW}: WorkHive Marketplace`;
   }
 
   /* ── Inject JSON-LD Person + ItemList schema once seller + listings loaded ─ */
@@ -467,7 +533,7 @@
       "@type": "Person",
       "name": WORKER_VIEW,
       "url": window.location.href,
-      "description": `${WORKER_VIEW} on WorkHive Marketplace, Philippines. Tier: ${tier}.${_seller?.kyb_verified ? ' KYB verified.' : ''}`,
+      "description": `${WORKER_VIEW} on WorkHive Marketplace, Philippines. Tier: ${tier}.${_seller?.kyb_verified ? ' ID-verified.' : ''}`,
     };
     if (_seller?.rating_avg && _seller.rating_count) {
       personSchema.aggregateRating = {
@@ -553,7 +619,7 @@
             ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
           </div>
           <div class="card-body">
-            <div class="card-title">${e(item.title)}</div>
+            <div class="card-title" translate="no">${e(item.title)}</div>
             <div class="card-meta">
               <span class="meta-chip">${e(item.section)}</span>
               <span class="meta-chip">${e(item.category || 'Other')}</span>
@@ -591,7 +657,7 @@
     const avg = _reviews.length
       ? (_reviews.reduce((s, r) => s + Number(r.rating || 0), 0) / _reviews.length)
       : (_seller?.rating_avg || 0);
-    if (ratingEl) ratingEl.textContent = avg ? avg.toFixed(1) + '★' : '—';
+    if (ratingEl) ratingEl.textContent = avg ? avg.toFixed(1) + '★' : '-';
     if (countEl)  countEl.textContent  = _reviews.length + (_reviews.length === 1 ? ' review' : ' reviews');
 
     if (!_reviews.length) {
@@ -644,7 +710,7 @@
     const resEl = document.getElementById('stat-response');
     if (repEl) repEl.textContent = _replyCount;
     if (resEl) resEl.textContent = _avgResponseHours == null
-      ? '—'
+      ? '-'
       : (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h');
 
     /* Re-render hero so Quick Reply badge appears now that response data is loaded */
@@ -674,11 +740,31 @@
 
     /* Inject JSON-LD now that seller + listings are loaded */
     injectJsonLd();
+    if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); // G1 (FAMILY F3)
   });
 
 })();
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('msp-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'msp-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'v_marketplace_listings_truth + v_marketplace_inquiries_truth + marketplace_reviews',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE={msp_reviews:'Mga Review',msp_listings:'Mga Listing',f_all:'Lahat',f_parts:'Parts',f_training:'Pagsasanay',f_jobs:'Trabaho'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

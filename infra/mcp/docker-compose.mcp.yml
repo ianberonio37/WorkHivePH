@@ -31,6 +31,17 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_INSTALL_PLUGINS: ""
       GRAFANA_PG_READER_PASSWORD: ${GRAFANA_PG_READER_PASSWORD:-grafana_reader_change_me}
+      # ── SMTP (Operator-Console→Grafana G1, 2026-07-18): alert email. ──
+      # LOCAL default = the Supabase inbucket catcher (SMTP :1025, view at http://127.0.0.1:54324);
+      # both containers share supabase_network_workhive so the hostname resolves. For PROD, override
+      # GF_SMTP_HOST/USER/PASSWORD (+ set skip_verify false) via .env.mcp to a real provider.
+      GF_SMTP_ENABLED: ${GF_SMTP_ENABLED:-true}
+      GF_SMTP_HOST: ${GF_SMTP_HOST:-supabase_inbucket_workhive:1025}
+      GF_SMTP_USER: ${GF_SMTP_USER:-}
+      GF_SMTP_PASSWORD: ${GF_SMTP_PASSWORD:-}
+      GF_SMTP_SKIP_VERIFY: ${GF_SMTP_SKIP_VERIFY:-true}
+      GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM_ADDRESS:-grafana@workhive.local}
+      GF_SMTP_FROM_NAME: ${GF_SMTP_FROM_NAME:-WorkHive Grafana}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro

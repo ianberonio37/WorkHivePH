@@ -33,9 +33,16 @@ def _to_df(records: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+# format="ISO8601" is REQUIRED, not cosmetic: pandas >=2.0 infers ONE format from
+# the first element and coerces every non-matching value to NaT. Postgres emits
+# mixed precision in the same column -- real user writes carry microseconds
+# ("...:40.422439+00:00") while seeded/whole-second rows do not -- so inference
+# locked onto microseconds and silently dropped 308 of 310 rows (99.4%). Every
+# date-based metric then computed on 2 rows and reported it with full confidence.
+# ISO8601 parses any valid ISO precision. (2026-07-15)
 def _parse_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
     if col in df.columns:
-        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
+        df[col] = pd.to_datetime(df[col], utc=True, errors="coerce", format="ISO8601")
     return df
 
 
@@ -171,7 +178,7 @@ def calc_pm_failure_correlation(
     p_value = round(float(p_value), 4)
 
     if p_value > 0.05:
-        interpretation = "No statistically significant correlation (p > 0.05) — PM gaps and failure counts are not correlated in this dataset."
+        interpretation = "PM gaps and failure counts are not linked (p > 0.05)."
     elif corr > 0.5:
         interpretation = f"Strong positive correlation (r = {corr}) — machines with longer PM gaps have significantly more failures. PM schedule has a meaningful impact on reliability."
     elif corr > 0.2:
@@ -329,7 +336,7 @@ def calc_parts_availability_impact(
         "p75_threshold_h":     round(float(p75), 1),
         "high_downtime_jobs":  flagged,
         "high_downtime_count": len(high_downtime),
-        "note":                "Jobs above the 75th percentile downtime threshold may have been delayed by parts availability. Cross-check with inventory stockout dates.",
+        "note":                "These jobs ran longer than 75% of all jobs. A missing part may explain the delay.",
         "standard":            "Cross-reference analysis — logbook × inventory_transactions",
     }
 

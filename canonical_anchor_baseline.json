@@ -59,6 +59,15 @@
           "supabase\\functions\\ai-gateway\\index.ts",
           "supabase\\functions\\voice-journal-agent\\index.ts"
         ]
+      },
+      {
+        "standard": "iso_45001",
+        "n_files": 2,
+        "sample_files": [
+          "logbook.html",
+          "supabase/functions/shift-planner-orchestrator/index.ts"
+        ],
+        "_note": "LOTO/Permit-to-Work cites ISO 45001 operational control (Extension 3) \u2014 legitimate safety-standard reference"
       }
     ],
     "dashboard_anchor": [
@@ -90,7 +99,7 @@
   "tier_a_anchor": 0,
   "tier_c_anchor": 4,
   "formula_anchor": 0,
-  "standard_anchor": 1,
+  "standard_anchor": 2,
   "dashboard_anchor": 1,
   "capture_anchor": 1,
   "seed_render_anchor": 0,

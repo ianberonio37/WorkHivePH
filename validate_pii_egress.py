@@ -62,12 +62,10 @@ THIRD_PARTY_HOSTS = [
     r"api\.openai\.com",
     r"api\.anthropic\.com",
     r"api\.groq\.com",
-    r"api\.stripe\.com",
     r"api\.cerebras\.ai",
     r"api\.deepseek\.com",
     r"openrouter\.ai/api",
     r"generativelanguage\.googleapis\.com",
-    r"connect\.stripe\.com",
 ]
 HOST_RE = re.compile("|".join(THIRD_PARTY_HOSTS))
 
@@ -94,10 +92,6 @@ REDACT_HELPER_RE = re.compile(
 # Per-fn exemptions. Each entry needs a one-line justification.
 PII_EGRESS_OK = {
     "send-report-email":          "Resend digest legitimately needs worker email; opt-in flag enforced",
-    "marketplace-checkout":       "Stripe needs buyer email + name for receipt + KYC",
-    "marketplace-connect-onboard": "Stripe Connect KYB requires real seller name and email",
-    "marketplace-connect-status": "Stripe Connect status read; mirrors onboard data",
-    "marketplace-release":        "Stripe transfer needs seller name for compliance ledger",
     "engineering-bom-sow":        "AI BOM/SOW prompt operates on equipment names; PII redaction not applicable",
     "resume-extract":             "Solo Resume Builder — the user uploads their OWN resume to extract their OWN name/email/phone; the contact fields ARE the deliverable (JSON Resume `basics`). The PII is the user's own and opt-in by the act of uploading-to-extract — redaction would defeat the feature. (`worker_name` is read then `void`'d, unused.)",
     "agentic-rag-loop":           "Code-verified false positive (2026-06-15): worker_name/workerName are used ONLY for DB scoping (.eq) + cost-log rows, NEVER injected into a callAI prompt — all 5 stages (router/grader/generator/checker/extractor) prompt on question/chunks/answer/memory only. The 'phone' token is the literal word in an anti-PII prompt INSTRUCTION (GRADER_SYSTEM: 'content must NOT contain PII (phone numbers, emails...)'). No user PII reaches the model.",
@@ -267,19 +261,64 @@ def check_pii_reach(
     return [], rows
 
 
+# -- Layer 5: gateway MULTI-TURN name egress (memory_block + summariser) ----
+
+def check_gateway_multiturn_egress() -> tuple[list[dict], list[dict]]:
+    """L5 (FAIL): the ai-gateway must redact prior-turn worker NAMES out of BOTH the forwarded
+    memory_block AND the summariser transcript before they reach a model provider. The single-turn
+    redaction (worker_name key + email/phone regex) misses names in prior-turn PROSE — a leak proven
+    live 2026-07-08 (the forwarded memory_block contained the worker's real full name while the
+    current-turn worker_name was '<redacted>'). Closed via redactKnownNames() over both paths, and
+    STRENGTHENED 2026-07-12 (K2) to redactMemoryText() — names AND email/phone the worker stated in a
+    prior turn (redactKnownNames alone missed email/phone in prose). Either call satisfies this gate;
+    redactMemoryText is the stronger superset. A revert re-opens the leak, so this is a hard FAIL."""
+    issues: list[dict] = []
+    report: list[dict] = []
+    path = os.path.join(FUNCTIONS_DIR, "ai-gateway", "index.ts")
+    src = read_file(path) or ""
+    if not src:
+        return issues, report
+    s = _strip_comments(src)
+    # The gateway must scrub the multi-turn memory before it reaches a provider, via either
+    # redactKnownNames (names only) or redactMemoryText (names + email/phone — the K2 superset).
+    _mem_redactor = "redactKnownNames(" in s or "redactMemoryText(" in s
+    # (a) the specialist forward must send the REDACTED memory, never raw `memory: memory_block`.
+    if re.search(r"\bmemory:\s*memory_block\b", s):
+        issues.append({"check": "gateway_multiturn_egress", "skip": False, "reason":
+            "ai-gateway forwards raw `memory: memory_block` to the specialist — prior-turn worker names "
+            "leak to the model provider. Forward the redacted block (redactMemoryText / redactKnownNames)."})
+    if not _mem_redactor:
+        issues.append({"check": "gateway_multiturn_egress", "skip": False, "reason":
+            "ai-gateway no longer calls redactMemoryText / redactKnownNames — the memory_block/summariser "
+            "multi-turn PII redaction (CL11 + K2) was removed; prior-turn worker names/emails/phones reach "
+            "the provider un-redacted."})
+    # (b) the summariser transcript must be redacted before callAI (leak #2).
+    if "summariseIfNeeded(" in s and "redactKnownNames(transcript" not in s \
+            and "redactMemoryText(transcript" not in s and "safeTranscript" not in s:
+        issues.append({"check": "gateway_multiturn_egress", "skip": False, "reason":
+            "the summariser transcript is passed to callAI without redactMemoryText/redactKnownNames — raw "
+            "prior-turn worker names reach the summariser model provider (CL11 leak #2)."})
+    report.append({"fn": "ai-gateway",
+                   "memory_forward_redacted": bool(re.search(r"\bmemory:\s*redactedMemory\b", s)),
+                   "summariser_redacted": "safeTranscript" in s or "redactKnownNames(transcript" in s})
+    return issues, report
+
+
 # -- Runner -----------------------------------------------------------------
 
 CHECK_NAMES = [
     "direct_fetch_pii",
     "ai_prompt_pii",
+    "gateway_multiturn_egress",
     "host_distribution",
     "pii_reach",
 ]
 CHECK_LABELS = {
-    "direct_fetch_pii":   "L1  Direct third-party fetch with PII in scope (or redacted)     [WARN]",
-    "ai_prompt_pii":      "L2  AI prompt construction redacts PII (or is opt-in exempt)     [FAIL]",
-    "host_distribution":  "L3  Third-party host call distribution per fn (informational)    [INFO]",
-    "pii_reach":          "L4  PII token reach per fn (informational)                       [INFO]",
+    "direct_fetch_pii":         "L1  Direct third-party fetch with PII in scope (or redacted)     [WARN]",
+    "ai_prompt_pii":            "L2  AI prompt construction redacts PII (or is opt-in exempt)     [FAIL]",
+    "gateway_multiturn_egress": "L5  Gateway redacts prior-turn NAMES (memory_block + summariser) [FAIL]",
+    "host_distribution":        "L3  Third-party host call distribution per fn (informational)    [INFO]",
+    "pii_reach":                "L4  PII token reach per fn (informational)                       [INFO]",
 }
 
 
@@ -294,10 +333,11 @@ def main():
 
     l1_issues, l1_report = check_direct_fetch_pii(fns)
     l2_issues, l2_report = check_ai_prompt_pii(fns)
+    l5_issues, l5_report = check_gateway_multiturn_egress()
     l3_issues, l3_report = check_host_distribution(fns)
     l4_issues, l4_report = check_pii_reach(fns)
 
-    all_issues = l1_issues + l2_issues + l3_issues + l4_issues
+    all_issues = l1_issues + l2_issues + l5_issues + l3_issues + l4_issues
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
     if l3_report:
@@ -324,6 +364,7 @@ def main():
         "n_fns":              len(fns),
         "direct_fetch_pii":   l1_report,
         "ai_prompt_pii":      l2_report,
+        "gateway_multiturn_egress": l5_report,
         "host_distribution":  l3_report,
         "pii_reach":          l4_report,
         "issues":             [i for i in all_issues if not i.get("skip")],

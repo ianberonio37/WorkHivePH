@@ -1,0 +1,15 @@
+---
+name: skill-seo-content
+type: skill
+source: skill:seo-content
+source_sha: 1d7d0f0d9a5a17c4
+last_verified: 2026-07-13
+supersedes: null
+---
+## skill · seo-content
+
+SEO, meta tags, sitemap, structured data, content strategy, and analytics. Triggers on "SEO", "meta tags", "sitemap", "content", "keywords", "Google", "search", "analytics", "structured data".
+
+**Sections:** SEO & Content Agent · Your Responsibilities · How to Operate · This Platform's SEO Context · SEO Checklist · Platform-Specific SEO Lessons (learned from production) · 1. App pages are correctly set to noindex — do not change this · 2. Use pipe ( | ) as the title separator, not em dash · 3. sitemap.xml should always include a lastmod date · 4. SoftwareApplication is the correct JSON-LD schema type for WorkHive · 5. OG image is a transparent logo — flag but do not block on it · 5b. Social share titles silently drop tokens the `<title>` carries — assert cross-field consistency (2026-07-09, Landing Deep-Arc) · 5c. No fabricated hard-percentage metric in marketing copy (2026-07-09) · 6. Retiring a tool requires meta description updates — not just nav removal · Output Format · Validator Upgrade Lessons (April 2026) · Canonical tag required on EVERY page — not just index.html · Learn-Article Quality Bar (June 2026 — resume-article rewrite) · Content Grounding Gate flywheel - fixing capability_drift + wall_of_text without padding (2026-06-11) · Plain-language pass on UI microcopy — translate internals to the user's mental model, don't echo them (2026-06-14, STREAMLINE E1) · Derive landing/llms.txt FACTS from the catalog so they can't drift; guard GEO completeness + count-claim regexes (2026-06-29, Content Grounding D1) · A data-driven runtime affordance (hover/hint fed by a JSON artifact) is GLASS — translate at build + register it with the jargon gate the SAME turn (2026-06-30) · The landing page's RICHEST content can be JS-locked = invisible to AI engines AND Googlebot — mirror it to the script-stripped DOM (2026-06-30, SEO/AEO/GEO P2.5) · Catalog feature NAMES can be stale vs the pages — the page <title> is the naming authority (Platform Alignment Arc, 2026-06-30) · Crawl-graph gate: 0 orphans + <=3 clicks is a BFS over the script-stripped DOM, not a sitemap check (2026-06-30, SEO/AEO/GEO P1/P3) · Core Web Vitals on PUBLIC pages: WARM-cache measures the code, COLD measures your CDN — and they are 3-5x apart (2026-06-30, SEO/AEO/GEO P3) · Adversarial verify catches content-grounding OVERREACH a single drafter misses (2026-06-30, P2 openers) · Defensive / apologetic microcopy is an anti-pattern — the empty-state HEADLINE must be the FACT, not an apology (2026-07-02, Arc P Wave 0) · Tighten a long marketing landing WITHOUT SEO loss: MERGE, don't DELETE; keep the FAQ; front-load the value prop (2026-07-02, Arc P Wave 3) · A feature article's TAXONOMY (its list of categories/disciplines/tabs) must match the LIVE page's — and `capability_drift` does NOT catch renamed-category drift (2026-07-05, screenshot-alignment arc)
+
+(Deep source: `skill:seo-content` — retrieve this TOC to know WHICH section to read.)

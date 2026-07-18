@@ -101,30 +101,73 @@ def extract_payload_fields(content, payload_name, pattern_override=None):
 
 # ── Layer 1: Config alignment ─────────────────────────────────────────────────
 
-def check_freq_days_alignment(content, page):
-    # 2026-05-20: pm-scheduler.html migrated away from a local FREQ_DAYS
-    # constant — it reads frequency_days from v_pm_scope_items_truth which
-    # bakes in the canonical Monthly=30/Quarterly=90/etc. mapping. When the
-    # page consumes the view, the constant isn't expected to exist; the
-    # validator's role then becomes "verify the view is read" (handled by
-    # the canonical-drift L0 ratchet) rather than "verify the local constant".
-    if "v_pm_scope_items_truth" in content:
-        return []  # canonical source — local constant not required
-    freq_days_keys = extract_freq_days_keys(content)
-    freq_order     = extract_array_values(content, "freqOrder")
-    if not freq_days_keys:
-        return [{"check": "freq_days_alignment", "page": page,
-                 "reason": "FREQ_DAYS constant not found"}]
-    freq_set = set(freq_order)
-    issues   = []
-    extra    = freq_days_keys - freq_set
-    missing  = freq_set - freq_days_keys
-    if extra:
-        issues.append({"check": "freq_days_alignment", "page": page,
-                       "reason": f"FREQ_DAYS has keys not in freqOrder: {sorted(extra)} — due dates compute but UI never shows these frequencies"})
-    if missing:
-        issues.append({"check": "freq_days_alignment", "page": page,
-                       "reason": f"freqOrder has values not in FREQ_DAYS: {sorted(missing)} — items with these frequencies fall back to 90-day default silently"})
+def check_freq_render_robust(content, page):
+    """PM PDDA F0 keystone: the detail-view frequency grouping must be DROP-PROOF.
+
+    v_pm_scope_items_truth (+ the seeder / CMMS import) store a broader, case-insensitive
+    frequency vocabulary (Weekly, Annual, Semi-annual, biweekly…) than the create form
+    historically offered. Before 2026-07-12 the detail view grouped by EXACT string match
+    against a hardcoded ['Monthly','Quarterly','Semi-Annual','Yearly'] array, silently
+    hiding every Weekly/Annual/Semi-annual scope item (~half the platform's scope items,
+    yet still counted in SMRP %, overdue, analytics, shift-planner). This asserts the
+    render normalises through canonFreq() and lands unknowns in an 'Other' catch-all, so
+    NO scope item can ever be dropped again.
+    """
+    issues = []
+    # 1. the canonical normaliser must exist
+    if not re.search(r"function\s+canonFreq\s*\(", content):
+        return [{"check": "freq_render_robust", "page": page,
+                 "reason": "canonFreq() normaliser missing — frequency display cannot be case/synonym-robust"}]
+    # 2. the detail grouping must have an 'Other' catch-all bucket
+    if "|| 'Other'" not in content and '|| "Other"' not in content:
+        issues.append({"check": "freq_render_robust", "page": page,
+                       "reason": "frequency grouping has no 'Other' catch-all — an unrecognised frequency is silently dropped"})
+    # 3. must NOT reintroduce the old hardcoded exact-match 4-label array
+    if re.search(r"freqOrder\s*=\s*\[\s*['\"]Monthly['\"]\s*,\s*['\"]Quarterly['\"]\s*,\s*['\"]Semi-Annual['\"]\s*,\s*['\"]Yearly['\"]\s*\]", content):
+        issues.append({"check": "freq_render_robust", "page": page,
+                       "reason": "detail view still groups by the hardcoded 4-label freqOrder — Weekly/Annual/Semi-annual items drop (PM PDDA F0 regression)"})
+    # 4. canonFreq must recognise the DB synonyms that were dropping
+    low = content.lower()
+    for syn in ("weekly", "annual", "semi-annual"):
+        if f"case '{syn}'" not in low and f'case "{syn}"' not in low:
+            issues.append({"check": "freq_render_robust", "page": page,
+                           "reason": f"canonFreq() has no case for '{syn}' — that frequency falls to 'Other' instead of its own group"})
+    return issues
+
+
+def check_freq_crosspage_consistent(content, page):
+    """PM PDDA cross-page: hive.html + logbook.html render PM frequency BADGES from
+    pm_scope_items.frequency. Before 2026-07-12 they keyed a 4-label uppercase map
+    (`{Monthly:'M', Quarterly:'Q', 'Semi-Annual':'SA', Yearly:'Y'}`) by exact match, so a
+    Weekly/Annual/Semi-annual PM (from the seeder / CMMS import) rendered a raw-text gray
+    fallback instead of a proper pill — cross-page-inconsistent with pm-scheduler's canonical
+    FREQ registry. Fixed with a lowercase `_cf()` normalizer + a lowercase-keyed map incl
+    weekly + annual. This asserts the fix stays (fails if the old uppercase 4-label map returns).
+    """
+    issues = []
+    for other in ("hive.html", "logbook.html"):
+        c = read_file(other)
+        if not c:
+            continue  # page absent → skip, not a fail
+        if "pm_scope_items" not in c and "feed_pm" not in c and "frequency" not in c:
+            continue  # no PM frequency display on this page
+        has_canon = ("weekly:" in c.lower() or "'weekly'" in c.lower()) and \
+                    ("annual:" in c.lower() or "'annual'" in c.lower())
+        old_map = re.search(r"\{\s*Monthly:\s*'M',\s*Quarterly:\s*'Q',\s*'Semi-Annual':\s*'SA',\s*Yearly:\s*'Y'\s*\}", c)
+        if old_map and not has_canon:
+            issues.append({"check": "freq_crosspage_consistent", "page": other,
+                           "reason": f"{other} still keys the PM freq badge by the hardcoded 4-label uppercase map "
+                                     f"(Monthly/Quarterly/Semi-Annual/Yearly) — Weekly/Annual/Semi-annual PMs render a "
+                                     f"raw-text gray fallback. Use a lowercase `_cf()` normalizer + weekly/annual keys."})
+    # asset-hub.html maps an RCM interval → a PM frequency it WRITES to pm_scope_items. The
+    # interval→freq buckets MUST include a Weekly (7-day) bucket — without it a 7-day interval
+    # rounded to Monthly, silently losing a weekly PM's frequency (PM PDDA write consistency).
+    ah = read_file("asset-hub.html")
+    if ah and "_intervalToFrequencyLabel" in ah:
+        if "'Weekly'" not in ah and '"Weekly"' not in ah:
+            issues.append({"check": "freq_crosspage_consistent", "page": "asset-hub.html",
+                           "reason": "asset-hub `_intervalToFrequencyLabel` has no Weekly bucket — a 7-day RCM "
+                                     "interval rounds to Monthly, losing the weekly PM's frequency on write."})
     return issues
 
 
@@ -293,7 +336,7 @@ def check_realtime_hive_filter(content, page):
 
 CHECK_NAMES = [
     # L1
-    "freq_days_alignment", "pm_template_coverage", "pm_cat_to_log_values",
+    "freq_render_robust", "freq_crosspage_consistent", "pm_template_coverage", "pm_cat_to_log_values",
     # L2
     "comp_payload_fields", "scope_payload_fields", "logbook_pm_fields",
     # L3
@@ -305,7 +348,8 @@ CHECK_NAMES = [
 
 CHECK_LABELS = {
     # L1
-    "freq_days_alignment":   "L1  FREQ_DAYS keys match freqOrder dropdown",
+    "freq_render_robust":    "L1  frequency grouping is drop-proof (canonFreq + 'Other' catch-all, no hardcoded 4-label array)",
+    "freq_crosspage_consistent": "L1  hive.html + logbook.html PM freq badges are case/synonym-robust (not the old 4-label uppercase map)",
     "pm_template_coverage":  "L1  PM_TEMPLATES categories in PM_CAT_TO_LOG_CAT",
     "pm_cat_to_log_values":  "L1  PM_CAT_TO_LOG_CAT maps to valid logbook categories",
     # L2
@@ -337,7 +381,8 @@ def main():
     all_issues = []
 
     # L1
-    all_issues += check_freq_days_alignment(content, PM_PAGE)
+    all_issues += check_freq_render_robust(content, PM_PAGE)
+    all_issues += check_freq_crosspage_consistent(content, PM_PAGE)
     all_issues += check_pm_template_coverage(content, PM_PAGE)
     all_issues += check_pm_cat_to_log_values(content, PM_PAGE)
 

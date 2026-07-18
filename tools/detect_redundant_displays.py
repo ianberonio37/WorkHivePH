@@ -89,6 +89,8 @@ VERDICTS = {
         "why": "Seller profile/tier read across marketplace-family; KEEP (Ian 2026-06-29)."},
     "project_links": {"verdict": "KEEP-context", "canonical_home": "project-manager.html", "ux_law": "context read",
         "why": "Project↔entity links read where projects surface; KEEP (Ian 2026-06-29)."},
+    "projects": {"verdict": "KEEP-context", "canonical_home": "project-manager.html", "ux_law": "context read",
+        "why": "Project name/status read as FK context on child-entity pages (a WO's / part's / PM's parent project on logbook/inventory/pm-scheduler); project-manager.html is the authoritative home. Same class as project_links above — legitimate context, not a restatement. KEEP-context (bug-hunt 2026-07-18; reversible if a true restatement surfaces)."},
     "marketplace_listings": {"verdict": "KEEP", "canonical_home": "marketplace.html",
         "ux_law": "DRY",
         "why": "Listings surfaced on 6 marketplace-family pages + asset-hub spares; one v_marketplace_listings_truth. Keep."},

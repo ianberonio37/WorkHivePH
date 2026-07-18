@@ -109,10 +109,14 @@
     btn.setAttribute('aria-expanded', 'false');
     btn.textContent = 'ⓘ';
     var color = RUNG_COLOR[entry.rung] || RUNG_COLOR.descriptive;
-    // 44px hit area via padding while keeping the glyph compact (mobile-maestro).
+    // 44x44 tap target (WCAG 2.5.8 / Ian's gloved-field floor). box-sizing:border-box
+    // is REQUIRED: the platform's global `*{box-sizing:border-box}` makes min-width:24px
+    // + padding:10px collapse to a ~32x32 border-box (padding absorbed) — the Arc U
+    // tap<44 finding. Setting the min-size to 44 on the border-box guarantees the hit
+    // area; negative margin keeps the inline footnote marker from growing the KPI row.
     btn.style.cssText =
-      'display:inline-flex;align-items:center;justify-content:center;'
-      + 'min-width:24px;min-height:24px;padding:10px;margin:-10px 0 -10px 2px;'
+      'display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;'
+      + 'min-width:44px;min-height:44px;padding:0;margin:-11px 0 -11px 2px;'
       + 'background:transparent;border:none;cursor:pointer;'
       + 'font-size:12px;line-height:1;color:' + color + ';opacity:0.7;vertical-align:middle;';
     btn.addEventListener('mouseenter', function () { btn.style.opacity = '1'; });
@@ -131,6 +135,13 @@
     ids.forEach(function (id) {
       var el = document.getElementById(id);
       if (!el || el.dataset.whProv) return;
+      // ★Don't ORPHAN the ⓘ (Ian's "why is this thing in the middle?" screenshot). Only attach next to a
+      // KPI value that is actually VISIBLE and NON-EMPTY — an ⓘ beside a blank / hidden / zero-size anchor
+      // reads as a stray icon. Leave whProv unset so the retry below re-attaches once the value renders.
+      var cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') === 0) return;
+      var r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2 || !(el.textContent || '').trim()) return;
       el.dataset.whProv = '1';
       var btn = makeBtn(map[id]);
       // place the marker right after the value element (footnote style)

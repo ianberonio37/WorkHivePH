@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -28,8 +29,17 @@ function sanitizeBomItems(items: unknown[]): unknown[] {
     const clean = VALID_UNITS.has(raw.toLowerCase()) ? raw : (raw.length > 12 || raw.includes(' ') ? 'unit' : raw);
     // Strip non-ASCII characters from text fields (guards against LLM Unicode garbling)
     const stripNonAscii = (s: unknown) => String(s || '').replace(/[^\x20-\x7E]/g, '');
+    // AI-2 (deep-arc P5): GROUND the quantity. The prompt anchors each qty on the computed calc
+    // result, but nothing verified the model used a sane value — a fabricated NaN / negative /
+    // absurd qty would land in the procurement document. Parse a leading number (handles "2" and
+    // "2 sets"), clamp to a sane (0, 100000] range, and default a truly non-numeric qty to 1.
+    let q = typeof it.qty === "number" ? it.qty : parseFloat(String(it.qty ?? "").replace(/[^\d.\-]/g, ""));
+    if (!isFinite(q) || q <= 0) q = 1;
+    if (q > 100000) q = 100000;
+    q = Math.round(q * 100) / 100;
     return {
       ...it,
+      qty:         q,
       unit:        clean,
       description: stripNonAscii(it.description),
       specification: stripNonAscii(it.specification),
@@ -4772,7 +4782,12 @@ Each "content" field MUST start with "The Contractor shall..." and use ASCII tex
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("engineering-bom-sow", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "engineering-bom-sow", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -4938,10 +4953,8 @@ serve(async (req) => {
 
   } catch (err) {
     log.error(null, "engineering-bom-sow error:", { detail: err });
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "engineering-bom-sow", "engineering_bom_sow_error", err);
   }
 });
 

@@ -2,18 +2,20 @@
 
 > **The altitude below the page.** Is each design-system PRIMITIVE rendered the same way everywhere? Static spine (windowed shape scan); the DOM-accurate confirm is `__UFAI.component('.simple-card')` live. SURFACES drift — fixes nothing.
 
-- Pages: **28**  ·  pinned primitives: **2**  ·  census primitives: **6**  ·  capability tags: **3**
+- Pages: **27**  ·  pinned primitives: **2**  ·  census primitives: **6**  ·  capability tags: **3**
 
 ## 1. Pinned primitives — shape consistency
 
 ### `.simple-card` — KPI tile (.simple-card)
 
-- **52** instances · modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag'] (52 instances) · **1** distinct shape(s).
-- ✅ one consistent shape on every page.
+- **48** instances · modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag'] (45 instances) · **2** distinct shape(s).
+- ⚠️ **3 instance(s) MISSING a required sub-part:** hive missing .sc-label; hive missing .sc-label; hive missing .sc-label.
+- Minority shapes (converge or justify):
+    - ['.sc-hero'] ×3 (hive) — Δ vs modal ['.sc-label', '.sc-sub', '.sc-tag']
 
 ### `.sum-card` — Count-chip summary (.sum-card → .sn/.sl)
 
-- **8** instances · modal shape ['.sl', '.sn'] (8 instances) · **1** distinct shape(s).
+- **4** instances · modal shape ['.sl', '.sn'] (4 instances) · **1** distinct shape(s).
 - ✅ one consistent shape on every page.
 
 ## 2. Capability registry (declared visual primitives)
@@ -24,13 +26,13 @@ _`<!-- capability: NAME -->` tags = the repo's own canonical primitive list. Cro
 |---|---|
 | `alert_dashboard` | alert-hub |
 | `audio_tts_browser` | voice-journal |
-| `display_count_chip` | predictive |
+| `display_count_chip` | asset-hub |
 
 ## 3. Census — light primitives (consistency = live component() check)
 
 | Primitive | Pages | Total instances |
 |---|---|---|
-| `.filter-chip` | 4 | 23 |
+| `.filter-chip` | 4 | 24 |
 | `.pill` | 1 | 8 |
 | `.view-tab` | 1 | 4 |
 | `.phase-tab` | 1 | 4 |
@@ -39,4 +41,4 @@ _`<!-- capability: NAME -->` tags = the repo's own canonical primitive list. Cro
 
 ---
 ### Queue
-`python ufai_ingest.py component_consistency_candidates.json` → 0 candidate(s) into `sweep_critiques.json`. Live confirm any shape drift with `__UFAI.component('.<primitive>')` (DOM-accurate).
+`python ufai_ingest.py component_consistency_candidates.json` → 4 candidate(s) into `sweep_critiques.json`. Live confirm any shape drift with `__UFAI.component('.<primitive>')` (DOM-accurate).

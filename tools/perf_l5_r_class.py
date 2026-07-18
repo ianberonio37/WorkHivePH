@@ -7,7 +7,6 @@ proves the rate-gated LLM 429-shed. What's left pending is fns where the burst b
 ("p95 stable under N concurrent users · 429/503 graceful not error") applies by CLASS,
 by evidence (no quota-draining burst, no false fail — the L0-gate honesty discipline):
 
-  · payment-inert    — Stripe fns DISSOLVED on the free platform (PAYMENTS_ENABLED=false). Inert.
   · service/cron/webhook — invoked by a trusted scheduler/webhook, NOT user fan-out → not a
     user-concurrency surface; resilience here = idempotency, not burst-degrade.
   · external-provider — proxies Azure (OCR/TTS/Whisper): under load the PROVIDER rate-limits
@@ -51,7 +50,7 @@ _MEMBER = re.compile(r"resolveTenancy\s*\(")
 _EMBED = re.compile(r"embedding-chain|generateEmbedding\s*\(|embedText\s*\(")
 SERVICE_ONLY = {fn for fn, (_p, h, _t, _o) in REG.items() if h == "service"} | {
     "trigger-ml-retrain", "batch-risk-scoring", "parts-staging-recommender",
-    "cmms-webhook-receiver", "marketplace-webhook", "send-report-email", "scheduled-agents",
+    "cmms-webhook-receiver", "send-report-email", "scheduled-agents",
     "ai-eval-runner", "cmms-sync", "embed-entry"}
 RAG_INTERNAL = {"agentic-rag-loop", "temporal-rag-orchestrator", "hierarchical-summarizer",
                 "semantic-fact-extractor", "agent-memory-store", "voice-model-call",
@@ -84,8 +83,6 @@ def clear_keys():
 
 def classify(fn):
     s = src(fn)
-    if re.search(r"PAYMENTS_ENABLED|stripe|Stripe", s):
-        return ("payment-inert", "Stripe/payment fn DISSOLVED on the free platform (PAYMENTS_ENABLED=false) — inert, no user-burst path")
     if re.search(r"AZURE|cognitiveservices|formrecognizer|\bazure\b", s):
         return ("external-provider", "proxies an external provider (Azure OCR/TTS/Whisper) — under load the PROVIDER rate-limits and the fn passes it through; burst target is external (§5), graceful-degrade")
     if fn == "login":

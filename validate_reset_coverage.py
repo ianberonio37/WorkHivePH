@@ -85,6 +85,10 @@ SYSTEM_TABLES_IGNORED = {
 CATALOG_TABLES_IGNORED = {
     "achievement_definitions",
     "equipment_reading_templates",
+    # skill_exam_keys: the server-held exam answer key (25 rows, migration-seeded by
+    # 20260712000016) that grade_skill_exam() reads to grade server-side (K1). Wiping it would
+    # break the grader (there is no Python seeder — it is migration-INSERT-only catalog data).
+    "skill_exam_keys",
     # Platform metadata: seeded only by migrations. Wiping these loses the
     # registries that AI agents + validators read.
     "canonical_sources",

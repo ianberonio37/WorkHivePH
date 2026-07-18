@@ -1,0 +1,34 @@
+{
+  "stamp": "1783671078",
+  "results": [
+    {
+      "fn": "cmms-webhook-receiver",
+      "cell": "F5",
+      "live": true,
+      "steps": [
+        {
+          "event": "created#1",
+          "code": 200
+        },
+        {
+          "event": "created#2(replay)",
+          "code": 200
+        },
+        {
+          "event": "updated",
+          "code": 200
+        }
+      ],
+      "config_id": "48e8185a-8149-4041-a0d3-bf31aa0619f7",
+      "external_sync_rows": 1,
+      "logbook_rows": 1,
+      "external_sync_status": "Closed",
+      "logbook_status": "Closed",
+      "accepted_ok": true,
+      "idempotent_ok": true,
+      "upsert_applied_ok": true,
+      "logbook_status_synced_ok": true,
+      "cleaned_up": true
+    }
+  ]
+}

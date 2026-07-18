@@ -7,12 +7,12 @@
   <meta name="calm-dashboard" content="1" />
   <title>Plant Connections | WorkHive</title>
   <meta name="theme-color" content="#162032" />
-  <meta name="description" content="Plant Connections Console — supervisor surface unifying CMMS integration configs, external sync activity, sensor topic mappings, and gateway audit. Phase 5 Track C." />
+  <meta name="description" content="Plant Connections Console: supervisor surface unifying CMMS integration configs, external sync activity, sensor topic mappings, and gateway audit. Phase 5 Track C." />
   <meta property="og:title" content="Plant Connections · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/plant-connections.html" />
   <link rel="manifest" href="manifest.json" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -40,6 +40,9 @@
     table.pc-table th { text-align: left; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
     table.pc-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
     table.pc-table tr:hover td { background: rgba(255,255,255,0.02); }
+    /* A1 mobile overflow: wide (6-col) pc-tables scroll inside their own container
+       so the page body never scrolls horizontally at 390px. */
+    .pc-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
     .pill { display: inline-block; font-size: 0.58rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
     .pill-green { background: rgba(74,222,128,0.12); color: var(--green); }
@@ -74,7 +77,10 @@
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
     .simple-card .sc-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-    .simple-card .sc-hero  { font-size: 1.4rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); }
+    /* 1.5rem == the canonical KPI tier (components.css .sc-hero). This page does NOT
+   link components.css, so the rule must live here -- but it must MATCH the canonical
+   or the same KPI renders a different size than every other page. (Drift healed 2026-07-15.) */
+    .simple-card .sc-hero  { font-size: 1.5rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
     .simple-card .sc-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.55); line-height: 1.4; }
     .simple-card .sc-tag   { display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; margin-top: 7px; }
     .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
@@ -113,12 +119,12 @@
 
   <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No connections yet — open Integrations to wire one.</div>
+  <div id="empty-state" class="empty-state" hidden>No connections yet. Open Integrations to wire one.</div>
 
     <header class="page-header">
       <div>
-        <h1 class="page-title">Connections</h1>
-        <p class="page-sub">CMMS sync · sensor bridge · gateway audit — all in one supervisor surface.</p>
+        <h1 class="page-title" data-i="pctitle">Connections</h1>
+        <p class="page-sub">CMMS sync · sensor bridge · gateway audit, all in one supervisor surface.</p>
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
@@ -126,9 +132,15 @@
           <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
         </div>
       </div>
-      <span class="role-pill">Supervisor only</span>
+      <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+        <!-- A1: a monitoring board's primary action is re-pulling the latest sync/gateway state.
+             Filled so the 5-second scan lands on one clear CTA; a real reload, not a dead button. -->
+        <button type="button" onclick="location.reload()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.8rem; cursor:pointer;">↻ Refresh</button>
+        <span class="role-pill">Supervisor only</span>
+      </div>
     </header>
 
+    <h2 class="wh-section-title" data-i="pc_content_heading" style="margin-top:1rem;">Connected systems</h2>
     <div id="content">
       <div class="card"><div class="empty">Loading plant connections...</div></div>
     </div>
@@ -147,6 +159,7 @@
 
     (async function init() {
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
+      try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
       if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
       HIVE_ID = localStorage.getItem('wh_active_hive_id')
             || localStorage.getItem('wh_hive_id') || '';
@@ -192,7 +205,7 @@
         if (typeof whListError === 'function') {
           whListError(host, "Couldn’t load your plant connections. Check your connection and try again.", () => renderAll());
         }
-        if (typeof showToast === 'function') showToast('Plant connections failed to load — tap Retry.', 'warn');
+        if (typeof showToast === 'function') showToast('Plant connections failed to load. Tap Retry.', 'warn');
         return;
       }
       // Simple-by-default 2026-05-13: 4 plain cards + verdict + recommendation
@@ -245,7 +258,7 @@
       // Card 2 — Sensor feed
       let sensors;
       if (!s.topics.length) {
-        sensors = { hero: '0 sensors', sub: 'No MQTT/OPC-UA topics mapped — Anomaly Engine sensor source is dark', tag: 'NOT WIRED', tone: 'grey' };
+        sensors = { hero: '0 sensors', sub: 'No MQTT/OPC-UA topics mapped: Anomaly Engine sensor source is dark', tag: 'NOT WIRED', tone: 'grey' };
       } else {
         sensors = {
           hero: `${s.topics.length} sensors`,
@@ -357,20 +370,20 @@
       const cards = computeCardStates(s);
       let text;
       if (!s.cfgs.length) {
-        text = 'No CMMS systems are linked yet. Most hives start by connecting SAP PM (if you have it) or by configuring a weekly spare-parts CSV drop. Open the CMMS Integration page from the Operations section.';
+        text = 'You have not linked a CMMS yet. Most hives start with SAP PM or a weekly spare-parts CSV drop. Open CMMS Integration under Operations.';
       } else if (cards.cmms.tone === 'red') {
         text = 'A CMMS integration has not synced in over a week. Open Show details below, then click into the stale row to check API credentials and the endpoint URL.';
       } else if (cards.api.tone === 'red') {
         const errors = s.audit.filter(a => Number(a.status_code) >= 400).length;
-        text = `${errors} API calls failed in the last 7 days. Open Show details and check the Gateway audit panel — most failures are 401 (auth) or 429 (rate limit).`;
+        text = `${errors} API calls failed in the last 7 days. Open Show details and check the Gateway audit panel: most failures are 401 (auth) or 429 (rate limit).`;
       } else if (!s.topics.length) {
-        text = 'No sensors are mapped. Anomaly Engine 2.0 still works without sensors — it just relies on logbook + PM signals. Add MQTT/OPC-UA topics from the Sensor bridge page when you have telemetry available.';
+        text = 'No sensors are mapped. Anomaly Engine 2.0 still works without sensors: it just relies on logbook + PM signals. Sensor topics appear here automatically once your plant edge gateway (OPC-UA / MQTT) starts pushing readings: see the Sensor and CMMS Gateway Operations guide to set up the bridge.';
       } else if (cards.comp.tone === 'amber' && s.sso && s.sso.status === 'pending_review') {
         text = 'SSO is pending IT review. Send your SAML certificate thumbprint to the platform admin to move it from pending_review to active.';
       } else if (cards.comp.tone === 'amber' && !s.retention) {
-        text = 'You are using the platform default retention windows (30 days soft-delete, 1095 days audit, 90 days AI telemetry). If PDPA review requires custom windows, configure them below.';
+        text = 'You are using the platform default retention windows (30 days soft-delete, 1095 days audit, 90 days AI telemetry). Custom retention windows for PDPA are provisioned during enterprise onboarding: contact your platform admin.';
       } else if (cards.api.tone === 'amber') {
-        text = 'API error rate is creeping up. Open Show details to see which routes are failing — voice-journal-agent and visual-defect-capture are the usual heavy hitters.';
+        text = 'API error rate is creeping up. Open Show details to see which routes are failing: voice-journal-agent and visual-defect-capture are the usual heavy hitters.';
       } else {
         text = 'Everything looks good. Re-check this page after a known integration event (a SAP release or a sensor add) to confirm freshness stays green.';
       }
@@ -393,7 +406,7 @@
         renderGatewayCard(s.audit),
       ].join('');
       return `
-        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="details-pane">
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="details-pane" data-i="showdetails">
           Show details
         </button>
         <div id="details-pane" role="region" aria-label="Engineering details">${inner}</div>
@@ -407,75 +420,72 @@
     }
 
     async function loadIntegrationConfigs() {
-      try {
-        const { data } = await db.from('integration_configs')
-          .select('id, system_type, label, endpoint_url, auth_method, sync_freq, last_sync_at, enabled')
-          .eq('hive_id', HIVE_ID)
-          .order('last_sync_at', { ascending: false, nullsFirst: false })
-          .limit(500); // L2: hive-scoped CMMS-connector config (≤ handful per hive, bounded-by-nature); cap = egress insurance, can't truncate a set that never nears 500.
-        return data || [];
-      } catch (_) { return []; }
+      // A5 outage honesty: let a real read failure PROPAGATE to renderAll()'s
+      // Promise.all catch (which shows the honest whListError + Retry). Swallowing
+      // it here (return []) would mis-render an outage as "Not connected".
+      const { data, error } = await db.from('integration_configs')
+        .select('id, system_type, label, endpoint_url, auth_method, sync_freq, last_sync_at, enabled')
+        .eq('hive_id', HIVE_ID)
+        .order('last_sync_at', { ascending: false, nullsFirst: false })
+        .limit(500); // L2: hive-scoped CMMS-connector config (≤ handful per hive, bounded-by-nature); cap = egress insurance, can't truncate a set that never nears 500.
+      if (error) throw error;
+      return data || [];
     }
 
     async function loadRecentSync() {
-      try {
-        const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
-        const { data } = await db.from('v_external_sync_truth')
-          .select('id, system_type, entity_type, external_id, workhive_table, status, last_synced_at')
-          .eq('hive_id', HIVE_ID)
-          .gte('last_synced_at', sinceIso)
-          .order('last_synced_at', { ascending: false })
-          .limit(50);
-        return data || [];
-      } catch (_) { return []; }
+      const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+      const { data, error } = await db.from('v_external_sync_truth')
+        .select('id, system_type, entity_type, external_id, workhive_table, status, last_synced_at')
+        .eq('hive_id', HIVE_ID)
+        .gte('last_synced_at', sinceIso)
+        .order('last_synced_at', { ascending: false })
+        .limit(50);
+      if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
+      return data || [];
     }
 
     async function loadSensorTopics() {
-      try {
-        // canonical-allow: sensor_topic_map is this admin page's IoT topic→parameter config registry (single-surface, hive-scoped config), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
-        const { data } = await db.from('sensor_topic_map')
-          .select('id, topic_pattern, parameter, unit, asset_id')
-          .eq('hive_id', HIVE_ID)
-          .order('topic_pattern')
-          .limit(500); // L2: hive-scoped MQTT-topic→asset resolver config (supervisor-maintained, bounded by physical sensor count, not time/events); cap = egress insurance, sensor_readings holds the time-series, not this.
-        return data || [];
-      } catch (_) { return []; }
+      // canonical-allow: sensor_topic_map is this admin page's IoT topic→parameter config registry (single-surface, hive-scoped config), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
+      const { data, error } = await db.from('sensor_topic_map')
+        .select('id, topic_pattern, parameter, unit, asset_id')
+        .eq('hive_id', HIVE_ID)
+        .order('topic_pattern')
+        .limit(500); // L2: hive-scoped MQTT-topic→asset resolver config (supervisor-maintained, bounded by physical sensor count, not time/events); cap = egress insurance, sensor_readings holds the time-series, not this.
+      if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
+      return data || [];
     }
 
     async function loadGatewayAudit() {
-      try {
-        const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
-        // canonical-allow: gateway_audit_log is this admin page's own request-audit panel (single-surface, hive-scoped observability list, last 7d), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
-        const { data } = await db.from('gateway_audit_log')
-          .select('id, route, method, status_code, latency_ms, created_at, worker_name')
-          .eq('hive_id', HIVE_ID)
-          .gte('created_at', sinceIso)
-          .order('created_at', { ascending: false })
-          .limit(50);
-        return data || [];
-      } catch (_) { return []; }
+      const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+      // canonical-allow: gateway_audit_log is this admin page's own request-audit panel (single-surface, hive-scoped observability list, last 7d), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
+      const { data, error } = await db.from('gateway_audit_log')
+        .select('id, route, method, status_code, latency_ms, created_at, worker_name')
+        .eq('hive_id', HIVE_ID)
+        .gte('created_at', sinceIso)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
+      return data || [];
     }
 
     async function loadRetentionConfig() {
-      try {
-        // canonical-allow: hive_retention_config is this admin page's own single-row PDPA retention-policy config (single-surface, hive-scoped), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
-        const { data } = await db.from('hive_retention_config')
-          .select('soft_delete_retention_days, audit_retention_days, ai_telemetry_retention_days, updated_at, updated_by')
-          .eq('hive_id', HIVE_ID)
-          .maybeSingle();
-        return data || null;
-      } catch (_) { return null; }
+      // canonical-allow: hive_retention_config is this admin page's own single-row PDPA retention-policy config (single-surface, hive-scoped), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
+      const { data, error } = await db.from('hive_retention_config')
+        .select('soft_delete_retention_days, audit_retention_days, ai_telemetry_retention_days, updated_at, updated_by')
+        .eq('hive_id', HIVE_ID)
+        .maybeSingle(); // 0 rows => data:null, error:null (safe); a real failure sets error.
+      if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
+      return data || null;
     }
 
     async function loadSsoConfig() {
-      try {
-        // canonical-allow: sso_configs is this admin page's own single-row SSO/IdP config (single-surface, hive-scoped), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
-        const { data } = await db.from('sso_configs')
-          .select('provider, status, idp_entity_id, enforced, activated_at, notes')
-          .eq('hive_id', HIVE_ID)
-          .maybeSingle();
-        return data || null;
-      } catch (_) { return null; }
+      // canonical-allow: sso_configs is this admin page's own single-row SSO/IdP config (single-surface, hive-scoped), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
+      const { data, error } = await db.from('sso_configs')
+        .select('provider, status, idp_entity_id, enforced, activated_at, notes')
+        .eq('hive_id', HIVE_ID)
+        .maybeSingle(); // 0 rows => data:null, error:null (safe); a real failure sets error.
+      if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
+      return data || null;
     }
 
     function renderRetentionCard(r) {
@@ -486,13 +496,13 @@
         <div class="card">
           <h3>Data retention</h3>
           <p class="meta">PDPA evidence · daily cron at 12:00 PHT purges past retention</p>
-          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <tbody>
               <tr><td>Soft-deleted rows</td><td class="num-right">${escHtml(soft)}</td></tr>
               <tr><td>Audit trail</td><td class="num-right">${escHtml(audit)}</td></tr>
               <tr><td>AI telemetry (cost / quality)</td><td class="num-right">${escHtml(ai)}</td></tr>
             </tbody>
-          </table>
+          </table></div>
           ${renderSourceChip({ source: 'hive_retention_config', freshness: 'Live data', notes: ['Adjustable by supervisor; defaults applied when row missing.'] })}
         </div>
       `;
@@ -503,7 +513,7 @@
         return `
           <div class="card">
             <h3>Single Sign-On</h3>
-            <p class="meta">SSO/SAML readiness — not configured yet</p>
+            <p class="meta">SSO/SAML readiness: not configured yet</p>
             <div class="empty">No SSO configuration on this hive. Operators provision SSO during enterprise onboarding.</div>
           </div>
         `;
@@ -512,14 +522,14 @@
       return `
         <div class="card">
           <h3>Single Sign-On</h3>
-          <p class="meta">Provider: ${escHtml(s.provider || '—')} · ${escHtml(s.enforced ? 'enforced for hive' : 'optional')}</p>
-          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
+          <p class="meta">Provider: ${escHtml(s.provider || '-')} · ${escHtml(s.enforced ? 'enforced for hive' : 'optional')}</p>
+          <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <tbody>
               <tr><td>Status</td><td class="num-right"><span class="pill ${statusPill}">${escHtml(s.status || '?')}</span></td></tr>
-              <tr><td>IdP Entity ID</td><td class="num-right">${escHtml(s.idp_entity_id || '—')}</td></tr>
-              <tr><td>Activated</td><td class="num-right">${escHtml(s.activated_at ? new Date(s.activated_at).toLocaleString() : '—')}</td></tr>
+              <tr><td>IdP Entity ID</td><td class="num-right">${escHtml(s.idp_entity_id || '-')}</td></tr>
+              <tr><td>Activated</td><td class="num-right">${escHtml(s.activated_at ? whFmtDate(s.activated_at, { time: true }) : '-')}</td></tr>
             </tbody>
-          </table>
+          </table></div>
         </div>
       `;
     }
@@ -530,7 +540,7 @@
           <div class="card">
             <h3>CMMS integrations</h3>
             <p class="meta">SAP PM / IBM Maximo / generic CSV</p>
-            <div class="empty">No CMMS integrations configured yet. Open <a href="integrations.html" style="color:var(--blue);">CMMS Integration</a> to add one.</div>
+            <div class="empty">No CMMS integrations configured yet.<br><a href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:6px;padding:6px 16px;border-radius:8px;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));color:var(--wh-navy);font-weight:700;text-decoration:none;">Open CMMS Integration &rarr;</a></div>
           </div>
         `;
       }
@@ -549,8 +559,8 @@
         return `
           <tr>
             <td><strong>${escHtml(c.label || c.system_type)}</strong> <span style="color:var(--muted); font-size:0.62rem;">${escHtml(c.system_type)}</span></td>
-            <td>${escHtml(c.sync_freq || '—')}</td>
-            <td>${escHtml(c.auth_method || '—')}</td>
+            <td>${escHtml(c.sync_freq || '-')}</td>
+            <td>${escHtml(c.auth_method || '-')}</td>
             <td><span class="pill ${statusPill}">${escHtml(statusText)}</span></td>
           </tr>
         `;
@@ -559,10 +569,10 @@
         <div class="card">
           <h3>CMMS integrations <span class="pill pill-grey">${cfgs.length}</span></h3>
           <p class="meta">Per-hive sync configs · staleness against last_sync_at</p>
-          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
+          <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <thead><tr><th>Integration</th><th>Frequency</th><th>Auth</th><th>Status</th></tr></thead>
             <tbody>${rows}</tbody>
-          </table>
+          </table></div>
           ${renderSourceChip({ source: 'integration_configs', freshness: 'Live data', window: 'All-time' })}
         </div>
       `;
@@ -588,19 +598,21 @@
           <td><strong>${escHtml(s.system_type)}</strong></td>
           <td>${escHtml(s.entity_type)}</td>
           <td>${escHtml(s.external_id)}</td>
-          <td>${escHtml(s.workhive_table || '—')}</td>
-          <td>${escHtml(s.status || '—')}</td>
-          <td class="num-right">${escHtml(s.last_synced_at ? new Date(s.last_synced_at).toLocaleString() : '—')}</td>
+          <td>${escHtml(s.workhive_table || '-')}</td>
+          <td>${escHtml(s.status || '-')}</td>
+          <td class="num-right">${escHtml(s.last_synced_at ? whFmtDate(s.last_synced_at, { time: true }) : '-')}</td>
         </tr>
       `).join('');
       return `
         <div class="card">
           <h3>External sync activity <span class="pill pill-grey">${syncs.length}</span></h3>
           <p class="meta">Last 30 days · top 10 shown · ${summary}</p>
-          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
-            <thead><tr><th>System</th><th>Entity</th><th>External ID</th><th>WorkHive table</th><th>Status</th><th class="num-right">Synced</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
+          <div class="pc-table-wrap">
+            <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
+              <thead><tr><th>System</th><th>Entity</th><th>External ID</th><th>WorkHive table</th><th>Status</th><th class="num-right">Synced</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table></div>
+          </div>
         </div>
       `;
     }
@@ -615,21 +627,24 @@
           </div>
         `;
       }
-      const rows = topics.map(t => `
+      const CAP = 100; // A2: bound the DOM at volume (a plant can map 100s of topics)
+      const rows = topics.slice(0, CAP).map(t => `
         <tr>
           <td><code style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">${escHtml(t.topic_pattern)}</code></td>
           <td>${escHtml(t.parameter)}</td>
-          <td>${escHtml(t.unit || '—')}</td>
+          <td>${escHtml(t.unit || '-')}</td>
         </tr>
       `).join('');
+      const moreNote = topics.length > CAP ? `<p class="meta" style="margin-top:6px;">Showing the first ${CAP} of ${topics.length} topics.</p>` : '';
       return `
         <div class="card">
           <h3>Sensor topic map <span class="pill pill-grey">${topics.length}</span></h3>
           <p class="meta">Live MQTT bridge feeds Anomaly Engine 2.0</p>
-          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
+          <div class="pc-table-wrap"><!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <thead><tr><th>Topic pattern</th><th>Parameter</th><th>Unit</th></tr></thead>
             <tbody>${rows}</tbody>
-          </table>
+          </table></div></div>
+          ${moreNote}
         </div>
       `;
     }
@@ -651,10 +666,10 @@
           <tr>
             <td><strong>${escHtml(a.route)}</strong></td>
             <td>${escHtml(a.method)}</td>
-            <td><span class="pill ${pill}">${escHtml(String(sc || '—'))}</span></td>
-            <td class="num-right">${escHtml(a.latency_ms != null ? a.latency_ms + ' ms' : '—')}</td>
-            <td>${escHtml(a.worker_name || '—')}</td>
-            <td class="num-right">${escHtml(new Date(a.created_at).toLocaleString())}</td>
+            <td><span class="pill ${pill}">${escHtml(String(sc || '-'))}</span></td>
+            <td class="num-right">${escHtml(a.latency_ms != null ? a.latency_ms + ' ms' : '-')}</td>
+            <td>${escHtml(a.worker_name || '-')}</td>
+            <td class="num-right">${escHtml(whFmtDate(a.created_at, { time: true }))}</td>
           </tr>
         `;
       }).join('');
@@ -662,10 +677,12 @@
         <div class="card">
           <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${audit.length}</span></h3>
           <p class="meta">Last 7 days · ${errCount} non-2xx · top 10 shown</p>
-          <!-- table-name-allow: plant-connections integration status table --> <table class="pc-table">
-            <thead><tr><th>Route</th><th>Method</th><th>Status</th><th class="num-right">Latency</th><th>Caller</th><th class="num-right">When</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
+          <div class="pc-table-wrap">
+            <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
+              <thead><tr><th>Route</th><th>Method</th><th>Status</th><th class="num-right">Latency</th><th>Caller</th><th class="num-right">When</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table></div>
+          </div>
         </div>
       `;
     }
@@ -682,7 +699,7 @@
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
   <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data and refresh when you open the page (a tile may note if it updates differently). Empty or zero values are greyed out so you can tell at a glance which ones have data.</p>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
@@ -693,5 +710,19 @@
 </script>
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('pc-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'pc-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');  // G1 (Nielsen #1): this in-content provenance chip IS the page's system-status/freshness region
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'integration_configs + gateway_audit_log + hive_retention_config',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE = { pctitle: 'Mga Koneksyon' };</script>
 </body>
 </html>

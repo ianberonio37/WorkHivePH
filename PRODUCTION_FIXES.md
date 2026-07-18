@@ -1211,6 +1211,461 @@ Added edit-to-closed path (Check 4) to `test-data-seeder/flows/logbook.py`.
 
 ---
 
+### 31. Contact-Seller inquiry saved with NULL seller_name: the seller could never see it (silent black-hole) — FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via a LIVE Playwright-MCP deepwalk of the Marketplace PDDA (F-axis), walking the primary buyer path (the "Contact Seller" inquiry sheet in marketplace.html).
+
+**What's wrong:**
+The primary buyer path (the "Contact Seller" inquiry form) inserted a `marketplace_inquiries` row WITHOUT `seller_name` (marketplace.html ~line 2463). Only the secondary RFQ / bulk-quote path set it. The seller dashboard (marketplace-seller.html) surfaces inquiries via `v_marketplace_inquiries_truth ... .eq('seller_name', WORKER_NAME)`, and that view selects `i.seller_name` (the BASE column), NOT the joined `l.seller_name`. So an inquiry with a NULL seller_name never matched the seller's filter. The buyer saw the success toast ("Inquiry sent! Seller responds within 48 hours"), but the inquiry was a silent BLACK-HOLE the seller could never see. Two write paths, only one wrote the recipient key.
+
+**Where:**
+- `marketplace.html`: `openInquirySheet()` / inquiry submit (~line 2463) omitted `seller_name` from the insert
+- `marketplace-seller.html`: reads inquiries filtered on `seller_name`
+- view `v_marketplace_inquiries_truth`: projects the BASE `i.seller_name`, not the joined `l.seller_name`
+
+**How to fix (done):**
+1. `openInquirySheet()` now stashes `item.seller_name` on `#inq-listing-id.dataset.seller`; the submit reads it and includes `seller_name` in the insert (parity with the RFQ path).
+2. Migration `supabase/migrations/20260711000007_backfill_inquiry_seller_name.sql` backfills historical NULLs from the joined listing.
+3. Gate `validate_marketplace.py::check_inquiry_insert_sets_seller_name` (10/10 PASS) fails if any `marketplace_inquiries` insert omits `seller_name`.
+
+**Verified:** LIVE. A Contact-Seller inquiry now lands in the seller dashboard's Inquiries tab; the backfill recovered prior NULL rows; gate 10/10 PASS.
+
+**Lesson:** when a recipient's inbox filters on a key column (here `seller_name`), EVERY insert path must write that key. A two-path feature where only one path sets it is a silent black-hole, so test BOTH the direct and bulk paths. And a `v_*_truth` view that projects the BASE column (not the joined listing's) makes that base column load-bearing: either always-write it on insert, or derive it in the view via the join. Pairs qa-tester + frontend + marketplace + data-engineer.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 32. Inventory <-> Marketplace parts-flow bridge: surplus stock had no path to a listing and buyers could not find a part by number (X keystone). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (X-axis keystone), deepwalking the Inventory <-> Marketplace parts-flow.
+
+**What's wrong:**
+The two surfaces were fully disconnected. `marketplace_listings` carried no `part_number` and no provenance link back to the inventory row a listing came from, so (a) a supervisor sitting on surplus stock could not list it without hand-copying every field, (b) a buyer who needed a specific part could not find it (buyer search matched title/description only, not part number), and (c) a buyer who received a listing had no path to fold it back into inventory. The 'parts' category filter also silently dropped a whole class: listings tagged 'Filters' existed but 'Filters' was absent from `CATS['parts']`, so those listings were neither filterable nor postable.
+
+**Where:**
+- table `marketplace_listings` (no `part_number`, no `source_inventory_item_id`)
+- view `v_marketplace_listings_truth` (did not expose `part_number`)
+- `inventory.html` (no "Sell" / "Find on Marketplace" affordances)
+- `marketplace.html` (buyer search did not match `part_number`; listing-detail had no "Add to inventory"; `CATS['parts']` missing 'Filters')
+
+**How to fix (done):**
+1. Migration `20260712000000` adds `part_number` (TEXT) + `source_inventory_item_id` (TEXT FK to `inventory_items.id`, which is TEXT not uuid) to `marketplace_listings`. Recreated `v_marketplace_listings_truth` to expose `part_number`; `source_inventory_item_id` is kept BASE-only (not projected) for isolation.
+2. inventory.html: surplus / above-reorder rows get a "Sell" action that deep-links `marketplace.html?post=1&from_inventory=<id>`, opening a prefilled Post that writes `part_number` + `source_inventory_item_id`. Below-reorder rows get "Find on Marketplace" linking `marketplace.html?section=parts&q=<part#>`.
+3. marketplace.html: buyer search extended to also match `part_number.ilike`; listing-detail gains "Received this? Add to inventory" linking `inventory.html?receive=1`, which reuses inventory's OWN Restock/Add ledger-consistent write path (never duplicates the qty write).
+4. Added 'Filters' to `CATS['parts']` so those listings are filterable + postable.
+
+**Verified:** gate `validate_marketplace.py` (partsflow_bridge_schema + partsflow_bridge_ui) 14/14 PASS; live deep-link prefill wrote `part_number` + source id; the receive round-trip added qty via the existing inventory ledger path with no double-write.
+
+**Lesson:** `part_number` is the strong join key between Inventory and Marketplace because their taxonomies diverge (inventory is material-centric, listings are equipment-centric), so category alone cannot bridge them. Keep provenance (`source_inventory_item_id`) BASE-only so it never leaks cross-tenant through the truth view, and make the receive round-trip REUSE the destination page's own ledger-consistent write path rather than writing qty directly (a second qty write is a silent double-count). Pairs marketplace + inventory-validator + data-engineer + frontend.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 33. marketplace_reviews shipped with RLS DISABLED + anon INSERT: anyone (even logged-out) could poison seller ratings (I-axis, LIVE-exploited). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (I-axis / internal-control), live-probing the reviews write path.
+
+**What's wrong:**
+`marketplace_reviews` shipped with RLS DISABLED and an anon INSERT grant. Anyone, including a logged-out client, could insert a review with `verified_purchase = true` and any `reviewer_name`. Trigger `trg_update_seller_rating` recomputes the seller's rating from those rows, so this was direct rating poisoning: fabricate glowing verified reviews (or trash a competitor) at will. Verified LIVE that an anon insert succeeded before the fix.
+
+**Where:**
+- table `marketplace_reviews` (RLS off + anon INSERT grant)
+- trigger `trg_update_seller_rating` -> `update_seller_rating` (recomputes rating from review rows)
+
+**How to fix (done):**
+1. Migration `20260712000001`: ENABLE RLS on `marketplace_reviews`; public SELECT policy; INSERT/UPDATE policy that forbids a non-admin from self-claiming `verified_purchase` (`verified_purchase = false` unless `is_marketplace_admin`) AND requires `reviewer_name IN auth_worker_names()`; anon REVOKE-then-GRANT SELECT only.
+2. Made `update_seller_rating` + `update_seller_tier` SECURITY DEFINER so the reviewer-triggered upsert into `sellers` is not blocked by the `sellers` INSERT RLS (a SECURITY INVOKER trigger writing another table runs as the reviewer and hits that table's RLS).
+
+**Verified:** LIVE. Anon insert now blocked; a non-admin insert with `verified_purchase = true` blocked; a legitimate review by the authed reviewer allowed and the seller rating recomputes correctly.
+
+**Lesson:** a table with RLS OFF plus an anon grant is WORLD-WRITABLE regardless of any app-layer guard: always confirm with `has_table_privilege('anon','marketplace_reviews','INSERT')` and `SELECT relrowsecurity FROM pg_class`. A self-claimed trust flag (`verified_purchase`) must be forced false unless the writer is an admin, never trusted from the client. LIVE-exploit the hole both before and after the fix. Pairs security + multitenant-engineer.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 34. marketplace_sellers UPDATE RLS had no column guard: a seller could self-grant kyb/cert verified + gold tier + 5-star rating (I-axis BOLA, LIVE-exploited). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (I-axis), live-probing the seller self-update path as a non-admin.
+
+**What's wrong:**
+The `marketplace_sellers` UPDATE policy checked only `auth_uid = auth.uid()` with NO column-level restriction. A seller updating their own row could therefore set `kyb_verified`, `cert_verified`, `tier`, `rating_avg`, and `total_sales`, fabricating every trust signal the marketplace shows buyers. Verified LIVE: a self-UPDATE set kyb=true, tier=gold, rating=5, sales=999. RLS `WITH CHECK` cannot express a column-level or state-transition rule (it sees neither OLD nor a per-column allow-list), the same shape as the earlier UI-only supervisor-approval backstop.
+
+**Where:**
+- table `marketplace_sellers` (UPDATE policy is row-scoped only, no column guard)
+
+**How to fix (done):**
+1. SECURITY DEFINER BEFORE INSERT/UPDATE trigger `guard_marketplace_seller_trust_columns` + `trg_guard_seller_trust`: blocks a NON-ADMIN from turning ON kyb/cert verification or changing `tier` / `rating_avg` / `total_sales` / `response_*`. It ALLOWS a self-DOWNGRADE of one's own verification (the app does this legitimately when a seller edits a cert).
+2. Exemptions: service-role (`auth.uid() IS NULL`), admins, and the rating/tier recompute triggers (which flip a transaction-local GUC `workhive.seller_system_write` the guard checks) so the legitimate system recompute is not blocked.
+
+**Verified:** LIVE with a NON-ADMIN simulated session (Wilfredo): the self-grant was blocked (42501); a legitimate messenger/contact update by the same seller succeeded. Gate `validate_marketplace.py` (reviews_rls_locked + seller_trust_guard) 14/14 PASS.
+
+**Lesson:** RLS `WITH CHECK` gates WHICH ROWS a writer may touch, never WHICH COLUMNS or which value transitions. Any "user may edit their row but not these trust columns / not upgrade this flag" rule needs a SECURITY DEFINER BEFORE trigger that compares OLD vs NEW. Allow the safe direction (self-downgrade), block the unsafe one (self-upgrade), and exempt the legitimate system writers via `auth.uid() IS NULL` (service role) plus a transaction-local GUC the recompute triggers set. Pairs multitenant-engineer + security.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 35. Founder-console single-hub fusion: the sole founder had to hop across marketplace-admin + 7 scattered tool pages (U-axis). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (U-axis), reviewing the sole-founder admin experience: moderation lived on a separate marketplace-admin.html and the non-production tools were scattered.
+
+**What's wrong:**
+The sole founder had to context-switch across marketplace-admin.html plus a handful of internal tool pages to do routine moderation and checks. There was no single hub.
+
+**Where:**
+- `founder-console.html` (no moderation section, no tools launcher)
+- `marketplace.html` ("Admin" link pointed at the standalone marketplace-admin.html)
+
+**How to fix (done):**
+1. Fused the marketplace-admin moderation queues INLINE into founder-console.html as a new "Marketplace moderation" section: listings-awaiting-review (Approve/Reject), sellers-awaiting-verification (Verify ID / certs), and open disputes. Handlers are event-delegated and driven by data-attrs (XSS-safe), reusing the same `is_marketplace_admin` authority the console already gates on.
+2. Added a "Founder tools" launcher linking every non-production surface (marketplace-admin full, llm-observability, agentic-rag-observability, validator-catalog, architecture, symbol-gallery, status, promo-poster).
+3. Repointed marketplace.html "Admin" link to `founder-console.html#sec-mkt-mod`.
+
+**Verified:** axe = 0 violations. Moderation actions run against the same admin authority. marketplace-admin.html was intentionally KEPT (about 20 validators scan it) and lives on as the deep-browse view inside the launcher rather than being deleted.
+
+**Lesson:** to fuse an admin surface's ACTION queues into a single hub, re-render its queues inline with event-delegated + data-attr handlers (no per-row inline onclick, no XSS surface) and reuse the destination's existing authority gate rather than re-implementing it. When many validators scan the original page, DO NOT delete it: keep it as a launcher / deep-browse entry so the gates stay green while users get the single hub. Pairs frontend + qa-tester + marketplace.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 36. 'marketplace-listings' storage bucket allowed anon DELETE + anon INSERT by bucket_id only: anyone could delete any seller's listing photo or flood uploads (I-axis, storage vandalism). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (I-axis), auditing the storage-bucket policies behind listing photos.
+
+**What's wrong:**
+The `marketplace-listings` storage bucket shipped with a `storage.objects` DELETE policy USING only `bucket_id = 'marketplace-listings'` and an INSERT policy WITH CHECK only `bucket_id = 'marketplace-listings'`. Neither checked the object's `owner`. So anyone, including a logged-out anon client, could DELETE ANY seller's listing photo (silent vandalism) or flood the bucket with uploads. A policy scoped by `bucket_id` alone is world-writable within that bucket, the storage analog of an RLS-off table.
+
+**Where:**
+- storage bucket `marketplace-listings` policies on `storage.objects` (DELETE + INSERT scoped by `bucket_id` only, no owner check)
+
+**How to fix (done):**
+1. Migration `20260712000002`: DELETE policy scoped to `owner = auth.uid() OR is_marketplace_admin()`; INSERT policy tightened to `auth.uid() IS NOT NULL` (must be signed in); public SELECT kept so listing photos stay viewable.
+2. Gate `validate_marketplace.py::storage_delete_owner_scoped`.
+
+**Verified:** the anon/other-owner DELETE is now blocked; a photo's owner (or a marketplace admin) can still delete it; public SELECT still serves the image; anon upload blocked. Gate `validate_marketplace.py` (incl. storage_delete_owner_scoped) 17/17 PASS.
+
+**Lesson:** a storage-bucket policy scoped by `bucket_id` alone is world-writable within that bucket. DELETE/UPDATE must additionally check `owner = auth.uid()` (or an admin helper), and INSERT must at least require `auth.uid() IS NOT NULL`. Keep public SELECT only when the asset is meant to be publicly viewable, but never public write. Confirm with `has_table_privilege('anon','storage.objects','DELETE')` and read the actual `storage.objects` policies, not just the bucket's `public` flag. Pairs security + marketplace.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 37. check_listing_rate() early-returned on NULL hive_id, so a listing posted with hive_id=null bypassed the 20/day anti-spam cap (I-axis, unlimited spam). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (I-axis), probing the listing anti-spam rate limiter with a NULL hive_id.
+
+**What's wrong:**
+The `check_listing_rate()` BEFORE INSERT trigger enforced a 20-listings/day cap per hive, but its first line early-returned when `NEW.hive_id IS NULL`. The `marketplace_listings` INSERT policy only requires `seller_name` (not `hive_id`), so a client could post listings with `hive_id = null` and completely bypass the cap: unlimited spam. The limiter had a NULL-shaped hole exactly where the INSERT policy did not force the column the limiter keyed on.
+
+**Where:**
+- trigger fn `check_listing_rate()` on `marketplace_listings` (early-return on `NEW.hive_id IS NULL`)
+- `marketplace_listings` INSERT policy (checks `seller_name`, not `hive_id`)
+
+**How to fix (done):**
+1. Migration `20260712000004`: when `NEW.hive_id IS NULL`, `check_listing_rate()` now counts and caps by `seller_name` (the stable identity the INSERT policy DOES require) instead of early-returning; the per-hive path is unchanged.
+2. Covered by `validate_marketplace.py` (17/17 PASS).
+
+**Verified:** posting a 21st listing in a day with `hive_id = null` (same `seller_name`) is now rejected by the cap instead of sliding through; the per-hive cap still fires as before. Gate `validate_marketplace.py` 17/17 PASS.
+
+**Lesson:** a per-tenant rate-limit / anti-abuse trigger that early-returns on a NULL key column is bypassable whenever the INSERT policy does not FORCE that column non-null. Close the hole by capping on the stable identity the policy DOES require (here `seller_name`) rather than skipping the check. Any "early-return when key IS NULL" in a security trigger is a red flag: the NULL branch must fall back to another identity, never open the gate. Pairs security + multitenant-engineer.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 38. Post-a-listing had no comparable-price signal, and a naive "suggest a price" AI would fabricate one (AI-axis, WAT split). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (AI-axis), reviewing how a seller decides a listing price on the Post sheet.
+
+**What's wrong:**
+The Post-a-listing sheet gave the seller no comparable-price signal. The naive fix (ask an LLM "what should I charge?") fabricates a number with no basis, because the model has no access to what similar parts actually sold for. A price shown with false confidence is worse than none.
+
+**Where:**
+- `marketplace.html` Post sheet (no price hint)
+- RPC `get_marketplace_price_comps` (did not exist)
+
+**How to fix (done):**
+1. Migration `20260712000003` adds SECURITY DEFINER RPC `get_marketplace_price_comps(category, condition, part_number)` returning n / min / median / max computed OVER published+sold listings (exact `part_number` match preferred, else falling back to category+condition). CODE computes the comp; the LLM is limited to narrating it.
+2. marketplace.html `updatePriceHint()` shows a price BAND on the Post sheet ONLY when `n >= 3`; below that it shows an honest "not enough comparables yet" note or nothing at all, never a fabricated price.
+3. Gate `validate_marketplace.py::price_comps_grounded`.
+
+**Verified:** with 3+ comparable parts the Post sheet shows a real min/median/max band; with fewer it shows the honest note (or nothing) rather than a made-up number. Gate `validate_marketplace.py` (incl. price_comps_grounded) 17/17 PASS.
+
+**Lesson:** grounded price/number guidance is a WAT split: deterministic CODE (a SQL RPC) computes the statistic and the LLM is limited to narrating it, never inventing the value. Render NOTHING below a minimum sample size (here n<3) rather than showing a low-confidence or fabricated number: an honest "not enough comparables" beats a made-up band. Pairs ai-engineer + marketplace + data-engineer.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 39. "Parts for your assets" discovery: buyers could not see which published listings match parts their own hive's assets use (U-axis, discovery gap). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (U-axis), asking how a buyer finds listings relevant to the equipment their hive actually runs.
+
+**What's wrong:**
+A buyer had no way to see, at a glance, which marketplace listings match part numbers their OWN hive's inventory/assets use. They had to already know the part number and search manually. This is the marketplace analog of Community's "my people" belonging surface, but for parts.
+
+**Where:**
+- RPC `get_marketplace_parts_for_my_assets` (did not exist)
+- `marketplace.html` (no relevance rail)
+
+**How to fix (done):**
+1. Migration `20260712000005` adds SECURITY DEFINER RPC `get_marketplace_parts_for_my_assets(hive_id)` that joins PUBLISHED listings to the viewer hive's inventory by `part_number`. It is membership-guarded: `EXISTS (SELECT 1 FROM hive_members WHERE hive_id = <arg> AND auth_uid = auth.uid() AND status = 'active')`, so a caller cannot pass an arbitrary hive_id and read another hive's part-usage.
+2. marketplace.html renders a horizontal rail above the grid ("Parts for your assets"); tapping a card opens the listing detail.
+3. Gate `validate_marketplace.py::parts_for_assets_guarded`.
+
+**Verified:** the rail lists only published listings whose part_number appears in the viewer hive's inventory; calling the RPC with another hive's id returns nothing (membership guard blocks the cross-hive read). Gate `validate_marketplace.py` (incl. parts_for_assets_guarded) 17/17 PASS.
+
+**Lesson:** a "relevant to YOUR org" discovery surface that joins PUBLIC listings to a viewer's PRIVATE inventory must be a SECURITY DEFINER RPC that is active-membership-guarded on the passed hive_id (`EXISTS active hive_members WHERE auth_uid = auth.uid()`), or it becomes a cross-hive part-usage leak: passing someone else's hive_id would enumerate their inventory. The public side (listings) is fine to expose; the private side (which parts a hive uses) is the thing to guard. Same shape as Community "my people". Pairs marketplace + multitenant-engineer.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 40. Listing detail hid the part number and the seller's trust-depth (response time / reply rate / sales) that were already computed on the truth view (U-axis, under-surfacing). FIXED 2026-07-11
+
+**Discovered:** 2026-07-11 via the Marketplace PDDA (U-axis), reviewing what the listing-detail sheet shows a buyer deciding whether to contact a seller.
+
+**What's wrong:**
+The listing detail did not surface (a) the `part_number` that identifies exactly what the part is, and (b) the seller's trust-DEPTH signals, even though the depth data (`response_time_h`, `response_rate`, `total_sales`) was ALREADY computed on `v_marketplace_sellers_truth`. The buyer saw a star rating but not how responsive or proven the seller was, and could not confirm the exact part identity.
+
+**Where:**
+- `marketplace.html` listing-detail render (no part_number chip, no trust-depth line)
+- view `v_marketplace_sellers_truth` (already exposed `response_time_h` / `response_rate` / `total_sales`)
+
+**How to fix (done):**
+1. Listing-detail Details section now renders a `#PART` chip from `part_number` when present.
+2. Added a seller trust-depth line "Responds in ~Xh · Y% reply rate · Z sales" sourced from the truth view. `response_rate` is stored as a FRACTION (0 to 1), so it is multiplied by 100 for display.
+3. Both render ONLY when the underlying value is present: no fabrication, no zero-filled placeholder.
+
+**Verified:** a listing with a part_number shows the `#PART` chip; a seller with the depth fields populated shows the trust line with reply rate correctly scaled to a percent; absent values render nothing. Gate `validate_marketplace.py` 17/17 PASS.
+
+**Lesson:** trust-DEPTH is often ALREADY computed on the `v_*_truth` view (`response_time_h`, `response_rate`, `total_sales`) and just needs RENDERING: audit the truth view before assuming a signal has to be built. Watch the units: `response_rate` is a FRACTION (multiply by 100 for a percent). Render each signal ONLY when present so an absent value shows nothing rather than a fabricated "0% reply rate". Pairs marketplace + frontend + designer.
+
+**Status:** FIXED 2026-07-11 (local, uncommitted)
+
+---
+
+### 41. inventory_transactions write RLS was `auth.uid() IS NOT NULL` only: a worker could tamper ANOTHER hive's stock via a cross-hive ledger insert (I/X-axis, cross-tenant BOLA). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12 via the Inventory PDDA (I/X-axis), live-probing the ledger write path as a real authenticated member (pabloaguilar, hive c9def338).
+
+**What's wrong:**
+`inventory_transactions_write` WITH CHECK was only `(auth.uid() IS NOT NULL)` — no hive scoping and no check that the referenced item belongs to the caller's hive. Confirmed exploit: as a hive-A member, a single PostgREST insert of a ledger row against a **foreign hive's item** (`item_id` in hive 46750939, `hive_id` spoofed to the attacker's own hive c9def338, `qty_after=88888`) was ACCEPTED, and the AFTER-INSERT SECURITY DEFINER trigger `inventory_sync_balance_from_ledger()` (which does `UPDATE inventory_items SET qty_on_hand = NEW.qty_after WHERE id = NEW.item_id`, RLS-bypassing, matched on item_id only) mirrored 88888 onto that foreign item's stored balance (**78 → 88888**). Cross-tenant stock corruption + ledger poisoning that flows into every consumer (alert-hub low-stock, analytics stock value, marketplace part flow). Also: a negative/arbitrary `qty_after` on the caller's own item was mirrored unchecked (negative-stock tamper).
+
+**Where:**
+- RLS policy `inventory_transactions_write` (WITH CHECK too permissive; USING had a cross-hive `auth_uid IS NULL` branch)
+- function `inventory_sync_balance_from_ledger()` (no hive guard on its UPDATE)
+- table `inventory_transactions` (no `qty_after >= 0` constraint)
+
+**How to fix (done — migration `20260712000011_inventory_txn_hive_scope_write_guard.sql`):**
+1. WITH CHECK now requires `EXISTS(inventory_items ii WHERE ii.id = item_id AND ii.hive_id IS NOT DISTINCT FROM txn.hive_id AND ii.hive_id IN active-member-hives OR solo-own)` — blocks the foreign-item + own-hive_id spoof AND the foreign hive. USING mirrored + dropped the blanket `auth_uid IS NULL` branch.
+2. Trigger got `AND hive_id IS NOT DISTINCT FROM NEW.hive_id` (a SECURITY DEFINER trigger is RLS-exempt, so it must re-assert the boundary).
+3. Added `CHECK (qty_after >= 0)` — a running balance can never be negative.
+
+**Verified:** LIVE before AND after (rolled-back two-tenant probe). Pre-fix: cross-hive insert succeeded (78→88888), restored. Post-fix: cross-hive → 42501 RLS violation, negative → 23514 check violation, legit in-hive Use flow (14→13→14) unaffected. Data invariants clean (0 neg qty_after, 0 hive-mismatch, 0 orphan). Ledger-reconciled gate still 0 drift / 0 chain-breaks. New gate `validate_inventory_txn_isolation.py` (LIVE, rolled-back, reseed-robust actors) PASS 3/3.
+
+**Lesson:** a child/ledger table's write RLS is NOT covered by the parent's RLS. Anchor the WITH CHECK on the FK'd parent's hive (`EXISTS` membership-join) and require `child.hive_id = parent.hive_id` — never trust the child row's own hive_id (the writer controls it). A SECURITY DEFINER trigger that writes another table must self-enforce the hive boundary. LIVE-exploit the foreign-parent insert before AND after. Pairs security + multitenant-engineer + inventory-validator.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 42. THREE PM-scheduler write RLS holes: a worker could inject a scope item / completion / phantom asset into ANOTHER hive (I/X-axis, cross-tenant BOLA — same class as #41). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12 via the PM Scheduler PDDA (I-axis). The #41 fix prompted an audit of EVERY hive child/ledger table's write RLS for the same permissive-WITH-CHECK class; three PM tables failed and were live-exploited with a rolled-back two-tenant probe (attacker leandromarquez / Baguio Textile 636cf7e8, victim Lucena Pharmaceutical c9def338).
+
+**What's wrong (all confirmed VULNERABLE pre-fix):**
+1. `pm_scope_items_write` — USING was properly parent-asset-scoped (`asset_id IN (pm_assets JOIN hive_members)`) but WITH CHECK was only `(auth.uid() IS NOT NULL)`. INSERT is gated by WITH CHECK, not USING → a hive-A worker INSERTed a PM scope item onto a **foreign hive's asset** (unplanned tasks smuggled into another plant's schedule).
+2. `pm_completions_write` — WITH CHECK was **null** → falls back to USING (`auth_uid = auth.uid()`), which has **no hive gate** → a self-attributed completion INSERTed into a **foreign hive's compliance**, poisoning `v_pm_compliance_truth` → analytics %, shift-planner PMs-due, hive PM-Health card, predictive PM-overdue factor.
+3. `pm_assets_write` — WITH CHECK was **null** → falls back to USING (`auth_uid = auth.uid() OR member-of(hive)`, an **OR**). Inserting with `auth_uid = self` + a **foreign** `hive_id` short-circuits the OR to TRUE → a phantom asset injected into a foreign hive's PM list (scope items can then be hung off it). (Only a NOT-NULL on `worker_name`, never RLS, had stopped the first attempt.)
+
+**Where:** RLS policies `pm_scope_items_write`, `pm_completions_write`, `pm_assets_write`.
+
+**How to fix (done — migration `20260712000012_pm_hive_scope_write_guard.sql`):**
+1. `pm_scope_items_write` WITH CHECK now `EXISTS(pm_assets pa WHERE pa.id = asset_id AND pa.hive_id IS NOT DISTINCT FROM scope.hive_id AND (solo-own OR pa.hive_id IN active-member-hives))`.
+2. `pm_completions_write` WITH CHECK now requires `auth_uid = self` AND `(solo-own asset) OR (hive_id IN active-member-hives AND EXISTS asset in that hive)`.
+3. `pm_assets_write` WITH CHECK now `(hive_id IS NULL AND auth_uid = self) OR hive_id IN active-member-hives`; USING tightened to the same shape (dropped the bare `auth_uid = self` OR-branch for hive rows).
+
+**Verified:** LIVE before AND after (rolled-back two-tenant probe). Pre-fix: all three foreign INSERTs SUCCEEDED. Post-fix: all three → 42501 RLS violation; two legit own-hive controls (own-hive completion + own-hive scope item) still SUCCEED (no regression). Preconditions clean (0 solo assets, 0 null-auth_uid, 0 scope/completion hive-mismatch vs parent, 0 orphans). New gate `validate_pm_write_isolation.py` (LIVE, rolled-back, reseed-robust actors) PASS 4/4; registered in `run_platform_checks` (Platform, severity=fail, skip_if_fast).
+
+**Lesson:** the #41 child/ledger-table WITH-CHECK rule REPEATS across the whole family — after finding one, sweep ALL sibling child tables in the same session. A `WITH CHECK = null` on a `FOR ALL` policy silently reuses USING as the insert check; if USING is an `auth_uid = self OR member` OR, the self branch defeats the hive gate on INSERT. Always anchor WITH CHECK on the FK'd parent's hive-membership and require `child.hive_id = parent.hive_id`. Pairs security + multitenant-engineer + pm-validator.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 43. asset-hub RCM interval→PM-frequency mapper had no Weekly/Daily bucket: a 7-day RCM strategy task wrote frequency='Monthly' (U/X-axis, silent frequency loss). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12, PM Scheduler PDDA cross-page write-consistency sweep (after fixing the pm-scheduler frequency-drop display keystone).
+
+**What's wrong:** `asset-hub.html` `_intervalToFrequencyLabel(days)` (pushes an RCM strategy task → `pm_scope_items`) mapped intervals to a bucket list `[[30,'Monthly'],[90,'Quarterly'],[180,'Semi-Annual'],[365,'Yearly']]` with no Weekly (7) or Daily (1) bucket. A 7-day interval rounded to the nearest = **Monthly** — the weekly PM's true cadence was silently lost on write. It also wrote `'Yearly'` (non-canonical vs the pm-scheduler `FREQ` registry's `'Annual'`).
+
+**Where:** `asset-hub.html` `RCM_INTERVAL_TO_FREQ` map + `_intervalToFrequencyLabel` buckets.
+
+**How to fix (done):** added `1:'Daily'` + `7:'Weekly'` to the exact map and `[1,'Daily'],[7,'Weekly']` to the buckets; changed `'Yearly'`→`'Annual'`. Live-verified: `_intervalToFrequencyLabel(7)`→Weekly, `(1)`→Daily, `(365)`→Annual. Locked by `validate_pm.py::freq_crosspage_consistent` (asserts asset-hub has a Weekly bucket). (integrations.html's `daysToFreq` already had Weekly + Annual — no change.)
+
+**Lesson:** an interval→enum rounding table must cover the FULL enum range including the smallest bucket, or values below the smallest bucket silently collapse into it. Pairs the pm-scheduler frequency-drop keystone (both are the same canonical-vocabulary class, display + write).
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 44. Intelligence-layer jsonb columns DOUBLE-ENCODED by seeders → consumers read them as empty (X/U-axis, Asset/Alert/Shift arc). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12, Asset/Alert/Shift PDDA deepwalk — asset-hub staging card showed 0 parts while its rationale said "3 parts", and alert-hub read "0 parts recommended … 3 parts appear" (self-contradicting).
+
+**What's wrong:** `test-data-seeder/seeders/parts_staging.py` wrote `parts: json.dumps(list)` into the `jsonb` column `parts_staging_recommendations.parts` → `jsonb_typeof='string'` (a double-encoded scalar), which the consumers' `Array.isArray(x)?x:[]` guard reads as EMPTY. The **new gate** `validate_intelligence_jsonb_shape.py` then surfaced a SECOND instance: `test-data-seeder/seeders/shift_plans.py` did the same `json.dumps(payload)` (3/5 shift_plans.payload rows were string scalars) — masked because it also mislabeled the seed row `generated_by='shift-planner-orchestrator'`.
+
+**Where:** two seeders + defensive parse missing in 3 consumers (asset-hub `_parsePartsField`, alert-hub inline, shift-brain payload).
+
+**How to fix (done):** seeders pass the list/dict directly (match the real producer `parts-staging-recommender`, which writes an array); added defensive JSON.parse in all 3 consumers so legacy rows still render; fixed the existing rows in-place. **NEW gate** `validate_intelligence_jsonb_shape.py` (registered `intelligence-jsonb-shape`) asserts each intelligence jsonb column is stored as its expected type — a LIVE type-shape check static key-drift analysis cannot see. Live-verified: staging card shows 3 parts, alert-hub "3 parts recommended", gate exit 0.
+
+**Lesson:** a jsonb array/object stored as a `json.dumps` string scalar passes every KEY-based check but is read as empty by `Array.isArray`. Add a LIVE `jsonb_typeof` shape gate for every jsonb column a consumer treats as a container. Pairs data-engineer + qa-tester + frontend.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 45. asset_risk_scores member-writable → a worker could fabricate/overwrite the risk cache feeding all 3 intelligence pages + analytics (I-axis, LIVE-EXPLOITED). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12, Asset/Alert/Shift PDDA live RLS probe (rolled-back, as a real authenticated worker).
+
+**What's wrong:** `asset_risk_scores_hive_rw` was a `FOR ALL` policy with `USING == WITH CHECK == any active member of the row's hive`. A live probe confirmed a worker can INSERT a fabricated risk row AND UPDATE an existing row's risk_score/risk_level. This is the nightly-batch-owned cache that feeds asset-hub risk chips, alert-hub risk alerts, shift-brain top-risk, and analytics — a worker could inject a phantom "critical" or bury a real one as "low". (Sibling caches sensor_readings/anomaly_signals already lock client writes.) + F10 defense-in-depth: `asset_nodes_write` USING owner-branch `auth_uid=auth.uid()` had no hive gate (a departed member could still DELETE own non-approved rows).
+
+**Where:** migration `20260712000013_intelligence_write_guard.sql`.
+
+**How to fix (done):** locked asset_risk_scores client writes to service-role only (INSERT WITH CHECK false, UPDATE/DELETE USING false; SELECT hive-member-scoped) — the batch writes via SERVICE_ROLE_KEY (bypasses RLS), so no producer regression. Hive-gated the asset_nodes owner-branch. **NEW gate** `validate_intelligence_write_isolation.py` (registered `intelligence-write-isolation`) 4/4: insert BLOCKED, update 0-rows, read OK, cross-hive insert BLOCKED. Live-verified.
+
+**Lesson:** a batch-owned cache table must lock client writes like its siblings (sensor_readings/anomaly_signals), or any member can poison every downstream consumer. Same child-table WITH-CHECK sweep discipline as #41/#42. Pairs security + multitenant-engineer.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 46. Cron-honesty: AMC brief, amc-expire-stale, failure-signature-scan (+ hierarchical-summarizer header) claimed crons that were never scheduled (Ext-3 freshness). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12, Asset/Alert/Shift PDDA — alert-hub showed "None today" for the AMC brief on the local env; the new cron-honesty gate layer then surfaced the full class.
+
+**What's wrong:** the AMC daily brief (amc-orchestrator) + amc_expire_stale + failure-signature-scan were armed ONLY by the manual repo-root `enable_amc_cron.sql` (hard-coded prod URL), so on every fresh/local env they never run — alert-hub "None today" with no unarmed signal (F12), and signature/pattern alerts age silently as "active" (F13). A **new reverse-direction gate layer** (validate_cron_schedule_integrity L5) also caught `hierarchical-summarizer`, whose header claimed "pg_cron daily at 02:00 PHT" while no cron existed (F13b).
+
+**Where:** migration `20260712000014_arm_intelligence_crons.sql`; `validate_cron_schedule_integrity.py` Layer 5; hierarchical-summarizer header.
+
+**How to fix (done):** armed all three via the portable-URL pattern (`current_setting('app.supabase_functions_url')`) the other jobs use — schedules identically local + prod (3 jobs now in cron.job). Corrected hierarchical-summarizer's header to its real trigger (backfill tool + semantic-fact-extractor, on-demand) — arming it as a drain cron is a deferred follow-up (per the AGENTIC_RAG deploy runbook #4). **EXTENDED** the existing cron validator with Layer 5 (fn-claims-cron → a migration must schedule it) instead of a parallel tool (reuse discipline). Gate exit 0.
+
+**Lesson:** an edge fn whose header claims a cron trigger must have a matching cron.schedule in a MIGRATION (not a manual script), or it silently never runs on fresh envs and its output ages as fresh. Pairs notifications + devops + data-engineer.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 47. shift-brain rendered stale/archived/degraded plans as "Live" (X-axis freshness + silent-zero). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12, Asset/Alert/Shift PDDA live walk (window switching + plan flows).
+
+**What's wrong:** (F15) `loadPlan` had no date ceiling or status filter + a hardcoded "Live · shift plan generated on load" source chip, so a week-old or archived plan rendered under a "Live" banner and archive didn't hide the plan. (F14) `shift-planner-orchestrator` upserted a plausible empty plan ("No assets above threshold") even when ALL sub-agent fetches failed (Promise.allSettled → empty arrays) — a DB blip produced a falsely-reassuring "all clear" plan (silent-zero, F-5 class).
+
+**Where:** shift-brain.html loadPlan/renderPlan + `_planIsFresh`; supabase/functions/shift-planner-orchestrator/index.ts.
+
+**How to fix (done):** `loadPlan` now filters `status<>archived`; a shared `_planIsFresh(plan,window)` drives a STALE badge + honest source chip when the plan isn't for the current shift. The orchestrator records `fetch_errors[]`+`degraded` in the payload; shift-brain shows an "incomplete — re-run" banner when degraded. + F17 SAFETY: carry-forward rows now render a 🔒 LOTO/permit badge (was only in the briefing banner). All live-verified; locked by `tests/shift-brain-freshness.spec.ts`.
+
+**Lesson:** a cron/orchestrator-generated surface must (a) never claim "Live" over a stale row and (b) distinguish "empty because quiet" from "empty because a fetch failed". Pairs realtime-engineer + notifications + qa-tester.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 48. Canonical-reuse: alert-hub re-derived stock/risk bands the canonical views already provide; worst-first triage + connectivity (U/Ext-2, Ian's reuse-discipline steer). FIXED 2026-07-12
+
+**Discovered:** 2026-07-12, Asset/Alert/Shift PDDA reuse+connectivity fan-out.
+
+**What's wrong:** alert-hub RE-DERIVED low-stock severity from raw qty even though it fetched the canonical is_low_stock/is_critical_low/is_out_of_stock flags (the view migration built them "so the threshold logic isn't reimplemented across 10+ pages"); its staging alert re-derived a risk band from `risk_score>=0.85` instead of the canonical `risk_level` it already had; renderPartsStrip classified urgency a 2nd divergent way. Also: the feed sorted newest-first (buried criticals) with a CTA telling users to "filter to Critical/High using the chips" that don't exist (F3); the anomaly KPI DOM-scraped its count, racing the verdict (F8); an inbound `?asset=` deep-link was ignored (F4).
+
+**Where:** utils.js (new `whStockSeverity`), alert-hub.html, asset-hub.html.
+
+**How to fix (done):** added ONE canonical `whStockSeverity(row)` in utils.js (reads the flags) consumed by both alert-hub + renderPartsStrip; staging alert reuses `risk_level`; worst-first SEV_RANK sort + honest CTA; anomaly count held in module state (race closed); `?asset=/?tag=` aliased to the `?focus=` reader; asset-hub → alert-hub `?asset=` "View alerts" link completes the asset↔alert loop; deleted dead shift-brain renderers. Locked by `tests/alert-hub-triage.spec.ts` + `tests/intelligence-reuse-connectivity.spec.ts` + `validate_deeplink_param_contracts.py` (reused). All live-verified.
+
+**Lesson:** when a canonical view exposes a derived flag/band, consumers must READ it, not re-implement the threshold — one source of truth, no drift. A cross-page deep-link needs BOTH an emitter and a reader (an orphan reader is as incomplete as a broken edge). Pairs frontend + performance + qa-tester.
+
+**Status:** FIXED 2026-07-12 (local, uncommitted)
+
+---
+
+### 49. PM Interval Optimization recommended the interval the asset ALREADY had ("INCREASE FREQUENCY" -> a no-op). FIXED 2026-07-15
+
+**Discovered:** 2026-07-15, from Ian's screenshot of the Prescriptive phase.
+
+**What's wrong:** the card badged Kaeser CSD 105 / AC-002 **"INCREASE FREQUENCY"**, explained that "failures are slipping past even the most frequent inspection", then recommended **"every 7 days"** — the Weekly interval it already ran. An action badge over a no-op. Root cause: `recommended = max(7, int(mtbf * 0.5))` in `calc_pm_interval_optimization`. The arbitrary 7-day floor COLLIDED with a 7-day (Weekly) current interval, so EVERY Weekly asset tripping the rule was told to change to the status quo. Two more defects fell out of the same expression: (a) an asset already on **Daily** was badged "INCREASE FREQUENCY" and recommended **7d — 7x LOOSER**, the literal opposite of the badge; (b) it could emit a **non-schedulable** interval (10d/13d are not in `FREQ_DAYS`), i.e. advice with no matching option in the PM scheduler. A fourth, separate honesty bug: the reason printed `round(mtbf,0)` = **"6.0d"** while the logic ran on **5.5** — so a reader checking "is 6.0 < 7?" could not reconcile why the card fired at all.
+
+**Where:** `python-api/analytics/prescriptive.py` (`_snap_interval`, `SCHEDULABLE_DAYS`, `DAYS_TO_FREQ`, `calc_pm_interval_optimization`), `analytics.html` (PM card renderer), `analytics-report.html` (asset card + "this week" action + Suggested column).
+
+**How to fix (done):** added `_snap_interval(days, direction)` snapping to the vocabulary the scheduler can actually ISSUE (1/7/14/30/90/180/365). When the snapped proposal is still >= the tightest current interval, the asset is already at the tightest schedulable inspection and MORE PM IS NOT THE LEVER — per SAE JA1011 §7 (no effective scheduled task -> redesign / condition monitoring / run-to-failure), it now emits **"ROOT CAUSE: PM CANNOT FIX"** and names the real action instead of a tighter schedule. A final guard drops any "INCREASE" whose recommendation equals the current interval. Cards now name the FREQUENCY ("Recommended: Daily") not "every 1 days", since the operator picks a frequency; the report's "7d -> 7d" arrow became "stays 7d" for the root-cause case, and ROOT CAUSE now outranks a cadence tightening in "this week's actions" (the old filter read only INCREASE, so the most urgent asset was dropped from the list entirely). MTBF now displays `round(mtbf,1)`.
+
+**Verified live:** AC-002 now reads "MTBF (5.5d) ... **Recommended: Daily (currently Weekly · covers 6 PM tasks)**". Locked by a 9th golden vector in `tools/validate_analytics_correctness.py` asserting the CONTRACT (never recommend the current interval; never a looser one while saying "increase"; every snap is schedulable) — **proven falsifiable**: re-injecting `max(7, int(days))` fails it (exit 1). NOTE: the fix is live via `docker cp` + restart; the python-api **image rebuild is Ian-gated**. `analytics_snapshots` had to be invalidated to see it — the page hydrates from the persisted snapshot by design, so a backend fix is invisible until the row is deleted or Refresh is pressed.
+
+**Lesson:** a recommendation must recommend a **CHANGE**, and a **schedulable** one. Assert the CONTRACT, not the arithmetic. Any "floor" constant must be checked against the values it can collide with. Pairs maintenance-expert + analytics-engineer + qa-tester.
+
+**Status:** FIXED 2026-07-15 (local, uncommitted; image rebuild Ian-gated)
+
+---
+
+### 50. Cross-page "different personalities": the design system's SHAPE vocabulary was unreachable by 4 of 5 pages; every button rendered Arial. FIXED 2026-07-15
+
+**Discovered:** 2026-07-15, Ian: *"my pages would look like not different personalities... like they in the same and similar theme"* + *"we already accomplished the hive page and the home dashboard with this rubric, then Analytics Engine is now again different."*
+
+**What's wrong:** `tokens.css` (linked render-blocking by ~21 pages) held **colour only**. Spacing / radius / type / font / elevation / z lived in `components.css :root`, which only **11 of 47 pages link** (6 inline their primitives). Measured live: hive, index, analytics and pm-scheduler ALL resolved `--wh-radius` to **EMPTY** — there was no token to reference, so every page hardcoded its own corners (analytics rendered SIX: 0/8/10/12/16/pill vs hive's three). **Conformance was structurally impossible, not merely unmet** — when colour was extracted for the E4 rebrand, the SHAPE vocabulary was left behind. Separately: `<button>/<input>/<select>/<textarea>` do NOT inherit `font-family`, so the UA (Chrome/Windows) drew them in **Arial** — alert-hub loaded Poppins, rendered every heading in Poppins, and drew **40/40 buttons in Arial** with `document.fonts.check('16px Poppins') === true`. Grepping the source found nothing because nothing declared it. Also `.refresh-btn` (an ACTION) rendered 999px/44px — pixel-identical to `.filter-chip`/`.period-btn`/`.role-btn` (FILTERS); only a tint separated them, which CVD/print/forced-colors cannot carry.
+
+**Where:** `tokens.css`, `components.css`, `validate_design_tokens.py` (new L4), `survey_ufai_rubric.js` (new class S + `fingerprint()`), `substrate/reference/ufai-ux-rubric.md` (class S), alert-hub/analytics/index/inventory/asset-hub/logbook.
+
+**How to fix (done):** moved the WHOLE vocabulary into `tokens.css` (`components.css` `@import`s it, so its 11 linkers are unaffected while the ~21 tokens.css pages GAIN shape) + added `--wh-radius-pill`, `--wh-control-h`, `--wh-surface-card`. Added `button,input,select,textarea,optgroup{font-family:inherit}` **once** in tokens.css. Snapped rogue radii by ROLE (10px is equidistant from 8 and 12, so "nearest" is a coin flip): panels/rows -> `var(--wh-radius)`, controls/badges -> `var(--wh-radius-sm)`; JS-generated buttons carry inline styles, so they were fixed at the generator. `.refresh-btn` moved to the rounded-rect ACTION shape. Rubric gained **class S · Family resemblance** (S1 token conformance / S2 shared chrome / S3 card primitive) — canonical = the DECLARED tokens read from the live cascade, **never the statistical mode** (most pages were never driven with the rubric, so a mode lets un-driven pages outvote the design system); the reference set is **the pages already driven to 100%** (hive + home dashboard), which the lens confirmed un-coached by scoring hive **S1 100%** on its first run.
+
+**Verified live:** `declaredRadii` `[]` -> `[8,12,16]` on all probed pages. **S1 100% on 8/8 pages** (alert-hub 0->100, analytics 0->100, index/inventory/logbook 50->100, asset-hub 0->100; hive/pm-scheduler held 100 = no regression). Off-typeface count **0 across all 8**. axe 0 violations, 0 console errors, full-page screenshot diffed. Locked by `validate_design_tokens.py` **L4** (forward-only rogue-radius ratchet, baseline 304, proven falsifiable: inject a 7px -> 305 -> FAIL). L3 tightened 465 -> 463 in passing.
+
+**Lesson:** "different personalities" is NN/g Heuristic #4 (internal consistency across a family). **Every single-page rubric class is blind to it** — a page can score R3 100% and still be a stranger to the platform. Before blaming a page for non-conformance, check it can SEE the vocabulary (`getPropertyValue('--wh-radius')` empty = root cause; score N/A, not 0). The token home must be the file with the WIDEST reach. The answer to a seesaw is a **gate**, not another hand-fix. Pairs frontend + designer + qa-tester.
+
+**Status:** FIXED 2026-07-15 (local, uncommitted)
+
+---
+
+### 51. The rubric lens scored "nothing to measure" as 0% — a MEASURED dim with denominator 0 dragged pages down; the roll-up counted null pct as a zero. FIXED 2026-07-16
+
+**Discovered:** 2026-07-16, resuming the family-ufai drive: §17 flagged the ⚠-trio (C4 "23 fails", D1 "13 fails", J1 "9 fails") whose fail counts conflated "failed" with "no denominator on this page".
+
+**What's wrong:** ratio dims (C4 tabular KPIs, D1 icon-only naming, C2 contrast, F1 touch) emitted `M(dim, 0, 0)` when the page had nothing to measure; `pct(0,0)` = null, and the roll-up's `(o.pct || 0)` counted that null as **0%** while keeping the dim in the divisor. A chat page with no numeric KPIs was penalized for not typesetting numbers it doesn't have — the honesty contract ("N/A is excluded, never counted") was violated by the aggregation layer itself. Separately, **all 9 J1 "fails" were instrument artifacts**: `/clear/` unanchored matched "clear**ed**" inside the read-only hive readiness tile (a whJumpTo nav card flagged destructive); shift-brain/logbook confirm via `window.whConfirm()` INSIDE the handler body but the check only read the `onclick` attribute; community soft-deletes with a 5s undo (Nielsen's preferred pattern); audit-log's "Clear filters" is a reversible view reset, not data loss.
+
+**Where:** `survey_ufai_rubric.js` (C2/C4/D1/F1 emit, J1 matcher, roll-up), `tools/family_rubric_sweep.mjs` (NEW — the deterministic 32-page sweep runner; §16/§17 were previously hand-driven one page at a time via MCP).
+
+**How to fix (done):** every ratio dim now falls to `NA(...)` with the reason when its denominator is 0; the roll-up excludes null-pct rows from BOTH numerator and divisor (backstop so a future unguarded dim can't pollute). J1's destructive matcher word-bounds the verbs, reads only short action labels (≤30 chars, never a tile's multi-line copy), exempts filter/search clears, and verifies the guard as a MECHANISM: resolve the onclick handler's source via `Function.toString` and scan inline-script windows around id-wired controls for whConfirm/confirm/undo. Proven with positive+negative controls: community scores 3/3, an injected unguarded "Delete everything" scores 3/4.
+
+**Verified live:** family mean 88 → 90 on the honest board with 0 page errors; D1 → 100% family-wide (0 real fails / 14 N/A); C4's 23⚠ → 4 real fails (fixed with `font-variant-numeric: tabular-nums` on inventory `.stat-pill`, madmin `.stat-num`/`.tab-count`, msp `.stat-num`, agentic-rag `.sn`); J1's 9⚠ → 0 real.
+
+**Lesson:** a ratio's no-denominator case is a CLASSIFICATION (N/A), never a score — and the aggregation layer needs the same guard as the dims, or one unguarded emitter re-poisons the mean. An instrument's "fail" list must survive the question "is this the page or the ruler?" before any page gets edited. Prove every detector both ways (a real pass AND an injected fail). Pairs qa-tester + frontend + analytics-engineer.
+
+**Status:** FIXED 2026-07-16 (local, uncommitted)
+
+---
+
+### 52. Contrast lens had 3 gradient blindspots; shared risk/PM/parts strips emitted `.oh-badge` with NO stylesheet anywhere — chips rendered UA link-blue at 1.24:1. FIXED 2026-07-16
+
+**Discovered:** 2026-07-16, probing the C2 "1.19:1" offenders before fixing pages (RECALL-the-disposition reflex: is it the page or the ruler?).
+
+**What's wrong:** (a) `ratioVs` — the worst-stop gradient scorer — was **never called** (C2 used plain `ratio()`, scoring only the FIRST stop) and its else-branch recursed into itself (stack overflow if ever invoked on a plain background). (b) `effBg`'s gradient early-return fired for an ANCESTOR gradient even when a closer layer was opaque — community's `.wh-avatar-lvl` (navy on opaque amber, 7.9:1) was scored against the avatar-ring gradient BEHIND the badge as "1.19:1"; achievements' "18" was the same phantom. (c) Gradient stops declared `rgba(...,0.6)` were forced opaque instead of composited over the surface behind the gradient, overstating failures (community chips 3.79 → honest 4.43). (d) Gradient-clipped text (`background-clip:text` + transparent fill — dayplanner's "Day" logo) has no meaningful `color`; the lens scored the unused white as 1.72:1 phantom. (e) The REAL bug the honest lens then exposed: `renderRiskStrip`/PM-due/parts strips in utils.js emit `.oh-badge` — **no stylesheet anywhere defines it**, so severity chips inherited the parent `<a>`'s UA link-blue `rgb(0,0,238)` = 1.24:1 on shift-brain.
+
+**Where:** `survey_ufai_rubric.js` (effBg, ratioVs, C2 loop + `c2_offenders` fix-list export), `utils.js` (NEW `whOhBadge()` + 3 emitters + overdue-status colors), `tokens.css` (NEW `--wh-steel-bright` #A9B6C4, `--wh-red-text` #FCA5A5, `--wh-violet-text` #C4B5FD), `skill-content.js` DISCIPLINE_COLORS + utils.js ACHIEVEMENT_TIERS (iron/bronze/platinum lightened same-hue), ~16 pages (scripted batch: muted-white text alphas <0.56 → 0.62, tailwind `text-white/2x-5x` → `/60`, `--wh-steel` → `--wh-steel-bright` on dark-label classes, red/violet/cyan/bronze/orange chip text → the -text/-light tokens, ai-quality `--muted` 0.4 → 0.62, status.html white-on-cyan button → navy).
+
+**How to fix (done):** wired `ratioVs` into C2 (worst stop), stop the effBg walk at the first opaque layer, composite translucent stops over the resolved behind-surface, score gradient-text glyphs (worst stop) against the surface behind the element. C2 now exports `c2_offenders` — every below-floor element with fg/ratio/need/class — so the sweep JSON is the fix list (the note's single worst element made 22 pages' work invisible). `--wh-steel` itself untouched: promo-poster overrides it locally and resume.html uses it on light surfaces where lightening would fail the other way.
+
+**Verified live:** community 1.19-phantoms gone with the honest 4.43 residue then fixed by token; scripted batch = 380+ text-color corrections across 16 pages; whole-board re-sweep via `tools/family_rubric_sweep.mjs` (see §16/§17 regen).
+
+**Lesson:** a contrast ruler must model the SURFACE the eye sees: worst gradient stop, nearest opaque layer, stop alpha, and clipped-text glyphs. When a shared renderer emits a class, grep that a stylesheet DEFINES it — an unstyled class is invisible in source review and renders UA defaults. Never ship an audit that names only the worst offender: export the full fix list or the work is invisible. Pairs frontend + designer + qa-tester + performance.
+
+**Status:** FIXED 2026-07-16 (local, uncommitted)
+
+---
+
 ## Template for new entries
 
 ```

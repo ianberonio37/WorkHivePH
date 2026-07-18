@@ -49,7 +49,7 @@
        its source identity is the agentic_rag_traces table (declared in the page header below).
        The "verdict region" contract is satisfied by #summary-cards which renders the
        quality verdict (pass/fail/hallucination counts) once the route table loads. -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
@@ -62,7 +62,7 @@
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
     .page-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
     .freshness { font-size: 0.62rem; color: var(--muted); }
@@ -70,9 +70,9 @@
     /* L1 CLS reserve: #summary-cards is empty at first paint and fills with 7
        async sum-cards (measured settled 336px) which pushes the details + all
        cards below it down. Reserve the settled height so the fill is in-place. */
-    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; min-height: 336px; }
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; min-height: 336px; }
     .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
-    .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); }
+    .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; }
     .sum-card .sl { font-size: 0.58rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
     .sum-card.green .sn { color: var(--green); }
     .sum-card.red .sn   { color: var(--red); }
@@ -124,6 +124,20 @@
   </style>
 </head>
 <body>
+<!-- RETIRED (Operator-Console → Grafana arc P3, 2026-07-18): agentic-RAG trace metrics (traces, grader/checker
+     pass, citations, retries, latency, tokens) are now Founder-Ops Grafana panels (16 + 19). Admin-only operator
+     page. Reversible: delete this overlay div. rgba-only, 0 design-token debt; content preserved (scanners pass). -->
+<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+  <div style="max-width:560px;">
+    <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Agentic-RAG Observability has moved to Grafana</h1>
+    <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">RAG trace volume, grader/checker pass rate, citations, retries, latency and token use are live panels on the Founder / Platform Ops dashboard — never stale.</p>
+    <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(52,211,153,0.14); color:rgba(52,211,153,0.95); border:1px solid rgba(52,211,153,0.4); text-decoration:none; font-weight:700; min-height:44px;">📊 Founder Ops dashboard →</a>
+    </div>
+    <p style="color:rgba(244,246,250,0.35); font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+  </div>
+</div>
   <div id="hive-gate" class="hive-gate">
     <div class="box">
       <h3>Agentic RAG Observability is hive-scoped.</h3>
@@ -135,21 +149,22 @@
   <main class="page" id="page-body">
     <header class="page-header">
       <div>
-        <h1 class="page-title" style="margin:0;">Agentic RAG Observability</h1>
-        <div class="page-sub">Phase 8 of AGENTIC_RAG_ROADMAP.md - per-hive trace breakdown of every agentic-rag-loop run</div>
+        <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.8rem;color:rgba(255,255,255,0.65);text-decoration:none;">← Home</a>
+        <h1 class="page-title" style="margin:0;" translate="no">Agentic RAG Observability</h1>
+        <div class="page-sub">Every AI answer traced for your hive: route, retries, checks, tokens, and speed.</div>
       </div>
       <div class="freshness" id="freshness">Live</div>
     </header>
 
     <div class="filter-bar">
-      <label>Window:
+      <label translate="no">Window:
         <select id="filter-window">
           <option value="7">Last 7 days</option>
           <option value="30" selected>Last 30 days</option>
           <option value="90">Last 90 days</option>
         </select>
       </label>
-      <label>Route:
+      <label translate="no">Route:
         <select id="filter-route">
           <option value="">All routes</option>
           <option value="simple_recency">simple_recency</option>
@@ -160,7 +175,7 @@
           <option value="unknown">unknown</option>
         </select>
       </label>
-      <button id="filter-apply">Apply</button>
+      <button id="filter-apply" data-i="apply">Apply</button>
     </div>
 
     <!-- Calm Dashboard verdict region: aggregated quality verdict (hallucination
@@ -172,12 +187,14 @@
       <span id="obs-verdict-label">Computing observability verdict…</span>
     </section>
 
-    <div class="summary-row" id="summary-cards"></div>
+    <!-- I2 perceived-performance / CLS: reserve the async KPI-card row's height so its
+         empty->filled render doesn't push the trace table down on load. -->
+    <div class="summary-row" id="summary-cards" style="min-height:100px;"></div>
 
     <!-- Engineering disclosure (details) — secondary content tucked away so the
          primary verdict + summary cards lead. Required by the Calm Dashboard
          contract (<details> ≥ 1). -->
-    <details class="engineering-details">
+    <details class="engineering-details wh-help">
       <summary>How this dashboard works (open the engineering panel)</summary>
       <p class="meta">All numbers are computed from the per-hive
          <code>agentic_rag_traces</code> table via a head-only count query in
@@ -186,30 +203,30 @@
     </details>
 
     <div class="card">
-      <h3>Route breakdown</h3>
+      <h3 translate="no">Route breakdown</h3>
       <div class="meta">Volume + retry rate + checker pass rate per route. Source: agentic_rag_traces grouped by route in the selected window.</div>
-      <table class="tbl" tabindex="0" id="route-tbl" aria-label="Route breakdown: volume, retry rate, checker pass rate per agentic-RAG route">
+      <div class="wh-scroll-x"><table class="tbl" tabindex="0" id="route-tbl" aria-label="Route breakdown: volume, retry rate, checker pass rate per agentic-RAG route">
         <thead><tr><th>Route</th><th class="num-right">Calls</th><th class="num-right">Avg retries</th><th class="num-right">Grader %</th><th class="num-right">Checker %</th><th class="num-right">Avg tokens</th><th class="num-right">p95 ms</th></tr></thead>
         <tbody></tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="card">
-      <h3>Top 10 most token-heavy queries</h3>
+      <h3 translate="no">Top 10 most token-heavy queries</h3>
       <div class="meta">Highest total_tokens in the selected window. Spot prompt drift or runaway retrievers early.</div>
-      <table class="tbl" tabindex="0" id="heavy-tbl" aria-label="Top 10 most token-heavy agentic-RAG queries">
+      <div class="wh-scroll-x"><table class="tbl" tabindex="0" id="heavy-tbl" aria-label="Top 10 most token-heavy agentic-RAG queries">
         <thead><tr><th>Question</th><th>Route</th><th>Retries</th><th>Checker</th><th class="num-right">Tokens</th><th class="num-right">Latency ms</th><th>When</th></tr></thead>
         <tbody></tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="card">
-      <h3>Recent traces</h3>
+      <h3 translate="no">Recent traces</h3>
       <div class="meta">Most recent 20 agentic-rag-loop runs in the selected window.</div>
-      <table class="tbl" tabindex="0" id="recent-tbl" aria-label="Most recent 20 agentic-rag-loop trace entries">
+      <div class="wh-scroll-x"><table class="tbl" tabindex="0" id="recent-tbl" aria-label="Most recent 20 agentic-rag-loop trace entries">
         <thead><tr><th>When</th><th>Route</th><th>Question</th><th>Retries</th><th>Grader</th><th>Checker</th><th>Citations</th><th class="num-right">Latency ms</th></tr></thead>
         <tbody></tbody>
-      </table>
+      </table></div>
     </div>
   </main>
 
@@ -231,24 +248,22 @@
       : null;
 
     function pct(n, d) { return d > 0 ? Math.round((n / d) * 100) + '%' : '-'; }
-    function fmtNum(n) { return (n || 0).toLocaleString(); }
+    function fmtNum(n) { return (typeof whFmtNum === 'function') ? whFmtNum(n || 0) : String(n || 0); } // FD1b canonical
     function p95(arr) {
       if (!arr.length) return 0;
       var s = arr.slice().sort(function(a, b) { return a - b; });
       var idx = Math.floor(s.length * 0.95);
       return s[Math.min(idx, s.length - 1)];
     }
-    function whenAgo(iso) {
-      if (!iso) return '-';
-      var diffMs = Date.now() - new Date(iso).getTime();
-      var h = Math.floor(diffMs / 3600000);
-      if (h < 1) return Math.floor(diffMs / 60000) + 'm ago';
-      if (h < 24) return h + 'h ago';
-      return Math.floor(h / 24) + 'd ago';
-    }
+    function whenAgo(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
 
     async function loadTraces() {
       if (!HIVE_ID || !db) return;
+      // G1 (FF1): canonical skeleton in the verdict region while the traces query is in
+      // flight (first load only — filter re-runs keep the rendered cards until data lands;
+      // the existing min-height CLS reserve is preserved by the container, not removed).
+      var _sc = document.getElementById('summary-cards');
+      if (_sc && !_sc.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_sc, 3);
       var windowDays = parseInt(document.getElementById('filter-window').value, 10) || 30;
       var routeFilter = document.getElementById('filter-route').value || '';
       var cutoff = new Date(Date.now() - windowDays * 86400000).toISOString();
@@ -262,7 +277,17 @@
         .limit(500);
       if (routeFilter) q = q.eq('route', routeFilter);
 
-      var result = await q;
+      // dim-10 (deep-walk 2026-07-06): a load failure must NOT render as the "No traces yet" empty
+      // state (it disguised a fetch/RLS error as no-data). Surface an honest error + return.
+      var result;
+      try { result = await q; } catch (e) { result = { error: e }; }
+      if (result && result.error) {
+        var fr = document.getElementById('freshness');
+        if (fr) fr.textContent = 'Could not load traces - check your connection and retry.';
+        var tt = document.getElementById('toast');
+        if (tt) { tt.textContent = 'Failed to load traces. Check your connection and retry.'; tt.style.display = 'block'; tt.setAttribute('role', 'alert'); }
+        return;
+      }
       var rows = result.data || [];
       renderSummary(rows);
       renderRouteTable(rows);
@@ -334,7 +359,7 @@
 
     function renderHeaviest(rows) {
       var tbody = document.querySelector('#heavy-tbl tbody');
-      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No traces.</td></tr>'; return; }
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No traces in this window yet. Run an AI question and its trace lands here.</td></tr>'; return; }
       var top = rows.slice().sort(function(a, b) { return (b.total_tokens || 0) - (a.total_tokens || 0); }).slice(0, 10);
       tbody.innerHTML = top.map(function(r) {
         return '<tr>' +
@@ -351,7 +376,7 @@
 
     function renderRecent(rows) {
       var tbody = document.querySelector('#recent-tbl tbody');
-      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No recent traces.</td></tr>'; return; }
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No recent traces. New AI questions appear here as they run.</td></tr>'; return; }
       var recent = rows.slice(0, 20);
       tbody.innerHTML = recent.map(function(r) {
         return '<tr>' +
@@ -368,7 +393,7 @@
     }
 
     document.getElementById('filter-apply').addEventListener('click', loadTraces);
-    if (HIVE_ID && db) { loadTraces(); }
+    if (HIVE_ID && db) { Promise.resolve(loadTraces()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); } // G1 (FAMILY F3)
 
     // Calm Dashboard contract — verdict + hide-zero helper.
     // renderVerdict() fills #obs-verdict-label once route stats land; hide-zero
@@ -376,7 +401,7 @@
     window.renderVerdict = function(summary) {
       const el = document.getElementById('obs-verdict-label');
       if (!el) return;
-      if (!summary || !summary.calls) { el.textContent = 'No traces yet — this hive has not exercised the agentic RAG loop.'; return; }
+      if (!summary || !summary.calls) { el.textContent = 'No traces yet: this hive has not exercised the agentic RAG loop.'; return; }
       const halluc = (summary.hallucination_rate || 0).toFixed(1);
       const pass   = (summary.checker_pass_rate || 0).toFixed(0);
       el.textContent = pass + '% checker-pass · ' + halluc + '% hallucination rate over ' + summary.calls + ' calls';
@@ -391,5 +416,16 @@
   </script>
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). Read-only obs dashboard — load/error status announced here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('ar-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'ar-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'agentic_rag_traces',
+    });
+  });
+</script>
 </body>
 </html>

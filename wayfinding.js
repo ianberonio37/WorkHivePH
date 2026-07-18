@@ -1,6 +1,6 @@
 /**
 // capability: display_wayfinding
- * WorkHive Wayfinding Chrome — Arc Y (THE INTUITION GRADIENT) · Y1
+ * WorkHive Wayfinding Chrome: Arc Y (THE INTUITION GRADIENT) · Y1
  * ───────────────────────────────────────────────────────────────
  * The platform-wide "where am I / how do I get BACK" fuse. ONE shared component,
  * lazy-loaded by nav-hub.js, so every page gets the SAME in-app Back affordance +
@@ -64,8 +64,8 @@
 
   // ─── DOM build ───────────────────────────────────────────────────────────────
   function pageLabel() {
-    // document.title is "<Page> · WorkHive" / "WorkHive — <Page>" on these pages; take the human part.
-    var t = (document.title || '').replace(/\s*[·|—-]\s*WorkHive.*$/i, '').replace(/^WorkHive\s*[·|—-]\s*/i, '').trim();
+    // document.title is "<Page> · WorkHive" / "WorkHive: <Page>" on these pages; take the human part.
+    var t = (document.title || '').replace(/\s*[·|—-]\s*WorkHive.*$/i, '').replace(/^WorkHive\s*[—·|-]\s*/i, '').trim();
     return t || 'This page';
   }
 
@@ -81,7 +81,10 @@
       '#wh-wayfinding .wf-back:active{transform:scale(.96)}',
       '#wh-wayfinding .wf-back svg{flex:0 0 auto}',
       '#wh-wayfinding .wf-crumb{padding:0 12px;font-size:12px;color:#cbd5e1;gap:6px;max-width:52vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}',
-      '#wh-wayfinding .wf-crumb a{color:#93c5fd;text-decoration:none;font-weight:600}',
+      /* Arc U U5: the crumb container is 44px, but the inner <a>Home</a> is measured on
+         its OWN box (~33x14) — give the anchor a 44x44 min hit area. justify-center keeps
+         the short label centred; the container is already 44px tall so the row is unchanged. */
+      '#wh-wayfinding .wf-crumb a{color:#93c5fd;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;box-sizing:border-box}',
       '#wh-wayfinding .wf-crumb .wf-sep{opacity:.5}',
       '@media (max-width:380px){#wh-wayfinding .wf-back span{display:none}#wh-wayfinding .wf-crumb{max-width:44vw}}',
       '@media (prefers-reduced-motion:reduce){#wh-wayfinding .wf-back:active{transform:none}}',
@@ -92,6 +95,33 @@
   }
 
   var CHEVRON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+
+  // ─── Skip-link (WCAG 2.4.1 Bypass Blocks, Level A) ───────────────────────────
+  // First focusable element on EVERY page (incl. home); visually hidden until a
+  // keyboard user tabs to it, then jumps focus past the nav/chrome to <main>. Self-
+  // contained inline styles (injectCSS is home-skipped). A bare #hash only scrolls, so
+  // we also move real focus into main (tabindex=-1) — the true intent of "skip to content".
+  function injectSkipLink() {
+    try {
+      if (document.querySelector('.wh-skip-link')) return;
+      var main = document.querySelector('main, [role="main"], #main-content, #content, #app');
+      if (!main) { var h1 = document.querySelector('h1'); main = h1 ? (h1.closest('section,header,div') || h1) : null; }
+      if (!main) return;
+      if (!main.id) main.id = 'wh-main-content';
+      var skip = document.createElement('a');
+      skip.className = 'wh-skip-link';
+      skip.href = '#' + main.id;
+      skip.textContent = 'Skip to main content';
+      skip.style.cssText = 'position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);' +
+        'background:#F7A21B;color:#0f1923;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;' +
+        'font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;' +
+        'box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s ease;box-sizing:border-box;';
+      skip.addEventListener('focus', function () { skip.style.transform = 'translateY(0)'; });
+      skip.addEventListener('blur', function () { skip.style.transform = 'translateY(-120%)'; });
+      skip.addEventListener('click', function () { main.setAttribute('tabindex', '-1'); main.focus(); });
+      document.body.insertBefore(skip, document.body.firstChild);
+    } catch (e) { /* empty-catch-allow: progressive enhancement — skip-link is best-effort */ }
+  }
 
   function build() {
     if (IS_HOME) return;                         // home is the root — no back-to-nowhere
@@ -107,6 +137,14 @@
       if (!existing.getAttribute('aria-label')) existing.setAttribute('aria-label', 'Back');
       return;
     }
+    // ★I1/CLS + dedup: the page ALSO owns its top-left corner (so a floating pill would DUPLICATE
+    // the back affordance the whole-artifact discipline bans, AND the reserve-band below would push
+    // the whole page down 64px AFTER first paint = a 0.12-0.28 layout shift, which failed I1 on
+    // community/marketplace-seller/marketplace-seller-profile) when it already ships a recognized
+    // in-layout back/home link. Skip the pill entirely — but ONLY for affordances the W1 rubric also
+    // credits by class (back-link/home-link/breadcrumb), so we never suppress the pill on a page that
+    // has no real way back (a bare fixed nav does NOT count — that regressed public-feed W1 to 0).
+    if (document.querySelector('.back-link,.home-link,.breadcrumb,[aria-label="breadcrumb"]')) return;
 
     // Bare page: inject the full Back pill + breadcrumb top-left.
     var wrap = document.createElement('div');
@@ -130,6 +168,16 @@
     }
 
     document.body.appendChild(wrap);
+
+    // ★V1 (Ian's screenshot: the breadcrumb COVERED the dayplanner header title). The pill is
+    // position:fixed, so it floats ON TOP of the page's in-flow header. RESERVE a top band by pushing
+    // the page's in-flow content down by the pill's height + a gap, so the header sits BELOW it instead
+    // of behind it. Fixed elements ignore body padding, so the pill stays put while content shifts.
+    requestAnimationFrame(function () {
+      var band = Math.ceil(wrap.getBoundingClientRect().bottom) + 8;
+      var cur = parseFloat(getComputedStyle(document.body).paddingTop) || 0;
+      if (band > cur) document.body.style.paddingTop = band + 'px';
+    });
   }
 
   // ─── scroll-restore (list -> detail -> back lands where you left) ─────────────
@@ -161,7 +209,7 @@
     }, 600);
   }
 
-  function init() { build(); restoreScroll(); focusDeepLink(); }
+  function init() { injectSkipLink(); build(); restoreScroll(); focusDeepLink(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 

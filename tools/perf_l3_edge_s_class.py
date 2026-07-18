@@ -50,7 +50,7 @@ _FANOUT_RE = re.compile(r"functions/v1/|\.invoke\s*\(|for\s*\(\s*const\s+\w+\s+o
 # service-role-only fns (user JWT 403s): the cron/batch invocation mode.
 SERVICE_ONLY = {fn for fn, (_p, happy, _t, _to) in REG.items() if happy == "service"} | {
     "trigger-ml-retrain", "batch-risk-scoring", "parts-staging-recommender",
-    "cmms-webhook-receiver", "marketplace-webhook", "send-report-email", "scheduled-agents",
+    "cmms-webhook-receiver", "send-report-email", "scheduled-agents",
     "ai-eval-runner", "cmms-sync",
 }
 # explicit async orchestrators (user kicks off, multi-stage background fan-out).
@@ -92,10 +92,6 @@ def classify(fn: str):
     if orchestrator:
         return ("pass", "async-orchestrator",
                 "async orchestrator the user kicks off — a multi-stage background fan-out, not a single blocking read; total latency = sum of sub-call work (attributed). Interactive ≤500ms bar N/A.")
-    # payment fns are DISSOLVED on the free platform (PAYMENTS_ENABLED=false, Arc K) — inert.
-    if re.search(r"PAYMENTS_ENABLED|stripe|Stripe", src):
-        return ("pass", "payment-inert",
-                "Stripe/payment fn — DISSOLVED on the free platform (PAYMENTS_ENABLED=false, Arc K); inert, no active interactive path to defend.")
     # external provider (Azure OCR / TTS) — latency provider-bound, like the LLM fns.
     if re.search(r"AZURE|cognitiveservices|formrecognizer|\bazure\b", src):
         return ("pass", "external-provider",

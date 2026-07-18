@@ -1,9 +1,9 @@
 {
   "checks": {
-    "catalog_name_drift": 0,
+    "catalog_name_drift": 1,
     "popup_name_drift": 0,
     "footer_name_drift": 0
   },
   "established": "2026-06-30T05:23:56+00:00",
-  "last_run": "2026-06-30T06:09:08+00:00"
+  "last_run": "2026-07-18T05:01:51+00:00"
 }

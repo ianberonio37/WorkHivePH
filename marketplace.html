@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#F7A21B" />
   <link rel="manifest" href="manifest.json" />
-  <title>Marketplace — WorkHive</title>
+  <title>Marketplace: WorkHive</title>
   <!-- capture: marketplace_inquiry_v1 (form) -->
   <!-- capture: marketplace_order_v1 (form) -->
   <!-- dashboard-allow: marketplace storefront; reads v_marketplace_sellers_truth. -->
@@ -15,7 +15,7 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://workhiveph.com/marketplace.html" />
-  <meta property="og:title" content="WorkHive Marketplace — Parts, Training, Jobs for Philippine Industrial Plants" />
+  <meta property="og:title" content="WorkHive Marketplace: Parts, Training, Jobs for Philippine Industrial Plants" />
   <meta property="og:description" content="Connect directly with verified sellers offering spare parts, training, and maintenance services across the Philippines. Free to browse and post." />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/marketplace.html" />
@@ -24,7 +24,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="WorkHive Marketplace — Industrial Parts, Training, Jobs PH" />
+  <meta name="twitter:title" content="WorkHive Marketplace: Industrial Parts, Training, Jobs PH" />
   <meta name="twitter:description" content="Verified sellers, contact-only inquiries, no platform fees. Browse and post listings free." />
   <meta name="twitter:image" content="https://workhiveph.com/brand_assets/workhive-logo-transparent.png" />
 
@@ -84,8 +84,8 @@
     /* Layout */
     .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 7rem; }
 
-    /* Page header */
-    .page-header { margin-bottom: 1.25rem; }
+    /* Page header — 1.5rem/24px keeps the top-level gap on the 8-pt grid (R1); 1.25rem=20px is off-scale. */
+    .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
     .page-header p { font-size: 0.8rem; color: #9aa6b3; margin-top: 0.2rem; }
 
@@ -108,7 +108,7 @@
       color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.25);
     }
     .tab-count {
-      background: rgba(247,162,27,0.2); color: var(--wh-orange);
+      background: rgba(247,162,27,0.2); color: var(--wh-orange-light);
       border-radius: 999px; font-size: 0.62rem; padding: 0.1rem 0.4rem; font-weight: 700;
     }
 
@@ -130,9 +130,9 @@
     .search-wrap { flex: 1; position: relative; }
     .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9aa6b3; pointer-events: none; }
     .search-input {
-      width: 100%; padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+      width: 100%; min-height: 44px; padding: 0.6rem 0.75rem 0.6rem 2.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
@@ -140,17 +140,20 @@
     .btn-filter {
       padding: 0.6rem 0.875rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 0.8rem;
       cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; min-height: 44px; /* D1 U2 */
     }
     .btn-filter.active { border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
+    /* R3: Compare is a SELECT toggle (aria-pressed) — pill silhouette, distinct from the
+       Price sort button (press rect) that shares the .btn-filter class. One shape per role. */
+    #btn-compare { border-radius: var(--wh-radius-pill); }
 
     /* Price filter panel */
     .price-filter {
       display: none; padding: 0.75rem;
       background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 0.625rem; margin-bottom: 0.75rem;
+      border-radius: var(--wh-radius); margin-bottom: 0.75rem;
     }
     .price-filter.show { display: block; }
     .price-filter > label { font-size: 0.72rem; color: #9aa6b3; margin-bottom: 0.4rem; display: block; }
@@ -206,13 +209,13 @@
       padding: 0.2rem 0.5rem; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
     }
-    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #E8B27A; border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
     .badge-verified {
       padding: 0.2rem 0.5rem; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
-      background: rgba(41,182,217,0.15); color: var(--wh-blue); border: 1px solid rgba(41,182,217,0.3);
+      background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3);
       display: inline-flex; align-items: center; gap: 0.2rem;
     }
 
@@ -305,14 +308,18 @@
     .btn-post-first {
       margin-top: 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.6rem 1.25rem;
-      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: var(--wh-radius-sm);
       color: #0f1923; font-size: 0.82rem; font-weight: 700;
       font-family: 'Poppins', sans-serif; cursor: pointer;
     }
 
     /* FAB Post */
     #fab-post {
-      position: fixed; bottom: calc(5.5rem + env(safe-area-inset-bottom)); right: 1.25rem; z-index: 80;
+      /* ★V1 (Ian: colliding widgets): was bottom:5.5rem/right — the SAME slot as the shared connectivity
+         "Online" chip (bottom:5.5rem right), so they overlapped. Move to the bottom-LEFT page-FAB
+         convention (pm-scheduler's fork), clear of the whole bottom-right chrome stack + below the
+         raised guide-link (learn-link.js @132px). */
+      position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 1.25rem; right: auto; z-index: 80;
       width: 52px; height: 52px; border-radius: 50%;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
@@ -350,7 +357,7 @@
     .wh-input {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .wh-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
@@ -358,7 +365,7 @@
     .wh-select {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
       cursor: pointer; appearance: none; -webkit-appearance: none;
     }
@@ -498,7 +505,7 @@
       .skel-pulse { animation: none; }
     }
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
@@ -509,9 +516,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
     #mk-summary-details.open { display:block; }
   </style>
 </head>
@@ -529,7 +536,7 @@
   <div id="no-results" class="empty-state" hidden>No listings match those filters.</div>
 
   <div class="page-header">
-    <h1>Marketplace</h1>
+    <h1 data-i="pagetitle">Marketplace</h1>
     <p>Parts, training and services for Philippine industrial plants</p>
     <p id="marketplace-source-chip" style="margin-top:3px;"></p>
   </div>
@@ -545,13 +552,13 @@
       <div class="sc-label">Listings in view</div>
       <div class="sc-hero" id="mk-total-hero">0</div>
       <div class="sc-sub" id="mk-total-sub">Loading...</div>
-      <span class="sc-tag" id="mk-total-tag">—</span>
+      <span class="sc-tag" id="mk-total-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="mk-card-mine" data-rag-tile="marketplace:my_listings" data-rag-label="My listings">
       <div class="sc-label">My listings</div>
       <div class="sc-hero" id="mk-mine-hero">0</div>
       <div class="sc-sub" id="mk-mine-sub">Loading...</div>
-      <span class="sc-tag" id="mk-mine-tag">—</span>
+      <span class="sc-tag" id="mk-mine-tag">-</span>
     </div>
     <!-- S3/T-disposition (2026-06-13): removed the "Current tab" KPI tile — it
          displayed navigation state (the active section), not information (Tesler's
@@ -562,7 +569,7 @@
     <div class="ac-label">What to do next</div>
     <div class="ac-text" id="mk-action-text">Computing recommendation...</div>
   </div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details">
+  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details" data-i="showdetails">
     Show details
   </button>
   <div id="mk-summary-details" role="region" aria-label="Marketplace explainer"
@@ -575,24 +582,24 @@
       <li><strong>Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
       <li><strong>Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
   </div>
 
   <!-- Section tabs -->
   <div class="section-tabs" role="tablist" aria-label="Marketplace sections">
     <button class="section-tab active" data-section="parts" role="tab" aria-selected="true">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
-      <span class="tab-label">Parts</span>
+      <span class="tab-label" data-i="tabparts">Parts</span>
       <span class="tab-count" id="count-parts">0</span>
     </button>
     <button class="section-tab" data-section="training" role="tab" aria-selected="false">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-      <span class="tab-label">Training</span>
+      <span class="tab-label" data-i="tabtraining">Training</span>
       <span class="tab-count" id="count-training">0</span>
     </button>
     <button class="section-tab" data-section="jobs" role="tab" aria-selected="false">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-      <span class="tab-label">Jobs</span>
+      <span class="tab-label" data-i="tabjobs">Jobs</span>
       <span class="tab-count" id="count-jobs">0</span>
     </button>
   </div>
@@ -601,7 +608,7 @@
   <div class="trust-bar">
     <div class="trust-item">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-      KYB-Verified Sellers
+      ID-Verified Sellers
     </div>
     <div class="trust-item hide-sm">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -609,32 +616,29 @@
     </div>
     <div class="trust-item hide-sm">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Escrow on Payments
+      Free, No Platform Fees
     </div>
     <div class="trust-item right">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span id="txt-total-listings">0 listings</span>
     </div>
-    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      Watchlist
+      <span data-i="watchlist">Watchlist</span>
     </button>
-    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:999px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
-      Searches
+      <span data-i="searches">Searches</span>
+      <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:#F7A21B;color:#1a1a1a;font-size:0.6rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
     </button>
     <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       My Listings
     </a>
-    <a id="btn-admin-link" href="marketplace-admin.html" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace Admin">
+    <a id="btn-admin-link" href="founder-console.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Founder Console">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
       Admin
     </a>
-    <button id="btn-my-orders" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);border-radius:999px;color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;" aria-label="My Orders">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      My Orders
-    </button>
   </div>
 
   <!-- Search + filter row -->
@@ -645,17 +649,17 @@
     </div>
     <button class="btn-filter" id="btn-price-filter">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-      Price
+      <span data-i="price">Price</span>
     </button>
     <button class="btn-filter" id="btn-compare" aria-pressed="false">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Compare
+      <span data-i="compare">Compare</span>
     </button>
   </div>
 
   <!-- Price range panel -->
   <div class="price-filter" id="price-filter-panel">
-    <label for="price-min">Price Range (PHP)</label>
+    <label for="price-min" data-i="pricerange">Price Range (PHP)</label>
     <div class="price-range-row">
       <input class="wh-input" type="number" id="price-min" placeholder="Min" min="0" />
       <span class="price-range-sep">to</span>
@@ -665,6 +669,16 @@
 
   <!-- Category chips -->
   <div class="filter-row" id="filter-chips" role="group" aria-label="Filter by category"></div>
+
+  <!-- Parts for YOUR assets — discovery rail: published listings from OTHER plants whose
+       part number matches what this hive stocks (the marketplace analog of Community "my people"). -->
+  <section id="parts-for-assets" style="display:none;margin:0.25rem 0 0.85rem;" aria-label="Parts for your assets">
+    <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:0.45rem;flex-wrap:wrap;">
+      <span style="font-size:0.82rem;font-weight:700;color:#7fdcef;">Parts for your assets</span>
+      <span style="font-size:0.68rem;color:#9aa6b3;">listed by other plants, matched to what you stock</span>
+    </div>
+    <div id="parts-for-assets-rail" role="list" style="display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.35rem;"></div>
+  </section>
 
   <!-- Listings count -->
   <div class="listings-info" id="listings-info"></div>
@@ -677,9 +691,9 @@
     data-rag-tile="marketplace:listing_grid"
     data-rag-label="Marketplace listing grid"></div>
 
-  <!-- Load More -->
-  <div style="text-align:center;margin-top:1.25rem;">
-    <button id="btn-load-more" style="display:none;" class="btn-load-more">Load More</button>
+  <!-- Load More (1.5rem/24px: on the 8-pt grid; 1.25rem=20px is off-scale, R1) -->
+  <div style="text-align:center;margin-top:1.5rem;">
+    <button id="btn-load-more" style="display:none;" class="btn-load-more" data-i="loadmore">Load More</button>
   </div>
 </main>
 
@@ -696,10 +710,10 @@
       <span style="font-size:0.7rem;color:#9aa6b3;font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
-      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9aa6b3;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;">Clear</button>
+      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9aa6b3;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
       <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,#F7A21B,#FDB94A);border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Request Quotes
+        <span data-i="requestquotes">Request Quotes</span>
       </button>
     </div>
   </div>
@@ -719,25 +733,30 @@
   </div>
   <form id="form-post" novalidate>
     <div class="form-group">
-      <label for="post-section" class="form-label">What are you listing?</label>
+      <label for="post-section" class="form-label" data-i="whatlisting">What are you listing?</label>
       <div class="section-toggle">
-        <button type="button" class="section-toggle-btn active" data-post-sec="parts">Parts</button>
-        <button type="button" class="section-toggle-btn" data-post-sec="training">Training</button>
-        <button type="button" class="section-toggle-btn" data-post-sec="jobs">Jobs</button>
+        <button type="button" class="section-toggle-btn active" data-post-sec="parts" data-i="tabparts">Parts</button>
+        <button type="button" class="section-toggle-btn" data-post-sec="training" data-i="tabtraining">Training</button>
+        <button type="button" class="section-toggle-btn" data-post-sec="jobs" data-i="tabjobs">Jobs</button>
       </div>
       <input type="hidden" id="post-section" value="parts" />
     </div>
     <div class="form-group">
-      <label class="form-label" for="post-title">Title</label>
-      <input class="wh-input" type="text" id="post-title" placeholder="e.g. SKF 6205 Deep Groove Ball Bearing" required />
+      <label class="form-label" for="post-title" data-i="title">Title</label>
+      <input class="wh-input" type="text" id="post-title" placeholder="e.g. SKF 6205 Deep Groove Ball Bearing" required maxlength="120">
     </div>
+    <div class="form-group" id="post-partnumber-wrap">
+      <label class="form-label" for="post-part-number"><span data-i="partnumber">Part number</span> <span style="opacity:.55;font-weight:400;font-size:.72rem;">optional: buyers can search + reorder this exact part</span></label>
+      <input class="wh-input" type="text" id="post-part-number" placeholder="e.g. BRG-6313 or SKF-6205-2RS" maxlength="80">
+    </div>
+    <input type="hidden" id="post-source-item-id" value="" />
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="post-category">Category</label>
+        <label class="form-label" for="post-category" data-i="category">Category</label>
         <select class="wh-select" id="post-category" required></select>
       </div>
       <div class="form-group" id="post-condition-wrap">
-        <label class="form-label" for="post-condition">Condition</label>
+        <label class="form-label" for="post-condition" data-i="condition">Condition</label>
         <select class="wh-select" id="post-condition" data-select-placeholder-allow="default 'new' is the most common listing condition">
           <option value="new">New</option>
           <option value="used">Used</option>
@@ -746,27 +765,35 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="post-desc">Description</label>
-      <textarea class="wh-textarea" id="post-desc" placeholder="Specs, compatibility, dimensions, quantity available..." required></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+        <label class="form-label" for="post-desc" style="margin:0;" data-i="description">Description</label>
+        <button type="button" id="post-ai-assist" aria-label="Suggest a category and description with AI"
+          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:#7fdcef;font-family:'Poppins',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
+          <span aria-hidden="true">✨</span><span id="post-ai-assist-label" data-i="aiassist">AI assist</span>
+        </button>
+      </div>
+      <textarea class="wh-textarea" id="post-desc" maxlength="2000" placeholder="Specs, compatibility, dimensions, quantity available..." required></textarea>
+      <div id="post-ai-assist-hint" style="font-size:0.68rem;color:#9aa6b3;margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="post-price">Price (PHP)</label>
+        <label class="form-label" for="post-price" data-i="priceph">Price (PHP)</label>
         <input class="wh-input" type="number" id="post-price" placeholder="Leave blank if negotiable" min="0" step="0.01" />
+        <div id="post-price-hint" style="font-size:0.7rem;color:#7fdcef;margin-top:0.3rem;display:none;"></div>
       </div>
       <div class="form-group">
-        <label class="form-label" for="post-location">Location</label>
-        <input class="wh-input" type="text" id="post-location" placeholder="City, Province" />
+        <label class="form-label" for="post-location" data-i="location">Location</label>
+        <input class="wh-input" type="text" id="post-location" placeholder="City, Province" maxlength="200">
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="post-contact">Contact (phone or email)</label>
-      <input class="wh-input" type="text" id="post-contact" placeholder="09XX-XXX-XXXX or email@domain.com" />
+      <label class="form-label" for="post-contact" data-i="contact">Contact (phone or email)</label>
+      <input class="wh-input" type="text" id="post-contact" placeholder="09XX-XXX-XXXX or email@domain.com" maxlength="200">
     </div>
 
     <!-- Image picker — single photo, compressed client-side before upload -->
     <div class="form-group">
-      <label for="post-image-file" class="form-label">Photo (recommended)</label>
+      <label for="post-image-file" class="form-label" data-i="photo">Photo (recommended)</label>
       <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="post-image-empty" style="color:#9aa6b3;">
@@ -777,7 +804,7 @@
         <div id="post-image-preview" style="display:none;">
           <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="post-image-status" style="font-size:0.7rem;color:#9aa6b3;margin-top:0.5rem;"></div>
-          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
+          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="post-image-url" value="" />
@@ -785,14 +812,13 @@
 
     <div class="info-notice">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Listings are reviewed before publishing.<span id="seller-payments-notice"> KYB verification is required to receive payments.
-      <button type="button" onclick="handleSellerOnboard()" style="display:block;margin-top:0.5rem;background:none;border:none;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;">Connect Stripe to receive payments</button></span>
+      Listings are reviewed before publishing. The marketplace is free: buyers contact you directly via the inquiry form, with no platform fees.
     </div>
 
     <!-- Quality score widget — updates in real time as the seller types -->
     <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(22,32,50,0.5);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-        <span style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score — platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
+        <span style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score: platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
         <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:#9aa6b3;">0 / 100</span>
       </div>
       <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
@@ -801,7 +827,7 @@
       <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:#9aa6b3;line-height:1.6;"></div>
     </div>
 
-    <button type="submit" class="btn-primary" id="btn-submit-post">Post Listing</button>
+    <button type="submit" class="btn-primary" id="btn-submit-post" data-i="postlisting">Post Listing</button>
   </form>
 </div>
 
@@ -835,47 +861,27 @@
   <form id="form-inquiry" novalidate>
     <input type="hidden" id="inq-listing-id" value="" />
     <div class="form-group">
-      <label for="inq-name" class="form-label">Listing</label>
+      <label for="inq-name" class="form-label" data-i="listing">Listing</label>
       <div id="inq-listing-title" style="font-size:0.82rem;font-weight:600;padding:0.4rem 0;"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="inq-name">Your Name</label>
-      <input class="wh-input" type="text" id="inq-name" placeholder="Full name" required />
+      <label class="form-label" for="inq-name" data-i="yourname">Your Name</label>
+      <input class="wh-input" type="text" id="inq-name" placeholder="Full name" required maxlength="120">
     </div>
     <div class="form-group">
-      <label class="form-label" for="inq-contact">Your Contact (phone or email)</label>
-      <input class="wh-input" type="text" id="inq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required />
+      <label class="form-label" for="inq-contact" data-i="yourcontact">Your Contact (phone or email)</label>
+      <input class="wh-input" type="text" id="inq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required maxlength="200">
     </div>
     <div class="form-group">
-      <label class="form-label" for="inq-message">Message</label>
-      <textarea class="wh-textarea" id="inq-message" placeholder="A template will appear here. Edit any line you want, then send." style="min-height:140px;" required></textarea>
+      <label class="form-label" for="inq-message" data-i="message">Message</label>
+      <textarea class="wh-textarea" id="inq-message" maxlength="1000" placeholder="A template will appear here. Edit any line you want, then send." style="min-height:140px;" required></textarea>
     </div>
     <div class="info-notice">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Sellers are expected to respond within 48 hours. Payments are processed through Stripe with escrow protection.
+      Sellers are expected to respond within 48 hours. The marketplace is free: you arrange any payment directly with the seller, off-platform.
     </div>
-    <button type="submit" class="btn-primary" id="btn-submit-inquiry">Send Inquiry</button>
+    <button type="submit" class="btn-primary" id="btn-submit-inquiry" data-i="sendinquiry">Send Inquiry</button>
   </form>
-</div>
-
-<!-- ==============================
-     SHEET: MY ORDERS (buyer view)
-     ============================== -->
-<div class="sheet-overlay" id="overlay-orders" role="dialog" aria-modal="true" aria-labelledby="title-sheet-orders"></div>
-<div class="sheet" id="sheet-orders">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-orders">My Orders</span>
-    <button class="btn-close-sheet" id="btn-close-orders" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div id="orders-content">
-    <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      <p style="margin-top:0.75rem;font-size:0.82rem;">Loading orders…</p>
-    </div>
-  </div>
 </div>
 
 <!-- ==============================
@@ -901,7 +907,7 @@
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Email for future alerts (optional)" class="wh-input" type="email" id="save-search-email" placeholder="Email for future alerts (optional)" style="font-size:1rem;" />
     </div>
-    <button id="btn-save-current-search" class="btn-primary" style="font-size:0.85rem;">Save Search</button>
+    <button id="btn-save-current-search" class="btn-primary" style="font-size:0.85rem;" data-i="savesearch">Save Search</button>
   </div>
 
   <div id="saved-searches-content">
@@ -926,26 +932,26 @@
   </div>
   <form id="form-rfq" novalidate>
     <div class="form-group">
-      <label for="rfq-name" class="form-label">Sending to <span id="rfq-count">0</span> seller<span id="rfq-count-plural">s</span></label>
+      <label for="rfq-name" class="form-label"><span data-i="sendingto">Sending to</span> <span id="rfq-count">0</span> seller<span id="rfq-count-plural">s</span></label>
       <div id="rfq-listings" style="display:flex;flex-direction:column;gap:0.4rem;max-height:200px;overflow-y:auto;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:0.5rem;"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="rfq-name">Your Name</label>
-      <input class="wh-input" type="text" id="rfq-name" placeholder="Full name" required style="font-size:1rem;" />
+      <label class="form-label" for="rfq-name" data-i="yourname">Your Name</label>
+      <input class="wh-input" type="text" id="rfq-name" placeholder="Full name" required style="font-size:1rem;" maxlength="120">
     </div>
     <div class="form-group">
-      <label class="form-label" for="rfq-contact">Your Contact (phone or email)</label>
-      <input class="wh-input" type="text" id="rfq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required style="font-size:1rem;" />
+      <label class="form-label" for="rfq-contact" data-i="yourcontact">Your Contact (phone or email)</label>
+      <input class="wh-input" type="text" id="rfq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required style="font-size:1rem;" maxlength="200">
     </div>
     <div class="form-group">
-      <label class="form-label" for="rfq-message">Quote Request</label>
+      <label class="form-label" for="rfq-message" data-i="quoterequest">Quote Request</label>
       <textarea class="wh-textarea" id="rfq-message" placeholder="Specs, quantity, delivery location, timeline…" required style="min-height:140px;font-size:1rem;"></textarea>
     </div>
     <div class="info-notice">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       The same message goes to every seller you selected. Sellers reply directly via your contact info.
     </div>
-    <button type="submit" class="btn-primary" id="btn-submit-rfq">Send All Quote Requests</button>
+    <button type="submit" class="btn-primary" id="btn-submit-rfq" data-i="sendallquotes">Send All Quote Requests</button>
   </form>
 </div>
 
@@ -970,87 +976,9 @@
 </div>
 
 <!-- ==============================
-     SHEET: LEAVE A REVIEW
-     ============================== -->
-<!-- ==============================
-     SHEET: OPEN A DISPUTE
-     ============================== -->
-<div class="sheet-overlay" id="overlay-dispute" role="dialog" aria-modal="true" aria-labelledby="title-sheet-dispute"></div>
-<div class="sheet" id="sheet-dispute">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-dispute">Open a Dispute</span>
-    <button class="btn-close-sheet" id="btn-close-dispute" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <form id="form-dispute" novalidate>
-    <input type="hidden" id="dispute-order-id" value="" />
-    <input type="hidden" id="dispute-listing-id" value="" />
-    <input type="hidden" id="dispute-seller-name" value="" />
-    <div class="form-group">
-      <label class="form-label" for="dispute-reason">Reason for dispute</label>
-      <select class="wh-select" id="dispute-reason" required>
-        <option value="">Select a reason…</option>
-        <option value="Item not as described">Item not as described</option>
-        <option value="Item not received">Item not received</option>
-        <option value="Wrong item sent">Wrong item sent</option>
-        <option value="Damaged or defective">Damaged or defective</option>
-        <option value="Seller unresponsive">Seller unresponsive (48+ hours)</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="dispute-description">Describe the issue</label>
-      <textarea class="wh-textarea" id="dispute-description" placeholder="Provide details — what you ordered, what happened, what resolution you expect…" required style="min-height:100px;"></textarea>
-    </div>
-    <div class="info-notice">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      The seller has 48 hours to respond. If unresolved, an admin will review and issue a refund or release funds.
-    </div>
-    <button type="submit" class="btn-primary" id="btn-submit-dispute">Open Dispute</button>
-  </form>
-</div>
-
-<div class="sheet-overlay" id="overlay-review" role="dialog" aria-modal="true" aria-labelledby="title-sheet-review"></div>
-<div class="sheet" id="sheet-review">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <span class="sheet-title" id="title-sheet-review">Leave a Review</span>
-    <button class="btn-close-sheet" id="btn-close-review" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <form id="form-review" novalidate>
-    <input type="hidden" id="review-order-id" value="" />
-    <input type="hidden" id="review-listing-id" value="" />
-    <div style="margin-bottom:1rem;">
-      <div style="font-size:0.75rem;font-weight:600;color:#9aa6b3;margin-bottom:0.5rem;">Your rating</div>
-      <div id="star-rating" style="display:flex;gap:0.5rem;" role="group" aria-label="Star rating">
-        <button type="button" class="star-btn" data-star="1" aria-label="1 star" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="2" aria-label="2 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="3" aria-label="3 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="4" aria-label="4 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
-        <button type="button" class="star-btn" data-star="5" aria-label="5 stars" style="font-size:2rem;background:none;border:none;cursor:pointer;color:#9aa6b3;transition:color 0.1s;line-height:1;">★</button>
-      </div>
-      <input type="hidden" id="review-rating" value="0" />
-    </div>
-    <div style="margin-bottom:1rem;">
-      <label class="form-label" for="review-comment">Your review (optional)</label>
-      <textarea class="wh-textarea" id="review-comment" placeholder="Describe the item quality, seller communication, delivery speed…" style="min-height:90px;"></textarea>
-    </div>
-    <div class="info-notice">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Your review is marked as a verified purchase and shown on the listing page.
-    </div>
-    <button type="submit" class="btn-primary" id="btn-submit-review">Submit Review</button>
-  </form>
-</div>
-
-<!-- ==============================
      SCRIPTS
      ============================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
@@ -1067,21 +995,11 @@
 
   logPageView(db);
   /* ============================================================
-     FEATURE FLAGS
-     Set PAYMENTS_ENABLED = true to re-enable Stripe checkout, escrow,
-     orders, disputes, and seller payouts. All edge functions, DB tables,
-     and webhooks stay deployed — only the UI is gated by this flag.
-     Activation requires: DTI registration + Stripe live + webhook re-register.
-     See MARKETPLACE_GO_LIVE_ROADMAP.md for the full path.
-  ============================================================ */
-  const PAYMENTS_ENABLED = false;
-
-  /* ============================================================
      CATEGORIES PER SECTION
   ============================================================ */
   const CATS = {
     parts:    ['All','Bearings','Seals & Gaskets','Motors & Drives','Pumps & Valves',
-               'Electrical','Instrumentation','Fasteners','Lubricants','Safety Equipment','Other'],
+               'Electrical','Instrumentation','Filters','Fasteners','Lubricants','Safety Equipment','Other'],
     training: ['All','Electrical','Mechanical','Instrumentation','Safety & LOTO',
                'CMMS','Management','Certification Prep','Other'],
     jobs:     ['All','Inspection','Repair & Overhaul','Installation','Welding & Fabrication',
@@ -1105,6 +1023,7 @@
   let _loadingMore   = false;
   let _watchlist     = new Set(); /* listing IDs the current buyer has saved */
   let _sellerTiers   = {};        /* { sellerName: topLevel } for tier frames */
+  const _communityTrustedSellers = new Set();  /* X-axis: sellers with the Voice-of-the-Hive community badge */
   let _compareMode   = false;
   let _compareSet    = new Set(); /* listing IDs selected for RFQ */
   const COMPARE_MAX  = 5;
@@ -1125,10 +1044,10 @@
   /* ============================================================
      AUDIT LOG (fire-and-forget)
      ----------------------------------------------------------------
-     Logs buyer-side state changes: new listing, dispute open, review
-     submission. The Buy Now flow goes through marketplace-checkout
-     edge function and is audited there. Logs to the buyer's hive_audit_log
-     with meta.scope='buyer_action'.
+     Logs buyer-side state changes: new listing, inquiry sent. The
+     marketplace is free + contact-only, so there is no checkout/payment
+     path to audit. Logs to the buyer's hive_audit_log with
+     meta.scope='buyer_action'.
   ============================================================ */
   function writeAuditLog(action, targetType, targetId, targetName, meta) {
     if (!HIVE_ID) return;
@@ -1162,7 +1081,7 @@
     if (price == null || price === '') return 'Negotiable';
     const n = Number(price);
     if (!n) return 'Negotiable';
-    return 'PHP ' + n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (typeof whFmtPeso === 'function') ? whFmtPeso(n, { decimals: 2 }) : 'PHP ' + n.toFixed(2); // FD1c canonical (₱)
   }
 
   function tierOf(sales) {
@@ -1195,14 +1114,7 @@
     return 'Used';
   }
 
-  function timeAgo(iso) {
-    if (!iso) return '';
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
-  }
+  function timeAgo(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
 
   /* ============================================================
      FILTER CHIPS
@@ -1212,13 +1124,13 @@
     const row = document.getElementById('filter-chips');
     if (!row) return;
     row/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (CATS[_section] || []).map(c =>
-      `<button class="filter-chip${_cat === c ? ' active' : ''}" data-cat="${e(c)}">${e(c)}</button>`
+      `<button class="filter-chip${_cat === c ? ' active' : ''}" data-cat="${e(c)}" aria-pressed="${_cat === c ? 'true' : 'false'}" translate="no">${e(c)}</button>`
     ).join('');
     row.querySelectorAll('.filter-chip').forEach(btn => {
       btn.addEventListener('click', () => {
         _cat = btn.dataset.cat;
         renderFilterChips();
-        loadListings();
+        Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
       });
     });
   }
@@ -1277,7 +1189,7 @@
     lines.push('');
     selectedItems.forEach((item, i) => {
       const priceStr = item.price && Number(item.price) > 0
-        ? ` (listed at PHP ${Number(item.price).toLocaleString('en-PH')})` : '';
+        ? ` (listed at PHP ${whFmtNum(item.price)})` : '';
       lines.push(`${i + 1}. ${item.title}${priceStr}`);
     });
     lines.push('');
@@ -1376,8 +1288,8 @@
     if (_cat && _cat !== 'All') parts.push(_cat);
     if (_query) parts.push(`"${_query}"`);
     if (_priceMin != null || _priceMax != null) {
-      const lo = _priceMin != null ? Number(_priceMin).toLocaleString('en-PH') : '0';
-      const hi = _priceMax != null ? Number(_priceMax).toLocaleString('en-PH') : 'any';
+      const lo = _priceMin != null ? whFmtNum(_priceMin) : '0';
+      const hi = _priceMax != null ? whFmtNum(_priceMax) : 'any';
       parts.push(`PHP ${lo}-${hi}`);
     }
     return parts.join(' · ');
@@ -1385,6 +1297,51 @@
 
   function hasActiveFilters() {
     return (_cat && _cat !== 'All') || _query || _priceMin != null || _priceMax != null;
+  }
+
+  /* Saved-search ALERTS (U-axis): badge the Searches button with the count of NEW listings
+     matching any of the buyer's saved searches (the legacy-part-hunter killer feature). */
+  async function updateSavedSearchBadge() {
+    const badge = document.getElementById('saved-search-badge');
+    if (!badge || !WORKER_NAME) return;
+    try {
+      const { data, error } = await db.rpc('get_saved_search_matches');
+      if (error) return;
+      const totalNew = (data || []).reduce((a, r) => a + Number(r.new_count || 0), 0);
+      if (totalNew > 0) { badge.textContent = totalNew > 99 ? '99+' : String(totalNew); badge.style.display = 'inline-block'; }
+      else badge.style.display = 'none';
+    } catch (_) { /* empty-catch-allow: best-effort badge */ }
+  }
+
+  /* Ground the AI companion on the marketplace (AI-axis, ops-snapshot pattern). PII-SAFE:
+     COUNTS + categories only — no buyer/seller names, contacts, or free text — so factual
+     marketplace questions ground instead of confabulating. (Community dead-RAG fix analog.) */
+  async function setMarketplaceCompanionContext(attempt = 0) {
+    // companion-launcher.js loads AFTER this page's init IIFE, so WHAssistant may not exist
+    // yet on the first call — retry briefly until it is ready (else the companion stays
+    // ungrounded and confabulates counts).
+    if (typeof WHAssistant === 'undefined' || !WHAssistant.setContext) {
+      if (attempt < 25) setTimeout(() => setMarketplaceCompanionContext(attempt + 1), 300);
+      return;
+    }
+    try {
+      const zero = Promise.resolve({ count: 0 });
+      const [pubParts, pubTraining, pubJobs, myListings, savedSearches] = await Promise.all([
+        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'parts'),
+        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'training'),
+        db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'jobs'),
+        WORKER_NAME ? db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('seller_name', WORKER_NAME) : zero,
+        WORKER_NAME ? db.from('marketplace_saved_searches').select('id', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('active', true) : zero,
+      ]);
+      const parts = pubParts.count || 0, training = pubTraining.count || 0, jobs = pubJobs.count || 0;
+      const summary =
+        `Marketplace is free and contact-only (no fees, no payments). Published now: ${parts} parts, ` +
+        `${training} training, ${jobs} jobs listings. You have ${myListings.count || 0} listing(s), ` +
+        `${_watchlist.size} watchlisted item(s), and ${savedSearches.count || 0} saved search(es). ` +
+        `Buyers search by part number, sell surplus inventory in one tap, find parts their own assets use, ` +
+        `and set saved-search alerts for legacy parts.`;
+      WHAssistant.setContext({ key: 'marketplace', summary, badge: `${parts + training + jobs} listings`, piiSafe: true });
+    } catch (_) { /* empty-catch-allow: companion grounding is best-effort */ }
   }
 
   async function openSavedSearchesSheet() {
@@ -1413,6 +1370,14 @@
       if (error) throw error;
 
       const items = data || [];
+
+      /* Per-search match counts (new since last seen + total) from the alert RPC. */
+      const matchMap = {};
+      try {
+        const { data: matches } = await db.rpc('get_saved_search_matches');
+        (matches || []).forEach(m => { matchMap[m.search_id] = m; });
+      } catch (_) { /* empty-catch-allow: counts are best-effort */ }
+
       if (!items.length) {
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
@@ -1424,6 +1389,12 @@
 
       const e = escHtml;
       content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(s => {
+        const mm = matchMap[s.id] || {};
+        const matchPill = Number(mm.new_count) > 0
+          ? `<span style="font-size:0.62rem;font-weight:800;color:#1a1a1a;background:#F7A21B;border-radius:999px;padding:0.1rem 0.45rem;">${mm.new_count} new</span>`
+          : (Number(mm.total_count) > 0
+              ? `<span style="font-size:0.62rem;color:#9aa6b3;">${mm.total_count} match${Number(mm.total_count) > 1 ? 'es' : ''}</span>`
+              : `<span style="font-size:0.62rem;color:#9aa6b3;">no matches yet</span>`);
         const pieces = [];
         if (s.section)    pieces.push(s.section.charAt(0).toUpperCase() + s.section.slice(1));
         if (s.category)   pieces.push(s.category);
@@ -1435,7 +1406,10 @@
           <div style="padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem;">
               <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
-              ${s.email ? '<span style="font-size:0.62rem;color:#a78bfa;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
+              <span style="display:inline-flex;gap:0.3rem;align-items:center;">
+                ${matchPill}
+                ${s.email ? '<span style="font-size:0.62rem;color:#a78bfa;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
+              </span>
             </div>
             <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
@@ -1449,6 +1423,7 @@
 
       content.querySelectorAll('.btn-apply-search').forEach(btn => {
         btn.addEventListener('click', () => applySavedSearch({
+          id:      btn.dataset.id,
           section: btn.dataset.section,
           cat:     btn.dataset.cat,
           query:   btn.dataset.q,
@@ -1494,7 +1469,7 @@
     }
   }
 
-  function applySavedSearch({ section, cat, query, min, max }) {
+  function applySavedSearch({ id, section, cat, query, min, max }) {
     /* Switch to the section first (this clears _cat, _query, _priceMin/Max and re-fetches) */
     if (section && section !== _section) {
       switchSection(section);
@@ -1520,9 +1495,15 @@
       }
 
       renderFilterChips();
-      loadListings();
+      Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
       closeSheet('saved-searches');
       showToast('Search applied.', 'info');
+      /* Mark this saved search seen (last_sent_at=now) so its "new" alert count clears. */
+      if (id) {
+        db.from('marketplace_saved_searches').update({ last_sent_at: new Date().toISOString() }).eq('id', id)
+          .then(() => updateSavedSearchBadge())
+          .catch(() => { /* empty-catch-allow: best-effort mark-seen */ });
+      }
     }, 50);
   }
 
@@ -1548,6 +1529,15 @@
   async function loadWatchlist() {
     if (!WORKER_NAME) { _watchlist = new Set(); return; }
     try {
+      // marketplace_watchlist RLS is auth-gated (worker_name IN auth_worker_names()).
+      // getDb() restores the stored session ASYNCHRONOUSLY, so firing this read at init
+      // can race the JWT out → a 401 in the console on every load. Await the session and
+      // fail closed (empty watchlist) if truly unauthenticated — same fix as companion
+      // checkProactive (AI-9). A signed-out browser genuinely has no watchlist, so this
+      // is correct, not just quiet.
+      let _sess = null;
+      try { _sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { _sess = null; }
+      if (!_sess) { _watchlist = new Set(); return; }
       const { data } = await db
         .from('marketplace_watchlist')
         .select('listing_id')
@@ -1668,7 +1658,7 @@
                 ${removed ? `<br><span style="color:#f87171;">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">View</button>` : ''}
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
                 <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
               </div>
             </div>
@@ -1712,7 +1702,10 @@
           <div class="card-badges">
             <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
             ${item.seller_verified
-              ? `<span class="badge-verified"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>KYB</span>`
+              ? `<span class="badge-verified"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>`
+              : ''}
+            ${_communityTrustedSellers.has(item.seller_name)
+              ? `<span title="Voice of the Hive in the WorkHive community" style="display:inline-flex;align-items:center;gap:0.15rem;padding:0.15rem 0.4rem;border-radius:999px;font-size:0.6rem;font-weight:700;background:rgba(41,182,217,0.9);color:#04212b;">🐝 Trusted</span>`
               : ''}
           </div>
           <button class="heart-btn ${_watchlist.has(item.id) ? 'saved' : ''}" data-listing="${e(item.id)}"
@@ -1725,7 +1718,7 @@
           ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
         </div>
         <div class="card-body">
-          <div class="card-title">${e(item.title)}</div>
+          <h3 class="card-title" style="margin:0;" translate="no">${e(item.title)}</h3>
           <div class="card-meta">
             <span class="cat-chip">${e(item.category || 'Other')}</span>
             ${item.section === 'parts' && item.condition
@@ -1744,7 +1737,7 @@
               ${item.rating_avg
                 ? `<span class="stars">${renderStars(item.rating_avg)}</span><span class="rating-val">${Number(item.rating_avg).toFixed(1)}</span>`
                 : ''}
-              <button class="btn-view" data-id="${e(item.id)}" aria-label="View ${e(item.title)}">View</button>
+              <button class="btn-view" data-id="${e(item.id)}" aria-label="View ${e(item.title)}" data-i="view">View</button>
             </div>
           </div>
         </div>
@@ -1798,7 +1791,7 @@
     let tone, label, sub;
     if (total === 0 && mine === 0) {
       tone = 'empty'; label = `No ${section} listings yet`;
-      sub  = `Be the first to post in this section — buyers across the Philippines are looking.`;
+      sub  = `Be the first to post in this section: buyers across the Philippines are looking.`;
     } else if (total === 0) {
       tone = 'watch'; label = `No matches in ${section} for your filter`;
       sub  = 'Try clearing the search box or pick a different section tab.';
@@ -1819,13 +1812,13 @@
     if (actBox) {
       let text;
       if (total === 0 && mine === 0) {
-        text = `No ${section} listings yet. Click + Post to add the first one — listings are free, and the trust bar above shows what buyers care about (KYB, escrow, secure inquiries).`;
+        text = `No ${section} listings yet. Click + Post to add the first one: listings are free, and the trust bar above shows what buyers care about (ID-verified sellers, secure inquiries).`;
       } else if (total === 0) {
         text = 'No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.';
       } else if (mine === 0) {
         text = `Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with clear photos get 3× more inquiries.`;
       } else {
-        text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries — the faster you respond, the higher your seller rank climbs.`;
+        text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries: the faster you respond, the higher your seller rank climbs.`;
       }
       actBox.textContent = text;
     }
@@ -1850,7 +1843,7 @@
         parts: {
           icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
           title: 'No spare parts listed yet',
-          body:  'Be the first to sell bearings, motors, valves, electrical, or consumables to industrial plants across the Philippines. Free to list — buyers contact you directly via phone or email.',
+          body:  'Be the first to sell bearings, motors, valves, electrical, or consumables to industrial plants across the Philippines. Free to list: buyers contact you directly via phone or email.',
           cta:   'Post a Parts Listing',
         },
         training: {
@@ -1919,6 +1912,9 @@
   function showSkeletons() {
     const grid = document.getElementById('listing-grid');
     if (!grid) return;
+    // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js) —
+    // this page's hand-rolled copy was LIFTED there (grid variant), per the §10 lever.
+    if (typeof whCardSkeleton === 'function') { whCardSkeleton(grid, 8, { variant: 'grid' }); return; }
     grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = Array(8).fill(0).map(() => `
       <div class="skel-card skel-pulse skeleton">
         <div class="skel" style="height:160px;"></div>
@@ -1943,7 +1939,7 @@
     try {
       let q = db
         .from('v_marketplace_listings_truth')
-        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at')
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
         .eq('status', 'published')
         .eq('section', _section)
         .order('created_at', { ascending: false })
@@ -1956,7 +1952,9 @@
          does expose. User input is sanitised of PostgREST/or() delimiters + LIKE wildcards. */
       if (_query) {
         const _safe = _query.replace(/[,()%*\\_]/g, ' ').replace(/\s+/g, ' ').trim();
-        if (_safe) q = q.or(`title.ilike.%${_safe}%,description.ilike.%${_safe}%`);
+        // Match title + description AND part_number, so a below-reorder inventory item's
+        // "Find on Marketplace" (which searches by part number) resolves to real listings.
+        if (_safe) q = q.or(`title.ilike.%${_safe}%,description.ilike.%${_safe}%,part_number.ilike.%${_safe}%`);
       }
 
       /* category + price filters (server-side, index-backed) */
@@ -1977,10 +1975,24 @@
     } catch (_err) {
       if (!append) _listings = [];
       _hasMore = false;
+      // dim-10 (deep-walk 2026-07-06): surface load failure instead of disguising it as the
+      // "no listings yet" empty-state (a failed fetch/RLS looked identical to a genuinely empty feed).
+      if (typeof showToast === 'function') showToast("Couldn't load listings . Check your connection and try again.", 'error');
     }
 
     const sellerNames = [...new Set(_listings.map(l => l.seller_name).filter(Boolean))];
-    if (sellerNames.length) Object.assign(_sellerTiers, await loadWorkerTiers(db, sellerNames));
+    if (sellerNames.length) {
+      Object.assign(_sellerTiers, await loadWorkerTiers(db, sellerNames));
+      // X-axis: batch community-trust lookup for the browse-grid "Community-trusted" chip.
+      // MUST go through the DEFINER RPC — reading skill_badges directly is RLS-dead
+      // (auth_uid=self, so a viewer can't see OTHER sellers' badges → the chip never
+      // lit up). The RPC returns voice-of-hive OR top_contributor sellers (public-scoped),
+      // matching the listing-detail chip predicate so grid + detail agree.
+      try {
+        const { data: tb } = await db.rpc('get_marketplace_trust_badges', { p_seller_names: sellerNames });
+        if (tb) tb.forEach(r => _communityTrustedSellers.add(r.worker_name));
+      } catch (_) { /* empty-catch-allow: chip just won't show */ }
+    }
 
     _loadingMore = false;
     renderListings();
@@ -2052,11 +2064,22 @@
       // active_listings_count for the seller card display.
       const { data: sp } = await db
         .from('v_marketplace_sellers_truth')
-        .select('messenger_username,kyb_verified,cert_verified,certifications,tier,rating_avg,rating_count,is_verified_public,active_listings_count')
+        .select('messenger_username,kyb_verified,cert_verified,certifications,tier,rating_avg,rating_count,is_verified_public,active_listings_count,hive_id,response_rate,response_time_h,total_sales')
         .eq('worker_name', item.seller_name)
         .maybeSingle();
       sellerProfile = sp;
     } catch (_) { sellerProfile = null; }
+
+    /* X-axis bridge (Community PDDA 7th): pull the seller's portable community reputation so a
+       "Community-trusted" chip can vouch for a new/low-rating seller (cold-start trust). Public-scoped
+       aggregates only via the DEFINER RPC — no post content, no private-hive data. */
+    let sellerRep = null;
+    if (sellerProfile?.hive_id) {
+      try {
+        const { data: rp } = await db.rpc('get_community_reputation', { p_worker_name: item.seller_name, p_hive_id: sellerProfile.hive_id });
+        sellerRep = (rp && rp[0]) || null;
+      } catch (_) { sellerRep = null; }
+    }
 
     let reviewsHtml = '<p style="font-size:0.78rem;color:#9aa6b3;">No reviews yet.</p>';
     try {
@@ -2098,6 +2121,7 @@
         <div class="detail-section-label">Details</div>
         <div class="card-meta" style="margin-bottom:0.75rem;">
           <span class="cat-chip">${e(item.category || 'Other')}</span>
+          ${item.part_number ? `<span class="cat-chip" title="Part number: search or reorder this exact part" style="font-family:'JetBrains Mono',monospace;">#${e(item.part_number)}</span>` : ''}
           ${item.section === 'parts' && item.condition
             ? `<span class="cond-chip ${condClass(item.condition)}">${e(condLabel(item.condition))}</span>`
             : ''}
@@ -2120,6 +2144,18 @@
               ${item.rating_avg ? renderStars(item.rating_avg) + ' ' + Number(item.rating_avg).toFixed(1) : 'No ratings yet'}
               ${item.completed_sales ? ' · ' + item.completed_sales + ' completed' : ''}
             </div>
+            ${(() => {
+              /* Trust DEPTH — responsiveness + track record (data on v_marketplace_sellers_truth;
+                 rendered ONLY when present, never fabricated). Lifts the U "why trust this seller" axis. */
+              const sp = sellerProfile || {};
+              const bits = [];
+              if (sp.response_time_h != null) bits.push('Responds in ~' + Math.round(Number(sp.response_time_h)) + 'h');
+              if (sp.response_rate != null)   bits.push(Math.round(Number(sp.response_rate) * 100) + '% reply rate');
+              if (sp.total_sales)             bits.push(sp.total_sales + ' sale' + (sp.total_sales > 1 ? 's' : ''));
+              return bits.length
+                ? `<div class="seller-card-meta" style="margin-top:0.2rem;color:#7fdcef;">${bits.map(e).join('&nbsp;&nbsp;·&nbsp;&nbsp;')}</div>`
+                : '';
+            })()}
             <div class="seller-badges">
               <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
               ${(() => {
@@ -2136,6 +2172,10 @@
                 }
                 if (isTopRated) {
                   out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+                }
+                // X-axis: community authority vouches for a seller (esp. one with few ratings — cold-start trust)
+                if (sellerRep && (sellerRep.is_voice_of_hive || sellerRep.trust_tier === 'top_contributor')) {
+                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
                 }
                 if (!out.length) {
                   out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#9aa6b3;">Unverified</span>`);
@@ -2155,17 +2195,14 @@
         ${reviewsHtml}
       </div>
 
-      <div class="info-notice">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Payments are processed through Stripe with escrow hold. Funds release to seller only after you confirm receipt.
-      </div>
-
       <div class="action-row">
         <button class="btn-secondary" id="btn-detail-save" data-listing="${e(item.id)}">${_watchlist.has(item.id) ? '★ Saved' : 'Save'}</button>
-        ${PAYMENTS_ENABLED && item.price && Number(item.price) > 0
-          ? `<button class="btn-cta" id="btn-detail-buy">Buy Now &mdash; ${e(fmtPrice(item.price))}</button>`
-          : `<button class="btn-cta" id="btn-detail-contact">Contact Seller</button>`}
+        <button class="btn-cta" id="btn-detail-contact">Contact Seller</button>
       </div>
+      ${item.section === 'parts' ? `<button class="btn-secondary" id="btn-detail-receive" style="width:100%;margin-top:0.625rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;" title="Close the loop: once you receive this part, add it to your plant's inventory" aria-label="Close the loop: once you receive this part, add it to your plant's inventory">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+          Received this? Add to your inventory
+        </button>` : ''}
       ${sellerProfile?.messenger_username
         ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:#0084ff;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
@@ -2173,12 +2210,18 @@
           </a>`
         : ''}`;
 
-    document.getElementById('btn-detail-buy')?.addEventListener('click', () => handleBuyNow(item.id));
     document.getElementById('btn-detail-contact')?.addEventListener('click', () => {
       closeSheet('detail');
       openInquirySheet(item);
     });
     document.getElementById('btn-detail-save')?.addEventListener('click', () => toggleWatchlist(item.id));
+    document.getElementById('btn-detail-receive')?.addEventListener('click', () => {
+      // Close the parts-flow loop: deep-link to inventory's OWN Restock/Add path (which writes
+      // qty_on_hand + inventory_transactions consistently) rather than duplicating that write here.
+      const pn = item.part_number || '';
+      const nm = item.title || '';
+      window.location.href = 'inventory.html?receive=1&pn=' + encodeURIComponent(pn) + '&name=' + encodeURIComponent(nm);
+    });
 
     openSheet('detail');
   }
@@ -2216,7 +2259,7 @@
     const nameEl    = document.getElementById('inq-name');
     const messageEl = document.getElementById('inq-message');
     if (titleEl)   titleEl.textContent = item.title;
-    if (idEl)      idEl.value = item.id;
+    if (idEl)    { idEl.value = item.id; idEl.dataset.seller = item.seller_name || ''; }
     if (nameEl && WORKER_NAME) nameEl.value = WORKER_NAME;
     /* Pre-fill the message with a section-specific template */
     if (messageEl) {
@@ -2265,6 +2308,57 @@
   function openPostSheet() {
     populateCategorySelect(_section);
     openSheet('post');
+    updatePriceHint();
+  }
+
+  /* Grounded price guidance (AI-axis, WAT split): CODE computes the comp band via
+     get_marketplace_price_comps; we only NARRATE it. Below 3 comparables we show an
+     honest note and NO range — never a fabricated price. */
+  let _priceHintT = null;
+  async function updatePriceHint() {
+    const hint = document.getElementById('post-price-hint');
+    if (!hint) return;
+    if ((document.getElementById('post-section')?.value) !== 'parts') { hint.style.display = 'none'; return; }
+    const category   = document.getElementById('post-category')?.value || null;
+    const condition  = document.getElementById('post-condition')?.value || null;
+    const partNumber = (document.getElementById('post-part-number')?.value || '').trim() || null;
+    if (!category && !partNumber) { hint.style.display = 'none'; return; }
+    try {
+      const { data, error } = await db.rpc('get_marketplace_price_comps',
+        { p_category: category, p_condition: condition, p_part_number: partNumber });
+      const row = (data && data[0]) || null;
+      const n = row ? Number(row.n) : 0;
+      if (error || n < 3) {
+        hint.style.display = n > 0 ? 'block' : 'none';
+        if (n > 0) hint.textContent = `Only ${n} comparable listing${n > 1 ? 's' : ''} so far, not enough for a reliable price range yet.`;
+        return;
+      }
+      const fmt = v => whFmtPeso(v, { decimals: 0 }) // FD1c canonical;
+      hint.style.display = 'block';
+      hint.textContent = `Comparable parts sell for ${fmt(row.min_price)}–${fmt(row.max_price)} (median ${fmt(row.median_price)}) across ${n} listings.`;
+    } catch (_) { hint.style.display = 'none'; }
+  }
+
+  /* "Parts for YOUR assets" discovery rail (U-axis): published listings from OTHER plants
+     whose part_number matches this hive's inventory, via the membership-guarded DEFINER RPC. */
+  async function renderPartsForMyAssets() {
+    const e = escHtml;
+    const sec  = document.getElementById('parts-for-assets');
+    const rail = document.getElementById('parts-for-assets-rail');
+    if (!sec || !rail || !HIVE_ID) return;
+    try {
+      const { data, error } = await db.rpc('get_marketplace_parts_for_my_assets', { p_hive_id: HIVE_ID });
+      const rows = data || [];
+      if (error || !rows.length) { sec.style.display = 'none'; return; }
+      rail.innerHTML = rows.map(r => `
+        <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
+          style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:0.6rem;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
+          <div style="font-size:0.62rem;font-weight:700;color:#7fdcef;font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
+          <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
+          <div style="font-size:0.68rem;color:#9aa6b3;">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
+        </button>`).join('');
+      sec.style.display = 'block';
+    } catch (_) { sec.style.display = 'none'; }
   }
 
   /* ============================================================
@@ -2277,6 +2371,70 @@
     sel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
     const condWrap = document.getElementById('post-condition-wrap');
     if (condWrap) condWrap.style.display = section === 'parts' ? '' : 'none';
+    const pnWrap = document.getElementById('post-partnumber-wrap');
+    if (pnWrap) pnWrap.style.display = section === 'parts' ? '' : 'none';
+  }
+
+  /* ============================================================
+     PREFILL POST FROM INVENTORY  (X keystone — inventory "Sell surplus")
+     Deep-linked from inventory.html?post=1&from_inventory=<item_id>. Re-fetches the
+     item RLS-scoped to the user's OWN hive (a URL-supplied id the user cannot read
+     returns nothing → blank sheet), so the prefill is authoritative + isolation-safe.
+  ============================================================ */
+  // Inventory (material taxonomy) → marketplace parts (equipment taxonomy). Exact where
+  // they overlap (bearings/filters/instrumentation/electrical/lubricants); nearest else.
+  const INV_TO_MKT_CATEGORY = {
+    'bearings': 'Bearings', 'seals & gaskets': 'Seals & Gaskets', 'filters': 'Filters',
+    'electrical': 'Electrical', 'instrumentation': 'Instrumentation', 'lubricants': 'Lubricants',
+    'mechanical': 'Motors & Drives'
+  };
+  function mapInventoryCategory(cat) {
+    if (!cat) return null;
+    return INV_TO_MKT_CATEGORY[cat.toLowerCase()] || 'Other';
+  }
+
+  async function prefillPostFromInventory(itemId) {
+    let item = null;
+    try {
+      const { data } = await db.from('v_inventory_items_truth')
+        .select('id,part_number,part_name,category,unit,qty_on_hand')
+        .eq('id', itemId)
+        .maybeSingle();
+      item = data;
+    } catch (_) { /* empty-catch-allow: fall back to a blank post sheet */ }
+
+    /* Force the Post form onto Parts (part identity lives on parts listings). */
+    const secHidden = document.getElementById('post-section');
+    if (secHidden) secHidden.value = 'parts';
+    document.querySelectorAll('.section-toggle-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+    populateCategorySelect('parts');
+
+    if (item) {
+      const titleEl = document.getElementById('post-title');
+      const pnEl    = document.getElementById('post-part-number');
+      const srcEl   = document.getElementById('post-source-item-id');
+      const descEl  = document.getElementById('post-desc');
+      const catSel  = document.getElementById('post-category');
+      if (titleEl) titleEl.value = item.part_name || '';
+      if (pnEl)    pnEl.value    = item.part_number || '';
+      if (srcEl)   srcEl.value   = item.id;
+      const mapped = mapInventoryCategory(item.category);
+      if (catSel) {
+        const opts = [...catSel.options].map(o => o.value);
+        // Use the mapped category if it's an available option; else fall back to 'Other'
+        // (never leave the misleading default first option, e.g. an air filter as "Bearings").
+        catSel.value = (mapped && opts.includes(mapped)) ? mapped
+                     : (opts.includes('Other') ? 'Other' : catSel.value);
+      }
+      if (descEl && !descEl.value) {
+        const qty = (item.qty_on_hand != null) ? `${item.qty_on_hand} ${item.unit || 'pcs'} on hand` : '';
+        descEl.value = `Surplus stock from our plant: ${item.part_name || 'part'}` +
+          `${item.part_number ? ' (' + item.part_number + ')' : ''}. ${qty}. Contact to arrange pickup or delivery.`;
+      }
+      if (typeof updateQualityWidget === 'function') updateQualityWidget();
+    }
+    openSheet('post');
+    updatePriceHint();
   }
 
   /* ============================================================
@@ -2392,6 +2550,74 @@
   }
 
   /* ============================================================
+     AI LISTING ASSIST — suggest category + draft description (Marketplace AI unit).
+     Calls the marketplace-listing-assist edge fn (server owns the category
+     whitelist; AI can only pick from the real taxonomy + writes a draft the
+     seller edits). Fills category (validated option only) + description (only
+     when empty, never clobbering the seller's own text). Best-effort photo:
+     the compressed blob is sent as a data URL for a vision refine when present.
+  ============================================================ */
+  function _blobToDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload  = () => resolve(String(r.result || ''));
+      r.onerror = () => reject(new Error('read failed'));
+      r.readAsDataURL(blob);
+    });
+  }
+
+  async function handleAiAssist() {
+    const btn   = document.getElementById('post-ai-assist');
+    const label = document.getElementById('post-ai-assist-label');
+    if (!btn || btn.disabled) return;
+
+    const section    = document.getElementById('post-section')?.value || 'parts';
+    const title      = (document.getElementById('post-title')?.value       || '').trim();
+    const partNumber = (document.getElementById('post-part-number')?.value  || '').trim();
+    const condition  = (document.getElementById('post-condition')?.value    || '').trim();
+    if (!title && !partNumber) { showToast('Add a title or part number first, then AI can help.', 'error'); return; }
+    if (!HIVE_ID)              { showToast('Sign in to use AI assist.', 'error'); return; }
+
+    const prev = label ? label.textContent : '';
+    btn.disabled = true; btn.style.opacity = '0.6'; if (label) label.textContent = 'Thinking…';
+    try {
+      /* Reuse the already-compressed photo (small payload) for a vision refine. */
+      let imageDataUrl = '';
+      const f = document.getElementById('post-image-file')?.files?.[0];
+      if (f) {
+        try { const blob = await compressImageFile(f); imageDataUrl = await _blobToDataUrl(blob); }
+        catch (_) { /* empty-catch-allow: image optional, fall back to text-only */ }
+      }
+
+      const body = { hive_id: HIVE_ID, section, title, part_number: partNumber, condition };
+      if (imageDataUrl && imageDataUrl.length <= 5 * 1024 * 1024) body.image_data_url = imageDataUrl;
+
+      const { data, error } = await db.functions.invoke('marketplace-listing-assist', { body });
+      if (error || !data || data.error) {
+        showToast((data && data.error) || 'AI assist is busy right now. Fill the listing manually or try again shortly.', 'error');
+        return;
+      }
+
+      const filled = [];
+      const catSel = document.getElementById('post-category');
+      if (data.category && catSel) {
+        const opts = [...catSel.options].map(o => o.value);
+        if (opts.includes(data.category)) { catSel.value = data.category; filled.push('category'); }
+      }
+      const descEl = document.getElementById('post-desc');
+      if (data.description && descEl && !descEl.value.trim()) { descEl.value = data.description; filled.push('description'); }
+
+      if (filled.length)                                   showToast('AI filled ' + filled.join(' and ') + '. Review and edit before posting.', 'success');
+      else if (data.description && descEl && descEl.value.trim()) showToast('Category suggested. Your description was kept as is.', 'info');
+      else                                                 showToast('No suggestion this time. Please fill the listing manually.', 'info');
+    } catch (_) {
+      showToast('AI assist could not run. Please fill the listing manually.', 'error');
+    } finally {
+      btn.disabled = false; btn.style.opacity = '1'; if (label) label.textContent = prev || 'AI assist';
+    }
+  }
+
+  /* ============================================================
      LISTING QUALITY SCORE — updates live as the seller fills the post form
   ============================================================ */
   function computeListingQuality() {
@@ -2454,7 +2680,7 @@
 
     if (tipsEl) {
       if (!tips.length) {
-        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span style="color:#4ade80;">✓ Great listing — buyers love specifics like yours.</span>';
+        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span style="color:#4ade80;">✓ Great listing: buyers love specifics like yours.</span>';
       } else {
         tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<strong style="color:#F4F6FA;">To improve:</strong><br>' +
           tips.slice(0, 4).map(t => '• ' + escHtml(t)).join('<br>');
@@ -2475,6 +2701,8 @@
     const location = (document.getElementById('post-location')?.value || '').trim();
     const contact  = (document.getElementById('post-contact')?.value || '').trim();
     const imageUrl = (document.getElementById('post-image-url')?.value || '').trim() || null;
+    const partNumber   = section === 'parts' ? ((document.getElementById('post-part-number')?.value || '').trim() || null) : null;
+    const sourceItemId = (document.getElementById('post-source-item-id')?.value || '').trim() || null;
 
     if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
 
@@ -2497,7 +2725,9 @@
         condition:       section === 'parts' ? condition : null,
         seller_verified: false,
         completed_sales: 0,
-        rating_avg:      null
+        rating_avg:      null,
+        part_number:              partNumber,     // X keystone: part identity (buyer search + reorder match)
+        source_inventory_item_id: sourceItemId    // X keystone: provenance when listed from inventory
       }]);
       if (error) throw error;
 
@@ -2528,7 +2758,9 @@
   async function handleInquirySubmit(ev) {
     ev.preventDefault();
 
-    const listingId = document.getElementById('inq-listing-id')?.value || '';
+    const listingIdEl = document.getElementById('inq-listing-id');
+    const listingId   = listingIdEl?.value || '';
+    const sellerName  = listingIdEl?.dataset.seller || '';
     const name      = (document.getElementById('inq-name')?.value || '').trim();
     const contact   = (document.getElementById('inq-contact')?.value || '').trim();
     const message   = (document.getElementById('inq-message')?.value || '').trim();
@@ -2545,6 +2777,10 @@
         buyer_contact: contact,
         message,
         hive_id:       HIVE_ID,
+        seller_name:   sellerName || null,   // BUGFIX: direct Contact-Seller path omitted seller_name → the
+                                             // seller dashboard filters v_marketplace_inquiries_truth by
+                                             // seller_name, so a null inquiry was a black-hole (never seen).
+                                             // Now consistent with the RFQ path. (Marketplace PDDA, F-axis)
         status:        'pending'
       }]);
       if (error) throw error;
@@ -2580,7 +2816,7 @@
     /* re-subscribe Realtime to new section */
     if (_realtimeChannel) { db.removeChannel(_realtimeChannel); _realtimeChannel = null; }
     renderFilterChips();
-    loadListings();
+    Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
     startRealtime();
   }
 
@@ -2593,343 +2829,48 @@
         event:  'INSERT',
         schema: 'public',
         table:  'marketplace_listings',
-        filter: 'status=eq.published&section=eq.' + _section
-      }, payload => {
-        if (!payload.new) return;
+        // Supabase Realtime supports EXACTLY ONE predicate per postgres_changes listener. The old
+        // compound 'status=eq.published&section=eq.<s>' was a single MALFORMED predicate (value =
+        // the literal string 'published&section=eq.<s>') that matched no row, so the live "new
+        // listing just posted" toast + prepend were silently DEAD (deep-walk dim-11, 2026-07-06).
+        // The channel is already keyed per-section, so filter on section and re-check the rest below.
+        filter: 'section=eq.' + _section
+      }, async payload => {
+        if (!payload.new || payload.new.status !== 'published') return;
+        // The subscription is on the BASE table (marketplace_listings), which carries neither the
+        // KYB-verified-seller gate nor the display columns that loadListings() reads from the truth
+        // VIEW. Re-fetch this row THROUGH v_marketplace_listings_truth so we (a) drop listings from
+        // non-KYB / unpublished sellers exactly as the main feed does, and (b) get the correct row
+        // shape for renderListings(). A row that fails the view comes back null and is skipped.
+        let row = null;
+        try {
+          const { data } = await db
+            .from('v_marketplace_listings_truth')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
+            .eq('id', payload.new.id)
+            .eq('status', 'published')
+            .eq('section', _section)
+            .maybeSingle();
+          row = data || null;
+        } catch (_) { /* empty-catch-allow: best-effort realtime enrichment; feed still loads on refresh */ }
+        if (!row) return;
+        /* honor active client-side filters so the live prepend stays consistent with the feed */
+        if (_cat !== 'All' && row.category !== _cat) return;
+        if (_priceMin != null && row.price < _priceMin) return;
+        if (_priceMax != null && row.price > _priceMax) return;
+        if (_query) {
+          const s = _query.toLowerCase();
+          if (!(row.title || '').toLowerCase().includes(s) && !(row.description || '').toLowerCase().includes(s)) return;
+        }
+        if (_listings.some(l => l.id === row.id)) return;  // dedup (loadListings may have already fetched it)
         /* prepend the new listing and update count */
-        _listings.unshift(payload.new);
+        _listings.unshift(row);
         renderListings();
         _counts[_section] = (_counts[_section] || 0) + 1;
         updateCountBadges();
         showToast('New listing just posted!', 'info');
       })
       .subscribe(rtConn());
-  }
-
-  /* ============================================================
-     MY ORDERS — buyer order history + escrow release
-  ============================================================ */
-  const STATUS_LABEL = {
-    pending_payment: { label: 'Awaiting Payment', color: '#9aa6b3' },
-    escrow_hold:     { label: 'Paid — Awaiting Receipt', color: '#29B6D9' },
-    buyer_confirmed: { label: 'Receipt Confirmed', color: '#4ade80' },
-    released:        { label: 'Complete', color: '#4ade80' },
-    refunded:        { label: 'Refunded', color: '#f87171' },
-    disputed:        { label: 'Disputed', color: '#fbbf24' },
-  };
-
-  async function openOrdersSheet() {
-    openSheet('orders');
-    const content = document.getElementById('orders-content');
-    if (!content) return;
-
-    try {
-      const { data: orders, error } = await db
-        .from('v_marketplace_orders_truth')
-        .select('id,listing_id,seller_name,price,status,stripe_session_id,escrow_release_at,reviewed_at,created_at')
-        .eq('buyer_name', WORKER_NAME)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
-
-      if (!orders || !orders.length) {
-        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          <p style="margin-top:0.75rem;font-size:0.82rem;">No orders yet.</p>
-        </div>`;
-        return;
-      }
-
-      const e = escHtml;
-      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = orders.map(ord => {
-        const st = STATUS_LABEL[ord.status] || { label: ord.status, color: '#9aa6b3' };
-        const canConfirm  = ord.status === 'escrow_hold';
-        const canDispute  = ord.status === 'escrow_hold';
-        const canReview   = ord.status === 'released' && !ord.reviewed_at;
-        const didReview   = !!ord.reviewed_at;
-        const releaseDate = ord.escrow_release_at
-          ? new Date(ord.escrow_release_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
-          : null;
-
-        return `
-          <div style="padding:0.875rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
-              <span style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">
-                ${e(fmtPrice(ord.price))}
-              </span>
-              <span style="font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:${e(st.color)};">${e(st.label)}</span>
-            </div>
-            <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.35rem;">
-              Seller: ${e(ord.seller_name)} &nbsp;·&nbsp; ${e(timeAgo(ord.created_at))}
-              ${releaseDate && canConfirm ? `<br>Auto-releases: ${e(releaseDate)}` : ''}
-            </div>
-            ${canConfirm ? `
-              <button class="btn-confirm-receipt" data-order-id="${e(ord.id)}"
-                style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.1);color:#4ade80;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;">
-                Confirm Receipt — Release to Seller
-              </button>` : ''}
-            ${canDispute ? `
-              <button class="btn-open-dispute" data-order-id="${e(ord.id)}" data-listing-id="${e(ord.listing_id)}" data-seller="${e(ord.seller_name)}"
-                style="margin-top:0.35rem;padding:0.4rem 1rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;width:100%;">
-                Open Dispute
-              </button>` : ''}
-            ${canReview ? `
-              <button class="btn-leave-review" data-order-id="${e(ord.id)}" data-listing-id="${e(ord.listing_id)}" data-seller="${e(ord.seller_name)}"
-                style="margin-top:0.5rem;padding:0.45rem 1rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.08);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:0.35rem;">
-                <span>★</span> Leave a Review
-              </button>` : ''}
-            ${didReview ? `<div style="margin-top:0.35rem;font-size:0.7rem;color:#4ade80;">★ Review submitted ${e(timeAgo(ord.reviewed_at))}</div>` : ''}
-          </div>`;
-      }).join('');
-
-      content.querySelectorAll('.btn-confirm-receipt').forEach(btn => {
-        btn.addEventListener('click', () => handleConfirmReceipt(btn.dataset.orderId || ''));
-      });
-      content.querySelectorAll('.btn-leave-review').forEach(btn => {
-        btn.addEventListener('click', () => openReviewSheet(btn.dataset.orderId || '', btn.dataset.listingId || '', btn.dataset.seller || ''));
-      });
-      content.querySelectorAll('.btn-open-dispute').forEach(btn => {
-        btn.addEventListener('click', () => openDisputeSheet(btn.dataset.orderId || '', btn.dataset.listingId || '', btn.dataset.seller || ''));
-      });
-
-    } catch (_err) {
-      if (content) content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="color:#f87171;font-size:0.82rem;padding:1rem 0;">Could not load orders. Try again.</p>`;
-    }
-  }
-
-  async function handleConfirmReceipt(orderId) {
-    const btn = document.querySelector(`.btn-confirm-receipt[data-order-id="${orderId}"]`);
-    if (btn) { btn.disabled = true; btn.textContent = 'Releasing…'; }
-
-    try {
-      const res = await fetch(
-        'https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-release',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order_id: orderId, buyer_name: WORKER_NAME })
-        }
-      );
-      const data = await res.json();
-      if (data.error) { showToast(data.error, 'error'); return; }
-      showToast('Payment released to seller. Thank you!', 'success');
-      openOrdersSheet(); /* reload orders */
-    } catch (_) {
-      showToast('Release failed. Try again.', 'error');
-    } finally {
-      if (btn) { btn.disabled = false; }
-    }
-  }
-
-  /* ============================================================
-     SELLER ONBOARD — links seller to Stripe Connect
-  ============================================================ */
-  async function handleSellerOnboard() {
-    showToast('Opening Stripe seller onboarding…', 'info');
-    try {
-      const res = await fetch(
-        'https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-connect-onboard',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            worker_name:  WORKER_NAME || 'Seller',
-            return_url:   window.location.href + '?onboard=success',
-            refresh_url:  window.location.href + '?onboard=refresh',
-          })
-        }
-      );
-      const data = await res.json();
-      if (data.error) { showToast(data.error, 'error'); return; }
-      window.location.href = data.url;
-    } catch (_) {
-      showToast('Could not start onboarding. Try again.', 'error');
-    }
-  }
-
-  /* ============================================================
-     DISPUTE SHEET
-  ============================================================ */
-  function openDisputeSheet(orderId, listingId, sellerName) {
-    const orderIdEl   = document.getElementById('dispute-order-id');
-    const listingIdEl = document.getElementById('dispute-listing-id');
-    const sellerEl    = document.getElementById('dispute-seller-name');
-    const reasonEl    = document.getElementById('dispute-reason');
-    const descEl      = document.getElementById('dispute-description');
-    const titleEl     = document.getElementById('title-sheet-dispute');
-
-    if (orderIdEl)   orderIdEl.value   = orderId;
-    if (listingIdEl) listingIdEl.value = listingId;
-    if (sellerEl)    sellerEl.value    = sellerName;
-    if (reasonEl)    reasonEl.value    = '';
-    if (descEl)      descEl.value      = '';
-    if (titleEl)     titleEl.textContent = `Dispute — vs. ${sellerName}`;
-
-    closeSheet('orders');
-    openSheet('dispute');
-  }
-
-  async function handleSubmitDispute(ev) {
-    ev.preventDefault();
-
-    const orderId    = document.getElementById('dispute-order-id')?.value   || '';
-    const listingId  = document.getElementById('dispute-listing-id')?.value || '';
-    const sellerName = document.getElementById('dispute-seller-name')?.value || '';
-    const reason     = document.getElementById('dispute-reason')?.value     || '';
-    const desc       = (document.getElementById('dispute-description')?.value || '').trim();
-
-    if (!reason)       { showToast('Please select a reason.', 'error'); return; }
-    if (desc.length < 20) { showToast('Please describe the issue in more detail (min 20 characters).', 'error'); return; }
-
-    const btn = document.getElementById('btn-submit-dispute');
-    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
-
-    try {
-      /* Insert dispute */
-      const { error: dispErr } = await db.from('marketplace_disputes').insert([{
-        order_id:    orderId   || null,
-        listing_id:  listingId || null,
-        opened_by:   WORKER_NAME || 'Buyer',
-        seller_name: sellerName,
-        reason,
-        description: desc || null,   // §13 fix 2026-06-17: was captured + validated (min 20) but DROPPED
-        evidence_urls: [],
-        status:      'open',
-      }]);
-      if (dispErr) throw dispErr;
-
-      /* Mark order as disputed */
-      await db.from('marketplace_orders')
-        .update({ status: 'disputed', updated_at: new Date().toISOString() })
-        .eq('id', orderId)
-        .eq('buyer_name', WORKER_NAME);
-
-      writeAuditLog('open_dispute', 'marketplace_disputes', orderId || listingId, sellerName,
-        { reason, order_id: orderId || null, listing_id: listingId || null });
-
-      showToast('Dispute opened. Seller has 48 hours to respond.', 'info');
-      closeSheet('dispute');
-      openOrdersSheet();
-    } catch (_err) {
-      showToast('Failed to open dispute. Try again.', 'error');
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Open Dispute'; }
-    }
-  }
-
-  /* ============================================================
-     REVIEW SHEET
-  ============================================================ */
-  let _reviewRating = 0;
-
-  function openReviewSheet(orderId, listingId, sellerName) {
-    /* Reset form */
-    _reviewRating = 0;
-    const ratingInput = document.getElementById('review-rating');
-    const commentEl   = document.getElementById('review-comment');
-    const orderIdEl   = document.getElementById('review-order-id');
-    const listingIdEl = document.getElementById('review-listing-id');
-    const titleEl     = document.getElementById('title-sheet-review');
-
-    if (ratingInput)  ratingInput.value  = '0';
-    if (commentEl)    commentEl.value    = '';
-    if (orderIdEl)    orderIdEl.value    = orderId;
-    if (listingIdEl)  listingIdEl.value  = listingId;
-    if (titleEl)      titleEl.textContent = `Review — ${sellerName}`;
-
-    /* Reset star colours */
-    document.querySelectorAll('.star-btn').forEach(btn => {
-      btn.style.color = '#9aa6b3';
-    });
-
-    /* Wire star buttons */
-    document.querySelectorAll('.star-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        _reviewRating = parseInt(btn.dataset.star || '0', 10);
-        if (ratingInput) ratingInput.value = String(_reviewRating);
-        document.querySelectorAll('.star-btn').forEach(b => {
-          b.style.color = parseInt(b.dataset.star || '0', 10) <= _reviewRating ? '#F7A21B' : '#9aa6b3';
-        });
-      });
-    });
-
-    closeSheet('orders');
-    openSheet('review');
-  }
-
-  async function handleSubmitReview(ev) {
-    ev.preventDefault();
-
-    const orderId   = document.getElementById('review-order-id')?.value   || '';
-    const listingId = document.getElementById('review-listing-id')?.value || '';
-    const rating    = parseInt(document.getElementById('review-rating')?.value || '0', 10);
-    const comment   = (document.getElementById('review-comment')?.value || '').trim();
-
-    if (!rating || rating < 1 || rating > 5) { showToast('Please select a star rating.', 'error'); return; }
-    if (!orderId || !listingId) { showToast('Missing order info. Close and try again.', 'error'); return; }
-
-    const btn = document.getElementById('btn-submit-review');
-    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
-
-    try {
-      /* Insert review */
-      const { error: reviewErr } = await db.from('marketplace_reviews').insert([{
-        listing_id:        listingId,
-        reviewer_name:     WORKER_NAME || 'Buyer',
-        rating,
-        comment:           comment || null,
-        verified_purchase: true,
-      }]);
-      if (reviewErr) throw reviewErr;
-
-      /* Mark order as reviewed */
-      await db.from('marketplace_orders')
-        .update({ reviewed_at: new Date().toISOString() })
-        .eq('id', orderId)
-        .eq('buyer_name', WORKER_NAME);
-
-      writeAuditLog('submit_review', 'marketplace_orders', orderId, listingId,
-        { rating, has_comment: !!comment });
-
-      showToast('Review submitted! Thank you.', 'success');
-      closeSheet('review');
-      openOrdersSheet();
-    } catch (_err) {
-      showToast('Failed to submit review. Try again.', 'error');
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Submit Review'; }
-    }
-  }
-
-  /* ============================================================
-     BUY NOW — calls marketplace-checkout edge function
-  ============================================================ */
-  async function handleBuyNow(listingId) {
-    const btn = document.getElementById('btn-detail-buy');
-    if (btn) { btn.disabled = true; btn.textContent = 'Redirecting…'; }
-
-    try {
-      const res = await fetch(
-        'https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/marketplace-checkout',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            listing_id: listingId,
-            buyer_name: WORKER_NAME || 'Guest',
-            hive_id:    HIVE_ID
-          })
-        }
-      );
-      const data = await res.json();
-      if (data.error) { showToast(data.error, 'error'); return; }
-      window.location.href = data.url;
-    } catch (_) {
-      showToast('Could not start checkout. Try again.', 'error');
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Buy Now'; }
-    }
   }
 
   /* ============================================================
@@ -2954,8 +2895,8 @@
         source:    'marketplace_listings + v_marketplace_sellers_truth',
         notes:     [
           'Tabs: Parts / Training / Jobs',
-          'KYB-verified sellers only in results by default',
-          'Inquiry flow: secure escrow on every deal',
+          'ID-verified sellers only in results by default',
+          'Free, contact-only: no platform fees',
         ],
       });
     }
@@ -2982,20 +2923,6 @@
         });
     }
 
-    /* My Orders button — only when payments enabled */
-    if (!PAYMENTS_ENABLED) {
-      const ordersBtn = document.getElementById('btn-my-orders');
-      if (ordersBtn) ordersBtn.style.display = 'none';
-      // Free platform: hide the vestigial "KYB / Connect Stripe to receive
-      // payments" seller-onboard notice (handleSellerOnboard → Stripe Connect).
-      // It escaped the PAYMENTS_ENABLED gate; the rest of the payments UI is
-      // already flag-gated. Stays in the DOM so flipping the flag re-enables it.
-      const payNotice = document.getElementById('seller-payments-notice');
-      if (payNotice) payNotice.style.display = 'none';
-    } else {
-      document.getElementById('btn-my-orders')?.addEventListener('click', openOrdersSheet);
-    }
-
     /* Watchlist button */
     document.getElementById('btn-my-watchlist')?.addEventListener('click', openWatchlistSheet);
 
@@ -3010,26 +2937,14 @@
     document.getElementById('form-rfq')?.addEventListener('submit', handleSubmitRfq);
 
     /* Close overlays */
-    ['post', 'detail', 'inquiry', 'orders', 'review', 'dispute', 'watchlist', 'saved-searches', 'rfq'].forEach(name => {
+    ['post', 'detail', 'inquiry', 'watchlist', 'saved-searches', 'rfq'].forEach(name => {
       document.getElementById('overlay-' + name)?.addEventListener('click', () => closeSheet(name));
       document.getElementById('btn-close-' + name)?.addEventListener('click', () => closeSheet(name));
     });
 
-    /* Review form */
-    document.getElementById('form-review')?.addEventListener('submit', handleSubmitReview);
-
-    /* Dispute form */
-    document.getElementById('form-dispute')?.addEventListener('submit', handleSubmitDispute);
-
-    /* Handle onboard / checkout return URL — only when payments enabled */
-    if (PAYMENTS_ENABLED) {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('onboard') === 'success') showToast('Stripe onboarding complete! You can now receive payments.', 'success');
-      if (urlParams.get('checkout') === 'success') { showToast('Payment successful! Check My Orders for status.', 'success'); openOrdersSheet(); }
-    }
-
     /* Forms */
     document.getElementById('form-post')?.addEventListener('submit', handlePostSubmit);
+    document.getElementById('post-ai-assist')?.addEventListener('click', handleAiAssist);
     document.getElementById('form-inquiry')?.addEventListener('submit', handleInquirySubmit);
 
     /* Section toggle inside post sheet */
@@ -3075,7 +2990,7 @@
     document.getElementById('search-input')?.addEventListener('input', ev => {
       _query = ev.target.value.trim();
       clearTimeout(_searchTimer);
-      _searchTimer = setTimeout(() => { loadListings(); _mktSyncUrl(); }, 400);
+      _searchTimer = setTimeout(() => { Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); _mktSyncUrl(); }, 400); // G1 (FAMILY F3)
     });
 
     /* Price filter toggle */
@@ -3096,7 +3011,7 @@
         const maxRaw = document.getElementById('price-max')?.value;
         _priceMin = minRaw ? parseFloat(minRaw) : null;
         _priceMax = maxRaw ? parseFloat(maxRaw) : null;
-        loadListings();
+        Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
         _mktSyncUrl();
       }, 400);
     }
@@ -3112,6 +3027,27 @@
     renderFilterChips();
     populateCategorySelect('parts');
 
+    /* Grounded price-hint: recompute when the seller changes category / condition / part number */
+    document.getElementById('post-category')?.addEventListener('change', updatePriceHint);
+    document.getElementById('post-condition')?.addEventListener('change', updatePriceHint);
+    document.getElementById('post-part-number')?.addEventListener('input', () => { clearTimeout(_priceHintT); _priceHintT = setTimeout(updatePriceHint, 400); });
+
+    /* Parts-for-your-assets rail: open the listing detail on tap (stage the row if off-page). */
+    document.getElementById('parts-for-assets-rail')?.addEventListener('click', async (ev) => {
+      const card = ev.target.closest('[data-listing-id]');
+      if (!card) return;
+      const lid = card.dataset.listingId;
+      if (!_listings.some(l => l.id === lid)) {
+        try {
+          const { data: one } = await db.from('v_marketplace_listings_truth')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
+            .eq('id', lid).eq('status', 'published').maybeSingle();
+          if (one) _listings.push(one);
+        } catch (_) { /* empty-catch-allow: best-effort stage; detail may still render from cache */ }
+      }
+      openDetailSheet(lid);
+    });
+
     /* Load watchlist first so heart states render correctly on first paint */
     await loadWatchlist();
 
@@ -3119,6 +3055,15 @@
        reload / view-listing-and-back-nav keeps the user's search + price range. */
     try {
       const _mq = new URLSearchParams(window.location.search);
+      const _sec = _mq.get('section');
+      if (_sec && ['parts', 'training', 'jobs'].includes(_sec)) {
+        _section = _sec;
+        document.querySelectorAll('.section-tab').forEach(tab => {
+          const active = tab.dataset.section === _sec;
+          tab.classList.toggle('active', active);
+          tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      }
       const _q = _mq.get('q');
       if (_q) { _query = _q; const _si = document.getElementById('search-input'); if (_si) _si.value = _q; }
       const _mn = _mq.get('min');
@@ -3129,6 +3074,9 @@
 
     /* Load data */
     await Promise.all([loadListings(), loadCounts()]);
+    renderPartsForMyAssets();   // U-axis: "Parts for your assets" discovery rail (no await — never blocks the grid)
+    updateSavedSearchBadge();   // U-axis: saved-search "new matching listing" alert badge
+    setMarketplaceCompanionContext();  // AI-axis: ground the companion on a PII-safe marketplace ops-snapshot
 
     /* Deep-link via ?listing= (asset-hub "related parts" card links here).
        The listing may sit outside the current section/page, so fall back to a
@@ -3139,7 +3087,7 @@
         if (!_listings.some(l => l.id === deepListing)) {
           const { data: one } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
             .eq('id', deepListing)
             .eq('status', 'published')
             .maybeSingle();
@@ -3148,6 +3096,17 @@
         openDetailSheet(deepListing);
       }
     } catch (_) { /* empty-catch-allow: best-effort deep-link; list view still renders */ }
+
+    /* Deep-link via ?post=1 (+ optional &from_inventory=<item_id>) — inventory "Sell surplus"
+       lands here to open the Post sheet, prefilled from the inventory item. (X keystone) */
+    try {
+      const _params = new URLSearchParams(window.location.search);
+      if (_params.get('post') === '1') {
+        const _fromInv = _params.get('from_inventory');
+        if (_fromInv) { await prefillPostFromInventory(_fromInv); }
+        else { openPostSheet(); }
+      }
+    } catch (_) { /* empty-catch-allow: best-effort; user can still open Post manually */ }
 
     /* Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10). */
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
@@ -3167,5 +3126,51 @@
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    pagetitle:     'Marketplace',
+    showdetails:   'Ipakita ang detalye',
+    tabparts:      'Parts',
+    tabtraining:   'Training',
+    tabjobs:       'Trabaho',
+    watchlist:     'Watchlist',
+    searches:      'Mga Paghahanap',
+    price:         'Presyo',
+    compare:       'Ikumpara',
+    pricerange:    'Saklaw ng Presyo (PHP)',
+    loadmore:      'Mag-load pa',
+    clear:         'I-clear',
+    requestquotes: 'Humingi ng Quote',
+    whatlisting:   'Ano ang inilista mo?',
+    title:         'Pamagat',
+    partnumber:    'Numero ng part',
+    category:      'Kategorya',
+    condition:     'Kondisyon',
+    description:   'Deskripsyon',
+    aiassist:      'AI assist',
+    priceph:       'Presyo (PHP)',
+    location:      'Lokasyon',
+    contact:       'Contact (telepono o email)',
+    photo:         'Larawan (inirerekomenda)',
+    removephoto:   'Alisin ang larawan',
+    postlisting:   'I-post ang Listing',
+    listing:       'Listing',
+    yourname:      'Ang Iyong Pangalan',
+    yourcontact:   'Ang Iyong Contact (telepono o email)',
+    message:       'Mensahe',
+    sendinquiry:   'Ipadala ang Inquiry',
+    savesearch:    'I-save ang Paghahanap',
+    sendingto:     'Ipapadala sa',
+    quoterequest:  'Kahilingan ng Quote',
+    sendallquotes: 'Ipadala Lahat ng Quote Request',
+  };
+</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

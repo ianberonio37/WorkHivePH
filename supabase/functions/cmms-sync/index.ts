@@ -12,7 +12,8 @@
  *   test       — if true, fetch first page only, do not write to DB (dry run)
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -22,6 +23,8 @@ import { log } from "../_shared/logger.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual sync path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 import { STATUS_MAP, TYPE_MAP, FieldMap } from "../_shared/mappings.ts";
 // Arc R (A10): tenant-controlled endpoint_url must be SSRF-guarded before fetch.
 import { safeFetch } from "../_shared/ssrf-guard.ts";
@@ -99,7 +102,13 @@ function normalizeRow(
   };
 
   const now = new Date().toISOString();
+  // F1002: logbook.id is text NOT NULL with NO DB default — the old id-less insert threw a
+  // NOT NULL violation that was swallowed by .then(({error})=>log.warn), so NO CMMS work
+  // order ever reached the logbook (while the UI claimed "new work orders in Logbook").
+  // Supply the id exactly like cmms-webhook-receiver does.
+  const logId = crypto.randomUUID();
   const logRow = {
+    id:               logId,
     worker_name:      workerName,
     date:             get(fieldMap.created_at) || now,
     machine,
@@ -119,7 +128,7 @@ function normalizeRow(
 
   const fkRow = (get(fieldMap.problem) || get(fieldMap.root_cause)) ? {
     hive_id:    hiveId,
-    logbook_id: extId,
+    logbook_id: logId,   // F1011: the REAL logbook row id (was the external_id string → broken FK)
     machine,
     problem:    get(fieldMap.problem) || null,
     root_cause: get(fieldMap.root_cause) || null,
@@ -128,7 +137,7 @@ function normalizeRow(
     worker_name: workerName,
   } : null;
 
-  return { syncRow, logRow, fkRow };
+  return { extId, syncRow, logRow, fkRow };
 }
 
 // ---------------------------------------------------------------------------
@@ -219,33 +228,59 @@ async function syncConfig(
     if (!rows.length) break;
     if (testMode) { synced = rows.length; break; } // dry run: count only
 
+    const norms: { extId: string; syncRow: Record<string, unknown>; logRow: Record<string, unknown>; fkRow: Record<string, unknown> | null }[] = [];
     const syncRows: Record<string, unknown>[] = [];
-    const logRows:  Record<string, unknown>[] = [];
-    const fkRows:   Record<string, unknown>[] = [];
 
     for (const raw of rows) {
       const norm = normalizeRow(raw as Record<string, unknown>, systemType, fieldMap, hiveId, workerName);
       if (!norm) { failed++; continue; }
+      norms.push(norm);
       syncRows.push(norm.syncRow);
-      logRows.push(norm.logRow);
-      if (norm.fkRow) fkRows.push(norm.fkRow);
     }
 
-    // Batch upserts
+    // F1006 idempotency: which external_ids were ALREADY synced BEFORE this run? Check first
+    // — the upsert below makes every row look pre-existing, so this must precede it. The
+    // external_sync upsert is idempotent, but logbook/fault_knowledge have no natural dedup
+    // key, and the delta cursor filters at DATE granularity (cursor.slice(0,10)) so a re-run
+    // re-fetches the same day's rows. Without this, each re-sync duplicates the derived rows.
+    const extIds = norms.map(n => n.extId);
+    let known = new Set<string>();
+    if (extIds.length) {
+      // canonical-allow: idempotency dedup on the engine's OWN external_sync table before batch upsert
+      // (F2). v_external_sync_truth is the display view; the sync engine reads its raw tracking rows.
+      const { data: existing } = await db.from("external_sync")
+        .select("external_id").eq("hive_id", hiveId).eq("system_type", systemType).in("external_id", extIds);
+      known = new Set((existing || []).map(e => String((e as Record<string, unknown>).external_id)));
+    }
+
+    // Batch upsert external_sync (idempotent on system_type,external_id,entity_type)
     if (syncRows.length) {
       const { error } = await db.from("external_sync")
         .upsert(syncRows, { onConflict: "system_type,external_id,entity_type" });
       if (error) { failed += syncRows.length; continue; }
     }
-    if (logRows.length) {
-      await db.from("logbook").insert(logRows).then(({ error }) => {
-        if (error) log.warn(null, "logbook insert partial error:", { detail: error.message });
-      });
+
+    // Insert logbook + fault_knowledge ONLY for genuinely-new external_ids (idempotent replay).
+    const newLogRows = norms.filter(n => !known.has(n.extId)).map(n => n.logRow);
+    const newFkRows  = norms.filter(n => !known.has(n.extId) && n.fkRow).map(n => n.fkRow as Record<string, unknown>);
+    if (newLogRows.length) {
+      const { error } = await db.from("logbook").insert(newLogRows);
+      if (error) log.warn(null, "logbook insert error:", { detail: error.message });
     }
-    if (fkRows.length) {
-      await db.from("fault_knowledge").insert(fkRows).then(({ error }) => {
-        if (error) log.warn(null, "fault_knowledge insert partial error:", { detail: error.message });
-      });
+    if (newFkRows.length) {
+      const { error } = await db.from("fault_knowledge").insert(newFkRows);
+      if (error) log.warn(null, "fault_knowledge insert error:", { detail: error.message });
+    }
+
+    // F1005: link each NEWLY-created logbook row to its external_sync WO (workhive_id) so
+    // cmms-push-completion pushes completion to the CORRECT work order, not machine+newest.
+    // Only for new rows — a re-sync must not overwrite an existing link with an uninserted id.
+    for (const n of norms) {
+      if (known.has(n.extId)) continue;
+      await db.from("external_sync")
+        .update({ workhive_id: (n.logRow as Record<string, unknown>).id })
+        .eq("hive_id", hiveId).eq("system_type", systemType)
+        .eq("external_id", n.extId).eq("entity_type", "work_order");
     }
 
     synced += syncRows.length;
@@ -259,7 +294,12 @@ async function syncConfig(
 // Entry point
 // ---------------------------------------------------------------------------
 
-serve(async (req) => {
+serveObserved("cmms-sync", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "cmms-sync", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   logRequestStart(req, "cmms-sync");  // I6 observability
@@ -277,8 +317,10 @@ serve(async (req) => {
     // Pillar I: the manual (integrations.html) path scopes the CMMS sync by the
     // client hive_id on a service-role client — verify membership. The cron path
     // (no hive_id → all enabled configs) is reached only by service-role and skips.
+    let callerIsServiceRole = false;
     if (body.hive_id) {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      callerIsServiceRole = isServiceRole;
       if (!isServiceRole) {
         const t = await resolveTenancy(db, authUid, String(body.hive_id));
         if (!t.ok) {
@@ -287,6 +329,11 @@ serve(async (req) => {
             { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
+      
+        // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req));
       }
     } else {
       // Arc R (A01): no hive_id = the all-hives cron path. The old comment CLAIMED this was
@@ -294,6 +341,7 @@ serve(async (req) => {
       // fanned out a sync across EVERY hive (cross-tenant writes + SSRF amplification via
       // each hive's endpoint_url). Require service_role for the no-hive_id fan-out.
       const { isServiceRole } = await resolveIdentity(db, req);
+      callerIsServiceRole = isServiceRole;
       if (!isServiceRole) {
         return new Response(
           JSON.stringify({ error: "service_role required for all-hives sync", code: "forbidden" }),
@@ -304,10 +352,25 @@ serve(async (req) => {
 
     // Fetch configs to sync
     // unbounded-query-allow: enabled integration configs (one row per hive max); full fetch required
-    let configQuery = db.from("integration_configs")
-      .select("*").eq("enabled", true);
-    if (body.config_id) configQuery = configQuery.eq("id",      body.config_id);
-    else if (body.hive_id) configQuery = configQuery.eq("hive_id", body.hive_id);
+    let configQuery = db.from("integration_configs").select("*");
+    if (body.config_id) {
+      // A specific config_id is an EXPLICIT target (Run Now / Test Connection). Do NOT filter
+      // on enabled — F1003: the old unconditional .eq("enabled",true) excluded the temp
+      // enabled:false test config, so cmms-sync returned "no active configs" and the client
+      // rendered a FAKE "Connected: found 0 records" even for a garbage endpoint (never fetched).
+      configQuery = configQuery.eq("id", body.config_id);
+      // CMMS-INTEGRATIONS PDDA I1 (BOLA fix): config_id is semi-public — it is rendered
+      // into the inbound webhook URL and shared with CMMS admins. The membership gate above
+      // only proved the caller belongs to body.hive_id; without ALSO scoping the config
+      // lookup to that verified hive, a member of hive A could pass {hive_id:A, config_id:<B's>}
+      // and sync hive B's config (B's endpoint_url + auth_token) into B's data. A non-service
+      // caller may only sync a config that belongs to the hive they were authorized for.
+      if (!callerIsServiceRole) configQuery = configQuery.eq("hive_id", String(body.hive_id));
+    } else if (body.hive_id) {
+      configQuery = configQuery.eq("hive_id", body.hive_id).eq("enabled", true);
+    } else {
+      configQuery = configQuery.eq("enabled", true);  // cron all-hives fan-out
+    }
 
     const { data: configs, error: cfgErr } = await configQuery;
     if (cfgErr) throw new Error(cfgErr.message);
@@ -371,8 +434,7 @@ serve(async (req) => {
       { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
 
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: msg }),
-      { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "cmms-sync", "cmms_sync_error", err);
   }
 });

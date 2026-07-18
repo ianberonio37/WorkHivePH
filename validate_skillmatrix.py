@@ -17,7 +17,7 @@ Four-layer validation of skillmatrix.html + skill-content.js:
     9.  All discipline+level complete  — every block has both module + exam keys
 
   Layer 3 — HTML logic rules
-    10. Badge upsert conflict key      — onConflict includes 'level' not just discipline
+    10. Badge award server-side        — grade_skill_exam RPC; client skill_badges/attempts writes locked
     11. Cooldown on failure only       — cooldown gate checks passed===false
     12. Pass threshold defined         — score >= N with N between 1 and 9
     13. Auth gate present              — WORKER_NAME redirect to sign-in
@@ -261,19 +261,41 @@ def check_all_levels_complete(content, page):
 
 # ── Layer 3: HTML logic rules ─────────────────────────────────────────────────
 
-def check_badge_upsert_key(content, page):
-    m = re.search(
-        r"from\(['\"]skill_badges['\"]\)[\s\S]{0,600}?onConflict\s*:\s*['\"]([^'\"]+)['\"]",
-        content, re.DOTALL
-    )
-    if not m:
-        return [{"check": "badge_upsert_key", "page": page,
-                 "reason": "skill_badges upsert onConflict key not found — duplicate badges may silently overwrite earned_at"}]
-    key = m.group(1)
-    if "level" not in key:
-        return [{"check": "badge_upsert_key", "page": page, "found_key": key,
-                 "reason": f"Badge upsert onConflict='{key}' missing 'level' — re-passing an exam overwrites original earned_at"}]
-    return []
+def check_badge_award_server_side(content, page):
+    """
+    K1 (2026-07-12): badges are awarded SERVER-SIDE by the grade_skill_exam() SECURITY DEFINER RPC,
+    which grades against the write-locked skill_exam_keys table. The client must NOT write
+    skill_badges / skill_exam_attempts directly (that was the self-mint + XP-forge vector). The
+    (worker_name, discipline, level) conflict key now lives in the grader migration and must persist
+    (re-passing a level must not overwrite the original earned_at).
+    """
+    import glob as _glob
+    issues = []
+    # (a) the exam must be graded via the server RPC
+    if "grade_skill_exam" not in content:
+        issues.append({"check": "badge_award_server_side", "page": page,
+                       "reason": "submitExam must award badges via the grade_skill_exam RPC (server-side grading) — call not found"})
+    # (b) the client must NOT write skill_badges / skill_exam_attempts directly (self-mint vector)
+    if re.search(r"from\(['\"]skill_badges['\"]\)\s*\.\s*(?:upsert|insert)", content):
+        issues.append({"check": "badge_award_server_side", "page": page,
+                       "reason": "client writes skill_badges directly — self-mint vector; awards must route through grade_skill_exam"})
+    if re.search(r"from\(['\"]skill_exam_attempts['\"]\)\s*\.\s*(?:upsert|insert)", content):
+        issues.append({"check": "badge_award_server_side", "page": page,
+                       "reason": "client writes skill_exam_attempts directly — forgeable; must route through grade_skill_exam"})
+    # (c) the grader migration must preserve the (worker_name, discipline, level) conflict key
+    grader_found = False
+    for path in _glob.glob("supabase/migrations/*.sql"):
+        mig = read_file(path)
+        if mig and "FUNCTION public.grade_skill_exam" in mig:
+            grader_found = True
+            if not re.search(r"ON\s+CONFLICT\s*\(\s*worker_name\s*,\s*discipline\s*,\s*level\s*\)", mig, re.IGNORECASE):
+                issues.append({"check": "badge_award_server_side", "page": page, "migration": path,
+                               "reason": "grade_skill_exam missing ON CONFLICT (worker_name, discipline, level) — re-pass could overwrite earned_at"})
+            break
+    if not grader_found:
+        issues.append({"check": "badge_award_server_side", "page": page,
+                       "reason": "no migration defines grade_skill_exam() — the server-side grader is missing"})
+    return issues
 
 
 def check_cooldown_on_failure_only(content, page):
@@ -354,7 +376,7 @@ CHECK_NAMES = [
     "exam_array_count", "exam_question_counts", "answer_index_valid",
     "options_count", "level_content_complete",
     # L3 — HTML logic
-    "badge_upsert_key", "cooldown_on_failure", "pass_threshold",
+    "badge_award_server_side", "cooldown_on_failure", "pass_threshold",
     "auth_gate", "draft_cleanup",
     # L4 — XSS
     "esc_html_dynamic",
@@ -373,7 +395,7 @@ CHECK_LABELS = {
     "options_count":          "L2  Every question has exactly 4 options",
     "level_content_complete": "L2  All discipline+level blocks have module + exam",
     # L3
-    "badge_upsert_key":       "L3  Badge upsert onConflict includes 'level'",
+    "badge_award_server_side": "L3  Badge award is server-side (grade_skill_exam); client writes locked",
     "cooldown_on_failure":    "L3  Cooldown gate checks passed===false",
     "pass_threshold":         "L3  Pass threshold defined and reasonable (1-9)",
     "auth_gate":              "L3  WORKER_NAME auth gate present",
@@ -414,7 +436,7 @@ def main():
     all_issues += check_all_levels_complete(content, CONTENT_FILE)
 
     # L3
-    all_issues += check_badge_upsert_key(sm, SKILL_PAGE)
+    all_issues += check_badge_award_server_side(sm, SKILL_PAGE)
     all_issues += check_cooldown_on_failure_only(sm, SKILL_PAGE)
     all_issues += check_pass_threshold(sm, SKILL_PAGE)
     all_issues += check_auth_gate(sm, SKILL_PAGE)

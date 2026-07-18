@@ -179,6 +179,11 @@
       margin-top: 0.2rem;
     }
   </style>
+  <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
+       token source this page cannot CONFORM to the design system even in principle -- the
+       rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
+       render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
+  <link rel="stylesheet" href="tokens.css">
 </head>
 <body>
 <main>
@@ -193,7 +198,7 @@
 
     <div class="preview-toggle">
       <span>Dark mode</span>
-      <div class="toggle-track" id="mode-toggle" onclick="togglePrintMode()">
+      <div class="toggle-track" id="mode-toggle" role="button" tabindex="0" aria-label="Toggle print mode" onclick="togglePrintMode()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePrintMode();}">
         <div class="toggle-thumb"></div>
       </div>
       <span>Print mode (white bg)</span>

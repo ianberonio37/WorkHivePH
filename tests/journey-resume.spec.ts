@@ -677,4 +677,48 @@ test.describe('resume.html — Resume / CV Builder journey', () => {
     await whPage.click('#btn-polish');
     await expect(whPage.locator('#toast-msg')).toContainText(/check your connection/i, { timeout: 15000 });
   });
+
+  // ── Resume-Builder page-deep PDDA arc (2026-07-09): worked-state regression locks ──
+
+  test('PDDA D7: a blank added work row does NOT render a phantom Experience header', async ({ whPage }) => {
+    // '+ Add' on Work then export used to render a bare EXPERIENCE header + empty entry
+    // (buildResumeHTML guarded on resume.work.length, not on content). _present() filters.
+    await gotoResume(whPage);
+    await whPage.evaluate(() => window.WHResume.set({ basics: { name: 'Blank Tester', location: {} }, work: [], education: [], skills: [], certificates: [], projects: [], awards: [], references: [], meta: {} }));
+    await whPage.click('[data-action="add"][data-sec="work"]');   // one blank, unfilled work row
+    await whPage.click('#btn-export');
+    const titles = (await whPage.locator('#resume-paper .r-sec-title').allInnerTexts()).join('|');
+    expect(titles, 'a content-less work row must not render an Experience header').not.toMatch(/experience/i);
+    await expect(whPage.locator('#resume-paper .r-entry')).toHaveCount(0);
+  });
+
+  test('PDDA D10: the quant coach does NOT count a bare year as a metric', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.evaluate(() => window.WHResume.set({ basics: { name: 'Coach Tester', location: {} }, work: [{ position: 'Tech', name: 'Acme', highlights: ['Since 2019 maintained pumps', 'Cut downtime by 4 hours per week'] }], education: [], skills: [], certificates: [], projects: [], awards: [], references: [], meta: {} }));
+    // 'Since 2019' has a digit but no achievement number; only the '4 hours' bullet counts.
+    await expect(whPage.locator('#quant-coach')).toContainText(/1 of 2/);
+    await expect(whPage.locator('#quant-coach')).not.toContainText(/All 2/);
+  });
+
+  test('PDDA D8: an applied AI polish is UNDOABLE (pushUndo before the merge)', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.evaluate(() => window.WHResume.set({ basics: { name: 'Undo Tester', label: 'Technician', location: {} }, work: [{ position: 'Tech', name: 'Acme', highlights: ['fix pumps'] }], education: [], skills: [], certificates: [], projects: [], awards: [], references: [], meta: {} }));
+    await whPage.route('**/functions/v1/resume-polish', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ bullets: ['Repaired and maintained centrifugal pumps to keep the line running'] }) }));
+    await whPage.click('#btn-polish');
+    await expect(whPage.locator('#review-sheet')).toHaveClass(/open/);
+    await whPage.click('#review-confirm');
+    await expect.poll(() => whPage.evaluate(() => window.WHResume.get().work[0].highlights[0])).toMatch(/Repaired and maintained/);
+    await whPage.click('#btn-undo');
+    await expect.poll(() => whPage.evaluate(() => window.WHResume.get().work[0].highlights[0]), 'Undo restores the pre-AI bullet').toBe('fix pumps');
+  });
+
+  test('PDDA D6: the export/preview dialog controls meet the 44px tap floor', async ({ whPage }) => {
+    await gotoResume(whPage);
+    await whPage.evaluate(() => window.WHResume.set({ basics: { name: 'Tap Tester', location: {} }, work: [{ position: 'Tech', name: 'Acme', highlights: ['x'] }], education: [], skills: [], certificates: [], projects: [], awards: [], references: [], meta: {} }));
+    await whPage.click('#btn-export');
+    for (const sel of ['#pv-close', '#pv-pdf', '#pv-docx', '#pv-print', '#pv-json']) {
+      const h = await whPage.locator(sel).evaluate((el) => Math.round(el.getBoundingClientRect().height));
+      expect(h, `${sel} tap-target height`).toBeGreaterThanOrEqual(44);
+    }
+  });
 });

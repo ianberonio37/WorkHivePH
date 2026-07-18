@@ -1,0 +1,78 @@
+{
+  "_doc": "DB Component Registry: Layer D canonical patterns (FULLSTACK_COMPONENT_LIBRARY_ROADMAP §1, opened 2026-07-17). For the Database layer a 'component' is a canonical PATTERN, not an importable module. Adoption is MEASURED by tools/db_adoption_census.py over the substrate's live-DB-derived chunks (substrate/table-rls/*.md = pg_policies+pg_trigger introspection; substrate/view/*.md = pg_get_viewdef + invoker flag), rebuilt by tools/build_substrate.py and freshness-gated by validate_substrate_freshness.py: so the census measures the REAL database, one derivation step removed. Floors in db_adoption_baseline.json are forward-only from any writer.",
+  "version": 1,
+  "layer": "D",
+  "surfaces": "substrate/table-rls/*.md (tables) · substrate/view/*.md (views)",
+  "components": [
+    {
+      "id": "D1",
+      "class": "DR RLS",
+      "name": "RLS enabled on tenant tables",
+      "api": "ALTER TABLE … ENABLE ROW LEVEL SECURITY",
+      "satisfies": "S layer tenant isolation floor",
+      "need": "tenant-table (has hive_id)",
+      "when_to_use": "every table carrying hive_id",
+      "when_not": "catalog tables (migration-INSERT-only) are governed separately",
+      "status": "built"
+    },
+    {
+      "id": "D2",
+      "class": "DR RLS",
+      "name": "hive-membership scoping policy",
+      "api": "USING/CHECK via the canonical helper-fn family: user_hive_ids() / user_supervisor_hive_ids() / auth_worker_names() (raw hive_members subqueries are the legacy spelling). Adoption = the substrate rules-engine's own 'Verdict: SCOPED'.",
+      "satisfies": "multitenant isolation (the canonical policy shape)",
+      "need": "RLS-enabled tenant tables",
+      "when_to_use": "every tenant table's SELECT/INSERT policies",
+      "when_not": "public-by-design tables (justify per table)",
+      "status": "built",
+      "exempt": [
+        "marketplace_listings",
+        "ai_reply_feedback",
+        "conversation_analytics",
+        "platform_feedback"
+      ],
+      "exempt_reason": "D-P3 triage 2026-07-17 (all four are VALUE-INTEGRITY flags, not scoping holes): marketplace_listings = FIXED by canonical-sourcing (mig 20260713000009: displays read seller_verified/completed_sales/rating_avg from marketplace_sellers via the truth view; raw columns display-inert; marketplace scoping is seller-based by design). ai_reply_feedback + conversation_analytics = self-authored OPINION ratings by design (a user's own rating is not a trust column). platform_feedback = attribution NOW PINNED (mig 20260717000001 bind trigger, forge-verified live); its rating is a self-authored opinion; anon-submit is by design."
+    },
+    {
+      "id": "D3",
+      "class": "DR RLS",
+      "name": "auth_uid ownership policy",
+      "api": "USING: auth_uid = auth.uid() (UPDATE/DELETE own-row guard)",
+      "satisfies": "feedback_authuid_attribution_on_every_write",
+      "need": "tables with an auth_uid column",
+      "when_to_use": "own-row mutation guards on worker-authored rows",
+      "when_not": "tables where supervisors legitimately mutate others' rows via a broader policy (documented)",
+      "status": "built",
+      "exempt": [
+        "agent_episodic_memory",
+        "auth_session_events",
+        "gateway_audit_log",
+        "mfa_enrollments",
+        "community_xp"
+      ],
+      "exempt_reason": "D-P3 triage 2026-07-17: all five are SERVICE-ROLE-WRITTEN (INSERT/UPDATE policies false or absent = client mutation impossible under RLS; community_xp is trigger-written). An ownership guard on a surface clients cannot write is moot: the stronger deny-all already holds."
+    },
+    {
+      "id": "D4",
+      "class": "DV Views",
+      "name": "security_invoker on views",
+      "api": "CREATE VIEW … WITH (security_invoker = on)",
+      "satisfies": "no owner-rights RLS bypass (cross-hive read-leak class, mig 001)",
+      "need": "every view",
+      "when_to_use": "every v_*_truth and reporting view",
+      "when_not": "-",
+      "status": "built"
+    },
+    {
+      "id": "D5",
+      "class": "DT Triggers",
+      "name": "bind_* attribution triggers",
+      "api": "CREATE TRIGGER bind_<table>_registrant … (server-binds forgeable registrant columns)",
+      "satisfies": "reference_pm_attribution_pin (client-forgeable attribution class)",
+      "need": "census-only",
+      "when_to_use": "tables whose attribution columns a client could forge",
+      "when_not": "-",
+      "status": "built"
+    }
+  ]
+}

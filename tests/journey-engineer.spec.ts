@@ -50,16 +50,8 @@ test.describe('Tier 4 — Engineer flows', () => {
     expect(html, 'must reference 30 max badges (5 × 6)').toMatch(/\b30\b/);
   });
 
-  test('D4_predictive_consumes_v_risk_truth: predictive.html surfaces MTBF from v_risk_truth', async () => {
-    // WHY: v_risk_truth is the canonical risk view; Predictive uses 365-day annual decay window
-    const html = readFileSync(resolve(ROOT, 'predictive.html'), 'utf-8');
-    expect(html, 'predictive must read v_risk_truth').toMatch(
-      /from\s*\(\s*['"]v_risk_truth['"]\s*\)/
-    );
-    // MTBF column header + mtbf_days field must both appear (UI + canonical column)
-    expect(html, 'must display MTBF column').toMatch(/>MTBF</);
-    expect(html, 'must read mtbf_days from view').toMatch(/mtbf_days/);
-  });
+  // D4_predictive removed 2026-07-01: predictive.html retired (risk 360 moved to asset-hub.html /
+  // analytics predictive phase). v_risk_truth consumption is covered by the asset-hub / analytics tests.
 
   test('D5_diagram_builder_3step_atomic: DRAWING_SUPPORTED + showReport + _runDrawing all present', async () => {
     // WHY: qa-tester skill 3-step atomic rule: every new buildXxxSVG needs all 3 wiring points

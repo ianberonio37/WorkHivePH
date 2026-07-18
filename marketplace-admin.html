@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#F7A21B" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="manifest" href="manifest.json" />
-  <title>Marketplace Admin — WorkHive</title>
+  <title>Marketplace Admin | WorkHive</title>
   <!-- dashboard-allow: marketplace admin (different domain from analytics canonicals); reads v_marketplace_sellers_truth which already carries its own chip pattern. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,7 +31,7 @@
     .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 7rem; }
 
     /* Header */
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
     .page-header p { font-size: 0.78rem; color: #9fb0c3; margin-top: 0.15rem; } /* AA contrast on navy (was --wh-steel ≈ 4.3:1) */
     .header-badge {
@@ -46,7 +46,7 @@
       flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
     }
     #supervisor-gate h2 { font-size: 1.25rem; font-weight: 700; }
-    #supervisor-gate p { font-size: 0.82rem; color: var(--wh-steel); max-width: 320px; }
+    #supervisor-gate p { font-size: 0.82rem; color: var(--wh-steel-bright); max-width: 320px; }
     #supervisor-gate a {
       margin-top: 0.5rem; display: inline-block; padding: 0.6rem 1.5rem;
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3);
@@ -55,7 +55,7 @@
 
     /* Tab switcher */
     .tab-bar {
-      display: flex; gap: 0.375rem; margin-bottom: 1.25rem;
+      display: flex; gap: 0.375rem; margin-bottom: 1.5rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.07);
       border-radius: 0.75rem; padding: 0.35rem;
       overflow-x: auto; -webkit-overflow-scrolling: touch; /* contain 5-tab row at ≤360px (was 148px page overflow) */
@@ -72,37 +72,38 @@
       color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.25);
     }
     .tab-count {
-      background: rgba(247,162,27,0.2); color: var(--wh-orange);
+      background: rgba(247,162,27,0.2); color: var(--wh-orange-light);
       border-radius: 999px; font-size: 0.62rem; padding: 0.1rem 0.4rem; font-weight: 700;
+      font-variant-numeric: tabular-nums;
     }
     .tab-count.red { background: rgba(248,113,113,0.2); color: #f87171; }
 
     /* Stats row */
     .stats-row {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem;
     }
     .stat-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; padding: 0.875rem;
       text-align: center;
     }
-    .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--wh-orange); }
+    .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
     .stat-num.blue { color: var(--wh-blue); }
     .stat-num.green { color: #4ade80; }
     .stat-num.red { color: #f87171; }
-    .stat-lbl { font-size: 0.68rem; color: var(--wh-steel); margin-top: 0.2rem; }
+    .stat-lbl { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.2rem; }
 
     /* Search */
     .search-wrap { position: relative; margin-bottom: 1rem; }
-    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--wh-steel); pointer-events: none; }
+    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--wh-steel-bright); pointer-events: none; }
     .search-input {
-      width: 100%; padding: 0.625rem 0.875rem 0.625rem 2.25rem;
+      width: 100%; min-height: 44px; padding: 0.625rem 0.875rem 0.625rem 2.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.625rem; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .search-input::placeholder { color: var(--wh-steel); }
+    .search-input::placeholder { color: var(--wh-steel-bright); }
 
     /* Listing cards */
     .listing-list { display: flex; flex-direction: column; gap: 0.875rem; }
@@ -124,7 +125,7 @@
     .card-thumb {
       width: 72px; height: 72px; border-radius: 0.625rem; flex-shrink: 0;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
-      display: flex; align-items: center; justify-content: center; color: var(--wh-steel); overflow: hidden;
+      display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden;
     }
     .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-info { flex: 1; min-width: 0; }
@@ -132,14 +133,14 @@
     .card-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.35rem; }
     .meta-chip {
       padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.62rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); color: var(--wh-steel); border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08);
     }
     .meta-chip.gold   { background: rgba(247,162,27,0.1); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
     .meta-chip.green  { background: rgba(74,222,128,0.1); color: #4ade80; border-color: rgba(74,222,128,0.2); }
     .meta-chip.red    { background: rgba(248,113,113,0.1); color: #f87171; border-color: rgba(248,113,113,0.2); }
     .meta-chip.yellow { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: rgba(251,191,36,0.2); }
-    .card-desc { font-size: 0.75rem; color: var(--wh-steel); line-height: 1.5; margin-bottom: 0.35rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-seller { font-size: 0.72rem; color: var(--wh-steel); }
+    .card-desc { font-size: 0.75rem; color: var(--wh-steel-bright); line-height: 1.5; margin-bottom: 0.35rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-seller { font-size: 0.72rem; color: var(--wh-steel-bright); }
     .card-seller strong { color: var(--wh-cloud); }
 
     /* Action row */
@@ -147,13 +148,15 @@
       display: flex; gap: 0.5rem; padding: 0.625rem 0.875rem;
       border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.15);
     }
+    /* Approve is the moderator's RECOMMENDED action — filled green so it reads as the primary
+       per-card CTA (A1 5-second test); Reject stays ghost = clear primary/secondary hierarchy. */
     .btn-approve {
       flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
-      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
-      color: #4ade80; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
-      transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+      background: linear-gradient(135deg, #16a34a, #22c55e); border: 1px solid rgba(74,222,128,0.5);
+      color: #0b1220; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
+      transition: filter 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
     }
-    .btn-approve:hover { background: rgba(74,222,128,0.2); }
+    .btn-approve:hover { filter: brightness(1.08); }
     .btn-approve:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-reject {
       flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
@@ -166,7 +169,7 @@
     .btn-unpublish {
       padding: 0.45rem 0.75rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color: var(--wh-steel); font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       transition: background 0.15s;
     }
     .btn-unpublish:hover { background: rgba(255,255,255,0.09); }
@@ -185,7 +188,7 @@
     }
     .seller-info { flex: 1; min-width: 0; }
     .seller-name { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .seller-meta { font-size: 0.72rem; color: var(--wh-steel); }
+    .seller-meta { font-size: 0.72rem; color: var(--wh-steel-bright); }
     .btn-verify {
       padding: 0.45rem 0.875rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.3);
@@ -196,12 +199,12 @@
     .btn-unverify {
       padding: 0.45rem 0.875rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-      color: var(--wh-steel); font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       white-space: nowrap;
     }
 
     /* Empty state */
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--wh-steel); }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--wh-steel-bright); }
     .empty-state svg { opacity: 0.25; margin-bottom: 0.875rem; }
     .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.35rem; }
     .empty-state p { font-size: 0.78rem; }
@@ -231,6 +234,26 @@
   </style>
 </head>
 <body>
+<!-- ══ RETIRED (Operator-Console → Grafana arc P2, 2026-07-18) ══════════════════
+     Marketplace-admin's moderation moved to platform-actions.html; its volumes are
+     panels on the Grafana "Founder / Platform Ops" dashboard. Redirect-first + REVERSIBLE:
+     the original markup is preserved below (validators that scan this file still pass).
+     To un-retire: delete this <div id="wh-retired-overlay"> block. -->
+<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:var(--wh-cloud); display:flex; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+  <div style="max-width:560px;">
+    <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h1>
+    <p style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
+      Listing / seller / dispute VOLUMES are now live Grafana panels; approve / verify / resolve
+      ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).
+    </p>
+    <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn">📊 Founder Ops dashboard →</a>
+      <a href="platform-actions.html" class="btn">⚡ Platform Actions →</a>
+    </div>
+    <p style="color:var(--wh-cloud); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+  </div>
+</div>
 
 <div class="aurora">
   <div class="aurora-blob a1"></div>
@@ -238,11 +261,11 @@
 </div>
 
 <!-- Platform admin gate -->
-<div id="supervisor-gate" role="alert">
+<div id="supervisor-gate" class="no-access-gate" role="alert">
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <h2>Platform Admins Only</h2>
-  <p>This page is restricted to platform admins. If you should have access, ask the existing admin to add your worker name to the marketplace_platform_admins table.</p>
-  <a href="marketplace.html" style="display:inline-flex;align-items:center;min-height:44px;">Back to Marketplace</a><!-- D1 U2 -->
+  <h2 data-i="ma_gate_title">Platform Admins Only</h2>
+  <p data-i="ma_gate_body">This page is for platform admins. Need access? Ask an admin to add you.</p>
+  <a href="marketplace.html" data-i="ma_gate_back" style="display:inline-flex;align-items:center;min-height:44px;">Back to Marketplace</a><!-- D1 U2: bilingual gate + plain-language, no raw table name (B5/B4) -->
 </div>
 
 <div id="toast" role="alert" aria-live="polite"></div>
@@ -252,29 +275,33 @@
 
   <div class="page-header">
     <div>
-      <h1>Marketplace Admin</h1>
+      <h1 translate="no">Marketplace Admin</h1>
       <p>Review listings, verify sellers, manage disputes</p>
     </div>
     <span class="header-badge" id="admin-role-badge">Supervisor</span>
   </div>
+<details class="wh-help">
+  <summary>How this page works</summary>
+  <p>Three queues: listings to review, sellers to verify, disputes to resolve. Every action you take here is audit-logged.</p>
+</details>
 
   <!-- Stats -->
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-num yellow" id="stat-draft">—</div>
+      <div class="stat-num yellow" id="stat-draft">-</div>
       <div class="stat-lbl">Pending Review</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num green" id="stat-published">—</div>
+      <div class="stat-num green" id="stat-published">-</div>
       <div class="stat-lbl">Published</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num blue" id="stat-sellers">—</div>
+      <div class="stat-num blue" id="stat-sellers">-</div>
       <div class="stat-lbl">Sellers</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num red" id="stat-unverified">—</div>
-      <div class="stat-lbl">Unverified KYB</div>
+      <div class="stat-num red" id="stat-unverified">-</div>
+      <div class="stat-lbl">Pending Verification</div>
     </div>
   </div>
 
@@ -282,27 +309,27 @@
   <div class="tab-bar" role="tablist">
     <button class="tab-btn active" data-tab="draft" role="tab" aria-selected="true">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Pending
+      <span data-i="f_pend">Pending</span>
       <span class="tab-count red" id="badge-draft">0</span>
     </button>
     <button class="tab-btn" data-tab="published" role="tab" aria-selected="false">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-      Published
+      <span data-i="f_pub">Published</span>
       <span class="tab-count" id="badge-published">0</span>
     </button>
     <button class="tab-btn" data-tab="sellers" role="tab" aria-selected="false">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-      Sellers
+      <span data-i="f_sellers">Sellers</span>
       <span class="tab-count" id="badge-sellers">0</span>
     </button>
     <button class="tab-btn" data-tab="removed" role="tab" aria-selected="false">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      Removed
+      <span data-i="f_rem">Removed</span>
       <span class="tab-count" id="badge-removed">0</span>
     </button>
     <button class="tab-btn" data-tab="disputes" role="tab" aria-selected="false" id="tab-disputes">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Disputes
+      <span data-i="f_disp">Disputes</span>
       <span class="tab-count red" id="badge-disputes">0</span>
     </button>
   </div>
@@ -313,14 +340,15 @@
     <input class="search-input" id="search-input" type="search" placeholder="Search listings or seller name…" autocomplete="off" aria-label="Search listings or seller name" />
   </div>
 
+  <h2 class="wh-section-title" data-i="ma_listings_heading">Listings queue</h2>
   <!-- Content area -->
   <div id="content-area" class="listing-list"></div>
   <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
 (function () {
@@ -350,6 +378,8 @@
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
       restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
     }
+    // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
+    if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
   const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
   const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
   let _isPlatformAdmin = false;
@@ -383,17 +413,10 @@
 
   function fmtPrice(price) {
     if (!price || Number(price) === 0) return 'Negotiable';
-    return 'PHP ' + Number(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (typeof whFmtPeso === 'function') ? whFmtPeso(price, { decimals: 2 }) : 'PHP ' + Number(price).toFixed(2); // FD1c canonical (₱); plain fallback only if utils.js ever missing
   }
 
-  function timeAgo(iso) {
-    if (!iso) return '';
-    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
-  }
+  function timeAgo(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
 
   function initials(name) {
     return (name || '?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
@@ -446,7 +469,7 @@
         .limit(100);
       if (error) throw error;
       _listings = data || [];
-    } catch (_err) { _listings = []; }
+    } catch (_err) { _listings = []; if (typeof showToast === 'function') showToast("Couldn't load listings . Check your connection and retry.", 'error'); } // dim-10: don't disguise a load failure as "all reviewed"
     renderListings();
   }
 
@@ -460,12 +483,12 @@
       // and is_verified_public so the admin grid shows real activity per seller.
       const { data, error } = await db
         .from('v_marketplace_sellers_truth')
-        .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,stripe_account_id,created_at,active_listings_count,is_verified_public,last_listed_at')
+        .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,created_at,active_listings_count,is_verified_public,last_listed_at')
         .order('created_at', { ascending: false })
         .limit(100);
       if (error) throw error;
       _sellers = data || [];
-    } catch (_err) { _sellers = []; }
+    } catch (_err) { _sellers = []; if (typeof showToast === 'function') showToast("Couldn't load seller profiles . Check your connection and retry.", 'error'); } // dim-10: surface load failure
     renderSellers();
   }
 
@@ -554,7 +577,7 @@
                 : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
             </div>
             <div class="card-info">
-              <div class="card-title">${e(item.title)}</div>
+              <div class="card-title" translate="no">${e(item.title)}</div>
               <div class="card-meta">
                 <span class="meta-chip gold">${e(fmtPrice(item.price))}</span>
                 <span class="meta-chip">${e(item.section)}</span>
@@ -574,17 +597,17 @@
             ${isDraft ? `
               <button class="btn-approve" data-action="approve" data-id="${e(item.id)}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Approve
+                <span data-i="approve">Approve</span>
               </button>
               <button class="btn-reject" data-action="reject" data-id="${e(item.id)}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                Reject
+                <span data-i="reject">Reject</span>
               </button>` : ''}
             ${isPublished ? `
               <button class="btn-unpublish" data-action="unpublish" data-id="${e(item.id)}">Unpublish</button>
             ` : ''}
             ${item.status === 'removed' ? `
-              <button class="btn-approve" data-action="approve" data-id="${e(item.id)}">Restore</button>
+              <button class="btn-approve" data-action="approve" data-id="${e(item.id)}" data-i="restore">Restore</button>
             ` : ''}
           </div>
         </div>`;
@@ -754,6 +777,9 @@
   function showSkeletons() {
     const area = document.getElementById('content-area');
     if (!area) return;
+    // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js) —
+    // this page's hand-rolled copy was LIFTED there (row variant), per the §10 lever.
+    if (typeof whCardSkeleton === 'function') { whCardSkeleton(area, 4, { variant: 'row' }); return; }
     area.innerHTML = Array(4).fill(0).map(() => `
       <div class="admin-card draft skel-pulse">
         <div class="card-top">
@@ -786,7 +812,7 @@
         .limit(100);
       if (error) throw error;
       _disputes = data || [];
-    } catch (_) { _disputes = []; }
+    } catch (_) { _disputes = []; if (typeof showToast === 'function') showToast("Couldn't load disputes . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no disputes"
 
     const bd = document.getElementById('badge-disputes');
     if (bd) bd.textContent = _disputes.filter(d => d.status === 'open' || d.status === 'seller_responded').length;
@@ -799,11 +825,11 @@
     if (!area) return;
 
     const DISP_STATUS = {
-      open:              { label: 'Open — Awaiting Seller', color: '#f87171' },
+      open:              { label: 'Open: Awaiting Seller', color: '#f87171' },
       seller_responded:  { label: 'Seller Responded', color: '#fbbf24' },
       admin_review:      { label: 'Admin Review', color: '#c084fc' },
-      resolved_refund:   { label: 'Resolved — Refunded', color: '#4ade80' },
-      resolved_release:  { label: 'Resolved — Released', color: '#29B6D9' },
+      resolved_refund:   { label: 'Resolved: Refunded', color: '#4ade80' },
+      resolved_release:  { label: 'Resolved: Released', color: '#29B6D9' },
     };
 
     const filtered = _disputes.filter(d => {
@@ -815,7 +841,7 @@
       area.innerHTML = `<div class="empty-state">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
         <h3>No disputes</h3>
-        <p>All clear — no open disputes at this time.</p>
+        <p>All clear, no open disputes at this time.</p>
       </div>`;
       return;
     }
@@ -830,12 +856,12 @@
               <span style="font-size:0.85rem;font-weight:700;">${e(d.reason)}</span>
               <span class="meta-chip" style="color:${e(st.color)};border-color:${e(st.color)}40;">${e(st.label)}</span>
             </div>
-            <div style="font-size:0.72rem;color:#7B8794;">
+            <div style="font-size:0.72rem;color:var(--wh-steel-bright);">
               Buyer: <strong>${e(d.opened_by)}</strong> &nbsp;·&nbsp; Seller: <strong>${e(d.seller_name)}</strong> &nbsp;·&nbsp; ${e(timeAgo(d.created_at))}
             </div>
             ${d.seller_reply ? `
               <div style="background:rgba(0,0,0,0.2);border-radius:0.5rem;padding:0.625rem;font-size:0.75rem;">
-                <span style="color:#7B8794;font-size:0.68rem;font-weight:600;">SELLER REPLY</span>
+                <span style="color:var(--wh-steel-bright);font-size:0.68rem;font-weight:600;">SELLER REPLY</span>
                 <p style="margin-top:0.25rem;color:#b0b8c4;line-height:1.5;">${e(d.seller_reply)}</p>
               </div>` : ''}
             ${d.resolved_at ? `<div style="font-size:0.72rem;color:#4ade80;">Resolved ${e(timeAgo(d.resolved_at))}</div>` : ''}
@@ -866,6 +892,16 @@
     const statusMap = { release: 'resolved_release', refund: 'resolved_refund', escalate: 'admin_review' };
     const newStatus = statusMap[action];
     const isResolved = action === 'release' || action === 'refund';
+
+    // C4 fix (2026-07-06): escrow resolution is financially irreversible — confirm before mutating.
+    if (isResolved && typeof window.whConfirm === 'function') {
+      const verb = action === 'release' ? 'RELEASE the escrow funds to the seller' : 'REFUND the buyer';
+      const ok = await window.whConfirm(
+        `${verb} for this dispute? This resolves the escrow and cannot be undone.`,
+        { okLabel: action === 'release' ? 'Release funds' : 'Issue refund', cancelLabel: 'Cancel' }
+      );
+      if (!ok) { card?.querySelectorAll('button').forEach(b => { b.disabled = false; }); return; }
+    }
 
     try {
       const disputeUpdate = {
@@ -970,6 +1006,7 @@
         if (_tab === 'sellers')   renderSellers();
         else if (_tab === 'disputes') renderDisputes();
         else renderListings();
+        if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); // G1 (FAMILY F3)
       }, 250);
     });
 
@@ -999,5 +1036,24 @@
 <script src="button-lock.js"></script>
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>
+<script>
+  // E3 provenance (FAMILY F3): sources = this page's verified reads.
+  window.addEventListener('load', function () {
+    var el = document.getElementById('ma-source-chip');
+    if (!el) { el = document.createElement('div'); el.id = 'ma-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
+    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+      freshness: 'Live · refreshed on load',
+      source: 'v_marketplace_listings_truth + v_marketplace_sellers_truth + marketplace_disputes',
+    });
+  });
+</script>
+
+<script>window.WH_FIL_PAGE={f_pend:'Nakabinbin',f_pub:'Nai-publish',f_sellers:'Mga Seller',f_rem:'Inalis',f_disp:'Mga Dispute',ma_gate_title:'Para sa Platform Admin Lang',ma_gate_body:'Para sa platform admin ang page na ito. Kailangan ng access? Hilingin sa admin na idagdag ka.',ma_gate_back:'Bumalik sa Marketplace',ma_listings_heading:'Listahan ng nakapila'};</script>
+  <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
+  <script src="offline-banner.js"></script>
+  <script defer src="offline-queue.js"></script>
+  <script defer src="connectivity-widget.js"></script>
+  <script defer src="session-timeout.js"></script>
+  <script defer src="device-fingerprint.js"></script>
 </body>
 </html>

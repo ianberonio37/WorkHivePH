@@ -2110,6 +2110,39 @@
   }
 
   // ── Flagship produce (the MODERN pipeline) ────────────────────────────────
+  // ── Publish a produced video to the operator's social accounts ────────────
+  // false = dry-run preview (nothing posts, no pages open).
+  // true  = publish: AUTO accounts post for real; ASSIST platforms open their
+  //         upload pages with the video + caption ready (server-side machine).
+  async function publishVideo(ideaId, live) {
+    const box = document.getElementById('pubResult-' + ideaId);
+    if (live && !confirm('Publish "' + ideaId + '" to your LIVE accounts now?\n\n' +
+        'AUTO accounts (Facebook Page / Telegram / Discord) post for real. ' +
+        'ASSIST platforms (YouTube, Groups, TikTok...) open their upload pages ' +
+        'with the video + caption ready for you to click Post.')) return;
+    if (box) box.innerHTML = live ? 'Publishing to your accounts...' : 'Previewing (nothing will post)...';
+    try {
+      const r = await fetch('/api/ideas/' + ideaId + '/publish', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ live: !!live })
+      });
+      const data = await r.json();
+      if (!data.success) throw new Error(data.error || 'publish failed');
+      const icon = { posted: '✅', assisted: '➡️', ready: '·', skipped: '—', error: '❌' };
+      const rows = (data.results || []).map(function (x) {
+        return '<div>' + (icon[x.status] || '?') + ' <strong>' + esc(x.platform) + '</strong> ' +
+               esc(x.status) + ' &mdash; ' + esc(x.detail) + '</div>';
+      }).join('');
+      const head = '<div style="margin:0.3rem 0"><strong>' + esc(String(data.mode || '').toUpperCase()) +
+                   '</strong>' + (data.has_pack ? '' :
+                   ' &middot; <span style="color:#e0a">no platform pack yet &mdash; open Distribution below and generate it first</span>') + '</div>';
+      box.innerHTML = head + (rows ||
+        '<div>No armed platforms. Paste tokens into social_accounts.env (see the .example file).</div>');
+    } catch (err) {
+      if (box) box.innerHTML = '<span style="color:#f88">Publish failed: ' + esc(err.message) + '</span>';
+    }
+  }
+
   async function produceFlagship(ideaId) {
     const btn  = document.getElementById('apfBtn-' + ideaId);
     const msg  = document.getElementById('apfMessage-' + ideaId);
@@ -2164,7 +2197,12 @@
           ).join(' &middot; ');
           const scoreTxt = sc ? ' &middot; gate <strong>' + esc(sc.verdict) + ' ' + esc(String(sc.score)) + '</strong>' : '';
           msg.className = 'ap-message done';
-          msg.innerHTML = '✓ Flagship ready' + scoreTxt + ' &middot; ' + links;
+          msg.innerHTML = '✓ Flagship ready' + scoreTxt + ' &middot; ' + links +
+            '<div style="margin-top:0.6rem;display:flex;gap:0.4rem;flex-wrap:wrap">' +
+              '<button class="btn-kit" onclick="publishVideo(\'' + ideaId + '\',false)">📣 Preview publish</button>' +
+              '<button class="btn-kit green" onclick="publishVideo(\'' + ideaId + '\',true)">🚀 Publish to my accounts</button>' +
+            '</div>' +
+            '<div id="pubResult-' + ideaId + '" style="font-size:0.72rem;margin-top:0.45rem;line-height:1.5"></div>';
           const primary = res.primary || dls['9x16'] || dls[Object.keys(dls)[0]];
           if (primary) prog.innerHTML += '<video src="' + esc(primary) + '" controls playsinline ' +
             'style="margin-top:0.7rem;max-height:420px;border-radius:14px;display:block;box-shadow:0 12px 30px rgba(0,0,0,.4)"></video>';

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="worker-daily" content="1" />  <!-- H1 goal-gradient contract (FAMILY roadmap): this is a daily worker journey page -->
   <title>Spare-Parts Inventory: WorkHive</title>
   <!-- capture: inventory_add_part_v1 (form + upload) — anchors the add-part form + photo upload to canonical_capture_contracts → inventory_items table -->
   <meta name="description" content="Track spare parts stock levels, link parts to assets, and get alerted before critical spares run out. WorkHive Inventory Monitor." />
@@ -35,6 +36,13 @@
   <style>
     * { font-family: 'Poppins', sans-serif; }
     body { background-color: var(--wh-navy); min-height: 100vh; }
+    /* I1 CLS (measured): the header wraps 63px→125px at ~1.3s when the stat-pills + Add-Part button
+       finish loading, pushing every card below it down 62px (was the 0.15 shift). Reserve the loaded
+       2-row height so the reflow never moves the content; pre-paint the row so late Tailwind changes nothing. */
+    @media (min-width: 640px) {
+      #wh-inv-header { min-height: 120px; }
+      #wh-inv-header > div { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+    }
 
     /* Aurora */
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -62,6 +70,9 @@
     }
 
     /* Part card with colored left border */
+    /* R2: a long unbroken part name/description must WRAP inside the card, not push the
+       row past the viewport (measured a 1952px non-wrapping <p> -> horizontal page scroll). */
+    .part-card p, .part-card .flex-1 { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
     .part-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
       border: 1px solid rgba(255,255,255,0.08);
@@ -71,8 +82,10 @@
       transition: border-color 0.2s;
     }
     .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
+    .part-card.stock-surplus  { border-left-color: rgb(56,189,248); }
     .part-card.stock-ok  { border-left-color: #4ade80; }
     .part-card.stock-low { border-left-color: var(--wh-orange); }
+    .part-card.stock-critical { border-left-color: rgb(251,113,133); }
     .part-card.stock-out { border-left-color: #f87171; }
     @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 
@@ -89,7 +102,7 @@
       outline: none;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.1); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.25); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
     textarea.wh-input { resize: vertical; min-height: 80px; }
 
     /* Buttons */
@@ -113,8 +126,8 @@
     .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
     .btn-danger {
-      background: rgba(239,68,68,0.1); color: rgba(239,68,68,0.85);
-      font-weight: 700; border-radius: 0.625rem;
+      background: rgba(239,68,68,0.1); color: var(--wh-red-text);
+      font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
       cursor: pointer; border: 1px solid rgba(239,68,68,0.2); min-height: 44px;
       transition: background 0.2s;
@@ -123,18 +136,28 @@
 
     .btn-green {
       background: rgba(34,197,94,0.12); color: #4ade80;
-      font-weight: 700; border-radius: 0.625rem;
+      font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
       cursor: pointer; border: 1px solid rgba(34,197,94,0.25); min-height: 44px;
       transition: background 0.2s;
     }
     .btn-green:hover { background: rgba(34,197,94,0.2); }
 
+    /* Marketplace bridge (Inventory <-> Marketplace parts-flow fabric) */
+    .mkt-bridge-btn {
+      background: rgba(41,182,217,0.12); color: #7fdcef;
+      font-weight: 700; border-radius: var(--wh-radius-sm);
+      padding: 0.5rem 1rem; font-size: 0.75rem;
+      cursor: pointer; border: 1px solid rgba(41,182,217,0.3); min-height: 44px;
+      transition: background 0.2s;
+    }
+    .mkt-bridge-btn:hover { background: rgba(41,182,217,0.22); }
+
     /* Label */
     .wh-label {
       display: block; font-size: 0.7rem; font-weight: 600;
       text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.4); margin-bottom: 0.4rem;
+      color: rgba(255,255,255,0.62); margin-bottom: 0.4rem;
     }
 
     /* Stat pill */
@@ -142,7 +165,10 @@
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
     }
+    /* qty-on-hand stat numbers (Tailwind-classed) sit in a column — fixed pitch */
+    .text-3xl.font-black { font-variant-numeric: tabular-nums; }
 
     /* Badge */
     .badge {
@@ -158,7 +184,7 @@
       font-size: 0.7rem; font-weight: 600; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.62);
       transition: all 0.15s; user-select: none; min-height: 36px;
     }
     .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: var(--wh-blue); }
@@ -185,7 +211,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
     /* Plain-Read summary (Layer D — UX Contract) */
-    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
+    .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
@@ -196,9 +222,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:#f87171; }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #inv-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #inv-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
     #inv-summary-details.open { display:block; }
   </style>
 </head>
@@ -221,7 +247,7 @@
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
-        <span class="text-xs font-semibold text-white/50 uppercase tracking-widest">Inventory Monitor</span>
+        <span class="text-xs font-semibold text-white/60 uppercase tracking-widest">Inventory Monitor</span>
       </div>
       <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4">← Back to Basic Worker</a>
     </div>
@@ -231,11 +257,11 @@
   <main class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 py-8">
 
     <!-- Header -->
-    <div class="mb-6">
+    <div id="wh-inv-header" class="mb-6">
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Spare-Parts Inventory</h1>
-          <p class="text-sm text-white/45 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight" data-i="pagetitle">Spare-Parts Inventory</h1>
+          <p class="text-sm text-white/60 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
           <p id="inventory-source-chip" style="margin-top:3px;"></p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
@@ -244,7 +270,7 @@
           <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">0</span> <span class="text-white/60">out</span></span>
           <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            Add Part
+            <span data-i="addpart">Add Part</span>
           </button>
         </div>
       </div>
@@ -256,31 +282,35 @@
       <span id="inv-verdict-icon" class="verdict-icon">·</span>
       <div class="verdict-text"><span id="inv-verdict-label">Computing stock health...</span><small id="inv-verdict-sub">Counting out-of-stock, low-stock, and pending-approval items.</small></div>
     </div>
-    <div class="simple-row">
+    <!-- H1 goal-gradient: live healthy/total from renderInventorySummary (whProgressStrip). -->
+    <div id="inv-progress" class="wh-progress-slot"></div>
+    <div class="simple-row" style="min-height:156px;">
       <div class="simple-card tag-grey" id="inv-card-out" data-rag-tile="inventory:out_of_stock" data-rag-label="Out of stock">
-        <div class="sc-label">Out of stock</div>
+        <h2 class="sc-label" style="margin:0;" data-i="outofstock">Out of stock</h2>
         <div class="sc-hero" id="inv-out-hero">0</div>
         <div class="sc-sub" id="inv-out-sub">Loading...</div>
-        <span class="sc-tag" id="inv-out-tag">—</span>
+        <span class="sc-tag" id="inv-out-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="inv-card-low" data-rag-tile="inventory:low_stock" data-rag-label="Low stock">
-        <div class="sc-label">Low stock</div>
+        <h2 class="sc-label" style="margin:0;" data-i="lowstock">Low stock</h2>
         <div class="sc-hero" id="inv-low-hero">0</div>
         <div class="sc-sub" id="inv-low-sub">Loading...</div>
-        <span class="sc-tag" id="inv-low-tag">—</span>
+        <span class="sc-tag" id="inv-low-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="inv-card-pending" data-rag-tile="inventory:pending_approval" data-rag-label="Pending parts">
-        <div class="sc-label">Pending parts</div>
+        <h2 class="sc-label" style="margin:0;" data-i="pendingparts">Pending parts</h2>
         <div class="sc-hero" id="inv-pending-hero">0</div>
         <div class="sc-sub" id="inv-pending-sub">Loading...</div>
-        <span class="sc-tag" id="inv-pending-tag">—</span>
+        <span class="sc-tag" id="inv-pending-tag">-</span>
       </div>
     </div>
     <div class="action-card">
       <div class="ac-label">What to do next</div>
       <div class="ac-text" id="inv-action-text">Computing recommendation...</div>
+      <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
+      <a id="inv-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details">
+    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details" data-i="showdetails">
       Show details
     </button>
     <div id="inv-summary-details" role="region" aria-label="Stock health explainer"
@@ -293,11 +323,11 @@
         <li><strong>Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
         <li><strong>Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the search and category filter below for the part-by-part drill-down.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Use the search and category filter below for the part-by-part drill-down.</p>
     </div>
 
     <!-- Low stock alert banner -->
-    <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3.5 mb-5 flex items-center gap-3"
+    <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3.5 mb-6 flex items-center gap-3"
          style="background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.2);">
       <svg class="w-4 h-4 flex-shrink-0" style="color:#F7A21B" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
@@ -306,7 +336,7 @@
     </div>
 
     <!-- Search + filter -->
-    <div class="card p-4 mb-5">
+    <div class="card p-4 mb-6">
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -331,8 +361,10 @@
         <select id="filter-status" aria-label="Filter parts by stock level" class="wh-input sm:w-40">
           <option value="">All stock</option>
           <option value="out">Out of stock</option>
+          <option value="critical">Critical low</option>
           <option value="low">Low stock</option>
           <option value="ok">In stock</option>
+          <option value="surplus">Surplus</option>
         </select>
       </div>
     </div>
@@ -342,23 +374,23 @@
 
     <!-- Load More -->
     <div id="inv-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
-      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.3);"></p>
+      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
     </div>
 
     <!-- Empty state -->
     <div id="empty-state" class="text-center py-20 empty-state">
-      <svg class="w-12 h-12 mx-auto mb-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <svg class="w-12 h-12 mx-auto mb-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
       </svg>
       <p class="text-sm text-white/60 font-medium">No parts in inventory yet.</p>
       <p class="text-xs text-white/60 mt-1">Add your first spare part to start monitoring stock levels.</p>
-      <button id="empty-add-btn" class="btn-primary text-sm mt-5 px-6">Add Your First Part</button>
+      <button id="empty-add-btn" class="btn-primary text-sm mt-5 px-6" data-i="addfirstpart">Add Your First Part</button>
     </div>
 
     <!-- No results -->
     <div id="no-results" class="text-center py-16 empty-state hidden">
-      <svg class="w-10 h-10 mx-auto mb-3 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <svg class="w-10 h-10 mx-auto mb-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
       <p class="text-sm text-white/60">No parts match your search.</p>
@@ -383,13 +415,13 @@
       <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      <h2 id="part-modal-title" class="font-black text-xl text-white mb-6">Add Part</h2>
+      <h2 id="part-modal-title" class="font-black text-xl text-white mb-6" data-i="addpart">Add Part</h2>
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="f-part-number" class="wh-label">Part Number <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
+            <label for="f-part-number" class="wh-label"><span data-i="partnumber">Part Number</span> <span class="text-orange-wh text-[10px] normal-case font-semibold" data-i="required">required</span></label>
             <div style="display:flex; gap:8px; align-items:stretch;">
-              <input id="f-part-number" type="text" list="existing-part-numbers" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" style="flex:1;" />
+              <input id="f-part-number" type="text" list="existing-part-numbers" class="wh-input" placeholder="e.g. 6205-2RS" autocomplete="off" style="flex:1;" maxlength="200">
               <!-- C1 (Arc X recall->recognition): suggest existing part numbers so the
                    user recognizes a code / catches a duplicate early, not recall it cold.
                    Populated from current inventory in renderParts(). -->
@@ -406,7 +438,7 @@
             </div>
           </div>
           <div>
-            <label for="f-category" class="wh-label">Category</label>
+            <label for="f-category" class="wh-label" data-i="category">Category</label>
             <select id="f-category" class="wh-input">
               <option value="">Select...</option>
               <option value="Bearing">Bearing</option>
@@ -421,20 +453,20 @@
           </div>
         </div>
         <div>
-          <label for="f-part-name" class="wh-label">Part Name <span class="text-orange-wh text-[10px] normal-case font-semibold">required</span></label>
-          <input id="f-part-name" type="text" class="wh-input" placeholder="e.g. Deep Groove Ball Bearing" autocomplete="off" />
+          <label for="f-part-name" class="wh-label"><span data-i="partname">Part Name</span> <span class="text-orange-wh text-[10px] normal-case font-semibold" data-i="required">required</span></label>
+          <input id="f-part-name" type="text" class="wh-input" placeholder="e.g. Deep Groove Ball Bearing" autocomplete="off" maxlength="200">
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div>
-            <label for="f-qty" class="wh-label">Qty on Hand</label>
+            <label for="f-qty" class="wh-label" data-i="qtyonhand">Qty on Hand</label>
             <input id="f-qty" type="number" min="0" step="1" class="wh-input" placeholder="0" />
           </div>
           <div>
-            <label for="f-min-qty" class="wh-label">Min Qty <span class="text-white/60 text-[9px] normal-case font-normal">(reorder)</span></label>
+            <label for="f-min-qty" class="wh-label"><span data-i="minqty">Min Qty</span> <span class="text-white/60 text-[9px] normal-case font-normal" data-i="reorderhint">(reorder)</span></label>
             <input id="f-min-qty" type="number" min="0" step="1" class="wh-input" placeholder="2" />
           </div>
           <div>
-            <label for="f-unit" class="wh-label">Unit</label>
+            <label for="f-unit" class="wh-label" data-i="unit">Unit</label>
             <select id="f-unit" class="wh-input" data-select-placeholder-allow="default unit 'pcs' is the dominant inventory unit">
               <option value="pcs">pcs</option>
               <option value="set">set</option>
@@ -447,30 +479,30 @@
           </div>
         </div>
         <div>
-          <label for="f-location" class="wh-label">Bin / Storage Location <span class="text-white/60 font-normal normal-case">(optional)</span></label>
-          <input id="f-location" type="text" class="wh-input" placeholder="e.g. Bin A3, Shelf 2, Cabinet B" autocomplete="off" />
+          <label for="f-location" class="wh-label"><span data-i="binlocation">Bin / Storage Location</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+          <input id="f-location" type="text" class="wh-input" placeholder="e.g. Bin A3, Shelf 2, Cabinet B" autocomplete="off" maxlength="200">
         </div>
         <div>
-          <label class="wh-label">Link to Assets <span class="text-white/60 font-normal normal-case">(which machines use this part?)</span></label>
+          <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/60 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
                style="background:rgba(22,32,50,0.4); border:1px solid rgba(255,255,255,0.08);">
             <p id="asset-linker-empty" class="text-xs text-white/60 self-center">No assets registered. Register assets in the Logbook first.</p>
           </div>
         </div>
         <div>
-          <label class="wh-label">Notes <span class="text-white/60 font-normal normal-case">(install tips, specs, gotchas)</span></label>
-          <textarea aria-label="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together." id="f-notes" class="wh-input" placeholder="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together."></textarea>
+          <label class="wh-label"><span data-i="notes">Notes</span> <span class="text-white/60 font-normal normal-case" data-i="notehint">(install tips, specs, gotchas)</span></label>
+          <textarea aria-label="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together." id="f-notes" maxlength="2000" class="wh-input" placeholder="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together."></textarea>
         </div>
         <div>
-          <label for="f-photo-input" class="wh-label">Photo <span class="text-white/60 font-normal normal-case">(optional)</span></label>
+          <label for="f-photo-input" class="wh-label"><span data-i="photo">Photo</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
           <input id="f-photo-input" type="file" accept="image/*" capture="environment" class="hidden" />
           <label id="f-photo-dropzone" for="f-photo-input"
             class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
             style="background:rgba(255,255,255,0.03);">
-            <svg class="w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
-            <span class="text-xs text-white/35">Tap to attach photo</span>
+            <span class="text-xs text-white/60" data-i="tapattach">Tap to attach photo</span>
           </label>
           <div id="f-photo-preview" class="mt-2" style="position:relative; display:none;">
             <img id="f-photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace" alt="" />
@@ -483,8 +515,8 @@
         <div role="alert" aria-live="assertive" id="part-form-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
              style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
         <div class="flex gap-2 pt-1">
-          <button id="part-submit-btn" class="btn-primary flex-1">Save Part</button>
-          <button id="part-cancel-btn" class="btn-secondary px-4">Cancel</button>
+          <button id="part-submit-btn" class="btn-primary flex-1" data-i="savepart">Save Part</button>
+          <button id="part-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -496,23 +528,23 @@
       <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      <h2 class="font-black text-lg text-white mb-1">Use Stock</h2>
+      <h2 class="font-black text-lg text-white mb-1" data-i="usestock">Use Stock</h2>
       <p id="use-modal-part-name" class="text-xs text-white/60 mb-5"></p>
       <div class="space-y-4">
         <div>
-          <label for="use-qty" class="wh-label">Quantity Used</label>
+          <label for="use-qty" class="wh-label" data-i="qtyused">Quantity Used</label>
           <input id="use-qty" type="number" min="1" step="1" class="wh-input text-center text-xl font-bold" value="1" />
-          <p id="use-qty-available" class="text-[11px] text-white/30 mt-1.5 text-center"></p>
+          <p id="use-qty-available" class="text-[11px] text-white/60 mt-1.5 text-center"></p>
         </div>
         <div>
-          <label for="use-job-ref" class="wh-label">Job Reference <span class="text-white/60 font-normal normal-case">(optional: for audit trail)</span></label>
-          <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" />
+          <label for="use-job-ref" class="wh-label"><span data-i="jobref">Job Reference</span> <span class="text-white/60 font-normal normal-case" data-i="jobrefhint">(optional: for audit trail)</span></label>
+          <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" maxlength="200">
         </div>
         <div role="alert" aria-live="assertive" id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
              style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
         <div class="flex gap-2">
-          <button id="use-submit-btn" class="btn-primary flex-1">Confirm Use</button>
-          <button id="use-cancel-btn" class="btn-secondary px-4">Cancel</button>
+          <button id="use-submit-btn" class="btn-primary flex-1" data-i="confirmuse">Confirm Use</button>
+          <button id="use-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -524,20 +556,20 @@
       <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      <h2 class="font-black text-lg text-white mb-1">Restock</h2>
+      <h2 class="font-black text-lg text-white mb-1" data-i="restock">Restock</h2>
       <p id="restock-modal-part-name" class="text-xs text-white/60 mb-5"></p>
       <div class="space-y-4">
         <div>
-          <label for="restock-qty" class="wh-label">Quantity Added</label>
+          <label for="restock-qty" class="wh-label" data-i="qtyadded">Quantity Added</label>
           <input id="restock-qty" type="number" min="1" step="1" class="wh-input text-center text-xl font-bold" value="1" />
         </div>
         <div>
-          <label for="restock-note" class="wh-label">Note <span class="text-white/60 font-normal normal-case">(optional)</span></label>
-          <input id="restock-note" type="text" class="wh-input" placeholder="e.g. From supplier, Emergency purchase" autocomplete="off" />
+          <label for="restock-note" class="wh-label"><span data-i="note">Note</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+          <input id="restock-note" type="text" class="wh-input" placeholder="e.g. From supplier, Emergency purchase" autocomplete="off" maxlength="2000">
         </div>
         <div class="flex gap-2">
-          <button id="restock-submit-btn" class="btn-green flex-1">Confirm Restock</button>
-          <button id="restock-cancel-btn" class="btn-secondary px-4">Cancel</button>
+          <button id="restock-submit-btn" class="btn-green flex-1" data-i="confirmrestock">Confirm Restock</button>
+          <button id="restock-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -553,7 +585,7 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
   // Grounded Sweep C7 retrofit: dialog a11y bar on inventory's 4 hand-rolled modals
@@ -637,8 +669,8 @@ function writeAuditLog(action, targetType, targetId, targetName, meta) {
   }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
 }
 
-let _invDisplayCount = 30;
-function loadMoreInventory() { _invDisplayCount += 30; renderParts(); }
+let _invDisplayCount = 8;  // Arc P Wave 2 (P2 list-discipline): glance-first slice — the list sorts out/low-first, so the 8 shown are the "needs me" parts; Load More reveals the rest (+12).
+function loadMoreInventory() { _invDisplayCount += 12; renderParts(); }
 
 // ────────────────────────────────────────────
 // IN-MEMORY CACHE (populated from Supabase on init)
@@ -679,7 +711,7 @@ function saveTransactions(arr) {
   _txns = arr;
   const last = arr[arr.length - 1];
   if (last) {
-    db.from('inventory_transactions').insert(last)
+    db.from('inventory_transactions').insert(last) /* attribution-allow: `last` = element of the txns array built by addTransaction(), which sets auth_uid (verified live 2026-07-06) */
       .then(({ error }) => { if (error) { console.error('txn sync:', error.message); showToast('Transaction save failed: ' + error.message); } });
   }
 }
@@ -696,9 +728,10 @@ function highlight(text, q) {
 
 function formatDate(iso) {
   if (!iso) return '';
+  // FD1a: date part = canonical whFmtDate (en-PH + Asia/Manila); the ' · time' layout is kept.
   const d = new Date(iso);
-  return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' })
-       + ' · ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+  const datePart = (typeof whFmtDate === 'function') ? whFmtDate(iso) : d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+  return datePart + ' · ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
 }
 
 // Stock status canonical anchor: prefer the derived flags from
@@ -711,28 +744,44 @@ function formatDate(iso) {
 // The previous local fallback (`min_qty > 0 ? qty <= min_qty : qty <= 1`)
 // treated items with min_qty=0 as low when qty <= 1; aligning to the view
 // drops that quirk so the home dashboard tile and #stat-low stay in lockstep.
+// Inventory PDDA (2026-07-12) — 5-state stock facet (was 3). Prefer the derived
+// flags from v_inventory_items_truth; fall back to local math for raw-table loads:
+//   out      = qty_on_hand <= 0
+//   critical = is_critical_low  (qty <= min_qty/2) — was NEVER surfaced before, so a
+//              genuinely critical part looked identical to a merely-low one (LOCT-567 2/4)
+//   low      = is_low_stock     (qty <= min_qty)
+//   surplus  = qty >= 3*min_qty — over-stock proxy (no max_stock column); routes the
+//              honest "list surplus" offer instead of showing "Sell" on every ok item
+//              (the old bug: CHAIN-12B at 2/min-1 offered "Sell").
+//   ok       = the healthy middle.
+// Order matters: a critical item has is_low_stock=true too, so test critical first.
 function stockStatus(item) {
-  if (item.is_out_of_stock === true || item.qty_on_hand <= 0) return 'out';
-  if (item.is_low_stock === true) return 'low';
-  if (item.is_low_stock === undefined && item.min_qty > 0 && item.qty_on_hand <= item.min_qty) return 'low';
+  const q = Number(item.qty_on_hand);
+  const m = Number(item.min_qty) || 0;
+  if (item.is_out_of_stock === true || q <= 0) return 'out';
+  if (item.is_critical_low === true || (item.is_critical_low === undefined && m > 0 && q <= m / 2)) return 'critical';
+  if (item.is_low_stock === true || (item.is_low_stock === undefined && m > 0 && q <= m)) return 'low';
+  if (m > 0 && q >= m * 3) return 'surplus';
   return 'ok';
 }
 
-const STATUS_LABEL = { ok: 'In Stock', low: 'Low Stock', out: 'Out of Stock' };
+const STATUS_LABEL = { surplus: 'Surplus', ok: 'In Stock', low: 'Low Stock', critical: 'Critical Low', out: 'Out of Stock' };
 const STATUS_COLORS = {
+  surplus:  { bg:'rgba(56,189,248,0.15)',  text:'rgb(56,189,248)', border:'rgba(56,189,248,0.25)' },
   ok:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80', border:'rgba(34,197,94,0.25)' },
-  low: { bg:'rgba(247,162,27,0.15)', text:'#F7A21B', border:'rgba(247,162,27,0.25)' },
-  out: { bg:'rgba(239,68,68,0.15)',  text:'#f87171', border:'rgba(239,68,68,0.25)' },
+  low: { bg:'rgba(247,162,27,0.15)', text:'#FDB94A', border:'rgba(247,162,27,0.25)' },
+  critical: { bg:'rgba(251,113,133,0.18)', text:'#FDA4AF', border:'rgba(251,113,133,0.30)' },
+  out: { bg:'rgba(239,68,68,0.15)',  text:'#FCA5A5', border:'rgba(239,68,68,0.25)' },
 };
 const CAT_COLORS = {
-  Bearing:    { bg:'rgba(247,162,27,0.15)', text:'#F7A21B',  border:'rgba(247,162,27,0.25)' },
-  Seal:       { bg:'rgba(139,92,246,0.15)', text:'#a78bfa',  border:'rgba(139,92,246,0.25)' },
+  Bearing:    { bg:'rgba(247,162,27,0.15)', text:'#FDB94A',  border:'rgba(247,162,27,0.25)' },
+  Seal:       { bg:'rgba(139,92,246,0.15)', text:'#C4B5FD',  border:'rgba(139,92,246,0.25)' },
   Belt:       { bg:'rgba(234,179,8,0.15)',  text:'#facc15',  border:'rgba(234,179,8,0.25)' },
-  Filter:     { bg:'rgba(41,182,217,0.15)', text:'#29B6D9',  border:'rgba(41,182,217,0.25)' },
-  Electrical: { bg:'rgba(41,182,217,0.15)', text:'#29B6D9',  border:'rgba(41,182,217,0.25)' },
-  Fastener:   { bg:'rgba(255,255,255,0.08)',text:'rgba(255,255,255,0.5)', border:'rgba(255,255,255,0.12)' },
+  Filter:     { bg:'rgba(41,182,217,0.15)', text:'#5FCCE8',  border:'rgba(41,182,217,0.25)' },
+  Electrical: { bg:'rgba(41,182,217,0.15)', text:'#5FCCE8',  border:'rgba(41,182,217,0.25)' },
+  Fastener:   { bg:'rgba(255,255,255,0.08)',text:'rgba(255,255,255,0.72)', border:'rgba(255,255,255,0.12)' },
   Lubricant:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80',  border:'rgba(34,197,94,0.25)' },
-  Other:      { bg:'rgba(255,255,255,0.07)',text:'rgba(255,255,255,0.45)',border:'rgba(255,255,255,0.12)' },
+  Other:      { bg:'rgba(255,255,255,0.07)',text:'rgba(255,255,255,0.72)',border:'rgba(255,255,255,0.12)' },
 };
 
 function statusBadge(st) {
@@ -754,7 +803,7 @@ function approvalBadge(item) {
 }
 
 function assetBadge(id) {
-  return `<span class="badge" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.75);border:1px solid rgba(41,182,217,0.18);">${escHtml(id)}</span>`;
+  return `<span class="badge" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.18);">${escHtml(id)}</span>`;
 }
 
 function txnIcon(type) {
@@ -769,9 +818,18 @@ function txnIcon(type) {
 // ────────────────────────────────────────────
 // Layer D — Plain-Read summary for Inventory. Same item-level data the
 // stat pills + low-stock banner read, just rolled up into the contract.
-function renderInventorySummary(items, lowCount, outCount) {
+function renderInventorySummary(items, lowCount, outCount, criticalCount) {
+  criticalCount = criticalCount || 0;
   const pendingCount = items.filter(i => i.status === 'pending').length;
   const total = items.length;
+  // H1 goal-gradient — "all parts healthy" is the restock journey; healthy uses the
+  // SAME stockStatus() the badges use (one status function, no vocab drift).
+  const invProg = document.getElementById('inv-progress');
+  if (invProg) {
+    const healthy = items.filter(i => stockStatus(i) === 'ok').length;
+    invProg.innerHTML = (typeof whProgressStrip === 'function')
+      ? whProgressStrip('Parts at healthy stock', healthy, total) : '';
+  }
   const setCard = (name, hero, sub, tag, tone) => {
     const card = document.getElementById('inv-card-' + name);
     if (card) {
@@ -806,7 +864,10 @@ function renderInventorySummary(items, lowCount, outCount) {
   let tone, label, sub;
   if (outCount > 0) {
     tone = 'attn'; label = `${outCount} part${outCount === 1 ? '' : 's'} out of stock`;
-    sub  = 'Restock these before the next job — Use is locked at qty 0.';
+    sub  = 'Restock these before the next job: Use is locked at qty 0.';
+  } else if (criticalCount > 0) {
+    tone = 'attn'; label = `${criticalCount} part${criticalCount === 1 ? '' : 's'} critically low`;
+    sub  = 'Below half the minimum: reorder now before they hit zero.';
   } else if (lowCount > 0 || pendingCount > 0) {
     tone = 'watch'; label = 'A few things to handle this week';
     const parts = [];
@@ -829,19 +890,34 @@ function renderInventorySummary(items, lowCount, outCount) {
   // Action
   const actBox = document.getElementById('inv-action-text');
   if (actBox) {
+    // Arc P · Wave 1 (P3 / FUSION 3a): one primary button that scrolls to the parts
+    // list (already ordered out/low-first) so the recommended step is one tap away.
+    const setCta = (label, opts) => {
+      const b = document.getElementById('inv-action-btn'); if (!b) return; opts = opts || {};
+      b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', opts.href || '#');
+      b.onclick = opts.href ? null : (e) => { e.preventDefault();
+        try { if (opts.click) { const c = document.querySelector(opts.click); if (c) c.click(); } } catch (_) { /* empty-catch-allow: bridge click is best-effort */ }
+        const t = opts.scroll && document.querySelector(opts.scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    };
     let text;
     if (total === 0) {
-      text = 'No parts registered. Click "Add Part" to start your spare-parts inventory — even rough quantities are better than nothing for kicking off the reorder loop.';
+      text = 'No parts registered. Click "Add Part" to start your spare-parts inventory. Even rough quantities are better than nothing for kicking off the reorder loop.';
+      setCta('Review the parts list →', { scroll: '#parts-list' });
     } else if (outCount > 0) {
       text = `Filter to "Out of stock" using the chip below and restock these ${outCount} part${outCount === 1 ? '' : 's'} first. Every job that needs them is blocked.`;
+      setCta(`Restock ${outCount} out-of-stock →`, { scroll: '#parts-list' });
     } else if (pendingCount > 5) {
-      text = `${pendingCount} parts are awaiting your approval. Filter to "Pending approval" and clear the backlog — Use and Restock are locked until you sign off.`;
+      text = `${pendingCount} parts are awaiting your approval. Filter to "Pending approval" and clear the backlog: Use and Restock are locked until you sign off.`;
+      setCta(`Review ${pendingCount} pending →`, { scroll: '#parts-list' });
     } else if (lowCount > 0) {
       text = `${lowCount} part${lowCount === 1 ? '' : 's'} at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero.`;
+      setCta(`Order ${lowCount} low part${lowCount === 1 ? '' : 's'} →`, { scroll: '#parts-list' });
     } else if (pendingCount > 0) {
       text = `${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting your approval. Filter to "Pending approval" below and sign off so workers can use them.`;
+      setCta(`Approve ${pendingCount} pending →`, { scroll: '#parts-list' });
     } else {
       text = 'Inventory is healthy. Re-check after the next big job to confirm nothing dropped below its reorder point.';
+      setCta('Review your inventory →', { scroll: '#parts-list' });
     }
     actBox.textContent = text;
   }
@@ -863,16 +939,24 @@ function renderParts() {
   const catF    = [...document.getElementById('filter-category-options').options].some(o => o.value === catRaw) ? catRaw : '';
   const statusF = document.getElementById('filter-status').value;
 
-  // Stats
-  const lowCount = items.filter(i => stockStatus(i) === 'low').length;
-  const outCount = items.filter(i => stockStatus(i) === 'out').length;
+  // Stats — critical is a sub-tier of below-min; count it WITH low so the summary,
+  // banner + #stat-low stay complete (the per-item badge shows the distinct tier).
+  // BUGFIX: stock health (out/low/critical) must reflect only APPROVED stock. A pending
+  // or rejected submission isn't usable inventory yet, so counting it here inflated the
+  // shortage counts and could flip the verdict to a false "restock now" (a worker's freshly
+  // added pending part at qty 0 is pending-approval, not out-of-stock). Pending has its own card.
+  const stockItems = items.filter(i => !HIVE_ID || i.status === 'approved');
+  const criticalCount = stockItems.filter(i => stockStatus(i) === 'critical').length;
+  const lowOnlyCount  = stockItems.filter(i => stockStatus(i) === 'low').length;
+  const lowCount = criticalCount + lowOnlyCount;   // "at or below min_qty"
+  const outCount = stockItems.filter(i => stockStatus(i) === 'out').length;
   document.getElementById('stat-total').textContent = items.length;
   document.getElementById('stat-low').textContent   = lowCount;
   document.getElementById('stat-out').textContent   = outCount;
 
   // Plain-Read summary (Layer D). Rolls up the same counts into the
   // verdict + 3 cards above the engineering list.
-  renderInventorySummary(items, lowCount, outCount);
+  renderInventorySummary(items, lowCount, outCount, criticalCount);
 
   // Alert banner
   const alertCount = lowCount + outCount;
@@ -880,7 +964,8 @@ function renderParts() {
   if (alertCount > 0) {
     const parts = [];
     if (outCount > 0) parts.push(`${outCount} part${outCount > 1 ? 's' : ''} out of stock`);
-    if (lowCount > 0) parts.push(`${lowCount} part${lowCount > 1 ? 's' : ''} running low`);
+    if (criticalCount > 0) parts.push(`${criticalCount} critically low`);
+    if (lowOnlyCount > 0) parts.push(`${lowOnlyCount} running low`);
     document.getElementById('low-stock-banner-text').textContent = parts.join(' · ') + ': restock before the next job.';
     banner.classList.remove('hidden');
   } else {
@@ -904,8 +989,10 @@ function renderParts() {
     if (catF    && item.category !== catF)             return false;
     const st = stockStatus(item);
     if (statusF === 'out' && st !== 'out')             return false;
+    if (statusF === 'critical' && st !== 'critical')   return false;
     if (statusF === 'low' && st !== 'low')             return false;
     if (statusF === 'ok'  && st !== 'ok')              return false;
+    if (statusF === 'surplus' && st !== 'surplus')     return false;
     if (!query) return true;
     // Phase 5b.2: linked_asset_ids is gone; map uuids back to display codes
     // for the search filter so the user can still match by "PMP-001" etc.
@@ -916,8 +1003,8 @@ function renderParts() {
       .some(f => f && f.toLowerCase().includes(query));
   });
 
-  // Sort: out first, then low, then ok; alpha within each group
-  const sortOrder = { out: 0, low: 1, ok: 2 };
+  // Sort: out first, then critical, low, ok, surplus last; alpha within each group
+  const sortOrder = { out: 0, critical: 1, low: 2, ok: 3, surplus: 4 };
   filtered.sort((a, b) => {
     const sd = sortOrder[stockStatus(a)] - sortOrder[stockStatus(b)];
     return sd !== 0 ? sd : (a.part_name || '').localeCompare(b.part_name || '');
@@ -965,18 +1052,18 @@ function renderParts() {
               ${statusBadge(st)}
               ${approvalBadge(item)}
             </div>
-            <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/20 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
+            <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/60 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
           <p class="text-sm text-white/70 font-medium mb-2">${nm}</p>
           <div class="flex items-center gap-2 flex-wrap mb-3">
-            ${item.bin_location ? `<span class="text-[11px] text-white/35 flex items-center gap-1">
+            ${item.bin_location ? `<span class="text-[11px] text-white/60 flex items-center gap-1">
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               ${escHtml(item.bin_location)}
             </span>` : ''}
             ${linked.map(a => assetBadge(a)).join('')}
-            ${moreAss > 0 ? `<span class="text-[10px] text-white/30">+${moreAss} more</span>` : ''}
+            ${moreAss > 0 ? `<span class="text-[10px] text-white/60">+${moreAss} more</span>` : ''}
           </div>
           <div class="flex items-end justify-between gap-3 flex-wrap">
             <div class="flex items-baseline gap-2 flex-wrap">
@@ -988,18 +1075,66 @@ function renderParts() {
             <div class="flex gap-2">
               <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
-                Use
+                <span data-i="inv_use">Use</span>
               </button>
               <button onclick="openRestockModal('${item.id}')" class="btn-green text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Restock
+                <span data-i="restock">Restock</span>
               </button>
+              ${!locked && st === 'surplus' ? `<button onclick="sellSurplus('${item.id}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5" title="You hold 3x+ your minimum of this part: list the surplus on the Marketplace for another plant" aria-label="You hold 3x or more of your minimum of this part: list the surplus on the Marketplace for another plant">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5a1.99 1.99 0 011.41.59l7 7a2 2 0 010 2.82l-5 5a2 2 0 01-2.82 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span data-i="inv_sellsurplus">Sell surplus</span>
+              </button>` : ''}
+              ${(st === 'low' || st === 'out' || st === 'critical') && !locked ? `<button onclick="findOnMarketplace('${item.id}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5" title="Below reorder: source this part from other plants on the Marketplace" aria-label="Below reorder: source this part from other plants on the Marketplace">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 6a5 5 0 100 10 5 5 0 000-10z"/></svg>
+                <span data-i="inv_findmkt">Find on Marketplace</span>
+              </button>` : ''}
             </div>
           </div>
         </div>
       </div>
     </div>`;
   }).join('');
+
+  // AI grounding (Inventory PDDA, 2026-07-12): feed the companion a piiSafe LIVE stock
+  // snapshot so "Inventory Manager" answers stock questions from real counts instead of
+  // confabulating (mirrors marketplace.html setContext; only counts + part-number SKUs,
+  // no worker names / free-text → PII-safe). Refreshes on every render (post use/restock).
+  setInventoryCompanionContext();
+}
+
+// ────────────────────────────────────────────
+// AI COMPANION GROUNDING
+// ────────────────────────────────────────────
+let _invCtxRetryPending = false;
+function setInventoryCompanionContext(attempt) {
+  attempt = attempt || 0;
+  if (typeof WHAssistant === 'undefined' || !WHAssistant.setContext) {
+    if (attempt < 25 && !_invCtxRetryPending) {
+      _invCtxRetryPending = true;
+      setTimeout(() => { _invCtxRetryPending = false; setInventoryCompanionContext(attempt + 1); }, 300);
+    }
+    return;
+  }
+  try {
+    const items = loadInventory();
+    const total = items.length;
+    const by = { out: 0, critical: 0, low: 0, ok: 0, surplus: 0 };
+    items.forEach(i => { by[stockStatus(i)] = (by[stockStatus(i)] || 0) + 1; });
+    // part NUMBERS are catalog SKUs (not PII); names/notes/worker_name are deliberately excluded.
+    const needSkus = items
+      .filter(i => { const s = stockStatus(i); return s === 'out' || s === 'critical' || s === 'low'; })
+      .sort((a, b) => a.qty_on_hand - b.qty_on_hand)
+      .map(i => i.part_number).filter(Boolean).slice(0, 15).join(', ');
+    const summary =
+      `Spare-parts inventory: ${total} parts tracked in this hive. Live stock status: ` +
+      `${by.out} out of stock, ${by.critical} critically low (at/below half their minimum), ` +
+      `${by.low} low (at/below minimum), ${by.surplus} surplus (3x+ their minimum), ${by.ok} healthy. ` +
+      (needSkus ? `Parts at or below reorder (fewest first): ${needSkus}. ` : `Every part is above its minimum. `) +
+      `Workers use and restock parts; supervisors control the shared catalog. Parts can link to the equipment ` +
+      `they fit (spare-parts BOM). Answer stock questions from these live counts, never estimate or invent a number.`;
+    WHAssistant.setContext({ key: 'inventory', summary, badge: `${total} parts`, piiSafe: true });
+  } catch (_) { /* empty-catch-allow: companion grounding is best-effort */ }
 }
 
 // ────────────────────────────────────────────
@@ -1040,6 +1175,8 @@ let currentPhotoData = null;
 document.getElementById('f-photo-input').addEventListener('change', function() {
   const file = this.files[0];
   if (!file) return;
+  // P12 upload-safety: cap file size — a huge image OOMs FileReader/canvas (DoS). 10MB is ample for a part photo.
+  if (file.size > 10 * 1024 * 1024) { showToast('Photo is too large, please choose an image under 10MB.', 'error'); this.value = ''; return; }
   const reader = new FileReader();
   reader.onload = function(ev) {
     const img = new Image();
@@ -1051,6 +1188,16 @@ document.getElementById('f-photo-input').addEventListener('change', function() {
       canvas.height = Math.round(img.height * scale);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
       currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+      // Q3 free-tier guard: post-compression size assert (600px/0.7 is ~30-100 KB;
+      // re-encode harder once, then reject rather than inline a huge base64 blob).
+      const _b64bytes = (s) => Math.ceil((s.length - (s.indexOf(',') + 1)) * 0.75);
+      if (_b64bytes(currentPhotoData) > 700000) currentPhotoData = canvas.toDataURL('image/jpeg', 0.5);
+      if (_b64bytes(currentPhotoData) > 700000) {
+        currentPhotoData = null;
+        showToast('Photo is too large even after compression. Try a smaller or simpler image.');
+        document.getElementById('f-photo-input').value = '';
+        return;
+      }
       document.getElementById('f-photo-thumb').src = currentPhotoData;
       document.getElementById('f-photo-dropzone').classList.add('hidden');
       const prev = document.getElementById('f-photo-preview');
@@ -1254,13 +1401,13 @@ async function submitPart() {
       // Arc S D-001: offline -> queue the create (drains on reconnect). The item is
       // already in the local cache (_items), so the worker sees it immediately.
       await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
-      showToast('Saved offline — will sync when you reconnect.');
+      showToast('Saved offline, will sync when you reconnect.');
     } else {
       const { error: insertErr } = await db.from('inventory_items').upsert(_row);
       if (insertErr) {
         if (window._whInvQueue) {  // network hiccup while "online": queue it, don't lose the write
           await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
-          showToast('Network issue — saved offline, will retry automatically.');
+          showToast('Network issue: saved offline, will retry automatically.');
         } else {
           showFormError(errEl, 'Could not save part: ' + insertErr.message); return;
         }
@@ -1284,6 +1431,30 @@ function showFormError(el, msg) { el.textContent = msg; el.classList.remove('hid
 // ────────────────────────────────────────────
 let activeItemId = null;
 
+// ────────────────────────────────────────────
+// MARKETPLACE BRIDGE (Inventory ↔ Marketplace parts-flow fabric — X keystone)
+//   Sell           → prefilled listing from a surplus (above-reorder) item (SUPPLY side)
+//   Find on Market  → scoped search for a below-reorder part (DEMAND side)
+// One plant's dead stock is another's critical spare — a circular economy for MRO parts.
+// ────────────────────────────────────────────
+function sellSurplus(id) {
+  const item = loadInventory().find(i => i.id === id);
+  if (!item) return;
+  // Deep-link to the marketplace Post sheet, prefilled from this inventory item.
+  // marketplace.html re-fetches the item by id (RLS-scoped to the user's OWN hive) so the
+  // prefill is authoritative and cannot be spoofed via the URL — a user can only list from
+  // inventory their session can read.
+  window.location.href = 'marketplace.html?post=1&from_inventory=' + encodeURIComponent(id);
+}
+
+function findOnMarketplace(id) {
+  const item = loadInventory().find(i => i.id === id);
+  if (!item) return;
+  // Source a below-reorder part: open the marketplace Parts section scoped to this part.
+  const q = item.part_number || item.part_name || '';
+  window.location.href = 'marketplace.html?section=parts&q=' + encodeURIComponent(q);
+}
+
 function openUseModal(id) {
   activeItemId = id;
   const item = loadInventory().find(i => i.id === id);
@@ -1301,7 +1472,7 @@ function openUseModal(id) {
 
 function closeUseModal() { document.getElementById('use-modal').style.display = 'none'; activeItemId = null; }
 
-function submitUse() {
+async function submitUse() {
   const qty   = parseFloat(document.getElementById('use-qty').value) || 0;
   const errEl = document.getElementById('use-modal-error');
   errEl.classList.add('hidden');
@@ -1317,12 +1488,37 @@ function submitUse() {
     errEl.classList.remove('hidden'); return;
   }
 
-  items[idx].qty_on_hand -= qty;
-  items[idx].updated_at   = new Date().toISOString();
-  saveInventory(items);
-  // The Use modal captures a Job Reference (for the audit trail), not a free
-  // note — route it to the dedicated job_ref column, not note.
-  addTransaction(activeItemId, 'use', -qty, items[idx].qty_on_hand, '', document.getElementById('use-job-ref').value.trim());
+  // The Use modal captures a Job Reference (for the audit trail), not a free note.
+  const jobRef = document.getElementById('use-job-ref').value.trim();
+  if (HIVE_ID && navigator.onLine) {
+    // ATOMIC server-side deduct — inventory_deduct FOR UPDATE-locks the row, closing the concurrent
+    // read-modify-write race (P6 lost-update: two Uses each client-computed then upserted their own
+    // ABSOLUTE qty_on_hand, so one deduction was silently overwritten). The RPC decrements + writes
+    // the inventory_transactions row server-side, keeping qty_on_hand == newest txn.qty_after (the
+    // DI §10.5 seesaw invariant). We take the new qty from the RPC's RETURN (server truth, never a
+    // stale client compute) and do NOT client-upsert an absolute qty. subscribeInventoryRealtime()
+    // reconciles _txns + other members' caches. Solo/offline keep the client path (no concurrency).
+    let newQty;
+    try {
+      const { data, error: deductErr } = await db.rpc('inventory_deduct',
+        { p_item_id: activeItemId, p_qty: qty, p_type: 'use', p_job_ref: jobRef });
+      if (deductErr) throw deductErr;
+      newQty = Number(data);
+    } catch (e) {
+      errEl.textContent = 'Use failed: ' + (e.message || e); errEl.classList.remove('hidden'); return;
+    }
+    items[idx].qty_on_hand = newQty;
+    items[idx].updated_at  = new Date().toISOString();
+    _items = items;                                                   // cache; RPC persisted qty+txn to DB
+    addTransaction(activeItemId, 'use', -qty, newQty, '', jobRef);    // local UI cache ([3]/[4]); realtime reconciles
+  } else {
+    // Solo (localStorage only) OR offline (single-user — no concurrency race): client read-modify-write.
+    items[idx].qty_on_hand -= qty;
+    items[idx].updated_at   = new Date().toISOString();
+    saveInventory(items);
+    addTransaction(activeItemId, 'use', -qty, items[idx].qty_on_hand, '', jobRef);
+  }
+  _autoLinkInventoryToProject(items[idx]);  // PM X-keystone: surface part consumption under any active project on this part's asset
 
   const st = stockStatus(items[idx]);
   closeUseModal();
@@ -1334,6 +1530,8 @@ function submitUse() {
   // alert when low/out. Name what just rippled (Nielsen #1 visibility-of-status).
   if (st === 'out')
     showToast(`${items[idx].part_number} now OUT OF STOCK → Alert Hub stock alert · feeds Analytics stockout forecast.`, 'warn', 6000);
+  else if (st === 'critical')
+    showToast(`${items[idx].part_number} CRITICALLY LOW: ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} left (below half its min) → reorder now · Alert Hub · feeds Analytics stockout forecast.`, 'warn', 6000);
   else if (st === 'low')
     showToast(`${items[idx].part_number} LOW: ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} left → Alert Hub stock alert · feeds Analytics stockout forecast.`, 'warn', 6000);
   else
@@ -1358,7 +1556,7 @@ function openRestockModal(id) {
 
 function closeRestockModal() { document.getElementById('restock-modal').style.display = 'none'; activeItemId = null; }
 
-function submitRestock() {
+async function submitRestock() {
   const qty = parseFloat(document.getElementById('restock-qty').value) || 0;
   if (qty <= 0) return;
 
@@ -1366,10 +1564,29 @@ function submitRestock() {
   const idx   = items.findIndex(i => i.id === activeItemId);
   if (idx === -1) return;
 
-  items[idx].qty_on_hand += qty;
-  items[idx].updated_at   = new Date().toISOString();
-  saveInventory(items);
-  addTransaction(activeItemId, 'restock', qty, items[idx].qty_on_hand, document.getElementById('restock-note').value.trim());
+  const note = document.getElementById('restock-note').value.trim();
+  if (HIVE_ID && navigator.onLine) {
+    // ATOMIC server-side restock — inventory_restock FOR UPDATE-locks the row, closing the concurrent
+    // read-modify-write race (the increment twin of the Use lost-update; mig 20260713000008). The RPC
+    // increments + writes the inventory_transactions row server-side (qty_on_hand == newest
+    // txn.qty_after). New qty comes from the RPC RETURN, never a stale client compute; no absolute upsert.
+    let newQty;
+    try {
+      const { data, error: rsErr } = await db.rpc('inventory_restock', { p_item_id: activeItemId, p_qty: qty, p_note: note || null });
+      if (rsErr) throw rsErr;
+      newQty = Number(data);
+    } catch (e) { showToast('Restock failed: ' + (e.message || e), 'warn'); return; }
+    items[idx].qty_on_hand = newQty;
+    items[idx].updated_at  = new Date().toISOString();
+    _items = items;                                            // cache; RPC persisted qty+txn to DB
+    addTransaction(activeItemId, 'restock', qty, newQty, note); // local UI cache ([3]/[4]); realtime reconciles
+  } else {
+    // Solo (localStorage only) OR offline (single-user — no race): client read-modify-write.
+    items[idx].qty_on_hand += qty;
+    items[idx].updated_at   = new Date().toISOString();
+    saveInventory(items);
+    addTransaction(activeItemId, 'restock', qty, items[idx].qty_on_hand, note);
+  }
 
   closeRestockModal();
   renderParts();
@@ -1381,6 +1598,51 @@ function submitRestock() {
 // ────────────────────────────────────────────
 // TRANSACTIONS (append-only audit trail)
 // ────────────────────────────────────────────
+// PM X-keystone (reverse fabric): when a part is USED on an asset that is already
+// bundled under an active project, auto-link the inventory_item so the consumption
+// surfaces (and is costed) under the project. Mirrors logbook.html
+// _autoLinkLogbookToProject; silent unless it links something new. Fire-and-forget.
+async function _autoLinkInventoryToProject(item) {
+  if (!HIVE_ID || !item?.id) return;
+  const nodeIds = item.linked_asset_node_ids || [];
+  if (!nodeIds.length) return;
+  // project_links 'asset' rows hold the legacy assets.id text; map node uuid -> legacy id.
+  const legacyIds = nodeIds.map(u => _nodeIdToAssetId[u]).filter(Boolean);
+  if (!legacyIds.length) return;
+  try {
+    const { data: assetLinks } = await db.from('project_links')
+      .select('project_id')
+      .eq('hive_id', HIVE_ID).eq('link_type', 'asset').in('link_id', legacyIds)
+      .limit(500); // Arc L L2: links for a handful of assets; bounded-by-nature
+    if (!assetLinks?.length) return;
+    const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
+    // canonical-allow: narrow targeted fetch over the bounded project_links id set
+    const { data: projs } = await db.from('projects')
+      .select('id, project_code')
+      .in('id', projectIds).in('status', ['planning', 'active'])
+      .limit(500);
+    if (!projs?.length) return;
+    // Only insert links that don't already exist (avoid a batch 23505 on partial dupes).
+    const { data: existing } = await db.from('project_links')
+      .select('project_id')
+      .eq('hive_id', HIVE_ID).eq('link_type', 'inventory_item').eq('link_id', String(item.id))
+      .in('project_id', projectIds).limit(500);
+    const have = new Set((existing || []).map(l => l.project_id));
+    const fresh = projs.filter(p => !have.has(p.id));
+    if (!fresh.length) return;
+    const rows = fresh.map(p => ({
+      project_id: p.id, hive_id: HIVE_ID,
+      link_type: 'inventory_item', link_id: String(item.id),
+      label: item.part_name || item.part_number || 'part',
+    }));
+    const { error } = await db.from('project_links').insert(rows);
+    if (error && error.code !== '23505') { console.warn('project auto-link (inventory):', error.message); return; }
+    if (typeof showToast === 'function') {
+      showToast(`Part linked to ${fresh.length === 1 ? fresh[0].project_code : fresh.length + ' active projects'}.`);
+    }
+  } catch (_) { /* empty-catch-allow: best-effort project bundling, never blocks the use */ }
+}
+
 function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef) {
   const txns = loadTransactions();
   txns.push({
@@ -1392,6 +1654,7 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef) {
     note:        note || '',
     job_ref:     jobRef || null,
     worker_name: WORKER_NAME,
+    auth_uid:    _authUid || null,  // attribution FK — mirror the inventory_items upsert (was dropped, so UI txns had null auth_uid while use/adjustment/restock all carry it in seeded data)
     hive_id:     HIVE_ID || null,
     created_at:  new Date().toISOString(),
   });
@@ -1438,21 +1701,21 @@ function openDetailModal(id) {
     <div class="grid grid-cols-3 gap-3 mb-5">
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
         <div class="text-2xl font-black" style="color:${sc.text}">${item.qty_on_hand}</div>
-        <div class="text-[10px] text-white/35 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} on hand</div>
+        <div class="text-[10px] text-white/60 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} on hand</div>
       </div>
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-        <div class="text-2xl font-black text-white/50">${item.min_qty || '—'}</div>
-        <div class="text-[10px] text-white/35 uppercase tracking-wider mt-0.5">Min / Reorder</div>
+        <div class="text-2xl font-black text-white/60">${item.min_qty || '-'}</div>
+        <div class="text-[10px] text-white/60 uppercase tracking-wider mt-0.5">Min / Reorder</div>
       </div>
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-        <div class="text-xs font-bold text-white/55 mt-1 break-words">${escHtml(item.bin_location || '—')}</div>
-        <div class="text-[10px] text-white/35 uppercase tracking-wider mt-0.5">Location</div>
+        <div class="text-xs font-bold text-white/60 mt-1 break-words">${escHtml(item.bin_location || '-')}</div>
+        <div class="text-[10px] text-white/60 uppercase tracking-wider mt-0.5">Location</div>
       </div>
     </div>
 
     ${(item.linked_asset_node_ids || []).length > 0 ? `
     <div class="mb-4">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-2">Linked Assets</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-2">Linked Assets</p>
       <div class="flex flex-wrap gap-1.5">${(item.linked_asset_node_ids || []).map(uuid => assetBadge(_nodeIdToAssetId[uuid] || (uuid ? uuid.slice(0, 8) : ''))).join('')}</div>
     </div>` : ''}
 
@@ -1470,19 +1733,19 @@ function openDetailModal(id) {
     ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && item.worker_name === WORKER_NAME)) ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>` : ''}
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
-      <p class="text-[10px] text-white/35 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
+      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
       ${txns.length === 0
-        ? '<p class="text-xs text-white/30 text-center py-4">No transactions yet.</p>'
+        ? '<p class="text-xs text-white/60 text-center py-4">No transactions yet.</p>'
         : txns.map(t => `
           <div class="txn-row flex items-start gap-3">
             <div class="mt-0.5 flex-shrink-0">${txnIcon(t.type)}</div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-xs font-bold text-white/75">${t.qty_change > 0 ? '+' : ''}${t.qty_change} ${escHtml(item.unit || 'pcs')}</span>
-                <span class="text-[11px] text-white/30 flex-shrink-0">${formatDate(t.created_at)}</span>
+                <span class="text-[11px] text-white/60 flex-shrink-0">${formatDate(t.created_at)}</span>
               </div>
-              ${t.note ? `<p class="text-[11px] text-white/45 mt-0.5">${escHtml(t.note)}</p>` : ''}
-              <p class="text-[10px] text-white/20 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}</p>
+              ${t.note ? `<p class="text-[11px] text-white/60 mt-0.5">${escHtml(t.note)}</p>` : ''}
+              <p class="text-[10px] text-white/60 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}</p>
             </div>
           </div>`).join('')
       }
@@ -1552,7 +1815,7 @@ function showToast(msg, type, ms) {
 // ────────────────────────────────────────────
 // Phase E.3d: Scan barcode / QR to auto-fill Part Number on the Add/Edit form
 document.getElementById('inv-scan-btn')?.addEventListener('click', function () {
-  if (!window.WHQRScanner) { showToast('Scanner not loaded — try again in a moment'); return; }
+  if (!window.WHQRScanner) { showToast('Scanner not loaded, try again in a moment'); return; }
   window.WHQRScanner.open({
     title: 'Scan part barcode',
     onResult: function (text) {
@@ -1602,9 +1865,9 @@ function _invSyncUrlQ() {
     history.replaceState(null, '', url);
   } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
 }
-document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 30; renderParts(); _invSyncUrlQ(); }, 300));
-['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 30; renderParts(); }));
-document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 30; renderParts(); });
+document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 8; renderParts(); _invSyncUrlQ(); }, 300));
+['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 8; renderParts(); }));
+document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 8; renderParts(); });
 
 // ────────────────────────────────────────────
 // DATA INIT: migrate from localStorage then load from Supabase
@@ -1641,7 +1904,7 @@ async function initData() {
     _invChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source:    'inventory_items + inventory_transactions + qty_on_hand + min_qty',
-      notes:     [
+      method:    [
         'Low stock: at or below reorder level',
         'Out of stock: none left on hand',
         'Approval gate: only approved items count',
@@ -1663,9 +1926,19 @@ async function initData() {
   // so downstream picker code keeps reading a.asset_id and a.type.
   const ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, created_at';
   if (HIVE_ID) {
+    // Hive-wide read. BUGFIX: a supervisor must get the FULL approval queue (approved +
+    // pending + rejected) — the old approved-only filter meant other workers' pending
+    // submissions were never fetched, so the "Pending parts" card and the "Pending
+    // approval" list read 0 while workers waited on sign-off. Workers still get approved
+    // stock only (+ their own items, fetched separately below). RLS (inventory_items_read)
+    // already scopes BOTH reads to active hive members, so this widens nothing cross-hive.
+    // L2: a hive's inventory is bounded-by-nature (config list, not append-forever); insurance cap.
+    const _hiveItemsQ = db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID);
     itemsFetches = Promise.all([
-      // L2: a hive's inventory is bounded-by-nature (config list, not append-forever); insurance cap, never truncates realistic data
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').limit(2000),
+      (HIVE_ROLE === 'supervisor'
+        ? _hiveItemsQ.in('status', ['approved', 'pending', 'rejected'])
+        : _hiveItemsQ.eq('status', 'approved')
+      ).order('created_at').limit(2000),
       db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at').limit(2000)
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
@@ -1707,13 +1980,21 @@ async function initData() {
   const mergedItems  = HIVE_ID ? mergeById(hiveItemsRes.data,  myItemsRes.data)  : (itemsRes.data  || []);
   const mergedAssets = HIVE_ID ? mergeById(hiveAssetsRes.data, myAssetsRes.data) : (assetsRes.data || []);
 
+  // P2 honest-degraded: capture read errors so a TRANSIENT read failure (which yields empty merged
+  // sets) does NOT (a) trigger the localStorage re-migration below — re-upserting stale local rows on
+  // a glitch — nor (b) render as a fake-empty inventory. A genuinely-empty cloud set has no error.
+  const _invReadErr   = (HIVE_ID ? (hiveItemsRes.error  || myItemsRes.error)  : (itemsRes  && itemsRes.error))  || null;
+  const _assetReadErr = (HIVE_ID ? (hiveAssetsRes.error || myAssetsRes.error) : (assetsRes && assetsRes.error)) || null;
+  if (_invReadErr)   console.warn('inventory items read failed:', _invReadErr.message);
+  if (_assetReadErr) console.warn('inventory assets read failed:', _assetReadErr.message);
+
   // Migrate inventory items + transactions from localStorage if Supabase is empty
-  if (mergedItems.length === 0 && lsItems.length > 0) {
+  if (mergedItems.length === 0 && lsItems.length > 0 && !_invReadErr) {
     for (const item of lsItems) {
       await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, status: 'approved', auth_uid: _authUid || null });
     }
     for (const txn of lsTxns) {
-      await db.from('inventory_transactions').insert(txn).catch(e => console.warn('txn migrate:', e.message));
+      await db.from('inventory_transactions').insert({ ...txn, auth_uid: txn.auth_uid || _authUid || null }).catch(e => console.warn('txn migrate:', e.message));
     }
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
@@ -1752,7 +2033,7 @@ async function initData() {
   // Phase 5c: writes go directly to asset_nodes with the canonical column
   // names. Local-only assets get the legacy text id as tag (the user-set
   // human code) and a fresh uuid for id.
-  if (mergedAssets.length === 0 && lsAssets.length > 0) {
+  if (mergedAssets.length === 0 && lsAssets.length > 0 && !_assetReadErr) {
     for (const a of lsAssets) {
       const payload = {
         id:           (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10)),
@@ -1855,7 +2136,7 @@ async function validateHiveMembership() {
     if (typeof whListError === 'function') {
       whListError(document.getElementById('parts-list'), "Couldn’t load your inventory. Check your connection and try again.", () => location.reload());
     }
-    if (typeof showToast === 'function') showToast('Inventory failed to load — tap Retry.', 'warn');
+    if (typeof showToast === 'function') showToast('Inventory failed to load. Tap Retry.', 'warn');
   }
 
   // Phase D3 — live cross-page stock propagation (hive mode only; no-op solo).
@@ -1872,6 +2153,31 @@ async function validateHiveMembership() {
       search.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   } catch (_) { /* empty-catch-allow: best-effort deep-link; full list still renders */ }
+
+  // Deep-link via ?receive=1&pn=<part_number>&name=<title> — the Marketplace listing
+  // detail's "Received this? Add to your inventory" lands here to CLOSE the parts-flow
+  // loop. If we already stock that part → open Restock (add the received qty to existing
+  // stock); else → open Add Part prefilled. Both reuse inventory's own ledger-consistent
+  // write path (qty_on_hand + inventory_transactions), never a duplicated write. (X keystone)
+  try {
+    const _p = new URLSearchParams(window.location.search);
+    if (_p.get('receive') === '1') {
+      const pn   = (_p.get('pn')   || '').trim();
+      const name = (_p.get('name') || '').trim();
+      const match = pn ? loadInventory().find(i => (i.part_number || '').toUpperCase() === pn.toUpperCase()) : null;
+      if (match) {
+        openRestockModal(match.id);
+        if (typeof showToast === 'function') showToast('You already stock this part: add the quantity you received from the Marketplace.', 'success', 6000);
+      } else {
+        openAddModal();
+        const pnEl = document.getElementById('f-part-number');
+        const nmEl = document.getElementById('f-part-name');
+        if (pnEl) pnEl.value = pn;
+        if (nmEl) nmEl.value = name;
+        if (typeof showToast === 'function') showToast('New part from the Marketplace: set the quantity you received and save it to inventory.', 'success', 6000);
+      }
+    }
+  } catch (_) { /* empty-catch-allow: best-effort receive deep-link; user can add manually */ }
 })();
 </script>
   <script src="nav-hub.js"></script>
@@ -1932,5 +2238,46 @@ async function validateHiveMembership() {
   <script defer src="session-timeout.js"></script>
   <script defer src="form-autosave.js"></script>
   <script defer src="device-fingerprint.js"></script>
+
+<script>
+  // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
+  window.WH_FIL_PAGE = {
+    pagetitle: 'Inventory ng Spare Parts',
+    addpart: 'Magdagdag ng Part',
+    outofstock: 'Ubos ang stock',
+    lowstock: 'Mababa ang stock',
+    pendingparts: 'Nakabinbing parts',
+    showdetails: 'Ipakita ang detalye',
+    loadmore: 'Mag-load pa',
+    addfirstpart: 'Idagdag ang Iyong Unang Part',
+    partnumber: 'Numero ng Part',
+    required: 'kailangan',
+    category: 'Kategorya',
+    partname: 'Pangalan ng Part',
+    qtyonhand: 'Qty na Hawak',
+    minqty: 'Min na Qty',
+    reorderhint: '(punto ng reorder)',
+    unit: 'Unit',
+    binlocation: 'Bin / Lokasyon ng Imbakan',
+    optional: '(opsyonal)',
+    linktoassets: 'I-link sa Mga Asset',
+    whichmachines: '(aling mga makina ang gumagamit ng part na ito?)',
+    notes: 'Mga Tala',
+    notehint: '(tips sa pag-install, specs, paalala)',
+    photo: 'Larawan',
+    tapattach: 'I-tap para mag-attach ng larawan',
+    savepart: 'I-save ang Part',
+    cancel: 'Kanselahin',
+    usestock: 'Gumamit ng Stock',
+    qtyused: 'Dami ng Ginamit',
+    jobref: 'Reference ng Trabaho',
+    jobrefhint: '(opsyonal: para sa audit trail)',
+    confirmuse: 'Kumpirmahin ang Paggamit',
+    restock: 'Mag-restock',
+    qtyadded: 'Dami ng Idinagdag',
+    note: 'Tala',
+    confirmrestock: 'Kumpirmahin ang Restock',
+  };
+</script>
 </body>
 </html>

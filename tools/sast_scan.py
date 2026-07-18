@@ -31,28 +31,32 @@ REPORT = ROOT / "sast_report.json"
 CHECK_NAMES = ["sast_scan"]
 GREEN = "\033[92m"; RED = "\033[91m"; YEL = "\033[93m"; BOLD = "\033[1m"; RESET = "\033[0m"
 
-# OWASP Top-10 (2021) category -> the WorkHive scanners that cover it.
-# Arc R (2026-06-24): completed the map to the FULL Top-10. The old map enumerated only
-# 7 categories (A07/A09/A10 were absent entirely; A06 carried the deprecated 2017 label),
-# yet printed "every OWASP Top-10 category has a scanner" - a false coverage claim. A07/A09/A10
-# now wired to existing+new gates; A02/A06 relabelled to the 2021 taxonomy.
+# OWASP Top-10 category -> the WorkHive scanners that cover it.
+# RELABELLED 2021 -> 2025 (2026-07-17, bug-hunt denominator arc; crawled owasp.org/Top10/ ->
+# substrate/external/external-owasp-top-10-2021-web-application-security-risk-.md). 2025 reshuffle:
+#   crypto 2021-A02 -> A04 · injection A03 -> A05 · insecure-design A04 -> A06 · misconfig A05 -> A02 ·
+#   vulnerable-components A06 -> A03 "Software Supply Chain Failures" · SSRF (2021-A10) folded into A01 ·
+#   A10:2025 "Mishandling of Exceptional Conditions" is NEW -> real scanners: edge error-capture /
+#   debug-echo prod-safety / status-body-consistency / webhook fail-closed (all VERIFIED to exist,
+#   not faked — the anti-pattern this map was born from). 10/10 remains honest under 2025.
 OWASP = {
-    "A01 Broken Access Control":            ["validate_gateway_tenancy.py", "validate_policy_hive_binding.py",
-                                             "validate_service_role_exposure.py", "validate_function_security.py",
-                                             "validate_public_fn_authz.py"],
-    "A02 Cryptographic Failures":           ["validate_hardcoded_secrets.py", "validate_committed_env_secret.py",
-                                             "validate_pii_egress.py"],
-    "A03 Injection":                        ["validate_xss.py", "validate_innerhtml_eschtml.py",
-                                             "validate_dom_xss_fields.py", "validate_ai_prompt_injection.py"],
-    "A04 Insecure Design / RLS":            ["validate_rls_strict.py"],
-    "A05 Security Misconfiguration":        ["validate_cors_wildcard.py", "validate_security_definer_search_path.py"],
-    "A06 Vulnerable & Outdated Components": ["validate_python_api_deps.py"],
-    "A07 Identification & Auth Failures":   ["validate_login_proxy_lockout.py", "validate_signup_enumeration_safety.py",
-                                             "validate_signup_bot_protection.py", "validate_password_recovery.py",
-                                             "validate_account_deactivation.py", "validate_anon_key_retirement.py"],
-    "A08 Software & Data Integrity":        ["validate_integration_security.py", "validate_sri.py"],
-    "A09 Logging & Monitoring Failures":    ["validate_observability.py"],
-    "A10 SSRF":                             ["validate_ssrf_egress.py"],
+    "A01:2025 Broken Access Control":                  ["validate_gateway_tenancy.py", "validate_policy_hive_binding.py",
+                                                        "validate_service_role_exposure.py", "validate_function_security.py",
+                                                        "validate_public_fn_authz.py", "validate_ssrf_egress.py"],
+    "A02:2025 Security Misconfiguration":              ["validate_cors_wildcard.py", "validate_security_definer_search_path.py"],
+    "A03:2025 Software Supply Chain Failures":         ["validate_python_api_deps.py", "validate_edge_unpinned_imports.py"],
+    "A04:2025 Cryptographic Failures":                 ["validate_hardcoded_secrets.py", "validate_committed_env_secret.py",
+                                                        "validate_pii_egress.py"],
+    "A05:2025 Injection":                              ["validate_xss.py", "validate_innerhtml_eschtml.py",
+                                                        "validate_dom_xss_fields.py", "validate_ai_prompt_injection.py"],
+    "A06:2025 Insecure Design":                        ["validate_rls_strict.py"],
+    "A07:2025 Authentication Failures":                ["validate_login_proxy_lockout.py", "validate_signup_enumeration_safety.py",
+                                                        "validate_signup_bot_protection.py", "validate_password_recovery.py",
+                                                        "validate_account_deactivation.py", "validate_anon_key_retirement.py"],
+    "A08:2025 Software or Data Integrity Failures":    ["validate_integration_security.py", "validate_sri.py"],
+    "A09:2025 Security Logging and Alerting Failures": ["validate_observability.py"],
+    "A10:2025 Mishandling of Exceptional Conditions":  ["validate_edge_error_capture.py", "validate_debug_echo_prod_safe.py",
+                                                        "validate_edge_status_body_consistency.py", "validate_cmms_webhook_security_live.py"],
 }
 
 

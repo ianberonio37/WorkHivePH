@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -43,7 +44,12 @@ const HISTORY_DAYS      = 365;
 const EXPIRY_DAYS       = 7;
 const MAX_PARTS_PER_REC = 5;       // cap recommendation breadth
 
-serve(async (req) => {
+serveObserved("parts-staging-recommender", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "parts-staging-recommender", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   logRequestStart(req, "parts-staging-recommender");  // I6 observability
@@ -88,12 +94,8 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log.error(null, "parts-staging-recommender:", { detail: msg });
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "parts-staging-recommender", "parts_staging_recommender_error", err);
   }
 });
 

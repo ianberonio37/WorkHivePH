@@ -36,6 +36,12 @@ def seed_community(client, log, ctx: dict) -> dict:
     POSTS_PER_AUTHOR_MAX = 14  # some authors will trip the 10-post badge trigger — that's intentional now
 
     rows = []
+    # E4 "digest, don't dump": the public cross-hive feed (public-feed.html) must not show the
+    # SAME post 3x. random.choice() repeated the generic "outage" template across public posts.
+    # Give every PUBLIC post globally-distinct content (deck without replacement); private posts
+    # may still reuse templates (they're never aggregated cross-hive).
+    public_deck = list(POST_TEMPLATES)
+    random.shuffle(public_deck)
     for hive in hives:
         hive_workers = workers_by_hive.get(hive["id"], [])
         if not hive_workers:
@@ -44,15 +50,23 @@ def seed_community(client, log, ctx: dict) -> dict:
             n_posts = random.randint(3, POSTS_PER_AUTHOR_MAX)
             for _ in range(n_posts):
                 ts = random_timestamp_in_last_n_days(90)
+                is_public = random.random() < 0.3
+                if is_public and public_deck:
+                    content = public_deck.pop()      # unique across the whole public feed
+                elif is_public:
+                    is_public = False                # deck exhausted → keep it private, no dup
+                    content = random.choice(POST_TEMPLATES)
+                else:
+                    content = random.choice(POST_TEMPLATES)
                 rows.append({
                     "hive_id": hive["id"],
                     "author_name": author["display_name"],
-                    "content": random.choice(POST_TEMPLATES),
+                    "content": content,
                     "category": random.choices(POST_CATEGORIES, weights=[55, 15, 25, 5])[0],
                     "pinned": random.random() < 0.03,
                     "flagged": False,
                     "created_at": to_iso(ts),
-                    "public": random.random() < 0.3,
+                    "public": is_public,
                     "auth_uid": author.get("auth_uid"),
                 })
 

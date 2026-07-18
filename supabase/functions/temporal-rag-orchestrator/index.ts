@@ -35,7 +35,7 @@
  * contract-allow: meta-orchestrator; output schema documented above.
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
@@ -280,7 +280,7 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string): Promise<{ all
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("temporal-rag-orchestrator", async (req) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 

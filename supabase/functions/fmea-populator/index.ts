@@ -19,7 +19,8 @@
  * on every read), devops (getCorsHeaders dynamic CORS).
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -216,7 +217,12 @@ async function classifyCluster(
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("fmea-populator", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "fmea-populator", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   logRequestStart(req, "fmea-populator");  // I6 observability
@@ -395,11 +401,7 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // Inline JSON.stringify({ error: ... }) for static error-contract scan.
-    return new Response(
-      JSON.stringify({ error: "Internal error", detail: msg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "fmea-populator", "fmea_populator_error", err);
   }
 });

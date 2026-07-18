@@ -1,0 +1,664 @@
+---
+name: gate-catalog
+type: gate
+source: file:run_platform_checks.py:VALIDATORS
+source_sha: 9e23f53ae619b2bd
+last_verified: 2026-07-13
+supersedes: null
+---
+## gate · registered validators (608) — the 'what's already gated' brain
+
+GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
+
+
+### AI Validation (95)
+- `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
+- `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
+- `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
+- `ai_live_invoke` [fail] — Arc H: AI Live-Invoke battery (proof→LIVE, live LLM + edge runtime)
+- `ai_prompt_injection` ⚡ [fail] — Arc H: AI prompt-injection posture (untrusted input out of system prompt; LLM01)
+- `ai_rate_limit_coverage` ⚡ [fail] — Arc H: AI rate-limit coverage (no unbounded frontend-direct LLM call; LLM10)
+- `ai_retrieval_isolation` [fail] — Arc H: AI retrieval isolation (no cross-tenant DEFINER read/vector IDOR; LLM08)
+- `analytics_correctness` ⚡ [fail] — AI Self-Improvement: Analytics Engine Value Accuracy
+- `analytics_page` ⚡ [fail] — Analytics A4/AI3/A6: page invariants (chart CLS reserve, honest label, no em-dash)
+- `analytics_synthesis_grounding` ⚡ [fail] — Analytics AI2/F5: action-plan synthesis reads real phase keys (no ungrounded AI)
+- `analytics_ufai_scoreboard` ⚡ [fail] — UFAI: Analytics Engine scoreboard invariants (anti-drift lock)
+- `anon_key_retirement` [fail] — Arc J/J7: anon-key retirement (anon reads 0 hive rows; pages session-gated)
+- `article-taxonomy` ⚡ [fail] — Content Grounding: Article<->Page Taxonomy Consistency (forward-only ratchet)
+- `artifact_alignment` ⚡ [fail] — AI Self-Improvement: Artifact-Alignment Correctness (§13.13)
+- `asr_confidence_gate` ⚡ [fail] — Arc H: ASR-confidence clarify-gate intact (X-FIND, garbled voice does not confabulate)
+- `auth_idle_timeout_live` [fail] — Arc I: live idle-timeout (shared-device idle→prompt→hard-clear sequence)
+- `auth_live_db` [fail] — Arc I: live data-layer auth proofs (synthetic-email/non-active/server-tenancy/backfill)
+- `auth_live_gotrue` [fail] — Arc I: live credential-strength (GoTrue rejects weak password, 422)
+- `auth_rate_limit_live` [fail] — Arc I: live AI rate-limit enforcement (counter at limit → 429; LLM10)
+- `auth_role_guard_live` [fail] — Arc I: live function-level role guard (worker → 403 on supervisor-only fn)
+- `auth_role_render_live` [fail] — Arc I: live role-gated render (RBAC at the render layer; supervisor-only visibility)
+- `bom_sow_grounding` [fail] — AI Self-Improvement: BOM/SOW Grounding-Consistency (§13.13, live LLM)
+- `calc_api_serializable` ⚡ [fail] — Calc API JSON-Serializability (numpy-500 / silent-TS-fallback class)
+- `calc_formula_accuracy` ⚡ [fail] — AI Self-Improvement: Calc Formula Accuracy
+- `calc_live_value` [fail] — Arc Q: Calc LIVE Value-at-the-Glass (63/63 types — running API serves the standard-correct number)
+- `cmms_entity_sync_live` [fail] — CMMS: live entity sync (asset/inventory/pm.overdue webhook handlers land in DB, idempotent)
+- `cmms_webhook_security_live` [fail] — CMMS: live webhook security (replay window + malformed 400 + wrong-sig 401 + fresh 200)
+- `committed_env_secret` ⚡ [fail] — Arc R: committed .env secret (no credential in a tracked dotfile; A02)
+- `companion_output_escaping` ⚡ [fail] — Arc H: companion output escaping (LLM05 — untrusted LLM output can't XSS)
+- `content-grounding` [fail] — Content Grounding Gate (12-check outward content drift: feature/count/link/capability/surface-render/llms-completeness; forward-only ratchet)
+- `csp-ratchet` ⚡ [fail] — CSP Hardening Ratchet (index.html inline-handler/un-nonced-script debt frozen; forward-only toward strict CSP)
+- `cwv` [fail] — Core Web Vitals Gate (P3: warm-median mobile LCP/INP/CLS over public surfaces vs 2026 thresholds + coverage; reads cwv_measurements.json; forward-only ratchet)
+- `data_completeness` ⚡ [fail] — AI Self-Improvement: Data Completeness
+- `definer_tenant_gate` [fail] — Arc G: DEFINER tenant-gate (no un-gated cross-tenant DEFINER mutator)
+- `diagram_value_alignment` [fail] — AI Self-Improvement: Diagram-Value Alignment (§13.13 A4, live)
+- `dom_xss_fields` ⚡ [fail] — Arc R: DOM-XSS DB-field escaping (DB free-text in HTML must be escHtml; A03)
+- `engdesign_a11y` ⚡ [fail] — Deep-arc P3: Engineering-Design report a11y (contrast U-1/U-4, 44px U-6, label/announce passes U-2/U-3/U-8)
+- `engdesign_ai` ⚡ [fail] — Deep-arc P5: Engineering-Design AI egress integrity (timeout AI-4, honest copy AI-5, disclosure AI-7, friendly errors AI-8, narration grounding AI-1)
+- `engdesign_ai_citations` [fail] — Deep-arc P5/AI-6: Engineering-Design AI citation grounding (fabricated-standard detector w/ teeth; live narratives cite only real standard families)
+- `engdesign_registry` ⚡ [fail] — Deep-arc P1: Engineering-Design registry SSOT (counts derive from CALC_TYPES_UI; no drift/orphans)
+- `engdesign_silent_zero` ⚡ [fail] — Deep-arc P7/F-5: Engineering-Design silent-zero ratchet (result `|| 0` alias-chains can't grow past baseline)
+- `engdesign_units` ⚡ [fail] — Deep-arc P6/A-6: Engineering-Design scoped SI/IP units toggle (engine normalized to SI; universal/ambiguous units excluded)
+- `engdesign_write_isolation` [fail] — Deep-arc P2/I-2: engineering_calcs WRITE-side isolation (foreign auth_uid insert blocked, self allowed) — LIVE
+- `engdesign_xss` ⚡ [fail] — Deep-arc P4: Engineering-Design XSS/output-encoding (no row-into-onclick I-7, no raw narrative I-6, validateBeforeSave I-5)
+- `engines_live_value` [fail] — Arc Q: Engines LIVE Value-at-the-Glass (analytics MTBF/OEE/MTTR + reliability P-F + projects EVM/CPM — running API serves standard-correct)
+- `export_value_contract` [fail] — AI Self-Improvement: Export-Value Contract (§13.16 A7.2, CSV)
+- `extractability` [fail] — Extractability Gate (P2: answer-first + statistic + cited-source per article; Princeton GEO triad; forward-only ratchet)
+- `grounding_contract` [fail] — AI Self-Improvement: Grounding Field-Contract (§13.15 A6, forward-only)
+- `hive_board` ⚡ [fail] — Hive Board: asset write on asset_nodes + role-scoped reserve + RLS migration
+- `indigenous_stack` ⚡ [fail] — Arc H/V: indigenous stack keeps local-first + fallback (data sovereignty, no hard external dep)
+- `integration_configs_authz_live` [fail] — CMMS: live integration_configs authz (config_id BOLA closed; worker token-read/write blocked)
+- `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)
+- `landing-extractability` [fail] — Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)
+- `login_proxy_lockout` [fail] — Arc I: login brute-force lockout (server-side proxy; correct pw can't bypass a lock)
+- `memory_index_budget` [fail] — Memory hygiene: MEMORY.md index under the session load cap (auto-memory)
+- `memory_pii_redaction` ⚡ [fail] — Arc H: multi-turn PII egress rail (K2, memory_block + summariser, redactMemoryText)
+- `migration_grant_regression` ⚡ [fail] — Arc R: migration grant-regression (a revoked lock not silently re-granted; A01)
+- `name-alignment` [fail] — Platform Name Alignment (page <title> = authority; catalog/popup name drift; forward-only ratchet)
+- `narrative_grounding` [fail] — AI Self-Improvement: Narrative Grounding (§13.16 A7.1, live LLM)
+- `no_ai_gateway_bypass` ⚡ [fail] — Arc H: no browser page bypasses ai-gateway with a direct external-model call (K1, Ext-1)
+- `oee_quality_derivation` ⚡ [fail] — Analytics F1b: canonical OEE quality = good/total (report matches page)
+- `orphan-depth` [fail] — Orphan / Click-Depth Gate (P1: 0 orphaned public pages + every page <=3 clicks from index.html; crawl-graph over script-stripped DOM; forward-only ratchet)
+- `password_recovery` [fail] — Arc I: password recovery (supervisor-assisted scoped + email fallback)
+- `pm_compliance_weighted` ⚡ [fail] — Analytics F1d: PM compliance is SMRP-weighted (hero matches its count)
+- `projects_correctness` ⚡ [fail] — AI Self-Improvement: Project Manager EVM + CPM Value Accuracy
+- `public_fn_authz` ⚡ [fail] — Arc R: public-fn authZ (no verify_jwt=false LLM fn without auth/rate-limit; A01)
+- `public_fn_write_authz` ⚡ [fail] — Arc R: public-fn write authZ (no anon-triggerable service-role writer; A01/BFLA)
+- `python_api_auth` ⚡ [fail] — Arc F: Python API auth gate (edge↔python shared secret)
+- `python_api_deps` ⚡ [fail] — Arc F: Python API supply-chain (hard-import declaration + CVE scan)
+- `realtime_subscription_isolation` [fail] — Arc J: realtime subscription isolation (no realtime-published table streams to anon)
+- `reasoning_scaffold_strip` ⚡ [fail] — AI Companion: reasoning/persona-scaffold leak strip (untagged CoT never reaches the reply)
+- `redact_iso` ⚡ [fail] — Arc H: PII-egress redaction ISO carve-out (D25, shared redactPII.ts, deterministic)
+- `reliability_correctness` ⚡ [fail] — AI Self-Improvement: Reliability P-F Interval Value Accuracy
+- `report_email_escaping` ⚡ [fail] — Analytics I3/I6: send-report-email HTML-injection (every email sink escaped)
+- `response_format_validation` ⚡ [fail] — AI Self-Improvement: Response Format Validation
+- `rls_coverage` [fail] — Arc G: RLS coverage (no hive OR personal auth_uid table ships with RLS disabled)
+- `rls_permissive_bypass` [fail] — Arc G: RLS no-permissive-bypass (legacy USING(true) tenant-isolation gap)
+- `rls_tenant_isolation` [fail] — Arc G: RLS tenant isolation (live two-tenant; member sees 0 cross-hive rows)
+- `rpc_return_shape` [fail] — Arc G: RPC return-shape (no opaque record returns; introspectable consumer contract)
+- `sast_owasp_complete` ⚡ [fail] — Arc R: SAST OWASP-map completeness (full Top-10 mapped; meta)
+- `security_adversarial_sweep` [fail] — Arc R: security/adversarial sweep (4 lenses, OWASP Top-10, ratcheted)
+- `seo-technical` [fail] — SEO Technical Gate (P1: one-H1 + img-alt + JSON-LD validity + no-new-retired-schema; catalog-derived surfaces; forward-only ratchet)
+- `setcontext_pii_safe` ⚡ [fail] — Arc H: piiSafe companion context carries no person-name (K4, page_context egress)
+- `signup_bot_protection` ⚡ [fail] — Arc I: signup bot-protection wiring (Turnstile configure-to-enable; ASVS V2.1)
+- `signup_enumeration_safety` ⚡ [fail] — Arc I: account-enumeration resistance (login uniform-response + signup RPC carve-out; ASVS V2.2)
+- `sri_cdn_scripts` ⚡ [fail] — Arc R: SRI on pinned CDN scripts (supply-chain; A08)
+- `ssrf_egress` ⚡ [fail] — Arc R: SSRF egress (tenant-controlled fetch routed through ssrf-guard; A10)
+- `truth_view_security_invoker` [fail] — Arc G: truth-view security_invoker (read path respects RLS, no view RLS-bypass)
+- `view_security_invoker` [fail] — Arc G: view security_invoker (no view bypasses base-table RLS = cross-tenant read)
+- `visual_defect_confidence` ⚡ [fail] — AI Self-Improvement: Visual Defect Confidence
+- `voice_alert_order` ⚡ [fail] — AI Self-Improvement: Voice Alert Order
+- `voice_kb_context` ⚡ [fail] — AI Self-Improvement: Voice Kb Context
+- `voice_response_latency` ⚡ [fail] — AI Self-Improvement: Voice Response Latency
+- `voice_router_live` [fail] — Arc H: Voice-router LIVE slot-fill guard (no junk-write; runtime path)
+- `voice_router_oracle` ⚡ [fail] — Arc H: Voice-router determinism oracle (routing/tool-selection value-correctness)
+
+### Arc K (1)
+- `live-page-journeys` ⚡ [regression] — Arc K Live-Page Journeys Ratchet (live-as-a-user JTBDs never regress non-live + deterministic floor never grows; reads live_page_journeys_results.json vs baseli
+
+### Arc L (1)
+- `perf-scale` ⚡ [regression] — Arc L Performance & Scale ratchet (forward-only: S/E/R/B pass-counts >= locked baseline; floors S90/E85/R85/B95)
+
+### Arc V (2)
+- `arc-v-capstone` ⚡ [regression] — Arc V EFFORTLESS Family-Capstone Ratchet (cross-page JOBS stay effortless: continuity never breaks - no hop bounces to sign-in / loses hive context; cumulative 
+- `arc-v-effortless` ⚡ [regression] — Arc V EFFORTLESS 3-Lens Ratchet (E: total click-hops CEILING - any new friction fails + excess-click debt never grows; L: cognitive-load floor never grows - Mil
+
+### Arc W (1)
+- `arc-w-visual` ⚡ [regression] — Arc W VISUAL UI/UX 9-Lens Ratchet (D depth/H focal/W whitespace/G grouping/C consistency/V dashboard/T color-type/M-S motion-state/I icon - every per-lens viola
+
+### Arc Y (1)
+- `arc-y-intuition` ⚡ [regression] — Arc Y INTUITION GRADIENT Ratchet (per-page 5-lens novice floor never drops: L1 jargon-without-gloss can't grow / L3 first-paint overwhelm ceiling / L4 displayed
+
+### Companion Memory (6)
+- `companion_memory_backup_drill` [fail] — Companion Memory C3.1: backup + restore drill (rowcount round-trip + recall survives restore)
+- `companion_memory_dedup` ⚡ [fail] — Companion Memory C2.2: write-side semantic dedup (near-dup procedural merges, distinct inserts)
+- `companion_memory_gate_teeth` ⚡ [fail] — Companion Memory C1.1: memory gate has teeth (degraded locked-test FAILs, clean passes)
+- `companion_memory_health_gate` ⚡ [fail] — Companion Memory C3.2: memory health gate (structural + procedural-embedding integrity)
+- `companion_memory_reembed` ⚡ [fail] — Companion Memory C2.3: re-embed-retry (null procedural becomes searchable after re-embed)
+- `companion_memory_supersedes` ⚡ [fail] — Companion Memory C2.1: supersedes down-rank (obsolete procedure ranks below its replacement)
+
+### Data Quality (3)
+- `inventory-integrity` ⚡ [fail] — Inventory Integrity (no negative qty, valid txn types, qty_after accuracy)
+- `logbook-consistency` ⚡ [fail] — Logbook Consistency (closed_at set, Open no closed_at, parts txn parity)
+- `pattern-alerts` ⚡ [fail] — Pattern Alerts Quality (no <think> leak, valid rule_ids, non-empty text)
+
+### Engineering Calculator (2)
+- `calc-integration` [fail] — Calc Integration Test (L3 — live edge function)
+- `calc-suite` ⚡ [blocker] — Engineering Calc Suite (L1+L2a+L2b)
+
+### Forward-Build (2)
+- `fb2-browser-ci-persona` ⚡ [regression] — FB2 Browser-CI Multi-Persona Live Floor Ratchet (every page walked HEADLESS as field-tech/supervisor/new-worker/admin = role x viewport x hive; the persona-delt
+- `fb4-grounding-eval` [regression] — FB4 Live-LLM Grounding/Fabrication Eval (invokes the served LLM edge fns with DIVERSE ASKER PERSONAS - earnest/edge-case/adversarial-injection/Tagalog - and gra
+
+### Maturity P1 (7)
+- `connection-pool-saturation` ⚡ [regression] — Connection-Pool Saturation Ratchet (LB GH: leak surfaces frozen at 0 + surface count + alarm declared)
+- `connection-surface-discovery` ⚡ [regression] — Connection-Surface Discovery (LB G-1: every subscribing surface registered + budgeted)
+- `game-day-readiness` ⚡ [regression] — Game-Day Readiness (AV GH: game_day + verify_backups + RTO/RPO + rollback runbook + SLO all present)
+- `health-surface-discovery` ⚡ [regression] — Health-Surface Discovery (AV G-1: count of fns without /health frozen at baseline — new health-less fn FAILs)
+- `load-resilience` ⚡ [regression] — Load-Resilience Sentinel (LB GS: load_probe + LOAD-SLO + DEGRADED-MODE + 429/503 graceful degrade)
+- `mine-capacity-signals` ⚡ [info] — Capacity-Signals Miner (LB G-1.5: realtime channel/subscribe/teardown + unbounded select shape)
+- `mine-health-surface` ⚡ [info] — Health-Surface Miner (AV G-1.5: /health coverage shape across all edge fns)
+
+### Maturity P2 (4)
+- `cache-hit-rate` ⚡ [regression] — Cache Efficiency Ratchet (CA GH: CDN Cache-Control rules present + LLM cached() adopter floor)
+- `mine-cache-signals` ⚡ [info] — Cache-Signals Miner (CA G-1.5: CDN _headers + LLM cached() adopters + SW shell precache shape)
+- `mine-rate-limit-signals` ⚡ [info] — Rate-Limit-Signals Miner (RL G-1.5: per-fn rate-limit primitives + verifiedHiveId bucketing-key shape)
+- `rate-limit-fairness` ⚡ [regression] — Rate-Limit Fairness Sentinel (RL GS: no fn buckets on a spoofable client hive_id; latent ratchet; keystone fair)
+
+### Maturity P3 (6)
+- `ci-gate-sentinel` ⚡ [regression] — CI-Gate Sentinel (CI GS: local ci_gate + a workflow runs the gate + reproducible pin + wired trigger)
+- `deploy-safety` ⚡ [regression] — Deploy-Safety Sentinel (H GS: rollback runbook + pre-deploy gate + undeployed-fn ratchet)
+- `log-correlation` ⚡ [regression] — Log-Correlation Sentinel (L GS: structured logger + trace_id correlation + JSON + trace-store aggregation)
+- `log-surface-discovery` ⚡ [regression] — Log-Surface Discovery (L G-1: count of fns logging raw console.* without logger.ts frozen at baseline)
+- `mine-ci-signals` ⚡ [info] — CI-Signals Miner (CI G-1.5: workflow count/triggers + gate-running + .tool-versions pin)
+- `mine-deploy-signals` ⚡ [info] — Deploy-Signals Miner (H G-1.5: edge fn registration/deploy coverage + rollback/pre-deploy presence)
+
+### Maturity P4 (5)
+- `gateway-bypass` ⚡ [regression] — Gateway-axis MEASURED (G2 §14.6: derives each layer's PEP-chokepoint grade from REAL bypass reports — gateway_coverage/tenancy/policy-hive-binding/canonical-sou
+- `gateway-gate-depth` ⚡ [regression] — HONEST per-layer depth (§14.6: Gateway PEP × Gate ratchet × Prod-real, 13 layers; forward-only composite ratchet. Stricter than the 13x6 matrix + coverage — req
+- `layer-depth` ⚡ [regression] — Layer sub-discipline COVERAGE (A7.4 §14.5: 99-item rubric checklist across 13 layers; forward-only ratchet — a layer losing validator/tool evidence FAILs. Measu
+- `openapi-sync` ⚡ [regression] — OpenAPI Sync (A capability: openapi.json covers every edge fn in ALL_FUNCTIONS, no ghost routes; re-run tools/gen_openapi.py on drift)
+- `sast-scan` [regression] — SAST Posture (S capability: every OWASP Top-10 category has an automated scanner; aggregates the 12 security validators)
+
+### Memory System (6)
+- `memory_db_backup` [fail] — Memory M1.1+M1.2: memory.db backup/restore round-trip + VACUUM shrink drill
+- `memory_health_gate` ⚡ [fail] — Memory M2.2: retriever health-regression gate (silent_rate / p95 / grounding thresholds)
+- `memory_prune_transcripts` ⚡ [fail] — Memory M4.1: transcript prune mechanism (evicts only old never-retrieved, keeps the rest)
+- `memory_recall_eval` [fail] — Memory M2.1: retriever recall@k eval (25 golden pairs, ratcheted to health floors)
+- `memory_supersedes` ⚡ [fail] — Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)
+- `memory_write_quality` ⚡ [fail] — Memory M3.1: topic-file write-quality lint (type/name/description, no silent type=unknown)
+
+### P1 Roadmap (20)
+- `edge-error-capture` ⚡ [regression] — Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper
+- `envelope-conformance` ⚡ [regression] — Envelope Conformance (every edge fn imports _shared/envelope.ts OR is exempt)
+- `envelope-return-shape` ⚡ [warn] — Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)
+- `fullstack-gate-coverage` ⚡ [blocker] — Full-Stack × Gate Coverage Meta-Gate (every artefact named in the study's 13×6 matrix must exist)
+- `grafana-reader-reads` [regression] — Grafana-Reader Read-Path Gate (Operator-Console->Grafana: LIVE-queries every dashboard-dependency table AS grafana_reader and fails if a read errors or is RLS-p
+- `grafana-slo-dashboard` ⚡ [regression] — Grafana SLO Provisioning Gate (Arc T/T5+T4: the repo-provisioned golden-signal dashboard workhive-slo-arct - 6 panels over wh_traces/v_wh_traces_slo on the supa
+- `health-endpoint` ⚡ [regression] — Health Endpoint (every load-bearing edge fn handles /health)
+- `llm-cache-adoption` ⚡ [warn] — LLM Cache Adoption (count of fns using cached() from _shared/cache.ts; floor ratchet)
+- `migration-immutability-strict` ⚡ [blocker] — Migration Immutability Strict (sha256 every migration; FAIL on edit-after-first-observation)
+- `mine-cache-name-drift` ⚡ [info] — Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)
+- `mine-rls-policies` ⚡ [info] — RLS Policy Substrate Miner (L-1.5: USING(true) / WITH CHECK(true) / missing TO clause)
+- `observability-fault-walk` [regression] — Observability Fault-Inject Walk (Arc T/T2 LIVE proof: injects an unhandled throw via the auth-gated chaos hook -> asserts a wh_traces error row lands with the s
+- `rate-limit-adoption` ⚡ [regression] — Rate-Limit Adoption (every callAI fn calls checkAIRateLimit/checkUserRateLimit/checkRouteRateLimit)
+- `render-budget` ⚡ [warn] — Render Budget (per-page HTML + inline JS + external script ratchet)
+- `reproducible-build-pin` ⚡ [regression] — Reproducible Build Pin (L1 .tool-versions + L2 package-lock + L3 engines.node agreement)
+- `rls-strict` ⚡ [regression] — RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)
+- `slo-rollup` [regression] — SLO Error-Budget Rollup Gate (Arc T/T3: v_wh_traces_slo view + slo_error_budget() RPC exist AND compute correctly - per-route error counts excl. 401/403/429 pol
+- `structured-log-adoption` ⚡ [warn] — Structured Log Adoption (count of fns importing + calling log.* from _shared/logger.ts; floor ratchet)
+- `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
+- `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
+
+### Platform (419)
+- `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
+- `accessibility` ⚡ [fail] — Accessibility Baseline Validator
+- `achievements` ⚡ [fail] — Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)
+- `add-column-default` ⚡ [fail] — ADD COLUMN DEFAULT (every ADD COLUMN NOT NULL has a DEFAULT; backfill safety; forward-only ratchet)
+- `admin-gates` ⚡ [fail] — Admin Gate Enforcement (founder-console, marketplace-admin must verify admin)
+- `adoption-observability` ⚡ [fail] — Adoption Observability Validator (Phase 3.6: hive_adoption_score migration + supervisor card + onboarding stepper + intent capture + canonical anchors)
+- `agent-episodic-memory` ⚡ [fail] — Agent Episodic Memory Phase 7 (12-layer: migration + 4 types + RLS + edge fn + recall+store ops + caps + content cap + importance×log rank + batch cap + hive sc
+- `agent-handoff-contract` ⚡ [fail] — Agent Handoff Contract (4-layer: handoff keys + specialist awareness + worker_name trust + inventory)
+- `agent-memory-persist-complete` ⚡ [fail] — agent_memory persist-complete (the store_memory_turn RPC's INSERT names every NOT NULL column [worker_name/agent_id/kind] + sets kind to a CHECK-allowed literal
+- `agentic-rag-loop` ⚡ [fail] — Agentic RAG Loop Phase 1 (18-layer: edge fn + 5 stages + hive scoping + FREE-TIER-ONLY + callAI + rate limit + retry cap + grader threshold + question cap + tra
+- `agentic-rag-observability` ⚡ [fail] — Agentic RAG Observability Phase 8 (10-layer: page exists + calm-dashboard meta + utils + hive gate + hive-scoped query + narrow select + 4 render fns + escHtml 
+- `ai-alignment` ⚡ [fail] — AI Alignment / Provenance (4-layer: source stamp + provenance cols + dashboard filter + inventory)
+- `ai-asset-versioning` ⚡ [fail] — AI Asset Versioning (C5: prompts/eval-sets/model-chain/judge versioned + hash-locked like migrations)
+- `ai-attribution` ⚡ [fail] — AI Output Attribution Validator
+- `ai-companion-accessibility` ⚡ [fail] — AI Companion Multi-Modal + Accessibility (10-layer: turns #125-#134 — camera capture + file attachment + reduced motion + aria-live + keyboard nav + CB-safe pal
+- `ai-companion-analytics` ⚡ [fail] — AI Companion Advanced Analytics (10-layer: turns #165-#174 — 3σ anomaly + Weibull MTBF + Pareto + linear trend + seasonal peak + trimmed mean + z-score + correl
+- `ai-companion-collaboration` ⚡ [fail] — AI Companion Collaboration + Wellbeing (10-layer: turns #35-#44 — action confirm + wellbeing + encouragement + skill gap + handover + batch + explainability + c
+- `ai-companion-compliance` ⚡ [fail] — AI Companion Compliance + Data Governance (10-layer: turns #115-#124 — PII scrubber + consent capture + retention + right-to-erasure + audit CSV + suspicious ac
+- `ai-companion-external-integration` ⚡ [fail] — AI Companion External Integration (10-layer: turns #155-#164 — SAP PM webhook + Maximo poll + OPC-UA tag + MQTT topic + Slack + email digest + Teams card + ICS 
+- `ai-companion-input-normalization` ⚡ [fail] — AI Companion Input Normalization + Onboarding (10-layer: turns #85-#94 — precision rule + asset-tag normalization + time-range + ack style + forbidden topics + 
+- `ai-companion-integration-audit` ⚡ [fail] — AI Companion Integration + Audit (10-layer: turns #95-#104 — audit log + quiet hours + preflight + idle cleanup + error analytics + session tag + deep link + gr
+- `ai-companion-intelligence` ⚡ [fail] — AI Companion Intelligence (10-layer: turns #25-#34 — shift + repeated-issue + standards + shortcuts + thumbs + discipline + goodbye + confidence + pacing + aler
+- `ai-companion-knowledge-graph` ⚡ [fail] — AI Companion Knowledge Graph (10-layer: turns #185-#194 — entity + relation + triple + RAG block + FNV hash + chunking + citation + query rewrite + reasoning tr
+- `ai-companion-learning` ⚡ [fail] — AI Companion Proactive Assistance + Learning (10-layer: turns #105-#114 — PM sync drift + skill-level adaptation + cross-asset pattern + intent history + sentim
+- `ai-companion-multilang` ⚡ [fail] — AI Companion Multi-Language NLU (10-layer: turns #205-#214 — Cebuano + Ilonggo + Tagalog imperative + code-switch ratio + politeness register + PH time phrases 
+- `ai-companion-operational` ⚡ [fail] — AI Companion Operational Excellence (10-layer: turns #135-#144 — health ping + self-test + feature flags + browser support + network adapt + memory pressure + c
+- `ai-companion-orchestration` ⚡ [fail] — AI Companion Orchestration + Integration (10-layer: turns #65-#74 — pdf export + pronunciation + voice-execute lock + avatar animation + cross-hive RPC + digest
+- `ai-companion-resilience` ⚡ [fail] — AI Companion Resilience + Memory (10-layer: turns #45-#54 — offline + cache + escalation + terminology + branching + photo intent + avatar state + benchmark + s
+- `ai-companion-safety` ⚡ [fail] — AI Companion Safety + Permit-to-Work (10-layer: turns #175-#184 — LOTO + hot work + confined space + PPE matrix + near-miss + JSA + gas test + incident + energy
+- `ai-companion-sustainability` ⚡ [fail] — AI Companion Energy + Sustainability (10-layer: turns #195-#204 — EnPI + PH carbon factor + peak demand + 5σ energy anomaly + standby waste + water + air leak +
+- `ai-companion-team-coordination` ⚡ [fail] — AI Companion Team Coordination (10-layer: turns #145-#154 — active sessions + handoff + shared notes + concurrency alert + watchlist + broadcast + resolution + 
+- `ai-companion-trust-deployment` ⚡ [fail] — AI Companion Trust Deployment (10-layer: turns #75-#84 — toxicity + question shape + freshness + rate-limit + share + readback + scope + correction + confidence
+- `ai-companion-trust-observability` ⚡ [fail] — AI Companion Trust + Observability (10-layer: turns #15-#24 — hallucination guard + citation + audio interrupt + TTS latency + rate-limit + fallback UX + acrony
+- `ai-companion-workflow` ⚡ [fail] — AI Companion Workflow + Personalization (10-layer: turns #55-#64 — proactive + maturity + slot expiry + action replay + language + brevity + timer + URL prefill
+- `ai-context` ⚡ [fail] — AI Context Quality Validator
+- `ai-cost-observability` ⚡ [fail] — AI Cost Observability (4-layer: ledger + callAI logs + dashboard + invocations)
+- `ai-daily-ceiling` ⚡ [fail] — Q4 AI Daily Ceiling (per-day AI window on ai_rate_limits+ai_user_rate_limits denies scope='day' at the daily cap; the deno-gated live-runtime 429 is proven via 
+- `ai-data-pipeline` ⚡ [fail] — AI Data Pipeline Validator (stale data, silos, latency, observability)
+- `ai-eval-coverage` ⚡ [fail] — AI Evaluation Coverage (4-layer: registry present + fixture coverage + eval cron + quality log)
+- `ai-eval-regression` ⚡ [fail] — AI Eval Regression Gate (C3 Phase 1: score locked-test split vs frozen golden; degrade-to-SKIP without data)
+- `ai-pattern-compliance` ⚡ [fail] — AI Pattern Compliance (4-layer: rate-gate-first + fallback chain + JSON mode + cost concentration)
+- `ai-payload-hygiene` ⚡ [fail] — AI Payload Hygiene (4-layer: no select-star + module prompts + limit bounds + payload inventory)
+- `ai-prompt-standards` ⚡ [fail] — AI Prompt Standards Audit (Tier B — edge fn prompts mentioning a metric must cite its canonical standard)
+- `ai-regression` ⚡ [fail] — AI Prompt Regression Validator (4-layer: consistency + content + parity + Tier-S citation)
+- `ai-safety` ⚡ [fail] — AI Input Bounds / Safety (4-layer: field slices + any slice + slice constants + input inventory)
+- `ai-seam-coverage` ⚡ [fail] — AI Seam Contract-Test Coverage (C4 Phase 2a: forward-only on uncovered seam count; floor auto-lowers as tests get wired)
+- `ai-seams-inventory` ⚡ [fail] — AI Seams Inventory (C4 Phase 1: catalog SaaS→AI / AI→tenant / AI→quota boundaries + forward-only ratchet)
+- `amc` ⚡ [fail] — AMC Validator (Phase 1.9: amc_briefings migration + cost log + realtime + alert-hub subscription + canonical anchor)
+- `analytics` ⚡ [fail] — Analytics Engine Validator (4-layer: HTML + Edge + Python + AST)
+- `analytics-integrity` ⚡ [fail] — Analytics Integrity (Phase 8: conversation quality metrics, health view)
+- `analytics-live` [fail] — Analytics Live Test (L4 — deployed endpoint, all 4 phases)
+- `anomaly-status-forward` [fail] — Anomaly status forward-only machine (LIVE) — anomaly_signals must keep the BEFORE UPDATE OF status trigger that makes resolved/expired TERMINAL (bug-hunt alert-
+- `api-adoption` ⚡ [fail] — API Adoption (canonical _shared/ module adoption per edge function; forward-only floors, auto-tighten)
+- `arc-u-focus-trap` [fail] — Arc U modal focus-trap + focus-restore (WCAG 2.1.2 No Keyboard Trap + 2.4.3 Focus Order — axe is STATIC and cannot see a focus trap. LIVE headless probe [tools/
+- `arc-x-befamily` [fail] — Arc X Family B+E scanner (B2 information-scent floor at 0; B3/E3 candidate lists)
+- `arc-x-cfamily` [fail] — Arc X Family C scanner (C2 placeholder-as-label + C1 recall-entity floor at 0)
+- `arc-x-cognitive` ⚡ [fail] — Arc X Cognitive-Load HARD Gate (L1 real-login hive resolution / Issue #1)
+- `aria-label-coverage` ⚡ [fail] — ARIA Label Coverage (every interactive element has an accessible name; forward-only ratchet)
+- `asset-brain` ⚡ [blocker] — Asset Brain Foundation Validator (schema, RLS, realtime publication)
+- `assistant` ⚡ [fail] — Assistant Validator
+- `assistant-recall` ⚡ [fail] — Assistant multi-turn recall (ai-orchestrator's 0-agents 'not enough data' deflection must stay MEMORY-AWARE — guarded by memoryBlock + RECALL_RE — so a 'what di
+- `attribution` ⚡ [fail] — Attribution integrity (every CLIENT insert/upsert into an auth_uid-no-default table must set auth_uid — locks the auth_uid-drop bug class found live 2026-07-06 
+- `attribution-pinned` [fail] — Attribution-forge lock (LIVE) — every hive-scoped ACTION-attribution column (actor, approved_by, acknowledged_by, resolved_by, reviewed_by, assigned_by, submitt
+- `au-adoption` ⚡ [fail] — AU Adoption (client auth floor: identity restore + session-settled reads per page; forward-only floors)
+- `audit-log-coverage` ⚡ [fail] — Audit Log Coverage (4-layer: unaudited writers + dead audit columns + critical-table coverage + writer matrix)
+- `audit-scanner-scope` ⚡ [fail] — Audit Scanner Scope (meta-validator: every consumer-scanning audit covers _shared + subdir HTML)
+- `audit-trail-coverage` ⚡ [fail] — Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)
+- `auth-boundary` ⚡ [fail] — Auth Boundary Coverage (4-layer: HTML identity + edge auth + identity distribution + anon writes)
+- `auth-migration-readiness` ⚡ [fail] — Auth Migration Readiness (Phase A audit: sibling coverage + auth_uid columns + identity gate strength)
+- `auto-discovery` ⚡ [blocker] — Auto-discovery Validator (HTML classified, edge fns in config, validators registered)
+- `av-adoption` ⚡ [fail] — AV Adoption (offline canonical set per page: full 5-script unit; forward-only floor + no-partial rule)
+- `avatar-state` ⚡ [fail] — Avatar State Management (Phase 10: emotion tracking, animations)
+- `axe-live-authed` [fail] — Axe a11y — AUTHENTICATED write surfaces (LIVE: password-grants a seeded supervisor + scans the 9 Tier-1 write pages [hive/inventory/logbook/pm-scheduler/skillma
+- `benchmark-rollup-faithfulness` [fail] — Cross-hive benchmark rollup faithfulness (LIVE: every `network_benchmarks` cross-tenant rollup must == the EXACT aggregate of the current per-hive `hive_benchma
+- `bundle-bloat` ⚡ [fail] — Edge Function Bundle Bloat (4-layer: LOC + imports + distribution + dynamic adoption)
+- `button-type-in-form` ⚡ [fail] — Button Type in Form (every <button> inside <form> declares type=button/submit/reset; forward-only ratchet)
+- `c-track-self-coverage` ⚡ [fail] — C-track Self-Coverage (meta: 9 artifacts + 5 validators + registry + roadmap labels of the Self-Improving Gate C-track)
+- `cache-invalidation` ⚡ [fail] — Cache Invalidation (4-layer: shell missing + shell drift + version history + shell inventory)
+- `calm-canonical-audit` ⚡ [blocker] — Calm Dashboard Canonical-Wiring Audit (per-tile classify: canonical/drift/gap/allowed)
+- `canonical-anchor` ⚡ [fail] — Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)
+- `canonical-drift-platform-miner` ⚡ [blocker] — Canonical Drift — Platform-Wide Miner (L-1.5: TIER A = KPI page + canonical drift; produces baseline)
+- `canonical-overlap` ⚡ [fail] — Canonical Overlap (L-1 Layer 2 -- blocks phantom tables + undocumented surface overlaps)
+- `canonical-registry` [fail] — Canonical Source Registry [L-1 Foundation] (tables/RPCs/views/surfaces inventory + duplicate signals)
+- `canonical-sources` ⚡ [blocker] — Canonical Sources Registry Validator (truth-scattering fix foundation + L2 drift detection)
+- `canonical-url` ⚡ [fail] — Canonical URL Consistency (<link rel=canonical> points at the page; forward-only ratchet)
+- `capability-dedup` ⚡ [fail] — Tier G / Layer 9 Capability Catalog & Dedup (every user-facing function pinned to one primary surface)
+- `capture-contracts` ⚡ [fail] — Tier F Capture Contract Regression Validator (good/bad payload fixtures per input surface)
+- `cascade-behavior` ⚡ [fail] — Cascade Behavior (4-layer: no-on-delete-clause + explicit-no-action + distribution + orphan-risk)
+- `catalog-scope` ⚡ [fail] — Catalog Approval Status Validator
+- `causal-cascade-coverage` [warn] — Causal Cascade Coverage (Phase A anti-rot: both legs — every DB-trigger AND every edge-fn cross-table data write is mapped in causal_cascades.json — surfaces a 
+- `clickable-keyboard-a11y` ⚡ [fail] — Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboar
+- `client-singleton` ⚡ [fail] — Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + time
+- `client_resilience` ⚡ [fail] — Deepwalk D20: client resilience (timeout-bounded fetch + offline/connectivity UX)
+- `clone-debt` ⚡ [fail] — Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)
+- `cmms-contracts` ⚡ [fail] — CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)
+- `cmms-reconciliation` [fail] — CMMS Reconciliation Validator (external_sync vs table counts, audit coverage, quality scores)
+- `cold-archive` ⚡ [fail] — Cold Lakehouse Archive Phase 6 (10-layer contract: edge fn + 4 supported tables + 200 ok:true hyparquet read + storage list + hive scoping + Python exporter + -
+- `cold-archive-wiring` ⚡ [fail] — Cold Archive Wiring (Hierarchical layer: hyparquet Parquet read stays wired into cold-archive-query - _shared helpers + parquetReadObjects + bounds + ok:true)
+- `cold-start-memoization` ⚡ [fail] — Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)
+- `community` ⚡ [fail] — Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)
+- `companion-dim-gate` ⚡ [fail] — Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)
+- `companion-diverse-gate` ⚡ [fail] — Companion Held-Out Diverse Gate (§0.7: novel-phrasing fabrication floor; threshold-not-zero; degrade-to-SKIP without a fresh board)
+- `companion-page-coverage` ⚡ [fail] — Companion Page Coverage (L0: every nav-hub page must load companion-launcher.js)
+- `companion-page-coverage` ⚡ [fail] — Companion Launcher Page Coverage (L0 — every nav-hub page has companion-launcher.js)
+- `companion-source-coverage` ⚡ [fail] — Companion Source Coverage (L0: the Sources Gateway — every v_*_truth view triaged in companion_source_registry.json)
+- `companion-source-coverage` ⚡ [fail] — Companion Source Coverage (L0 — the Sources Gateway: every v_*_truth view triaged in companion_source_registry.json)
+- `companion-stack` ⚡ [fail] — Companion Stack capstone self-coverage (Agent/Memory/RAG/Safety; forward-only on Major grounded defects)
+- `compliance` ⚡ [fail] — Enterprise Compliance Baseline Validator
+- `component-adoption` ⚡ [fail] — Component Adoption (canonical design-library adoption per registry row; forward-only floors, auto-tighten; no inline redefinitions)
+- `console-log-drift` ⚡ [fail] — console.log Production Drift (no console.log outside catch/DEBUG-guard in production code; forward-only ratchet)
+- `content-quality` ⚡ [fail] — Content Quality Validator (embed guard, schema drift, label quality)
+- `content_page_hygiene` ⚡ [fail] — Deepwalk content fold: /learn article presentation floor (D4/D5/D7/D17)
+- `context-window` ⚡ [fail] — Context Window Management Validator
+- `cors-wildcard` ⚡ [fail] — CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)
+- `cron-functional` ⚡ [fail] — Cron Job Functional Coverage (4-layer: target exists + config entry + AI gate + density)
+- `cron-health` [fail] — Cron health (LIVE: no active pg_cron job's latest run failed with a CODE error — locks the unattended-silent-failure class found live 2026-07-07, where the soft
+- `cron-schedule-integrity` ⚡ [fail] — Cron Schedule Integrity (4-layer: function existence + scheduled-agents routing + config drift + schedule sanity)
+- `cross-page` ⚡ [blocker] — Cross-Page Flow Validator
+- `css-class-existence` ⚡ [fail] — CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)
+- `css-id-existence` ⚡ [fail] — CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)
+- `cumulative-quota-enforce` ⚡ [fail] — Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative trigge
+- `data-fabric` ⚡ [fail] — Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + n
+- `data-governance-kb` ⚡ [fail] — Data Governance Validator (ownership, metadata, write path, versioning)
+- `data-quality` ⚡ [fail] — Data Quality Validator (duplicates, incomplete, bias, inconsistent formats)
+- `data-retention` ⚡ [fail] — Data Retention / Right-to-Erasure (4-layer: delete path + helper + PII inventory + retention)
+- `date-arithmetic` ⚡ [fail] — Date Arithmetic Safety (4-layer: space-date + parse-vs-ISO + ms literals + TZ-naive helpers)
+- `dayplanner` ⚡ [fail] — Day Planner Validator (Phase 1.9: DILO/WILO/MILO/YILO tabs + schedule_items + nav-hub linkage + auth-aware)
+- `db-adoption` ⚡ [fail] — DB Adoption (canonical RLS/policy/invoker pattern adoption per table/view; forward-only floors, auto-tighten)
+- `deeplink-param-contracts` ⚡ [blocker] — Deep-Link Param Contracts (forward-only: no NEW emitted ?param lacks a .get() reader in its destination — catches the dead-param class from the Phase-6b edge wa
+- `deepwalk-flywheel` [warn] — PLATFORM deep-walk FLYWHEEL v2 (Ian 2026-07-08): the WHOLE-platform quality ruler — GLOB-discovers the grid each cycle (40 pages × 13 oracle dims + 33 AI edge f
+- `definer-membership-gate` ⚡ [fail] — SECURITY DEFINER Hive-Membership Gate (every DEFINER hive-fn gated OR service_role-only)
+- `design-tokens` ⚡ [fail] — Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)
+- `destructive_safety` ⚡ [fail] — Deepwalk D18: destructive-safety (delete/reset confirm-gated via shared whConfirm)
+- `diagram_inputs` ⚡ [fail] — Diagram Inputs Contract Validator (inp.xxx vs collectInputs keys)
+- `dialog-affirmation-bypass` ⚡ [fail] — Dialog Affirmation Bypass (5-layer: regex + vocabulary + word-cap + callsite bypass + shouldClarify symmetry)
+- `dialog-continuity` ⚡ [fail] — Dialog Continuity (5-layer: prompt builder + DIALOG STATE block + PRIOR TOPIC HANDLE + slot enumeration + PH/English pronoun vocabulary)
+- `dialog-flow` ⚡ [fail] — Dialog Flow (Phase 4: intent refinement, clarification, slot-filling)
+- `dialog-followup-handlers` ⚡ [fail] — Dialog Follow-up Handlers (6-layer: negation + vocabulary + noise + state-clear + upstream + clarify-streak ceiling)
+- `dialog-quality-extended` ⚡ [fail] — Dialog Quality Extended (10-layer: turns #5-#14 — persona-switch + stale-guard + topic-interrupt + thanks + asset-prime + greeting + code-switch + sensitive-top
+- `dialog-recovery-safety` ⚡ [fail] — Dialog Recovery + Safety (5-layer: recovery helper + recovery vocabulary + clarification_pending guard + crisis line present + crisis line positioned)
+- `digital-twin` ⚡ [fail] — Digital Twin Schema Readiness Validator
+- `display-correctness-fixes` ⚡ [fail] — Display-correctness fix regression gate (STATIC: asserts the 2026-07-13 bug-hunt render-logic fixes are still present — a revert removes the marker and this FAI
+- `displayed-values` ⚡ [fail] — Displayed Values Audit (Tier S coverage — every value rendered to users should map to a formula contract OR be classified as raw display)
+- `document-write` ⚡ [fail] — document.write Usage (forbidden API; forward-only ratchet)
+- `dom-refs` ⚡ [blocker] — DOM Reference Integrity Validator (bare getElementById on missing elements)
+- `drawings` ⚡ [fail] — Drawing Standards Compliance Validator
+- `drop-if-exists` ⚡ [fail] — DROP IF EXISTS Idempotency (every DROP TABLE/VIEW/FUNCTION/POLICY/INDEX/TRIGGER/TYPE includes IF EXISTS; forward-only ratchet)
+- `duplicate-html-id` ⚡ [fail] — Duplicate HTML id (every static id is unique per document; forward-only ratchet)
+- `duplicate-script-tags` ⚡ [fail] — Duplicate <script>/<link> Tags (no per-page duplicates of script src or stylesheet href; forward-only ratchet)
+- `edge-body-size-guard` ⚡ [fail] — Edge Body Size Guard (req.json() in try/catch or has Content-Length/sizeLimit check; DoS hardening; forward-only ratchet)
+- `edge-caller-contract` ⚡ [fail] — Edge Function Caller Contract (4-layer: function existence + required field coverage + phantom fields + orphan functions)
+- `edge-config` ⚡ [blocker] — Edge Function Config Validator (config.toml coverage)
+- `edge-contracts` ⚡ [fail] — Edge Function API Contract Validator
+- `edge-function-invoke` ⚡ [fail] — Edge Function Invoke (every functions.invoke('X') target must exist; forward-only ratchet)
+- `edge-import-exports` ⚡ [fail] — Edge Import/Export Resolution (every named relative import resolves to a real export; forward-only ratchet)
+- `edge-observed-coverage` [fail] — Edge observability coverage (fix-to-ZERO: every AI edge fn in ai_seams_catalog.ai_fns has serveObserved in its index.ts — the Arc-T net that lands a wh_traces e
+- `edge-options-preflight` ⚡ [fail] — Edge OPTIONS Preflight (body-consuming edge fn handles CORS preflight; forward-only ratchet)
+- `edge-pattern-mining` [fail] — Edge-Fn Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)
+- `edge-response-content-type` ⚡ [fail] — Edge Response Content-Type (every new Response(JSON.stringify) sets application/json; comment-stripped; forward-only ratchet)
+- `edge-response-contract` ⚡ [fail] — Edge Function Response Contract (4-layer: function returns + caller field validity + introspection coverage + error-only detection)
+- `edge-status-body` ⚡ [fail] — Edge Status/Body Consistency (HTTP status matches body ok/error semantics; forward-only ratchet)
+- `edge-unpinned-imports` ⚡ [fail] — Edge Unpinned Imports (every remote import pins @version; supply-chain hardening; forward-only ratchet)
+- `embed-auth` ⚡ [fail] — Embed-auth / tenancy-gated edge-fn JWT forwarding (every browser fetch to embed-entry forwards the user session JWT as Bearer so its Pillar I tenancy check reso
+- `embed-integrity` ⚡ [fail] — PostgREST Embed Integrity (4-layer: phantom target + phantom embed column + missing FK + embed distribution)
+- `embedding-coverage` ⚡ [fail] — Embedding Coverage & Freshness (4-layer: refresh pipeline + vector index + source coverage + dim inventory)
+- `embedding-no-stale-duplicates` [fail] — Embedding re-embed-on-edit (LIVE: each logbook source entry must carry exactly ONE fault_knowledge embedding — a logbook edit-in-place re-calls embed-entry, whi
+- `embedding-retention` ⚡ [fail] — Q5-b Embedding/Growth Retention (embedding_cache LRU auto-prune cron + prune fn; canonical big tables via the safe DRY-RUN-default, double-gated cold_archive_pr
+- `empty-catch` ⚡ [fail] — Empty Catch Block (try/catch{} that silently swallows errors; forward-only ratchet)
+- `enterprise-unlock` ⚡ [fail] — Enterprise Unlock Validator (Phase 5: retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console
+- `env-secret-coverage` ⚡ [fail] — Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)
+- `env-variable-existence` ⚡ [fail] — Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
+- `episodic-memory-wiring` ⚡ [fail] — Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)
+- `event-listener-cleanup` ⚡ [fail] — Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)
+- `external-link-rel` ⚡ [fail] — External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)
+- `faithfulness-rail` ⚡ [fail] — CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTIO
+- `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
+- `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
+- `filter-case-consistency` ⚡ [fail] — Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)
+- `fk-on-delete` ⚡ [fail] — FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)
+- `flywheel-turn` ⚡ [fail] — Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)
+- `followup-queue-wiring` ⚡ [fail] — Follow-up Queue Wiring (Prospective layer: agent_followups store + _shared/followups.ts enqueue/recall-due/surface + ai-gateway surfacing + envelope-driven enqu
+- `form-submission-target` ⚡ [fail] — <form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)
+- `formula-invocation` ⚡ [fail] — Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)
+- `frequency-map-consistency` ⚡ [blocker] — Frequency-Map Consistency (every PM frequency maps to its canonical interval days; live view + code copies agree)
+- `frontend-floor-cells` [fail] — Frontend floor cells (fix-to-ZERO ratchet over the live-mined F-lens in frontend_ufai_results.json: F1 consoleErrors==0 [D17 SMOKE — page loads clean] + F6 load
+- `function-security` ⚡ [fail] — SQL Function Security Posture (4-layer: DEFINER+search_path + trigger explicit + matrix + aggregate)
+- `gate-observability` ⚡ [blocker] — Gate Observability (Mega Gate persists a durable log + verdict on every terminal path)
+- `gateway-anon-voice-journal` ⚡ [fail] — ai-gateway Anon Voice-Journal Contract (4-layer: ANON_OK_AGENTS set + auth-gate skip + authUid persistence guard + AGENT_ROUTES entry)
+- `gateway-audit` ⚡ [fail] — Platform Gateway Audit Completeness (4-layer: schema + writes + RLS + retention)
+- `gateway-coverage` ⚡ [fail] — Platform Gateway Coverage (4-layer: gateway present + routes exist + coverage + inventory)
+- `gateway-routing` ⚡ [fail] — AI Gateway Routing (4-layer: gateway present + routes exist + canonical coverage + inventory)
+- `gateway-tenancy` ⚡ [fail] — Gateway Tenancy Verification (Pillar I: client hive_id must be membership-verified; ratchet 34->0)
+- `getelementbyid-orphan-setter` ⚡ [fail] — getElementById Orphan Setter (every JS id lookup must have a matching <id> in HTML; forward-only ratchet)
+- `global-ai-budget` ⚡ [fail] — Q6 Global LLM Budget Guard (the org-shared-pool layer above per-tenant caps: atomic row-locked consume RPC + daily circuit-breaker + per-minute burst smoother t
+- `governance` ⚡ [fail] — Data Governance Validator
+- `groq-fallback` ⚡ [fail] — AI Provider Chain Validator
+- `grounded-sweep` ⚡ [fail] — Grounded MCP Sweep Self-Coverage (meta: every done page in the roadmap keeps its crystallized journey lock)
+- `growth-write-isolation` [fail] — Growth-layer write isolation (LIVE, rolled-back: simulates a real authenticated member and asserts a member CANNOT self-mint a skill_badge [competence + 250 XP 
+- `hardcoded-secrets` ⚡ [fail] — Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)
+- `heading-hierarchy` ⚡ [fail] — Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)
+- `hierarchical-summaries` ⚡ [fail] — Hierarchical Period Summaries Phase 2 (16-layer: migration + 5 levels + RLS + aggregator + Breakdown/Corrective filter + FREE-TIER-ONLY + callAI + hive scoping 
+- `hive` ⚡ [fail] — Hive Validator
+- `hive-battery` [fail] — hive.html LIVE per-page battery — PER_PAGE_BUGHUNT_ROADMAP Tier-1 (P1 Smoke / P2 Console+Network / P8 Visual). Headless Playwright signs in as the REAL Baguio s
+- `hive-isolation` [fail] — Hive cross-tenant READ + MEMBERSHIP + ATTRIBUTION + ROLE isolation (LIVE two-tenant, rolled-back — bug-hunt 2026-07-13/14, migs 20260713000001-012). 25 invarian
+- `hive-quota` ⚡ [fail] — Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)
+- `hive-state-consistency` ⚡ [fail] — Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)
+- `hive-write-isolation` [fail] — Hive-write isolation for the sibling tables the 2026-07-12 sweep MISSED (LIVE two-tenant, rolled-back: asserts a hive-A member CANNOT [42501] inject a phantom i
+- `home-stack-coverage` ⚡ [fail] — Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)
+- `html-id-unique` ⚡ [fail] — HTML ID Uniqueness (4-layer: dup-within-file + cross-page drift + density + reserved-name)
+- `html-pattern-mining` [fail] — HTML Page Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)
+- `i18n-coverage` [warn] — i18n coverage — P11 EN/FIL adoption of the shared data-i/_t localization system (bug-hunt denominator v2, 2026-07-17). Counts i18n markers (data-i= + _t( + whT(
+- `icon-button-label` ⚡ [fail] — Icon-Only Button aria-label (svg-only <button> has aria-label/title/sr-only; forward-only ratchet)
+- `idempotency` ⚡ [fail] — Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)
+- `image-asset-existence` ⚡ [fail] — Image / Asset Existence (every local asset ref must resolve to a file; forward-only ratchet)
+- `img-alt-coverage` ⚡ [fail] — <img> alt Coverage (every <img> declares an alt attribute; forward-only ratchet)
+- `index-coverage` ⚡ [fail] — Index Coverage (4-layer: high-freq unindexed + med-freq unindexed + coverage matrix + tables-with-only-PK)
+- `industry-defining` ⚡ [fail] — Industry-Defining Validator (Phase 6: knowledge graph + drone inspections + standards registry + federated opt-in + insurance bridge view + MaaS consulting enga
+- `inline-image-guard` ⚡ [fail] — Q5-a Inline Image Detector-Guard (server-side base64 photo size cap on logbook+inventory_items backstopping the <=700KB client compression + photo_attach_stats(
+- `inline-onclick-handler` ⚡ [fail] — Inline Handler Existence (every onclick/onchange/... fn must be defined; forward-only ratchet)
+- `innerhtml-eschtml` ⚡ [fail] — innerHTML escHtml Audit (interpolating template literals must escape; XSS guard, forward-only ratchet)
+- `input-guards` ⚡ [fail] — Input Guards Validator
+- `integration-security` ⚡ [fail] — Integration Security Baseline Validator (3-layer, +cors dynamic, +deploy coverage)
+- `intelligence-jsonb-shape` [fail] — Intelligence-layer JSONB shape (LIVE: asserts every jsonb column the Asset/Alert/Shift pages read as an array/object is actually stored as that jsonb type, neve
+- `intelligence-write-isolation` [fail] — Intelligence-layer write isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a member CANNOT fabricate [INSERT] nor overw
+- `interactive-lineage` [fail] — Interactive Lineage Axis (forward-only: per-field downstream blast-radius dead-ends, display-anchor resolution, and redundancy verdicts don't regress — INTERACT
+- `inventory` ⚡ [fail] — Inventory Validator
+- `inventory-ledger-reconciled` [fail] — Inventory balance<->ledger reconciliation (LIVE: qty_on_hand must == the ledger's newest qty_after AND the ledger must chain [qty_after = prev + qty_change] — l
+- `inventory-txn-isolation` [fail] — Inventory ledger-write hive isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a hive-A member CANNOT insert an inventor
+- `iot-protocols` ⚡ [fail] — IoT and MQTT Protocol Safety Validator
+- `javascript-href` ⚡ [fail] — <a href='javascript:'> Anti-Pattern (use <button> for actions; reserve <a href> for navigation; forward-only ratchet)
+- `js-module-pattern-mining` [fail] — JS Shared Module Pattern Miner (L-1 Convention Mining -- informational)
+- `js-syntax-sanity` ⚡ [fail] — JS Syntax Sanity (no `await` inside non-async function/IIFE in inline scripts)
+- `json-parse-safety` ⚡ [fail] — JSON.parse Safety (every JSON.parse() is inside try/catch; forward-only ratchet)
+- `jsonb-drift` ⚡ [fail] — JSONB Schema Drift (4-layer: unread JSONB + reader-without-writer + key inventory + column census)
+- `jsonb-index` ⚡ [fail] — JSONB Index Drift (4-layer: missing GIN + arrow freq + inventory + op distribution)
+- `kg-scope-split` ⚡ [fail] — KG Facts Scope Split (4-layer: platform table + RPC + voice-handler fan-out + no broadcast pattern)
+- `knowledge-freshness` ⚡ [fail] — Knowledge Base Freshness Validator
+- `kpi-chip-coverage` ⚡ [blocker] — KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)
+- `kpi-count-query-safety` ⚡ [fail] — KPI Count-Query Safety (no .limit(N) + .length as canonical KPI count; forward-only ratchet)
+- `kpi-source-registry` ⚡ [blocker] — KPI Source Registry (one metric = one official derivation; consumers must read it and never re-derive a documented wrong way — catches the F4 26-vs-4 class)
+- `leave-audit-ordering` ⚡ [fail] — Leave-audit ordering (hive.html writeAuditLog is awaitable + performLeave AWAITS the member_left audit BEFORE the hive_members self-delete — locks the race foun
+- `legacy-worker-decommission` ⚡ [fail] — Legacy Worker Decommission Validator (no production JS calls workhive-assistant.workers.dev)
+- `like-escape` ⚡ [fail] — SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)
+- `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)
+- `loading-state` ⚡ [fail] — Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)
+- `loads-utils-js` ⚡ [fail] — Loads-Utils-JS (3-layer: required + allowlist-freshness + census)
+- `localstorage-key-consistency` ⚡ [fail] — localStorage Key Consistency (every key must be set AND read; forward-only ratchet)
+- `logbook` ⚡ [fail] — Logbook Validator
+- `logbook-asset-linkage` [fail] — Logbook->asset linkage (LIVE: 0 logbook entries whose `machine` EXACTLY matches a registered asset tag may be asset_node_id NULL — locks the asset-history fragm
+- `logbook-quota` ⚡ [fail] — Q0 Logbook Quota Pilot (per-day rate-limit trigger + server text caps + friendly UX + photo size assert; the Q2-replication template)
+- `marketplace` ⚡ [fail] — Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)
+- `maturity-gating` ⚡ [fail] — Maturity Gating Validator (Phase 0.5: gated pages load maturity-gate.js + call checkMaturityGate + render honest empty state)
+- `memento-catalog-citations` ⚡ [regression] — Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)
+- `memory-cache-coverage` ⚡ [fail] — PKS P3 memory retrieval cache - coverage + budget (PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP L3). The SQLite FTS5+TF-IDF cache (Memento memory.db - project_memento_l
+- `memory-integrity` ⚡ [fail] — Memory Integrity (Phase 2: session memory, turn tracking, dedup)
+- `memory-integrity` ⚡ [fail] — Agent Memory Integrity (4-layer: schema + RLS + index + retention)
+- `meta-description` ⚡ [fail] — Meta Description Coverage (every page has description + og:title + og:image + canonical; forward-only ratchet)
+- `meta-gate` ⚡ [fail] — Meta-Gate Recorder (C4 Phase 2c: observation-mode promotion; writes per-domain decision to meta_gate_decisions.jsonl per gate run)
+- `meta-refresh` ⚡ [fail] — <meta http-equiv=refresh> (no auto-redirect anti-pattern; use JS or 30x; forward-only ratchet)
+- `migration-immutability` ⚡ [fail] — Migration Immutability (4-layer: edited-after-first-commit + filename convention + whitespace-only + recency)
+- `migration-order` ⚡ [fail] — Schema Migration Order Safety (4-layer: table order + column order + function order + dependency matrix)
+- `migration-pattern-mining` [fail] — SQL Migration Pattern Miner (L-1 Convention Mining -- informational)
+- `ml-layer` ⚡ [fail] — ML Layer Validator (5-layer: features + API + artifacts + edge fns + UI)
+- `mobile` ⚡ [fail] — Mobile UX Compliance Validator
+- `modal-a11y` ⚡ [fail] — Modal A11y Debt Ratchet (no NEW hand-rolled modal without role=dialog+aria-modal; critique C7)
+- `model-router` ⚡ [fail] — Tiered Model Router Phase 4 (9-layer: TASK_PROFILES + 11 profiles + free-tier values + reorderChain + callAI signature + reorderChain usage + Phase 1 stages wir
+- `module-scope-state` ⚡ [fail] — Module-Scope Mutable State (4-layer: unbounded growth + eviction adoption + inventory + clean fns)
+- `multilingual-support` ⚡ [fail] — Multilingual Support (Phase 11: term translation, language prefs)
+- `native-dialog-calls` ⚡ [fail] — Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)
+- `nav-registry` ⚡ [fail] — Nav Hub Registry Validator
+- `night-crawler-freshness` [warn] — Night Crawler external-substrate freshness (NIGHT_CRAWLER — the on-demand web crawler tools/night_crawler.py that distills external sources into substrate/exter
+- `night-crawler-selftest` ⚡ [fail] — Night Crawler distill quality guard self-test (tools/night_crawler.py --selftest — deterministic, no network/AI, instant). The crawler's distiller now EVALUATES
+- `no-client-counter-write` ⚡ [fail] — P6 lost-update regression gate (STATIC): asserts NO page HTML writes a value-integrity counter (qty_on_hand/xp_total/total_sales/rating_avg/votes/points/balance
+- `no-em-dash` ⚡ [blocker] — No-Em-Dash Gate (Arc P: displayed em-dash ratchet, forward-only toward 0)
+- `notifications` ⚡ [fail] — Notification and Alert Health Validator
+- `observability` ⚡ [fail] — Observability Validator
+- `oc-updated-at-backed` [fail] — Optimistic-concurrency backing (LIVE) — every client `updated_at` write must be backed by a real column (bug-hunt roadmap P6, 2026-07-17). Scans client pages fo
+- `offline-resilience` ⚡ [fail] — Offline Resilience (Phase 6: snapshot caching, response queue)
+- `ops-snapshot-agents` [fail] — Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)
+- `optimistic-concurrency` ⚡ [fail] — Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)
+- `optimistic-reconciliation` ⚡ [fail] — Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)
+- `orphan-kpi-tiles` ⚡ [fail] — Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)
+- `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
+- `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). For each attribution-pinned entity (voice_journal_entries/en
+- `pareto-content` ⚡ [blocker] — Pareto Content Gate (Arc P: displayed defensive-copy ratchet -> 0; per-page P1/P3 metrics)
+- `partial-label-honesty` ⚡ [fail] — Partial-Label Honesty Audit (Tier S rendering — every page displaying a partial-variant metric must render the honesty marker near the value)
+- `password-input-form` ⚡ [fail] — <input type=password> Form Wrapper (password inputs wrapped in <form> for autofill+save; forward-only ratchet)
+- `pdf-pipeline` ⚡ [fail] — PDF Pipeline / Knowledge Ingestion (4-layer: jobs table + runner fn + coverage + inventory)
+- `performance` ⚡ [fail] — Performance Anti-Pattern Validator
+- `persona-contract` ⚡ [fail] — Persona Contract Validator (8-layer: modules + server + client + gateway + hive + migrations + key parity + Step D differentiation)
+- `persona-echo-live` [fail] — CL9 persona-echo LIVE (the floating companion's persona SELECTION must reach the backend: ai-gateway agent=voice-journal with context.persona=hezekiah|zaniah mu
+- `pg-cron-target` ⚡ [fail] — pg_cron Target Existence (jobs reference real tables + RPCs; forward-only ratchet)
+- `pgvector-consistency` ⚡ [fail] — pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)
+- `phantom-captures` ⚡ [fail] — Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)
+- `phantom-columns` ⚡ [fail] — Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)
+- `pii-egress` ⚡ [fail] — PII Egress to Third Parties (4-layer: direct-fetch+PII + AI-prompt+PII + host distribution + PII reach)
+- `plain-language` ⚡ [fail] — Plain language (no consumer-tech jargon [KYB/IDOR/RLS], internal terms, or removed-payment vestige [escrow/2307/GMV] in user-facing static copy — audience is EV
+- `playwright-coverage` ⚡ [fail] — Playwright Coverage (every LIVE_TOOL_PAGE has tests/<page>.spec.ts with a real goto)
+- `playwright-selector-existence` ⚡ [fail] — Playwright Selector Existence (every locator('#X') id must exist on target page; forward-only ratchet)
+- `playwright-smoke` [fail] — Playwright UI Smoke Suite (real browser, silent-failure regression locks per page)
+- `playwright-staleness` ⚡ [fail] — Playwright Staleness Gate (L13 — walkthrough coverage + finding closure + chip assertions)
+- `pm` ⚡ [fail] — PM Scheduler Validator
+- `pm-write-isolation` [fail] — PM-write hive isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a hive-A member CANNOT [42501] inject a pm_scope_item o
+- `policy-hive-binding` ⚡ [fail] — Gateway Policy Hive-Binding (Pillar P: anon-capable fns must rate-limit on the verified tenant, never a raw client hive_id)
+- `predictive` ⚡ [fail] — Predictive Analytics Data Quality Validator
+- `private-memory-isolation` [fail] — Private-memory isolation (LIVE: the per-worker AI-companion conversation tables [agent_memory/voice_journal_entries/dialog_state] must have OWNER-only SELECT po
+- `proactive-alerts` ⚡ [fail] — Proactive Alerts (Phase 5: KPI spikes, risk escalation, overdue PM)
+- `prod-path-leak` ⚡ [fail] — Prod path leak (no committed /workhive/ resource paths — they 404 in production)
+- `project-manager` ⚡ [fail] — Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)
+- `provider-bypass` ⚡ [fail] — Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)
+- `pwa` ⚡ [fail] — PWA Integrity Validator
+- `python-tool-pattern-mining` [fail] — Python Tool Pattern Miner (L-1 Convention Mining -- informational)
+- `query-column-existence` ⚡ [fail] — Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)
+- `quota-board` ⚡ [fail] — Q5 Unified Quota Board (aggregates all quota dimensions into one measured board; FAILs if any bound is red)
+- `quota-coverage` ⚡ [fail] — Q2/Q5 Quota Coverage Ratchet (every high-write table has a per-day cap on a REAL timestamp column; FAILs if a new surface ships uncapped)
+- `quota-page-audit` ⚡ [fail] — Per-Page Quota Audit (EVERY production feature page's write tables are capped or documented-excluded; FAILs on any uncapped page write)
+- `rag-completeness` ⚡ [fail] — RAG Completeness (4-layer: rerank helper + budget helper + rerank adoption + inventory)
+- `rag-flywheel` ⚡ [fail] — RAG Flywheel (processor + loop orchestrator + canonical tile tags + KPI seeds + walk template branches + lane D retriever)
+- `rag-flywheel-locks` ⚡ [fail] — RAG Flywheel Locks (inter-tile throttle + domain prefix + view-name self-check + positive-framing seeds + cold_archive demotion)
+- `rag-integrity` ⚡ [fail] — RAG Integrity (Phase 1.5: semantic search, KB chunks, embeddings)
+- `reactivity-wiring` [fail] — Reactivity Wiring (Phase D anti-rot: every write surface with cross-page fan-out emits a cross-surface receipt [D1], and every high-blast surface has impact-pre
+- `read-battery` [fail] — Per-page P3 read-correctness + P7 empty-vs-error gate (LIVE headless Playwright, real Baguio supervisor). For 8 READ-heavy pages compares what the page RENDERS 
+- `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc
+- `realtime-channel-cap` ⚡ [fail] — Q5 Realtime Cap + Graceful-429 (whRealtimeSubscribe bounds channels PER CLIENT against the verified 200-concurrent free-tier wall + degrades overflow/offline to
+- `realtime-channel-cleanup` ⚡ [fail] — Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)
+- `realtime-cleanup` ⚡ [fail] — Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)
+- `realtime-filter` ⚡ [fail] — Cross-Hive Realtime Filter Coverage (4-layer: missing filter + channel naming + scoped distribution + density)
+- `realtime-payload-columns` ⚡ [fail] — Realtime Payload Columns (payload.new/old.X must be a real column on the subscribed table; forward-only ratchet)
+- `realtime-payload-contract` ⚡ [fail] — Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)
+- `realtime-publication` ⚡ [fail] — Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)
+- `realtime-subscription` ⚡ [fail] — Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)
+- `reliability-kpi-faithfulness` [fail] — Reliability-KPI faithfulness (LIVE: precomputed `asset_risk_scores.mtbf_days` must mirror the live canonical `get_mtbf_by_machine` engine — a divergence is allo
+- `reliability-workbench` ⚡ [fail] — Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)
+- `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)
+- `reset-coverage` ⚡ [blocker] — Reset Coverage Validator (every migration table is in reset.py)
+- `resilience` ⚡ [fail] — Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)
+- `revenue-surfaces` ⚡ [fail] — Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)
+- `rls-open-policy` ⚡ [fail] — RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)
+- `rls-readiness` ⚡ [fail] — RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)
+- `rls-symmetry` ⚡ [fail] — RLS Policy Symmetry (4-layer: write-without-read + read-without-create + update gap + CRUD matrix)
+- `role-string-consistency` ⚡ [fail] — Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)
+- `rpc-argument-consistency` ⚡ [fail] — RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)
+- `rpc-write-integrity` [fail] — RPC write-integrity (LIVE: every public plpgsql function's INSERT covers its target's NOT NULL columns + only writes tables that EXIST — locks two silent-100%-f
+- `schema` ⚡ [fail] — Schema Consistency Validator
+- `schema-coverage` ⚡ [blocker] — Schema Coverage Validator (auto-derived from migrations, table+column existence)
+- `schema-drift` ⚡ [fail] — Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)
+- `schema-phantom` ⚡ [fail] — Schema Phantom Column Detector (4-layer: phantom reads + dead columns + alias drift + layer hotspots)
+- `security-definer-search-path` ⚡ [fail] — SECURITY DEFINER search_path (every definer fn pins search_path; covers ALTER FUNCTION hardening; forward-only ratchet)
+- `seed-consumer-contract` ⚡ [fail] — Seed -> Consumer Contract (TZ-aware date columns + JSONB key contract for AMC-like blobs)
+- `seeder-insert-columns` ⚡ [blocker] — Seeder Insert-Columns (forward-only: no NEW seeder writes a column absent from the live table)
+- `seeder-pattern-mining` [fail] — Seeder Pattern Miner (L-1 Convention Mining -- informational)
+- `select-placeholder` ⚡ [fail] — <select> Placeholder (every <select> has explicit selected/value=''/disabled-placeholder first option; forward-only ratchet)
+- `semantic-fact-extractor-wiring` ⚡ [fail] — Semantic Fact Extractor Wiring (Semantic layer: logbook -> KG triples -> embed -> idempotent upsert into knowledge_graph_facts; _shared/semantic-facts.ts helper
+- `sensor-pipeline` ⚡ [fail] — Sensor Pipeline Validator (Phase 1.9: sensor_readings schema + realtime + asset-hub subscription + anomaly module)
+- `seo` ⚡ [fail] — SEO and Page Metadata Validator
+- `service-role-exposure` ⚡ [fail] — Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)
+- `service-worker-shell` ⚡ [fail] — Service Worker SHELL_FILES (every precache path must exist; forward-only ratchet)
+- `session_resilience` ⚡ [fail] — Deepwalk D19: idle-session robustness (autoRefreshToken + wake-refresh, no stale 401)
+- `settimeout-string` ⚡ [fail] — setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)
+- `silo-monitor` ⚡ [fail] — Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)
+- `sitemap-page-existence` ⚡ [fail] — Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)
+- `skill-library-wiring` ⚡ [fail] — Skill Library Wiring (Procedural layer: embed procedural memories + match_procedural_memories cosine RPC + _shared/skill-library.ts matcher + ai-gateway injecti
+- `skill-rule-mining` [fail] — Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)
+- `skillmatrix` ⚡ [fail] — Skill Matrix Validator
+- `soft-delete` ⚡ [fail] — Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)
+- `source-chip-truth` ⚡ [fail] — Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)
+- `sso-readiness` ⚡ [fail] — SSO Readiness Validator
+- `standards-alignment` ⚡ [fail] — Standards Alignment Auditor (Tier S — formula required_inputs supersets cited standard OR honestly declared partial_variant)
+- `state-machine-integrity` ⚡ [fail] — State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)
+- `status-enum-drift` ⚡ [fail] — Status-Enum Drift Guard (WH_STATUS_ENUMS == canonical DB enum; critique W3)
+- `substrate-freshness` ⚡ [fail] — Platform Knowledge Substrate freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md). The substrate/ chunk index (tools/build_substrat
+- `supabase-object-existence` ⚡ [fail] — Supabase Object Existence (every .from/.rpc/REST object must exist in the canonical registry; forward-only ratchet)
+- `supabase-singleton` ⚡ [fail] — Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)
+- `supervisor-approval-backstop` ⚡ [fail] — Supervisor-approval backstop (approval-gated tables asset_nodes/rcm_fmea_modes/rcm_strategies carry the tg_guard_approval trigger so a worker cannot self-approv
+- `sw-offline` ⚡ [fail] — Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)
+- `tabindex-positive` ⚡ [fail] — Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)
+- `table-accessible-name` ⚡ [fail] — <table> Accessible Name (every table has caption/aria-label/role=presentation; forward-only ratchet)
+- `table-collision-audit` ⚡ [fail] — Cross-Migration Table-Collision Auditor (catches CREATE TABLE IF NOT EXISTS with incompatible column sets across migrations)
+- `team-coordination` ⚡ [fail] — Team Coordination (Phase 9: cross-hive alerts, best practices sharing)
+- `temporal-orchestrator` ⚡ [fail] — Temporal RAG Orchestrator Phase 3 (17-layer: edge fn + decompose + 3 granularities + auto-heuristic + MAX_PERIODS + MAX_PARALLEL + runBounded + reads Phase 2 + 
+- `tenant-boundary` ⚡ [fail] — Tenant Boundary Escape Validator (5-layer, +nullable auth_uid RLS trap)
+- `test-page-drift` ⚡ [fail] — Test Page Drift (4-layer: smaller + larger + orphans + inventory)
+- `tester-coverage` ⚡ [blocker] — Tester Coverage Validator (every live tool page is in PUBLIC_PAGES + 4 flow PAGES lists)
+- `text-cap-coverage` ⚡ [fail] — Q3 Text+Upload Cap Ratchet (server-side text-cap trigger per high-write table + upload size/duration caps; no unbounded user input)
+- `tier-c-contracts` ⚡ [fail] — Tier C Contract Regression Validator (good/bad fixtures per agent contract)
+- `tier-contracts` ⚡ [fail] — Tier Contract Auditor (Fuel/Engine/Brain/Glue registry health + chain integrity)
+- `time-window-consistency` ⚡ [fail] — Time-Window Consistency (same context keyword must use same N*day window across files; forward-only ratchet)
+- `timer-cleanup` ⚡ [fail] — Timer Cleanup (setInterval has clearInterval; high-count setTimeout has clearTimeout; forward-only ratchet)
+- `timers` ⚡ [fail] — Timer and Scheduled Job Hygiene
+- `trigger-function` ⚡ [fail] — Trigger Function Existence (CREATE TRIGGER target functions exist; forward-only ratchet)
+- `trigger-reentrancy` ⚡ [fail] — Trigger Reentrancy Safety (4-layer: self-write guard + indirect loop + inventory + depth adoption)
+- `truth-view-consumer-columns` ⚡ [blocker] — Truth-View Consumer-Columns (forward-only: no NEW consumer reads a column absent from the v_*_truth view it queries — catches PROJ-DRIFT)
+- `truth-view-read-isolation` [fail] — Cross-hive READ isolation across ALL truth views (LIVE, rolled-back - batch generalization of the security_invoker read-leak class, mig 001). As a real authenti
+- `truth-view-signal-trust` ⚡ [fail] — Truth-View Signal-Trust (no local re-derivation alongside v_*_truth reads; forward-only ratchet)
+- `tts-quality` ⚡ [fail] — TTS Quality Metrics (Phase 7: latency logging, cache)
+- `unbounded-query` ⚡ [fail] — Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)
+- `user-facing-jargon` ⚡ [fail] — User-Facing Jargon (no v_*_truth / RPC / code-ident / *.md / SQL on the glass; chip source: exempt; forward-only ratchet)
+- `user-facing-kpi-canonical` ⚡ [fail] — User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)
+- `ux-contract` ⚡ [fail] — WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)
+- `validator-cp1252-guard` ⚡ [fail] — Validator cp1252-Guard (3-layer: required + allowlist + placement)
+- `validator-freshness` ⚡ [fail] — Validator Freshness / Decay Meta-Gate (P3: declared anchors still match target + never-fired-stale-target census)
+- `validator-pattern-mining` [fail] — Validator Pattern Miner [META] (L-1 Convention Mining -- informational)
+- `validator-self-coverage` ⚡ [fail] — Validator Self-Coverage Meta-Gate (4-layer: missing script + unregistered + report mismatch + census)
+- `vector-schema` ⚡ [fail] — Vector Knowledge Base Schema Validator
+- `verified-state-wiring` ⚡ [fail] — Verified-State Wiring (v_asset_state_truth conflict resolution stays wired into ai-gateway; forward-only ratchet)
+- `view-select-star` ⚡ [fail] — CREATE VIEW SELECT * (every view projects explicit columns; preserves canonical-registry coverage; forward-only ratchet)
+- `viewport-user-scalable` ⚡ [fail] — Viewport user-scalable=no (a11y anti-pattern: blocks pinch-zoom; forward-only ratchet)
+- `visual-defect` ⚡ [fail] — Visual Defect Capture Validator (Phase 1.9: callAIMultimodal + rate-limit + MIME whitelist + fire-and-forget embed + cost log)
+- `voice-alert-formatting` ⚡ [fail] — Voice Alert Formatting (Phase 5: alerts render with descriptions, not IDs)
+- `voice-canonical-anchor` ⚡ [fail] — Voice Canonical Anchor Validator (4-layer: classifier + fetch + wiring + DATA block in prompt)
+- `voice-data-flow` ⚡ [fail] — Voice Data Flow Audit (Phase 3/5/8: KB RAG, proactive alerts, analytics)
+- `voice-journal-single-write` ⚡ [fail] — Voice-journal single-write (the companion agent:'voice-journal' gateway call already persists the turn server-side via persistJournalEntry with an embedding — s
+- `voice-phase1` ⚡ [fail] — Voice Companion Phase 1 (multi-agent orchestrator)
+- `voice-phase1-5` ⚡ [fail] — Voice Companion Phase 1.5 (semantic RAG with pgvector)
+- `voice-phase2` ⚡ [fail] — Voice Companion Phase 2 (multi-model A/B testing)
+- `voice-phase3` ⚡ [fail] — Voice Companion Phase 3 (error recovery + anon memory)
+- `voice-routing-unification` ⚡ [fail] — Voice Routing Unification (Phase 0: router output passing)
+- `write-path-monitor` ⚡ [fail] — Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)
+- `xss` ⚡ [fail] — XSS / escHtml Coverage Validator
+
+### Platform Feedback (1)
+- `feedback-widget` ⚡ [fail] — Feedback Widget Validator (3-layer: script wiring + form integrity + schema RLS/rate-limit/resolved_at)
+
+### Resilience / DR (16)
+- `ai_alldown_degrade` ⚡ [fail] — Arc S/F: AI all-down degrade (no silent empty)
+- `atomic_writes` ⚡ [fail] — Arc S/C: atomic multi-step writes (no partial-write corruption)
+- `cdn_resilience` ⚡ [fail] — Arc S/F: CDN resilience (no silent dead lib)
+- `circuit_breaker` ⚡ [fail] — Arc S/F: external circuit-breaker (Resend/CMMS, no hammering)
+- `data_backup` [fail] — Arc S/R: logical dump + restore drill + documented restore path (DB-runtime)
+- `dataloss_detection` [fail] — Arc S/R: rowcount-snapshot data-loss monitor live (DB-runtime)
+- `dedup_constraints` ⚡ [fail] — Arc S/C: dedup UNIQUE constraints (exactly-once on retries)
+- `degraded_mode` ⚡ [fail] — Arc S/D: backend-degraded detection (not just navigator.onLine)
+- `dependency_timeout` ⚡ [fail] — Arc S/F: dependency timeout (no infinite hang)
+- `dr_claims` ⚡ [fail] — Arc S/R: DR claims backed (no false-sense recovery doc)
+- `offline_queue_retry` ⚡ [fail] — Arc S/D: offline-queue retry/backoff/dead-letter
+- `offline_resilience` ⚡ [fail] — Arc S/D: offline write queue (no lost field write)
+- `optimistic_lock` ⚡ [fail] — Arc S/C: optimistic-lock compare-and-set (no lost-update)
+- `optimistic_ui` ⚡ [fail] — Arc S/C: optimistic-UI rollback (no phantom-saved row)
+- `precache_coverage` ⚡ [fail] — Arc S/D: precache + offline navigation fallback (no blank tab)
+- `resilience_dr_sweep` [fail] — Arc S: resilience / DR sweep (4 lenses F/R/C/D, ratcheted)
+
+### SEO Closed Loop (8)
+- `ai-chain-mirror` ⚡ [fail] — AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)
+- `audience-block` ⚡ [fail] — Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)
+- `contact-consistency` ⚡ [fail] — Contact Consistency Validator (3-layer: no stale hello@/ian.beronio37@ + canonical admin@ present)
+- `em-dash` ⚡ [fail] — Em-Dash Validator (no em or en dashes in public body text)
+- `ga4-coverage` ⚡ [fail] — GA4 Coverage Validator (4-layer: GA4 block + wh-ga4.js load + canonical ID + custom-events file)
+- `llms-sync` ⚡ [fail] — llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)
+- `sitemap-sync` ⚡ [fail] — Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)
+- `tool-aligned-cta` ⚡ [fail] — Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)
+
+### Sentinel (2)
+- `sentinel-baseline` ⚡ [fail] — Sentinel Baseline Ratchet (forward-only behavioral coverage; locks at first run)
+- `sentinel-review` ⚡ [fail] — Sentinel Review (L0->L2 bridge: coverage + pattern + depth + freshness)
+
+Links: [[project_platform_knowledge_substrate]] [[reference_per_page_bughunt_roadmap]]

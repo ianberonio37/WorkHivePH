@@ -5,8 +5,26 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 
+_used_invite_codes: set = set()
+
+
 def random_invite_code() -> str:
-    return "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    """A 6-char invite code guaranteed unique within this process.
+
+    `hives.invite_code` carries a UNIQUE constraint, and the orchestrator seeds the global
+    RNG with a FIXED value for reproducibility (orchestrator.py) — so two bare
+    `random.choices(k=6)` call sites (the main hives seeder + the CMMS client-hive seeder)
+    collide DETERMINISTICALLY under that seed, aborting `/api/seed/all` with a
+    hives_invite_code_key violation. A UNIQUE key must never depend on RNG luck: regenerate
+    until the code is unused (falling back to a uuid-derived code in the impossible case)."""
+    for _ in range(1000):
+        code = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        if code not in _used_invite_codes:
+            _used_invite_codes.add(code)
+            return code
+    code = uuid.uuid4().hex[:6].upper()
+    _used_invite_codes.add(code)
+    return code
 
 
 def text_id(prefix: str = "seed") -> str:

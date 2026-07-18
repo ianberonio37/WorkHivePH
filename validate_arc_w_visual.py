@@ -29,6 +29,9 @@ import json
 import os
 import re
 import sys
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 RESULTS = "arc_w_results.json"
 BASELINE = "arc_w_baseline.json"

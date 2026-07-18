@@ -23,7 +23,8 @@
  *  - data-engineer (TBF math + right-censoring at end of window)
  */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 import { logRequestStart } from "../_shared/logger.ts";
 
@@ -35,6 +36,8 @@ import { log } from "../_shared/logger.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership before any service-role read.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -109,7 +112,12 @@ function computeDurations(timestamps: string[]): { failures: number[]; censored:
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
-serve(async (req) => {
+serveObserved("weibull-fitter", async (req) => {
+  // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
+  const _health = await handleHealth(req, "weibull-fitter", async () => ({
+    deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
+  }));
+  if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   logRequestStart(req, "weibull-fitter");  // I6 observability
@@ -152,6 +160,11 @@ serve(async (req) => {
           { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
+    
+      // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders);
     }
 
     // Resolve asset via the canonical view
@@ -254,12 +267,8 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // Inline JSON.stringify({ error: ... }) for static error-contract scan.
-    return new Response(
-      JSON.stringify({ error: "Internal error", detail: msg }),
-      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
-    );
+    // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
+    return await failTracked(req, "weibull-fitter", "weibull_fitter_error", err);
   }
 });
 

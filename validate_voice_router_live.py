@@ -31,8 +31,11 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
 BASE = "http://127.0.0.1:54321"
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+# The hive is RESOLVED AT RUNTIME from the CREDS user's live hive_members row (reseed-proof) —
+# a hard-coded UUID rots on reseed and the edge fn then 403s "not_a_member" → the gate would
+# VACUOUSLY PASS (see the stale-hive-fixture class, 2026-07-13). resolve_test_identity does this.
 CREDS = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234"}
 ASSET_REQUIRED = {"logbook.create", "pm.complete", "asset.lookup"}
 FLOOR = 0.45
@@ -62,18 +65,19 @@ def main() -> int:
     key = _key()
     if not key:
         return _skip("local anon key not found (tests/_db-cleanup.ts)")
-    # 1. user JWT
+    # 1. user JWT + CURRENT hive, resolved live (reseed-proof — never a hard-coded UUID)
     try:
-        tok = urllib.request.Request(f"{BASE}/auth/v1/token?grant_type=password",
-            data=json.dumps(CREDS).encode(),
-            headers={"Content-Type": "application/json", "apikey": key}, method="POST")
-        jwt = json.loads(urllib.request.urlopen(tok, timeout=15).read())["access_token"]
+        from test_identity import resolve_test_identity, TestIdentityError
+        ident = resolve_test_identity(CREDS["email"], CREDS["password"], anon=key)
+    except TestIdentityError as e:
+        return _skip(str(e))
     except Exception as e:
-        return _skip(f"GoTrue/seeder unreachable for JWT: {type(e).__name__}")
+        return _skip(f"identity resolve failed: {type(e).__name__}")
+    jwt, hive = ident.jwt, ident.hive_id
     # 2. live invoke
     try:
         req = urllib.request.Request(f"{BASE}/functions/v1/voice-action-router",
-            data=json.dumps({"transcript": TRANSCRIPT, "hive_id": HIVE}).encode(),
+            data=json.dumps({"transcript": TRANSCRIPT, "hive_id": hive}).encode(),
             headers={"Content-Type": "application/json", "apikey": key,
                      "Authorization": f"Bearer {jwt}"}, method="POST")
         resp = urllib.request.urlopen(req, timeout=45)

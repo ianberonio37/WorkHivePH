@@ -167,6 +167,115 @@ def _predictive_inputs() -> dict:
     }
 
 
+def _check_health_insufficient(mod):
+    """AI1 false-green guard: a machine with < 3 corrective faults IN THE PERIOD must be
+    flagged 'INSUFFICIENT DATA' (grey), never a confident HEALTHY/WATCH/AT-RISK. The score's
+    missing PM/time/fault components default to neutral (pm 50, time 50, fault 85-for-1), so a
+    thin-data asset would otherwise be green-lit — the calibration bug the honesty rail forbids
+    (analytics-engineer skill: '<3 faults → Insufficient Data, not Healthy')."""
+    logbook = [
+        # THIN-1: only 2 corrective faults in the 90-day window → insufficient sample.
+        {"machine": "THIN-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": _iso(20), "downtime_hours": 2},
+        {"machine": "THIN-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": _iso(5),  "downtime_hours": 2},
+        # RICH-1: 4 corrective faults → enough history for a confident verdict.
+        {"machine": "RICH-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": _iso(40), "downtime_hours": 2},
+        {"machine": "RICH-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": _iso(28), "downtime_hours": 2},
+        {"machine": "RICH-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": _iso(16), "downtime_hours": 2},
+        {"machine": "RICH-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": _iso(4),  "downtime_hours": 2},
+    ]
+    r = mod.calc_health_scores(logbook, [], [], 90)
+    by = {s["machine"]: s for s in r.get("health_scores", [])}
+    thin, rich = by.get("THIN-1", {}), by.get("RICH-1", {})
+    return [
+        ("calc_health_scores THIN-1 (2 faults) status == 'INSUFFICIENT DATA' (no false-green)",
+         thin.get("status") == "INSUFFICIENT DATA", f"got {thin.get('status')} score={thin.get('health_score')}"),
+        ("calc_health_scores THIN-1 color == 'grey' (renders neutral, not green)",
+         thin.get("color") == "grey", f"got {thin.get('color')}"),
+        ("calc_health_scores RICH-1 (4 faults) IS assessed (real HEALTHY/WATCH/AT-RISK verdict)",
+         rich.get("status") in ("HEALTHY", "WATCH", "AT RISK"), f"got {rich.get('status')}"),
+        ("health_scores.insufficient_count == 1  (only THIN-1 suppressed)",
+         r.get("insufficient_count") == 1, f"got {r.get('insufficient_count')}"),
+    ]
+
+
+def _check_mixed_iso_precision_not_dropped(mod):
+    """★Regression: Postgres emits MIXED ISO precision in one column -- real user writes
+    carry microseconds ("...:40.422439+00:00"), seeded/whole-second rows do not. pandas
+    >=2.0 infers ONE format from the FIRST element and coerces every non-matching value
+    to NaT, so `pd.to_datetime(col, utc=True, errors="coerce")` silently dropped 308 of
+    310 rows (99.4%) and the whole predictive phase computed on 2 rows -- reporting
+    "2 failures / 1 week" for a hive with 310 failures across 13 weeks, with no error.
+    Caught live 2026-07-15 by cross-checking Predictive's trend against Descriptive's
+    postgres-derived failure_frequency. Fix: format="ISO8601".
+
+    The microsecond rows are FIRST (newest-first ordering) -- that ordering is what makes
+    inference lock onto the wrong format, so the vector must preserve it."""
+    import datetime
+    now = datetime.datetime(2026, 7, 11, 4, 27, 40)
+    rows = [
+        # 2 rows WITH microseconds (real user writes) -- first, as Postgres returns them
+        {"machine": "M-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": "2026-07-11T04:27:40.422439+00:00", "downtime_hours": 2},
+        {"machine": "M-2", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": "2026-07-10T13:38:19.245527+00:00", "downtime_hours": 2},
+    ]
+    # 28 whole-second rows spread over 12 prior weeks (the seeded shape)
+    for i in range(28):
+        d = now - datetime.timedelta(days=7 + i * 3)
+        rows.append({"machine": f"M-{i % 5}", "maintenance_type": "Breakdown / Corrective",
+                     "status": "Closed", "created_at": d.strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+                     "downtime_hours": 2})
+    r = mod.calc_failure_trend(rows, 90)
+    counted = sum(t.get("count", 0) for t in r.get("trend", []))
+    return [
+        ("calc_failure_trend counts ALL 30 mixed-precision rows (was 2/30 -> NaT-dropped)",
+         counted == 30, f"counted {counted} of 30"),
+        ("calc_failure_trend sees the full week span, not just the microsecond rows' week",
+         (r.get("data_points") or 0) >= 10, f"data_points={r.get('data_points')} (expect >=10)"),
+    ]
+
+
+def _check_failure_trend_single_week(mod):
+    """Regression: calc_failure_trend's '>= 4 data points' guard counts RAW entries, but
+    the linear fit runs on WEEKLY resampled buckets. Four failures inside one calendar
+    week clear the guard and still leave a single point, which polyfit cannot fit — the
+    else-branch set slope but never bound `intercept`, so the forecast loop raised
+    UnboundLocalError and the whole predictive phase 500'd (caught live 2026-07-15:
+    "Analytics error: cannot access local variable 'intercept'").
+
+    All four entries share one timestamp, so they land in one bucket on any calendar —
+    without that the cluster could straddle a week boundary and silently miss the bug.
+    A zero-slope fit's intercept is the mean, so the forecast holds that level flat."""
+    same_day = _iso(3)
+    logbook = [
+        {"machine": "M-1", "maintenance_type": "Breakdown / Corrective", "status": "Closed",
+         "created_at": same_day, "downtime_hours": 2} for _ in range(4)
+    ]
+    try:
+        r = mod.calc_failure_trend(logbook, 90)
+    except Exception as exc:  # noqa: BLE001 — the regression IS an unhandled exception
+        return [(f"calc_failure_trend survives a single-week cluster (was UnboundLocalError: {type(exc).__name__})",
+                 False, f"raised {type(exc).__name__}: {exc}")]
+    fc = r.get("forecast", [])
+    return [
+        ("calc_failure_trend does not raise when all failures fall in ONE week [4 entries, 1 bucket]",
+         True, "returned cleanly"),
+        ("calc_failure_trend.direction == 'STABLE'  [single point → zero slope]",
+         r.get("direction") == "STABLE", f"got {r.get('direction')}"),
+        ("calc_failure_trend.slope_per_week == 0  [cannot fit a trend through one point]",
+         r.get("slope_per_week") == 0, f"got {r.get('slope_per_week')}"),
+        ("calc_failure_trend forecasts 4 weeks flat at the observed level (4/wk = the mean)",
+         len(fc) == 4 and all(f.get("predicted_count") == 4 for f in fc),
+         f"got {[f.get('predicted_count') for f in fc]}"),
+    ]
+
+
 def _check_descriptive_failure_freq(mod):
     """failure_frequency is routed through postgres-precomputed in the master
     calculate() (precomputed.get('failure_frequency', []) is `[]`, and the routing
@@ -179,6 +288,48 @@ def _check_descriptive_failure_freq(mod):
         ("calc_failure_frequency rows == 1 machine (M-1)",
          len(r.get("failure_frequency", [])) == 1, f"got {len(r.get('failure_frequency', []))} rows"),
     ]
+
+
+def _check_pm_interval_is_actionable(mod):
+    """A recommendation must recommend a CHANGE (rubric E4), and that change must be
+    SCHEDULABLE.
+
+    The shipped bug (caught live 2026-07-15 from Ian's screenshot): PM Interval
+    Optimization badged AC-002 "INCREASE FREQUENCY", explained that failures slip past
+    the 7-day interval, then recommended "every 7 days" — the interval it already had.
+    Root cause: `recommended = max(7, int(mtbf * 0.5))`. The 7-day floor COLLIDED with a
+    Weekly current interval, so every Weekly asset that tripped the rule was told to
+    change to the status quo. Two further defects fell out of the same expression:
+      - an already-DAILY asset was told to "INCREASE FREQUENCY" to 7d — 7x LOOSER;
+      - it could emit a non-schedulable interval (10d, 13d are not in FREQ_DAYS).
+
+    These assert the CONTRACT, not the arithmetic: whatever the formula, a card must
+    never recommend its own current interval, and never an interval the scheduler
+    cannot issue."""
+    out = []
+    snap, sched = mod._snap_interval, set(mod.SCHEDULABLE_DAYS)
+
+    # the exact reported case: MTBF 5.5d against a Weekly (7d) scope
+    proposed = snap(5.5 * 0.5, "down")
+    out.append(("PM interval: MTBF 5.5d vs Weekly(7d) does NOT recommend 7d [the shipped no-op]",
+                proposed != 7, f"proposed {proposed}d"))
+    out.append(("PM interval: MTBF 5.5d vs Weekly(7d) recommends Daily(1d) [next schedulable]",
+                proposed == 1, f"proposed {proposed}d"))
+    # every snap lands inside the vocabulary the PM scheduler can actually issue
+    bad = [d for d in (0.4, 2.75, 5.0, 10.0, 13.0, 45.0, 200.0, 900.0)
+           if snap(d, "down") not in sched or snap(d, "up") not in sched]
+    out.append(("PM interval: every snapped interval is SCHEDULABLE (in FREQ_DAYS)",
+                not bad, f"unschedulable for inputs {bad}"))
+    # an increase must never be LOOSER than the current interval
+    looser = [(m, t) for t in (1, 7, 14, 30) for m in (0.5, 3.0, 5.5, 12.0)
+              if m < t * 0.8 and snap(m * 0.5, "down") > t]
+    out.append(("PM interval: an 'increase' never proposes a LOOSER interval than current",
+                not looser, f"looser for (mtbf,current) {looser}"))
+    # the floor case must escalate, not emit a no-op
+    out.append(("PM interval: already-Daily asset still failing => proposed >= current "
+                "(caller escalates to ROOT CAUSE, not a no-op card)",
+                snap(0.5 * 0.5, "down") >= 1, f"proposed {snap(0.25, 'down')}d"))
+    return out
 
 
 # ─── Golden vectors ──────────────────────────────────────────────────────────
@@ -216,6 +367,30 @@ VECTORS = [
         "phase": "descriptive",
         "standard": "ISO 14224 failure frequency (direct fn — master routes via postgres precomputed)",
         "custom": _check_descriptive_failure_freq,
+    },
+    {
+        "module": "analytics.predictive",
+        "phase": "predictive",
+        "standard": "AI1 honesty rail — health-score insufficient-data suppression (no false-green on <3 faults)",
+        "custom": _check_health_insufficient,
+    },
+    {
+        "module": "analytics.predictive",
+        "phase": "predictive",
+        "standard": "Time-series trend — guard/fit cardinality: a raw-entry guard must not vouch for a resampled fit",
+        "custom": _check_failure_trend_single_week,
+    },
+    {
+        "module": "analytics.predictive",
+        "phase": "predictive",
+        "standard": "Date parsing — mixed ISO precision from Postgres must not be NaT-dropped (pandas >=2.0 format inference)",
+        "custom": _check_mixed_iso_precision_not_dropped,
+    },
+    {
+        "module": "analytics.prescriptive",
+        "phase": "prescriptive",
+        "standard": "SAE JA1011 §7 — a recommendation must recommend a CHANGE, and a SCHEDULABLE one",
+        "custom": _check_pm_interval_is_actionable,
     },
     {
         "module": "analytics.prescriptive",

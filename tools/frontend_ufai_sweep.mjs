@@ -116,12 +116,9 @@ const A_CELL_DISPOSITION = {
 
 // DEPRECATED pages: still reachable (kept in the denominator) but a FIX verdict is
 // dispositioned, not counted as a fail — investing in a page slated for removal is
-// waste. platform-health.html = the retired dev dashboard (replaced by WorkHive
-// Tester; memento project_platform_health_retired) — do NOT add features to it.
-const DEPRECATED_PAGES = new Set([
-  'platform-health.html', // retired dev dashboard (replaced by WorkHive Tester)
-  'predictive.html',      // RETIRED 2026-06-10 (file kept, fully delisted from nav/links — job moved to Asset Hub 360 + Analytics Predictive phase; memento project_phase4_consolidation)
-]);
+// waste. (platform-health.html + predictive.html were fully REMOVED 2026-07-01 —
+// deleted, no longer in the page denominator.)
+const DEPRECATED_PAGES = new Set([]);
 
 // ─── The deterministic per-page Usability audit (validated live on index.html) ──
 // Returns raw MEASURABLE facts; scoring (pass/fix) is applied in Node against the
@@ -745,6 +742,11 @@ async function auditPage(context, pageFile) {
     }
     // ── A lens (Adaptability) — score A1-A6 INTO the frame (D3) ──
     let aPageSrc = ''; try { if (existsSync(pageFile)) aPageSrc = readFileSync(pageFile, 'utf8'); } catch (_) { /* source-optional */ }
+    // Include the page's co-located external module (e.g. engineering-design.html → engineering-design.js):
+    // A4/F6 state-discipline (loading/empty/ERROR handling) is frequently implemented in the external JS,
+    // so an inline-HTML-only scan false-negatives pages that delegate their logic (eng-design has 15 .catch
+    // in its .js but 0 inline → F6 wrongly read error=false). Source-optional; most pages have no sibling .js.
+    try { const jsSib = pageFile.replace(/\.html$/, '.js'); if (existsSync(jsSib)) aPageSrc += '\n' + readFileSync(jsSib, 'utf8'); } catch (_) { /* source-optional */ }
     const sA = scoreA(res.aMeas || {}, res.aBp, res.swReg, rolesByPage[pageFile], aSourceSignals(aPageSrc));
     pageRec.A_measured = res.aMeas;
     pageRec.A_breakpoints = res.aBp;
