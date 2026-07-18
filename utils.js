@@ -5,6 +5,26 @@
 // Loaded before page scripts on every page.
 // ─────────────────────────────────────────────
 
+// ── Native-app feel fallback (rubric class T · React-Native benchmark, 2026-07-18) ──────────
+// tokens.css carries the native-feel baseline (touch-action:manipulation + overscroll-behavior:
+// contain) for the ~35 pages that link it; this guard injects the SAME baseline ONLY where
+// tokens.css did NOT reach, so the WHOLE family gets the native feel with no duplication. These
+// are BEHAVIOURAL props (no FOUC). Cited: external-css-touch-action, external-css-overscroll-behavior.
+(function whNativeFeelFallback() {
+  function apply() {
+    try {
+      var ta = (getComputedStyle(document.documentElement).touchAction || '') + ' ' + (getComputedStyle(document.body).touchAction || '');
+      if (/manipulation|none|pan/.test(ta)) return;   // tokens.css already applied it
+      var s = document.createElement('style');
+      s.setAttribute('data-wh-native-feel', '1');
+      s.textContent = 'html,body{touch-action:manipulation;overscroll-behavior:contain}' +
+        '.calendar-wrap,.sidebar-items,.table-scroll,.chat-messages,.modal,.modal-body,.sheet,[role="dialog"],[class*="scroll"],[class*="overflow-y-auto"],[class*="overflow-auto"]{overscroll-behavior:contain}';
+      (document.head || document.documentElement).appendChild(s);
+    } catch (_) { /* empty-catch-allow: best-effort native-feel baseline */ }
+  }
+  if (document.body) apply(); else document.addEventListener('DOMContentLoaded', apply);
+})();
+
 
 // ============================================================================
 // i18n LOCALE FLOOR (rubric N1) -- the shared half of the design system

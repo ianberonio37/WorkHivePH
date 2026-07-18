@@ -115,6 +115,20 @@ button, input, select, textarea, optgroup { font-family: inherit; }
    breaks position:sticky. One rule here protects all 28 tokens.css pages. */
 html, body { overflow-x: clip; }
 
+/* ── Native-app feel baseline (rubric class T · React-Native benchmark, 2026-07-18) ─────────
+   Behavioural, not visual → no FOUC. Applied ONCE here so the WHOLE family inherits it (no
+   per-page drift — Ian's design-system thesis). Cited from the Night-Crawler harvest:
+   · touch-action:manipulation → drops the legacy ~300ms tap delay + double-tap-zoom while KEEPING
+     pinch-zoom (a11y). [external-css-touch-action-gesture-handling]  (rubric T3)
+   · overscroll-behavior:contain → the page + internal scroll containers stop scroll-chaining /
+     browser bounce / accidental pull-to-refresh = native scroll feel. [external-css-overscroll-
+     behavior-native-scroll-containmen]  (rubric T4) */
+html, body { touch-action: manipulation; overscroll-behavior: contain; }
+.calendar-wrap, .sidebar-items, .table-scroll, .chat-messages, .modal, .modal-body, .sheet,
+[role="dialog"], [class*="scroll"], [class*="overflow-y-auto"], [class*="overflow-auto"] {
+  overscroll-behavior: contain;
+}
+
 /* F1 / WCAG 2.5.8 — the tap-target floor. Both axes, because F1 fails on the MIN dim
    (was inline min-height:44px hand-added on 12 pages). Inline-flex so short labels still
    centre. Use on any control that renders below 44px from tight padding. */
