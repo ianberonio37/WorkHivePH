@@ -1327,8 +1327,12 @@
         if (!vis(e)) return false;
         const role = (e.getAttribute('role') || '').toLowerCase();
         const tag = e.tagName.toLowerCase();
-        return role === 'tab' || role === 'switch' || e.hasAttribute('aria-expanded') ||
-          (tag === 'button' && /toggle|tab|expand|collapse|filter|switch/i.test((e.className || '') + ' ' + (e.id || '')));
+        // name-heuristic toggle/tab — but EXCLUDE one-shot ACTION buttons that merely contain "filter"
+        // etc. (e.g. #filter-apply is an APPLY action, not a stateful toggle; it has no on/off state to expose).
+        const nameToggle = tag === 'button'
+          && /toggle|tab|expand|collapse|filter|switch/i.test((e.className || '') + ' ' + (e.id || ''))
+          && !/\b(apply|submit|save|reset|clear|cancel|close|search|run|refresh|send|export|update|go)\b/i.test((e.innerText || '') + ' ' + (e.id || '') + ' ' + (e.className || ''));
+        return role === 'tab' || role === 'switch' || e.hasAttribute('aria-expanded') || nameToggle;
       });
       const _st = _sf.filter(e => ['aria-pressed', 'aria-expanded', 'aria-selected', 'aria-checked', 'aria-disabled'].some(a => e.hasAttribute(a)) || e.hasAttribute('disabled'));
       out.push(_sf.length === 0

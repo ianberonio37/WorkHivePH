@@ -1402,7 +1402,7 @@
       <div class="mb-5 board-card">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.78);"></span></p>
-          <button id="btn-toggle-members" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-members" class="wh-toggle" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
@@ -1413,7 +1413,7 @@
           <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest"><span data-i="supactionlog">Supervisor Action Log</span><span id="audit-log-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.6); text-transform:none; letter-spacing:0;"></span></p>
           <!-- Arc P · Wave 1 (P2): default COLLAPSED (was "Hide"/open) so the audit
                trail no longer stretches the board; toggle JS reads display so this is safe. -->
-          <button id="btn-toggle-audit" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-audit" class="wh-toggle" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="audit-log-body" style="display:none;">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
