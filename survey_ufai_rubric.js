@@ -1137,28 +1137,31 @@
       // (2) FLOATING CHROME — collect EVERY small fixed/sticky widget (FAB / status chip / breadcrumb
       // pill), not a hardcoded list, so connectivity-widget + wayfinding are seen. Exclude open panels.
       const floats = [...document.querySelectorAll('body *')].filter((e) => {
-        const p = getComputedStyle(e).position; if (p !== 'fixed' && p !== 'sticky') return false;
+        const cs = getComputedStyle(e);
+        const p = cs.position; if (p !== 'fixed' && p !== 'sticky') return false;
+        if (cs.pointerEvents === 'none') return false;   // decorative full-viewport bg (aurora/cursor-glow) — sits BEHIND, not a widget
         if (inPanel(e) || !visR(e)) return false;
         const r = e.getBoundingClientRect(); return r.width < 440 && r.height < 240;   // a widget, not a full panel
       });
       const outer = floats.filter((e) => !floats.some((o) => o !== e && o.contains(e)))   // outermost only (dedup nesting)
-        .map((e) => ({ id: e.id || (typeof e.className === 'string' && e.className.trim().split(/\s+/)[0]) || e.tagName, r: e.getBoundingClientRect(), t: ownText(e).slice(0, 14) }));
+        .map((e) => ({ el: e, id: e.id || (typeof e.className === 'string' && e.className.trim().split(/\s+/)[0]) || e.tagName, r: e.getBoundingClientRect(), t: ownText(e).slice(0, 14) }));
       let chromeHit = '';
       // 2a. widget vs widget (the bottom-right FAB stack: companion trigger × connectivity "Online" chip)
       for (let i = 0; i < outer.length && !chromeHit; i++) for (let j = i + 1; j < outer.length; j++) {
+        if (outer[i].el.contains(outer[j].el) || outer[j].el.contains(outer[i].el)) continue;   // a container is not "colliding" with its own child
         if (outer[i].r.width && ov(outer[i].r, outer[j].r) > 0.15) { chromeHit = `widgets overlap: ${outer[i].id}"${outer[i].t}"×${outer[j].id}"${outer[j].t}"`; break; }
       }
-      // 2b. a TOP-region floating widget (the wayfinding breadcrumb, top-left) covering the page HEADER
-      // content. Scoped to top floats (top<120) vs top static content, so a legit bottom-corner FAB
-      // floating over incidental content is NOT flagged. Document-wide content scan (the header/logo can
-      // sit outside main/R); exclude floats + the widget's own text.
+      // 2b. a TOP-region floating widget (the wayfinding breadcrumb) covering the page HEADER content.
+      // A fixed HEADER <nav> CONTAINS its own header links — that is layout, not a collision, so exclude
+      // ancestor/descendant pairs (2026-07-18: the fixed nav was falsely flagged "covering" its own
+      // Sign In/logo @390 — the narrow nav overlaps its children >25% at phone width; a ruler artifact).
       if (!chromeHit) {
         const topFloats = outer.filter((f) => f.r.top < 120 && f.r.left < innerWidth * 0.6);
         if (topFloats.length) {
           const topContent = [...document.querySelectorAll('h1, h2, h3, h4, a, button, span, div, p, [class*="logo"], [class*="title"], [class*="brand"]')]
             .filter((e) => visR(e) && ownText(e).length > 1 && !isFloat(e) && !e.closest('#wh-wayfinding, [id*="wayfind"], [class*="wayfind"]') && e.getBoundingClientRect().top < 130)
-            .map((e) => ({ r: e.getBoundingClientRect(), t: ownText(e).slice(0, 18) })).filter((o) => o.r.width > 10 && o.r.height > 6);
-          for (const f of topFloats) { for (const cc of topContent) { if (ov(f.r, cc.r) > 0.25) { chromeHit = `widget covers header: ${f.id}"${f.t}" over "${cc.t}"`; break; } } if (chromeHit) break; }
+            .map((e) => ({ el: e, r: e.getBoundingClientRect(), t: ownText(e).slice(0, 18) })).filter((o) => o.r.width > 10 && o.r.height > 6);
+          for (const f of topFloats) { for (const cc of topContent) { if (f.el.contains(cc.el) || cc.el.contains(f.el)) continue; if (ov(f.r, cc.r) > 0.25) { chromeHit = `widget covers header: ${f.id}"${f.t}" over "${cc.t}"`; break; } } if (chromeHit) break; }
         }
       }
 
