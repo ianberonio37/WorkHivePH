@@ -52,6 +52,17 @@
     .sidebar.collapsed { width: 48px; min-width: 48px; }
     .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
+    /* Mobile scroll fix (live prod journey 2026-07-18): the desktop shell locks .app-layout
+       to 100vh + overflow:hidden and scrolls .calendar-wrap internally. On a short phone
+       viewport the Day/Week content is taller than the viewport, so everything below the fold
+       (the TODAY/THIS WEEK stat cards, etc.) was CLIPPED and UNREACHABLE — you could not scroll
+       to the bottom. On mobile, unlock the shell so the whole PAGE scrolls naturally. */
+    @media (max-width: 767px) {
+      .app-layout    { height: auto; min-height: 100vh; overflow: visible; }
+      .main-area     { overflow: visible; }
+      .calendar-wrap { flex: none; overflow: visible; }
+    }
+
     /* Header */
     .top-bar { background: linear-gradient(135deg, rgba(31,46,69,0.95) 0%, rgba(22,32,50,0.98) 100%); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; }
 
