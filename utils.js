@@ -382,8 +382,12 @@ window.getDb = function(url, key) {
   } catch (_) { /* empty-catch-allow: visibilitychange unsupported */ }
   // Arc S D-lens (D-004): expose the project URL so the connectivity widget can
   // health-ping the backend (every page reaches the backend through getDb, so this
-  // is the one reliable place to publish it).
+  // is the one reliable place to publish it). Publish the anon/publishable key too:
+  // /auth/v1/health 401s WITHOUT an apikey on current Supabase, which false-degraded
+  // the connectivity chip to "Backend down" on a healthy backend (live prod journey,
+  // 2026-07-18). The publishable key is public-by-design (already shipped in the page).
   window.WH_SUPABASE_URL = url;
+  window.WH_SUPABASE_ANON_KEY = key;
   return window._whSupabaseClient;
 };
 

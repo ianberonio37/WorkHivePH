@@ -72,8 +72,15 @@
       const fwt = (typeof window.fetchWithTimeout === 'function')
         ? window.fetchWithTimeout
         : ((u, o) => fetch(u, o));
-      const r = await fwt(url.replace(/\/$/, '') + '/auth/v1/health', {}, 3500);
-      _backendOk = !!(r && r.ok);
+      // Send the anon key: /auth/v1/health 401s WITHOUT an apikey on current Supabase, which
+      // false-degraded a HEALTHY backend to "Backend down" for every user (live prod journey,
+      // 2026-07-18). And judge reachability by status < 500, not r.ok: a 401/403/404 means the
+      // server ANSWERED (it's up, the request just lacked auth) — only a 5xx brownout, a network
+      // error, or a timeout (the catch below) is a real outage.
+      const _key = window.WH_SUPABASE_ANON_KEY;
+      const r = await fwt(url.replace(/\/$/, '') + '/auth/v1/health',
+                          _key ? { headers: { apikey: _key } } : {}, 3500);
+      _backendOk = !!(r && r.status < 500);
     } catch (_) { _backendOk = false; }   // timeout / network = backend unreachable
     return _backendOk;
   }
