@@ -33,8 +33,10 @@
 ## Drive queue (execute in order; re-sweep after each cluster)
 1. ✅ **DONE — Ruler: V1** container-child + decorative-bg exclusion (`f4c9c2e`). index/hive/eng-design/public-feed phantoms cleared → 100%; pm-scheduler isolated as a REAL collision.
 2. ✅ **DONE — T8** (committed local): action-verb exclusion (agentic-rag `#filter-apply` false positive → N/A) + wired hive/integrations toggles via `.wh-toggle`. hive 85→100, integrations 75→100, agentic-rag →N/A.
-3. **NEXT — REAL per-page fixes remaining (≈8 clusters):**
-   - **pm-scheduler V1** — real collision: bottom-nav bar × nav-hub FAB overlap @390 (reposition/clear).
+2b. ✅ **DONE — promo-poster → 100%** (`isPoster`/`isPrintDoc` → N/A the class-T dims + R2; a fixed-width print poster is not a phone app).
+
+3. **NEXT — REAL per-page fixes remaining:**
+   - **pm-scheduler V1** — DEFERRED (needs a shared fix, not a per-page CSS override): the collision is the user-DRAGGABLE nav-hub FAB (`#wh-hub`, positioned via inline JS `hub.style.bottom`, lines 924/986) sitting over this page's fixed 56px `.bottom-nav`. A stylesheet rule can't beat the inline JS. Real fix = make nav-hub.js detect a `.bottom-nav` and raise its default bottom above it (benefits any future bottom-nav page). Low severity (a FAB over a bar is a common mobile pattern; the bar's right area is empty here).
    - **hive C1 67% @390** — visual hierarchy at phone width.
    - **R3 [marketplace 67%, community 67%, engineering-design 67%]** — control-vocabulary drift (one shape per role); likely a shared token/class fix.
    - **F1 [index 65%, voice-journal 79%] · K2 [index 50%, voice-journal 50%]** — tap size / field reach @390.
