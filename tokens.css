@@ -124,6 +124,10 @@ html, body { overflow-x: clip; }
      browser bounce / accidental pull-to-refresh = native scroll feel. [external-css-overscroll-
      behavior-native-scroll-containmen]  (rubric T4) */
 html, body { touch-action: manipulation; overscroll-behavior: contain; }
+/* #wh-hub-tiles (nav-hub panel) + .wh-fb-body (feedback panel) are the shared-chrome scrollers
+   present on EVERY page (injected by nav-hub.js + the feedback widget) — naming them here fixes
+   T4 family-wide in one rule. The rest catch any page-content scroll containers. */
+#wh-hub-tiles, .wh-fb-body,
 .calendar-wrap, .sidebar-items, .table-scroll, .chat-messages, .modal, .modal-body, .sheet,
 [role="dialog"], [class*="scroll"], [class*="overflow-y-auto"], [class*="overflow-auto"] {
   overscroll-behavior: contain;

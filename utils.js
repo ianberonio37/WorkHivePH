@@ -18,7 +18,7 @@
       var s = document.createElement('style');
       s.setAttribute('data-wh-native-feel', '1');
       s.textContent = 'html,body{touch-action:manipulation;overscroll-behavior:contain}' +
-        '.calendar-wrap,.sidebar-items,.table-scroll,.chat-messages,.modal,.modal-body,.sheet,[role="dialog"],[class*="scroll"],[class*="overflow-y-auto"],[class*="overflow-auto"]{overscroll-behavior:contain}';
+        '#wh-hub-tiles,.wh-fb-body,.calendar-wrap,.sidebar-items,.table-scroll,.chat-messages,.modal,.modal-body,.sheet,[role="dialog"],[class*="scroll"],[class*="overflow-y-auto"],[class*="overflow-auto"]{overscroll-behavior:contain}';
       (document.head || document.documentElement).appendChild(s);
     } catch (_) { /* empty-catch-allow: best-effort native-feel baseline */ }
   }
