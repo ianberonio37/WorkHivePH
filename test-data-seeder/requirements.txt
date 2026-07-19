@@ -7,3 +7,13 @@ playwright>=1.40.0
 pandas>=2.0.0
 # Pillow is for visual regression flow (image diff)
 Pillow>=10.0.0
+
+# --- python-api calc dependencies (added 2026-07-19) ---
+# release_gate.py runs the python-api validators (validate_projects_correctness,
+# validate_calc_api_serializable, validate_python_api_auth) with THIS seeder venv.
+# They import python-api/{projects,calcs,main}.py, which need numpy/scipy/networkx/fastapi
+# at python-api's PINNED versions. Without them the CPM calc silently falls back
+# (networkx missing) and the gate shows 3 FALSE python-api FAILs. The numpy==1.26.4 pin
+# below also overrides the numpy 2.x that unpinned pandas>=2.0.0 would otherwise pull in
+# (numpy 2.x breaks scipy/the calcs). See memory feedback-pyapi-validators-fail-in-gate-pass-standalone.
+-r ../python-api/requirements.txt
