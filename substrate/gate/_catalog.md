@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 9b5a79217673ac5c
+source_sha: 7b9e3dabec47405d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (609) — the 'what's already gated' brain
+## gate · registered validators (611) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,7 +205,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (420)
+### Platform (422)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `achievements` ⚡ [fail] — Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)
@@ -246,6 +246,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `ai-data-pipeline` ⚡ [fail] — AI Data Pipeline Validator (stale data, silos, latency, observability)
 - `ai-eval-coverage` ⚡ [fail] — AI Evaluation Coverage (4-layer: registry present + fixture coverage + eval cron + quality log)
 - `ai-eval-regression` ⚡ [fail] — AI Eval Regression Gate (C3 Phase 1: score locked-test split vs frozen golden; degrade-to-SKIP without data)
+- `ai-hive-context` ⚡ [fail] — AI-context hive-resolution consistency (static) — a hive-id variable must never be ASSIGNED from the LEGACY `wh_hive_id` alone; the canonical resolution is `wh_
 - `ai-pattern-compliance` ⚡ [fail] — AI Pattern Compliance (4-layer: rate-gate-first + fallback chain + JSON mode + cost concentration)
 - `ai-payload-hygiene` ⚡ [fail] — AI Payload Hygiene (4-layer: no select-star + module prompts + limit bounds + payload inventory)
 - `ai-prompt-standards` ⚡ [fail] — AI Prompt Standards Audit (Tier B — edge fn prompts mentioning a metric must cite its canonical standard)
@@ -325,6 +326,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cron-health` [fail] — Cron health (LIVE: no active pg_cron job's latest run failed with a CODE error — locks the unattended-silent-failure class found live 2026-07-07, where the soft
 - `cron-schedule-integrity` ⚡ [fail] — Cron Schedule Integrity (4-layer: function existence + scheduled-agents routing + config drift + schedule sanity)
 - `cross-page` ⚡ [blocker] — Cross-Page Flow Validator
+- `crud-rollback` [fail] — Per-page P3 CRUD-at-DB gate for SIDE-EFFECT tables (LIVE, rolled-back psql) — `logbook` / `inventory_items` / `resume_documents` / `report_contacts` can't go th
 - `css-class-existence` ⚡ [fail] — CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)
 - `css-id-existence` ⚡ [fail] — CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)
 - `cumulative-quota-enforce` ⚡ [fail] — Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative trigge

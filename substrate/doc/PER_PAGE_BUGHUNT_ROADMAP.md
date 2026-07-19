@@ -2,7 +2,7 @@
 name: doc-PER_PAGE_BUGHUNT_ROADMAP
 type: doc
 source: file:PER_PAGE_BUGHUNT_ROADMAP.md
-source_sha: a1517b17d1a3ecd1
+source_sha: b9e71c8ccae2fe58
 last_verified: 2026-07-13
 supersedes: null
 ---
