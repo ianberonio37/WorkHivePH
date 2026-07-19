@@ -49,6 +49,20 @@ CANONICAL_ROLES = {
     "owner",  # marketplace context
 }
 
+# Values that match the `*role* === 'X'` shape but are NOT user-permission roles,
+# so they must never count as permission-role drift:
+#  - ARIA/DOM roles (e.g. `el.getAttribute('role') === 'tab'`) — accessibility, not auth
+#  - LLM conversation-turn roles (e.g. `turn.role === 'agent'`) — message authorship, not auth
+NON_PERMISSION_ROLE_VALUES = {
+    # ARIA / DOM roles
+    "tab", "tablist", "tabpanel", "switch", "checkbox", "radio", "button",
+    "menuitem", "menuitemcheckbox", "menuitemradio", "dialog", "listbox",
+    "option", "presentation", "none", "group", "region", "navigation",
+    "banner", "main", "complementary", "search", "toolbar", "status", "alert",
+    # LLM conversation-turn roles (message.role), not permission roles
+    "agent", "assistant", "system", "tool",
+}
+
 # Match `<ident-containing-role> === 'X'` / `<ident-containing-role> !== 'X'`
 ROLE_CMP_RE = re.compile(
     r"""(?P<ident>\b\w*[Rr]ole\w*)\s*(?:===|!==|==|!=)\s*['"`](?P<val>[^'"`]+)['"`]""",
@@ -91,6 +105,9 @@ def main() -> int:
         if val in CANONICAL_ROLES: continue
         # Skip values that are obviously NOT roles (empty, '*', booleans, numbers)
         if val.lower() in {"true", "false", "null", "undefined", "*", "all", ""}:
+            continue
+        # Skip ARIA/DOM roles + LLM conversation-turn roles (not permission roles)
+        if val.lower() in NON_PERMISSION_ROLE_VALUES:
             continue
         # Skip very long values (likely full strings, not role tokens)
         if len(val) > 32: continue

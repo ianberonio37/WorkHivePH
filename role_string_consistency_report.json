@@ -1,8 +1,8 @@
 {
   "summary": {
     "files_scanned": 165,
-    "drift": 1,
-    "baseline": 1,
+    "drift": 0,
+    "baseline": 0,
     "canonical_roles": [
       "admin",
       "founder",
@@ -13,13 +13,5 @@
       "worker"
     ]
   },
-  "drift": [
-    {
-      "value": "agent",
-      "files": [
-        "supabase/functions/_shared/memory.ts"
-      ],
-      "occurrence": 1
-    }
-  ]
+  "drift": []
 }

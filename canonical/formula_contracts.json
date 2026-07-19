@@ -259,7 +259,7 @@
       "inputs":         ["validator_pass_count", "validator_fail_count", "validator_warn_count"],
       "partial_variant": false,
       "partial_reason": "",
-      "implemented_in": "validate.py + platform_health.json + founder-console.html ring-pct-num + platform-health.html health-num",
+      "implemented_in": "validate.py + platform_health.json + founder-console.html ring-pct-num",
       "freshness":      "realtime (every Mega Gate run)",
       "unit":           "pct (0-100)",
       "description":    "Platform-internal validator-pass composite. Excludes SKIPs. Drives founder-console ring + platform-health ring. Green ≥85 / amber ≥60 / red <60.",
