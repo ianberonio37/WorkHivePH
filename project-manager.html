@@ -1147,7 +1147,7 @@ function renderProjectsSummary() {
     if (total === 0) {
       text = 'No projects yet. Easiest way to start: click 🤖 AI: from text and describe a project in plain language ("3-day pump overhaul next week, need 2 mechanics and 4 spare seals"), and the AI builds the scope item list for you.';
     } else if (overdue >= 3) {
-      text = `Filter to "Active" tab and walk down: every project past its end date is dragging your portfolio health. Close out or push the date forward, one at a time.`;
+      text = `Open the Active tab and scan down. Each project past its end date drags your portfolio health. Close it out or move the date, one at a time.`;
     } else if (overdue > 0) {
       text = `${overdue} project${overdue === 1 ? ' is' : 's are'} past their end date. Open them via the Active tab and either mark Complete or revise the end date (both clear the verdict).`;
     } else if (blocked > active) {

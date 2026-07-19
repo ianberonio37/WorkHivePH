@@ -135,7 +135,9 @@
       flex: 1 1 auto;
       min-width: calc(50% - 0.75rem);
       padding: 0.6rem 0.5rem;
-      border-radius: 0.75rem;
+      /* R3 select-vocabulary = pill (family convention: filter-chips/reactions/discipline
+         choosers are SELECTs → pill silhouette, distinct from the 12px PRESS rect of Run-Calc). */
+      border-radius: 999px;
       font-size: 0.78rem;
       font-weight: 600;
       text-align: center;
@@ -675,7 +677,7 @@
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
                  stay untouched. The engine always receives SI (runCalculation normalizes). -->
-            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial">⇄ Units: Metric (SI)</button>
+            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial">⇄ Units: Metric (SI)</button>
           </div>
           <div id="input-form-area">
             <p class="text-sm" style="color:rgba(255,255,255,0.6);">Select a calculation type first.</p>

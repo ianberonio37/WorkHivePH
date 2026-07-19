@@ -1121,7 +1121,7 @@ function renderRiskStrip(rows, opts) {
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
       +     '<span style="font-size:.65rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(mtbf) + '</span>'
-      +     '<span style="font-size:.72rem;font-weight:800;color:#f87171;">' + pct + '%</span>'
+      +     '<span style="font-size:.72rem;font-weight:800;color:var(--wh-red-text,#FCA5A5);">' + pct + '%</span>'
       +   '</div>'
       + '</a>';
   }).join('');
@@ -1129,7 +1129,7 @@ function renderRiskStrip(rows, opts) {
   if (!opts.title) return inner;
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #f87171;">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#f87171;margin:0;">' + e(opts.title) + '</p>'
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FCA5A5);margin:0;">' + e(opts.title) + '</p>'
     +     '<a href="asset-hub.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
     +   '</div>' + inner + '</div>';
 }
@@ -1308,7 +1308,7 @@ function renderActionBrief(brief, opts) {
       + '</ul></div>';
   };
   var hChip = opts.horizon
-    ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.45);">' + e(opts.horizon) + '</span>'
+    ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72);">' + e(opts.horizon) + '</span>'
     : '';
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:14px 16px;border-left:3px solid #a78bfa;">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
@@ -1742,7 +1742,8 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   // .btn-filter), analytics (.kpi-toggle) that show .active visually but exposed no aria-state.
   // Adding them here auto-wires aria-pressed (synced to .active by the MutationObserver) family-wide.
   window.WH_TOGGLE_CLASSES = ['filter-chip', 'tab-btn', 'reaction-btn', 'phase-tab', 'view-tab',
-    'page-tab', 'nav-tab', 'section-toggle-btn', 'kpi-toggle', 'btn-filter', 'wh-toggle'];
+    'page-tab', 'nav-tab', 'section-toggle-btn', 'kpi-toggle', 'btn-filter', 'wh-toggle',
+    'discipline-pill'];  // eng-design discipline chooser: 1 active = a SELECT, announce it (WCAG 4.1.2 + R3)
   function whToggleAria(root) {
     if (typeof document === 'undefined') return;
     root = root || document;
@@ -1750,8 +1751,18 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     var btns = root.querySelectorAll(sel);
     if (!btns.length) return;
     var sync = function (el) {
-      // radio-style tabs use aria-selected; toggle chips use aria-pressed. Default to pressed.
-      var attr = (el.getAttribute('role') === 'tab') ? 'aria-selected' : 'aria-pressed';
+      // radio-style tabs use aria-selected; a DISCLOSURE (declares aria-expanded, e.g. a
+      // filter PANEL trigger) syncs aria-expanded; a POPUP/DIALOG trigger (declares
+      // aria-haspopup, e.g. the community open-thread reply button) is a PRESS that opens a
+      // dialog — it has no pressed-state, so it is left untouched; plain toggle chips use
+      // aria-pressed. Giving a disclosure/popup-trigger aria-pressed would mislabel it a
+      // stateful SELECT (R3 control-vocab: a panel/dialog opener must not share the select
+      // silhouette) and is WCAG 4.1.2-wrong (expand→aria-expanded, popup→aria-haspopup).
+      var attr = (el.getAttribute('role') === 'tab') ? 'aria-selected'
+               : el.hasAttribute('aria-expanded') ? 'aria-expanded'
+               : el.hasAttribute('aria-haspopup') ? null
+               : 'aria-pressed';
+      if (!attr) return;
       el.setAttribute(attr, el.classList.contains('active') ? 'true' : 'false');
     };
     btns.forEach(sync);

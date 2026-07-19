@@ -913,6 +913,32 @@
   const STORAGE_KEY = 'wh-hub-position';
   let snapSide = 'right';
 
+  // A page's fixed bottom-nav must NEVER be covered by the bottom-right FAB stack (V1 no-collision).
+  // The stack (hub + connectivity chip + companion trigger + guide + feedback FAB) is hard-anchored
+  // relative to hub bottom:24px (e.g. the conn-chip sits at 5.5rem = 24+FAB+gap), so lifting ONE
+  // member breaks the stack (raising the hub made it collide with the chip). Instead lift the WHOLE
+  // stack uniformly with a shared CSS var (--wh-fab-lift) applied as margin-bottom — which raises a
+  // bottom-anchored fixed element while PRESERVING its bottom value + the stack's relative spacing.
+  // Nav-hub owns this because it is the stack's orchestrator (on every page; lazy-loads the feedback
+  // FAB, so the rule is injected once and applies to the FAB whenever it later mounts).
+  function liftFabStackAboveBottomNav() {
+    try {
+      const nav = document.querySelector('.bottom-nav');
+      if (!nav) return;
+      const cs = getComputedStyle(nav);
+      if (cs.position !== 'fixed' || cs.display === 'none' || (parseFloat(cs.bottom) || 0) >= 8) return;
+      const lift = Math.round(nav.getBoundingClientRect().height) + 8;   // clear the bar + an 8px gap
+      document.documentElement.style.setProperty('--wh-fab-lift', lift + 'px');
+      if (!document.getElementById('wh-fab-lift-style')) {
+        const s = document.createElement('style');
+        s.id = 'wh-fab-lift-style';
+        s.textContent = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
+          + '#wh-ai-trigger, #fab, .wh-companion-trigger { margin-bottom: var(--wh-fab-lift, 0px) !important; }';
+        document.head.appendChild(s);
+      }
+    } catch (_) { /* empty-catch-allow: best-effort stack lift */ }
+  }
+
   function applyPosition(side, bottomPx) {
     const hub   = document.getElementById('wh-hub');
     const panel = document.getElementById('wh-hub-panel');
@@ -1157,6 +1183,10 @@
     buildWidget();
     loadSavedPosition();
     wireEvents();
+    // Lift the whole bottom-right FAB stack above a page's fixed bottom-nav (V1 no-collision).
+    // Retry once deferred in case the bottom-nav renders a tick after nav-hub inits.
+    liftFabStackAboveBottomNav();
+    setTimeout(liftFabStackAboveBottomNav, 600);
     // Cross-page community unread badge — mirrors the companion FAB nudge. Deferred
     // so the page can finish building its Supabase client + restoring the session.
     setTimeout(scheduleCommunityCheck, 800);

@@ -163,7 +163,11 @@
     .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
     .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
     .amc-headline { font-size: .98rem; font-weight: 800; color: var(--text); line-height: 1.35; }
-    .amc-summary { font-size: .78rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; }
+    /* CLS: #amc-summary starts empty, fills with a short summary, then is UPGRADED IN PLACE to the
+       taller renderActionBrief card — that growth shifted the content below (a full-sweep-contention
+       CLS; 0 on a fast isolated load). Reserve the settled brief height so it never shifts, matching
+       shift-brain's .briefing-card{min-height:240}. */
+    .amc-summary { font-size: .78rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 176px; }
     .amc-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
     .amc-stat { background: rgba(15,25,35,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
     .amc-stat-num { font-size: 1.1rem; font-weight: 800; color: var(--text); line-height: 1; }

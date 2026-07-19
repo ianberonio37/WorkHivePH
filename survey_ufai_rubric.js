@@ -379,7 +379,11 @@
         if (t.split(/\s+/).length >= 4) sentences.push({ t, el: e });
       });
     });
-    const PASSIVE = /\b(was|were|is|are|been|being|be)\s+\w+(ed|en)\b(?!\s+(by\s+you|to))/i;
+    // The participle must be a REAL lowercase running-prose word (stem >=2 chars + ed/en). The old
+    // `\w+(ed|en)` with /i matched an UPPERCASE ASSET CODE: "is GEN-003" -> `\w+`="G", `(ed|en)`="EN"
+    // -> false passive on "The top risk is GEN-003" (shift-brain). Requiring lowercase [a-z]{2,} excludes
+    // codes (GEN/GEN-003/TT-001) while still catching "is broken / was replaced". §16.1 the ruler, not the page.
+    const PASSIVE = /\b(?:[Ww]as|[Ww]ere|[Ii]s|[Aa]re|[Bb]een|[Bb]eing|[Bb]e)\s+[a-z]{2,}(?:ed|en)\b(?!\s+(?:by\s+you|to))/;
     const longOnes = sentences.filter((s) => s.t.split(/\s+/).length > 20);
     const passiveOnes = sentences.filter((s) => PASSIVE.test(s.t));
     // Flesch-Kincaid is a REGRESSION fitted on running prose -- it is meaningless on a
@@ -395,7 +399,14 @@
       .replace(/\b(ISO|SMRP|SAE|JA)\s?[\d.:-]+(?:-\d+)?(?::\d{4})?/gi, '')
       .replace(/\bBest Practices v[\d.]+/gi, '')
       .replace(/§[\d.]+/g, '')
-      .replace(/\s{2,}/g, ' ').replace(/^[\s·:.-]+/, '').trim();
+      // ASSET/PERMIT CODES (GEN-003, AC-002, UPS-001, P-001, PTW-2026-9001) are IDENTIFIERS a worker
+      // reads as one token, not sounded-out prose — Flesch-Kincaid (a running-prose regression) scores
+      // them as long polysyllabic words and inflates the grade: "review PM schedules for AC-002, TT-002,
+      // and UPS-001" read 8.8 while the prose alone reads ~5.7. Strip them like the citation tokens above
+      // (same §16.1 "the number earns the exemption, the prose does NOT" rule). Uppercase-only so a
+      // lowercase word ending in a code-like shape is never stripped.
+      .replace(/\b[A-Z]{1,4}-\d{2,4}(?:-\d{2,5})?\b/g, '')
+      .replace(/\s{2,}/g, ' ').replace(/^[\s·:.-]+/, '').replace(/\s+([,.])/g, '$1').trim();
     // Flesch-Kincaid is a REGRESSION FIT ON RUNNING PROSE and is meaningless below ~12
     // words: on a short phrase the syllables-per-word term dominates and any polysyllabic
     // but perfectly plain wording trips it. Measured: "Recommended: Daily (currently
@@ -709,7 +720,10 @@
     out.push(status.length ? M('G1', 'Visibility of system status', 1, 1, `${status.length} status region(s)`)
       : (isPrintDoc || isPoster) ? NA('G1', 'Visibility of system status', 'static artifact: state lives on the generator, not the artifact')
       : M('G1', 'Visibility of system status', 0, 1, 'no status region'));
-    const JARGON = /\b(RPC|JSON|null|undefined|NaN|500|4\d\d|stack trace)\b/;
+    // HTTP status codes count as leaked jargon ONLY with error/HTTP context — a bare 3-digit number
+    // is usually a DOMAIN quantity, not an error (achievements' "405 XP this week" matched the old
+    // `4\d\d` and failed G2 falsely; "500 hours", "404 assets" would too). §16.1 the ruler, not the page.
+    const JARGON = /\b(RPC|JSON|null|undefined|NaN|stack trace)\b|\b(?:HTTP|error|status|code)\b[\s:#-]{0,3}[45]\d\d\b|\b[45]\d\d\b[\s-]{0,3}(?:internal server error|not found|forbidden|bad request|unauthorized|service unavailable)/i;
     const jargon = textEls.filter(e => JARGON.test(ownText(e)));
     out.push(M('G2', 'Match the real world', jargon.length === 0 ? 1 : 0, 1,
       jargon.length ? `system jargon leaked: "${ownText(jargon[0]).slice(0, 26)}"` : 'no system jargon in copy'));
@@ -1142,8 +1156,24 @@
         const cs = getComputedStyle(e);
         const p = cs.position; if (p !== 'fixed' && p !== 'sticky') return false;
         if (cs.pointerEvents === 'none') return false;   // decorative full-viewport bg (aurora/cursor-glow) — sits BEHIND, not a widget
+        const r = e.getBoundingClientRect();
+        // The page's own TOP CHROME — a semantic <header>/[role=banner]/.header OR any full-width bar
+        // pinned to the top (a Tailwind `fixed top-0` <nav>, etc.) — is NOT a "covering widget":
+        // content scrolls UNDER a sticky top bar BY DESIGN. This kills the phantom "header covers
+        // WorkHive" a sticky-header page yields (the bar geometrically overlaps its own adjacent brand
+        // text; a 1280→390 RESIZE also leaves body content transiently behind it — a Chromium sticky
+        // quirk a FRESH 390 load never shows: verified fresh-390 V1=100). A real small widget
+        // (breadcrumb pill / FAB) is NOT a full-width top bar, so it still counts. The BOTTOM-nav
+        // (top ≈ viewport bottom) is deliberately NOT excluded — a FAB over it IS a real collision.
+        // (2026-07-19 — §16.1 "the ruler, not the page".)
+        if (e.matches('header, [role="banner"], .header, .app-header, .site-header')) return false;
+        // Full-width bar in the TOP chrome zone (top < ~96px covers a header + a sticky sub-nav
+        // pinned below it, e.g. eng-design's `.sticky top-0` discipline panel that sits at top:64
+        // under the 64px header). Width≥90% keeps small widgets (breadcrumb pill / FAB) in scope;
+        // the bottom-nav (top ≈ viewport bottom) is untouched.
+        if (r.top < 96 && r.width >= innerWidth * 0.9) return false;
         if (inPanel(e) || !visR(e)) return false;
-        const r = e.getBoundingClientRect(); return r.width < 440 && r.height < 240;   // a widget, not a full panel
+        return r.width < 440 && r.height < 240;   // a widget, not a full panel
       });
       const outer = floats.filter((e) => !floats.some((o) => o !== e && o.contains(e)))   // outermost only (dedup nesting)
         .map((e) => ({ el: e, id: e.id || (typeof e.className === 'string' && e.className.trim().split(/\s+/)[0]) || e.tagName, r: e.getBoundingClientRect(), t: ownText(e).slice(0, 14) }));

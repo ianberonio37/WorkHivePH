@@ -91,7 +91,8 @@
       cursor: pointer;
       transition: all 0.2s;
       font-size: 0.78rem;
-      min-height: 36px;
+      /* F1/K2 dual-viewport: 44px tap target at BOTH 390 + 1280 (a stray min-height:36px here
+         overrode the 44px above on desktop — the rubric grades tap size worse-per-viewport). */
     }
     .btn-ghost:hover  { border-color: rgba(255,255,255,0.25); color: white; }
     /* R3 one-shape-per-role: the voice toggles are SELECT controls (aria-pressed) — give them
@@ -224,7 +225,7 @@
       cursor: pointer;
       transition: background .15s, border-color .15s, color .15s;
       display: inline-flex; align-items: center; gap: 0.4rem;
-      min-height: 36px;
+      min-height: 44px;   /* F1/K2 dual-viewport: 44px tap target at BOTH 390 + 1280 (was 36px @desktop) */
     }
     .persona-chip:hover { color: var(--text, var(--wh-cloud)); border-color: rgba(255,255,255,0.22); }
     .persona-chip.persona-chip-active {

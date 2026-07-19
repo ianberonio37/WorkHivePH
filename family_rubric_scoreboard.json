@@ -5,30 +5,23 @@
     "ge90": 32,
     "ge85": 32,
     "pageErrors": 0,
-    "ranAt": "2026-07-17T20:47:55.555Z",
+    "ranAt": "2026-07-18T23:46:04.419Z",
     "identity": "pabloaguilar@auth.workhiveph.com"
   },
   "pages": {
     "analytics.html": {
-      "overall": 100,
+      "overall": 98,
       "counts": {
-        "dims": 53,
-        "measured": 42,
+        "dims": 61,
+        "measured": 48,
         "judged": 7,
-        "na": 4
+        "na": 6
       },
-      "failing": [],
-      "errors": [],
-      "c2_offenders": [
-        {
-          "t": "Refresh",
-          "cls": "",
-          "r": 3.76,
-          "need": 4.5,
-          "fg": "rgb(22, 32, 50)",
-          "grad": true
-        }
+      "failing": [
+        "V1 0% — 2 content overlap(s): P\"<80% · <90% \"×BUTTON\"Show all 30 \" · P\"<70% · <85% \"×H2\"Parts Consum\" [@1280; @390=100%]"
       ],
+      "errors": [],
+      "c2_offenders": [],
       "b3_offenders": {
         "long": [],
         "passive": [],
@@ -68,7 +61,7 @@
           {
             "tag": "BUTTON",
             "id": "",
-            "t": "Show all 84 pairs ↓"
+            "t": "Show all 82 pairs ↓"
           },
           {
             "tag": "BUTTON",
@@ -124,7 +117,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=24 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=26 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -137,10 +130,10 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 435,
-          "total": 436,
+          "pass": 437,
+          "total": 437,
           "pct": 100,
-          "note": "worst 3.76:1 \"Refresh\""
+          "note": "all text >= its WCAG floor"
         },
         {
           "dim": "C3",
@@ -220,7 +213,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/60 · offFont=0/305"
+          "note": "declared=[8,12,16] · offRadius=0/60 · offFont=0/306"
         },
         {
           "dim": "F1",
@@ -308,7 +301,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 444ms OK · CLS 0.053 OK <- main#wh-main-content"
+          "note": "LCP 712ms OK · CLS 0.051 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -465,10 +458,10 @@
         {
           "dim": "V1",
           "kind": "MEASURED",
-          "pass": 1,
+          "pass": 0,
           "total": 1,
-          "pct": 100,
-          "note": "no overlapping elements or widgets"
+          "pct": 0,
+          "note": "2 content overlap(s): P\"<80% · <90% \"×BUTTON\"Show all 30 \" · P\"<70% · <85% \"×H2\"Parts Consum\" [@1280; @390=100%]"
         },
         {
           "dim": "B4",
@@ -501,16 +494,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 36,
+          "total": 36,
+          "pct": 100,
+          "note": "36/36 stateful controls expose their state"
         }
       ]
     },
     "pm-scheduler.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 42,
+        "dims": 61,
+        "measured": 48,
         "judged": 7,
-        "na": 4
+        "na": 6
       },
       "failing": [],
       "errors": [],
@@ -534,7 +591,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "h1=1 focalTier=38px×1 bigTiers=3 cta=2"
+          "note": "h1=1 focalTier=38px×1 bigTiers=2 cta=2"
         },
         {
           "dim": "A2",
@@ -582,13 +639,13 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "bigSizes=[38,24,20] distinct=10"
+          "note": "bigSizes=[38,20] distinct=9"
         },
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 123,
-          "total": 123,
+          "pass": 122,
+          "total": 122,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -603,10 +660,10 @@
         {
           "dim": "C4",
           "kind": "MEASURED",
-          "pass": 2,
-          "total": 2,
+          "pass": 1,
+          "total": 1,
           "pct": 100,
-          "note": "2/2 numeric els tabular"
+          "note": "1/1 numeric els tabular"
         },
         {
           "dim": "D1",
@@ -758,7 +815,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 276ms OK · CLS 0.029 OK <- div.simple-row.mb-5"
+          "note": "LCP 292ms OK · CLS 0.029 OK <- div.simple-row.mb-5"
         },
         {
           "dim": "I2",
@@ -798,7 +855,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "2/2 glanceable KPI(s), 0 under-44 target(s)"
+          "note": "1/1 glanceable KPI(s), 0 under-44 target(s)"
         },
         {
           "dim": "L1",
@@ -951,16 +1008,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 14,
+          "total": 14,
+          "pct": 100,
+          "note": "14/14 stateful controls expose their state"
         }
       ]
     },
     "asset-hub.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 42,
+        "dims": 61,
+        "measured": 48,
         "judged": 7,
-        "na": 4
+        "na": 6
       },
       "failing": [],
       "errors": [],
@@ -1072,7 +1193,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 1ms"
+          "note": "click->paint 0ms"
         },
         {
           "dim": "D3",
@@ -1208,7 +1329,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 312ms OK · CLS 0.043 OK <- div#ah-card-critical.simple-card.tag-grey"
+          "note": "LCP 240ms OK · CLS 0.044 OK <- div#ah-card-critical.simple-card.tag-grey"
         },
         {
           "dim": "I2",
@@ -1401,16 +1522,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 8,
+          "total": 8,
+          "pct": 100,
+          "note": "8/8 stateful controls expose their state"
         }
       ]
     },
     "skillmatrix.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 40,
+        "dims": 61,
+        "measured": 46,
         "judged": 7,
-        "na": 6
+        "na": 8
       },
       "failing": [],
       "errors": [],
@@ -1522,7 +1707,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 1ms"
+          "note": "click->paint 0ms"
         },
         {
           "dim": "D3",
@@ -1658,7 +1843,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 368ms OK · CLS 0.048 OK <- main#wh-main-content.page"
+          "note": "LCP 336ms OK · CLS 0.048 OK <- main#wh-main-content.page"
         },
         {
           "dim": "I2",
@@ -1851,16 +2036,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 9,
+          "total": 9,
+          "pct": 100,
+          "note": "9/9 stateful controls expose their state"
         }
       ]
     },
     "hive.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 41,
+        "dims": 61,
+        "measured": 47,
         "judged": 7,
-        "na": 5
+        "na": 7
       },
       "failing": [],
       "errors": [],
@@ -1924,7 +2173,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=10 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=9 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -1932,7 +2181,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "bigSizes=[32,24,22] distinct=10"
+          "note": "bigSizes=[32,24,22] distinct=9"
         },
         {
           "dim": "C2",
@@ -2108,7 +2357,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 984ms OK · CLS 0.005 OK <- div#ss-cards.simple-row.ss-tiles"
+          "note": "LCP 632ms OK · CLS 0.005 OK <- div#ss-cards.simple-row.ss-tiles"
         },
         {
           "dim": "I2",
@@ -2301,16 +2550,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 13,
+          "total": 13,
+          "pct": 100,
+          "note": "13/13 stateful controls expose their state"
         }
       ]
     },
     "project-manager.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 40,
+        "dims": 61,
+        "measured": 46,
         "judged": 7,
-        "na": 6
+        "na": 8
       },
       "failing": [],
       "errors": [],
@@ -2374,7 +2687,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=11 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=13 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -2422,7 +2735,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 2ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -2558,7 +2871,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 248ms OK · CLS 0.009 OK <- div.simple-row"
+          "note": "LCP 124ms OK · CLS 0.013 OK <- div.verdict-text"
         },
         {
           "dim": "I2",
@@ -2751,21 +3064,82 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 12,
+          "total": 12,
+          "pct": 100,
+          "note": "12/12 stateful controls expose their state"
         }
       ]
     },
     "index.html": {
-      "overall": 98,
+      "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 36,
+        "dims": 61,
+        "measured": 43,
         "judged": 7,
-        "na": 10
+        "na": 11
       },
-      "failing": [
-        "C3 50% — grouped into common regions with padding",
-        "A2 75% — headings=3 (h2/h3=2) blocks=0"
-      ],
+      "failing": [],
       "errors": [],
       "c2_offenders": [],
       "b3_offenders": {
@@ -2793,15 +3167,15 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "h1=1 focalTier=22px×1 bigTiers=1 cta=2"
+          "note": "h1=1 focalTier=24px×2 bigTiers=2 cta=2"
         },
         {
           "dim": "A2",
           "kind": "MEASURED",
-          "pass": 3,
+          "pass": 4,
           "total": 4,
-          "pct": 75,
-          "note": "headings=3 (h2/h3=2) blocks=0"
+          "pct": 100,
+          "note": "headings=3 (h2/h3=2) blocks=5"
         },
         {
           "dim": "A3",
@@ -2841,31 +3215,31 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "bigSizes=[22] distinct=5"
+          "note": "bigSizes=[24,22] distinct=7"
         },
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 24,
-          "total": 24,
+          "pass": 34,
+          "total": 34,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
         {
           "dim": "C3",
           "kind": "MEASURED",
-          "pass": 1,
+          "pass": 2,
           "total": 2,
-          "pct": 50,
+          "pct": 100,
           "note": "grouped into common regions with padding"
         },
         {
           "dim": "C4",
-          "kind": "N/A",
-          "pass": null,
-          "total": null,
-          "pct": null,
-          "note": "no numeric els in this state: nothing to set tabular"
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "2/2 numeric els tabular"
         },
         {
           "dim": "D1",
@@ -2881,7 +3255,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 7ms"
+          "note": "click->paint 2ms"
         },
         {
           "dim": "D3",
@@ -2889,7 +3263,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "4 distinct button shapes"
+          "note": "3 distinct button shapes"
         },
         {
           "dim": "E1",
@@ -2929,13 +3303,13 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/5 · offFont=0/9"
+          "note": "declared=[8,12,16] · offRadius=0/5 · offFont=0/12"
         },
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 16,
-          "total": 16,
+          "pass": 20,
+          "total": 20,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -2961,7 +3335,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "6 status region(s)"
+          "note": "5 status region(s)"
         },
         {
           "dim": "G2",
@@ -2977,7 +3351,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "15 controls, 2 primary CTA"
+          "note": "20 controls, 2 primary CTA"
         },
         {
           "dim": "H1",
@@ -3017,7 +3391,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 1228ms OK · CLS 0.002 OK <- footer"
+          "note": "LCP 584ms OK · CLS 0.004 OK <- div#oh-stats"
         },
         {
           "dim": "I2",
@@ -3025,7 +3399,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "10 reserved block(s)"
+          "note": "6 reserved block(s)"
         },
         {
           "dim": "J1",
@@ -3070,8 +3444,8 @@
         {
           "dim": "L2",
           "kind": "MEASURED",
-          "pass": 10,
-          "total": 10,
+          "pass": 15,
+          "total": 15,
           "pct": 100,
           "note": "all link labels predict their destination"
         },
@@ -3121,7 +3495,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "5 reduced-motion block(s), 169 animated el(s)"
+          "note": "5 reduced-motion block(s), 171 animated el(s)"
         },
         {
           "dim": "R1",
@@ -3210,16 +3584,80 @@
           "total": null,
           "pct": null,
           "note": "assistant/home: IS the assistant / no floating companion by design"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "all 2 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 6,
+          "total": 6,
+          "pct": 100,
+          "note": "6/6 stateful controls expose their state"
         }
       ]
     },
     "marketplace.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 41,
+        "dims": 61,
+        "measured": 47,
         "judged": 7,
-        "na": 5
+        "na": 7
       },
       "failing": [],
       "errors": [],
@@ -3259,7 +3697,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "disclosures=3 longTables=0"
+          "note": "disclosures=4 longTables=0"
         },
         {
           "dim": "B1",
@@ -3331,7 +3769,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 5ms"
+          "note": "click->paint 4ms"
         },
         {
           "dim": "D3",
@@ -3467,7 +3905,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 704ms OK · CLS 0.059 OK <- main#wh-main-content.page"
+          "note": "LCP 308ms OK · CLS 0.060 OK <- main#wh-main-content.page"
         },
         {
           "dim": "I2",
@@ -3660,39 +4098,84 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 2,
+          "total": 2,
+          "pct": 100,
+          "note": "all 2 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 29,
+          "total": 29,
+          "pct": 100,
+          "note": "29/29 stateful controls expose their state"
         }
       ]
     },
     "shift-brain.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 42,
+        "dims": 61,
+        "measured": 48,
         "judged": 8,
-        "na": 3
+        "na": 5
       },
-      "failing": [
-        "C2 98% — worst 4.21:1 \"78%\""
-      ],
+      "failing": [],
       "errors": [],
-      "c2_offenders": [
-        {
-          "t": "90%",
-          "cls": "",
-          "r": 4.21,
-          "need": 4.5,
-          "fg": "rgb(248, 113, 113)",
-          "grad": true
-        },
-        {
-          "t": "78%",
-          "cls": "",
-          "r": 4.21,
-          "need": 4.5,
-          "fg": "rgb(248, 113, 113)",
-          "grad": true
-        }
-      ],
+      "c2_offenders": [],
       "b3_offenders": {
         "long": [],
         "passive": [],
@@ -3742,7 +4225,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "marketese=0 verboseBlocks=1"
+          "note": "marketese=0 verboseBlocks=0"
         },
         {
           "dim": "B2",
@@ -3758,7 +4241,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=36 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=34 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -3771,10 +4254,10 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 129,
+          "pass": 131,
           "total": 131,
-          "pct": 98,
-          "note": "worst 4.21:1 \"78%\""
+          "pct": 100,
+          "note": "all text >= its WCAG floor"
         },
         {
           "dim": "C3",
@@ -3942,7 +4425,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 644ms OK · CLS 0.075 OK <- div#briefing-card.briefing-card"
+          "note": "LCP 308ms OK · CLS 0.069 OK <- div#briefing-card.briefing-card"
         },
         {
           "dim": "I2",
@@ -4135,16 +4618,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 11,
+          "total": 11,
+          "pct": 100,
+          "note": "11/11 stateful controls expose their state"
         }
       ]
     },
     "inventory.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 42,
+        "dims": 61,
+        "measured": 48,
         "judged": 7,
-        "na": 4
+        "na": 6
       },
       "failing": [],
       "errors": [],
@@ -4392,7 +4939,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 788ms OK · CLS 0.053 OK <- main#wh-main-content.relative.z-10"
+          "note": "LCP 324ms OK · CLS 0.053 OK <- main#wh-main-content.relative.z-10"
         },
         {
           "dim": "I2",
@@ -4585,16 +5132,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 9,
+          "total": 9,
+          "pct": 100,
+          "note": "9/9 stateful controls expose their state"
         }
       ]
     },
     "dayplanner.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 41,
+        "dims": 61,
+        "measured": 47,
         "judged": 7,
-        "na": 5
+        "na": 7
       },
       "failing": [],
       "errors": [],
@@ -4658,7 +5269,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=27 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=26 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -4706,7 +5317,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 15ms"
+          "note": "click->paint 8ms"
         },
         {
           "dim": "D3",
@@ -4759,8 +5370,8 @@
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 37,
-          "total": 37,
+          "pass": 67,
+          "total": 67,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -4842,7 +5453,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 868ms OK · CLS 0.087 OK <- div.app-layout"
+          "note": "LCP 852ms OK · CLS 0.087 OK <- div.app-layout"
         },
         {
           "dim": "I2",
@@ -5035,16 +5646,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 3,
+          "total": 3,
+          "pct": 100,
+          "note": "all 3 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 12,
+          "total": 12,
+          "pct": 100,
+          "note": "12/12 stateful controls expose their state"
         }
       ]
     },
     "report-sender.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 39,
+        "dims": 61,
+        "measured": 45,
         "judged": 7,
-        "na": 7
+        "na": 9
       },
       "failing": [],
       "errors": [],
@@ -5292,7 +5967,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 304ms OK · CLS 0.050 OK <- main#wh-main-content"
+          "note": "LCP 188ms OK · CLS 0.050 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -5485,16 +6160,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 8,
+          "total": 8,
+          "pct": 100,
+          "note": "8/8 stateful controls expose their state"
         }
       ]
     },
     "alert-hub.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 40,
+        "dims": 61,
+        "measured": 46,
         "judged": 7,
-        "na": 6
+        "na": 8
       },
       "failing": [],
       "errors": [],
@@ -5505,9 +6244,9 @@
         "overGrade": []
       },
       "n1": {
-        "dataI": 81,
-        "labelCovered": 77,
-        "labelTotal": 77,
+        "dataI": 96,
+        "labelCovered": 92,
+        "labelTotal": 92,
         "coverage": 1,
         "uncovered": []
       },
@@ -5526,7 +6265,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "headings=26 (h2/h3=25) blocks=30"
+          "note": "headings=31 (h2/h3=30) blocks=35"
         },
         {
           "dim": "A3",
@@ -5571,8 +6310,8 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 234,
-          "total": 234,
+          "pass": 274,
+          "total": 274,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -5606,7 +6345,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 5ms"
+          "note": "click->paint 4ms"
         },
         {
           "dim": "D3",
@@ -5654,13 +6393,13 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/91 · offFont=0/114"
+          "note": "declared=[8,12,16] · offRadius=0/106 · offFont=0/134"
         },
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 111,
-          "total": 111,
+          "pass": 131,
+          "total": 131,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -5702,7 +6441,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "111 controls, 1 primary CTA"
+          "note": "131 controls, 1 primary CTA"
         },
         {
           "dim": "H1",
@@ -5742,7 +6481,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 3324ms local-ok/prod>2.5s · CLS 0.058 OK <- main#wh-main-content"
+          "note": "LCP 656ms OK · CLS 0.058 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -5795,8 +6534,8 @@
         {
           "dim": "L2",
           "kind": "MEASURED",
-          "pass": 26,
-          "total": 26,
+          "pass": 31,
+          "total": 31,
           "pct": 100,
           "note": "all link labels predict their destination"
         },
@@ -5822,7 +6561,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "WH_LANG=true · lang=en · label coverage=77/77 (100%) · data-i=81"
+          "note": "WH_LANG=true · lang=en · label coverage=92/92 (100%) · data-i=96"
         },
         {
           "dim": "O1",
@@ -5846,7 +6585,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "3 reduced-motion block(s), 109 animated el(s)"
+          "note": "3 reduced-motion block(s), 129 animated el(s)"
         },
         {
           "dim": "R1",
@@ -5935,16 +6674,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 14,
+          "total": 14,
+          "pct": 100,
+          "note": "14/14 stateful controls expose their state"
         }
       ]
     },
     "logbook.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 40,
+        "dims": 61,
+        "measured": 46,
         "judged": 7,
-        "na": 6
+        "na": 8
       },
       "failing": [],
       "errors": [],
@@ -6192,7 +6995,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 440ms OK · CLS 0.085 OK <- main#wh-main-content.relative.z-10"
+          "note": "LCP 332ms OK · CLS 0.083 OK <- main#wh-main-content.relative.z-10"
         },
         {
           "dim": "I2",
@@ -6385,16 +7188,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 30 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 8,
+          "total": 8,
+          "pct": 100,
+          "note": "8/8 stateful controls expose their state"
         }
       ]
     },
     "community.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
-        "judged": 7,
-        "na": 8
+        "dims": 61,
+        "measured": 46,
+        "judged": 8,
+        "na": 7
       },
       "failing": [],
       "errors": [],
@@ -6405,15 +7272,15 @@
         "overGrade": []
       },
       "n1": {
-        "dataI": 12,
+        "dataI": 11,
         "labelCovered": 10,
         "labelTotal": 11,
         "coverage": 0.9090909090909091,
         "uncovered": [
           {
             "tag": "BUTTON",
-            "id": "",
-            "t": "Retry"
+            "id": "btn-load-more-posts",
+            "t": "Load more posts"
           }
         ]
       },
@@ -6432,7 +7299,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "headings=2 (h2/h3=1) blocks=4"
+          "note": "headings=2 (h2/h3=1) blocks=10"
         },
         {
           "dim": "A3",
@@ -6440,7 +7307,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "disclosures=3 longTables=0"
+          "note": "disclosures=4 longTables=0"
         },
         {
           "dim": "B1",
@@ -6464,7 +7331,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=6 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=4 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -6477,8 +7344,8 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 61,
-          "total": 61,
+          "pass": 94,
+          "total": 94,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -6501,10 +7368,10 @@
         {
           "dim": "D1",
           "kind": "MEASURED",
-          "pass": 2,
-          "total": 2,
+          "pass": 28,
+          "total": 28,
           "pct": 100,
-          "note": "2/2 icon-only controls named"
+          "note": "28/28 icon-only controls named"
         },
         {
           "dim": "D2",
@@ -6560,13 +7427,13 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/19 · offFont=0/38"
+          "note": "declared=[8,12,16] · offRadius=0/81 · offFont=0/106"
         },
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 20,
-          "total": 20,
+          "pass": 82,
+          "total": 82,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -6608,7 +7475,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "20 controls, 1 primary CTA"
+          "note": "82 controls, 1 primary CTA"
         },
         {
           "dim": "H1",
@@ -6648,7 +7515,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 424ms OK · CLS 0.050 OK <- div#leaderboard-card.wh-card"
+          "note": "LCP 300ms OK · CLS 0.046 OK <- div#leaderboard-card.wh-card"
         },
         {
           "dim": "I2",
@@ -6656,31 +7523,31 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "11 reserved block(s)"
+          "note": "12 reserved block(s)"
         },
         {
           "dim": "J1",
-          "kind": "N/A",
-          "pass": null,
-          "total": null,
-          "pct": null,
-          "note": "read-only surface: 0 destructive controls"
+          "kind": "MEASURED",
+          "pass": 6,
+          "total": 6,
+          "pct": 100,
+          "note": "6 destructive control(s)"
         },
         {
           "dim": "J2",
-          "kind": "N/A",
+          "kind": "JUDGED",
           "pass": null,
           "total": null,
           "pct": null,
-          "note": "nothing destructive to undo"
+          "note": "needs a live destructive-action walk"
         },
         {
           "dim": "K1",
-          "kind": "N/A",
-          "pass": null,
-          "total": null,
-          "pct": null,
-          "note": "no status chips on this surface"
+          "kind": "MEASURED",
+          "pass": 6,
+          "total": 6,
+          "pct": 100,
+          "note": "6/6 status chips carry TEXT"
         },
         {
           "dim": "K2",
@@ -6728,7 +7595,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "WH_LANG=true · lang=en · label coverage=10/11 (91%) · data-i=12"
+          "note": "WH_LANG=true · lang=en · label coverage=10/11 (91%) · data-i=11"
         },
         {
           "dim": "O1",
@@ -6752,7 +7619,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "4 reduced-motion block(s), 20 animated el(s)"
+          "note": "4 reduced-motion block(s), 88 animated el(s)"
         },
         {
           "dim": "R1",
@@ -6841,16 +7708,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 23 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 16,
+          "total": 16,
+          "pct": 100,
+          "note": "16/16 stateful controls expose their state"
         }
       ]
     },
     "assistant.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 37,
+        "dims": 61,
+        "measured": 43,
         "judged": 7,
-        "na": 9
+        "na": 11
       },
       "failing": [],
       "errors": [],
@@ -6968,7 +7899,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 3ms"
+          "note": "click->paint 2ms"
         },
         {
           "dim": "D3",
@@ -7104,7 +8035,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 288ms OK · CLS 0.087 OK <- main#wh-main-content"
+          "note": "LCP 232ms OK · CLS 0.060 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -7297,16 +8228,80 @@
           "total": null,
           "pct": null,
           "note": "assistant/home: IS the assistant / no floating companion by design"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 23 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 7,
+          "total": 7,
+          "pct": 100,
+          "note": "7/7 stateful controls expose their state"
         }
       ]
     },
     "engineering-design.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 44,
         "judged": 7,
-        "na": 8
+        "na": 10
       },
       "failing": [],
       "errors": [],
@@ -7424,7 +8419,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 2ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -7432,7 +8427,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "2 distinct button shapes"
+          "note": "3 distinct button shapes"
         },
         {
           "dim": "E1",
@@ -7560,7 +8555,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 1144ms OK · CLS 0.050 OK <- div.relative.z-10"
+          "note": "LCP 1216ms OK · CLS 0.050 OK <- div.relative.z-10"
         },
         {
           "dim": "I2",
@@ -7688,7 +8683,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "cardTreatments=0 · silhouettes=2 for 1 role(s) (8px,12px)"
+          "note": "cardTreatments=0 · silhouettes=3 for 2 role(s) (8px,pill,12px)"
         },
         {
           "dim": "R4",
@@ -7753,16 +8748,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 23 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 9,
+          "total": 9,
+          "pct": 100,
+          "note": "9/9 stateful controls expose their state"
         }
       ]
     },
     "achievements.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 40,
+        "dims": 61,
+        "measured": 46,
         "judged": 7,
-        "na": 6
+        "na": 8
       },
       "failing": [],
       "errors": [],
@@ -7874,7 +8933,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 0ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -8010,7 +9069,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 312ms OK · CLS 0.022 OK <- div.hero-card"
+          "note": "LCP 236ms OK · CLS 0.011 OK <- div.hero-card"
         },
         {
           "dim": "I2",
@@ -8119,10 +9178,10 @@
         {
           "dim": "R1",
           "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
+          "pass": 2,
+          "total": 2,
           "pct": 100,
-          "note": "gaps=[16] offScale=[]"
+          "note": "gaps=[0,16] offScale=[]"
         },
         {
           "dim": "R2",
@@ -8203,16 +9262,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 23 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 11,
+          "total": 11,
+          "pct": 100,
+          "note": "11/11 stateful controls expose their state"
         }
       ]
     },
     "voice-journal.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 39,
+        "dims": 61,
+        "measured": 45,
         "judged": 7,
-        "na": 7
+        "na": 9
       },
       "failing": [],
       "errors": [],
@@ -8260,7 +9383,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "marketese=0 verboseBlocks=0"
+          "note": "marketese=0 verboseBlocks=2"
         },
         {
           "dim": "B2",
@@ -8276,7 +9399,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=16 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=27 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -8332,7 +9455,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "6 distinct button shapes"
+          "note": "5 distinct button shapes"
         },
         {
           "dim": "E1",
@@ -8460,7 +9583,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 236ms OK · CLS 0.054 OK <- main#wh-main-content"
+          "note": "LCP 324ms OK · CLS 0.054 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -8653,16 +9776,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 23 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 10,
+          "total": 10,
+          "pct": 100,
+          "note": "10/10 stateful controls expose their state"
         }
       ]
     },
     "integrations.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 39,
+        "dims": 61,
+        "measured": 45,
         "judged": 7,
-        "na": 7
+        "na": 9
       },
       "failing": [],
       "errors": [],
@@ -8910,7 +10097,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 144ms OK · CLS 0.094 OK <- main#wh-main-content"
+          "note": "LCP 148ms OK · CLS 0.094 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -9103,16 +10290,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 23 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 12,
+          "total": 12,
+          "pct": 100,
+          "note": "12/12 stateful controls expose their state"
         }
       ]
     },
     "plant-connections.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 39,
+        "dims": 61,
+        "measured": 45,
         "judged": 7,
-        "na": 7
+        "na": 9
       },
       "failing": [],
       "errors": [],
@@ -9224,7 +10475,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 0ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -9360,7 +10611,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 412ms OK · CLS 0.035 OK <- main#wh-main-content.page"
+          "note": "LCP 368ms OK · CLS 0.038 OK <- main#wh-main-content.page"
         },
         {
           "dim": "I2",
@@ -9553,16 +10804,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 8,
+          "total": 8,
+          "pct": 100,
+          "note": "8/8 stateful controls expose their state"
         }
       ]
     },
     "ai-quality.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 44,
         "judged": 7,
-        "na": 8
+        "na": 10
       },
       "failing": [],
       "errors": [],
@@ -9674,7 +10989,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 0ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -9810,7 +11125,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 272ms OK · CLS 0.028 OK <- details"
+          "note": "LCP 616ms OK · CLS 0.032 OK <- details"
         },
         {
           "dim": "I2",
@@ -10003,31 +11318,84 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 5,
+          "total": 5,
+          "pct": 100,
+          "note": "5/5 stateful controls expose their state"
         }
       ]
     },
     "project-report.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 34,
+        "dims": 61,
+        "measured": 33,
         "judged": 7,
-        "na": 12
+        "na": 21
       },
-      "failing": [
-        "C2 96% — worst 1:1 \"How this page works\""
-      ],
+      "failing": [],
       "errors": [],
-      "c2_offenders": [
-        {
-          "t": "How this page works",
-          "cls": "",
-          "r": 1,
-          "need": 4.5,
-          "fg": "rgba(255, 255, 255, 0.72)",
-          "grad": false
-        }
-      ],
+      "c2_offenders": [],
       "b3_offenders": {
         "long": [],
         "passive": [],
@@ -10100,10 +11468,10 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 23,
+          "pass": 24,
           "total": 24,
-          "pct": 96,
-          "note": "worst 1:1 \"How this page works\""
+          "pct": 100,
+          "note": "all text >= its WCAG floor"
         },
         {
           "dim": "C3",
@@ -10135,7 +11503,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 0ms"
+          "note": "click->paint 2ms"
         },
         {
           "dim": "D3",
@@ -10271,7 +11639,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 228ms OK · CLS 0.063 OK <- div#appendix-section"
+          "note": "LCP 340ms OK · CLS 0.063 OK <- div#appendix-section"
         },
         {
           "dim": "I2",
@@ -10387,11 +11755,11 @@
         },
         {
           "dim": "R2",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "scrollW=1280 vs 1280"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — fixed width by design, not a responsive page"
         },
         {
           "dim": "R3",
@@ -10464,16 +11832,80 @@
           "total": null,
           "pct": null,
           "note": "print/poster: no shell by design"
+        },
+        {
+          "dim": "T1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T5",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T8",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
         }
       ]
     },
     "marketplace-seller.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 44,
         "judged": 7,
-        "na": 8
+        "na": 10
       },
       "failing": [],
       "errors": [],
@@ -10497,7 +11929,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "h1=1 focalTier=20px×1 bigTiers=1 cta=1"
+          "note": "h1=1 focalTier=24px×1 bigTiers=2 cta=1"
         },
         {
           "dim": "A2",
@@ -10545,7 +11977,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "bigSizes=[20] distinct=7"
+          "note": "bigSizes=[24,20] distinct=7"
         },
         {
           "dim": "C2",
@@ -10721,7 +12153,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 116ms OK · CLS 0.025 OK <- div#seller-load-more-wrap.hidden"
+          "note": "LCP 156ms OK · CLS 0.025 OK <- div#seller-load-more-wrap.hidden"
         },
         {
           "dim": "I2",
@@ -10914,21 +12346,82 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 12,
+          "total": 12,
+          "pct": 100,
+          "note": "12/12 stateful controls expose their state"
         }
       ]
     },
     "marketplace-admin.html": {
-      "overall": 99,
+      "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 39,
+        "dims": 61,
+        "measured": 45,
         "judged": 7,
-        "na": 7
+        "na": 9
       },
-      "failing": [
-        "A1 75% — h1=1 focalTier=24px×3 bigTiers=1 cta=0",
-        "N1 75% — WH_LANG=true · lang=en · label coverage=2/3 (67%) · data-i=7"
-      ],
+      "failing": [],
       "errors": [],
       "c2_offenders": [],
       "b3_offenders": {
@@ -10937,26 +12430,20 @@
         "overGrade": []
       },
       "n1": {
-        "dataI": 7,
+        "dataI": 9,
         "labelCovered": 2,
-        "labelTotal": 3,
-        "coverage": 0.6666666666666666,
-        "uncovered": [
-          {
-            "tag": "H3",
-            "id": "",
-            "t": "No pending listings"
-          }
-        ]
+        "labelTotal": 2,
+        "coverage": 1,
+        "uncovered": []
       },
       "dims": [
         {
           "dim": "A1",
           "kind": "MEASURED",
-          "pass": 3,
+          "pass": 4,
           "total": 4,
-          "pct": 75,
-          "note": "h1=1 focalTier=24px×3 bigTiers=1 cta=0"
+          "pct": 100,
+          "note": "h1=1 focalTier=24px×3 bigTiers=1 cta=1"
         },
         {
           "dim": "A2",
@@ -10964,7 +12451,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "headings=3 (h2/h3=2) blocks=4"
+          "note": "headings=2 (h2/h3=1) blocks=4"
         },
         {
           "dim": "A3",
@@ -10996,7 +12483,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "sentences=1 · >20w=0 · passive=0 · grade>8=0"
+          "note": "sentences=5 · >20w=0 · passive=0 · grade>8=0"
         },
         {
           "dim": "C1",
@@ -11004,13 +12491,13 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "bigSizes=[24] distinct=6"
+          "note": "bigSizes=[24] distinct=5"
         },
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 22,
-          "total": 22,
+          "pass": 32,
+          "total": 32,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -11044,7 +12531,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 1ms"
+          "note": "click->paint 0ms"
         },
         {
           "dim": "D3",
@@ -11068,7 +12555,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "1/1 empties explain themselves"
+          "note": "no empty states in this state"
         },
         {
           "dim": "E3",
@@ -11092,13 +12579,13 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/5 · offFont=0/11"
+          "note": "declared=[8,12,16] · offRadius=0/7 · offFont=0/11"
         },
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 6,
-          "total": 6,
+          "pass": 8,
+          "total": 8,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -11140,7 +12627,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "6 controls, 0 primary CTA"
+          "note": "8 controls, 1 primary CTA"
         },
         {
           "dim": "H1",
@@ -11180,7 +12667,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 428ms OK · CLS 0.096 OK <- main#main-content.page"
+          "note": "LCP 180ms OK · CLS 0.055 OK <- main#main-content.page"
         },
         {
           "dim": "I2",
@@ -11257,10 +12744,10 @@
         {
           "dim": "N1",
           "kind": "MEASURED",
-          "pass": 3,
+          "pass": 4,
           "total": 4,
-          "pct": 75,
-          "note": "WH_LANG=true · lang=en · label coverage=2/3 (67%) · data-i=7"
+          "pct": 100,
+          "note": "WH_LANG=true · lang=en · label coverage=2/2 (100%) · data-i=9"
         },
         {
           "dim": "O1",
@@ -11284,7 +12771,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "4 reduced-motion block(s), 5 animated el(s)"
+          "note": "4 reduced-motion block(s), 7 animated el(s)"
         },
         {
           "dim": "R1",
@@ -11308,7 +12795,7 @@
           "pass": 3,
           "total": 3,
           "pct": 100,
-          "note": "cardTreatments=0 · silhouettes=2 for 2 role(s) (bar,12px)"
+          "note": "cardTreatments=0 · silhouettes=3 for 2 role(s) (bar,8px,12px)"
         },
         {
           "dim": "R4",
@@ -11373,16 +12860,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 9,
+          "total": 9,
+          "pct": 100,
+          "note": "9/9 stateful controls expose their state"
         }
       ]
     },
     "agentic-rag-observability.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 42,
         "judged": 7,
-        "na": 8
+        "na": 12
       },
       "failing": [],
       "errors": [],
@@ -11630,7 +13181,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 104ms OK · CLS 0.027 OK <- div.card"
+          "note": "LCP 156ms OK · CLS 0.027 OK <- div.card"
         },
         {
           "dim": "I2",
@@ -11823,16 +13374,80 @@
           "total": null,
           "pct": null,
           "note": "no shell surface on this page"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no internal scroll containers on this page"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 1 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no stateful toggles/tabs/expanders on this page"
         }
       ]
     },
     "audit-log.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 37,
+        "dims": 61,
+        "measured": 43,
         "judged": 7,
-        "na": 9
+        "na": 11
       },
       "failing": [],
       "errors": [],
@@ -11843,9 +13458,9 @@
         "overGrade": []
       },
       "n1": {
-        "dataI": 34,
-        "labelCovered": 34,
-        "labelTotal": 34,
+        "dataI": 33,
+        "labelCovered": 33,
+        "labelTotal": 33,
         "coverage": 1,
         "uncovered": []
       },
@@ -11864,7 +13479,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "headings=2 (h2/h3=1) blocks=30"
+          "note": "headings=2 (h2/h3=1) blocks=29"
         },
         {
           "dim": "A3",
@@ -11872,7 +13487,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "disclosures=31 longTables=0"
+          "note": "disclosures=30 longTables=0"
         },
         {
           "dim": "B1",
@@ -11909,8 +13524,8 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 192,
-          "total": 192,
+          "pass": 186,
+          "total": 186,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -11944,7 +13559,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 0ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -11992,13 +13607,13 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "declared=[8,12,16] · offRadius=0/37 · offFont=0/43"
+          "note": "declared=[8,12,16] · offRadius=0/36 · offFont=0/42"
         },
         {
           "dim": "F1",
           "kind": "MEASURED",
-          "pass": 41,
-          "total": 41,
+          "pass": 40,
+          "total": 40,
           "pct": 100,
           "note": "all >= 44px"
         },
@@ -12040,7 +13655,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "41 controls, 1 primary CTA"
+          "note": "40 controls, 1 primary CTA"
         },
         {
           "dim": "H1",
@@ -12080,7 +13695,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 124ms OK · CLS 0.073 OK <- main#wh-main-content"
+          "note": "LCP 112ms OK · CLS 0.073 OK <- main#wh-main-content"
         },
         {
           "dim": "I2",
@@ -12160,7 +13775,7 @@
           "pass": 4,
           "total": 4,
           "pct": 100,
-          "note": "WH_LANG=true · lang=en · label coverage=34/34 (100%) · data-i=34"
+          "note": "WH_LANG=true · lang=en · label coverage=33/33 (100%) · data-i=33"
         },
         {
           "dim": "O1",
@@ -12273,16 +13888,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 38,
+          "total": 38,
+          "pct": 100,
+          "note": "38/38 stateful controls expose their state"
         }
       ]
     },
     "marketplace-seller-profile.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 44,
         "judged": 7,
-        "na": 8
+        "na": 10
       },
       "failing": [],
       "errors": [],
@@ -12394,7 +14073,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 1ms"
+          "note": "click->paint 2ms"
         },
         {
           "dim": "D3",
@@ -12530,7 +14209,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 356ms OK · CLS 0.053 OK <- div#reviews-content.reviews-card"
+          "note": "LCP 348ms OK · CLS 0.036 OK <- div#reviews-content.reviews-card"
         },
         {
           "dim": "I2",
@@ -12723,16 +14402,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 9,
+          "total": 9,
+          "pct": 100,
+          "note": "9/9 stateful controls expose their state"
         }
       ]
     },
     "public-feed.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 44,
         "judged": 7,
-        "na": 8
+        "na": 10
       },
       "failing": [],
       "errors": [],
@@ -12980,7 +14723,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 124ms OK · CLS 0.016 OK <- main#wh-main-content.main"
+          "note": "LCP 104ms OK · CLS 0.025 OK <- main#wh-main-content.main"
         },
         {
           "dim": "I2",
@@ -13173,16 +14916,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 5,
+          "total": 5,
+          "pct": 100,
+          "note": "5/5 stateful controls expose their state"
         }
       ]
     },
     "status.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 36,
+        "dims": 61,
+        "measured": 40,
         "judged": 7,
-        "na": 10
+        "na": 14
       },
       "failing": [],
       "errors": [],
@@ -13259,8 +15066,8 @@
         {
           "dim": "C2",
           "kind": "MEASURED",
-          "pass": 64,
-          "total": 64,
+          "pass": 65,
+          "total": 65,
           "pct": 100,
           "note": "all text >= its WCAG floor"
         },
@@ -13294,7 +15101,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "click->paint 0ms"
+          "note": "click->paint 1ms"
         },
         {
           "dim": "D3",
@@ -13374,7 +15181,7 @@
           "pass": 1,
           "total": 1,
           "pct": 100,
-          "note": "2 status region(s)"
+          "note": "3 status region(s)"
         },
         {
           "dim": "G2",
@@ -13430,7 +15237,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 84ms OK · CLS 0.000 OK"
+          "note": "LCP 88ms OK · CLS 0.000 OK"
         },
         {
           "dim": "I2",
@@ -13623,18 +15430,84 @@
           "total": null,
           "pct": null,
           "note": "no shell surface on this page"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no internal scroll containers on this page"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 1 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no stateful toggles/tabs/expanders on this page"
         }
       ]
     },
     "ph-intelligence.html": {
-      "overall": 100,
+      "overall": 99,
       "counts": {
-        "dims": 53,
-        "measured": 38,
+        "dims": 61,
+        "measured": 44,
         "judged": 7,
-        "na": 8
+        "na": 10
       },
-      "failing": [],
+      "failing": [
+        "I1 50% — LCP 108ms OK · CLS 0.105 >0.1 SHIFT <- body"
+      ],
       "errors": [],
       "c2_offenders": [],
       "b3_offenders": {
@@ -13877,10 +15750,10 @@
         {
           "dim": "I1",
           "kind": "MEASURED",
-          "pass": 2,
+          "pass": 1,
           "total": 2,
-          "pct": 100,
-          "note": "LCP 224ms OK · CLS 0.054 OK <- main#wh-main-content"
+          "pct": 50,
+          "note": "LCP 108ms OK · CLS 0.105 >0.1 SHIFT <- body"
         },
         {
           "dim": "I2",
@@ -14073,16 +15946,80 @@
           "total": 3,
           "pct": 100,
           "note": "companion=true avatar=true nav-hub=true"
+        },
+        {
+          "dim": "T1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no trapped content @390"
+        },
+        {
+          "dim": "T2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all text fits @390"
+        },
+        {
+          "dim": "T3",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "touch-action set (manipulation)"
+        },
+        {
+          "dim": "T4",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "all 1 scroll containers contained"
+        },
+        {
+          "dim": "T5",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "viewport-fit=cover set — env(safe-area-inset) active"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long list (worst scroll container = 15 children)"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "measured by ufai_battery.js consoleErrorsSinceBoot"
+        },
+        {
+          "dim": "T8",
+          "kind": "MEASURED",
+          "pass": 5,
+          "total": 5,
+          "pct": 100,
+          "note": "5/5 stateful controls expose their state"
         }
       ]
     },
     "promo-poster.html": {
       "overall": 100,
       "counts": {
-        "dims": 53,
-        "measured": 27,
+        "dims": 61,
+        "measured": 26,
         "judged": 7,
-        "na": 19
+        "na": 28
       },
       "failing": [],
       "errors": [],
@@ -14361,7 +16298,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 292ms OK · CLS 0.015 OK <- div.feats"
+          "note": "LCP 276ms OK · CLS 0.015 OK <- div.feats"
         },
         {
           "dim": "I2",
@@ -14477,11 +16414,11 @@
         },
         {
           "dim": "R2",
-          "kind": "MEASURED",
-          "pass": 1,
-          "total": 1,
-          "pct": 100,
-          "note": "scrollW=1280 vs 1280"
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — fixed width by design, not a responsive page"
         },
         {
           "dim": "R3",
@@ -14554,6 +16491,70 @@
           "total": null,
           "pct": null,
           "note": "print/poster: no shell by design"
+        },
+        {
+          "dim": "T1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T5",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T6",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T7",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
+        },
+        {
+          "dim": "T8",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "print/poster artifact — phone-app dims N/A"
         }
       ]
     }
@@ -14561,25 +16562,21 @@
   "perDim": {
     "A1": {
       "name": "5-second test",
-      "green": 31,
-      "fail": 1,
+      "green": 32,
+      "fail": 0,
       "na": 0,
       "judged": 0,
-      "failPages": [
-        "marketplace-admin 75"
-      ],
-      "mean": 99
+      "failPages": [],
+      "mean": 100
     },
     "A2": {
       "name": "Scannability",
-      "green": 31,
-      "fail": 1,
+      "green": 32,
+      "fail": 0,
       "na": 0,
       "judged": 0,
-      "failPages": [
-        "index 75"
-      ],
-      "mean": 99
+      "failPages": [],
+      "mean": 100
     },
     "A3": {
       "name": "Cognitive load / progressive disclosure",
@@ -14628,32 +16625,27 @@
     },
     "C2": {
       "name": "Colour & contrast (WCAG)",
-      "green": 30,
-      "fail": 2,
+      "green": 32,
+      "fail": 0,
       "na": 0,
       "judged": 0,
-      "failPages": [
-        "shift-brain 98",
-        "project-report 96"
-      ],
+      "failPages": [],
       "mean": 100
     },
     "C3": {
       "name": "Whitespace / gestalt",
-      "green": 31,
-      "fail": 1,
+      "green": 32,
+      "fail": 0,
       "na": 0,
       "judged": 0,
-      "failPages": [
-        "index 50"
-      ],
-      "mean": 98
+      "failPages": [],
+      "mean": 100
     },
     "C4": {
       "name": "Typography (tabular KPIs)",
-      "green": 12,
+      "green": 13,
       "fail": 0,
-      "na": 20,
+      "na": 19,
       "judged": 0,
       "failPages": [],
       "mean": 100
@@ -14822,12 +16814,14 @@
     },
     "I1": {
       "name": "Core Web Vitals (LIVE: CLS strict, LCP local-aware)",
-      "green": 32,
-      "fail": 0,
+      "green": 31,
+      "fail": 1,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "ph-intelligence 50"
+      ],
+      "mean": 98
     },
     "I2": {
       "name": "Perceived performance",
@@ -14840,9 +16834,9 @@
     },
     "J1": {
       "name": "Prevent slips",
-      "green": 1,
+      "green": 2,
       "fail": 0,
-      "na": 31,
+      "na": 30,
       "judged": 0,
       "failPages": [],
       "mean": 100
@@ -14851,16 +16845,16 @@
       "name": "Forgiveness / undo",
       "green": 0,
       "fail": 0,
-      "na": 31,
-      "judged": 1,
+      "na": 30,
+      "judged": 2,
       "failPages": [],
       "mean": null
     },
     "K1": {
       "name": "Safety-first signalling (never colour-alone)",
-      "green": 16,
+      "green": 17,
       "fail": 0,
-      "na": 16,
+      "na": 15,
       "judged": 0,
       "failPages": [],
       "mean": 100
@@ -14912,14 +16906,12 @@
     },
     "N1": {
       "name": "i18n mechanism + expansion resilience (NOT % translated)",
-      "green": 30,
-      "fail": 1,
+      "green": 31,
+      "fail": 0,
       "na": 1,
       "judged": 0,
-      "failPages": [
-        "marketplace-admin 75"
-      ],
-      "mean": 99
+      "failPages": [],
+      "mean": 100
     },
     "O1": {
       "name": "Value-first, not a tour",
@@ -14959,9 +16951,9 @@
     },
     "R2": {
       "name": "Alignment & grid (no overflow)",
-      "green": 32,
+      "green": 30,
       "fail": 0,
-      "na": 0,
+      "na": 2,
       "judged": 0,
       "failPages": [],
       "mean": 100
@@ -15004,12 +16996,14 @@
     },
     "V1": {
       "name": "No collision / overlap (content + floating chrome)",
-      "green": 32,
-      "fail": 0,
+      "green": 31,
+      "fail": 1,
       "na": 0,
       "judged": 0,
-      "failPages": [],
-      "mean": 100
+      "failPages": [
+        "analytics 0"
+      ],
+      "mean": 97
     },
     "B4": {
       "name": "Explanation microcopy plain",
@@ -15043,6 +17037,78 @@
       "green": 26,
       "fail": 0,
       "na": 6,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "T1": {
+      "name": "Content reachability (no fixed-height scroll-trap)",
+      "green": 30,
+      "fail": 0,
+      "na": 2,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "T2": {
+      "name": "Text fits its box (no clip/overlap)",
+      "green": 30,
+      "fail": 0,
+      "na": 2,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "T3": {
+      "name": "Tap responsiveness (touch-action: manipulation)",
+      "green": 30,
+      "fail": 0,
+      "na": 2,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "T4": {
+      "name": "Native scroll containment (overscroll-behavior)",
+      "green": 28,
+      "fail": 0,
+      "na": 4,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "T5": {
+      "name": "Safe-area (viewport-fit=cover)",
+      "green": 30,
+      "fail": 0,
+      "na": 2,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "T6": {
+      "name": "Long-list virtualization",
+      "green": 0,
+      "fail": 0,
+      "na": 32,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "T7": {
+      "name": "Clean JS thread (no console noise on load)",
+      "green": 0,
+      "fail": 0,
+      "na": 32,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "T8": {
+      "name": "Interactive-state semantics (aria-pressed/expanded/selected)",
+      "green": 28,
+      "fail": 0,
+      "na": 4,
       "judged": 0,
       "failPages": [],
       "mean": 100

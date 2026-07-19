@@ -293,6 +293,9 @@
     btn.setAttribute('aria-label', 'Send feedback to WorkHive');
     btn.textContent = '💬';
     document.body.appendChild(btn);
+    // Clearing a page's fixed bottom-nav is handled centrally by nav-hub's stack-lift
+    // (margin-bottom: var(--wh-fab-lift)) so the WHOLE bottom-right FAB stack rises together and
+    // keeps its relative spacing — see nav-hub.js liftFabStackAboveBottomNav().
   }
 
   function injectPanel() {

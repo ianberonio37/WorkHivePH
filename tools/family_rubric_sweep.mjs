@@ -41,7 +41,12 @@ const PAGE_REVEAL = { 'project-report.html': /generate/i };
 // connection keeps the network busy so `networkidle` never fires — analytics' phase panels carry
 // their data-i labels + readable copy and render ~2s after the panels' RPC (N1 read 1/11 vs 15/15
 // fully-loaded; B3 raced its copy). A page-specific wait, not a global slowdown.
-const PAGE_SETTLE = {};  // (analytics N1 is the _t()-vs-data-i lens under-count, not a fixed-wait race — a settle bump doesn't move it; the real fix is the §6 locale-flip diff)
+// analytics is a chart-heavy dashboard whose Chart.js panels reflow for ~5s after the content-settle
+// gate returns — during that reflow a threshold-legend line transiently overlaps a Show-all button /
+// H2 (V1). That is a LOAD transient (I1/CLS's domain), not a defect in the SETTLED layout V1 grades,
+// so wait for the charts to finish before grading. (N1 stays the _t()-vs-data-i lens under-count — a
+// settle bump doesn't move it; §6 locale-flip diff is the real fix — but V1 IS a fixed-wait race here.)
+const PAGE_SETTLE = { 'analytics.html': 5500 };  // 3000 cleared V1 in isolation but the FULL-run charts reflow slower under contention → 5500
 
 const PAGES = [
   'analytics.html', 'pm-scheduler.html', 'asset-hub.html', 'skillmatrix.html',
@@ -156,16 +161,20 @@ async function surveyPage(context, file) {
     }, { timeout: 5000 }).catch(() => {});
     // CONTENT-SETTLE: wait until the content root stops GROWING (async feed/chat/cards/headings have
     // landed) so the survey grades the SETTLED page, not a half-rendered one. Under full-sweep
-    // contention some pages' content lands after the grade point, so A2 (blocks=0)/A1/R3 dipped
-    // run-to-run while scoring 100 in isolation. Poll a size signature (visible text length + block
-    // count); a skeleton→data wave resets the counter (innerText grows). Stop on 2 stable reads or 4s.
+    // contention some pages' content lands after the grade point, so A2 (blocks=0)/A1/R3/E3/G1 dipped
+    // run-to-run while scoring 100 in isolation — the flake ROTATED between pages each contended run
+    // (analytics → alert-hub → audit-log). Root cause: the old 2-stable-reads/4s stopped on a stable
+    // SKELETON before the async data wave landed. Fix: require 3 stable reads (1.2s of TRUE stability)
+    // AND a >=2s elapsed floor (never settle on the initial skeleton), cap 8s. A skeleton→data wave
+    // resets the counter, so this now waits for the DATA to stabilize, not the placeholder.
     await page.waitForFunction(() => {
       const R = document.querySelector('.page') || document.querySelector('main') || document.body;
       const sig = (R.innerText || '').length + '|' + R.querySelectorAll('h1,h2,h3,.card,.simple-card,.board-card,button').length;
-      window.__settle = window.__settle || { last: '', stable: 0 };
+      window.__settle = window.__settle || { last: '', stable: 0, polls: 0 };
+      window.__settle.polls++;
       if (sig === window.__settle.last) window.__settle.stable++; else { window.__settle.stable = 0; window.__settle.last = sig; }
-      return window.__settle.stable >= 2;
-    }, { timeout: 4000, polling: 400 }).catch(() => {});
+      return window.__settle.stable >= 3 && window.__settle.polls >= 5;
+    }, { timeout: 8000, polling: 400 }).catch(() => {});
     const reveal = PAGE_REVEAL[file];
     if (reveal) {
       const clicked = await page.evaluate((reSrc) => {

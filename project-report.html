@@ -54,6 +54,12 @@
   #ar-print-wrapper h2 { font-size: 14pt; margin: 24px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); }
   #ar-print-wrapper h3 { font-size: 11pt; margin: 16px 0 4px; color: var(--accent); }
   #ar-print-wrapper p, #ar-print-wrapper li { color: var(--ink); font-size: 10.5pt; }
+  /* C2 contrast: .wh-help (utils.js) is a shared DARK-surface disclosure — white-72% text on a
+     translucent-white chip. On this WHITE report paper it renders white-on-white (1:1, invisible).
+     Re-skin it to the document ink + a light chip so the "How this page works" summary is legible. */
+  #ar-print-wrapper .wh-help { background: var(--cell-bg); border-color: var(--rule); }
+  #ar-print-wrapper .wh-help > summary,
+  #ar-print-wrapper .wh-help > p { color: var(--ink); }
 
   .doc-cover { text-align: left; padding-bottom: 18px; border-bottom: 3px solid var(--accent); margin-bottom: 18px; }
   .doc-cover .pcode { font-size: 9.5pt; color: var(--muted); letter-spacing: 0.06em; font-weight: 700; }

@@ -75,8 +75,10 @@
     .refresh-btn.spinning #refresh-icon { display: inline-block; animation: spin 0.8s linear infinite; }
     /* Refresh-all is the page's primary action (get the latest across all phases) — filled so
        the 5-second scan lands on one clear CTA (A1); the sibling report/nav buttons stay ghost. */
-    #refresh-btn { background: linear-gradient(135deg, #7c5cff, #a78bfa); border-color: transparent; color: var(--wh-navy); font-weight: 700; }
-    #refresh-btn:hover { filter: brightness(1.08); background: linear-gradient(135deg, #7c5cff, #a78bfa); }
+    /* C2 dual-viewport: navy text on the darker purple stop was 3.76:1 (<4.5). Lighten both stops
+       so the dark stop clears the WCAG floor while keeping the purple primary-action look. */
+    #refresh-btn { background: linear-gradient(135deg, #a78bfa, #c4b5fd); border-color: transparent; color: var(--wh-navy); font-weight: 700; }
+    #refresh-btn:hover { filter: brightness(1.06); background: linear-gradient(135deg, #a78bfa, #c4b5fd); }
 
     /* ── Phase tabs ── */
     /* NAVIGATE vocabulary (Ian, 2026-07-15): view-switchers are a CONNECTED TAB-BAR --
