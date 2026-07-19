@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:513-files
-source_sha: d4dedd6d235ad843
+source: memory-curated:520-files
+source_sha: 0815a59ce036b185
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (513 durable topic files)
+## memory · curated auto-memory (520 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=143 · project=283 · reference=87
+**By type:** feedback=148 · project=285 · reference=87
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -20,7 +20,9 @@ Entries (name · type · sha):
 - `feedback_ai_provider` · feedback · b197e3dd063d1acc
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_anti_seesaw_lineage_discipline` · feedback · 8cd491bab51b8c5e
+- `feedback_approval_lock_class_optimistic_guard` · feedback · 5cc0452b5cd0769f
 - `feedback_articles_tool_aligned` · feedback · d4568b32de74c462
+- `feedback_asset_code_identifiers_break_readability_detectors` · feedback · 8d10e79e2afaafa3
 - `feedback_audit_scanner_scope` · feedback · eb6536bc9f5f80d9
 - `feedback_authuid_attribution_on_every_write` · feedback · a41d4a16653d03c5
 - `feedback_axe_incomplete_is_a_false_100` · feedback · 1ee90dac3d5ad978
@@ -76,6 +78,7 @@ Entries (name · type · sha):
 - `feedback_legacy_worker_decommission` · feedback · 9eedae278c03caa8
 - `feedback_live_apply_catches_what_static_misses` · feedback · f1418d57f4c4f2e9
 - `feedback_live_gap_is_a_backlog_not_a_ceiling` · feedback · 496c3c8cf1a4df5d
+- `feedback_live_journey_catches_backend_down_false_alarm` · feedback · 6f5db33e5a6fa220
 - `feedback_live_mcp_writes_pollute_test_db` · feedback · 870446bd512076b8
 - `feedback_live_verify_rls_before_fixing` · feedback · 8f77861fd206dbd2
 - `feedback_local_first_never_push_prod` · feedback · bbe0eaac3afecff2
@@ -87,6 +90,7 @@ Entries (name · type · sha):
 - `feedback_measure_the_worked_state_not_the_generator` · feedback · 5242b6458d5c3110
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
 - `feedback_memento_visible_confirmation` · feedback · e015e662599822a1
+- `feedback_mobile_fit_rubric_gap_and_two_bugs` · feedback · e101498c62dd7da7
 - `feedback_momentum_stop_guard` · feedback · 93fd80bedf0520f8
 - `feedback_native_ui_approach` · feedback · b8163279e8813ae5
 - `feedback_nav_hub_two_tier` · feedback · 9f6aef5ce98db0d2
@@ -103,6 +107,7 @@ Entries (name · type · sha):
 - `feedback_offer_to_continue_is_the_stop` · feedback · b9cad11d0f1225f5
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
 - `feedback_pandas_iso8601_silent_99pct_data_loss` · feedback · e33cd3b6a8e29c62
+- `feedback_pasted_keys_in_docs_leak_scanner_blindspot` · feedback · f48a9c2ba719f44c
 - `feedback_pdda_page_deep_arc` · feedback · f5ff12390b2bea42
 - `feedback_performance` · feedback · e38f9cee6d8570cc
 - `feedback_plain_language_no_jargon` · feedback · a13ca72fba6fd10a
@@ -278,7 +283,7 @@ Entries (name · type · sha):
 - `project_deepwalk_14_pages_2026_06_10` · project · 0b38f55dee9427b2
 - `project_deferred_debt_closeout_2026_05_11` · project · 3bb3dad2328d0e00
 - `project_definer_membership_gate_hardening` · project · ebe6a557614ee4e0
-- `project_deploy_blocked_schema_gap` · project · a4ca03ef339882a8
+- `project_deploy_blocked_schema_gap` · project · dd8f2e26f2197475
 - `project_dialog_affirmation_bypass_2026_05_20` · project · 8334aeb536f65191
 - `project_dialog_continuity_2026_05_20` · project · ef6e0392397335fa
 - `project_dialog_followup_handlers_2026_05_20` · project · 759500cd96aeb298
@@ -399,8 +404,10 @@ Entries (name · type · sha):
 - `project_self_improving_gate` · project · dde09df7a0ac4b55
 - `project_sentinel_architecture` · project · 0bf1619f0fc0adac
 - `project_seo_aeo_geo_100_arc` · project · e98ab698366f1024
+- `project_seo_aeo_geo_maximization_roadmap` · project · 591d83a32d51cb37
 - `project_seo_aeo_geo_roadmap` · project · e10dec05d5f3375c
 - `project_seo_closed_loop` · project · 569f9007ad770ff4
+- `project_seo_indexnow_bing_launch_state` · project · efcf7c8f334d9461
 - `project_session_handoff_2026_05_18` · project · 90fc780ca92a90b9
 - `project_session_handoff_2026_05_19` · project · 4b64fb8e6350f49c
 - `project_silo_monitor` · project · 90e04219d4cd8f22
@@ -509,13 +516,6 @@ Entries (name · type · sha):
 - `reference_playwright_journey_recorder_gotchas` · reference · d62f7d64fc1c9dbf
 - `reference_playwright_mcp_reuse_mega_gate` · feedback · 62c8f9798dd0d6dc
 - `reference_playwright_test_identity` · reference · f5de3c3f138298ed
-- `reference_pm_attribution_pin` · reference · 6c22d629a20e6d4e
-- `reference_pm_crosshive_write_holes` · reference · 547ff72a1e90a906
-- `reference_pm_frequency_drop_canonfreq` · reference · b32ac5c944c46ee2
-- `reference_pm_knowledge_fk_100pct_broken` · reference · 0a00218ff9703697
-- `reference_promo_poster_generator` · reference · c7411bb300a29359
-- `reference_realtime_publication_and_singleton` · reference · 8a1bd31044660a12
-- `reference_remotion_pipeline` · reference · ff8c1f7de5716033
-- … +13 more (all included in the fingerprint)
+- … +20 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

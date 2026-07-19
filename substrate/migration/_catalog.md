@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:353
-source_sha: 70595dfd799f5243
+source: dir:supabase/migrations:354
+source_sha: b1b502d7bdef3347
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (353 migrations)
+## migration · catalog (354 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000003_drop_phantom_columns_DRAFT` — tables:agent_memory,ai_quality_log,amc_briefings,anomaly_alerts,auth_session_events,avatar_animations
 - `20260520000004_drop_phantom_columns_safe` — tables:avatar_animations,avatar_state,best_practices,consulting_engagements,cross_hive_alerts,dialog_state
 - `20260520000005_asset_ideal_cycle_time` — tables:asset_nodes
 - `20260520000006_get_oee_by_machine_full` — fns:get_oee_by_machine
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260718000002_cron_health_view` — (misc DDL/DML)
 - `20260718000003_storage_health_view` — (misc DDL/DML)
 - `20260718000004_register_ops_seller_canonical_sources` — (misc DDL/DML)
+- `20260718000005_db_size_history` — fns:snapshot_db_size · tables:ops_db_size_history
 
 (showing last 200)
 

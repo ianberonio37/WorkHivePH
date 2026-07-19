@@ -443,14 +443,17 @@ def s10_marketplace_sections(db):
 # ─────────────────────────────────────────────────────────────────────────
 
 def s21_logbook_assets_link(db):
-    """Every logbook entry should reference an existing asset (asset_ref_id)."""
-    assets = db.table("pm_assets").select("id").execute().data
-    asset_ids = {a["id"] for a in assets}
-    sample = db.table("logbook").select("asset_ref_id").limit(500).execute().data
-    orphans = sum(1 for s in sample if s["asset_ref_id"] not in asset_ids)
+    """Every asset-linked logbook entry should reference an existing asset node.
+    (The legacy text `asset_ref_id`->assets bridge was dropped in migration
+    20260512000007_phase_5b1; linkage is now the `asset_node_id` uuid -> asset_nodes.)"""
+    nodes = db.table("asset_nodes").select("id").execute().data
+    node_ids = {n["id"] for n in nodes}
+    sample = db.table("logbook").select("asset_node_id").limit(500).execute().data
+    linked = [s for s in sample if s.get("asset_node_id")]
+    orphans = sum(1 for s in linked if s["asset_node_id"] not in node_ids)
     if orphans == 0:
-        return [ok(f"all {len(sample)} sampled logbook entries link to a real asset")]
-    return [fail(f"{orphans} logbook entries have orphan asset_ref_id")]
+        return [ok(f"all {len(linked)} asset-linked logbook entries reference a real asset node")]
+    return [fail(f"{orphans} logbook entries have orphan asset_node_id")]
 
 
 def s21_auth_uid_set(db):

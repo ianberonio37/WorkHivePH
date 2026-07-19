@@ -2,13 +2,13 @@
 name: page-asset-hub
 type: page
 source: file:asset-hub.html
-source_sha: 8c204985ca115cdc
+source_sha: 90d1c31ee578566d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `asset-hub.html` — Asset Hub | WorkHive
 
-Size: 202KB · 74 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 203KB · 74 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (12): `asset_nodes.update`, `hive_audit_log.insert`, `parts_staged_reservations.insert`, `parts_staging_recommendations.update`, `pm_assets.insert`, `pm_scope_items.insert`, `rcm_fmea_modes.delete`, `rcm_fmea_modes.insert`, `rcm_fmea_modes.update`, `rcm_strategies.delete`, `rcm_strategies.insert`, `rcm_strategies.update`
 **RPC calls**: (none)

@@ -2,7 +2,7 @@
 name: page-voice-journal
 type: page
 source: file:voice-journal.html
-source_sha: 169efca5fef9788e
+source_sha: 16d33e38ac88f336
 last_verified: 2026-07-13
 supersedes: null
 ---

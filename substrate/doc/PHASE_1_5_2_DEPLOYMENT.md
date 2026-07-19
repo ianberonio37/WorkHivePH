@@ -2,7 +2,7 @@
 name: doc-PHASE_1_5_2_DEPLOYMENT
 type: doc
 source: file:PHASE_1_5_2_DEPLOYMENT.md
-source_sha: 7354cf14e8042288
+source_sha: 47c568da19f15320
 last_verified: 2026-07-13
 supersedes: null
 ---

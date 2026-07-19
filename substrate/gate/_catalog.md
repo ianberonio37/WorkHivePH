@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 9e23f53ae619b2bd
+source_sha: 9b5a79217673ac5c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (608) — the 'what's already gated' brain
+## gate · registered validators (609) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,7 +205,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (419)
+### Platform (420)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `achievements` ⚡ [fail] — Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)
@@ -259,6 +259,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `analytics-live` [fail] — Analytics Live Test (L4 — deployed endpoint, all 4 phases)
 - `anomaly-status-forward` [fail] — Anomaly status forward-only machine (LIVE) — anomaly_signals must keep the BEFORE UPDATE OF status trigger that makes resolved/expired TERMINAL (bug-hunt alert-
 - `api-adoption` ⚡ [fail] — API Adoption (canonical _shared/ module adoption per edge function; forward-only floors, auto-tighten)
+- `approval-lock` ⚡ [fail] — Approval optimistic-lock class (static) — every client approve-write that stamps `approved_at: new Date()` must carry an optimistic lock (`.eq('status','pending
 - `arc-u-focus-trap` [fail] — Arc U modal focus-trap + focus-restore (WCAG 2.1.2 No Keyboard Trap + 2.4.3 Focus Order — axe is STATIC and cannot see a focus trap. LIVE headless probe [tools/
 - `arc-x-befamily` [fail] — Arc X Family B+E scanner (B2 information-scent floor at 0; B3/E3 candidate lists)
 - `arc-x-cfamily` [fail] — Arc X Family C scanner (C2 placeholder-as-label + C1 recall-entity floor at 0)
