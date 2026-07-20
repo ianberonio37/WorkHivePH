@@ -1,54 +1,6 @@
 {
-  "turn": 223,
+  "turn": 224,
   "history": [
-    {
-      "turn": 214,
-      "ts": "2026-07-20T13:34:33",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 2070,
-          "to": 2070,
-          "delta": 0
-        },
-        "L0_validators_with_baseline": {
-          "from": 165,
-          "to": 165,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [],
-      "env_up": null,
-      "promotions": {
-        "rule_candidates": 6,
-        "sentinel_candidates": 1,
-        "tracked_total": 7,
-        "below_threshold": 0,
-        "top_rule": "rule:python_tool:has_print_calls",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
     {
       "turn": 215,
       "ts": "2026-07-20T15:57:31",
@@ -480,6 +432,54 @@
         "top_rule": "rule:python_tool:has_print_calls",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
+    },
+    {
+      "turn": 224,
+      "ts": "2026-07-20T23:34:18",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 2084,
+          "to": 2084,
+          "delta": 0
+        },
+        "L0_validators_with_baseline": {
+          "from": 167,
+          "to": 167,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [],
+      "env_up": null,
+      "promotions": {
+        "rule_candidates": 6,
+        "sentinel_candidates": 1,
+        "tracked_total": 7,
+        "below_threshold": 0,
+        "top_rule": "rule:python_tool:has_print_calls",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
     }
   ],
   "snapshots": {
@@ -687,44 +687,44 @@
     "rule:html:loads_utils_js": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 223,
-      "seen_turns": 167
+      "last_seen_turn": 224,
+      "seen_turns": 168
     },
     "rule:migration:has_header_comment": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 223,
-      "seen_turns": 167
+      "last_seen_turn": 224,
+      "seen_turns": 168
     },
     "rule:seeder:accepts_client_param": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 223,
-      "seen_turns": 167
+      "last_seen_turn": 224,
+      "seen_turns": 168
     },
     "rule:validator:has_main_guard": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 223,
-      "seen_turns": 167
+      "last_seen_turn": 224,
+      "seen_turns": 168
     },
     "rule:python_tool:has_print_calls": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 223,
-      "seen_turns": 167
+      "last_seen_turn": 224,
+      "seen_turns": 168
     },
     "sentinel:user_facing_jargon": {
       "kind": "sentinel",
       "first_seen_turn": 109,
-      "last_seen_turn": 223,
-      "seen_turns": 115
+      "last_seen_turn": 224,
+      "seen_turns": 116
     },
     "rule:html:has_main_landmark": {
       "kind": "rule",
       "first_seen_turn": 142,
-      "last_seen_turn": 223,
-      "seen_turns": 82
+      "last_seen_turn": 224,
+      "seen_turns": 83
     }
   }
 }

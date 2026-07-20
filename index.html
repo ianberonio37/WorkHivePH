@@ -873,7 +873,7 @@
     // block, not a separate script tag, so it adds no net-new un-nonced inline script (the CSP
     // ratchet holds at baseline 12). A known signed-in user must not see the marketing landing paint
     // then collapse into ops-home (that swap moved the footer ~200px, CLS 0.24).
-    try{if((localStorage.getItem('wh_last_worker'))&&(localStorage.getItem('wh_active_hive_id')||localStorage.getItem('wh_hive_id'))){document.documentElement.classList.add('wh-signed-in');}}catch(_){/* empty-catch-allow: private-mode/localStorage-blocked, fall through to the marketing landing */}
+    try{if((whWorker())&&(whHiveId())){document.documentElement.classList.add('wh-signed-in');}}catch(_){/* empty-catch-allow: private-mode/localStorage-blocked, fall through to the marketing landing */}
     // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
     // as root-absolute URLs. Locally everything serves under /workhive/.
     // This script rewrites root-absolute links to /workhive/<path>/index.html
@@ -2832,7 +2832,7 @@
   let _signinOpener = null;
   function openSignIn(e) {
     if (e) e.preventDefault();
-    const name = localStorage.getItem('wh_last_worker') || '';
+    const name = whWorker() || '';
     if (name) { toggleUserMenu(e); return; }
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
@@ -2844,7 +2844,7 @@
   // "Free to use — sign up to start" tool links resolve truthfully instead of dead-bouncing.
   function openSignUp(e) {
     if (e) e.preventDefault();
-    const name = localStorage.getItem('wh_last_worker') || '';
+    const name = whWorker() || '';
     if (name) { toggleUserMenu(e); return; }   // already signed in → user menu, not signup
     _signinOpener = (e && e.currentTarget) || document.activeElement;
     document.getElementById('signin-modal').classList.remove('hidden');
@@ -3320,7 +3320,7 @@
 
   function upgradeToAccount() {
     dismissUpgradeBanner();
-    const existingName = localStorage.getItem('wh_last_worker') || '';
+    const existingName = whWorker() || '';
     // Pre-fill display_name with existing identity so records stay linked
     const dispEl = document.getElementById('su-displayname');
     if (dispEl && existingName) {
@@ -3376,14 +3376,14 @@
   // window.WHResume; Grounded Sweep critique W5). Lets tests/sweeps read the
   // shell's mode/identity/role without poking the DOM + localStorage directly. ──
   window.WHShell = {
-    mode:     function () { return localStorage.getItem('wh_last_worker') ? 'dashboard' : 'landing'; },
-    identity: function () { return localStorage.getItem('wh_last_worker') || ''; },
+    mode:     function () { return whWorker() ? 'dashboard' : 'landing'; },
+    identity: function () { return whWorker() || ''; },
     role:     function () { return localStorage.getItem('wh_hive_role') || ''; },
-    hiveId:   function () { return localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || ''; },
+    hiveId:   function () { return whHiveId() || ''; },
   };
 
   window.addEventListener('DOMContentLoaded', async () => {
-    const name = localStorage.getItem('wh_last_worker');
+    const name = whWorker();
     if (name) updateNavbarName(name);
 
     // C2: Try to restore from Supabase Auth session
@@ -3393,7 +3393,7 @@
       const { data: { session } } = await db.auth.getSession();
       if (session) {
         // Auth session present: restore display_name if needed
-        if (!localStorage.getItem('wh_last_worker')) {
+        if (!whWorker()) {
           const { data: profile } = await db.from('worker_profiles')
             .select('display_name').eq('auth_uid', session.user.id).maybeSingle();
           if (profile?.display_name) {
@@ -3423,7 +3423,7 @@
       // clean-slate localStorage / guest restore / a returning user from before this
       // fix), resolve it from membership truth BEFORE the dashboard reads HIVE_ID —
       // otherwise the home renders solo-mode on the wrong/empty view.
-      if (!localStorage.getItem('wh_active_hive_id') && !localStorage.getItem('wh_hive_id')) {
+      if (!whHiveId() && !whHiveId()) {
         try { await resolveActiveHiveContext(_getDb(), name); } catch (_) { /* empty-catch-allow: fall through to solo mode */ }
       }
       document.getElementById('mkt-wrap').style.display = 'none';
@@ -3432,9 +3432,8 @@
       // EVERY dashboard-render path applies it (not just this one). _initDashboard runs below.
       _initDashboard(name);
     };
-    const _lsWorker = localStorage.getItem('wh_last_worker')
-                  || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
-                  || localStorage.getItem('workerName');
+    const _lsWorker = whWorker()
+                  || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker();
     if (_lsWorker) {
       _showOpsHome(_lsWorker);
     } else if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
@@ -3783,7 +3782,7 @@
       var u = document.getElementById('upgrade-banner'); if (u) u.style.display = 'none';
     })();
     const db = _getOhDb();
-    const HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+    const HIVE_ID   = whHiveId() || '';
     const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
     const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 

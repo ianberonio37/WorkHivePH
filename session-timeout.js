@@ -63,9 +63,8 @@
 
   function activeWorker() {
     try {
-      return localStorage.getItem('wh_last_worker')
-        || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
-        || localStorage.getItem('workerName')
+      return whWorker()
+        || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker()
         || '';
     } catch (_) { return ''; }
   }

@@ -44,5 +44,5 @@
     "wh_pm_groups_",
     "wh_pm_recent_"
   ],
-  "note": "SSOT for client storage keys (PLATFORM_CENTRALIZATION C-P4). A key is CANONICAL or a registered ALIAS-of-canonical. Drift found 2026-07-20: hive-id (3 keys) + worker (3 keys). Convergence to a canonical accessor (whHiveId()/whWorker() in utils.js) is the follow-on wave; until then the aliases are tracked here + reported by validate_storage_keys.py --check."
+  "note": "SSOT for client storage keys (PLATFORM_CENTRALIZATION C-P4). A key is CANONICAL or a registered ALIAS-of-canonical. Drift found 2026-07-20: hive-id (3 keys) + worker (3 keys). CANONICAL ACCESSORS BUILT 2026-07-20: window.whHiveId() / window.whWorker() (utils.js) read the canonical key then fall back to each registered alias — adopt these instead of hand-repeating the getItem fallback chain. Adoption across the ~144 raw-read sites is the incremental wave (new code uses the accessor; existing sites converge). validate_storage_keys.py --check reports the aliases + keeps the key set drift-free."
 }

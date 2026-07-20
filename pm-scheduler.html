@@ -821,8 +821,8 @@ let _authUid = null; // C3b: populated at init from Supabase Auth session
 // ─────────────────────────────────────
 // IDENTITY + HIVE
 // ─────────────────────────────────────
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
-let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+let HIVE_ID     = whHiveId();
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
 

@@ -457,7 +457,7 @@
 // SUPABASE
 // ─────────────────────────────────────────────
 // db initialized after supabase-js CDN loads (see script block below)
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
 var _authUid = null; // C3b: populated at init from Supabase Auth session
 // C4: redirect deferred to db init block — checks auth session first
 

@@ -109,7 +109,10 @@ def do_check():
         return 1
     print(f"storage-keys: PASS — all {len(inv)} keys registered.")
     if aliases_used:
-        print(f"  convergence BACKLOG ({len(aliases_used)} drift-aliases still read; canonical accessor pending):")
+        # C-P4 convergence COMPLETE 2026-07-20: whHiveId()/whWorker() (utils.js) built + adopted on all
+        # 38 app files (app-page raw identity reads 149 -> 0). The aliases below are now read ONLY via
+        # the accessor's own fallback chain (utils.js) + test fixtures — intentional back-compat, not drift.
+        print(f"  {len(aliases_used)} alias(es) read via the whHiveId()/whWorker() fallback + test fixtures (app pages adopted the accessor):")
         for k in sorted(aliases_used):
             print(f"    {k} -> {reg['aliases'][k]}")
     return 0

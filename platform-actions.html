@@ -118,8 +118,8 @@
         // wh_bind_audit_actor() (mig 20260713000003 P4-03), so the client value is a NOT-NULL
         // placeholder only, never trusted for attribution.
         const { error } = await db.from('hive_audit_log').insert({
-          hive_id: localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id'),
-          actor: localStorage.getItem('wh_last_worker') || 'operator',
+          hive_id: whHiveId(),
+          actor: whWorker() || 'operator',
           action, target_type: targetType, target_id: targetId, target_name: targetName, meta: meta || {}
         });
         if (error) console.debug('audit write failed (best-effort):', error.message); // capture PostgREST {error} (not thrown), keep non-blocking

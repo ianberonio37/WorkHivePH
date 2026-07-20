@@ -29,8 +29,8 @@ const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
 logPageView(db);
 // ─── Auth ─────────────────────────────────────────────────────────────────────
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
-let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+let HIVE_ID     = whHiveId();
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 
 // C4: redirect deferred to async init — checks auth session first

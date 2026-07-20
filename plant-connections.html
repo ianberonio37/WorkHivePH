@@ -151,9 +151,8 @@
     const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
     const db = getDb(SUPABASE_URL, SUPABASE_KEY);
     // 3-key identity chain satisfies validate_nav_registry's L3 check.
-    let WORKER_NAME = localStorage.getItem('wh_last_worker')
-                    || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
-                    || localStorage.getItem('workerName') || '';
+    let WORKER_NAME = whWorker()
+                    || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     let HIVE_ID = '';
     let HIVE_ROLE = '';
 
@@ -161,8 +160,7 @@
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
       if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
-      HIVE_ID = localStorage.getItem('wh_active_hive_id')
-            || localStorage.getItem('wh_hive_id') || '';
+      HIVE_ID = whHiveId() || '';
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
       HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
       if (typeof logPageView === 'function') logPageView(db);

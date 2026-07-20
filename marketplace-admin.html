@@ -371,7 +371,7 @@
      Asynchronously checks marketplace_platform_admins table — being a hive
      supervisor is no longer enough; explicit platform admin grant required.
   ============================================================ */
-  let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+  let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
     // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
     // first; session identity overrides asynchronously.
@@ -380,7 +380,7 @@
     }
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
-  const HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+  const HIVE_ID     = whHiveId() || '';
   const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
   let _isPlatformAdmin = false;
 

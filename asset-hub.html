@@ -920,10 +920,9 @@
 
     logPageView(db);
     // Identity + hive context (read from localStorage with restore fallback per data-engineer skill)
-    let WORKER_NAME = localStorage.getItem('wh_last_worker')
-      || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
-      || localStorage.getItem('workerName') || '';
-    let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+    let WORKER_NAME = whWorker()
+      || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+    let HIVE_ID   = whHiveId() || '';
     let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
     let _authUid  = null; // attribution FK for pm_assets creation (was dropped)
 

@@ -477,7 +477,7 @@
       // G1 (FF1): canonical skeleton while the record counts load (first load only).
       const _rl = document.getElementById('records-list');
       if (_rl && !_rl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_rl, 3);
-      const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+      const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
       let logbookCount = 0;
       if (name) {
         // Cold-load 401 sibling (matches buildSystemPrompt's fix): restoreIdentityFromSession
@@ -509,7 +509,7 @@
     async function buildSystemPrompt(name, contextNote) {
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const hiveIdCtx = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+      const hiveIdCtx = whHiveId();
       // Companion Streamline Step D: pull the last 7 days of voice
       // journal entries so the assistant can reference "yesterday's
       // shift" and "what you wrote on Monday" instead of feeling
@@ -840,7 +840,7 @@ happens to know maintenance, not a manual.`;
       const r = Number(rating);
       if (r !== 1 && r !== -1) return;
       if (!db || !db.from) return;
-      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+      const hiveId = whHiveId();
       const personaName = (typeof window.getCurrentPersona === 'function')
         ? window.getCurrentPersona()
         : (/* storage-key-allow: persona pref */ localStorage.getItem('wh_persona') || 'zaniah');
@@ -931,7 +931,7 @@ happens to know maintenance, not a manual.`;
         // often null in the modern flow, so the AI-gateway/RAG got NO hive grounding (assistant answered
         // WITHOUT the team knowledge base) even when the user was in a hive. Live-confirmed: active=<hive>,
         // legacy=null -> sent null. Now mirrors the reads' `wh_active_hive_id || wh_hive_id` resolution.
-        const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+        const hiveId = whHiveId();
         // Forward the USER's session JWT: semantic-search's Pillar I tenancy check
         // (verify_jwt=false fn on a service-role client) requires a resolvable identity
         // when hive_id is set, else it 401s and the assistant answers WITHOUT the hive's
@@ -976,7 +976,7 @@ happens to know maintenance, not a manual.`;
         // often null in the modern flow, so the AI-gateway/RAG got NO hive grounding (assistant answered
         // WITHOUT the team knowledge base) even when the user was in a hive. Live-confirmed: active=<hive>,
         // legacy=null -> sent null. Now mirrors the reads' `wh_active_hive_id || wh_hive_id` resolution.
-        const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+        const hiveId = whHiveId();
         let reply = null;
 
         // Fetch semantic context FIRST: enriches both orchestrator and fallback paths
@@ -1121,7 +1121,7 @@ happens to know maintenance, not a manual.`;
         restoreIdentityFromSession(db).catch(() => {});
       }
 
-      const savedName = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName');
+      const savedName = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker();
       if (savedName) {
         // Already signed in: skip setup and go straight to chat
         document.getElementById('worker-name').value = savedName;

@@ -706,10 +706,10 @@
     const db = _whClient();
     if (!db || !db.from) return;
     const hiveId = (typeof window !== 'undefined' && window.localStorage)
-      ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
+      ? (whHiveId())
       : null;
     const workerName = (typeof window !== 'undefined' && window.localStorage)
-      ? (localStorage.getItem('wh_last_worker') || null)
+      ? (whWorker())
       : null;
     // CL9 fix (2026-07-08): real resolver getPersonaKey() + canonical key (see gateway path below) so
     // ai_reply_feedback.persona records the persona the worker actually selected, not a hardcoded 'zaniah'.
@@ -897,7 +897,7 @@ happens to know maintenance, not a manual.`;
       ? window.getPersonaKey()
       : (/* storage-key-allow: canonical persona pref */ localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
     const hiveId = (typeof window !== 'undefined' && window.localStorage)
-      ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
+      ? (whHiveId())
       : null;
     const gatewayBody = {
       agent:   config.agent,
@@ -1102,13 +1102,13 @@ happens to know maintenance, not a manual.`;
       if (!db || !db.from) return;
 
       const hiveId = (typeof window !== 'undefined' && window.localStorage)
-        ? (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null)
+        ? (whHiveId())
         : null;
       if (!hiveId) return; // follow-ups surfaced client-side are hive-scoped (RLS needs hive membership)
 
       const workerName = (typeof window.restoreIdentityFromSession === 'function')
         ? await window.restoreIdentityFromSession(db)
-        : (localStorage.getItem('wh_last_worker') || '');
+        : (whWorker() || '');
       if (!workerName) return;
 
       // AI-9 (deep-arc P5): ensure the client's auth session is restored BEFORE this RLS-gated

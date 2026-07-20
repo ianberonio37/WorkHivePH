@@ -251,8 +251,8 @@
 
   // ── Search execution ──────────────────────────────────────────────────────
   async function runSearch(query) {
-    const HIVE_ID = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
-    const WORKER  = localStorage.getItem('wh_last_worker') || '';
+    const HIVE_ID = whHiveId() || '';
+    const WORKER  = whWorker() || '';
     const db      = _getDb();
     if (!db) {
       _statusEl.textContent = 'Search unavailable (Supabase not loaded on this page).';

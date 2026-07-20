@@ -1081,6 +1081,33 @@ if (typeof window !== 'undefined') {
 }
 
 // ─────────────────────────────────────────────
+// whHiveId() / whWorker() — canonical client-identity accessors (PLATFORM_CENTRALIZATION C-P4)
+// ─────────────────────────────────────────────
+// storage_key_registry.json found drift: the active hive id is read as wh_active_hive_id
+// (canonical) OR wh_hive_id / hive_id (aliases), and the worker as wh_last_worker (canonical)
+// OR workerName / wh_worker_name (aliases) — across ~144 raw getItem sites that disagree on
+// which key to read. These accessors read the CANONICAL key first, then fall back to each
+// registered alias, so a page written before convergence still resolves. Adopt ONE accessor
+// platform-wide instead of hand-repeating the fallback chain (the design-system lever).
+function whHiveId() {
+  try {
+    return localStorage.getItem('wh_active_hive_id')
+        || localStorage.getItem('wh_hive_id')      // alias
+        || localStorage.getItem('hive_id')         // alias
+        || null;
+  } catch (_) { return null; /* storage blocked (private mode / disabled) */ }
+}
+function whWorker() {
+  try {
+    return localStorage.getItem('wh_last_worker')
+        || localStorage.getItem('workerName')      // alias
+        || localStorage.getItem('wh_worker_name')  // alias
+        || null;
+  } catch (_) { return null; /* storage blocked */ }
+}
+if (typeof window !== 'undefined') { window.whHiveId = whHiveId; window.whWorker = whWorker; }
+
+// ─────────────────────────────────────────────
 // renderRiskStrip — ONE shared "top at-risk assets" strip (STREAMLINE F2)
 // ─────────────────────────────────────────────
 // One renderer for the top-N at-risk asset list, reused by index (operational

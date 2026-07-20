@@ -509,8 +509,8 @@
       // Pull identity from localStorage (matches platform identity model)
       let worker_name = null;
       let hive_id     = null;
-      try { worker_name = localStorage.getItem('wh_last_worker') || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-      try { hive_id     = localStorage.getItem('wh_active_hive_id') || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+      try { worker_name = whWorker(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+      try { hive_id     = whHiveId(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 
       const row = {
         kind:          state.kind,

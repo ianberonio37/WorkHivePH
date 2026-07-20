@@ -222,8 +222,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script>
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
-let HIVE_ID     = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+let HIVE_ID     = whHiveId() || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
 
 const db = getDb(

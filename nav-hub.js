@@ -415,14 +415,14 @@
       if (current && Array.isArray(current.match) && current.match.indexOf('community') !== -1) return;
       const db = _whNavClient();
       if (!db || !db.from) return;
-      const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
+      const hiveId = whHiveId();
       if (!hiveId) return;
       let sess = null;
       try { sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { sess = null; }
       if (!sess) return; // fail closed — never fire an RLS-gated read without a JWT
       const worker = (typeof window.restoreIdentityFromSession === 'function')
         ? await window.restoreIdentityFromSession(db)
-        : (localStorage.getItem('wh_last_worker') || '');
+        : (whWorker() || '');
       // Baseline: if never seen, look back 3 days so a returning worker sees recent
       // activity without being flooded. community.html stamps the real time on visit.
       const seenKey = 'wh_community_last_seen:' + hiveId;

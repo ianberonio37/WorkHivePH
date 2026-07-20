@@ -392,7 +392,7 @@
   // JS does (active hive's role from wh_hives, else wh_hive_role). DB re-validation later
   // (initHive) corrects a stale role; the reserve is a paint-time CLS hint, not a gate.
   try {
-    var _id = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+    var _id = whHiveId() || '';
     var _role = '';
     try { var _hs = JSON.parse(localStorage.getItem('wh_hives') || '[]'); var _h = _hs.find(function (x) { return x && x.id === _id; }); _role = (_h && _h.role) || ''; } catch (e) { /* empty-catch-allow: malformed wh_hives → fall back to wh_hive_role below */ }
     _role = _role || localStorage.getItem('wh_hive_role') || '';
@@ -1464,7 +1464,7 @@ logPageView(db);
 let _authUid = null; // C3: populated at init from Supabase Auth session
 
 // ── IDENTITY ──
-let WORKER_NAME = localStorage.getItem('wh_last_worker') || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') || localStorage.getItem('workerName') || '';
+let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
 // C4: redirect deferred to async init — checks auth session first
 
 // ── MULTI-HIVE STATE ──
@@ -1476,7 +1476,7 @@ function saveHiveList(list) { localStorage.setItem('wh_hives', JSON.stringify(li
 
 // Migrate legacy single-hive keys to list format on first load
 (function migrateLegacyHive() {
-  const legId   = localStorage.getItem('wh_hive_id');
+  const legId   = whHiveId();
   const legName = localStorage.getItem('wh_hive_name');
   const legRole = localStorage.getItem('wh_hive_role');
   const legCode = localStorage.getItem('wh_hive_code');
@@ -1486,7 +1486,7 @@ function saveHiveList(list) { localStorage.setItem('wh_hives', JSON.stringify(li
   }
 })();
 
-let HIVE_ID   = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || '';
+let HIVE_ID   = whHiveId() || '';
 let HIVE_NAME = (getHiveList().find(h => h.id === HIVE_ID) || {}).name || localStorage.getItem('wh_hive_name') || '';
 let HIVE_ROLE = (getHiveList().find(h => h.id === HIVE_ID) || {}).role || localStorage.getItem('wh_hive_role') || '';
 
@@ -3849,7 +3849,7 @@ async function checkStockAlert() {
 }
 
 // ── NOTIFICATION CENTER ──
-const NOTIF_KEY = 'wh_notifs_read_' + (localStorage.getItem('wh_hive_id') || '');
+const NOTIF_KEY = 'wh_notifs_read_' + (whHiveId() || '');
 
 function pushNotif(type, title, body, link) {
   _notifs.push({ type, title, body, link, ts: Date.now() });

@@ -65,12 +65,10 @@
   function _ctx() {
     return {
       worker_name:
-        localStorage.getItem('wh_last_worker') ||
-        /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name') ||
-        localStorage.getItem('workerName') || '',
+        whWorker() ||
+        /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '',
       hive_id:
-        localStorage.getItem('wh_active_hive_id') ||
-        localStorage.getItem('wh_hive_id') || '',
+        whHiveId() || '',
       hive_role: localStorage.getItem('wh_hive_role') || '',
     };
   }
@@ -5885,9 +5883,8 @@
     if (!hiveId) {
       console.warn('[WHVoice] Snapshot: hiveId not set in context, checking localStorage fallback');
       // Fallback: if hive_id not in context, try all common localStorage keys
-      hiveId = localStorage.getItem('wh_active_hive_id') ||
-               localStorage.getItem('wh_hive_id') ||
-               /* storage-key-allow: bootstrap fallback for hive context */ localStorage.getItem('hive_id') || '';
+      hiveId = whHiveId() ||
+               /* storage-key-allow: bootstrap fallback for hive context */ whHiveId() || '';
       if (!hiveId) {
         console.warn('[WHVoice] Snapshot: no hiveId found in localStorage either');
         return '';
