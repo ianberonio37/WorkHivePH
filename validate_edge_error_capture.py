@@ -114,6 +114,19 @@ def main() -> int:
     if not wrapper_ok:
         print(f"\033[91mFAIL: wrapper integrity broken -> {'; '.join(wrapper_issues)}\033[0m")
         return 1
+    # ★EVERY-FN assertion (Arc T depth, 2026-07-20 — the "a floor ratchet under-covers" meta-lesson that
+    # recurred all session: read-isolation name-filter / DEDUP_PATHS / FIELD_WRITE_PAGES / CRITICAL_TABLES).
+    # A pure floor passes when a NEW fn ships un-wrapped (n stays >= floor) — leaving it un-observed: an
+    # unhandled throw leaks a stack + never aggregates to wh_traces, so it is INVISIBLE to the SLO alert.
+    # Assert EVERY edge fn routes serveObserved (derived denominator), minus a documented exempt allowlist.
+    NON_OBSERVED_EXEMPT: set[str] = set()   # none — all fns route serveObserved. Add a fn here ONLY with a
+    # proof it cannot throw a runtime error (a reason comment), never to silence a real un-observed surface.
+    real_non = [f for f in result["non_adopters"] if f not in NON_OBSERVED_EXEMPT]
+    if real_non:
+        print(f"\033[91mFAIL: {len(real_non)} edge fn(s) route bare serve() without serveObserved -> an "
+              f"unhandled throw leaks + is invisible to the SLO alert (add serveObserved or an EXEMPT reason): "
+              f"{', '.join(real_non)}\033[0m")
+        return 1
     if n < floor:
         print(f"\033[91mFAIL: serveObserved adoption dropped {floor} -> {n} (fns reverted to bare serve())\033[0m")
         return 1
