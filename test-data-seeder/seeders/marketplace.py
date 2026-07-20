@@ -44,7 +44,7 @@ def seed_marketplace(client, log, ctx: dict) -> dict:
             continue
 
         # Parts listings (3-5 per hive)
-        for tpl in random.sample(LISTING_TEMPLATES_PARTS, k=min(5, len(LISTING_TEMPLATES_PARTS))):
+        for _p_idx, tpl in enumerate(random.sample(LISTING_TEMPLATES_PARTS, k=min(5, len(LISTING_TEMPLATES_PARTS)))):
             seller = random.choice(hive_workers)
             ts = random_timestamp_in_last_n_days(60)
             rows.append({
@@ -61,7 +61,10 @@ def seed_marketplace(client, log, ctx: dict) -> dict:
                 "price": round(random.uniform(2500, 250000), 2),
                 "condition": tpl[3],
                 "location": random.choice(CITIES),
-                "status": random.choices(["published", "draft", "sold"], weights=[70, 15, 15])[0],
+                # Deterministic worked-state: the FIRST parts listing per hive is ALWAYS a draft so the
+                # marketplace-seller "draft" state renders on EVERY reseed (was pure ~15% random -> a hive
+                # could roll 0 drafts). Makes the UFAI DB-only fix (SKF 6205-2RS draft) reseed-durable. 2026-07-19.
+                "status": "draft" if _p_idx == 0 else random.choices(["published", "draft", "sold"], weights=[70, 15, 15])[0],
                 "created_at": to_iso(ts),
                 "updated_at": to_iso(ts),
                 "view_count": random.randint(0, 200),

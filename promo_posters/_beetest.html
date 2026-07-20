@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>Bee test</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  #poster{width:900px;height:900px;background:radial-gradient(circle at 50% 42%,#22344e,#13203a 60%,#0c1526);
+    display:grid;grid-template-columns:1fr 1fr;place-items:center;position:relative;overflow:hidden}
+  .aura{position:absolute;left:50%;top:44%;width:520px;height:520px;transform:translate(-50%,-50%);
+    background:radial-gradient(circle,rgba(247,168,37,.45),transparent 62%);filter:blur(30px)}
+  .big{width:440px;height:500px;position:relative;z-index:2;filter:drop-shadow(0 30px 50px rgba(0,0,0,.5))}
+  .minis{position:relative;z-index:2;display:flex;gap:20px;align-items:center}
+  .m{width:120px;height:100px}
+  .lbl{position:absolute;bottom:24px;left:0;right:0;text-align:center;color:#9fb0c4;font-family:sans-serif;font-size:15px;z-index:3}
+</style></head><body>
+<div id="poster">
+  <div class="aura"></div>
+  <svg class="big"><use href="#bee-mascot"/></svg>
+  <div class="minis">
+    <svg class="m" style="width:150px;height:125px"><use href="#bee-mini"/></svg>
+    <svg class="m"><use href="#bee-mini"/></svg>
+    <svg class="m" style="width:90px;height:75px"><use href="#bee-mini"/></svg>
+  </div>
+  <div class="lbl">WorkHive worker-bee mascot — futuristic build test</div>
+</div>
+<script src="bee.js"></script>
+</body></html>

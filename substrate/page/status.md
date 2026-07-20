@@ -2,7 +2,7 @@
 name: page-status
 type: page
 source: file:status.html
-source_sha: f4f9ab56b4a4f728
+source_sha: 22b33cd1394b0915
 last_verified: 2026-07-13
 supersedes: null
 ---

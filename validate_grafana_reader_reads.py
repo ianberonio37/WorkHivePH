@@ -54,6 +54,8 @@ REQUIRED = [
     "login_attempts", "auth_session_events", "ai_rate_limits",
     # G4.4 storage-health (postgres-owned aggregate view over storage.objects)
     "v_storage_health",
+    # G4.4b DB-size trend history
+    "ops_db_size_history",
 ]
 
 

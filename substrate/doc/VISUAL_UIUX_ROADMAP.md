@@ -2,7 +2,7 @@
 name: doc-VISUAL_UIUX_ROADMAP
 type: doc
 source: file:VISUAL_UIUX_ROADMAP.md
-source_sha: 4afeba01a40a2cb2
+source_sha: 9b474991285bf040
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -116,38 +116,48 @@
     document.head.appendChild(ll);
   }
 
+  // ─── Centralized icon library (wh-icons.css): nav-hub loads on every page, so
+  // ensuring the emoji icon-library link here makes the `.ic ic-*` classes resolve
+  // platform-wide without per-page wiring — the single source of truth for icons.
+  if (!document.querySelector('link[href*="wh-icons.css"]')) {
+    const ic = document.createElement('link');
+    ic.rel = 'stylesheet';
+    ic.href = 'wh-icons.css';
+    document.head.appendChild(ic);
+  }
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
   // roles: undefined = universal (visible in every mode) | array = visible only in those modes
   //        Modes: 'field' | 'supervisor' | 'engineer'  ('all' shows everything)
   const TOOLS = [
     { label: 'Home',         href: 'index.html',        match: ['index', '/'],         section: null,
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>` },
+      icon: `<span class="ic ic-home" aria-hidden="true"></span>` },
 
     // ── Field Work: what you do every shift on the floor ─────────────────────
     { label: 'Logbook',      href: 'logbook.html',      match: ['logbook'],            section: 'Field Work', roles: ['field','supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>` },
+      icon: `<span class="ic ic-logbook" aria-hidden="true"></span>` },
     { label: 'Inventory',    href: 'inventory.html',    match: ['inventory'],          section: 'Field Work', roles: ['field','supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
+      icon: `<span class="ic ic-parts" aria-hidden="true"></span>` },
     { label: 'Day Planner',  href: 'dayplanner.html',   match: ['dayplanner'],         section: 'Field Work', roles: ['field','supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="14" x2="16" y2="14" stroke-width="3" stroke-linecap="round"/></svg>` },
+      icon: `<span class="ic ic-calendar" aria-hidden="true"></span>` },
 
     // ── Your Team: team operations and collaboration ──────────────────────────
     { label: 'WorkHive',     href: 'hive.html',         match: ['hive'],               section: 'Your Team', roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
+      icon: `<span class="ic ic-brand" aria-hidden="true"></span>` },
     { label: 'PM Scheduler', href: 'pm-scheduler.html', match: ['pm-scheduler'],       section: 'Your Team', roles: ['field','supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>` },
+      icon: `<span class="ic ic-maintenance" aria-hidden="true"></span>` },
     { label: 'Community',    href: 'community.html',    match: ['community'],          section: 'Your Team', /* universal */
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><line x1="12" y1="21" x2="12" y2="21" stroke-width="3" stroke-linecap="round"/></svg>` },
+      icon: `<span class="ic ic-community" aria-hidden="true"></span>` },
 
     // ── Intelligence: AI, analytics, and predictions ──────────────────────────
     // Analytics Report MUST be listed before Analytics — both paths contain
     // 'analytics', and getCurrentTool() returns the first match in iteration order.
     // Phase B: hidden from primary nav, accessible as a button inside analytics.html.
     { label: 'Reports', href: 'analytics-report.html', match: ['analytics-report', 'report-sender'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><line x1="9" y1="9" x2="11" y2="9"/></svg>` },
+      icon: `<span class="ic ic-reports" aria-hidden="true"></span>` },
     { label: 'Analytics',    href: 'analytics.html',    match: ['analytics'],          section: 'Intelligence', roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>` },
+      icon: `<span class="ic ic-analytics" aria-hidden="true"></span>` },
     // Phase 4 (2026-06-10): predictive.html RETIRED — delisted entirely. Its jobs
     // live in Asset Hub (per-asset risk 360, same v_risk_truth) and the Predictive
     // phase inside analytics.html. File kept on disk so old deep-links don't 404.
@@ -155,56 +165,56 @@
     // supervisor-only nav entry so workers don't see the link they can't act on.
     // Hidden from primary nav, surfaced via the "AI Quality" button on hive.html.
     { label: 'AI Quality + ROI', href: 'ai-quality.html', match: ['ai-quality'],       section: 'Intelligence', hidden: true, roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>` },
+      icon: `<span class="ic ic-ai-quality" aria-hidden="true"></span>` },
     // Phase 5 Track C — Plant Connections Console. STREAMLINE F7 (2026-06-13):
     // folded into the unified "Connections" nav entry (section Connect, below) —
     // reached via the Connections tab bar on integrations.html. Page kept on disk
     // + cached (no sw.js change), so old deep-links + the tab still resolve.
     { label: 'AI Assistant', href: 'assistant.html',    match: ['assistant'],          section: 'Intelligence', /* universal */
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="9" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="12" y1="10" x2="12" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="10" x2="15" y2="10" stroke-width="3" stroke-linecap="round"/></svg>`,
+      icon: `<span class="ic ic-ai" aria-hidden="true"></span>`,
       accent: true },
     // Phase H.2: hidden, surfaced via the Network tab inside analytics.html.
     { label: 'PH Intelligence', href: 'ph-intelligence.html', match: ['ph-intelligence'], section: 'Intelligence', hidden: true, roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>` },
+      icon: `<span class="ic ic-ph-intel" aria-hidden="true"></span>` },
     { label: 'Asset Hub',    href: 'asset-hub.html',    match: ['asset-hub'],          section: 'Intelligence', roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>` },
+      icon: `<span class="ic ic-asset" aria-hidden="true"></span>` },
     { label: 'Alert Hub',    href: 'alert-hub.html',    match: ['alert-hub'],          section: 'Intelligence', roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>` },
+      icon: `<span class="ic ic-alert" aria-hidden="true"></span>` },
     // Phase H.2: hidden, surfaced via the "Audit Log" button on hive.html.
     { label: 'Audit Log',    href: 'audit-log.html',    match: ['audit-log'],          section: 'Intelligence', hidden: true, roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/><circle cx="12" cy="9.5" r="1"/></svg>` },
+      icon: `<span class="ic ic-audit" aria-hidden="true"></span>` },
     // Phase H.2: hidden, surfaced via the "Voice Journal" button on logbook.html.
     { label: 'Voice Journal', href: 'voice-journal.html', match: ['voice-journal'],     section: 'Intelligence', hidden: true,
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>` },
+      icon: `<span class="ic ic-voice" aria-hidden="true"></span>` },
     // Phase H.2: hidden, surfaced via the Shift Brain tab inside analytics.html.
     { label: 'Shift Brain',  href: 'shift-brain.html',  match: ['shift-brain'],        section: 'Intelligence', hidden: true,
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/><path d="M12 3v2M21 12h-2M12 21v-2M3 12h2"/></svg>` },
+      icon: `<span class="ic ic-brain" aria-hidden="true"></span>` },
 
     // ── Build & Projects: engineering and project work ────────────────────────
     { label: 'Eng. Design',  href: 'engineering-design.html', match: ['engineering-design'], section: 'Build & Projects', roles: ['engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V10l7-7 7 7v10"/><path d="M9 20v-5h6v5"/></svg>` },
+      icon: `<span class="ic ic-design" aria-hidden="true"></span>` },
     { label: 'Project Manager', href: 'project-manager.html', match: ['project-manager'], section: 'Build & Projects', roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>` },
+      icon: `<span class="ic ic-project" aria-hidden="true"></span>` },
     // Phase B: hidden from primary nav, accessible as the "Print Report" button inside project-manager.html.
     { label: 'Project Report', href: 'project-report.html', match: ['project-report'],  section: 'Build & Projects', hidden: true, roles: ['supervisor','engineer'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>` },
+      icon: `<span class="ic ic-doc" aria-hidden="true"></span>` },
 
     // ── Grow: professional development ────────────────────────────────────────
     { label: 'Growth', href: 'skillmatrix.html',  match: ['skillmatrix', 'achievements'],        section: 'Grow',
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>` },
+      icon: `<span class="ic ic-growth" aria-hidden="true"></span>` },
     { label: 'Resume Builder', href: 'resume.html', match: ['resume'],               section: 'Grow',
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="M14 19a4 4 0 00-8 0"/></svg>` },
+      icon: `<span class="ic ic-resume" aria-hidden="true"></span>` },
     // STREAMLINE F5 (2026-06-13): Achievements folded into the unified "Growth" nav
     // entry (skillmatrix.html) — reached via the Growth tab bar. Page kept on disk + cached.
 
     // ── Connect: marketplace and integrations ─────────────────────────────────
     { label: 'Marketplace',  href: 'marketplace.html',  match: ['marketplace'],        section: 'Connect', /* universal */
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>` },
+      icon: `<span class="ic ic-cart" aria-hidden="true"></span>` },
     // Phase B: hidden from primary nav, accessible as the "Send" button inside analytics.html.
     // STREAMLINE F6 (2026-06-13): Report Sender folded into the unified "Reports" nav
     // entry (analytics-report.html) — reached via the Reports tab bar. Page kept on disk.
     { label: 'Connections', href: 'integrations.html', match: ['integrations', 'plant-connections'],  section: 'Connect', roles: ['supervisor'],
-      icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
+      icon: `<span class="ic ic-integrations" aria-hidden="true"></span>` },
     // public-feed.html: public read-only page — linked from index.html, not the app nav
   ];
 
@@ -828,12 +838,7 @@
       <button id="wh-hub-fab" aria-label="Open navigation hub" aria-expanded="false">
         <span id="wh-hub-current-label">${current.label}</span>
         <!-- Grid / apps icon — rotates to X when open -->
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-          <rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
+        <span class="ic ic-apps" aria-hidden="true"></span>
       </button>
 
       <!-- Panel -->
@@ -845,7 +850,7 @@
 
         <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
         <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:#F7A21B; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="Open global search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="ic ic-search" aria-hidden="true"></span>
           <span style="flex:1;">${_tt('Search assets, jobs, parts, PMs', 'Maghanap ng assets, trabaho, parts, PM')}</span>
           <span style="font-size:9px; font-weight:700; padding:2px 5px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:4px;">⌘K</span>
         </button>
@@ -853,9 +858,7 @@
         <!-- Search bar -->
         <div id="wh-hub-search-wrap">
           <span id="wh-hub-search-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <span class="ic ic-search" aria-hidden="true"></span>
           </span>
           <input id="wh-hub-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools">
           <span id="wh-hub-search-kbd">Ctrl K</span>

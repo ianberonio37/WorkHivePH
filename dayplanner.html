@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
@@ -214,11 +214,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -248,26 +248,22 @@
     <div class="sidebar-header">
       <div class="flex items-center justify-between mb-1">
         <div id="sidebar-title" class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#F7A21B">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
+          <span class="ic ic-list" aria-hidden="true"></span>
           <span style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85)">Open Items</span>
         </div>
         <button class="btn-icon" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-          </svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
         </button>
       </div>
       <p id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:0.25rem">Click item then click a time slot to schedule</p>
       <div class="cap-bar-wrap" style="margin-top:6px">
-        <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,#F7A21B,#FDB94A);width:0%"></div>
+        <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));width:0%"></div>
       </div>
       <p id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.62);margin-top:2px">Loading...</p>
     </div>
     <div class="sidebar-items" id="sidebar-items">
       <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.62);font-size:0.75rem">
-        <svg style="width:32px;height:32px;margin:0 auto 0.5rem;opacity:0.3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span class="ic ic-refresh" aria-hidden="true"></span>
         Loading logbook...
       </div>
     </div>
@@ -282,10 +278,10 @@
       <h1 data-i="pagetitle" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Maintenance Day Planner: WorkHive</h1>
       <!-- Back + Logo -->
       <a href="index.html" class="btn-icon" title="Back to WorkHive">
-        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <span id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,#F7A21B,#FDB94A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
+        <span id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
         <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
@@ -309,11 +305,11 @@
       <!-- Nav controls -->
       <div style="display:flex;align-items:center;gap:0.5rem">
         <button class="btn-icon" onclick="navigate(-1)" title="Previous" aria-label="Previous">
-          <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
         </button>
         <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.4rem 0.75rem" data-i="today">Today</button>
         <button class="btn-icon" onclick="navigate(1)" title="Next" aria-label="Next">
-          <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span class="ic ic-next" aria-hidden="true"></span>
         </button>
       </div>
 
@@ -390,14 +386,14 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
       <h2 style="font-size:1rem;font-weight:700" id="modal-title" data-i="scheduleitem">Schedule Item</h2>
       <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.62);padding:0.25rem" aria-label="Close">
-        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
         <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
         <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
-        <div role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
+        <div role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
@@ -413,7 +409,7 @@
         <div>
           <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
           <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
-          <div role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:#f87171;font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
+          <div role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
           <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="category">Category</label>
@@ -439,7 +435,7 @@
           <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.7rem;font-weight:600;cursor:pointer">
             Upcoming
           </button>
-          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:#68D391;font-size:0.7rem;font-weight:600;cursor:pointer">
+          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.7rem;font-weight:600;cursor:pointer">
             Done
           </button>
           <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.7rem;font-weight:600;cursor:pointer">
@@ -449,7 +445,7 @@
       </div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.25rem">
         <button class="btn-ghost" onclick="closeModal()">Cancel</button>
-        <button class="btn-primary" id="m-delete-btn" onclick="deleteScheduleItem()" style="background:linear-gradient(135deg,#e53e3e,#fc8181);display:none">Delete</button>
+        <button class="btn-primary" id="m-delete-btn" onclick="deleteScheduleItem()" style="background:linear-gradient(135deg,var(--wh-red),var(--wh-red));display:none">Delete</button>
         <button class="btn-primary" onclick="saveScheduleItem()">Save</button>
       </div>
     </div>
@@ -494,10 +490,10 @@ let editingScheduleId = null;
 const catColors = {
   Mechanical:  { bg: 'rgba(247,162,27,0.2)',  text: '#F7A21B',  border: 'rgba(247,162,27,0.35)' },
   Electrical:  { bg: 'rgba(41,182,217,0.2)',  text: '#29B6D9',  border: 'rgba(41,182,217,0.35)' },
-  Hydraulic:   { bg: 'rgba(99,179,237,0.2)',  text: '#63B3ED',  border: 'rgba(99,179,237,0.35)' },
-  Pneumatic:   { bg: 'rgba(154,230,180,0.2)', text: '#68D391',  border: 'rgba(154,230,180,0.35)' },
-  Instrumentation: { bg: 'rgba(183,148,246,0.2)', text: '#B794F6', border: 'rgba(183,148,246,0.35)' },
-  Structural:  { bg: 'rgba(252,129,74,0.2)',  text: '#FC814A',  border: 'rgba(252,129,74,0.35)' },
+  Hydraulic:   { bg: 'rgba(99,179,237,0.2)',  text: '#29b6d9',  border: 'rgba(99,179,237,0.35)' },
+  Pneumatic:   { bg: 'rgba(154,230,180,0.2)', text: '#4ade80',  border: 'rgba(154,230,180,0.35)' },
+  Instrumentation: { bg: 'rgba(183,148,246,0.2)', text: '#a78bfa', border: 'rgba(183,148,246,0.35)' },
+  Structural:  { bg: 'rgba(252,129,74,0.2)',  text: '#f7a21b',  border: 'rgba(252,129,74,0.35)' },
   Safety:      { bg: 'rgba(252,92,92,0.2)',   text: 'var(--wh-red-text)',  border: 'rgba(252,92,92,0.35)' },
   General:     { bg: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.6)', border: 'rgba(255,255,255,0.12)' },
 };
@@ -505,9 +501,9 @@ const schedCatColors = {
   PM:         { bg: 'rgba(41,182,217,0.25)',  text: '#29B6D9' },
   CM:         { bg: 'rgba(252,92,92,0.25)',   text: 'var(--wh-red-text)' },
   Inspection: { bg: 'rgba(247,162,27,0.25)',  text: '#F7A21B' },
-  Training:   { bg: 'rgba(154,230,180,0.25)', text: '#68D391' },
-  Admin:      { bg: 'rgba(183,148,246,0.25)', text: '#B794F6' },
-  Meeting:    { bg: 'rgba(99,179,237,0.25)',  text: '#63B3ED' },
+  Training:   { bg: 'rgba(154,230,180,0.25)', text: '#4ade80' },
+  Admin:      { bg: 'rgba(183,148,246,0.25)', text: '#a78bfa' },
+  Meeting:    { bg: 'rgba(99,179,237,0.25)',  text: '#29b6d9' },
   Other:      { bg: 'rgba(255,255,255,0.1)',  text: 'rgba(255,255,255,0.6)' },
 };
 
@@ -535,7 +531,7 @@ function getItemStatus(item) {
 // Status config: color + label + icon path
 const statusConfig = {
   upcoming: { border: '#29B6D9', bg: null,                   label: 'Upcoming', icon: null },
-  done:     { border: '#68D391', bg: 'rgba(104,211,145,0.1)', label: 'Done',     icon: 'M5 13l4 4L19 7' },
+  done:     { border: '#4ade80', bg: 'rgba(104,211,145,0.1)', label: 'Done',     icon: 'M5 13l4 4L19 7' },
   missed:   { border: '#FCA5A5', bg: 'rgba(252,92,92,0.08)', label: 'Missed',   icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
 };
 
@@ -761,7 +757,7 @@ function renderPlantWorkSection() {
     const added = scheduleItems.some(i => i.sourceKind === 'pm' && i.sourceRef === pm.scope_item_id && i.date === today);
     const badge = pm.is_overdue
       ? `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">Overdue</span>`
-      : `<span class="badge" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3)">Due soon</span>`;
+      : `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3)">Due soon</span>`;
     return `
     <div class="lb-card" style="cursor:default">
       <div class="lb-card-header">
@@ -781,7 +777,7 @@ function renderPlantWorkSection() {
   return `
     <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-        <svg style="width:14px;height:14px;color:var(--wh-blue)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="ic ic-clock" aria-hidden="true"></span>
         <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your plant</span>
         <span style="font-size:0.6rem;color:rgba(255,255,255,0.62)">${plantWork.length} PM${plantWork.length!==1?'s':''}</span>
       </div>
@@ -812,7 +808,7 @@ function renderSidebar() {
 
   if (total === 0) {
     container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.62);font-size:0.75rem">
-      <svg style="width:28px;height:28px;margin:0 auto 0.5rem;opacity:0.3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span class="ic ic-check" aria-hidden="true"></span>
       No open items</div>` + renderPlantWorkSection();
     return;
   }
@@ -830,14 +826,14 @@ function renderSidebar() {
     // Badge config
     let schedBadge = '';
     if (hasDone) {
-      schedBadge = `<span class="badge" style="background:rgba(104,211,145,0.15);color:#68D391;border:1px solid rgba(104,211,145,0.3)">
-        <svg style="width:9px;height:9px;margin-right:2px;display:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Done</span>`;
+      schedBadge = `<span class="badge" style="background:rgba(104,211,145,0.15);color:var(--wh-green);border:1px solid rgba(104,211,145,0.3)">
+        <span class="ic ic-check" aria-hidden="true"></span>Done</span>`;
     } else if (hasMissed) {
       schedBadge = `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">
-        <svg style="width:9px;height:9px;margin-right:2px;display:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Missed</span>`;
+        <span class="ic ic-back" aria-hidden="true"></span>Missed</span>`;
     } else if (hasLinked) {
-      schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.3)">
-        <svg style="width:9px;height:9px;margin-right:2px;display:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Scheduled</span>`;
+      schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.3)">
+        <span class="ic ic-back" aria-hidden="true"></span>Scheduled</span>`;
     }
 
     // Dim card slightly if done
@@ -853,7 +849,7 @@ function renderSidebar() {
         </div>
         <div style="display:flex;align-items:center;gap:4px">
           ${schedBadge}
-          <svg style="width:12px;height:12px;color:rgba(255,255,255,0.62);flex-shrink:0;transition:transform 0.2s" id="lbc-arrow-${item.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <span class="ic ic-caret" aria-hidden="true"></span>
         </div>
       </div>
       <div class="lb-card-body" id="lbc-body-${item.id}">
@@ -1135,7 +1131,7 @@ function renderDILO() {
     return a + Math.max(0, e - s);
   }, 0);
   const capPct = Math.min(100, Math.round(totalMins / 480 * 100));
-  const capColor = capPct > 85 ? '#FC5C5C' : capPct > 60 ? '#F7A21B' : '#68D391';
+  const capColor = capPct > 85 ? '#f87171' : capPct > 60 ? '#F7A21B' : '#4ade80';
 
   let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem">
     <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">DILO</span>
@@ -1204,8 +1200,8 @@ function renderDILO() {
   // Current time indicator
   if (nowTop !== null) {
     html += `<div style="position:absolute;top:${nowTop}px;left:0;right:0;z-index:5;pointer-events:none">
-      <div style="height:2px;background:#F7A21B;box-shadow:0 0 8px rgba(247,162,27,0.6)"></div>
-      <div style="position:absolute;top:-4px;left:-4px;width:10px;height:10px;border-radius:50%;background:#F7A21B;box-shadow:0 0 6px rgba(247,162,27,0.8)"></div>
+      <div style="height:2px;background:var(--wh-orange);box-shadow:0 0 8px rgba(247,162,27,0.6)"></div>
+      <div style="position:absolute;top:-4px;left:-4px;width:10px;height:10px;border-radius:50%;background:var(--wh-orange);box-shadow:0 0 6px rgba(247,162,27,0.8)"></div>
     </div>`;
   }
 
@@ -1228,15 +1224,15 @@ function renderDILO() {
     let blockBg = c.bg, blockBorder = c.text, blockOpacity = '1', statusIcon = '';
     if (status === 'done') {
       blockBg = 'rgba(104,211,145,0.15)';
-      blockBorder = '#68D391';
+      blockBorder = '#4ade80';
       blockOpacity = '0.65';
-      statusIcon = `<svg style="width:10px;height:10px;display:inline;margin-right:2px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`;
+      statusIcon = `<span class="ic ic-check" aria-hidden="true"></span>`;
     } else if (status === 'missed') {
       blockBg = 'rgba(252,92,92,0.15)';
-      blockBorder = '#FC5C5C';
-      statusIcon = `<svg style="width:10px;height:10px;display:inline;margin-right:2px;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+      blockBorder = '#f87171';
+      statusIcon = `<span class="ic ic-warning" aria-hidden="true"></span>`;
     }
-    const blockColor = status === 'done' ? '#68D391' : status === 'missed' ? '#FC5C5C' : c.text;
+    const blockColor = status === 'done' ? '#4ade80' : status === 'missed' ? '#f87171' : c.text;
     const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
 
     html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
@@ -1345,7 +1341,7 @@ function renderWILO() {
     // Current time line
     if (nowMins !== null) {
       const nowTop = Math.round(nowMins / 60 * WILO_SLOT_H);
-      html += `<div style="position:absolute;top:${nowTop}px;left:0;right:0;height:2px;background:#F7A21B;box-shadow:0 0 6px rgba(247,162,27,0.5);z-index:5;pointer-events:none"></div>`;
+      html += `<div style="position:absolute;top:${nowTop}px;left:0;right:0;height:2px;background:var(--wh-orange);box-shadow:0 0 6px rgba(247,162,27,0.5);z-index:5;pointer-events:none"></div>`;
     }
 
     // Blocks
@@ -1360,9 +1356,9 @@ function renderWILO() {
       const showTitle = height > 22;
       const status = getItemStatus(item);
       let blockBg = c.bg, blockBorder = c.text, blockOpacity = '1';
-      if (status === 'done')   { blockBg = 'rgba(104,211,145,0.15)'; blockBorder = '#68D391'; blockOpacity = '0.6'; }
-      if (status === 'missed') { blockBg = 'rgba(252,92,92,0.15)';   blockBorder = '#FC5C5C'; }
-      const blockColor = status === 'done' ? '#68D391' : status === 'missed' ? '#FC5C5C' : c.text;
+      if (status === 'done')   { blockBg = 'rgba(104,211,145,0.15)'; blockBorder = '#4ade80'; blockOpacity = '0.6'; }
+      if (status === 'missed') { blockBg = 'rgba(252,92,92,0.15)';   blockBorder = '#f87171'; }
+      const blockColor = status === 'done' ? '#4ade80' : status === 'missed' ? '#f87171' : c.text;
       const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
       html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
         title="${escHtml(item.title)}: ${item.startTime}${item.endTime ? ' - '+item.endTime : ''} [${statusConfig[status].label}]"
@@ -1427,7 +1423,7 @@ function renderMILO() {
     const more = dayItems.length > maxDots ? `<div class="milo-more">+${dayItems.length - maxDots} more</div>` : '';
 
     html += `<div class="milo-cell ${isToday ? 'today' : ''}" onclick="onMiloClick('${ymd}')">
-      <div class="milo-date" style="color:${isToday ? '#F7A21B' : 'rgba(255,255,255,0.75)'}">${d}</div>
+      <div class="milo-date" style="color:${isToday ? 'var(--wh-orange)' : 'rgba(255,255,255,0.75)'}">${d}</div>
       <div>${dotsHtml}</div>
       ${more}
     </div>`;
@@ -1479,7 +1475,7 @@ function renderYILO() {
     const startDow = firstDay.getDay();
 
     html += `<div class="yilo-month ${isCurrentMonth ? 'current-month' : ''}" onclick="onYiloMonthClick(${m})">
-      <div class="yilo-month-name" style="color:${isCurrentMonth ? '#F7A21B' : 'rgba(255,255,255,0.7)'}">${MONTH_NAMES[m]}</div>
+      <div class="yilo-month-name" style="color:${isCurrentMonth ? 'var(--wh-orange)' : 'rgba(255,255,255,0.7)'}">${MONTH_NAMES[m]}</div>
       <div class="yilo-mini-grid">`;
 
     DAY_NAMES.forEach(dn => { html += `<div class="yilo-mini-day-name">${dn[0]}</div>`; });
@@ -1838,6 +1834,8 @@ document.addEventListener('keydown', e => {
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 
-<script>window.WH_FIL_PAGE={addtoday:"+ Idagdag sa araw ko"};</script>
+<script>window.WH_FIL_PAGE={addtoday:"+ Idagdag sa araw ko",
+  pagetitle:"Maintenance Day Planner",scheduleitem:"Item ng Iskedyul",addschedule:"Magdagdag sa iskedyul",
+  mtitle:"Pamagat *",mdate:"Petsa *",mstart:"Oras ng Simula",mend:"Oras ng Pagtapos"};</script>
 </body>
 </html>

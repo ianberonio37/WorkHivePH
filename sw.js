@@ -3,8 +3,9 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v161';  // bump 2026-07-19: tokens.css / nav-hub.js / connectivity-widget.js
-                                            // (SHELL_FILEs) were committed after v160 -- re-prime the offline cache
+const CACHE_NAME  = 'workhive-shell-v162';  // bump 2026-07-19: EMOJI-FIRST — utils.js walker disabled (Arc W W5
+                                            // reversed), nav-hub.js emoji nav + wh-icons.css central icon library
+                                            // (see feedback_centralized_icon_library_emoji_first); re-prime shell
                                             // so PWA users do not keep the stale cached copies.
 // const CACHE_NAME  = 'workhive-shell-v160';  // 2026-07-15 (rubric class S): offline-fallback.html gains the tokens.css <link>; tokens.css precached (L67).
 // const CACHE_NAME  = 'workhive-shell-v159';  // bump 2026-07-03 (Arc P turn 2): SHELL portrait precache fixed — legacy james-256.jpg/rosa-256.jpg (404, never existed, failed SW install addAll) → real hezekiah.png/zaniah.png; PLUS the em-dash P4 sweep (685 displayed em dashes → colon/comma/parens across 43 files incl. utils.js + worker-critical SHELL HTML) + FUSION 5 meta-caption disclosure. Re-prime cache.
@@ -70,6 +71,7 @@ const SHELL_FILES = [
   // Shared chrome
   '/tokens.css',              // E4: the single brand-palette source (every page <link>s it; components.css @imports it). Precache or offline pages lose all var(--wh-*) colors.
   '/components.css',          // S11: shared component CSS (was inline-duplicated on ~15 pages)
+  '/wh-icons.css',            // 2026-07-19: central emoji icon library (.ic ic-*); nav-hub.js also injects the <link>
   '/nav-hub.js',
   '/button-lock.js',
   '/offline-banner.js',

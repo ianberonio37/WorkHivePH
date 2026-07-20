@@ -93,7 +93,7 @@
     .disc-card:active { transform: scale(0.98); }
     .disc-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
     .disc-card-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
-    .disc-icon { width: 20px; height: 20px; color: var(--disc-color); }
+    .disc-icon { font-size: 18px; line-height: 1; display: inline-block; vertical-align: -0.15em; }
     .disc-level-badge {
       font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem;
       border-radius: 999px; background: rgba(255,255,255,0.08);
@@ -125,7 +125,7 @@
     .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     /* mobile: stepper rows need ~195px min-content each → 2 cols overflow a 371px viewport by 86px. Single column. */
     @media (max-width: 480px) { .target-grid { grid-template-columns: 1fr; } }
-    #header-sub { color: #94A3B8; }  /* was inherited #7B8794 = 4.46:1 (fails AA); slate-400 passes */
+    #header-sub { color: #94A3B8; }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); slate-400 passes */
     .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.6rem 0.75rem; }
     .target-name { font-size: 0.72rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
@@ -136,7 +136,7 @@
       min-width: 44px; min-height: 44px;
     }
     .step-btn:active { background: rgba(255,255,255,0.15); }
-    .step-btn:focus-visible { outline: 2px solid #4A9FD4; outline-offset: 2px; }
+    .step-btn:focus-visible { outline: 2px solid var(--wh-blue); outline-offset: 2px; }
     .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .step-val { font-size: 0.85rem; font-weight: 700; color: #fff; width: 18px; text-align: center; }
     .target-save-btn {
@@ -240,9 +240,9 @@
     }
     .exam-option:active { background: rgba(41,182,217,0.1); }
     .exam-option.selected { border-color: var(--wh-blue); background: rgba(41,182,217,0.1); color: #fff; }
-    .exam-option.correct { border-color: #4ade80; background: rgba(74,222,128,0.1); color: #4ade80; }
-    .exam-option.wrong { border-color: #f87171; background: rgba(248,113,113,0.1); color: #f87171; }
-    .exam-option.reveal-correct { border-color: #4ade80; background: rgba(74,222,128,0.07); }
+    .exam-option.correct { border-color: var(--wh-green); background: rgba(74,222,128,0.1); color: var(--wh-green); }
+    .exam-option.wrong { border-color: var(--wh-red); background: rgba(248,113,113,0.1); color: var(--wh-red); }
+    .exam-option.reveal-correct { border-color: var(--wh-green); background: rgba(74,222,128,0.07); }
     .option-letter {
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
@@ -250,9 +250,9 @@
       background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.62);
     }
     .exam-option.selected .option-letter { background: var(--wh-blue); color: var(--wh-navy); }
-    .exam-option.correct .option-letter { background: #4ade80; color: var(--wh-navy); }
-    .exam-option.wrong .option-letter { background: #f87171; color: var(--wh-navy); }
-    .exam-option.reveal-correct .option-letter { background: #4ade80; color: var(--wh-navy); }
+    .exam-option.correct .option-letter { background: var(--wh-green); color: var(--wh-navy); }
+    .exam-option.wrong .option-letter { background: var(--wh-red); color: var(--wh-navy); }
+    .exam-option.reveal-correct .option-letter { background: var(--wh-green); color: var(--wh-navy); }
     .exam-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
     .nav-dots { display: flex; gap: 5px; }
     .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.15); }
@@ -298,20 +298,20 @@
     /* ── Misc ── */
     .hidden { display: none !important; }
     .text-cyan { color: var(--wh-blue); }
-    .text-green { color: #4ade80; }
+    .text-green { color: var(--wh-green); }
     .text-amber { color: var(--wh-orange); }
-    .text-red { color: #f87171; }
+    .text-red { color: var(--wh-red); }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -335,7 +335,7 @@
 
 <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
 
 
   <!-- Header -->
@@ -345,7 +345,7 @@
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
-      <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
+      <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
       <a role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
     </div>
     <p id="skillmatrix-source-chip" style="margin-top:3px;"></p>
@@ -430,8 +430,8 @@
         <!-- table-name-allow: skill matrix data table --> <div class="wh-scroll-x"><table><tbody id="fallback-table"></tbody></table></div>
       </div>
       <div class="chart-legend">
-        <span><span class="legend-dot" style="background:#29B6D9"></span>Target</span>
-        <span><span class="legend-dot" style="background:#4ade80"></span>Actual</span>
+        <span><span class="legend-dot" style="background:var(--wh-blue)"></span>Target</span>
+        <span><span class="legend-dot" style="background:var(--wh-green)"></span>Actual</span>
       </div>
     </section>
 
@@ -462,7 +462,7 @@
         <div class="modal-subtitle" id="lesson-subtitle"></div>
       </div>
       <button class="modal-close-btn" id="lesson-close-btn" aria-label="Close">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
     <div class="modal-body" id="lesson-body-scroll">
@@ -486,7 +486,7 @@
         <div class="modal-subtitle" id="exam-subtitle"></div>
       </div>
       <button class="modal-close-btn" id="exam-close-btn" aria-label="Close exam">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
     <div class="modal-body">
@@ -606,6 +606,13 @@ function showToast(msg, icon = '✓') {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+// Emoji-first (2026-07-19): discipline glyphs render as emoji, not inline SVG. Covers all 5
+// disciplines in skill-content.js's DISCIPLINE_ICONS; `|| '🔧'` is a fallback for any new one.
+const DISCIPLINE_EMOJI = {
+  'Mechanical': '🔧', 'Electrical': '⚡', 'Instrumentation': '🎛️',
+  'Facilities Management': '🏢', 'Production Lines': '🏭',
+};
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -839,9 +846,7 @@ function renderDisciplineCards() {
            data-disc="${escHtml(disc)}" role="button" tabindex="0" aria-label="Open ${escHtml(disc)}">
         <div class="disc-card-header">
           <div class="disc-card-name">
-            <svg class="disc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="${DISCIPLINE_ICONS[disc]}"/>
-            </svg>
+            <span class="disc-icon" aria-hidden="true">${DISCIPLINE_EMOJI[disc] || '🔧'}</span>
             ${escHtml(disc)}
           </div>
           <div class="disc-level-badge">Lv ${actual} / ${target}</div>
@@ -855,7 +860,7 @@ function renderDisciplineCards() {
         <div class="disc-card-footer">
           <div class="disc-target-row">Target: Level ${target} · Actual: Level ${actual}</div>
           <div class="disc-cta ${actual >= target ? 'text-green' : ''}">${escHtml(ctaText)}
-            ${actual < target && canAttempt ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>' : ''}
+            ${actual < target && canAttempt ? '<span class="ic ic-next" aria-hidden="true"></span>' : ''}
           </div>
         </div>
       </div>`;
@@ -1023,7 +1028,7 @@ function renderRadarChart() {
     document.getElementById('chart-fallback').style.display = 'block';
     const tbody = document.getElementById('fallback-table');
     tbody.innerHTML = DISCIPLINES.map((d, i) =>
-      `<tr><td class="label">${escHtml(d)}</td><td class="val" style="color:#29B6D9">${targets[i]}</td><td class="val" style="color:#4ade80">${actuals[i]}</td></tr>`
+      `<tr><td class="label">${escHtml(d)}</td><td class="val" style="color:var(--wh-blue)">${targets[i]}</td><td class="val" style="color:var(--wh-green)">${actuals[i]}</td></tr>`
     ).join('');
   }
 }

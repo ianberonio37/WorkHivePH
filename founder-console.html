@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="tokens.css" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
@@ -17,17 +18,17 @@
     /* ── Design tokens (mirrors platform-health.html / hive.html) ── */
     :root {
       --bg:        #0f1923;
-      --surface:   #162032;
+      --surface:   var(--wh-navy);
       --card:      #1d2e44;
       --border:    rgba(255,255,255,0.07);
-      --gold:      #F7A21B;
-      --blue:      #29B6D9;
-      --green:    #4ade80;
-      --red:       #f87171;
-      --yellow:    #fbbf24;
-      --purple:    #a78bfa;
+      --gold:      var(--wh-orange);
+      --blue:      var(--wh-blue);
+      --green:    var(--wh-green);
+      --red:       var(--wh-red);
+      --yellow:    var(--wh-orange);
+      --purple:    var(--wh-violet);
       --muted:     rgba(255,255,255,0.85); /* D1 a11y: was 0.4 (~2.5:1) → 0.85 meets WCAG 1.4.3 4.5:1 incl. raised .stat cards */
-      --text:      #F4F6FA;
+      --text:      var(--wh-cloud);
     }
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
     body {
@@ -59,7 +60,7 @@
 
     /* ── Header / Hero ── */
     .hdr {
-      background:linear-gradient(135deg,#0f1923,#162032);
+      background:linear-gradient(135deg,#0f1923,var(--wh-navy));
       border-bottom:1px solid var(--border);
       padding:1rem 1.5rem;
       display:flex; align-items:center; justify-content:space-between;
@@ -417,11 +418,11 @@
     .stair-fill {
       height:100%; transition:width .5s;
     }
-    .stair-fill.s0 { background:linear-gradient(90deg,#4A9FD4,#5BB0E0); }
-    .stair-fill.s1 { background:linear-gradient(90deg,#00C4B4,#4ade80); }
-    .stair-fill.s2 { background:linear-gradient(90deg,#9B59E8,#a78bfa); }
-    .stair-fill.s3 { background:linear-gradient(90deg,#F7A21B,#FDB94A); }
-    .stair-fill.s4 { background:linear-gradient(90deg,#FFB800,#FFD700); }
+    .stair-fill.s0 { background:linear-gradient(90deg,var(--wh-blue),var(--wh-blue)); }
+    .stair-fill.s1 { background:linear-gradient(90deg,var(--wh-blue),var(--wh-green)); }
+    .stair-fill.s2 { background:linear-gradient(90deg,var(--wh-violet),var(--wh-violet)); }
+    .stair-fill.s3 { background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light)); }
+    .stair-fill.s4 { background:linear-gradient(90deg,var(--wh-orange),var(--wh-amber)); }
     .stair-count { font-size:.7rem; font-weight:700; color:var(--text); text-align:right; }
 
     /* ── Pareto ── */
@@ -471,9 +472,9 @@
     }
     .mod-btn:hover { background:rgba(255,255,255,.06); }
     .mod-btn:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-    .mod-btn.ok { background:rgba(34,197,94,.14); color:#4ade80; border-color:rgba(34,197,94,.3); }
+    .mod-btn.ok { background:rgba(34,197,94,.14); color:var(--wh-green); border-color:rgba(34,197,94,.3); }
     .mod-btn.ok:hover { background:rgba(34,197,94,.24); }
-    .mod-btn.no { background:rgba(239,68,68,.12); color:#f87171; border-color:rgba(239,68,68,.3); }
+    .mod-btn.no { background:rgba(239,68,68,.12); color:var(--wh-red); border-color:rgba(239,68,68,.3); }
     .mod-btn.no:hover { background:rgba(239,68,68,.22); }
     .mod-empty { font-size:.78rem; color:var(--muted); padding:.5rem .1rem; }
 
@@ -509,7 +510,7 @@
     }
     .audit-dot.approve { background:var(--green); }
     .audit-dot.reject  { background:var(--red); }
-    .audit-dot.kick    { background:#fb923c; }
+    .audit-dot.kick    { background:var(--wh-orange); }
     .audit-dot.default { background:var(--blue); }
 
     /* ── Toast (matches utils.js pattern) ── */
@@ -560,7 +561,7 @@
       cursor:pointer; transition:border-color .15s, background .15s;
     }
     .fb-card:hover { border-color:rgba(247,162,27,.35); background:rgba(22,32,50,.55); }
-    .fb-card:focus-visible { outline:2px solid #29B6D9; outline-offset:2px; }
+    .fb-card:focus-visible { outline:2px solid var(--wh-blue); outline-offset:2px; }
     .fb-card-top {
       display:flex; align-items:center; gap:.5rem; font-size:.7rem;
       color:var(--muted); margin-bottom:.25rem; flex-wrap:wrap;
@@ -598,7 +599,7 @@
     .fb-drawer {
       position:fixed; top:0; right:0; bottom:0;
       width:480px; max-width:100vw;
-      background:linear-gradient(180deg,#1F2E45,#162032);
+      background:linear-gradient(180deg,var(--wh-navy-mid),var(--wh-navy));
       color:var(--text); z-index:9991;
       transform:translateX(100%); transition:transform .25s ease;
       display:flex; flex-direction:column;
@@ -651,7 +652,7 @@
       transition:all .15s; font-family:inherit;
     }
     .fb-drawer-actions .btn.primary {
-      background:linear-gradient(135deg,#F7A21B,#FDB94A); color:#162032;
+      background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy);
     }
     .fb-drawer-actions .btn.primary:hover { transform:translateY(-1px); }
     .fb-drawer-actions .btn.secondary {
@@ -659,7 +660,7 @@
       border:1px solid rgba(255,255,255,.1);
     }
     .fb-drawer-actions .btn.secondary:hover { background:rgba(255,255,255,.1); }
-    .fb-rating { color:#F7A21B; letter-spacing:.1em; font-size:.95rem; }
+    .fb-rating { color:var(--wh-orange); letter-spacing:.1em; font-size:.95rem; }
 
     @media (max-width:520px) {
       .fb-drawer { width:100vw; }
@@ -1317,7 +1318,7 @@
       ring.setAttribute('stroke-dasharray', String(circ));
       ring.setAttribute('stroke-dashoffset', String(offset));
       const t = HEALTH_THRESHOLDS.validator_pass_pct;
-      const color = pct >= t.green ? '#4ade80' : pct >= t.amber ? '#fbbf24' : '#f87171';
+      const color = pct >= t.green ? '#4ade80' : pct >= t.amber ? '#f7a21b' : '#f87171';
       ring.setAttribute('stroke', color);
       document.getElementById('ring-pct-num').textContent = pct + '%';
       document.getElementById('ring-pct-label').textContent =

@@ -127,3 +127,20 @@ final_*.wav
 
 # Night Crawler local watchlist (the .example is committed)
 night_crawler_watch.txt
+
+# ── Emoji/palette session (2026-07-19): transient backups + verification artifacts — never commit
+*.pre-emoji.bak
+.emoji_bak/
+.palette_bak/
+.leftover_bak/
+.hexvar_bak/
+.baseline_bak/
+.fullgate.out
+marketplace-emoji-cards.png
+marketplace-emoji-top.png
+analytics-emoji-first.png
+analytics-palette.png
+ai-quality-palette.png
+hive-palette.png
+index-emoji-check.png
+index-sectors.png

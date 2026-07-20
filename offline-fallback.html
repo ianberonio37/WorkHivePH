@@ -26,7 +26,7 @@
       padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
     }
     .card { max-width: 440px; width: 100%; text-align: center; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; display: inline-block; margin-right: 8px; vertical-align: middle; animation: pulse 1.6s ease-in-out infinite; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--wh-orange); display: inline-block; margin-right: 8px; vertical-align: middle; animation: pulse 1.6s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
     @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
     h1 { font-size: 1.3rem; margin: 16px 0 8px; }
@@ -37,10 +37,10 @@
       background: #1a1d24; color: #e7e9ee; text-decoration: none; border: 1px solid #2a2e38;
       font-weight: 600; transition: background .15s;
     }
-    a.surface:hover, a.surface:focus-visible { background: #232733; outline: 2px solid #f59e0b; outline-offset: 2px; }
+    a.surface:hover, a.surface:focus-visible { background: #232733; outline: 2px solid var(--wh-orange); outline-offset: 2px; }
     button.retry {
       margin-top: 18px; padding: 12px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); cursor: pointer;
-      background: #f59e0b; color: #1a1205; border: 0; font-weight: 700; font-size: .95rem;
+      background: var(--wh-orange); color: #1a1205; border: 0; font-weight: 700; font-size: .95rem;
     }
     .hint { font-size: .8rem; color: #6b7280; margin-top: 16px; }
   </style>

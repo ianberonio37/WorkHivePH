@@ -108,8 +108,8 @@
       display: inline-block; padding: 2px 9px; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
     }
-    .status-draft     { background: rgba(247,162,27,0.18); color: #ffc566; }
-    .status-published { background: rgba(74,222,128,0.18); color: #6ee7a8; }
+    .status-draft     { background: rgba(247,162,27,0.18); color: var(--wh-orange); }
+    .status-published { background: rgba(74,222,128,0.18); color: var(--wh-green); }
     .status-archived  { background: rgba(180,180,180,0.14); color: var(--muted); }
     .briefing-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; }
 
@@ -163,7 +163,7 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
@@ -191,7 +191,7 @@
 
     <div class="page-header">
       <a href="hive.html" class="back-btn" aria-label="Back">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div>
         <h1 class="page-title" style="margin:0;" translate="no">Shift Brain</h1>
@@ -259,11 +259,11 @@
         <span id="brief-window">06-14</span>
         <span id="brief-date" style="color:var(--muted);">today</span>
         <span id="brief-status" class="status-pill status-draft">draft</span>
-        <!-- ★E3/C2: text #b45309 over a 13%-alpha amber (#f59e0b22) composited to 2.02:1 on the dark navy theme (dark-on-dark).
+        <!-- ★E3/C2: text #f7a21b over a 13%-alpha amber (#f59e0b22) composited to 2.02:1 on the dark navy theme (dark-on-dark).
              A warning chip must be self-sufficient: a SOLID bright-amber fill with near-black text reads on any background (~9:1). -->
-        <span id="brief-stale" style="display:none; align-items:center; gap:4px; font-size:.7rem; font-weight:700; color:#1a1206; background:#f59e0b; border:1px solid #d97706; padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
+        <span id="brief-stale" style="display:none; align-items:center; gap:4px; font-size:.7rem; font-weight:700; color:#1a1206; background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
       </div>
-      <div id="brief-degraded" role="alert" style="display:none; margin-top:8px; font-size:.75rem; font-weight:600; color:#b91c1c; background:#ef444415; border:1px solid #ef444455; padding:8px 10px; border-radius:8px;"></div>
+      <div id="brief-degraded" role="alert" style="display:none; margin-top:8px; font-size:.75rem; font-weight:600; color:var(--wh-red); background:#ef444415; border:1px solid #ef444455; padding:8px 10px; border-radius:8px;"></div>
       <div class="briefing-text" id="brief-text">Loading briefing...</div>
     </div>
 
@@ -801,7 +801,7 @@
       // an incoming shift must verify zero-energy before touching the asset. The orchestrator
       // already carries loto_applied/permit_reference per row; surface it as a badge.
       const loto = r.loto_applied
-        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size:.65rem; font-weight:800; color:#b45309; background:#f59e0b22; border:1px solid #f59e0b66; padding:1px 7px; border-radius:8px; margin-left:6px;" title="Open job under energy isolation; verify zero-energy before touching">🔒 LOTO${r.permit_reference ? ' &middot; ' + e(r.permit_reference) : ''}</span>`
+        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size:.65rem; font-weight:800; color:var(--wh-orange); background:#f59e0b22; border:1px solid #f59e0b66; padding:1px 7px; border-radius:8px; margin-left:6px;" title="Open job under energy isolation; verify zero-energy before touching">🔒 LOTO${r.permit_reference ? ' &middot; ' + e(r.permit_reference) : ''}</span>`
         : '';
       // K2 (Ext-5 spine) — emit an "Add to my day" deep-link so a carry-forward open job flows
       // into the tech's Day Planner as a GROUNDED task (source_kind='shift') instead of the plan

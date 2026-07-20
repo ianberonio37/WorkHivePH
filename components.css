@@ -26,7 +26,7 @@
    now lives in tokens.css — the SINGLE source of truth, @imported above so it
    loads with components.css. The `-rgb` triplets (for rgba() alpha), spacing,
    radius and type stay here. Pages reference var(--wh-*) instead of raw hex;
-   validate_design_tokens.py L1 gates tokens.css, L2 bans the #e8920a drift hex,
+   validate_design_tokens.py L1 gates tokens.css, L2 bans the var(--wh-orange) drift hex,
    L3 ratchets raw brand hex on the glass down. */
 :root {
   /* The platform vocabulary (colour, spacing, radius, type, elevation, z) now lives in
@@ -58,11 +58,11 @@
 .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
 /* sc-tag text colors LIGHTENED for WCAG 2.2 AA 4.5:1 at the 0.58rem badge size (FB2
    browser-CI persona walk caught these failing live over the 0.16-tinted bg on the
-   #1F2E45 card: red 3.95 + grey 4.16 FAIL, amber 4.93 borderline). Measured ratios
+   var(--wh-navy-mid) card: red 3.95 + grey 4.16 FAIL, amber 4.93 borderline). Measured ratios
    over the effective tinted bg now: green 6.9 · amber 6.2 · red 5.8 · grey 7.7 — hues kept. */
-.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#86efac; }
+.simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
 .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb),0.16);  color:var(--wh-orange-light); }
-.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#fca5a5; }
+.simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
 .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:#cbd5e1; }
 
 /* "What to do next" recommendation card */
@@ -88,14 +88,14 @@
 .wh-disclose > summary::-webkit-details-marker { display:none; }
 .wh-disclose > summary::after { content:'\25B8'; font-size:0.7rem; opacity:0.6; transition:transform 0.2s; flex-shrink:0; }
 .wh-disclose[open] > summary::after { transform:rotate(90deg); }
-.wh-disclose > summary:hover { color:#F4F6FA; }
+.wh-disclose > summary:hover { color:var(--wh-cloud); }
 .wh-disclose > summary .wh-disclose-title { display:flex; align-items:center; gap:8px; min-width:0; }
 .wh-disclose .wh-disclose-body { padding:0 16px 16px; }
 @media (prefers-reduced-motion: reduce) { .wh-disclose > summary::after { transition:none; } }
 
 /* "Show details" explainer toggle button (behavior = utils.js wireDetailToggle, S10) */
 .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
-.details-toggle:hover { color:#F4F6FA; border-color:rgba(255,255,255,0.18); }
+.details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
 
 /* ── List loading skeleton + inline error/retry (STREAMLINE E2 — consistent states) ──
    Renderers live in utils.js (whListSkeleton / whListError). A dynamic list shows a
@@ -107,7 +107,7 @@
 @media (prefers-reduced-motion: reduce) { .wh-skeleton-row { animation:none; } }
 .wh-list-error { text-align:center; padding:1.4rem 1rem; font-size:0.82rem; color:rgba(255,255,255,0.72); line-height:1.5; }
 .wh-list-error .wh-list-error-icon { font-size:1.4rem; }
-.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:#F4F6FA; font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer; }
+.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer; }
 .wh-list-error button:hover { border-color:rgba(255,255,255,0.32); }
 /* D1 U2 (Arc D): shared reports-tab bar — tabs ship inline min-height:34px; an
    a11y floor must override it to the platform's 44px gloved-field tap target.

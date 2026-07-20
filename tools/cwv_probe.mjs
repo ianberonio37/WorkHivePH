@@ -34,6 +34,17 @@ import { writeFileSync, readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { signIn } from './live_page_journeys.mjs';
+
+// --signed-in (2026-07-19): measure the AUTHENTICATED app pages (P10 per-page bughunt) instead of the
+// public marketing surfaces. Each per-surface context signs in as supervisor first (reusing the ONE
+// sign-in recipe). Heavy/render-complex pages first (charts, dashboards) — the real CWV risk.
+const SIGNED_IN = process.argv.slice(2).includes('--signed-in');
+const APP_SURFACES = [
+  'analytics.html', 'hive.html', 'asset-hub.html', 'engineering-design.html', 'marketplace.html',
+  'analytics-report.html', 'ph-intelligence.html', 'ai-quality.html', 'logbook.html', 'inventory.html',
+  'pm-scheduler.html', 'community.html', 'project-manager.html', 'assistant.html',
+];
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -93,6 +104,7 @@ function surfaceToUrl(base, surface) {
 }
 
 function getSurfaces() {
+  if (SIGNED_IN) return LIMIT > 0 ? APP_SURFACES.slice(0, LIMIT) : APP_SURFACES;
   const out = execSync('python tools/cwv_gate.py --surfaces', { cwd: ROOT, encoding: 'utf-8' });
   const list = JSON.parse(out.trim());
   return LIMIT > 0 ? list.slice(0, LIMIT) : list;
@@ -139,7 +151,9 @@ const NOTE = 'Local Flask seeder, MOBILE viewport. lcp_ms = median of warm-cache
 
 async function main() {
   const surfaces = getSurfaces();
-  const dest = join(ROOT, 'cwv_measurements.json');
+  // --signed-in writes to a SEPARATE file so it never clobbers the public-surface baseline
+  // (cwv_measurements.json feeds cwv_gate.py's public ratchet; the app-page CWV is a distinct dataset).
+  const dest = join(ROOT, SIGNED_IN ? 'cwv_app_measurements.json' : 'cwv_measurements.json');
   const RELAUNCH_EVERY = 8;
   const FRESH = argv.includes('--fresh');
 
@@ -187,6 +201,9 @@ async function main() {
     // ONE context per surface: cache warms after the first nav so measured LCP reflects
     // WorkHive's render pipeline, not this machine's cdn.tailwindcss.com round-trip.
     const context = await browser.newContext({ viewport: VIEWPORT, isMobile: true, hasTouch: true });
+    // --signed-in: authenticate this context (supervisor) BEFORE the warm-up nav so the app page renders
+    // its real signed-in content (not the sign-in redirect). Reuses the ONE sign-in recipe.
+    if (SIGNED_IN) { const si = await signIn(context, 'supervisor'); if (!si.ok) console.log(`    \x1b[91mSIGNIN ERR\x1b[0m ${surface}: ${si.err}`); }
     await context.addInitScript(INIT);
     try {
       // warm-up nav (COLD cache) — populates the context cache AND captures the real

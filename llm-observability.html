@@ -16,7 +16,7 @@
       if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1) return;
       document.documentElement.style.visibility = 'hidden';
       function deny() {
-        document.body.innerHTML = '<div style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:#38bdf8;">&larr; Back to WorkHive</a></p></div></div>';
+        document.body.innerHTML = '<div style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);">&larr; Back to WorkHive</a></p></div></div>';
         document.documentElement.style.visibility = '';
       }
       window.addEventListener('DOMContentLoaded', function () {
@@ -45,7 +45,7 @@
   <style>
     :root {
       --bg: #0b1220; --bg2: #131b2e; --fg: #e7ecf3; --dim: #94a3b8;
-      --accent: #38bdf8; --pass: #34d399; --fail: #f87171; --warn: #fbbf24;
+      --accent: var(--wh-blue); --pass: var(--wh-green); --fail: var(--wh-red); --warn: var(--wh-orange);
       --card: #19243d; --border: #2a3658;
     }
     *, *::before, *::after { box-sizing: border-box; }

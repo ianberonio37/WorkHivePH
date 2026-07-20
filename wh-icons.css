@@ -1,0 +1,126 @@
+/* =========================================================================
+   wh-icons.css — WorkHive centralized ICON LIBRARY (single source of truth)
+   -------------------------------------------------------------------------
+   Emoji-first: every concept maps to ONE emoji, defined ONCE here.
+   Change an icon platform-wide by editing a single ::before content value.
+
+   Usage:  <span class="ic ic-verified" aria-hidden="true"></span>
+   Size:   inherits font-size (1em) so it matches its text context.
+           add  ic-lg (1.4em) / ic-xl (2.4em)  for standalone / empty-state.
+
+   Functional glyphs (check / close / filter / caret) are TEXT, not emoji, so
+   they inherit currentColor and theme correctly — they are NOT a second
+   "icon source" for the visual rubric.
+   ========================================================================= */
+
+.ic{
+  display:inline-block;
+  line-height:1;
+  vertical-align:-0.125em;      /* sits on the text baseline cleanly */
+  font-style:normal;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",EmojiSymbols,sans-serif;
+}
+.ic::before{ display:inline-block }
+.ic-lg{ font-size:1.4em }
+.ic-xl{ font-size:2.4em }
+
+/* -- Trust / status -------------------------------------------------------- */
+.ic-verified::before { content:"✅" }
+.ic-secure::before   { content:"🔒" }
+.ic-free::before     { content:"🆓" }
+.ic-info::before     { content:"ℹ️" }
+.ic-warning::before  { content:"⚠️" }
+.ic-error::before    { content:"❌" }
+.ic-pending::before  { content:"⏳" }
+.ic-star::before     { content:"⭐" }
+
+/* -- Marketplace / commerce ------------------------------------------------ */
+.ic-parts::before    { content:"📦" }
+.ic-jobs::before     { content:"💼" }
+.ic-training::before { content:"📚" }
+.ic-save::before     { content:"⭐" }   /* watchlist */
+.ic-saved::before    { content:"🔖" }   /* saved searches / bookmark */
+.ic-compare::before  { content:"⚖️" }
+.ic-post::before     { content:"➕" }
+.ic-image::before    { content:"📷" }
+.ic-message::before  { content:"💬" }
+.ic-send::before     { content:"✉️" }
+.ic-location::before { content:"📍" }
+.ic-price::before    { content:"💰" }
+.ic-cart::before     { content:"🛒" }
+
+/* -- Navigation / actions -------------------------------------------------- */
+.ic-search::before     { content:"🔍" }
+.ic-list::before       { content:"📋" }
+.ic-admin::before      { content:"⚙️" }
+.ic-edit::before       { content:"✏️" }
+.ic-delete::before     { content:"🗑️" }
+.ic-download::before   { content:"⬇️" }
+.ic-upload::before     { content:"⬆️" }
+.ic-inventory-in::before{ content:"📥" }
+.ic-refresh::before    { content:"↻" }
+.ic-add::before        { content:"➕" }
+
+/* -- Domain (maintenance / ops) ------------------------------------------- */
+.ic-maintenance::before{ content:"🔧" }
+.ic-asset::before      { content:"🏭" }
+.ic-analytics::before  { content:"📊" }
+.ic-trend::before      { content:"📈" }
+.ic-calendar::before   { content:"📅" }
+.ic-clock::before      { content:"🕐" }
+.ic-alert::before      { content:"🚨" }
+.ic-ai::before         { content:"🤖" }
+.ic-ai-spark::before   { content:"✨" }
+.ic-brain::before      { content:"🧠" }
+.ic-brand::before      { content:"🐝" }
+.ic-doc::before        { content:"📄" }
+.ic-folder::before     { content:"📁" }
+.ic-bell::before       { content:"🔔" }
+.ic-checklist::before  { content:"✅" }
+
+/* -- Navigation destinations (nav-hub, shared on every page) --------------- */
+.ic-home::before        { content:"🏠" }
+.ic-logbook::before     { content:"📓" }
+.ic-community::before   { content:"👥" }
+.ic-reports::before     { content:"📈" }
+.ic-ai-quality::before  { content:"🎯" }
+.ic-ph-intel::before    { content:"🌏" }
+.ic-audit::before       { content:"🔍" }
+.ic-voice::before       { content:"🎙️" }
+.ic-design::before      { content:"📐" }
+.ic-project::before     { content:"🗂️" }
+.ic-growth::before      { content:"🌱" }
+.ic-resume::before      { content:"📝" }
+.ic-integrations::before{ content:"🔌" }
+.ic-apps::before        { content:"🔲" }
+.ic-eye::before         { content:"👁️" }
+.ic-link::before        { content:"🔗" }
+.ic-pin::before         { content:"📌" }
+.ic-flag::before        { content:"🚩" }
+.ic-help::before        { content:"❓" }
+.ic-minus::before       { content:"➖" }
+.ic-globe::before       { content:"🌐" }
+.ic-bell::before        { content:"🔔" }
+.ic-clock::before       { content:"🕐" }
+.ic-settings::before    { content:"⚙️" }
+.ic-scan::before        { content:"🔍" }
+.ic-lightning::before   { content:"⚡" }
+.ic-target::before      { content:"🎯" }
+.ic-user::before        { content:"👤" }
+.ic-building::before    { content:"🏢" }
+.ic-food::before        { content:"🍽️" }
+.ic-oil::before         { content:"🛢️" }
+.ic-factory::before     { content:"🏭" }
+.ic-power::before       { content:"⚡" }
+.ic-chip::before        { content:"🔌" }
+.ic-phone::before       { content:"📱" }
+.ic-install::before     { content:"⬇️" }
+
+/* -- Functional TEXT glyphs (currentColor, themeable) ---------------------- */
+.ic-check,.ic-close,.ic-filter,.ic-caret,.ic-back,.ic-next{ font-family:inherit }
+.ic-check::before  { content:"✓"; font-weight:700 }
+.ic-close::before  { content:"✕"; font-weight:700 }
+.ic-filter::before { content:"▾"; font-weight:700 }
+.ic-caret::before  { content:"▾"; font-weight:700 }
+.ic-back::before   { content:"←"; font-weight:700 }
+.ic-next::before   { content:"→"; font-weight:700 }

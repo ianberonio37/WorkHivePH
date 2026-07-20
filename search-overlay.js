@@ -216,9 +216,7 @@
       </style>
       <div class="ws-shell">
         <div class="ws-input-row">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <span class="ic ic-search" aria-hidden="true"></span>
           <input id="ws-input" type="search" placeholder="Search assets, jobs, parts, PMs..." autocomplete="off" spellcheck="false" />
           <span class="ws-kbd-hint"><span class="ws-kbd">esc</span></span>
         </div>

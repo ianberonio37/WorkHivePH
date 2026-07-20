@@ -21,8 +21,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
-      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
-      --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
+      --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.62);
       --border: rgba(255,255,255,0.07);
     }
@@ -321,19 +321,19 @@
       return `
         <div class="simple-row">
           <div class="simple-card hero tag-${trust.tone}">
-            <div class="sc-label">Worker trust</div>
+            <div class="sc-label" data-i="aq_worker_trust">Worker trust</div>
             <div class="sc-hero">${escHtml(trust.hero)}</div>
             <div class="sc-sub">${escHtml(trust.sub)}</div>
             <span class="sc-tag">${escHtml(trust.tag)}</span>
           </div>
           <div class="simple-card tag-${cost.tone}">
-            <div class="sc-label">Cost this month</div>
+            <div class="sc-label" data-i="aq_cost_month">Cost this month</div>
             <div class="sc-hero">${escHtml(cost.hero)}</div>
             <div class="sc-sub">${escHtml(cost.sub)}</div>
             <span class="sc-tag">${escHtml(cost.tag)}</span>
           </div>
           <div class="simple-card tag-${timeSaved.tone}">
-            <div class="sc-label">Time saved (est.)</div>
+            <div class="sc-label" data-i="aq_time_saved">Time saved (est.)</div>
             <div class="sc-hero">${escHtml(timeSaved.hero)}</div>
             <div class="sc-sub">${escHtml(timeSaved.sub)}</div>
             <span class="sc-tag">${escHtml(timeSaved.tag)}</span>
@@ -368,7 +368,7 @@
       }
       return `
         <div class="action-card">
-          <div class="ac-label">What to do next</div>
+          <div class="ac-label" data-i="aq_whatnext">What to do next</div>
           <div class="ac-text">${escHtml(text)}</div>
         </div>
       `;
@@ -525,7 +525,7 @@
         : 'Computed from cost × quality ratio. Verify against your own downtime savings before booking.';
       return `
         <div class="card">
-          <h2>Estimated 30-day ROI</h2>
+          <h2 data-i="aq_roi_30d">Estimated 30-day ROI</h2>
           <p class="meta" id="roi-meta">vs $${s.totalCost.toFixed(4)} spent</p>
           <div class="roi-block">
             <div>
@@ -545,7 +545,7 @@
       const pct = total === 0 ? 0 : Math.round(100 * tup / total);
       return `
         <div class="card">
-          <h3>Worker feedback (👍 / 👎)</h3>
+          <h3 data-i="aq_worker_feedback">Worker feedback (👍 / 👎)</h3>
           <p class="meta">Last 30 days</p>
           <div style="display:flex;align-items:baseline;gap:16px;">
             <span style="font-size:1.4rem;font-weight:800;color:var(--green);">${tup}</span>
@@ -578,7 +578,7 @@
       }).join('');
       return `
         <div class="card">
-          <h3>Per-function spend</h3>
+          <h3 data-i="aq_perfn_spend">Per-function spend</h3>
           <p class="meta">Sorted by cost · last 30 days</p>
           <!-- table-name-allow: AI quality metric table --> <div class="wh-scroll-x"><table class="fn-table">
             <thead><tr><th>Function</th><th class="num-right">Calls</th><th class="num-right">Tokens</th><th class="num-right">Cost</th><th class="num-right">Avg latency</th><th class="num-right">Failure rate</th></tr></thead>
@@ -632,6 +632,14 @@
   });
 </script>
 
-<script>window.WH_FIL_PAGE={aq_empty:"Wala pang AI quality data"};</script>
+<script>window.WH_FIL_PAGE={
+      aq_empty:"Wala pang AI quality data",
+      aq_draft_cta:"Mag-draft gamit ang AI →",              // was marked but had NO dict entry -> stayed EN in FIL
+      aq_overview_heading:"Pangkalahatang-tingin sa Quality at ROI",  // was marked but had NO dict entry -> stayed EN in FIL
+      aq_worker_trust:"Tiwala ng manggagawa", aq_cost_month:"Gastos ngayong buwan",
+      aq_time_saved:"Naitipid na oras (tantiya)", aq_whatnext:"Ano ang susunod na gagawin",
+      aq_roi_30d:"Tinatayang 30-araw na ROI", aq_worker_feedback:"Feedback ng manggagawa (👍 / 👎)",
+      aq_perfn_spend:"Gastos bawat function"
+    };</script>
 </body>
 </html>

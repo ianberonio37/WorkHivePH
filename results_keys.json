@@ -1930,6 +1930,8 @@
     "critical_speed_rpm",
     "d_min_mm",
     "d_standard_mm",
+    "d_twist_required_mm",
+    "d_twist_std_mm",
     "d_used_mm",
     "deflection_limit_mm",
     "deflection_mm",
@@ -1937,6 +1939,7 @@
     "fatigue_ok",
     "inputs_used",
     "key_height_mm",
+    "key_length_mm",
     "key_ok",
     "key_width_mm",
     "material",
@@ -1952,6 +1955,8 @@
     "standard",
     "tau_key_MPa",
     "torque_Nm",
+    "twist_deg_per_m",
+    "twist_ok",
     "yield_ok"
   ],
   "V-Belt Drive Design": [
@@ -2059,6 +2064,7 @@
     "A_standard_m2",
     "Cr",
     "F_correction",
+    "F_feasible",
     "NTU",
     "Pr_tube",
     "Q_cold_kW",
@@ -2238,6 +2244,7 @@
     "safety_valve_min_kg_hr",
     "steam_demand_kg_hr",
     "steam_pressure_bara",
+    "steam_pressure_barg",
     "t_sat_c",
     "total_capacity_bhp",
     "total_capacity_kw"

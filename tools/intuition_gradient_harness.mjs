@@ -46,7 +46,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const BASE   = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SB_URL = process.env.WH_SUPABASE_URL  || 'http://127.0.0.1:54321';
-const HIVE   = process.env.WH_TEST_HIVE     || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+const HIVE   = process.env.WH_TEST_HIVE     || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // real hive (9b4eaeac was stale → empty-page scans)
 
 // Real auth accounts (live DB): worker + supervisor only. engineer == supervisor session.
 const ACCOUNTS = {

@@ -29,7 +29,7 @@
     /* ── Aurora ── */
     .aurora { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
     .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.06; }
-    .aurora-blob-1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -100px; }
+    .aurora-blob-1 { width: 500px; height: 500px; background: var(--wh-violet); top: -100px; left: -100px; }
     .aurora-blob-2 { width: 400px; height: 400px; background: var(--wh-blue); bottom: 0; right: -100px; }
 
     /* ── Layout ── */
@@ -43,7 +43,7 @@
        fetch, so its slot must be reserved or the whole page below it drops (I1/CLS).
        62px = one caption line (16px) + the 44px "How this is computed" tap target. */
     #wh-source-chip { min-height: 62px; margin: 0; }
-    .page-header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; }
+    .page-header h1 { font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1.2; } /* Arc-W focal: heading ≥2.3× body median (was 1.4rem/2.0×) */
     .page-header p { font-size: 0.75rem; color: #9aa6b3; margin-top: 0.2rem; }
     .header-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; background: rgba(167,139,250,0.15); color: var(--wh-violet-text); border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem; }
 
@@ -77,8 +77,8 @@
        the 5-second scan lands on one clear CTA (A1); the sibling report/nav buttons stay ghost. */
     /* C2 dual-viewport: navy text on the darker purple stop was 3.76:1 (<4.5). Lighten both stops
        so the dark stop clears the WCAG floor while keeping the purple primary-action look. */
-    #refresh-btn { background: linear-gradient(135deg, #a78bfa, #c4b5fd); border-color: transparent; color: var(--wh-navy); font-weight: 700; }
-    #refresh-btn:hover { filter: brightness(1.06); background: linear-gradient(135deg, #a78bfa, #c4b5fd); }
+    #refresh-btn { background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); border-color: transparent; color: var(--wh-navy); font-weight: 700; }
+    #refresh-btn:hover { filter: brightness(1.06); background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); }
 
     /* ── Phase tabs ── */
     /* NAVIGATE vocabulary (Ian, 2026-07-15): view-switchers are a CONNECTED TAB-BAR --
@@ -154,7 +154,7 @@
        parent color, dropping the sub-label to 3.29:1 (inactive) / 2.89:1 (active) over the
        tab bg. Use explicit opaque colors instead -> 6.49:1 inactive / 8.02:1 active. */
     .phase-sub { display: block; font-size: 0.58rem; font-weight: 400; color: #9aa6b3; letter-spacing: 0.02em; margin-top: 1px; }
-    .phase-tab.active .phase-sub { color: #c4b5fd; }
+    .phase-tab.active .phase-sub { color: var(--wh-violet-text); }
 
     /* ── Cards ── */
     .card {
@@ -176,7 +176,7 @@
     /* Arc A1: wide tables (6-col Priority Ranking etc.) scroll horizontally within their
        card at 390px instead of clipping/overflowing the page. */
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .data-table .good  { color: #4ade80; }
+    .data-table .good  { color: var(--wh-green); }
 
     /* ── Top-N + Show All toggle ─────────────────────────────────────────
        Long lists default to top N rows visible; the button below reveals
@@ -239,7 +239,7 @@
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
     .bar-label { font-size: 0.7rem; color: rgba(255,255,255,0.6); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #a78bfa, #7c3aed); transition: width 0.6s ease; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-violet), #7c3aed); transition: width 0.6s ease; }
     .bar-val { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.5); width: 40px; text-align: right; flex-shrink: 0; }
 
     /* ── Empty / loading states ── */
@@ -346,7 +346,7 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; color:rgba(255,255,255,0.92); }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
@@ -361,7 +361,7 @@
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
-    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
@@ -564,7 +564,7 @@
 
   <!-- Status bar: last updated + loading indicator -->
   <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;min-height:20px;">
-    <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;display:none;"></span>
+    <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--wh-green);flex-shrink:0;display:none;"></span>
     <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.6);"></span>
     <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);display:none;"></div>
   </div>
@@ -1078,9 +1078,9 @@
         <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
         <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
         <div style="display:flex;gap:0.5rem;">
-          <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out infinite;"></div>
-          <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
-          <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out infinite;"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
         </div>
       </div>`;
   }
@@ -1679,7 +1679,7 @@
       return `<div class="card">
         <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></h2>
         <div class="empty" style="padding:1rem 0;">
-          <span style="color:#4ade80;">✓ No repeat failures detected.</span><br>
+          <span style="color:var(--wh-green);">✓ No repeat failures detected.</span><br>
           <span style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
         </div>
       </div>`;
@@ -1774,7 +1774,7 @@
         <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0.75rem;">
           <div class="stat-tile"><div class="val ${cls}">${corr}</div><div class="label">Correlation r</div></div>
           <div class="stat-tile"><div class="val" style="color:rgba(255,255,255,0.6)">${d.p_value}</div><div class="label">P-value</div></div>
-          <div class="stat-tile"><div class="val" style="color:${sig ? '#f87171' : '#4ade80'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
+          <div class="stat-tile"><div class="val" style="color:${sig ? 'var(--wh-red)' : 'var(--wh-green)'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
         </div>` : ''}
       <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);line-height:1.5;">${escHtml(d.interpretation || d.note || '')}</p>
       ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
@@ -1868,7 +1868,7 @@
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></h2>
-      ${systemic || '<p style="font-size:0.75rem;color:#4ade80;">✓ No systemic failures detected across machines.</p>'}
+      ${systemic || '<p style="font-size:0.75rem;color:var(--wh-green);">✓ No systemic failures detected across machines.</p>'}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
     </div>`;
   }
@@ -1876,7 +1876,7 @@
   function renderEngineeringValidation(d) {
     if (!d?.flagged?.length) return `<div class="card">
       <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: engineering_calcs × logbook</span></h2>
-      <div class="empty" style="padding:1rem 0;color:#4ade80;">✓ ${escHtml(d?.note || 'No matches found between failure history and engineering calc records.')}</div>
+      <div class="empty" style="padding:1rem 0;color:var(--wh-green);">✓ ${escHtml(d?.note || 'No matches found between failure history and engineering calc records.')}</div>
     </div>`;
     const rows = d.flagged.map(f => `
       <div style="margin-bottom:0.75rem;padding:0.75rem;background:rgba(247,162,27,0.06);border-radius:0.75rem;border:1px solid rgba(247,162,27,0.15);">
@@ -1925,7 +1925,7 @@
   function renderPartsSpike(d) {
     if (!d?.spikes?.length) return `<div class="card">
       <h2 class="card-title">Parts Consumption Spike <span class="card-standard">Rule-based · current vs previous period</span></h2>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No consumption spikes detected. Parts usage is consistent with the previous period.</div>
+      <div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ No consumption spikes detected. Parts usage is consistent with the previous period.</div>
     </div>`;
 
     const color = d.critical_count > 0 ? 'red' : 'yellow';
@@ -1981,7 +1981,7 @@
           </div>
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);margin-top:0.2rem;">${escHtml(a.alert)}</p>
         </div>`).join('')
-      : `<p style="font-size:0.72rem;color:#4ade80;margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
+      : `<p style="font-size:0.72rem;color:var(--wh-green);margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
 
     const baselineList = renderListWithShowAll({
       items: d.baselines,
@@ -2098,17 +2098,17 @@
         const isSuspect = p.mtbf_days < 1; // < 1 day MTBF = likely data quality issue
         let statusHtml;
         if (isSuspect) {
-          statusHtml = `<span style="font-size:0.62rem;color:#F7A21B;">⚠ Check data</span>`;
+          statusHtml = `<span style="font-size:0.62rem;color:var(--wh-orange);">⚠ Check data</span>`;
         } else if (isOverdue) {
           statusHtml = `<span style="font-size:0.62rem;color:var(--wh-red-text);">Overdue by ${Math.abs(Math.round(p.days_until))}d, not yet logged</span>`;
         } else {
-          statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'#F7A21B':'#4ade80'};">Due in ${Math.round(p.days_until)} days</span>`;
+          statusHtml = `<span style="font-size:0.62rem;color:${p.risk==='MEDIUM'?'var(--wh-orange)':'var(--wh-green)'};">Due in ${Math.round(p.days_until)} days</span>`;
         }
         const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
         const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
         return `<tr style="${isSuspect ? 'background:rgba(247,162,27,0.06);' : ''}">
-          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:#F7A21B;">⚠</span>' : ''}</td>
-          <td class="num" style="color:${isSuspect?'#F7A21B':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
+          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:var(--wh-orange);">⚠</span>' : ''}</td>
+          <td class="num" style="color:${isSuspect?'var(--wh-orange)':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
           <td class="num" style="color:rgba(255,255,255,0.6);">${escHtml(p.last_failure)}</td>
           <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
           <td>${statusHtml}</td>
@@ -2138,7 +2138,7 @@
 
     if (!d.overdue_count && !d.due_soon_count) return `<div class="card">
       <h2 class="card-title">PM Due Calendar <span class="card-standard">Deterministic · All ${d.total_tasks} tasks on schedule</span></h2>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All ${d.total_tasks} PM tasks are on schedule.</div>
+      <div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ All ${d.total_tasks} PM tasks are on schedule.</div>
     </div>`;
 
     // Group by asset — only show tasks that need attention
@@ -2163,7 +2163,7 @@
       const hasSoon   = tasks.some(t => t.risk === 'DUE SOON');
       const assetColor = hasOver ? '#f87171' : hasSoon ? '#F7A21B' : '#a78bfa';
       const badge     = hasOver ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
-                      : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
+                      : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
       const id = `pm-asset-${pmCardId++}`;
       // Auto-expand overdue assets
       const autoOpen = hasOver;
@@ -2223,7 +2223,7 @@
   function renderPartsStockout(d) {
     if (!d?.stockout_risk?.length) return `<div class="card">
       <h2 class="card-title">Parts Stockout Risk <span class="card-standard">Deterministic: qty / daily consumption rate</span></h2>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ No parts projected to stock out soon.</div>
+      <div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ No parts projected to stock out soon.</div>
     </div>`;
     const list = renderListWithShowAll({
       items: d.stockout_risk,
@@ -2238,7 +2238,7 @@
           <td class="num">${p.qty_on_hand}</td>
           <td class="num">${p.daily_rate || '-'}</td>
           <td class="num ${cls}">${p.days_to_stockout !== null ? p.days_to_stockout + 'd' : '-'}</td>
-          <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'#f87171':p.risk==='HIGH'?'#F7A21B':'#a78bfa'}">${p.risk}</span></td>
+          <td class="num"><span style="font-size:0.65rem;font-weight:700;color:${p.risk==='CRITICAL'?'var(--wh-red)':p.risk==='HIGH'?'var(--wh-orange)':'var(--wh-violet)'}">${p.risk}</span></td>
         </tr>`;
       },
     });
@@ -2330,7 +2330,7 @@
   function renderActionPlan(plan) {
     if (!plan?.this_week?.length) return '';
     const items = plan.this_week.map(a => `<li style="margin-bottom:0.4rem;color:rgba(255,255,255,0.8);">${escHtml(a)}</li>`).join('');
-    const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:#F7A21B;border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
+    const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
     return `<div class="card" style="border-color:var(--wh-violet-text);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
       <div class="card-title" style="color:var(--wh-violet-text);">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
       ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;">${escHtml(plan.summary)}</p>` : ''}
@@ -2381,7 +2381,7 @@
       } else if (cmp === 0) {
         empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">Couldn't compare PM intervals: ${scopeN} assets have PM scopes but none have matching failure history in logbook for this period. Recommendations will appear once breakdowns log against the same assets.</div>`;
       } else {
-        empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Compared ${cmp} asset${cmp === 1 ? '' : 's'}: current PM intervals are appropriate based on failure history.</div>`;
+        empty = `<div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ Compared ${cmp} asset${cmp === 1 ? '' : 's'}: current PM intervals are appropriate based on failure history.</div>`;
       }
       return `<div class="card">
         <h2 class="card-title">PM Interval Optimization <span class="card-standard">SAE JA1011 §7 RCM</span></h2>
@@ -2397,7 +2397,7 @@
       searchPlaceholder: 'Filter by asset name or code…',
       renderRow: (r) => {
         const codeBadge = r.machine_code
-          ? `<code style="font-size:0.65rem;color:#F7A21B;background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
+          ? `<code style="font-size:0.65rem;color:var(--wh-orange);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
           : '';
         const scopeNote = r.scope_items_count
           ? ` · covers ${r.scope_items_count} PM task${r.scope_items_count === 1 ? '' : 's'}`
@@ -2406,7 +2406,7 @@
           <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
               <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
-              <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'#f87171':r.action.includes('INCREASE')?'#f87171':'var(--wh-orange)'};">${escHtml(r.action)}</span>
+              <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'var(--wh-red)':r.action.includes('INCREASE')?'var(--wh-red)':'var(--wh-orange)'};">${escHtml(r.action)}</span>
             </div>
             <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(r.reason)}</p>
             <!-- Name the SCHEDULABLE frequency ("Daily"), not "every 1 days": the operator
@@ -2430,7 +2430,7 @@
     const assignments = (d.assignments || []).map(a => `<tr>
       <td class="machine-name">${escHtml(a.machine)}</td>
       <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(a.problem)}</td>
-      <td style="font-size:0.72rem;font-weight:600;color:#29B6D9;">${escHtml(a.assigned_to)}</td>
+      <td style="font-size:0.72rem;font-weight:600;color:var(--wh-blue);">${escHtml(a.assigned_to)}</td>
       <td class="num good">L${a.skill_level}</td>
     </tr>`).join('');
     // Group identical gaps so we don't render 8 copies of "No qualified Mechanical
@@ -2457,7 +2457,7 @@
   function renderPartsReorder(d) {
     if (!d?.reorder?.length) return `<div class="card">
       <h2 class="card-title">Parts Reorder Recommendation <span class="card-standard">Inventory × PM cross-reference</span></h2>
-      <div class="empty" style="color:#4ade80;padding:1rem 0;">✓ All parts are above reorder points.</div>
+      <div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ All parts are above reorder points.</div>
     </div>`;
     const list = renderListWithShowAll({
       items: d.reorder,
@@ -2498,9 +2498,9 @@
       } else if (badges === 0) {
         empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">No skill badges yet. Workers need to take exams in Skill Matrix before training gaps can be detected.</div>`;
       } else if (above === 0) {
-        empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ Evaluated ${cats} categor${cats === 1 ? 'y' : 'ies'}: no MTTR spike above the +20% threshold. Repair times are consistent across the team.</div>`;
+        empty = `<div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ Evaluated ${cats} categor${cats === 1 ? 'y' : 'ies'}: no MTTR spike above the +20% threshold. Repair times are consistent across the team.</div>`;
       } else {
-        empty = `<div class="empty" style="color:#4ade80;padding:1rem 0;">✓ ${above} categor${above === 1 ? 'y has' : 'ies have'} elevated MTTR, but every worker in the affected disciplines is already Level 3+. No upskilling needed.</div>`;
+        empty = `<div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ ${above} categor${above === 1 ? 'y has' : 'ies have'} elevated MTTR, but every worker in the affected disciplines is already Level 3+. No upskilling needed.</div>`;
       }
       return `<div class="card">
         <h2 class="card-title">Training Gap Recommendation <span class="card-standard">MTTR × Skill cross-reference</span></h2>
@@ -2699,7 +2699,7 @@
     return tasks.map(t => `
       <div class="role-row" style="padding-left:1rem;">
         <span class="label">${escHtml(t.asset_name)}: ${escHtml(t.task.slice(0, 45))}</span>
-        <span class="val" style="color:${t.risk==='OVERDUE'?'#f87171':'#F7A21B'};">${escHtml(t.status)}</span>
+        <span class="val" style="color:${t.risk==='OVERDUE'?'var(--wh-red)':'var(--wh-orange)'};">${escHtml(t.status)}</span>
       </div>`).join('');
   }
 
@@ -2731,7 +2731,7 @@
       const assetNames = Object.keys(assetMap).sort();
 
       // Summary row
-      rows.push(`<div class="role-row"><span class="label">📅 PM tasks due</span><span class="val" style="color:#F7A21B;">${urgent.length} need attention</span></div>`);
+      rows.push(`<div class="role-row"><span class="label">📅 PM tasks due</span><span class="val" style="color:var(--wh-orange);">${urgent.length} need attention</span></div>`);
 
       // Asset dropdown
       const opts = [`<option value="">Filter by asset (${assetNames.length})</option>`]
@@ -2748,7 +2748,7 @@
       const defaultTasks = urgent.slice(0, 5);
       rows.push(`<div id="pm-task-list">${_buildPMTaskRows(defaultTasks)}</div>`);
     } else {
-      rows.push(`<div class="role-row"><span class="label">📅 PM tasks</span><span class="val" style="color:#4ade80;">All on schedule ✓</span></div>`);
+      rows.push(`<div class="role-row"><span class="label">📅 PM tasks</span><span class="val" style="color:var(--wh-green);">All on schedule ✓</span></div>`);
     }
 
     // Parts needed
@@ -2777,15 +2777,15 @@
 
     // MTBF worst
     const mtbf = desc?.mtbf?.mtbf_by_asset?.filter(a => a.mtbf_days !== null)[0];
-    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ Worst MTBF</span><span class="val" style="color:${mtbf.mtbf_days<14?'#f87171':mtbf.mtbf_days<30?'#F7A21B':'#4ade80'};">${escHtml(mtbf.machine)} · ${mtbf.mtbf_days}d</span></div>`);
+    if (mtbf) rows.push(`<div class="role-row"><span class="label">⏱ Worst MTBF</span><span class="val" style="color:${mtbf.mtbf_days<14?'var(--wh-red)':mtbf.mtbf_days<30?'var(--wh-orange)':'var(--wh-green)'};">${escHtml(mtbf.machine)} · ${mtbf.mtbf_days}d</span></div>`);
 
     // MTTR worst
     const mttr = desc?.mttr?.mttr_by_asset?.[0];
-    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 Slowest repair</span><span class="val" style="color:${mttr.mttr_hours>24?'#f87171':mttr.mttr_hours>8?'#F7A21B':'#4ade80'};">${escHtml(mttr.machine)} · ${mttr.mttr_hours}h</span></div>`);
+    if (mttr) rows.push(`<div class="role-row"><span class="label">🔧 Slowest repair</span><span class="val" style="color:${mttr.mttr_hours>24?'var(--wh-red)':mttr.mttr_hours>8?'var(--wh-orange)':'var(--wh-green)'};">${escHtml(mttr.machine)} · ${mttr.mttr_hours}h</span></div>`);
 
     // PM compliance
     const pm = desc?.pm_compliance?.overall_pct;
-    if (pm !== null && pm !== undefined) rows.push(`<div class="role-row"><span class="label">📋 PM compliance</span><span class="val" style="color:${pm<70?'#f87171':pm<85?'#F7A21B':'#4ade80'};">${pm}%</span></div>`);
+    if (pm !== null && pm !== undefined) rows.push(`<div class="role-row"><span class="label">📋 PM compliance</span><span class="val" style="color:${pm<70?'var(--wh-red)':pm<85?'var(--wh-orange)':'var(--wh-green)'};">${pm}%</span></div>`);
 
     // Overdue PMs — Arc Y Y2 fork#2: canonical = ASSETS overdue (matches the tiles), not tasks
     const overdue = pred?.pm_due_calendar?.overdue_asset_count ?? pred?.pm_due_calendar?.overdue_count;

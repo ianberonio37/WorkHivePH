@@ -101,6 +101,15 @@
       "fieldConfig": { "defaults": { "custom": { "align": "left" } }, "overrides": [ { "matcher": { "id": "byName", "options": "bytes" }, "properties": [ { "id": "unit", "value": "decbytes" } ] } ] },
       "options": { "showHeader": true, "sortBy": [ { "displayName": "bytes", "desc": true } ] },
       "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select bucket_id, objects, bytes, newest_at from v_storage_health order by bytes desc" } ]
+    },
+    {
+      "id": 11, "type": "timeseries", "title": "DB & storage size trend",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 32 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
+      "description": "Daily snapshot of database + object-storage bytes (from ops_db_size_history, written by the ops-db-size-snapshot-daily cron). The series fills in over time — watch the slope, not the point. One point today; grows daily.",
+      "fieldConfig": { "defaults": { "unit": "decbytes", "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "pointSize": 6, "showPoints": "always" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": true, "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select captured_at as time, db_bytes as \"DB size\", storage_bytes as \"Storage\" from ops_db_size_history order by captured_at" } ]
     }
   ]
 }

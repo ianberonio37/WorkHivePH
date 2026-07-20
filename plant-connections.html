@@ -19,8 +19,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
-      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
-      --red: #f87171; --amber: #fb923c; --yellow: #facc15;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
+      --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber);
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
@@ -129,7 +129,7 @@
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
           <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
-          <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
+          <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
@@ -177,7 +177,7 @@
     function renderDenied() {
       document.getElementById('content').innerHTML = `
         <div class="denied">
-          <h2>Supervisor access only</h2>
+          <h2 data-i="pc_sup_only">Supervisor access only</h2>
           <p>Plant Connections is a supervisor surface for managing CMMS integrations, sensor topics, and gateway audits. Ask your hive supervisor to share the view if you need access.</p>
         </div>
       `;
@@ -389,7 +389,7 @@
       }
       return `
         <div class="action-card">
-          <div class="ac-label">What to do next</div>
+          <div class="ac-label" data-i="pc_whatnext">What to do next</div>
           <div class="ac-text">${escHtml(text)}</div>
         </div>
       `;
@@ -494,7 +494,7 @@
       const ai = r && r.ai_telemetry_retention_days != null ? r.ai_telemetry_retention_days + ' days' : '90 days';
       return `
         <div class="card">
-          <h3>Data retention</h3>
+          <h3 data-i="pc_data_retention">Data retention</h3>
           <p class="meta">PDPA evidence · daily cron at 12:00 PHT purges past retention</p>
           <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <tbody>
@@ -723,6 +723,13 @@
   });
 </script>
 
-<script>window.WH_FIL_PAGE = { pctitle: 'Mga Koneksyon' };</script>
+<script>window.WH_FIL_PAGE = {
+    pctitle: 'Mga Koneksyon',
+    pc_refresh_cta: '↻ I-refresh',                         // was marked but had NO dict entry -> stayed EN in FIL
+    pc_content_heading: 'Mga nakakonektang sistema',        // was marked but had NO dict entry -> stayed EN in FIL
+    pc_sup_only: 'Para sa supervisor lamang',
+    pc_whatnext: 'Ano ang susunod na gagawin',
+    pc_data_retention: 'Pag-iingat ng data',
+  };</script>
 </body>
 </html>

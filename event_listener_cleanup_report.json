@@ -1,33 +1,33 @@
 {
   "summary": {
     "pages_scanned": 29,
-    "risky_pages": 0,
-    "baseline": 0
+    "risky_pages": 4,
+    "baseline": 4
   },
   "per_page": [
     {
       "page": "index.html",
-      "add": 0,
+      "add": 25,
       "remove": 0,
-      "allowed": true
+      "risky": true
     },
     {
       "page": "hive.html",
-      "add": 0,
+      "add": 47,
       "remove": 0,
-      "allowed": true
+      "risky": true
     },
     {
       "page": "logbook.html",
-      "add": 0,
+      "add": 71,
       "remove": 0,
-      "allowed": true
+      "risky": true
     },
     {
       "page": "inventory.html",
-      "add": 0,
+      "add": 26,
       "remove": 0,
-      "allowed": true
+      "risky": true
     },
     {
       "page": "pm-scheduler.html",

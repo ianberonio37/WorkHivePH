@@ -1,0 +1,382 @@
+{
+  "generated_at": "2026-07-19T08:00:29.741Z",
+  "env": "local",
+  "cache": "warm-median",
+  "lcp_local_optimistic": true,
+  "base": "http://127.0.0.1:5000",
+  "viewport": {
+    "width": 390,
+    "height": 780
+  },
+  "runs_per_page": 3,
+  "limited": false,
+  "complete": true,
+  "thresholds": {
+    "lcp_ms": 2500,
+    "inp_ms": 200,
+    "cls": 0.1
+  },
+  "note": "Local Flask seeder, MOBILE viewport. lcp_ms = median of warm-cache runs (code-intrinsic render pipeline, isolates WorkHive from this machine's CDN latency). lcp_cold_ms = first-visit cold-cache LCP (dominated by the render-blocking Tailwind CDN fetch — a separate known perf item). Local LCP is optimistic vs PH-4G prod (a local pass is necessary-not-sufficient); true field CWV is Layer B.",
+  "pages": [
+    {
+      "surface": "analytics.html",
+      "url": "http://127.0.0.1:5000/workhive/analytics.html",
+      "lcp_ms": 216,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 324,
+      "transferKB": 177,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        348,
+        216,
+        192
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24
+      ]
+    },
+    {
+      "surface": "hive.html",
+      "url": "http://127.0.0.1:5000/workhive/hive.html",
+      "lcp_ms": 976,
+      "inp_ms": 32,
+      "inp_measured": true,
+      "cls": 0.017,
+      "lcp_cold_ms": 1052,
+      "transferKB": 314,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        968,
+        1256,
+        976
+      ],
+      "cls_samples": [
+        0.017,
+        0.018,
+        0.016
+      ],
+      "inp_samples": [
+        32,
+        56,
+        24
+      ]
+    },
+    {
+      "surface": "asset-hub.html",
+      "url": "http://127.0.0.1:5000/workhive/asset-hub.html",
+      "lcp_ms": 240,
+      "inp_ms": 176,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 320,
+      "transferKB": 205,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        240,
+        220,
+        296
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16,
+        336
+      ]
+    },
+    {
+      "surface": "engineering-design.html",
+      "url": "http://127.0.0.1:5000/workhive/engineering-design.html",
+      "lcp_ms": 896,
+      "inp_ms": 28,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 1348,
+      "transferKB": 46,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        896,
+        640,
+        1272
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0.029
+      ],
+      "inp_samples": [
+        24,
+        32
+      ]
+    },
+    {
+      "surface": "marketplace.html",
+      "url": "http://127.0.0.1:5000/workhive/marketplace.html",
+      "lcp_ms": 352,
+      "inp_ms": 40,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 356,
+      "transferKB": 171,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        352,
+        388,
+        260
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        40,
+        32,
+        40
+      ]
+    },
+    {
+      "surface": "analytics-report.html",
+      "url": "http://127.0.0.1:5000/workhive/analytics-report.html",
+      "lcp_ms": 112,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0.003,
+      "lcp_cold_ms": 236,
+      "transferKB": 95,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        104,
+        112,
+        184
+      ],
+      "cls_samples": [
+        0.003,
+        0.003,
+        0.003
+      ],
+      "inp_samples": [
+        16
+      ]
+    },
+    {
+      "surface": "ph-intelligence.html",
+      "url": "http://127.0.0.1:5000/workhive/ph-intelligence.html",
+      "lcp_ms": 164,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 248,
+      "transferKB": 34,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        164,
+        256,
+        104
+      ],
+      "cls_samples": [
+        0,
+        0.037,
+        0
+      ],
+      "inp_samples": [
+        48,
+        16,
+        16
+      ]
+    },
+    {
+      "surface": "ai-quality.html",
+      "url": "http://127.0.0.1:5000/workhive/ai-quality.html",
+      "lcp_ms": 308,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 716,
+      "transferKB": 36,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        464,
+        308,
+        280
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16
+      ]
+    },
+    {
+      "surface": "logbook.html",
+      "url": "http://127.0.0.1:5000/workhive/logbook.html",
+      "lcp_ms": 288,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 396,
+      "transferKB": 315,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        288,
+        396,
+        268
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24,
+        16,
+        24
+      ]
+    },
+    {
+      "surface": "inventory.html",
+      "url": "http://127.0.0.1:5000/workhive/inventory.html",
+      "lcp_ms": 280,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 312,
+      "transferKB": 132,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        236,
+        456,
+        280
+      ],
+      "cls_samples": [
+        0,
+        0.053,
+        0
+      ],
+      "inp_samples": [
+        32,
+        16
+      ]
+    },
+    {
+      "surface": "pm-scheduler.html",
+      "url": "http://127.0.0.1:5000/workhive/pm-scheduler.html",
+      "lcp_ms": 240,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 380,
+      "transferKB": 151,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        280,
+        220,
+        240
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16,
+        16
+      ]
+    },
+    {
+      "surface": "community.html",
+      "url": "http://127.0.0.1:5000/workhive/community.html",
+      "lcp_ms": 324,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0.015,
+      "lcp_cold_ms": 348,
+      "transferKB": 152,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        324,
+        344,
+        260
+      ],
+      "cls_samples": [
+        0.015,
+        0.015,
+        0.015
+      ],
+      "inp_samples": [
+        24,
+        48,
+        24
+      ]
+    },
+    {
+      "surface": "project-manager.html",
+      "url": "http://127.0.0.1:5000/workhive/project-manager.html",
+      "lcp_ms": 164,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 164,
+      "transferKB": 171,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        164,
+        128,
+        172
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "assistant.html",
+      "url": "http://127.0.0.1:5000/workhive/assistant.html",
+      "lcp_ms": 452,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 412,
+      "transferKB": 70,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        312,
+        452,
+        452
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    }
+  ]
+}

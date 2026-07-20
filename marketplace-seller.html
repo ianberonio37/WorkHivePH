@@ -49,21 +49,21 @@
       display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: var(--wh-orange);
     }
     .profile-info { flex: 1; min-width: 0; }
-    .profile-name { font-size: 1.1rem; font-weight: 800; margin: 0; }  /* D1 U1: promoted div→h1 (page's semantic title); reset h1 default margin */
+    .profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }  /* D1 U1: promoted div→h1 (page's semantic title); reset h1 default margin. Arc-W focal: ≥2.3× body (was 1.1rem/2.0×) */
     .profile-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
     .badge-tier { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
-    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #E8B27A; border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange); border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
     .badge-kyb { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(41,182,217,0.15); color: var(--wh-blue-light); border: 1px solid rgba(41,182,217,0.3); display: inline-flex; align-items: center; gap: 0.2rem; }
-    .badge-unverified { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+    .badge-unverified { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; background: rgba(251,191,36,0.1); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.25); }
 
     /* Profile stats grid */
     .profile-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.625rem; }
     .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: 0.625rem; padding: 0.625rem 0.35rem; }
     .pstat-num { font-size: 1.2rem; font-weight: 800; color: var(--wh-orange); }
     .pstat-num.blue { color: var(--wh-blue); }
-    .pstat-num.green { color: #4ade80; }
+    .pstat-num.green { color: var(--wh-green); }
     .pstat-lbl { font-size: 0.62rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
 
     /* Tabs */
@@ -71,11 +71,11 @@
     .tab-btn { flex: 1; padding: 0.55rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.3rem; min-height: 44px; }
     .tab-btn.active { background: linear-gradient(135deg, rgba(247,162,27,0.15), rgba(247,162,27,0.08)); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.25); }
     .tab-count { background: rgba(247,162,27,0.2); color: var(--wh-orange); border-radius: 999px; font-size: 0.6rem; padding: 0.1rem 0.4rem; font-weight: 700; }
-    .tab-count.red { background: rgba(248,113,113,0.2); color: #f87171; }
+    .tab-count.red { background: rgba(248,113,113,0.2); color: var(--wh-red); }
 
     /* Status filter chips */
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: #86929D; font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel #7B8794 (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(22,32,50,0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
+    .filter-chip { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(22,32,50,0.5); color: #86929D; font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.15s; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel var(--wh-steel) (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(22,32,50,0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
     .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange); }
 
     /* Listing items */
@@ -84,9 +84,9 @@
       background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65));
       border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; overflow: hidden;
     }
-    .listing-item.draft     { border-left: 3px solid #fbbf24; }
-    .listing-item.published { border-left: 3px solid #4ade80; }
-    .listing-item.removed   { border-left: 3px solid #f87171; opacity: 0.65; }
+    .listing-item.draft     { border-left: 3px solid var(--wh-orange); }
+    .listing-item.published { border-left: 3px solid var(--wh-green); }
+    .listing-item.removed   { border-left: 3px solid var(--wh-red); opacity: 0.65; }
     .listing-item.sold      { border-left: 3px solid var(--wh-blue); }
     .li-body { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem; }
     .li-thumb { width: 56px; height: 56px; border-radius: 0.5rem; flex-shrink: 0; background: rgba(42,61,88,0.8); display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden; }
@@ -96,16 +96,16 @@
     .li-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
     .meta-chip { padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.62rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08); }
     .meta-chip.gold   { background: rgba(247,162,27,0.1); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
-    .meta-chip.green  { background: rgba(74,222,128,0.1); color: #4ade80; border-color: rgba(74,222,128,0.2); }
-    .meta-chip.yellow { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: rgba(251,191,36,0.2); }
-    .meta-chip.red    { background: rgba(248,113,113,0.1); color: #f87171; border-color: rgba(248,113,113,0.2); }
+    .meta-chip.green  { background: rgba(74,222,128,0.1); color: var(--wh-green); border-color: rgba(74,222,128,0.2); }
+    .meta-chip.yellow { background: rgba(251,191,36,0.1); color: var(--wh-orange); border-color: rgba(251,191,36,0.2); }
+    .meta-chip.red    { background: rgba(248,113,113,0.1); color: var(--wh-red); border-color: rgba(248,113,113,0.2); }
     .meta-chip.blue   { background: rgba(41,182,217,0.1); color: var(--wh-blue); border-color: rgba(41,182,217,0.25); }
     .li-actions { display: flex; gap: 0.4rem; padding: 0.625rem 0.875rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.12); }
     .btn-sm { padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--wh-steel-bright); transition: background 0.15s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; }  /* radius 0.5rem=8px matches the press vocabulary (was 0.45rem=7px rogue → S1/R3); min-height 44px meets the tap target (Edit/View Live were 25px → F1/K2) */
     .btn-sm:hover { background: rgba(255,255,255,0.08); }
     .btn-sm.primary { background: rgba(247,162,27,0.1); border-color: rgba(247,162,27,0.25); color: var(--wh-orange); }
     .btn-sm.primary:hover { background: rgba(247,162,27,0.2); }
-    .btn-sm.danger { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: #f87171; }
+    .btn-sm.danger { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: var(--wh-red); }
     .btn-sm.danger:hover { background: rgba(248,113,113,0.16); }
     .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -141,8 +141,8 @@
     /* Toast */
     #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.82rem; font-weight: 600; z-index: 200; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; max-width: 90vw; }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.success { border-color: rgba(74,222,128,0.3); color: #4ade80; }
-    #toast.error   { border-color: rgba(248,113,113,0.3); color: #f87171; }
+    #toast.success { border-color: rgba(74,222,128,0.3); color: var(--wh-green); }
+    #toast.error   { border-color: rgba(248,113,113,0.3); color: var(--wh-red); }
     #toast.info    { border-color: rgba(41,182,217,0.3);  color: var(--wh-blue); }
 
     /* Bottom sheet */
@@ -188,7 +188,7 @@
 
 <!-- Auth gate -->
 <div id="auth-gate" role="alert">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  <span class="ic ic-bell" aria-hidden="true"></span>
   <h2>Sign In Required</h2>
   <p>You need to be signed in to view your seller dashboard.</p>
   <a href="index.html">Sign In</a>
@@ -197,6 +197,7 @@
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <main class="page" id="main-content">
+  <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 0.8-1.2 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2.25rem}</style>
 
   <!-- Profile card -->
   <div class="profile-card" id="profile-card">
@@ -211,7 +212,7 @@
   <p>Manage your listings, answer inquiries, and track views here. Verification badges raise buyer trust. There are no fees.</p>
 </details>
       <a href="marketplace.html" class="back-link" aria-label="Back to marketplace" style="font-size:0.72rem;color:var(--wh-steel-bright);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;min-height:44px;"><!-- D1 U2: back-link as a 44px tap target; .back-link so wayfinding recognizes it (no duplicate pill/CLS) + W1 credits it -->
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
         Browse
       </a>
     </div>
@@ -224,7 +225,7 @@
     <!-- Messenger handle input — buyers reach you via m.me/<handle> -->
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="#0084ff"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
+        <span class="ic ic-message" aria-hidden="true"></span>
         <strong style="font-size:0.82rem;">Facebook Messenger handle</strong>
       </div>
       <p style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
@@ -232,13 +233,13 @@
         <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" aria-label="Your Messenger handle" style="flex:1;font-size:1rem;" />
         <button id="btn-save-messenger" style="padding:0.6rem 1rem;border-radius:0.5rem;border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;min-height:44px;box-sizing:border-box;" data-i="save">Save</button>
       </div>
-      <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:#4ade80;"></div>
+      <div id="messenger-preview" style="display:none;margin-top:0.5rem;font-size:0.72rem;color:var(--wh-green);"></div>
     </div>
 
     <!-- Certifications input — admin verifies before the Certified badge shows -->
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        <span class="ic ic-star" aria-hidden="true"></span>
         <strong style="font-size:0.82rem;">Certifications</strong>
         <span id="cert-status-pill" style="margin-left:auto;font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
       </div>
@@ -253,17 +254,17 @@
   <!-- Tabs -->
   <div class="tab-bar" role="tablist">
     <button class="tab-btn active" data-tab="listings" role="tab" aria-selected="true">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span class="ic ic-list" aria-hidden="true"></span>
       <span class="lbl">Listings</span>
       <span class="tab-count" id="badge-listings">0</span>
     </button>
     <button class="tab-btn" data-tab="inquiries" role="tab" aria-selected="false">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span class="ic ic-message" aria-hidden="true"></span>
       <span class="lbl">Inquiries</span>
       <span class="tab-count red" id="badge-inquiries">0</span>
     </button>
     <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-label="Analytics"><!-- D1 U5: label hidden at mobile → needs aria-label (button-name) -->
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      <span class="ic ic-analytics" aria-hidden="true"></span>
       <span class="lbl">Analytics</span>
     </button>
   </div>
@@ -279,7 +280,7 @@
   <!-- Content -->
   <div id="content-area" class="item-list"></div>
   <div id="seller-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
+    <button onclick="loadMoreSeller()" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
   </div>
 </main>
 
@@ -290,7 +291,7 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-edit">Edit Listing</span>
     <button class="btn-close-sheet" id="btn-close-edit" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
   <form id="form-edit" novalidate>
@@ -338,14 +339,14 @@
       <div id="edit-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;">
         <input type="file" id="edit-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="edit-image-empty" style="color:var(--wh-steel-bright);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.4rem;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">Tap to add or replace photo</div>
+          <span class="ic ic-image" aria-hidden="true"></span>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add or replace photo</div>
           <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG/PNG/WebP up to 5MB</div>
         </div>
         <div id="edit-image-preview" style="display:none;">
           <img id="edit-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="edit-image-status" style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
+          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="edit-image-url" value="" />
@@ -467,7 +468,7 @@
       badgesEl.innerHTML = `
         <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
         ${_seller?.kyb_verified
-          ? `<span class="badge-kyb"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>ID Verified</span>`
+          ? `<span class="badge-kyb"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`
           : `<span class="badge-unverified">Verification Pending</span>`}`;
     }
 
@@ -477,7 +478,7 @@
     if (msgInput && _seller?.messenger_username) msgInput.value = _seller.messenger_username;
     if (msgPreview && _seller?.messenger_username) {
       msgPreview.style.display = 'block';
-      msgPreview.innerHTML = `Live: <a href="https://m.me/${e(_seller.messenger_username)}" target="_blank" rel="noopener" style="color:#4ade80;text-decoration:underline;">m.me/${e(_seller.messenger_username)}</a>`;
+      msgPreview.innerHTML = `Live: <a href="https://m.me/${e(_seller.messenger_username)}" target="_blank" rel="noopener" style="color:var(--wh-green);text-decoration:underline;">m.me/${e(_seller.messenger_username)}</a>`;
     }
 
     /* Pre-fill certifications input + status pill */
@@ -492,7 +493,7 @@
       } else if (_seller?.certifications) {
         certPill.textContent = 'Pending admin review';
         certPill.style.background = 'rgba(251,191,36,0.1)';
-        certPill.style.color = '#fbbf24';
+        certPill.style.color = '#f7a21b';
       }
     }
   }
@@ -590,11 +591,11 @@
 
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span class="ic ic-list" aria-hidden="true"></span>
         <h2>No listings yet</h2>
         <p>Post your first listing to start selling on WorkHive.</p>
         <a href="marketplace.html" class="btn-post-now">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span class="ic ic-post" aria-hidden="true"></span>
           Post a Listing
         </a>
       </div>`;
@@ -619,7 +620,7 @@
           <div class="li-thumb">
             ${item.image_url
               ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`
-              : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+              : `<span class="ic ic-image" aria-hidden="true"></span>`}
           </div>
           <div class="li-info">
             <div class="li-title">${e(item.title)}</div>
@@ -655,7 +656,7 @@
 
     if (!_inquiries.length) {
       area.innerHTML = `<div class="empty-state">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span class="ic ic-message" aria-hidden="true"></span>
         <h2 data-i="noinq">No inquiries yet</h2>
         <p>Buyers will appear here when they contact you about your listings.</p>
       </div>`;
@@ -674,7 +675,7 @@
           <div class="inq-listing">Re: ${e(listingTitle)}</div>
           <div class="inq-message">${e(inq.message)}</div>
           <div class="inq-contact">Contact buyer: <strong>${e(inq.buyer_contact || 'Not provided')}</strong></div>
-          ${inq.reply_text ? `<div style="font-size:0.72rem;color:#4ade80;padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
+          ${inq.reply_text ? `<div style="font-size:0.72rem;color:var(--wh-green);padding:0.4rem 0.625rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
           ${!isReplied ? `
             <div class="reply-area">
               <textarea class="reply-textarea" placeholder="Type your reply… (optional, you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
@@ -682,7 +683,7 @@
                 <button class="btn-sm primary" data-action="reply" data-id="${e(inq.id)}">Send Reply + Mark Replied</button>
                 <button class="btn-sm" data-action="close" data-id="${e(inq.id)}">Close</button>
               </div>
-            </div>` : `<span style="font-size:0.7rem;color:#4ade80;">Replied ${e(timeAgo(inq.replied_at))}</span>`}
+            </div>` : `<span style="font-size:0.7rem;color:var(--wh-green);">Replied ${e(timeAgo(inq.replied_at))}</span>`}
         </div>`;
     }).join('');
 
@@ -1050,7 +1051,7 @@
     const respColor =
       myAvgH == null ? '#7B8794'
         : platformAvgH == null ? '#F7A21B'
-          : myAvgH <= platformAvgH ? '#4ade80' : '#fbbf24';
+          : myAvgH <= platformAvgH ? '#4ade80' : '#f7a21b';
     const respCmp =
       myAvgH == null ? 'No replies yet'
         : platformAvgH == null ? 'Your average'
@@ -1094,7 +1095,7 @@
       <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;">Listing Performance</div>`;
 
     if (!myListings.length) {
-      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.6rem;padding:0.45rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;cursor:pointer;">Post a Listing →</button></div>`;
+      html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.6rem;padding:0.45rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;cursor:pointer;">Post a Listing →</button></div>`;
     } else {
       const sorted = [...myListings].sort((a, b) => Number(b.view_count || 0) - Number(a.view_count || 0));
       html += `<div style="display:flex;flex-direction:column;gap:0.5rem;">`;
@@ -1113,8 +1114,8 @@
             </div>
             <div style="display:flex;gap:0.875rem;text-align:right;">
               <div><div style="font-size:0.95rem;font-weight:700;">${views}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">VIEWS</div></div>
-              <div><div style="font-size:0.95rem;font-weight:700;color:#29B6D9;">${inq}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">INQUIRIES</div></div>
-              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? '#4ade80' : '#7B8794'};">${views ? conv + '%' : '-'}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">CONV</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:var(--wh-blue);">${inq}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">INQUIRIES</div></div>
+              <div><div style="font-size:0.95rem;font-weight:700;color:${conv >= 5 ? 'var(--wh-green)' : 'var(--wh-steel)'};">${views ? conv + '%' : '-'}</div><div style="font-size:0.6rem;color:var(--wh-steel-bright);">CONV</div></div>
             </div>
           </div>`;
       });
@@ -1160,7 +1161,7 @@
       if (preview) {
         if (raw) {
           preview.style.display = 'block';
-          preview.innerHTML = `Live: <a href="https://m.me/${escHtml(raw)}" target="_blank" rel="noopener" style="color:#4ade80;text-decoration:underline;">m.me/${escHtml(raw)}</a>`;
+          preview.innerHTML = `Live: <a href="https://m.me/${escHtml(raw)}" target="_blank" rel="noopener" style="color:var(--wh-green);text-decoration:underline;">m.me/${escHtml(raw)}</a>`;
         } else {
           preview.style.display = 'none';
         }
@@ -1216,7 +1217,7 @@
         if (normalized) {
           pill.textContent = 'Pending admin review';
           pill.style.background = 'rgba(251,191,36,0.1)';
-          pill.style.color = '#fbbf24';
+          pill.style.color = '#f7a21b';
         } else {
           pill.textContent = 'Not verified';
           pill.style.background = 'rgba(255,255,255,0.06)';

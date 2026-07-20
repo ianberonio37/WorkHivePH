@@ -81,7 +81,9 @@ BEGIN
       'ai_reply_feedback', 'agentic_rag_traces',  -- P3 AI-observability pages
       'hives',                                     -- G2 Founder-Home $hive template variable
       -- G4 DB & Security Health drill-down (auth signals):
-      'login_attempts', 'auth_session_events', 'ai_rate_limits', 'ai_user_rate_limits'
+      'login_attempts', 'auth_session_events', 'ai_rate_limits', 'ai_user_rate_limits',
+      -- G4.4b DB-size trend history:
+      'ops_db_size_history'
     ] LOOP
       IF EXISTS (SELECT 1 FROM information_schema.tables
                  WHERE table_schema = 'public' AND table_name = t) THEN

@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>WorkHive Promo · The Hive Connects Everything</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="poster-kit.css">
+<style>
+  .blob.a{left:-220px;bottom:-260px;opacity:.75}
+  .blob.c{right:120px;top:-320px;opacity:.7}
+  .vignette{background:radial-gradient(120% 120% at 66% 46%,transparent 42%,rgba(5,9,18,.62) 100%)}
+  .spot{left:820px;top:150px;width:600px;height:600px}
+  .connect{position:absolute;inset:0;z-index:3;pointer-events:none}
+  .connect line{stroke:rgba(41,182,246,.24);stroke-width:2;stroke-dasharray:2 9;stroke-linecap:round}
+
+  .rail{position:absolute;left:82px;top:150px;width:452px;z-index:8}
+  .rail .wh-logo{height:70px}
+  .rail .eyebrow{margin-top:30px}
+  .rail .h1{font-size:58px;margin-top:20px}
+  .rail .lede{font-size:19px;margin-top:18px;max-width:430px}
+  .rail .cta{margin-top:32px}
+  .rail .url{margin-top:16px}
+
+  .cell{width:104px;height:116px}
+  .beeaura{right:150px;bottom:64px;width:300px;height:300px}
+  .bee{right:64px;bottom:14px;width:300px;height:338px;z-index:30}
+</style></head>
+<body>
+<div class="poster" id="poster">
+  <div class="hivebg" data-hex="52" data-op="0.06"></div>
+  <div class="blob a"></div><div class="blob c"></div>
+  <div class="spot"></div>
+
+  <svg class="connect" viewBox="0 0 1600 900">
+    <line x1="1060" y1="470" x2="742" y2="256"/>
+    <line x1="1060" y1="470" x2="812" y2="126"/>
+    <line x1="1060" y1="470" x2="1052" y2="96"/>
+    <line x1="1060" y1="470" x2="712" y2="486"/>
+    <line x1="1060" y1="470" x2="772" y2="696"/>
+    <line x1="1060" y1="470" x2="1412" y2="176"/>
+  </svg>
+
+  <div class="rail">
+    <img class="wh-logo" src="../brand_assets/workhive-logo-tight.png" alt="WorkHive"/>
+    <span class="eyebrow"><span class="dot"></span>ONE PLATFORM · EVERY TOOL</span>
+    <h1 class="h1">Every maintenance tool.<br><span class="cyan">One hive.</span></h1>
+    <p class="lede">Logbook, PM, parts, calculators, alerts, and an AI assistant — every cell of your plant floor, together.</p>
+    <a class="cta" href="#">Start free in your browser
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <div class="url"><b>workhiveph.com</b> · No download.</div>
+  </div>
+
+  <!-- support phone (demoted, behind-right) -->
+  <div class="phone" style="width:250px;left:1184px;top:184px;transform:rotate(6deg);z-index:11">
+    <div class="screen"><div class="notch"></div><img src="../wh_logbook_clean.png" alt=""><div class="glare"></div></div>
+  </div>
+  <!-- HERO phone (P1) -->
+  <div class="phone" style="width:330px;left:892px;top:150px;z-index:14">
+    <div class="screen"><div class="notch"></div><img src="../wh_home_clean.png" alt=""><div class="glare"></div></div>
+  </div>
+  <div class="vignette"></div>
+
+  <!-- floating hex tool-cells — subordinate ring on the open left/top -->
+  <div class="cell" style="left:690px;top:200px"><span class="ring"></span>
+    <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="nm">Logbook</span></div>
+  <div class="cell c" style="left:760px;top:70px"><span class="ring"></span>
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m8.5 15 2 2 4-4"/></svg><span class="nm">PM</span></div>
+  <div class="cell" style="left:1000px;top:40px"><span class="ring"></span>
+    <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="nm">Alerts</span></div>
+  <div class="cell c" style="left:660px;top:432px"><span class="ring"></span>
+    <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v4M8 19h4"/></svg><span class="nm">Calc</span></div>
+  <div class="cell" style="left:722px;top:648px"><span class="ring"></span>
+    <svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/></svg><span class="nm">AI</span></div>
+  <div class="cell c" style="left:1360px;top:118px"><span class="ring"></span>
+    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg><span class="nm">Parts</span></div>
+
+  <div class="beeaura"></div>
+  <svg class="bee"><use href="#bee-mascot"/></svg>
+</div>
+<script src="bee.js"></script><script src="hive.js"></script>
+</body></html>

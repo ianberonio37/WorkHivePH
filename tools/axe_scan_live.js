@@ -51,8 +51,11 @@ const PAGES = [
 ];
 
 // Seeded supervisor of the test hive (same identity the live deep-walk uses).
+// HIVE_ID fixed 2026-07-19: was the STALE fixture 9b4eaeac (leandromarquez is NOT a member → RLS returned
+// 0 rows → the gate scanned EMPTY pages, missing populated-content a11y). His real hive is 636cf7e8 (the
+// same stale-hive the page-crud/live gates already pin via WH_TEST_HIVE). Now scans REAL rendered content.
 const SUPERVISOR = 'leandromarquez';
-const HIVE_ID    = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+const HIVE_ID    = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6';
 const HIVE_NAME  = 'Baguio Textile Mills';
 const WORKER     = 'Leandro Marquez';
 const WCAG_TAGS  = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];

@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:522-files
-source_sha: d3be5ec2ecc4b93f
+source: memory-curated:526-files
+source_sha: 3c1804f70763e0d4
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (522 durable topic files)
+## memory · curated auto-memory (526 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=150 · project=285 · reference=87
+**By type:** feedback=153 · project=285 · reference=88
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -34,6 +34,7 @@ Entries (name · type · sha):
 - `feedback_canonical_view_reachability` · feedback · 15168eef96b382a8
 - `feedback_catalog_tables` · feedback · 4c50b33390fe8e49
 - `feedback_centralized_design_not_per_page` · feedback · 78846f41922c27f5
+- `feedback_centralized_icon_library_emoji_first` · feedback · c09e4df4b4f280a0
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
 - `feedback_commit_workflow` · feedback · 0569ad290e0e5fd3
@@ -88,6 +89,7 @@ Entries (name · type · sha):
 - `feedback_local_supabase_rewrite` · feedback · a970d46ace63fba7
 - `feedback_lower_cards_rubric_applied_and_verified` · feedback · 071ce814e4717d4c
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
+- `feedback_marketplace_trust_forge_verified_only` · feedback · ce22a69bb392017c
 - `feedback_measure_the_worked_state_not_the_generator` · feedback · 5242b6458d5c3110
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
 - `feedback_memento_visible_confirmation` · feedback · e015e662599822a1
@@ -106,6 +108,7 @@ Entries (name · type · sha):
 - `feedback_no_typescript_in_html` · feedback · 95979ad5bab35b5e
 - `feedback_oc_guard_on_view_needs_updated_at_on_view` · feedback · edc9866a7cff3ba6
 - `feedback_offer_to_continue_is_the_stop` · feedback · b9cad11d0f1225f5
+- `feedback_onconflict_needs_matching_unique_index` · feedback · a6de5121733f730a
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
 - `feedback_pandas_iso8601_silent_99pct_data_loss` · feedback · e33cd3b6a8e29c62
 - `feedback_pasted_keys_in_docs_leak_scanner_blindspot` · feedback · f48a9c2ba719f44c
@@ -121,7 +124,7 @@ Entries (name · type · sha):
 - `feedback_production_fixes_log` · feedback · 88ce8203d05a21f5
 - `feedback_proposal_first_ux_mockup_loop` · feedback · b63fd33f3c5501e4
 - `feedback_provenance_user_voice_not_internals` · feedback · d625e82bd6e7f509
-- `feedback_pyapi_validators_fail_in_gate_pass_standalone` · feedback · 8861d1fef9342d7d
+- `feedback_pyapi_validators_fail_in_gate_pass_standalone` · feedback · 182a585703d7273d
 - `feedback_pygame_wmi_hang` · feedback · f4bfb92b4be3af86
 - `feedback_python_ai_chain_mirror` · feedback · 5e8b12c240ad4544
 - `feedback_python_heredoc_eats_js_regex_boundaries` · feedback · 6c80e158353cfacf
@@ -513,9 +516,6 @@ Entries (name · type · sha):
 - `reference_pattern_catalog` · reference · 66f667d2d1e2c828
 - `reference_per_page_bughunt_roadmap` · reference · 4904a28b3e6dee39
 - `reference_persistence_doctrine` · reference · 9ef508fb20b7c80c
-- `reference_platform_deepwalk_flywheel_roadmap` · reference · f16d8d0e85dc0b5e
-- `reference_platform_roadmap` · reference · 3a5772ba3cb6d192
-- `reference_playwright_journey_recorder_gotchas` · reference · d62f7d64fc1c9dbf
-- … +22 more (all included in the fingerprint)
+- … +26 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

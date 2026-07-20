@@ -119,8 +119,8 @@
       font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
     }
     .crit-low      { background: rgba(180,180,180,0.18); color: #d6dbe3; }
-    .crit-medium   { background: rgba(41,182,217,0.18);  color: #6ed6f0; }
-    .crit-high     { background: rgba(247,162,27,0.20);  color: #ffc566; }
+    .crit-medium   { background: rgba(41,182,217,0.18);  color: var(--wh-blue); }
+    .crit-high     { background: rgba(247,162,27,0.20);  color: var(--wh-orange); }
     .crit-critical { background: rgba(239,87,87,0.22);   color: var(--wh-red-text); }
 
     /* Empty state */
@@ -187,7 +187,7 @@
     .live-chip {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 3px 9px; border-radius: 999px;
-      background: rgba(74,222,128,0.12); color: #6ee7a8;
+      background: rgba(74,222,128,0.12); color: var(--wh-green);
       font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
       border: 1px solid rgba(74,222,128,0.25);
     }
@@ -211,7 +211,7 @@
     .mk-section-pill {
       display: inline-block; padding: 1px 7px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      background: rgba(41,182,217,0.18); color: #6ed6f0; margin-right: 6px;
+      background: rgba(41,182,217,0.18); color: var(--wh-blue); margin-right: 6px;
     }
 
     /* External IDs */
@@ -249,7 +249,7 @@
       cursor: pointer;
       font-family: inherit;
     }
-    .rel-tab.active   { background: rgba(167,139,250,0.18); color: #a78bfa; border-color: rgba(167,139,250,0.45); }
+    .rel-tab.active   { background: rgba(167,139,250,0.18); color: var(--wh-violet); border-color: rgba(167,139,250,0.45); }
     .rel-tab[disabled] { opacity: 0.45; cursor: not-allowed; }
     /* FMEA mode + RCM strategy strip action buttons (Approve/Delete/Edit/Set
        strategy/Push to PM) — rendered inline; ensure a ≥44px tap target. */
@@ -269,10 +269,10 @@
       font-size: 0.75rem; font-weight: 800;
       padding: 2px 8px; border-radius: var(--wh-radius-sm); min-width: 36px; text-align: center;
     }
-    .fmea-rpn-low      { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
-    .fmea-rpn-medium   { background: rgba(247,162,27,0.18);  color: #ffc566; }
-    .fmea-rpn-high     { background: rgba(251,146,60,0.20);  color: #ffb072; }
-    .fmea-rpn-critical { background: rgba(239,87,87,0.22);   color: #ff8a8a; }
+    .fmea-rpn-low      { background: rgba(74,222,128,0.18);  color: var(--wh-green); }
+    .fmea-rpn-medium   { background: rgba(247,162,27,0.18);  color: var(--wh-orange); }
+    .fmea-rpn-high     { background: rgba(251,146,60,0.20);  color: var(--wh-orange); }
+    .fmea-rpn-critical { background: rgba(239,87,87,0.22);   color: var(--wh-red); }
     .fmea-sod {
       display: inline-flex; gap: 4px; font-size: 0.62rem; color: rgba(255,255,255,0.62);
     }
@@ -285,8 +285,8 @@
     }
     .fmea-source-manual    { background: rgba(255,255,255,0.06); color: var(--muted); }
     .fmea-source-ai        { background: rgba(167,139,250,0.18); color: #c7b6fb; }
-    .fmea-status-pending   { background: rgba(247,162,27,0.18); color: #ffc566; }
-    .fmea-status-approved  { background: rgba(74,222,128,0.16); color: #6ee7a8; }
+    .fmea-status-pending   { background: rgba(247,162,27,0.18); color: var(--wh-orange); }
+    .fmea-status-approved  { background: rgba(74,222,128,0.16); color: var(--wh-green); }
     .fmea-row-actions {
       display: flex; gap: 6px; margin-top: 2px;
     }
@@ -295,8 +295,8 @@
       background: rgba(255,255,255,0.05); border: 1px solid var(--border);
       color: var(--wh-cloud); cursor: pointer; font-family: inherit;
     }
-    .fmea-row-actions .approve { background: rgba(74,222,128,0.16); color: #6ee7a8; border-color: rgba(74,222,128,0.3); }
-    .fmea-row-actions .delete  { background: rgba(239,87,87,0.14);  color: #ff8a8a; border-color: rgba(239,87,87,0.3); }
+    .fmea-row-actions .approve { background: rgba(74,222,128,0.16); color: var(--wh-green); border-color: rgba(74,222,128,0.3); }
+    .fmea-row-actions .delete  { background: rgba(239,87,87,0.14);  color: var(--wh-red); border-color: rgba(239,87,87,0.3); }
 
     /* Phase R.4 — RCM strategy strip below each FMEA row */
     .rcm-strip {
@@ -311,14 +311,14 @@
       text-transform: lowercase;
     }
     .rcm-decision-run_to_failure         { background: rgba(255,255,255,0.06); color: var(--muted); }
-    .rcm-decision-scheduled_on_condition { background: rgba(56,189,248,0.18);  color: #7dd3fc; }
-    .rcm-decision-scheduled_restoration  { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
-    .rcm-decision-scheduled_discard      { background: rgba(247,162,27,0.18);  color: #ffc566; }
+    .rcm-decision-scheduled_on_condition { background: rgba(56,189,248,0.18);  color: var(--wh-blue); }
+    .rcm-decision-scheduled_restoration  { background: rgba(74,222,128,0.18);  color: var(--wh-green); }
+    .rcm-decision-scheduled_discard      { background: rgba(247,162,27,0.18);  color: var(--wh-orange); }
     .rcm-decision-failure_finding        { background: rgba(167,139,250,0.20); color: #c7b6fb; }
-    .rcm-decision-redesign_required      { background: rgba(239,87,87,0.20);   color: #ff8a8a; }
+    .rcm-decision-redesign_required      { background: rgba(239,87,87,0.20);   color: var(--wh-red); }
     .rcm-task-text  { color: rgba(255,255,255,0.78); }
     .rcm-interval   { color: var(--muted); font-size: 0.65rem; }
-    .rcm-pm-linked  { color: #6ee7a8; font-size: 0.62rem; }
+    .rcm-pm-linked  { color: var(--wh-green); font-size: 0.62rem; }
     .rcm-no-strategy { color: var(--muted); font-style: italic; font-size: 0.66rem; }
 
     /* Phase R.5 — Weibull pattern pill colors (bathtub regions) */
@@ -328,9 +328,9 @@
       text-transform: lowercase;
       background: rgba(255,255,255,0.06); color: var(--muted);
     }
-    .weibull-pattern-infant   { background: rgba(56,189,248,0.20);  color: #7dd3fc; }
+    .weibull-pattern-infant   { background: rgba(56,189,248,0.20);  color: var(--wh-blue); }
     .weibull-pattern-random   { background: rgba(167,139,250,0.20); color: #c7b6fb; }
-    .weibull-pattern-wearout  { background: rgba(247,162,27,0.20);  color: #ffc566; }
+    .weibull-pattern-wearout  { background: rgba(247,162,27,0.20);  color: var(--wh-orange); }
 
     /* Arc Y Y4 — inline WORKED EXAMPLE: a novice reads the number, not the acronym.
        Always-visible (not a hover tooltip — field phones have no hover); lives inside
@@ -388,11 +388,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -429,11 +429,12 @@
        hive gate hides it on failure. Reserving its layout at first paint avoids the
        ~1.0 CLS of a display:none -> block reveal inside init() (Arc L L1). -->
   <div id="page-wrap" class="page-wrap">
+    <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 1.18 → ≥1.5) */ #page-wrap > *:not(:last-child){margin-bottom:2rem}</style>
 
     <!-- Header -->
     <div class="page-header">
       <a href="hive.html" class="back-btn" aria-label="Back">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div>
         <h1 class="page-title" id="page-title" translate="no">Asset Hub</h1>
@@ -498,12 +499,8 @@
         <input aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
         <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
         <button id="scan-btn" type="button" aria-label="Scan equipment tag with camera"
-                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
-            <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
-            <line x1="7" y1="12" x2="17" y2="12"/>
-          </svg>
+                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
+          <span class="ic ic-scan" aria-hidden="true"></span>
           <span class="scan-btn-label" data-i="scan">Scan</span>
         </button>
       </div>
@@ -511,17 +508,17 @@
       <div id="list-empty" class="empty empty-state" style="display:none;">
         No approved assets in this hive yet. Add equipment and it surfaces here once approved.
         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
-          <a href="pm-scheduler.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>
-          <a href="inventory.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;font-weight:600;text-decoration:none;">+ Add via Inventory</a>
+          <a href="pm-scheduler.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>
+          <a href="inventory.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);font-weight:600;text-decoration:none;">+ Add via Inventory</a>
         </div>
       </div>
       <div id="asset-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-        <button onclick="loadMoreAssets()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+        <button onclick="loadMoreAssets()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
       </div>
 
       <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
            no pending or rejected entries; expanded inline when there are. -->
-      <div id="pending-assets-card" class="section-card" style="display:none; border-left:3px solid #f7a21b; margin-top:1rem;">
+      <div id="pending-assets-card" class="section-card" style="display:none; border-left:3px solid var(--wh-orange); margin-top:1rem;">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
           <h2 data-i="pendingapprovals" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Pending asset approvals</h2>
           <span id="pending-assets-count" style="font-size:.7rem; color:var(--muted); background:rgba(247,162,27,0.18); padding:2px 8px; border-radius:8px;"></span>
@@ -549,7 +546,7 @@
           <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
           <!-- Generate the scannable tag (the other half of the scan loop) -->
           <button type="button" id="detail-qr-btn" aria-label="Print a scannable QR tag for this asset"
-            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
+            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
           <!-- Cross-page connectivity (ASSET_ALERT_SHIFT): complete the asset<->alert loop —
                emit alert-hub.html?asset=<tag>, which alert-hub reads (F4) to focus this asset. -->
           <a id="detail-alerts-link" href="#" aria-label="View this asset's alerts in Alert Hub"
@@ -615,7 +612,7 @@
       </div>
 
       <!-- Phase ML-2: Predictive Parts Auto-Staging — recommends parts to pre-stage before failure -->
-      <div class="section-card" id="staging-card" style="display:none; border-left:3px solid #fb923c;">
+      <div class="section-card" id="staging-card" style="display:none; border-left:3px solid var(--wh-orange);">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
           <span>Recommended Parts to Stage</span>
           <span id="staging-confidence" style="font-size:.7rem; color:var(--muted); background:#fb923c22; padding:2px 8px; border-radius:8px;"></span>
@@ -623,7 +620,7 @@
         <p id="staging-rationale" style="font-size:.78rem; color:var(--muted); margin:6px 0 12px;"></p>
         <div id="staging-parts" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
         <div style="display:flex; gap:8px;">
-          <button id="staging-accept" class="btn-primary" data-i="stagesel" style="flex:1; min-height:44px; background:#fb923c; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
+          <button id="staging-accept" class="btn-primary" data-i="stagesel" style="flex:1; min-height:44px; background:var(--wh-orange); color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
           <button id="staging-dismiss" class="btn-secondary" data-i="dismiss" style="min-height:44px; padding:0 14px; background:transparent; color:var(--muted); border:1px solid #333; border-radius:6px; cursor:pointer;">Dismiss</button>
         </div>
       </div>
@@ -636,12 +633,12 @@
               style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 14px; background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.3); color:#c7b6fb; font-size:.74rem; font-weight:700; cursor:pointer;"
               aria-expanded="false" aria-controls="reliability-card" data-i="showworkbench">&#128295; Show Reliability Workbench (engineer view)</button>
       <!-- Phase R.2: Reliability Engineering Workbench (FMEA / RCM / Weibull / P-F) -->
-      <div class="section-card" id="reliability-card" style="display:none; border-left:3px solid #a78bfa;">
+      <div class="section-card" id="reliability-card" style="display:none; border-left:3px solid var(--wh-violet);">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
           <span>Reliability</span>
           <div style="display:flex; align-items:center; gap:8px;">
             <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 14px; background:rgba(167,139,250,0.18); border-color:rgba(167,139,250,0.35); color:#c7b6fb; font-size:.72rem;" title="Print-ready Reliability Report (Phase R.7): assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document." data-i="printreport">Print Report</button>
-            <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#a78bfa;">SAE JA1011 / AIAG-VDA</span>
+            <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-violet);">SAE JA1011 / AIAG-VDA</span>
           </div>
         </div>
         <div class="reliability-tabs" role="tablist" style="display:flex; gap:4px; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.4rem;">
@@ -688,7 +685,7 @@
             No Weibull fit computed yet. Tap below to fit from the last 730 days of corrective logbook entries (lifelines.WeibullFitter).
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
-            <button id="weibull-fit-btn" class="add-edge-btn" data-i="computeweibull" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute Weibull fit</button>
+            <button id="weibull-fit-btn" class="add-edge-btn" data-i="computeweibull" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:var(--wh-blue);">Compute Weibull fit</button>
           </div>
           <div id="weibull-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
@@ -698,20 +695,20 @@
           <p class="rel-worked-example"><span class="rwe-tag">Example</span>Vibration starts rising <b>14 days</b> before a bearing seizes, so the <b>P-F window = 14 days</b>. Inspect at <b>half the window = every 7 days</b> so at least one check always lands inside the warning period. <b>Guidance:</b> set the inspection interval to P-F &divide; 2; for safety-critical assets use P-F &divide; 3 (here, every ~5 days). Too long an interval and you miss the warning; too short wastes labour.</p>
           <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.55rem;">
             <label for="pf-parameter" data-i="parameter" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
-            <select id="pf-parameter" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;"></select>
+            <select id="pf-parameter" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;"></select>
             <div style="display:flex; gap:8px;">
               <div style="flex:1;">
                 <label for="pf-p-threshold" data-i="pwarning" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
-                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
+                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
               </div>
               <div style="flex:1;">
                 <label for="pf-f-threshold" data-i="ffailure" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
-                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.6rem; font-size:16px;" />
+                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <label for="pf-direction" data-i="direction" style="font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
-              <select id="pf-direction" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#F4F6FA; padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
+              <select id="pf-direction" style="height:44px; border-radius:0.45rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
                 <option value="above">above (rising = bad)</option>
                 <option value="below">below (falling = bad)</option>
               </select>
@@ -743,7 +740,7 @@
             Set thresholds and tap Compute to scan sensor readings from corrective logbook entries.
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem;">
-            <button id="pf-compute-btn" class="add-edge-btn" data-i="computepf" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:#7dd3fc;">Compute P-F interval</button>
+            <button id="pf-compute-btn" class="add-edge-btn" data-i="computepf" style="flex:1; min-height:44px; background:rgba(56,189,248,0.18); border-color:rgba(56,189,248,0.35); color:var(--wh-blue);">Compute P-F interval</button>
           </div>
           <div id="pf-status" style="font-size:0.72rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>
@@ -755,11 +752,11 @@
            Telemetry tile so a worker arriving at the page can't miss it.
            Closes the "anomaly buried in the per-parameter Z-score chip"
            gap from the post-Wave-B audit. -->
-      <div class="section-card" id="sensor-anomaly-banner" style="display:none; border-left:3px solid #f87171; background:rgba(248,113,113,0.06);">
+      <div class="section-card" id="sensor-anomaly-banner" style="display:none; border-left:3px solid var(--wh-red); background:rgba(248,113,113,0.06);">
         <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:36px; height:36px; border-radius:50%; background:rgba(248,113,113,0.16); color:#f87171; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; flex-shrink:0;">!</div>
+          <div style="width:36px; height:36px; border-radius:50%; background:rgba(248,113,113,0.16); color:var(--wh-red); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
-            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#f87171; margin:0 0 2px;">Sensor Anomaly Detected</p>
+            <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-red); margin:0 0 2px;">Sensor Anomaly Detected</p>
             <p id="sensor-anomaly-headline" style="font-size:.88rem; font-weight:700; color:var(--text); margin:0;"></p>
             <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.62); margin:3px 0 0;"></p>
           </div>
@@ -767,10 +764,10 @@
       </div>
 
       <!-- Live Telemetry (Physical AI Wave B1) — populated when sensor_readings exist for this asset -->
-      <div class="section-card" id="telemetry-card" style="display:none; border-left:3px solid #29B6D9;">
+      <div class="section-card" id="telemetry-card" style="display:none; border-left:3px solid var(--wh-blue);">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
           <span>Live Telemetry</span>
-          <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#29B6D9;">MQTT / OPC-UA</span>
+          <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-blue);">MQTT / OPC-UA</span>
         </div>
         <div id="telemetry-list" style="display:flex; flex-direction:column; gap:6px;"></div>
         <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
@@ -808,7 +805,7 @@
         </div>
         <div style="display:flex;gap:0.5rem;">
           <input aria-label="When did this asset last fail? Why?" id="ask-input" class="search-input" type="text" placeholder="When did this asset last fail? Why?" maxlength="500" />
-          <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),#FDB94A);color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
+          <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),var(--wh-orange-light));color:var(--navy-wh);border:none;font-weight:700;padding:0 14px;">Ask</button>
         </div>
         <div id="ask-output" style="margin-top:0.85rem;display:none;">
           <div id="ask-answer" style="font-size:0.88rem;line-height:1.5;"></div>
@@ -984,8 +981,8 @@
       const r = _riskByAsset[(n.tag || '').toLowerCase()] || _riskByAsset[(n.name || '').toLowerCase()];
       if (!r || !r.risk_level) return '';
       const lvl = String(r.risk_level).toLowerCase();
-      const col = { critical: '#ef4444', high: '#f97316', medium: '#facc15', low: '#4ade80' }[lvl] || '#9aa6b3';
-      const txt = { critical: '#FCA5A5', high: '#FDBA74', medium: '#FDE047', low: '#86EFAC' }[lvl] || '#c3ccd6';
+      const col = { critical: '#f87171', high: '#f7a21b', medium: '#facc15', low: '#4ade80' }[lvl] || '#9aa6b3';
+      const txt = { critical: '#FCA5A5', high: '#f7a21b', medium: '#facc15', low: '#4ade80' }[lvl] || '#c3ccd6';
       const pct = r.risk_score != null ? ' ' + Math.round(Number(r.risk_score) * 100) + '%' : '';
       return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:.18rem .5rem;border-radius:999px;background:${col}22;color:${txt};border:1px solid ${col}66;white-space:nowrap;">${escHtml(lvl)} risk${pct}</span>`;
     }
@@ -1219,8 +1216,8 @@
       if (count) count.textContent = `${nPending} pending` + (nRejected ? ` · ${nRejected} rejected` : '');
       list.innerHTML = _pendingNodes.map(n => {
         const statusPill = n.status === 'pending'
-          ? '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(247,162,27,0.18); color:#ffc566;">pending</span>'
-          : '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(239,87,87,0.16); color:#ff8a8a;">rejected</span>';
+          ? '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(247,162,27,0.18); color:var(--wh-orange);">pending</span>'
+          : '<span style="font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(239,87,87,0.16); color:var(--wh-red);">rejected</span>';
         const submittedBy = n.submitted_by ? `<span style="font-size:.65rem; color:var(--muted);">by ${e(n.submitted_by)}</span>` : '';
         return `<div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:0.55rem; padding:0.55rem 0.75rem; display:flex; flex-direction:column; gap:5px;">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -1232,10 +1229,10 @@
           ${n.location ? '<div style="font-size:.7rem; color:var(--muted);">' + e(n.location) + '</div>' : ''}
           <div style="display:flex; gap:6px; margin-top:2px;">
             ${n.status === 'pending' ? `
-              <button class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(74,222,128,0.16); color:#6ee7a8; border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit;">Approve</button>
-              <button class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(239,87,87,0.14); color:#ff8a8a; border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit;">Reject</button>
+              <button class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(74,222,128,0.16); color:var(--wh-green); border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit;">Approve</button>
+              <button class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(239,87,87,0.14); color:var(--wh-red); border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit;">Reject</button>
             ` : `
-              <button class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(255,255,255,0.05); color:#F4F6FA; border:1px solid var(--border); cursor:pointer; font-family:inherit;">Restore to pending</button>
+              <button class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(255,255,255,0.05); color:var(--wh-cloud); border:1px solid var(--border); cursor:pointer; font-family:inherit;">Restore to pending</button>
             `}
           </div>
         </div>`;
@@ -1336,8 +1333,8 @@
           // (static strings only - no user data - so innerHTML is safe here).
           empty.innerHTML = 'No approved assets in this hive yet. Add equipment and it surfaces here once approved.'
             + '<div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">'
-            + '<a href="pm-scheduler.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>'
-            + '<a href="inventory.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;font-weight:600;text-decoration:none;">+ Add via Inventory</a>'
+            + '<a href="pm-scheduler.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>'
+            + '<a href="inventory.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);font-weight:600;text-decoration:none;">+ Add via Inventory</a>'
             + '</div>';
         }
         if (lmWrap) lmWrap.classList.add('hidden');
@@ -1637,7 +1634,7 @@
       // Color + label per risk level
       const levelColor = {
         critical: '#f87171',
-        high:     '#fb923c',
+        high:     '#f7a21b',
         medium:   '#facc15',
         low:      '#4ade80',
       }[row.risk_level] || '#facc15';
@@ -1702,7 +1699,7 @@
             return ''
               + '<div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:7px;">'
               +   '<div style="display:flex; align-items:center; gap:8px;">'
-              +     '<span style="flex:1; font-size:.7rem; font-weight:700; letter-spacing:.02em; color:#F4F6FA;">' + e(label) + '</span>'
+              +     '<span style="flex:1; font-size:.7rem; font-weight:700; letter-spacing:.02em; color:var(--wh-cloud);">' + e(label) + '</span>'
               +     '<div style="width:90px; height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden;">'
               +       '<div style="width:' + barPct + '%; height:100%; background:' + e(levelColor) + ';"></div>'
               +     '</div>'
@@ -1734,7 +1731,7 @@
       }
     }
 
-    // Convert "#fb923c" → "251,146,60" for rgba() backgrounds
+    // Convert "#f7a21b" → "251,146,60" for rgba() backgrounds
     function _hexToRgb(hex) {
       const h = (hex || '').replace('#', '');
       if (h.length !== 6) return '255,255,255';
@@ -2077,10 +2074,10 @@
           : 0;
         const z = std > 0 ? Math.abs(Number(latest.value) - mean) / std : 0;
         const chip = z >= 3
-          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(248,113,113,0.18); color:#f87171;">ANOMALY ' + z.toFixed(1) + 'σ</span>'
+          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(248,113,113,0.18); color:var(--wh-red);">ANOMALY ' + z.toFixed(1) + 'σ</span>'
           : z >= 2
-          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(250,204,21,0.15); color:#facc15;">WATCH ' + z.toFixed(1) + 'σ</span>'
-          : '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(74,222,128,0.12); color:#4ade80;">OK</span>';
+          ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(250,204,21,0.15); color:var(--wh-amber);">WATCH ' + z.toFixed(1) + 'σ</span>'
+          : '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(74,222,128,0.12); color:var(--wh-green);">OK</span>';
         blocks.push(
           '<div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:8px 12px;">' +
           '  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;">' +
@@ -2390,11 +2387,19 @@
 
     async function approveFmeaMode(id, modeName) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      const { error } = await db.from('rcm_fmea_modes')
+      // P6-C1 optimistic lock (asset-hub approval-lock gap, 2026-07-19): only approve a STILL-UNAPPROVED
+      // row (.is('approved_at', null)) so a concurrent approve / double-click / stale card cannot silently
+      // OVERWRITE the first supervisor's approval attribution (approved_by/approved_at). .select() detects
+      // the 0-row no-op. (Was: only .eq(id).eq(hive_id) -> last-write-wins stole the original approver's
+      // name; live-proven — writerB re-approve affected 1 row and overwrote 'Supervisor A'.)
+      const { data: updated, error } = await db.from('rcm_fmea_modes')
         .update({ approved_by: WORKER_NAME || null, approved_at: new Date().toISOString() })
         .eq('id', id)
-        .eq('hive_id', HIVE_ID);
+        .eq('hive_id', HIVE_ID)
+        .is('approved_at', null)
+        .select('id');
       if (error) { showToast('Approve failed: ' + error.message); return; }
+      if (!updated || !updated.length) { showToast('That FMEA mode was already approved.'); await loadDetailFmea(_selectedNodeId); return; }
       // target_name = the readable failure-mode text (not the uuid) so the Supervisor Action Log
       // on the hive board reads "Approved FMEA mode <mode>" instead of a raw id.
       writeAuditLog('approve_fmea_mode', 'rcm_fmea_modes', id, modeName || id, { node_id: _selectedNodeId });
@@ -2581,11 +2586,17 @@
 
     async function approveStrategy(strategyId) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      const { error } = await db.from('rcm_strategies')
+      // P6-C1 optimistic lock (asset-hub approval-lock gap, 2026-07-19): only approve a STILL-UNAPPROVED
+      // strategy (.is('approved_at', null)) so a concurrent approve / double-click cannot silently
+      // OVERWRITE the first supervisor's approval attribution. .select() detects the 0-row no-op.
+      const { data: updated, error } = await db.from('rcm_strategies')
         .update({ approved_by: WORKER_NAME || null, approved_at: new Date().toISOString() })
         .eq('id', strategyId)
-        .eq('hive_id', HIVE_ID);
+        .eq('hive_id', HIVE_ID)
+        .is('approved_at', null)
+        .select('id');
       if (error) { showToast('Approve failed: ' + error.message); return; }
+      if (!updated || !updated.length) { showToast('That strategy was already approved.'); if (_selectedNodeId) await loadDetailFmea(_selectedNodeId); return; }
       writeAuditLog('approve_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
         { node_id: _selectedNodeId });
       showToast('Strategy approved.');
@@ -3236,7 +3247,7 @@
   }
   .no-print button {
     padding: 6px 12px; font-size: 10pt; cursor: pointer;
-    background: #4f46e5; color: #fff; border: none; border-radius: 4px;
+    background: var(--wh-blue); color: #fff; border: none; border-radius: 4px;
   }
   .no-print button.secondary { background: #888; }
 </style>
@@ -3616,11 +3627,11 @@
             body: { question, asset_id: nodeId, hive_id: HIVE_ID, persona },
           });
           if (error) {
-            ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Could not reach Asset Brain: ' + (error.message || 'unknown error')) + '</span>';
+            ansEl.innerHTML = '<span style="color:var(--wh-red);">' + e('Could not reach Asset Brain: ' + (error.message || 'unknown error')) + '</span>';
             return;
           }
           if (!data || data.error) {
-            ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e(data?.error || 'No answer returned.') + '</span>';
+            ansEl.innerHTML = '<span style="color:var(--wh-red);">' + e(data?.error || 'No answer returned.') + '</span>';
             return;
           }
           answer = data.answer; cited = data.cited; narration = data.narration; remaining = data.remaining;
@@ -3645,7 +3656,7 @@
           metaEl.textContent = remaining + ' AI calls remaining this hour';
         }
       } catch (err) {
-        ansEl.innerHTML = '<span style="color:#ff8a8a;">' + e('Network error: ' + (err && err.message ? err.message : 'unknown')) + '</span>';
+        ansEl.innerHTML = '<span style="color:var(--wh-red);">' + e('Network error: ' + (err && err.message ? err.message : 'unknown')) + '</span>';
       } finally {
         _askInFlight = false;
         send.disabled = false;

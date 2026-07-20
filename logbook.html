@@ -21,22 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'orange-wh': '#F7A21B',
-            'blue-wh':   '#29B6D9',
-            'navy-wh':   '#162032',
-          },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -146,10 +131,10 @@
       color: var(--wh-orange);
     }
     .consequence-btn[data-value="Safety risk"].selected {
-      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171;
+      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: var(--wh-red);
     }
     .consequence-btn[data-value="Stopped production"].selected {
-      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #f87171;
+      background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: var(--wh-red);
     }
     .consequence-icon { font-size: 1.1rem; line-height: 1; }
     .consequence-title { font-size: 0.75rem; font-weight: 700; color: inherit; }
@@ -257,7 +242,7 @@
       position: relative;
       background: rgba(239,68,68,0.2) !important;
       border-color: rgba(239,68,68,0.5) !important;
-      color: #f87171 !important;
+      color: var(--wh-red) !important;
     }
 
     /* Log entry card animation */
@@ -302,11 +287,11 @@
     .status-toggle input { display: none; }
     .status-toggle label.active-open {
       background: rgba(239,68,68,0.2);
-      color: #f87171;
+      color: var(--wh-red);
     }
     .status-toggle label.active-closed {
       background: rgba(34,197,94,0.2);
-      color: #4ade80;
+      color: var(--wh-green);
     }
 
     /* Empty state */
@@ -381,9 +366,9 @@
       outline: 2px solid rgba(247,162,27,0.5);
       outline-offset: 2px;
     }
-    .criticality-btn.sel-Critical { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #f87171; }
+    .criticality-btn.sel-Critical { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--wh-red); }
     .criticality-btn.sel-Major    { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
-    .criticality-btn.sel-Minor    { background: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);  color: #4ade80; }
+    .criticality-btn.sel-Minor    { background: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);  color: var(--wh-green); }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
@@ -427,9 +412,7 @@
   <div id="hive-gate" class="fixed inset-0 z-[60] items-center justify-center p-6" style="display:none; background:rgba(10,16,28,0.97); backdrop-filter:blur(12px);">
     <div class="card w-full max-w-sm p-8 text-center">
       <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center" style="background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.2);">
-        <svg class="w-7 h-7" style="color:#F7A21B" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
+        <span class="ic ic-community" aria-hidden="true"></span>
       </div>
       <h2 class="font-black text-xl mb-2">Join a WorkHive First</h2>
       <p class="text-sm mb-6" style="color:rgba(255,255,255,0.62);">The Logbook is a team tool. Create or join a Hive to start logging repairs with your team.</p>
@@ -453,7 +436,7 @@
           <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">0</span> <span class="text-white/60">machines</span></span>
           <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">0</span> <span class="text-white/60">open</span></span>
           <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <span class="ic ic-add" aria-hidden="true"></span>
             <span data-i="registerasset">Register Asset</span>
           </button>
           <!-- Phase H.2 (2026-05-12 home streamline): voice-journal removed from
@@ -463,7 +446,7 @@
           <a href="voice-journal.html" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]"
              style="text-decoration:none;"
              title="Voice Journal: multilingual voice-to-logbook capture with rolling memory">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z M19 10v2a7 7 0 01-14 0v-2"/></svg>
+            <span class="ic ic-voice" aria-hidden="true"></span>
             Voice Journal
           </a>
         </div>
@@ -481,9 +464,7 @@
         <div class="card p-6 sticky top-6">
           <div class="flex items-center gap-2 mb-6">
             <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: rgba(247,162,27,0.15);">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-              </svg>
+              <span class="ic ic-add" aria-hidden="true"></span>
             </div>
             <h2 class="font-bold text-base" data-i="logarepair">Log a Repair</h2>
           </div>
@@ -502,12 +483,12 @@
 
             <!-- Edit-in-place banner — shown when editing an existing entry -->
             <div id="edit-mode-banner" class="hidden mb-4 rounded-xl px-4 py-3 flex items-center gap-3" style="background:rgba(247,162,27,0.12);border:2px solid rgba(247,162,27,0.5);">
-              <svg class="w-5 h-5 flex-shrink-0" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              <span class="ic ic-edit" aria-hidden="true"></span>
               <div class="flex-1 min-w-0">
-                <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">✏ Editing existing entry, not logging a new one</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-orange);">✏ Editing existing entry, not logging a new one</p>
                 <p id="edit-mode-machine" class="text-sm font-semibold text-white/80 truncate mt-0.5"></p>
               </div>
-              <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:#f87171;font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
+              <button type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:var(--wh-red);font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
             </div>
 
             <!-- ── STEP 1: Machine + Type + Status ── -->
@@ -529,14 +510,14 @@
                     <p style="font-size:.7rem; color:rgba(255,255,255,0.62); margin-top:2px;">Describe the situation once: AI fills machine, problem, action, type, and more.</p>
                   </div>
                   <button type="button" id="voice-fill-btn" onclick="startSmartVoice()" style="padding:10px 16px; min-height:44px; background:rgba(167,139,250,0.15); color:var(--wh-violet-text); border:1px solid rgba(167,139,250,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    <span class="ic ic-voice" aria-hidden="true"></span>
                     <span data-i="speak">Speak</span>
                   </button>
                 </div>
                 <!-- Recording state -->
                 <div id="vf-recording" style="display:none; margin-top:10px; padding:8px 12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px;">
-                  <p style="font-size:.75rem; color:#f87171; font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f87171; animation:pulse 1s infinite;"></span>
+                  <p style="font-size:.75rem; color:var(--wh-red); font-weight:600; display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--wh-red); animation:pulse 1s infinite;"></span>
                     Listening... describe the machine, what happened, and what was done.
                   </p>
                 </div>
@@ -555,8 +536,8 @@
                     <p style="font-size:.82rem; font-weight:700; color:rgba(255,255,255,0.9);">Photo defect capture</p>
                     <p style="font-size:.7rem; color:rgba(255,255,255,0.62); margin-top:2px;">Snap a photo of the defect (rust, leak, crack, burn). AI drafts the entry from the image.</p>
                   </div>
-                  <button id="vdc-capture-btn" type="button" style="padding:10px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid rgba(74,222,128,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  <button id="vdc-capture-btn" type="button" style="padding:10px 16px; min-height:44px; background:rgba(74,222,128,0.15); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                    <span class="ic ic-image" aria-hidden="true"></span>
                     <span data-i="capture">Capture</span>
                   </button>
                 </div>
@@ -564,7 +545,7 @@
                 <div id="vdc-preview" style="display:none; margin-top:10px;">
                   <img id="vdc-preview-img" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
                   <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
-                    <button id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 14px; background:rgba(74,222,128,0.18); color:#4ade80; border:1px solid rgba(74,222,128,0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
+                    <button id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 14px; background:rgba(74,222,128,0.18); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
                     <button id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 14px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
                   </div>
                 </div>
@@ -583,20 +564,16 @@
               </div>
 
               <div>
-                <label class="wh-label"><span data-i="machineequip">Machine / Equipment</span> <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label class="wh-label"><span data-i="machineequip">Machine / Equipment</span> <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <div style="display:flex; gap:8px; align-items:stretch;">
                   <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px; flex:1;">
                     <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.62);">Select or search asset...</span>
-                    <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(255,255,255,0.6)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    <span class="ic ic-caret" aria-hidden="true"></span>
                   </button>
                   <!-- Phase E.3d: Scan to find/select an asset by physical tag -->
                   <button type="button" id="logbook-scan-btn" aria-label="Scan equipment tag with camera"
-                          style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); cursor:pointer;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
-                      <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
-                      <line x1="7" y1="12" x2="17" y2="12"/>
-                    </svg>
+                          style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); cursor:pointer;">
+                    <span class="ic ic-search" aria-hidden="true"></span>
                   </button>
                 </div>
                 <input type="hidden" id="f-machine" />
@@ -608,7 +585,7 @@
                 <details id="machine-history-details" class="wh-disclose" style="background:rgba(41,182,217,0.06); border-color:rgba(41,182,217,0.2);">
                   <summary style="padding:10px 14px; cursor:pointer; font-size:0.75rem; font-weight:700; color:var(--wh-blue-light); list-style:none; display:flex; align-items:center; justify-content:space-between; user-select:none;">
                     <span id="machine-history-title">Past repairs on this machine</span>
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    <span class="ic ic-caret" aria-hidden="true"></span>
                   </summary>
                   <div id="machine-history-content" style="padding:0 12px 12px; font-size:0.75rem; max-height:280px; overflow-y:auto;"></div>
                 </details>
@@ -673,7 +650,7 @@
               </div>
 
               <div>
-                <label for="f-category" class="wh-label">Discipline / Category <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label for="f-category" class="wh-label">Discipline / Category <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <select id="f-category" class="wh-input">
                   <option value="">Select category...</option>
                   <option value="Mechanical">Mechanical</option>
@@ -687,13 +664,13 @@
               </div>
 
               <div>
-                <label for="f-problem" class="wh-label">Symptom / What was wrong? <span style="color:#f87171;font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label for="f-problem" class="wh-label">Symptom / What was wrong? <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <div class="relative">
                   <textarea id="f-problem" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
                   <button type="button" id="voice-problem" title="Voice input"
                     class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                     style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                    <svg class="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                    <span class="ic ic-voice" aria-hidden="true"></span>
                   </button>
                 </div>
               </div>
@@ -738,7 +715,7 @@
                   <button type="button" id="voice-action" title="Voice input"
                     class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                     style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                    <svg class="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                    <span class="ic ic-voice" aria-hidden="true"></span>
                   </button>
                 </div>
               </div>
@@ -750,7 +727,7 @@
               </div>
 
               <button type="button" class="extras-toggle" id="extras-toggle-btn" onclick="toggleExtras()">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span class="ic ic-add" aria-hidden="true"></span>
                 <span id="extras-toggle-label">Add details: parts, photo, lesson learned</span>
               </button>
 
@@ -821,7 +798,7 @@
                     <button type="button" id="voice-knowledge" title="Voice input"
                       class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                       style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                      <svg class="w-3.5 h-3.5 text-white/60" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zm-1 3a1 1 0 012 0v8a1 1 0 01-2 0V4zm6 8a5 5 0 01-10 0H5a7 7 0 0014 0h-2z"/></svg>
+                      <span class="ic ic-voice" aria-hidden="true"></span>
                     </button>
                   </div>
                 </div>
@@ -854,7 +831,7 @@
                   <div id="quality-pct-display" class="hidden mt-2 text-center py-1.5 rounded-lg"
                        style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);">
                     <span style="font-size:0.72rem;color:rgba(255,255,255,0.62);">OEE Quality: </span>
-                    <span id="quality-pct-value" style="font-size:0.9rem;font-weight:800;color:#4ade80;"></span>
+                    <span id="quality-pct-value" style="font-size:0.9rem;font-weight:800;color:var(--wh-green);"></span>
                   </div>
                 </div>
 
@@ -864,7 +841,7 @@
                   <label id="photo-dropzone" for="f-photo"
                     class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
                     style="background: rgba(255,255,255,0.03);">
-                    <svg class="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="ic ic-image" aria-hidden="true"></span>
                     <span class="text-xs text-white/60">Tap to attach photo</span>
                   </label>
                   <div id="photo-preview" class="hidden mt-2" style="position: relative;">
@@ -897,7 +874,7 @@
               <label class="wh-label">Parts Used <span class="text-white/60 font-normal normal-case">(from your inventory)</span></label>
               <div id="selected-parts-display" class="space-y-1.5"></div>
               <button type="button" id="btn-add-part" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span class="ic ic-add" aria-hidden="true"></span>
                 Add Part Used
               </button>
             </div>
@@ -906,7 +883,7 @@
             <div id="pm-tasks-panel" class="hidden">
               <div class="rounded-xl p-3" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.2);">
                 <div class="flex items-center justify-between mb-2">
-                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:#F7A21B;">PM Tasks for this Asset</p>
+                  <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-orange);">PM Tasks for this Asset</p>
                   <span id="pm-tasks-count" class="text-[11px] text-white/60"></span>
                 </div>
                 <p class="text-[11px] text-white/60 mb-3">Tick the PM tasks you completed during this job. They will be marked done and their schedules updated.</p>
@@ -920,18 +897,18 @@
                 <div class="flex items-center justify-between mb-2">
                   <p class="text-[11px] font-bold uppercase tracking-widest" style="color:var(--wh-blue-light);">Work Tasklist</p>
                   <button type="button" id="btn-view-tasklist" class="text-[11px] font-semibold flex items-center gap-1" style="color:var(--wh-blue-light);background:none;border:none;cursor:pointer;min-height:44px;padding:0.25rem 0;">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <span class="ic ic-list" aria-hidden="true"></span>
                     View Tasklist
                   </button>
                 </div>
                 <label id="tasklist-ack-label" class="flex items-center gap-3 cursor-pointer" style="min-height:44px;">
                   <input type="checkbox" id="tasklist-ack-check" class="hidden" />
                   <div id="tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.2);">
-                    <svg id="tasklist-ack-tick" class="w-3.5 h-3.5 hidden" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    <span id="tasklist-ack-tick" class="ic ic-check hidden" aria-hidden="true"></span>
                   </div>
                   <span class="text-sm text-white/70">I have read the work tasklist for this job</span>
                 </label>
-                <p role="alert" aria-live="assertive" id="tasklist-ack-error" class="hidden text-[11px] mt-1.5" style="color:#f87171;">Please acknowledge you have read the work tasklist before closing.</p>
+                <p role="alert" aria-live="assertive" id="tasklist-ack-error" class="hidden text-[11px] mt-1.5" style="color:var(--wh-red);">Please acknowledge you have read the work tasklist before closing.</p>
               </div>
             </div>
 
@@ -956,14 +933,14 @@
         <div id="open-jobs-panel" class="card p-4 mb-4 hidden">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs font-bold uppercase tracking-widest" style="color:rgba(239,68,68,0.8);">My Open Jobs</h3>
-            <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:#f87171;"></span>
+            <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);"></span>
           </div>
           <div id="open-jobs-list"></div>
         </div>
 
         <!-- Team / My Entries toggle (hive only) -->
         <div id="view-toggle-bar" class="hidden mb-3 flex gap-2">
-          <button id="btn-view-mine" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="myentries">My Entries</button>
+          <button id="btn-view-mine" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="myentries">My Entries</button>
           <button id="btn-view-team" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.08);" data-i="teamfeed">Team Feed</button>
         </div>
 
@@ -971,9 +948,7 @@
         <div class="card p-4 mb-4">
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
+              <span class="ic ic-search" aria-hidden="true"></span>
               <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
             </div>
             <select id="filter-category" aria-label="Filter by category" class="wh-input sm:w-44">
@@ -992,7 +967,7 @@
               <option value="Closed">Closed</option>
             </select>
             <button id="btn-export-csv" translate="no" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span class="ic ic-download" aria-hidden="true"></span>
               CSV
             </button>
           </div>
@@ -1009,9 +984,9 @@
 
         <!-- Offline banner -->
         <div id="offline-banner" class="hidden mb-3 rounded-xl px-4 py-2.5 flex items-center gap-2.5" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.3);">
-          <svg class="w-4 h-4 flex-shrink-0" style="color:#F7A21B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01M8.464 15.536a5 5 0 010-7.072M5.636 18.364a9 9 0 010-12.728"/></svg>
-          <span class="text-xs font-semibold" style="color:#F7A21B;">Offline: new entries will sync when connected</span>
-          <span id="offline-queue-count" class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:#F7A21B;"></span>
+          <span class="ic ic-refresh" aria-hidden="true"></span>
+          <span class="text-xs font-semibold" style="color:var(--wh-orange);">Offline: new entries will sync when connected</span>
+          <span id="offline-queue-count" class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:var(--wh-orange);"></span>
         </div>
 
         <!-- Live team-activity badge (D3.2 INTERACTIVE_LINEAGE): a teammate logged
@@ -1021,7 +996,7 @@
           class="hidden w-full mb-3 rounded-xl px-4 py-2.5 flex items-center gap-2.5 min-h-[44px] transition-colors"
           style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.35);cursor:pointer;"
           onmouseover="this.style.background='rgba(41,182,217,0.2)'" onmouseout="this.style.background='rgba(41,182,217,0.12)'">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" style="background:#29B6D9;"></span>
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" style="background:var(--wh-blue);"></span>
           <span id="logbook-live-badge-text" class="text-xs font-semibold" style="color:var(--wh-blue-light);">New team entry</span>
           <span class="ml-auto text-[11px] font-bold" style="color:rgba(41,182,217,0.8);">Tap to refresh ↻</span>
         </button>
@@ -1035,33 +1010,27 @@
 
         <!-- Load More -->
         <div id="logbook-load-more-wrap" class="hidden mt-1 pb-4">
-          <button onclick="loadMoreLogbook()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Load More</button>
+          <button onclick="loadMoreLogbook()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);">Load More</button>
           <p id="logbook-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
         </div>
 
         <!-- Empty state -->
         <div id="empty-state" class="text-center py-20 empty-state">
-          <svg class="w-12 h-12 mx-auto mb-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
+          <span class="ic ic-doc" aria-hidden="true"></span>
           <p class="text-sm text-white/60 font-medium">No entries yet.</p>
           <p class="text-xs text-white/60 mt-1">Log your first repair to get started.</p>
-          <a href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;text-decoration:none;">Log Your First Repair →</a>
+          <a href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);text-decoration:none;">Log Your First Repair →</a>
         </div>
 
         <!-- No results state -->
         <div id="no-results" class="text-center py-16 empty-state hidden">
-          <svg class="w-10 h-10 mx-auto mb-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
+          <span class="ic ic-search" aria-hidden="true"></span>
           <p class="text-sm text-white/60">No entries match your search.</p>
         </div>
 
         <!-- Team prompt: shown in team mode before first search -->
         <div id="team-prompt" class="text-center py-20 empty-state hidden" style="opacity:1;"><!-- opacity:1 cancels .empty-state 0.4 multiplier so prompt text meets AA contrast -->
-          <svg class="w-12 h-12 mx-auto mb-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
+          <span class="ic ic-community" aria-hidden="true"></span>
           <p class="text-sm font-medium" style="color:rgba(255,255,255,0.7);">Search team entries above.</p>
           <p class="text-xs mt-1" style="color:rgba(255,255,255,0.6);">Set a date range, filter by worker or category, then tap <strong style="color:rgba(41,182,217,1);">Search Team</strong>.</p>
         </div>
@@ -1074,9 +1043,7 @@
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
          style="background: linear-gradient(135deg, rgba(42,61,88,0.97), rgba(22,32,50,0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
-      <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-      </svg>
+      <span class="ic ic-check" aria-hidden="true"></span>
       <span id="toast-text">Entry saved.</span>
     </div>
   </div>
@@ -1085,7 +1052,7 @@
   <div id="modal" role="dialog" aria-modal="true" aria-label="Logbook entry" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
     <div class="card w-full max-w-lg max-h-[85vh] overflow-y-auto p-7 relative">
       <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <div id="modal-content"></div>
     </div>
@@ -1095,7 +1062,7 @@
 <div id="asset-modal" role="dialog" aria-modal="true" aria-label="Add asset" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-7 relative">
     <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
 
     <!-- Tabs -->
@@ -1111,13 +1078,13 @@
         <div class="rounded-lg p-3" style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.18);">
           <div class="flex items-start gap-2">
             <input id="a-scan-input" type="file" accept="image/*" capture="environment" class="hidden" />
-            <button id="a-scan-btn" type="button" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]" style="background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: #F7A21B;">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <button id="a-scan-btn" type="button" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]" style="background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange);">
+              <span class="ic ic-image" aria-hidden="true"></span>
               <span>Scan nameplate</span>
             </button>
             <div class="text-[10px] flex-1 leading-snug" style="color: rgba(255,255,255,0.62);">
               Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below.
-              <span id="a-scan-status" class="block mt-0.5" style="color:#F7A21B;"></span>
+              <span id="a-scan-status" class="block mt-0.5" style="color:var(--wh-orange);"></span>
             </div>
           </div>
         </div>
@@ -1201,7 +1168,7 @@
     <div id="asset-manage-view" class="hidden">
       <div id="asset-list-container"></div>
       <button id="asset-add-another-btn" class="btn-secondary w-full text-xs mt-3 flex items-center justify-center gap-1.5">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <span class="ic ic-add" aria-hidden="true"></span>
         Register another asset
       </button>
     </div>
@@ -1212,7 +1179,7 @@
 <div id="asset-edit-modal" role="dialog" aria-modal="true" aria-label="Edit asset" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md p-6 relative">
     <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
     <h3 class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
 
@@ -1258,7 +1225,7 @@
 <div id="asset-detail-modal" role="dialog" aria-modal="true" aria-label="Asset details" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-6 relative">
     <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
 
     <div id="asset-detail-header" class="mb-5 pr-8"></div>
@@ -1283,7 +1250,7 @@
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-sm">Select Asset</h3>
         <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62);" aria-label="Close">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
       <input aria-label="Search by asset ID or name..." id="asset-picker-search" type="text" class="wh-input" placeholder="Search by asset ID or name..." autocomplete="off" />
@@ -1291,7 +1258,7 @@
     <div id="asset-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
     <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
       <button id="asset-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <span class="ic ic-add" aria-hidden="true"></span>
         Asset not found: Register it
       </button>
     </div>
@@ -1309,7 +1276,7 @@
           <p id="tasklist-modal-subtitle" class="text-[11px] text-white/60 mt-0.5"></p>
         </div>
         <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.62);" aria-label="Close">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
     </div>
@@ -1328,7 +1295,7 @@
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-sm">Select Part Used</h3>
         <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62);" aria-label="Close">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
       <input aria-label="Search part name or number..." id="parts-picker-search" type="text" class="wh-input" placeholder="Search part name or number..." autocomplete="off" />
@@ -1336,7 +1303,7 @@
     <div id="parts-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
     <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
       <button id="parts-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <span class="ic ic-add" aria-hidden="true"></span>
         Part not in inventory: Register it
       </button>
     </div>
@@ -2433,9 +2400,7 @@ function renderAssetList() {
   if (assets.length === 0) {
     container.innerHTML = `
       <div class="text-center py-10 empty-state">
-        <svg class="w-10 h-10 mx-auto mb-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-4M9 3a2 2 0 002 2h2a2 2 0 002-2M9 3a2 2 0 012-2h2a2 2 0 012 2"/>
-        </svg>
+        <span class="ic ic-list" aria-hidden="true"></span>
         <p class="text-sm text-white/60">No assets registered yet.</p>
         <p class="text-xs text-white/60 mt-1">Register assets to keep your log entries consistent.</p>
       </div>`;
@@ -2447,7 +2412,7 @@ function renderAssetList() {
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span class="font-bold text-sm text-white">${escHtml(a.asset_id)}</span>
-            ${a.status === 'pending' ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">Pending Approval</span>' : ''}
+            ${a.status === 'pending' ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);">Pending Approval</span>' : ''}
             ${criticalityBadge(a.criticality)}
             ${a.type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.1);color:rgba(41,182,217,0.7);border:1px solid rgba(41,182,217,0.15)">${escHtml(a.type)}</span>` : ''}
           </div>
@@ -2636,15 +2601,15 @@ function renderDetailFaultHistory(entries) {
   }
   const catColors = {
     'Mechanical':      '#f87171', 'Electrical':  '#facc15',
-    'Instrumentation': '#60a5fa', 'Structural':  '#c084fc',
-    'Process':         '#2dd4bf', 'Human Error': '#fb923c',
+    'Instrumentation': '#29b6d9', 'Structural':  '#a78bfa',
+    'Process':         '#29b6d9', 'Human Error': '#f7a21b',
     'Unknown':         '#9ca3af',
   };
   list.innerHTML = entries.map(e => {
     const isOpen      = e.status === 'Open';
     const statusBg    = isOpen ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)';
     const statusTx    = isOpen ? '#f87171' : '#4ade80';
-    const borderColor = isOpen ? '#ef4444' : '#22c55e';
+    const borderColor = isOpen ? '#f87171' : '#4ade80';
     const catColor    = catColors[e.category] || '#9ca3af';
     const date        = e.created_at ? new Date(e.created_at).toLocaleDateString() : (e.date || '').slice(0, 10);
     return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-left:3px solid ${borderColor};">
@@ -2795,8 +2760,8 @@ async function loadMachineHistory(machineId) {
         : '';
       return '<div style="border-top:1px solid rgba(255,255,255,0.06); padding:10px 2px 6px;">'
         + (r.problem  ? '<p style="color:rgba(255,255,255,0.75); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
-        + (r.root_cause ? '<p style="color:#F7A21B; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
-        + (r.action   ? '<p style="color:#4ade80; margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
+        + (r.root_cause ? '<p style="color:var(--wh-orange); margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
+        + (r.action   ? '<p style="color:var(--wh-green); margin-bottom:3px; font-size:0.7rem;"><span style="color:rgba(255,255,255,0.6); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
         + (r.knowledge ? '<p style="color:rgba(255,255,255,0.62); font-size:0.68rem; font-style:italic;">' + escHtml(r.knowledge) + '</p>' : '')
         + '<p style="color:rgba(255,255,255,0.62); font-size:0.65rem; margin-top:4px;">'
         + (r.worker_name ? escHtml(r.worker_name) + ' · ' : '') + dt + '</p>'
@@ -3220,7 +3185,7 @@ const catColors = {
   Electrical:      { bg: 'rgba(41,182,217,0.15)', text: '#29B6D9', border: 'rgba(41,182,217,0.25)' },
   Hydraulic:       { bg: 'rgba(139,92,246,0.15)', text: '#a78bfa', border: 'rgba(139,92,246,0.25)' },
   Pneumatic:       { bg: 'rgba(34,197,94,0.15)',  text: '#4ade80', border: 'rgba(34,197,94,0.25)' },
-  Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: 'rgba(236,72,153,0.25)' },
+  Instrumentation: { bg: 'rgba(236,72,153,0.15)', text: '#f87171', border: 'rgba(236,72,153,0.25)' },
   Lubrication:     { bg: 'rgba(234,179,8,0.15)',  text: '#facc15', border: 'rgba(234,179,8,0.25)' },
   Other:           { bg: 'rgba(255,255,255,0.07)', text: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.12)' },
 };
@@ -3233,9 +3198,9 @@ function catBadge(cat) {
 
 function statusBadge(status) {
   if (status === 'Closed') {
-    return `<span class="badge-category" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);">Closed</span>`;
+    return `<span class="badge-category" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);">Closed</span>`;
   }
-  return `<span class="badge-category" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);">Open</span>`;
+  return `<span class="badge-category" style="background:rgba(239,68,68,0.15);color:var(--wh-red);border:1px solid rgba(239,68,68,0.25);">Open</span>`;
 }
 
 // Phase E.4: WO state pill — only renders when wo_state is non-null. Color-coded
@@ -3246,9 +3211,9 @@ function woStateBadge(wo_state, wo_assigned_to) {
     requested:   { bg: 'rgba(247,162,27,0.12)',  fg: '#F7A21B', border: 'rgba(247,162,27,0.3)'  },
     approved:    { bg: 'rgba(41,182,217,0.12)',  fg: '#29B6D9', border: 'rgba(41,182,217,0.3)'  },
     assigned:    { bg: 'rgba(167,139,250,0.12)', fg: '#a78bfa', border: 'rgba(167,139,250,0.3)' },
-    in_progress: { bg: 'rgba(251,146,60,0.15)',  fg: '#fb923c', border: 'rgba(251,146,60,0.3)'  },
+    in_progress: { bg: 'rgba(251,146,60,0.15)',  fg: '#f7a21b', border: 'rgba(251,146,60,0.3)'  },
     completed:   { bg: 'rgba(74,222,128,0.12)',  fg: '#4ade80', border: 'rgba(74,222,128,0.3)'  },
-    verified:    { bg: 'rgba(34,197,94,0.15)',   fg: '#22c55e', border: 'rgba(34,197,94,0.3)'   },
+    verified:    { bg: 'rgba(34,197,94,0.15)',   fg: '#4ade80', border: 'rgba(34,197,94,0.3)'   },
     rejected:    { bg: 'rgba(239,68,68,0.15)',   fg: '#f87171', border: 'rgba(239,68,68,0.3)'   },
   };
   const c = colors[wo_state] || colors.requested;
@@ -3412,12 +3377,12 @@ async function renderEntries(reload = true) {
             ${statusBadge(e.status || 'Open')}
             ${woStateBadge(e.wo_state, e.wo_assigned_to)}
             ${_syncedMachineSource[e.machine] ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.25);" title="Sourced from CMMS integration">⇄ ${escHtml(_syncedMachineSource[e.machine])}</span>` : ''}
-            ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
+            ${(e._offline || e._pending_edit) ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
           <span class="text-[11px] text-white/60">${formatDate(e.date)}</span>
           ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
         </div>
-        <svg class="w-4 h-4 text-white/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span class="ic ic-next" aria-hidden="true"></span>
       </div>
 
       ${e.problem ? `
@@ -3435,7 +3400,7 @@ async function renderEntries(reload = true) {
       ${e.knowledge ? `
       <div class="rounded-lg px-3 py-2 mt-3" style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.12);">
         <span class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold flex items-center gap-1">
-          <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <span class="ic ic-star" aria-hidden="true"></span>
           Knowledge
         </span>
         <p class="text-xs text-white/60 mt-1 leading-relaxed line-clamp-2">${knowledge}</p>
@@ -3467,7 +3432,7 @@ async function openModal(id) {
     </div>
     <div class="flex flex-wrap gap-2 mb-4">
       ${entry.maintenance_type ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.2)">${escHtml(entry.maintenance_type)}</span>` : ''}
-      ${entry.downtime_hours != null ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
+      ${entry.downtime_hours != null ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);border:1px solid rgba(239,68,68,0.2)">${entry.downtime_hours}h downtime</span>` : ''}
     </div>
     <p class="text-xs text-white/60 mb-5">${formatDate(entry.date)}</p>
 
@@ -3492,7 +3457,7 @@ async function openModal(id) {
     ${entry.knowledge ? `
     <div class="rounded-xl px-4 py-4 mb-5" style="background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.15);">
       <p class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold mb-1.5 flex items-center gap-1.5">
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <span class="ic ic-star" aria-hidden="true"></span>
         Knowledge for next person
       </p>
       <p class="text-sm text-white/70 leading-relaxed">${escHtml(entry.knowledge)}</p>
@@ -3521,9 +3486,9 @@ async function openModal(id) {
 
     ${entry.status === 'Closed' ? `
     <div class="flex items-center gap-2 mt-2 rounded-lg px-3 py-2" style="background:${entry.tasklist_acknowledged ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.03)'};border:1px solid ${entry.tasklist_acknowledged ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.07)'};">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.2)'}" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      <span class="ic ic-check" aria-hidden="true"></span>
       <div class="flex-1 min-w-0">
-        <span class="text-xs font-semibold" style="color:${entry.tasklist_acknowledged ? '#4ade80' : 'rgba(255,255,255,0.3)'};">${entry.tasklist_acknowledged ? 'Work tasklist read' : 'Tasklist not acknowledged'}</span>
+        <span class="text-xs font-semibold" style="color:${entry.tasklist_acknowledged ? 'var(--wh-green)' : 'rgba(255,255,255,0.3)'};">${entry.tasklist_acknowledged ? 'Work tasklist read' : 'Tasklist not acknowledged'}</span>
         ${entry.tasklist_note ? `<p class="text-[10px] text-white/60 mt-0.5 truncate">${escHtml(entry.tasklist_note)}</p>` : ''}
       </div>
     </div>` : ''}
@@ -3561,8 +3526,8 @@ function renderEditParts() {
         onchange="_editPartsUsed[${i}].qty = parseFloat(this.value) || 1" />
       <span class="text-[10px] text-white/60">${escHtml(p.unit || 'pcs')}</span>
       <button onclick="_editPartsUsed.splice(${i},1); renderEditParts();"
-        class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:#f87171;" aria-label="Remove">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:var(--wh-red);" aria-label="Remove">
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>`).join('');
 }
@@ -4028,7 +3993,7 @@ function renderPMTasksPanel() {
   // consistency; mirrors pm-scheduler.html's FREQ registry).
   const _cf = s => { s = String(s || '').toLowerCase().trim(); if (s === 'yearly') s = 'annual'; if (s === 'semiannual' || s === 'semi annual') s = 'semi-annual'; if (s === 'biweekly' || s === 'fortnightly') s = 'weekly'; return s; };
   const freqMap = { daily: 'D', weekly: 'W', monthly: 'M', quarterly: 'Q', 'semi-annual': 'SA', annual: 'Y' };
-  const freqCls = { daily: 'rgba(244,114,182,0.15);color:#f9a8d4', weekly: 'rgba(56,189,248,0.15);color:#7dd3fc', monthly: 'rgba(41,182,217,0.15);color:var(--wh-blue-light)', quarterly: 'rgba(167,139,250,0.15);color:var(--wh-violet-text)', 'semi-annual': 'rgba(251,191,36,0.15);color:#fbbf24', annual: 'rgba(247,162,27,0.15);color:#F7A21B' };
+  const freqCls = { daily: 'rgba(244,114,182,0.15);color:#f87171', weekly: 'rgba(56,189,248,0.15);color:#29b6d9', monthly: 'rgba(41,182,217,0.15);color:var(--wh-blue-light)', quarterly: 'rgba(167,139,250,0.15);color:var(--wh-violet-text)', 'semi-annual': 'rgba(251,191,36,0.15);color:#f7a21b', annual: 'rgba(247,162,27,0.15);color:#F7A21B' };
 
   const needsAttention = _pmItemsForAsset.filter(i => i.status === 'overdue' || i.status === 'duesoon' || i.status === 'nodata');
   const onTrack        = _pmItemsForAsset.filter(i => i.status === 'ontrack');
@@ -4038,8 +4003,8 @@ function renderPMTasksPanel() {
     needsAttention.length ? `${needsAttention.length} need${needsAttention.length === 1 ? 's' : ''} attention` : 'All tasks on track';
 
   function daysLabel(item) {
-    if (item.status === 'overdue')  return `<span style="color:#f87171;font-size:10px;">${Math.abs(item.diff)} day${Math.abs(item.diff) === 1 ? '' : 's'} overdue</span>`;
-    if (item.status === 'duesoon')  return `<span style="color:#fbbf24;font-size:10px;">due in ${item.diff} day${item.diff === 1 ? '' : 's'}</span>`;
+    if (item.status === 'overdue')  return `<span style="color:var(--wh-red);font-size:10px;">${Math.abs(item.diff)} day${Math.abs(item.diff) === 1 ? '' : 's'} overdue</span>`;
+    if (item.status === 'duesoon')  return `<span style="color:var(--wh-orange);font-size:10px;">due in ${item.diff} day${item.diff === 1 ? '' : 's'}</span>`;
     if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.62);font-size:10px;">no history</span>`;
     if (item.nextDue) {
       const d = item.nextDue;
@@ -4055,10 +4020,8 @@ function renderPMTasksPanel() {
         style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
         <input type="checkbox" class="pm-task-check hidden" data-item-id="${item.id}" data-asset-id="${item.asset_id}" ${precheck ? 'checked' : ''} />
         <div class="pm-check-box w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-all"
-          style="background:${precheck ? 'rgba(247,162,27,0.2)' : 'rgba(255,255,255,0.06)'};border:2px solid ${precheck ? '#F7A21B' : 'rgba(255,255,255,0.2)'};">
-          <svg class="w-3 h-3 ${precheck ? '' : 'hidden'}" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
+          style="background:${precheck ? 'rgba(247,162,27,0.2)' : 'rgba(255,255,255,0.06)'};border:2px solid ${precheck ? 'var(--wh-orange)' : 'rgba(255,255,255,0.2)'};">
+          <span class="ic ic-check" aria-hidden="true"></span>
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm text-white/80 leading-snug">${escHtml(item.item_text)}</p>
@@ -4079,9 +4042,7 @@ function renderPMTasksPanel() {
         class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl mt-1 transition-colors"
         style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);font-size:12px;">
         <span>${onTrack.length} task${onTrack.length === 1 ? '' : 's'} on track</span>
-        <svg style="width:14px;height:14px;transform:${chevron};transition:transform 0.2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-        </svg>
+        <span class="ic ic-caret" aria-hidden="true"></span>
       </button>`;
     if (_pmOnTrackExpanded) {
       html += `<div class="mt-1 space-y-1">${onTrack.map(taskRow).join('')}</div>`;
@@ -4534,7 +4495,7 @@ async function startSmartVoice() {
 
   if (_smartRecognition) {
     _smartRecognition.stop(); _smartRecognition = null;
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';
+    btn.innerHTML = '<span class="ic ic-voice" aria-hidden="true"></span> Speak';
     btn.style.color = '#a78bfa'; recDiv.style.display = 'none'; return;
   }
 
@@ -4550,7 +4511,7 @@ async function startSmartVoice() {
     if (!transcript.trim()) { showToast('No speech detected, try again.'); return; }
 
     recDiv.style.display = 'none'; procDiv.style.display = 'block';
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';
+    btn.innerHTML = '<span class="ic ic-voice" aria-hidden="true"></span> Speak';
     btn.style.color = '#a78bfa';
 
     try {
@@ -4569,7 +4530,7 @@ async function startSmartVoice() {
 
   rec.onend = function() {
     _smartRecognition = null;
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';
+    btn.innerHTML = '<span class="ic ic-voice" aria-hidden="true"></span> Speak';
     btn.style.color = '#a78bfa'; recDiv.style.display = 'none';
   };
 
@@ -4628,7 +4589,7 @@ function applySmartVoiceFill(e, transcript) {
   let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} fields: ${filled.join(', ')}</p>`;
 
   if (e.loto_detected) {
-    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:#f87171; font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
+    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:.72rem; color:var(--wh-red); font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
   }
 
   if (e.parts_mentioned?.length) {
@@ -4854,7 +4815,7 @@ function vdcApplyDraft(payload) {
     const confPct = Math.round((Number(draft.confidence) || 0) * 100);
     const sev = String(draft.severity || 'medium');
     const sevColor = sev === 'critical' ? '#f87171'
-                    : sev === 'high'    ? '#fb923c'
+                    : sev === 'high'    ? '#f7a21b'
                     : sev === 'medium'  ? '#facc15'
                                         : 'rgba(255,255,255,0.5)';
     const tagLine = draft.asset_tag_extracted
@@ -5470,8 +5431,8 @@ function renderSelectedParts() {
         <span class="text-[10px]" style="color:rgba(255,255,255,0.62);">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
-          style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove">
-          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          style="background:rgba(239,68,68,0.1); color:var(--wh-red); border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove">
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
     </div>`).join('');
@@ -5516,7 +5477,7 @@ function renderOpenJobs(entries) {
         </div>
         <div class="text-right flex-shrink-0 ml-2">
           <p class="text-[10px]" style="color:rgba(255,255,255,0.6);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
-          <p class="text-[10px] font-bold mt-0.5" style="color:#f87171;">Open</p>
+          <p class="text-[10px] font-bold mt-0.5" style="color:var(--wh-red);">Open</p>
         </div>
       </div>
     </div>`).join('') + overflowMsg;

@@ -196,7 +196,7 @@
     }
     .event-label { flex: 1; color: rgba(255,255,255,0.62); min-width: 0;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .event-xp { font-weight: 700; color: #4ade80; flex-shrink: 0; }
+    .event-xp { font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
     .event-time { color: rgba(255,255,255,0.62); flex-shrink: 0; }
 
     /* Iron Worker card (full-width legendary) */
@@ -244,7 +244,7 @@
     .activity-name { font-size: 0.72rem; font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .activity-sub { font-size: 0.62rem; color: rgba(255,255,255,0.62); }
-    .activity-xp { font-size: 0.72rem; font-weight: 700; color: #4ade80; flex-shrink: 0; }
+    .activity-xp { font-size: 0.72rem; font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
 
     /* ── Hive standings ── */
     .standing-row {
@@ -260,7 +260,7 @@
     }
     .standing-rank.gold   { color: var(--wh-orange); }
     .standing-rank.silver { color: #94A3B8; }
-    .standing-rank.bronze { color: #CD7F32; }
+    .standing-rank.bronze { color: var(--wh-orange); }
     .standing-name { flex: 1; font-size: 0.8rem; font-weight: 600;
       min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .standing-score { font-size: 0.72rem; font-weight: 700;
@@ -314,11 +314,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -329,7 +329,7 @@
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No achievements yet. Earn your first badge by logging work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:#F7A21B;font-weight:600;text-decoration:none;">Log your first entry →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No achievements yet. Earn your first badge by logging work. <a href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log your first entry →</a></div>
 
 
 
@@ -354,7 +354,7 @@
   <!-- Header -->
   <div class="page-header">
     <button type="button" onclick="history.back()" class="back-btn" aria-label="Go back">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span class="ic ic-back" aria-hidden="true"></span>
     </button>
     <h1 class="page-title" style="margin:0;" data-i="ach_growth">Growth</h1>
   </div>
@@ -363,7 +363,7 @@
        Skills ↔ Achievements. Both pages kept on disk (reachable via tabs). -->
   <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 1rem 6px; flex-wrap:wrap;">
     <a role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
-    <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:#F7A21B; font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
+    <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
   </div>
   <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>
 

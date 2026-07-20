@@ -1,19 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:354
-source_sha: b1b502d7bdef3347
+source: dir:supabase/migrations:358
+source_sha: b562cb05f8890ce0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (354 migrations)
+## migration · catalog (358 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000004_drop_phantom_columns_safe` — tables:avatar_animations,avatar_state,best_practices,consulting_engagements,cross_hive_alerts,dialog_state
-- `20260520000005_asset_ideal_cycle_time` — tables:asset_nodes
-- `20260520000006_get_oee_by_machine_full` — fns:get_oee_by_machine
-- `20260520000007_drop_phantom_columns_auth_tier` — tables:auth_session_events,mfa_enrollments,sso_configs
 - `20260520000008_drop_phantom_columns_transient` — tables:ai_quality_log,anomaly_alerts,fallback_model_faq,kb_documents,offline_snapshot_cache,platform_feedback_votes
 - `20260520000009_drop_phantom_columns_seeder_only` — tables:amc_briefings,parts_staged_reservations,platform_feedback,project_items,sensor_readings,sensor_topic_map
 - `20260520000010_v_alert_truth` — (misc DDL/DML)
@@ -210,6 +206,10 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260718000003_storage_health_view` — (misc DDL/DML)
 - `20260718000004_register_ops_seller_canonical_sources` — (misc DDL/DML)
 - `20260718000005_db_size_history` — fns:snapshot_db_size · tables:ops_db_size_history
+- `20260719000001_inventory_partnumber_unique` — (misc DDL/DML)
+- `20260719000002_guard_marketplace_order_status` — fns:guard_marketplace_order_status · triggers:trg_guard_marketplace_order_status
+- `20260719000003_seller_rating_verified_only` — fns:update_seller_rating
+- `20260719000004_numeric_nonnegative_bounds` — tables:inventory_items,logbook,marketplace_listings,marketplace_orders
 
 (showing last 200)
 

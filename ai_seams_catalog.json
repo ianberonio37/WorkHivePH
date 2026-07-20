@@ -2,10 +2,10 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-07-18T07:28:09Z",
-    "seam_count": 148,
+    "generated_at": "2026-07-20T01:16:05Z",
+    "seam_count": 173,
     "by_kind": {
-      "saas\u2192ai": 14,
+      "saas\u2192ai": 39,
       "ai\u2192ai": 1,
       "ai\u2192tenant": 86,
       "ai\u2192quota": 47
@@ -13,7 +13,7 @@
     "ai_fn_count": 33,
     "contracts": {
       "covered": 0,
-      "uncovered": 148
+      "uncovered": 173
     }
   },
   "ai_fns": [
@@ -1393,6 +1393,256 @@
       "contract_test": null
     },
     {
+      "id": "saas\u2192ai/.emoji_bak/analytics-report.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/analytics-report.html",
+      "callee": "analytics-orchestrator",
+      "file": ".emoji_bak/analytics-report.html",
+      "line": 633,
+      "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.emoji_bak/analytics.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/analytics.html",
+      "callee": "analytics-orchestrator",
+      "file": ".emoji_bak/analytics.html",
+      "line": 906,
+      "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.emoji_bak/logbook.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/logbook.html",
+      "callee": "embed-entry",
+      "file": ".emoji_bak/logbook.html",
+      "line": 1958,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.emoji_bak/pm-scheduler.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/pm-scheduler.html",
+      "callee": "embed-entry",
+      "file": ".emoji_bak/pm-scheduler.html",
+      "line": 2143,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.emoji_bak/report-sender.html\u2192scheduled-agents",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/report-sender.html",
+      "callee": "scheduled-agents",
+      "file": ".emoji_bak/report-sender.html",
+      "line": 1651,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.emoji_bak/report-sender.html\u2192voice-report-intent",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/report-sender.html",
+      "callee": "voice-report-intent",
+      "file": ".emoji_bak/report-sender.html",
+      "line": 1527,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.emoji_bak/skillmatrix.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".emoji_bak/skillmatrix.html",
+      "callee": "embed-entry",
+      "file": ".emoji_bak/skillmatrix.html",
+      "line": 583,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/analytics-report.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/analytics-report.html",
+      "callee": "analytics-orchestrator",
+      "file": ".hexvar_bak/analytics-report.html",
+      "line": 633,
+      "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/analytics.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/analytics.html",
+      "callee": "analytics-orchestrator",
+      "file": ".hexvar_bak/analytics.html",
+      "line": 906,
+      "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/logbook.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/logbook.html",
+      "callee": "embed-entry",
+      "file": ".hexvar_bak/logbook.html",
+      "line": 1958,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/pm-scheduler.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/pm-scheduler.html",
+      "callee": "embed-entry",
+      "file": ".hexvar_bak/pm-scheduler.html",
+      "line": 2135,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/report-sender.html\u2192scheduled-agents",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/report-sender.html",
+      "callee": "scheduled-agents",
+      "file": ".hexvar_bak/report-sender.html",
+      "line": 1639,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/report-sender.html\u2192voice-report-intent",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/report-sender.html",
+      "callee": "voice-report-intent",
+      "file": ".hexvar_bak/report-sender.html",
+      "line": 1515,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.hexvar_bak/skillmatrix.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".hexvar_bak/skillmatrix.html",
+      "callee": "embed-entry",
+      "file": ".hexvar_bak/skillmatrix.html",
+      "line": 583,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.leftover_bak/pm-scheduler.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".leftover_bak/pm-scheduler.html",
+      "callee": "embed-entry",
+      "file": ".leftover_bak/pm-scheduler.html",
+      "line": 2137,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.leftover_bak/report-sender.html\u2192scheduled-agents",
+      "kind": "saas\u2192ai",
+      "caller": ".leftover_bak/report-sender.html",
+      "callee": "scheduled-agents",
+      "file": ".leftover_bak/report-sender.html",
+      "line": 1641,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.leftover_bak/report-sender.html\u2192voice-report-intent",
+      "kind": "saas\u2192ai",
+      "caller": ".leftover_bak/report-sender.html",
+      "callee": "voice-report-intent",
+      "file": ".leftover_bak/report-sender.html",
+      "line": 1517,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.leftover_bak/skillmatrix.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".leftover_bak/skillmatrix.html",
+      "callee": "embed-entry",
+      "file": ".leftover_bak/skillmatrix.html",
+      "line": 583,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/analytics-report.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/analytics-report.html",
+      "callee": "analytics-orchestrator",
+      "file": ".palette_bak/analytics-report.html",
+      "line": 633,
+      "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/analytics.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/analytics.html",
+      "callee": "analytics-orchestrator",
+      "file": ".palette_bak/analytics.html",
+      "line": 906,
+      "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/logbook.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/logbook.html",
+      "callee": "embed-entry",
+      "file": ".palette_bak/logbook.html",
+      "line": 1958,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/pm-scheduler.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/pm-scheduler.html",
+      "callee": "embed-entry",
+      "file": ".palette_bak/pm-scheduler.html",
+      "line": 2137,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/report-sender.html\u2192scheduled-agents",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/report-sender.html",
+      "callee": "scheduled-agents",
+      "file": ".palette_bak/report-sender.html",
+      "line": 1630,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/report-sender.html\u2192voice-report-intent",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/report-sender.html",
+      "callee": "voice-report-intent",
+      "file": ".palette_bak/report-sender.html",
+      "line": 1506,
+      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/.palette_bak/skillmatrix.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": ".palette_bak/skillmatrix.html",
+      "callee": "embed-entry",
+      "file": ".palette_bak/skillmatrix.html",
+      "line": 583,
+      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
       "id": "saas\u2192ai/analytics-report.html\u2192analytics-orchestrator",
       "kind": "saas\u2192ai",
       "caller": "analytics-report.html",
@@ -1408,7 +1658,7 @@
       "caller": "analytics.html",
       "callee": "analytics-orchestrator",
       "file": "analytics.html",
-      "line": 902,
+      "line": 906,
       "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
       "contract_test": null
     },
@@ -1418,7 +1668,7 @@
       "caller": "companion-launcher.js",
       "callee": "ai-gateway",
       "file": "companion-launcher.js",
-      "line": 970,
+      "line": 959,
       "evidence": "const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {",
       "contract_test": null
     },
@@ -1428,7 +1678,7 @@
       "caller": "logbook.html",
       "callee": "embed-entry",
       "file": "logbook.html",
-      "line": 1991,
+      "line": 1958,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1438,7 +1688,7 @@
       "caller": "pm-scheduler.html",
       "callee": "embed-entry",
       "file": "pm-scheduler.html",
-      "line": 2157,
+      "line": 2135,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1448,7 +1698,7 @@
       "caller": "report-sender.html",
       "callee": "scheduled-agents",
       "file": "report-sender.html",
-      "line": 1651,
+      "line": 1639,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
       "contract_test": null
     },
@@ -1458,7 +1708,7 @@
       "caller": "report-sender.html",
       "callee": "voice-report-intent",
       "file": "report-sender.html",
-      "line": 1527,
+      "line": 1515,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
       "contract_test": null
     },
@@ -1498,7 +1748,7 @@
       "caller": "voice-handler.js",
       "callee": "agentic-rag-loop",
       "file": "voice-handler.js",
-      "line": 7755,
+      "line": 7749,
       "evidence": "const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/agentic-rag-loop', {",
       "contract_test": null
     },
@@ -1508,7 +1758,7 @@
       "caller": "voice-handler.js",
       "callee": "ai-gateway",
       "file": "voice-handler.js",
-      "line": 7819,
+      "line": 7813,
       "evidence": "const resp = await fetcher(SUPABASE_URL + '/functions/v1/ai-gateway', {",
       "contract_test": null
     },
@@ -1518,7 +1768,7 @@
       "caller": "voice-handler.js",
       "callee": "embed-entry",
       "file": "voice-handler.js",
-      "line": 770,
+      "line": 764,
       "evidence": "// /functions/v1/embed-entry call when that path is exposed without",
       "contract_test": null
     },
@@ -1528,7 +1778,7 @@
       "caller": "voice-handler.js",
       "callee": "voice-semantic-rag",
       "file": "voice-handler.js",
-      "line": 6146,
+      "line": 6140,
       "evidence": "const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/voice-semantic-rag', {",
       "contract_test": null
     }

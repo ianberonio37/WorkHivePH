@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-18T07:25:21.110839+00:00",
-  "surfaces": 158,
+  "generated": "2026-07-20T01:12:55.541316+00:00",
+  "surfaces": 160,
   "rows": [
     {
       "id": "D1",
@@ -273,8 +273,8 @@
       "satisfies": "no owner-rights RLS bypass",
       "mode": "measured",
       "adopters_n": 49,
-      "need_n": 49,
-      "pct": 100,
+      "need_n": 51,
+      "pct": 96,
       "adopters": [
         "v_achievement_xp_log",
         "v_active_anomaly_alerts",
@@ -326,7 +326,10 @@
         "v_worker_skill_truth",
         "v_worker_truth"
       ],
-      "gap": []
+      "gap": [
+        "v_cron_health",
+        "v_storage_health"
+      ]
     },
     {
       "id": "D5",

@@ -1,9 +1,8 @@
 {
   "_meta": {
-    "description": "C4 Phase 2a — frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json.",
-    "note_2026_07_18": "Re-baselined to the 148-seam inventory (+2 ai->quota seams from the bug-hunt drive). covered still 0 (Phase 2a contract-test wiring not started); this is inventory-sync, not a coverage regression."
+    "description": "C4 Phase 2a \u2014 frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json."
   },
   "covered": 0,
-  "total": 148,
-  "uncovered": 148
+  "total": 173,
+  "uncovered": 173
 }

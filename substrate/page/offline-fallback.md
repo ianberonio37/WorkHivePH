@@ -2,7 +2,7 @@
 name: page-offline-fallback
 type: page
 source: file:offline-fallback.html
-source_sha: 615915c1c65f1bde
+source_sha: 522722cf9b1b53f1
 last_verified: 2026-07-13
 supersedes: null
 ---

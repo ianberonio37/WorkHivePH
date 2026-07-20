@@ -121,7 +121,7 @@ def seed_voice_journal(client, log, ctx: dict) -> dict:
         hive_id     = m.get("hive_id")
 
         n_entries = random.randint(5, 10)
-        for _ in range(n_entries):
+        for _entry_idx in range(n_entries):
             topic = random.choice(TOPICS)
             transcript = random.choice(topic["transcripts"])
             # Spread across the last 30 days, weighted toward the recent week
@@ -136,7 +136,11 @@ def seed_voice_journal(client, log, ctx: dict) -> dict:
                 "worker_name": worker_name,
                 "hive_id":     hive_id,
                 "transcript":  transcript,
-                "reply":       f"Noted: {topic['reply_hint']} ({len(transcript)} chars)" if random.random() < 0.65 else None,
+                # Deterministic worked-state: the FIRST entry per worker ALWAYS gets an AI reply so the
+                # voice-journal page renders the replied/worked state on EVERY reseed (was pure 65% random ->
+                # a worker could roll 0 replies -> empty page). Makes the UFAI DB-only fix (entry c64fd9ce
+                # got a manual reply) reseed-durable. 2026-07-19.
+                "reply":       f"Noted: {topic['reply_hint']} ({len(transcript)} chars)" if (_entry_idx == 0 or random.random() < 0.65) else None,
                 "lang":        random.choice(LANG_DIST),
                 "meta":        {"source": "seed", "topic": topic["reply_hint"]},
                 "created_at":  created_at.isoformat(),

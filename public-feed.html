@@ -50,7 +50,7 @@
     }
     .header-pill {
       background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
-      color: #4ade80; font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
+      color: var(--wh-green); font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
       border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .header-btn {
@@ -79,22 +79,22 @@
       padding: 1rem; margin-bottom: 0.75rem; transition: border-color 0.2s;
     }
     .post-card:hover { border-color: rgba(255,255,255,0.18); }
-    .post-card.cat-safety      { border-left-color: #ef4444; }
+    .post-card.cat-safety      { border-left-color: var(--wh-red); }
     .post-card.cat-technical   { border-left-color: var(--wh-blue); }
-    .post-card.cat-announcement{ border-left-color: #c084fc; }
+    .post-card.cat-announcement{ border-left-color: var(--wh-violet); }
 
     .post-meta {
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
     }
-    .post-author { font-size: 0.8rem; font-weight: 700; color: #F4F6FA; } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
+    .post-author { font-size: 0.8rem; font-weight: 700; color: var(--wh-cloud); } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
     .cat-badge {
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .cat-general      { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
-    .cat-safety       { background: rgba(239,68,68,0.15); color: #fca5a5; } /* D1 U5: #f87171<4.5:1 on tinted bg → WCAG 1.4.3 */
-    .cat-technical    { background: rgba(41,182,217,0.12); color: #7dd3ec; } /* D1 U5: --wh-blue<4.5:1 small badge → WCAG 1.4.3 */
-    .cat-announcement { background: rgba(168,85,247,0.12); color: #d8b4fe; } /* D1 U5: #c084fc<4.5:1 → WCAG 1.4.3 */
+    .cat-safety       { background: rgba(239,68,68,0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
+    .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue); } /* D1 U5: --wh-blue<4.5:1 small badge → WCAG 1.4.3 */
+    .cat-announcement { background: rgba(168,85,247,0.12); color: #d8b4fe; } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
     .post-time { font-size: 0.7rem; color: rgba(255,255,255,0.66); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
     .post-content {
@@ -128,24 +128,24 @@
 <header class="header">
   <div class="header-left">
     <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="header-logo" />
-    <h2 class="header-title" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;">Public Feed</h2>
-    <span class="header-pill">Read-only</span>
+    <h2 class="header-title" style="display:inline;margin:0;font-size:inherit;font-weight:inherit;" data-i="pf_public_feed">Public Feed</h2>
+    <span class="header-pill" data-i="pf_readonly">Read-only</span>
   </div>
-  <a href="index.html" class="header-btn">Sign In →</a>
+  <a href="index.html" class="header-btn" data-i="pf_signin">Sign In →</a>
 </header>
 
 <!-- Main -->
 <main class="main">
   <div class="page-intro">
     <h1 data-i="pftitle">What hives are talking about</h1>
-    <p>Public posts from WorkHive maintenance teams. Sign in to join the conversation.</p>
+    <p data-i="pf_subtitle">Public posts from WorkHive maintenance teams. Sign in to join the conversation.</p>
     <!-- A1: this read-only feed's primary action is conversion — a clear filled CTA to sign in
          and post, so a signed-out reader sees the one thing to do (the header link is chrome). -->
     <a href="index.html" class="header-btn" style="margin-top:0.85rem;" data-i="pf_join_cta">Sign in to post →</a>
   </div>
 <details class="wh-help">
-  <summary>How this page works</summary>
-  <p>This feed is read-only and shows public hive posts. Nothing personal appears here. Sign in and join a hive to post or reply.</p>
+  <summary data-i="pf_how_summary">How this page works</summary>
+  <p data-i="pf_how_body">This feed is read-only and shows public hive posts. Nothing personal appears here. Sign in and join a hive to post or reply.</p>
 </details>
 
   <h2 class="wh-section-title" data-i="pf_feed_heading">Latest posts</h2>
@@ -245,7 +245,7 @@
     }
     if (!data || data.length === 0) {
       document.getElementById('feed-list').innerHTML =
-        '<div class="empty-state">No public posts yet. Be the first hive to share with the world!</div>';
+        '<div class="empty-state">' + _t('No public posts yet. Be the first hive to share with the world!', (window.WH_FIL_PAGE && window.WH_FIL_PAGE.pf_empty) || '') + '</div>';
       return;
     }
 
@@ -293,7 +293,18 @@
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 
-<script>window.WH_FIL_PAGE = { pftitle: 'Pinag-uusapan ng mga hive' };</script>
+<script>window.WH_FIL_PAGE = {
+  pftitle: 'Pinag-uusapan ng mga hive',
+  pf_public_feed: 'Pampublikong Feed',
+  pf_readonly: 'Read-only',                       // technical term kept (Taglish)
+  pf_signin: 'Mag-sign In →',
+  pf_subtitle: 'Mga pampublikong post mula sa mga maintenance team ng WorkHive. Mag-sign in para sumali sa usapan.',
+  pf_join_cta: 'Mag-sign in para mag-post →',    // was marked but had NO dict entry -> stayed EN in FIL
+  pf_feed_heading: 'Pinakabagong mga post',      // was marked but had NO dict entry -> stayed EN in FIL
+  pf_how_summary: 'Paano gumagana ang page na ito',
+  pf_how_body: 'Read-only ang feed na ito at nagpapakita ng mga pampublikong post ng hive. Walang personal na lumalabas dito. Mag-sign in at sumali sa isang hive para mag-post o sumagot.',
+  pf_empty: 'Wala pang pampublikong post. Maging una ang inyong hive na magbahagi sa mundo!',
+};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

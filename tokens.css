@@ -39,13 +39,21 @@ button, input, select, textarea, optgroup { font-family: inherit; }
      gradient's LIGHTEST stop while staying visibly quieter than --wh-cloud.
      Keep --wh-steel itself for light surfaces (resume.html) where it passes. */
   --wh-steel-bright: #A9B6C4;
-  /* Danger TEXT on dark tints. The #f87171/#FC5C5C family measures 3.4–4.3:1 on
+  /* Danger TEXT on dark tints. The #f87171/#f87171 family measures 3.4–4.3:1 on
      the red-tinted card chips (fails AA small-text); red-300 clears 4.5:1 on
      every dark tint in use. Borders/backgrounds keep the stronger reds. */
   --wh-red-text:     #FCA5A5;
   /* Violet accent TEXT on dark tints — #a78bfa measures 3.4–4.1:1 there. */
   --wh-violet-text:  #C4B5FD;
   --wh-cloud:        #F4F6FA;
+
+  /* ── Semantic + accent canonicals (2026-07-19, "follow my theme brand"): the palette
+     consolidation folded the drifted accents onto THESE. bg/icon fill (bright, on the dark
+     shell); pair with the -text variants above where AA on a light tint is needed. */
+  --wh-green:        #4ade80;   /* good / success (platform-dominant) */
+  --wh-red:          #f87171;   /* alert / danger fill (AA text = --wh-red-text) */
+  --wh-amber:        #facc15;   /* warning */
+  --wh-violet:       #a78bfa;   /* brand lilac / AI accent (AA light-surface = #7c3aed) */
 
   /* ── Brand RGB triplets — for rgba(var(--wh-*-rgb), a) ─────────────────── */
   --wh-orange-rgb:   247, 162, 27;

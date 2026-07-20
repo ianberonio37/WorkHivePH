@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>WorkHive Promo · Companion Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="poster-kit.css">
+<style>
+  /* P8: quiet, receding background — 2 blobs only, faint hex, edge vignette */
+  .blob.a{left:-220px;top:-180px;opacity:.8}
+  .blob.c{right:-300px;bottom:-320px;opacity:.7}
+  .vignette{background:radial-gradient(115% 115% at 66% 46%,transparent 42%,rgba(5,9,18,.60) 100%)}
+  .spot{left:900px;top:150px;width:640px;height:640px}
+
+  .rail{position:absolute;left:82px;top:150px;width:520px;z-index:6;display:flex;flex-direction:column}
+  .rail .wh-logo{height:74px}
+  .rail .eyebrow{margin-top:30px;align-self:flex-start}
+  .rail .h1{font-size:62px;margin-top:22px}          /* P1: L size */
+  .rail .lede{font-size:19px;margin-top:20px;max-width:470px}  /* P4: short */
+  .rail .cta{margin-top:34px}
+  .rail .url{margin-top:16px}
+
+  .beeaura{left:566px;top:520px;width:320px;height:320px}
+  .bee{left:556px;top:502px;width:320px;height:360px}
+</style></head>
+<body>
+<div class="poster" id="poster">
+  <div class="hivebg" data-hex="52" data-op="0.06"></div>
+  <div class="blob a"></div><div class="blob c"></div>
+  <div class="spot"></div>
+
+  <!-- LEFT RAIL -->
+  <div class="rail">
+    <img class="wh-logo" src="../brand_assets/workhive-logo-tight.png" alt="WorkHive"/>
+    <span class="eyebrow"><span class="dot"></span>NOW OPEN · PHILIPPINES · FREE</span>
+    <h1 class="h1">Your plant-floor<br><span class="amber">maintenance companion.</span></h1>
+    <p class="lede">Logbook, PM, parts, and asset history in one hive — that warns your team <b style="color:#eaf1f8">before</b> a failure stops the line.</p>
+    <a class="cta" href="#">Start free in your browser
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <div class="url"><b>workhiveph.com</b> · No download. Works in any browser.</div>
+  </div>
+
+  <!-- PHONE FAN — one HERO (P1), two demoted supports -->
+  <div class="phone" style="width:228px;left:806px;top:224px;transform:rotate(-10deg);z-index:11">
+    <div class="screen"><div class="notch"></div><img src="../wh_pm_clean.png" alt=""><div class="glare"></div></div>
+  </div>
+  <div class="phone" style="width:232px;left:1360px;top:220px;transform:rotate(10deg);z-index:11">
+    <div class="screen"><div class="notch"></div><img src="../wh_analytics_clean.png" alt=""><div class="glare"></div></div>
+  </div>
+  <div class="phone" style="width:344px;left:1088px;top:128px;z-index:14">
+    <div class="screen"><div class="notch"></div><img src="../wh_home_clean.png" alt=""><div class="glare"></div></div>
+  </div>
+  <!-- P8 vignette sits above bg, below phones -->
+  <div class="vignette"></div>
+
+  <!-- DATA FLAGS — one prominent amber focus + one small cyan support (P3/P7) -->
+  <div class="flag" style="left:1004px;top:250px;z-index:22">
+    <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+    <span><div class="l1">Critical Risk · Today</div><div class="l2">TX-001 · 96% · MTBF 9d</div></span>
+  </div>
+  <div class="flag cyan" style="left:1330px;top:648px;z-index:22">
+    <span class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+    <span><div class="l1">OEE</div><div class="l2">87%</div></span>
+  </div>
+
+  <!-- BEE MASCOT -->
+  <div class="beeaura"></div>
+  <svg class="bee"><use href="#bee-mascot"/></svg>
+</div>
+<script src="bee.js"></script><script src="hive.js"></script>
+</body></html>

@@ -24,7 +24,7 @@
     .ds-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
     .ds-id { font-size: .6rem; font-weight: 800; color: var(--wh-blue-light); letter-spacing: .05em; }
     .ds-name { font-size: .92rem; font-weight: 700; }
-    .ds-dim { font-size: .58rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; background: rgba(167,139,250,0.14); color: #a78bfa; }
+    .ds-dim { font-size: .58rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; background: rgba(167,139,250,0.14); color: var(--wh-violet); }
     .ds-api { font-family: ui-monospace, monospace; font-size: .68rem; color: rgba(255,255,255,0.72); margin-top: 6px; word-break: break-word; }
     .ds-guide { font-size: .72rem; color: rgba(255,255,255,0.72); margin-top: 6px; line-height: 1.5; }
     .ds-guide b { color: rgba(255,255,255,0.9); }
@@ -32,7 +32,7 @@
     .ds-spec-label { font-size: .55rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,0.62); margin-bottom: 8px; }
     .ds-adopt { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
     .ds-adopt-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
-    .ds-adopt-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-blue), #4ade80); }
+    .ds-adopt-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-blue), var(--wh-green)); }
     .ds-adopt-txt { font-size: .68rem; font-weight: 700; color: rgba(255,255,255,0.85); white-space: nowrap; }
     .ds-adopt-txt .wh-num { font-variant-numeric: tabular-nums; }
     .ds-src { font-size: .6rem; color: rgba(255,255,255,0.62); margin-top: 8px; font-family: ui-monospace, monospace; }
@@ -107,7 +107,7 @@
     FC2() { return '<div class="sum-card" style="max-width:140px;"><span class="sn">27</span><span class="sl">Open jobs</span></div>'; },
     FC3() { return '<div class="wh-scroll-x"><table class="demo-table" aria-label="Example asset reliability table"><thead><tr><th>Asset</th><th>MTBF</th><th>MTTR</th><th>Availability</th><th>Last failure</th><th>Next PM</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr><td>Compressor C-102</td><td class="wh-num">6.4d</td><td class="wh-num">3.1h</td><td class="wh-num">97.2%</td><td>Jul 12, 2026</td><td>Jul 21, 2026</td><td>R. Santos</td><td>OK</td></tr></tbody></table></div><p style="font-size:.6rem;color:rgba(255,255,255,0.6);margin-top:6px;">← the wrapper scrolls; the page never does</p>'; },
     FI1() { return '<details class="wh-disclose"><summary><span class="wh-disclose-title">Ops detail (.wh-disclose)</span></summary><div class="wh-disclose-body"><p style="font-size:.75rem;color:rgba(255,255,255,0.72);">Deferred complexity lives here.</p></div></details><details class="wh-help"><summary>Inline help (.wh-help)</summary><p>How-this-works copy lives here.</p></details>'; },
-    FI2() { return '<button class="wh-tap-h" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:8px;color:#f87171;font-family:inherit;font-size:.75rem;padding:0 14px;cursor:pointer;" onclick="whConfirm(\'Delete this demo row?\', { danger: true }).then(ok => whToast && whToast(ok ? \'Confirmed\' : \'Cancelled\'))">whConfirm demo</button>'; },
+    FI2() { return '<button class="wh-tap-h" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:8px;color:var(--wh-red);font-family:inherit;font-size:.75rem;padding:0 14px;cursor:pointer;" onclick="whConfirm(\'Delete this demo row?\', { danger: true }).then(ok => whToast && whToast(ok ? \'Confirmed\' : \'Cancelled\'))">whConfirm demo</button>'; },
     FI3() { return '<div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="filter-chip active" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">All</span><span class="filter-chip" style="min-height:44px;display:inline-flex;align-items:center;padding:0 14px;">Overdue</span></div>'; },
     FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') whListSkeleton(el, 3); }, 0); return '<div id="' + id + '"></div>'; },
     FF2() { return (typeof whOhBadge === 'function' ? whOhBadge('critical', '2 overdue') + ' ' + whOhBadge('ok', 'on track') : '') + (typeof whProgressStrip === 'function' ? whProgressStrip('PM this week', 4, 6) : ''); },
@@ -137,7 +137,7 @@
         adopt = '<div class="ds-adopt"><span class="ds-adopt-txt wh-text-muted">governed by <code>' + e(a.gate || '') + '</code></span></div>';
       }
       let spec = '';
-      try { spec = SPEC[c.id] ? SPEC[c.id]() : ''; } catch (err) { spec = '<em style="font-size:.68rem;color:#f87171;">specimen error: ' + e(String(err)) + '</em>'; }
+      try { spec = SPEC[c.id] ? SPEC[c.id]() : ''; } catch (err) { spec = '<em style="font-size:.68rem;color:var(--wh-red);">specimen error: ' + e(String(err)) + '</em>'; }
       return '<div class="ds-row">' +
         '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">satisfies ' + e(c.satisfies) + '</span></div>' +
         '<div class="ds-api">' + e(c.api) + '</div>' +

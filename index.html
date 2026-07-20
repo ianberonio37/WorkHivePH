@@ -299,38 +299,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            orange: {
-              wh: '#F7A21B',
-              dark: '#D88A0E',
-              light: '#FDB94A',
-            },
-            blue: {
-              wh: '#29B6D9',
-              dark: '#1A9ABF',
-              light: '#5FCCE8',
-            },
-            navy: {
-              wh: '#162032',
-              mid: '#1F2E45',
-              light: '#2A3D58',
-            },
-            steel: '#7B8794',
-            cloud: '#F4F6FA',
-          },
-          fontFamily: {
-            poppins: ['Poppins', 'sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
+  <!-- Tailwind: self-hosted subset (wh-tw.css) instead of the the Tailwind Play CDN.
+       Byte-correct output Tailwind itself compiled for this page's exact utility classes
+       (tools/tw_extract_build.mjs + Playwright harvest) — no runtime build, no CDN dependency,
+       no "should not be used in production" console warning. The custom theme (orange/blue/navy/
+       steel/cloud + Poppins) is baked into wh-tw.css. Regenerate if new utilities are added. -->
+  <link rel="stylesheet" href="wh-tw.css">
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -1002,12 +976,7 @@
       <!-- PWA install button: shown only when browser fires beforeinstallprompt -->
       <button id="pwa-install-btn" onclick="triggerInstall()"
               aria-label="Install WorkHive">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <!-- Hex outline -->
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2 L20.5 7 L20.5 17 L12 22 L3.5 17 L3.5 7 Z"/>
-          <!-- Down arrow inside hex -->
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8 L12 14 M9.5 12 L12 14.5 L14.5 12"/>
-        </svg>
+        <span class="ic ic-parts" aria-hidden="true"></span>
         <span data-i="installwh">Install WorkHive</span>
       </button>
       <div class="relative user-menu-wrapper">
@@ -1055,12 +1024,9 @@
     <div class="pt-4 flex flex-col gap-3">
       <button id="pwa-install-btn-mobile" onclick="triggerInstall()"
               class="hidden items-center justify-center gap-2 text-sm text-center font-bold"
-              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:#F7A21B;padding:10px 16px;border-radius:10px;width:100%;"
+              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:var(--wh-orange);padding:10px 16px;border-radius:10px;width:100%;"
               aria-label="Install WorkHive">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2 L20.5 7 L20.5 17 L12 22 L3.5 17 L3.5 7 Z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8 L12 14 M9.5 12 L12 14.5 L14.5 12"/>
-        </svg>
+        <span class="ic ic-parts" aria-hidden="true"></span>
         <span data-i="installwh">Install WorkHive</span>
       </button>
       <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm text-center" data-i="signin">Sign In</button>
@@ -1080,9 +1046,9 @@
     #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 10px; }
     #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
     #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:var(--wh-radius-sm); }
-    #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:#fb923c; }
-    #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:#f87171; }
-    #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:#fb923c; }
+    #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:var(--wh-orange); }
+    #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:var(--wh-red); }
+    #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:var(--wh-orange); }
     /* Calm stat tile: only renders when count > 0. Container is flex so
        tiles flow without leaving holes. */
     #ops-home .oh-tile { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:14px 16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
@@ -1112,7 +1078,7 @@
     #oh-lang { display:inline-flex; border:1px solid rgba(255,255,255,.12); border-radius:8px; overflow:hidden; flex-shrink:0; }
     #oh-lang button { font-size:.66rem; font-weight:700; padding:6px 11px; background:transparent; color:rgba(255,255,255,.55); border:none; cursor:pointer; font-family:inherit; min-height:31px; }
     #oh-lang button + button { border-left:1px solid rgba(255,255,255,.12); }
-    #oh-lang button.on { background:rgba(41,182,217,.15); color:#29B6D9; }
+    #oh-lang button.on { background:rgba(41,182,217,.15); color:var(--wh-blue); }
     @media (max-width:600px){ #oh-lang button { min-height:44px; min-width:44px; box-sizing:border-box; } }
     /* Disclosure for everything that isn't the verdict, stats, or primary actions */
     #ops-home .oh-more { background:transparent; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0; overflow:hidden; }
@@ -1141,7 +1107,7 @@
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
       <div>
         <!-- heading-allow: signed-in dashboard h1, mutually-exclusive (display-switched) with the #mkt-wrap hero h1; one h1 per view. axe page-has-heading-one needs a visible h1 here. -->
-        <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:#F4F6FA; margin:0 0 4px;"></h1>
+        <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:var(--wh-cloud); margin:0 0 4px;"></h1>
         <p id="oh-date" style="font-size:.72rem; color:rgba(255,255,255,.6); margin:0;"></p>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
@@ -1149,12 +1115,12 @@
              to localStorage and syncs to worker_profiles.preferred_persona
              so ai-gateway routes the same persona on every device. -->
         <button id="oh-persona-toggle" type="button" onclick="togglePersona()"
-                style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:#F7A21B; border:1px solid rgba(247,162,27,.30); border-radius:999px; font-family:inherit; cursor:pointer;"
+                style="display:none; font-size:.7rem; font-weight:700; padding:6px 12px; background:rgba(247,162,27,.10); color:var(--wh-orange); border:1px solid rgba(247,162,27,.30); border-radius:999px; font-family:inherit; cursor:pointer;"
                 aria-label="Change AI companion (Hezekiah or Zaniah)">
           <label for="oh-persona-toggle" class="sr-only" data-i="aicompanion">AI companion</label>
           <span aria-hidden="true" data-i="companionlbl">Companion: </span><span id="oh-persona-name" translate="no">Zaniah</span>
         </button>
-        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:#29B6D9; border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
+        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:var(--wh-blue); border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
         <!-- N1 i18n: language switch (rubric N1 "offer a language switch"). Persists to
              wh_lang; setLang() swaps [data-i] statics + re-renders the dashboard's _t() labels. -->
         <div id="oh-lang" role="group" aria-label="Language / Wika">
@@ -1215,29 +1181,29 @@
         <div>
           <h2 class="oh-sec-lbl" data-i="alltools">All Tools</h2>
           <div class="oh-tools-grid">
-            <a href="logbook.html" class="oh-qa-btn" style="background:rgba(247,162,27,.08); color:#F7A21B; border-color:rgba(247,162,27,.25);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <a href="logbook.html" class="oh-qa-btn" style="background:rgba(247,162,27,.08); color:var(--wh-orange); border-color:rgba(247,162,27,.25);">
+              <span class="ic ic-back" aria-hidden="true"></span>
               <span data-i="logajob">Log a Job</span>
             </a>
-            <a href="pm-scheduler.html" class="oh-qa-btn" style="background:rgba(41,182,217,.08); color:#29B6D9; border-color:rgba(41,182,217,.25);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
+            <a href="pm-scheduler.html" class="oh-qa-btn" style="background:rgba(41,182,217,.08); color:var(--wh-blue); border-color:rgba(41,182,217,.25);">
+              <span class="ic ic-back" aria-hidden="true"></span>
               <span data-i="pmscheduler">PM Scheduler</span>
             </a>
-            <a href="analytics.html" class="oh-qa-btn" style="background:rgba(167,139,250,.08); color:#a78bfa; border-color:rgba(167,139,250,.25);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+            <a href="analytics.html" class="oh-qa-btn" style="background:rgba(167,139,250,.08); color:var(--wh-violet); border-color:rgba(167,139,250,.25);">
+              <span class="ic ic-analytics" aria-hidden="true"></span>
               <span data-i="analytics">Analytics</span>
             </a>
-            <a href="assistant.html" class="oh-qa-btn" style="background:rgba(74,222,128,.08); color:#4ade80; border-color:rgba(74,222,128,.25);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            <a href="assistant.html" class="oh-qa-btn" style="background:rgba(74,222,128,.08); color:var(--wh-green); border-color:rgba(74,222,128,.25);">
+              <span class="ic ic-message" aria-hidden="true"></span>
               <span data-i="askai">Ask AI</span>
             </a>
-            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:#fb7185; border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:var(--wh-red); border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
+              <span class="ic ic-voice" aria-hidden="true"></span>
               <span data-i="voicejournal">Voice Journal</span>
             </a>
             <!-- Phase E.3d: scan an equipment tag from anywhere in the platform -->
-            <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:#F4F6FA; border-color:rgba(255,255,255,.12); cursor:pointer; font-family:inherit; grid-column:1 / -1;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+            <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:var(--wh-cloud); border-color:rgba(255,255,255,.12); cursor:pointer; font-family:inherit; grid-column:1 / -1;">
+              <span class="ic ic-scan" aria-hidden="true"></span>
               <span data-i="scanasset">Scan an Asset</span>
             </button>
           </div>
@@ -1276,9 +1242,9 @@
 
   <!-- radial glows -->
   <div class="absolute top-1/4 -left-40 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
-       style="background: radial-gradient(circle, #F7A21B 0%, transparent 70%); filter: blur(80px);"></div>
+       style="background: radial-gradient(circle, var(--wh-orange) 0%, transparent 70%); filter: blur(80px);"></div>
   <div class="absolute bottom-1/4 -right-40 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none"
-       style="background: radial-gradient(circle, #29B6D9 0%, transparent 70%); filter: blur(80px);"></div>
+       style="background: radial-gradient(circle, var(--wh-blue) 0%, transparent 70%); filter: blur(80px);"></div>
 
   <div class="relative max-w-7xl mx-auto px-5 sm:px-8 py-24 lg:py-32 overflow-hidden">
 
@@ -1303,7 +1269,7 @@
 
         <h1 class="text-4xl sm:text-6xl lg:text-[4.2rem] font-black leading-[1.05] tracking-[-0.03em] mb-6">
           <span data-i="accessyour">Access Your</span>
-          <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="memory">Memory</span>
+          <span style="background: linear-gradient(135deg, var(--wh-orange) 30%, var(--wh-orange-light) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="memory">Memory</span>
           <span class="block text-2xl sm:text-3xl lg:text-4xl text-white/85 font-bold tracking-normal mt-3" data-i="herosub">Free Industrial Tools for Every Filipino Worker</span>
         </h1>
 
@@ -1316,7 +1282,7 @@
           <a href="#join" class="btn-primary text-base cta-pulse">Join the Hive</a>
           <a href="#platform" class="cta-text-link">
             See How It Works
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            <span class="ic ic-next" aria-hidden="true"></span>
           </a>
         </div>
 
@@ -1337,15 +1303,15 @@
         <!-- Trust chip row: 3 short proof points. DTI = authority, Free = pricing clincher, PDPA = data trust. -->
         <div class="flex flex-wrap gap-2 mb-6">
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="ic ic-check" aria-hidden="true"></span>
             <span class="text-xs font-semibold text-white/85">DTI Registered <span class="text-white/60 font-normal">· 8080496</span></span>
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F7A21B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+            <span class="ic ic-check" aria-hidden="true"></span>
             <span class="text-xs font-semibold text-white/85">Free Forever <span class="text-white/60 font-normal">· worker tier</span></span>
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-wh/30" style="background: rgba(41,182,217,0.08);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#29B6D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span class="ic ic-secure" aria-hidden="true"></span>
             <span class="text-xs font-semibold text-white/85">PDPA Compliant <span class="text-white/60 font-normal">· data isolated per hive</span></span>
           </div>
         </div>
@@ -1383,7 +1349,7 @@
                 <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Operational Readiness Layer</p>
                 <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
-              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,#F7A21B,#FDB94A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
+              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
               <p class="text-[11px] text-white/60 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
               <p class="text-[10px] text-white/60 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
             </div>
@@ -1396,7 +1362,7 @@
                 .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; overflow: clip; }
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
-                .stage-card:focus-visible { outline: 2px solid #4A9FD4; outline-offset: 2px; }
+                .stage-card:focus-visible { outline: 2px solid var(--wh-blue); outline-offset: 2px; }
                 .stage-hex-num {
                   width: 26px; height: 30px; flex-shrink: 0;
                   clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
@@ -1429,57 +1395,57 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 
                 <!-- Card 1: Paper-to-Digital -->
-                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid #4A9FD4; background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#4A9FD4;">01</div>
+                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <div class="stage-hex-num" style="background:var(--wh-blue);">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
-                  <span style="font-size:9px;font-weight:800;color:#7DCFFF;background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue);background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#7DCFFF;">Now</span><span>Hive joined</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#7DCFFF;">Next</span><span>10 assets logged, 1 SOP documented</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Now</span><span>Hive joined</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Next</span><span>10 assets logged, 1 SOP documented</span></div>
                   </div>
-                  <div class="stage-hex-watermark" style="background:#4A9FD4;"></div>
+                  <div class="stage-hex-watermark" style="background:var(--wh-blue);"></div>
                   <div class="stage-connector-h"></div>
                 </div>
 
                 <!-- Card 2: Disciplined -->
-                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid #00C4B4; background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#00C4B4;">02</div>
+                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid var(--wh-blue); background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <div class="stage-hex-num" style="background:var(--wh-blue);">02</div>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
-                  <span style="font-size:9px;font-weight:800;color:#4DEDE0;background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue);background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#4DEDE0;">Now</span><span>Stage 1 complete</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#4DEDE0;">Next</span><span>PM compliance ≥70% for 30 days</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Now</span><span>Stage 1 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Next</span><span>PM compliance ≥70% for 30 days</span></div>
                   </div>
-                  <div class="stage-hex-watermark" style="background:#00C4B4;"></div>
+                  <div class="stage-hex-watermark" style="background:var(--wh-blue);"></div>
                 </div>
 
                 <!-- Card 3: Predictive-Ready -->
-                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid #9B59E8; background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#9B59E8;">03</div>
+                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <div class="stage-hex-num" style="background:var(--wh-violet);">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
-                  <span style="font-size:9px;font-weight:800;color:#C4A0FF;background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">AI · Sensor</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-violet);background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">AI · Sensor</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#C4A0FF;">Now</span><span>Stage 2 complete</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#C4A0FF;">Next</span><span>90+ days history OR sensors live</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet);">Now</span><span>Stage 2 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet);">Next</span><span>90+ days history OR sensors live</span></div>
                   </div>
-                  <div class="stage-hex-watermark" style="background:#9B59E8;"></div>
+                  <div class="stage-hex-watermark" style="background:var(--wh-violet);"></div>
                   <div class="stage-connector-h"></div>
                 </div>
 
                 <!-- Card 4: Industry Leader -->
-                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid #FFB800; background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
-                  <div class="stage-hex-num" style="background:#FFB800;">04</div>
+                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid var(--wh-orange); background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
+                  <div class="stage-hex-num" style="background:var(--wh-orange);">04</div>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
-                  <span style="font-size:9px;font-weight:800;color:#FFD166;background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-orange);background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#FFD166;">Now</span><span>Stage 3 complete</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:#FFD166;">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange);">Now</span><span>Stage 3 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange);">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
                   </div>
-                  <div class="stage-hex-watermark" style="background:#FFB800;"></div>
+                  <div class="stage-hex-watermark" style="background:var(--wh-orange);"></div>
                 </div>
 
               </div>
@@ -1500,7 +1466,7 @@
 
   <!-- bottom fade -->
   <div class="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-       style="background: linear-gradient(to bottom, transparent, #162032);"></div>
+       style="background: linear-gradient(to bottom, transparent, var(--wh-navy));"></div>
 </section>
 
 <!-- ═══════════════════════════════════════════════
@@ -1567,7 +1533,7 @@
     <p class="text-sm text-white/60 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
     <a href="/learn/what-is-workhive-complete-platform-guide/" class="inline-flex items-center gap-2 mt-7 text-orange-wh hover:text-orange-light transition-colors font-semibold text-sm">
       Read the complete platform guide
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      <span class="ic ic-next" aria-hidden="true"></span>
     </a>
   </div>
 </section>
@@ -1580,32 +1546,32 @@
     <p class="text-center text-xs text-white/60 font-medium uppercase tracking-widest mb-6">Designed for Philippine Industry</p>
     <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
       <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zm5.99 7.176A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+        <span class="ic ic-factory" aria-hidden="true"></span>
         <span class="text-sm font-medium">Manufacturing</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
       <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+        <span class="ic ic-power" aria-hidden="true"></span>
         <span class="text-sm font-medium">Energy &amp; Utilities</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
       <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        <span class="ic ic-food" aria-hidden="true"></span>
         <span class="text-sm font-medium">Food Processing</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
       <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/></svg>
+        <span class="ic ic-chip" aria-hidden="true"></span>
         <span class="text-sm font-medium">Electronics</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
       <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <span class="ic ic-building" aria-hidden="true"></span>
         <span class="text-sm font-medium">Facilities &amp; BMS</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
       <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"/></svg>
+        <span class="ic ic-oil" aria-hidden="true"></span>
         <span class="text-sm font-medium">Petrochemicals</span>
       </div>
     </div>
@@ -1625,11 +1591,11 @@
 
   <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-20 reveal">
-      <div class="hex-divider justify-center"><span></span><span style="background:#F7A21B; width:6px; height:6px;"></span><span></span></div>
+      <div class="hex-divider justify-center"><span></span><span style="background:var(--wh-orange); width:6px; height:6px;"></span><span></span></div>
       <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">How the hive works</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
         <span data-i="fourgaps">Four gaps.</span><br/>
-        <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="onehive">One hive.</span>
+        <span style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="onehive">One hive.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
         Philippine industrial work is held back by four compounding gaps. WorkHive is the first
@@ -1642,7 +1608,7 @@
       <!-- Gap 1: Execution -->
       <div class="rounded-3xl p-8 border border-white/[0.08] card-orange reveal" style="background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);">
         <div class="flex items-start gap-4 mb-6">
-          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">01</div>
+          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));">01</div>
           <div>
             <span class="tag-blue mb-2 inline-block">Fix It Fast</span>
             <h3 class="text-xl font-bold text-white" data-i="chaoscoord">From Chaos to Coordination</h3>
@@ -1667,7 +1633,7 @@
       <!-- Gap 2: Skills -->
       <div class="rounded-3xl p-8 border border-white/[0.08] card-glow reveal" style="background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);">
         <div class="flex items-start gap-4 mb-6">
-          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">02</div>
+          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light));">02</div>
           <div>
             <span class="tag-blue mb-2 inline-block">Right Person, Right Job</span>
             <h3 class="text-xl font-bold text-white" data-i="guessprecision">From Guesswork to Precision</h3>
@@ -1692,7 +1658,7 @@
       <!-- Gap 3: Intelligence -->
       <div class="rounded-3xl p-8 border border-white/[0.08] card-glow reveal" style="background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);">
         <div class="flex items-start gap-4 mb-6">
-          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">03</div>
+          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light));">03</div>
           <div>
             <span class="tag-blue mb-2 inline-block">The Hive Remembers</span>
             <h3 class="text-xl font-bold text-white" data-i="amnesiamemory">From Amnesia to Memory</h3>
@@ -1717,7 +1683,7 @@
       <!-- Gap 4: Marketplace -->
       <div class="rounded-3xl p-8 border border-white/[0.08] card-orange reveal" style="background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);">
         <div class="flex items-start gap-4 mb-6">
-          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">04</div>
+          <div class="step-dot text-navy-wh" style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));">04</div>
           <div>
             <span class="tag-blue mb-2 inline-block">Find a Specialist</span>
             <h3 class="text-xl font-bold text-white" data-i="lucktodesign">From Luck to Design</h3>
@@ -1755,11 +1721,11 @@
     <div class="grid lg:grid-cols-2 gap-16 items-center">
 
       <div class="reveal">
-        <div class="hex-divider"><span></span><span style="background:#F7A21B; width:6px; height:6px;"></span><span></span></div>
+        <div class="hex-divider"><span></span><span style="background:var(--wh-orange); width:6px; height:6px;"></span><span></span></div>
         <p class="text-xs text-orange-wh font-semibold uppercase tracking-[0.15em] mb-4">The hive in action</p>
         <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
           <span data-i="dayafter">The day after</span><br/>
-          <span style="background: linear-gradient(135deg, #F7A21B, #FDB94A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" translate="no">WorkHive.</span>
+          <span style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" translate="no">WorkHive.</span>
         </h2>
         <p class="text-white/55 leading-[1.75] font-light mb-10">
           The gap is not talent or ambition. It is systems. WorkHive gives capable Filipino workers the infrastructure they deserve.
@@ -1830,11 +1796,11 @@
 <section id="community" class="py-16 lg:py-20" style="background: rgba(31,46,69,0.75); position: relative; z-index: 1;">
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
     <div class="text-center max-w-2xl mx-auto mb-12 reveal">
-      <div class="hex-divider justify-center"><span></span><span style="background:#29B6D9; width:6px; height:6px;"></span><span></span></div>
+      <div class="hex-divider justify-center"><span></span><span style="background:var(--wh-blue); width:6px; height:6px;"></span><span></span></div>
       <p class="text-xs text-blue-wh font-semibold uppercase tracking-[0.15em] mb-4">Find your role</p>
       <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
         <span data-i="everyworker">Every worker</span><br/>
-        <span style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="roleinhive">has a role in the hive.</span>
+        <span style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="roleinhive">has a role in the hive.</span>
       </h2>
       <p class="text-white/55 leading-[1.75] font-light">
         Whether you're on the floor or running the floor, the hive works for you.
@@ -1844,31 +1810,24 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal stagger-wrap">
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">
-          <svg class="w-5 h-5 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));">
+          <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h3 class="font-bold text-white text-lg mb-2" data-i="techsops">Technicians &amp; Operators</h3>
         <p class="text-sm text-white/50 leading-relaxed">You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.</p>
       </div>
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8);">
-          <svg class="w-5 h-5 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-          </svg>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light));">
+          <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h3 class="font-bold text-white text-lg mb-2" data-i="mgrsups">Managers &amp; Supervisors</h3>
         <p class="text-sm text-white/50 leading-relaxed">You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.</p>
       </div>
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-orange sm:col-span-2 lg:col-span-1" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, #F7A21B, #FDB94A);">
-          <svg class="w-5 h-5 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-          </svg>
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));">
+          <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h3 class="font-bold text-white text-lg mb-2" data-i="entrepreneurs">Entrepreneurs &amp; Builders</h3>
         <p class="text-sm text-white/50 leading-relaxed">Build a verified reputation in the hive. Post your services, get found by the plants that need exactly what you do, and let your track record speak. No middleman, no platform fee.</p>
@@ -1887,9 +1846,9 @@
         where it becomes real jobs and trades.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="public-feed.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-navy-wh" style="background: linear-gradient(135deg, #29B6D9, #5FCCE8); min-height:44px;">
+        <a href="public-feed.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-navy-wh" style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); min-height:44px;">
           See the community feed
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
         </a>
         <a href="/learn/industrial-community-of-practice-philippines/" class="inline-flex items-center gap-1.5 text-blue-wh font-semibold hover:text-white transition-colors" style="min-height:44px;">
           How a community of practice works →
@@ -2029,7 +1988,7 @@
     <div class="text-center">
       <a href="/learn/" class="inline-flex items-center gap-2 text-orange-wh hover:text-orange-light transition-colors font-semibold">
         See all <!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> guides
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span class="ic ic-next" aria-hidden="true"></span>
       </a>
     </div>
   </div>
@@ -2083,9 +2042,9 @@
 <section id="join" class="py-24 lg:py-32 hex-pattern grain relative overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 100%); z-index: 1;">
   <!-- glows -->
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full opacity-25 pointer-events-none"
-       style="background: radial-gradient(ellipse, #F7A21B 0%, transparent 70%); filter: blur(80px);"></div>
+       style="background: radial-gradient(ellipse, var(--wh-orange) 0%, transparent 70%); filter: blur(80px);"></div>
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full opacity-20 pointer-events-none"
-       style="background: radial-gradient(ellipse, #29B6D9 0%, transparent 70%); filter: blur(60px);"></div>
+       style="background: radial-gradient(ellipse, var(--wh-blue) 0%, transparent 70%); filter: blur(60px);"></div>
 
   <div class="relative max-w-3xl mx-auto px-5 sm:px-8 text-center reveal">
     <div class="mb-6 flex justify-center">
@@ -2093,7 +2052,7 @@
     </div>
     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-[-0.03em] mb-6">
       <span data-i="jointhehive">Join the hive.</span><br/>
-      <span style="background: linear-gradient(135deg, #F7A21B 30%, #FDB94A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="buildfuture">Build the future.</span>
+      <span style="background: linear-gradient(135deg, var(--wh-orange) 30%, var(--wh-orange-light) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="buildfuture">Build the future.</span>
     </h2>
     <p class="text-lg text-white/55 leading-[1.75] font-light mb-10 max-w-xl mx-auto">
       The beehive has been showing us how for 80 million years: every worker valued, every role
@@ -2146,13 +2105,13 @@
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#F7A21B,#FDB94A);">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));">
+          <span class="ic ic-check" aria-hidden="true"></span>
         </div>
         <p class="text-sm text-white/55 leading-snug">DTI Registered Business <span class="text-white/60">No. 8080496</span></p>
       </div>
       <div class="flex items-center gap-2 text-white/60">
-        <svg class="w-4 h-4 text-orange-wh" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <span class="ic ic-star" aria-hidden="true"></span>
         <span class="text-sm">Free at the worker tier, forever</span>
       </div>
     </div>
@@ -2362,7 +2321,7 @@
       <div class="flex items-center justify-between mb-4">
         <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/60">Your Growth Path</p>
         <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
       <!-- stage tabs -->
@@ -2388,7 +2347,7 @@
 
     <!-- stage info -->
     <div id="popup-stage-info" class="px-5 pb-4 border-b border-white/[0.07] flex-shrink-0">
-      <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:#F7A21B;"></p>
+      <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:var(--wh-orange);"></p>
       <p id="popup-stage-quote" class="text-white/60 text-xs italic"></p>
     </div>
 
@@ -2419,7 +2378,7 @@
       label: 'Stage 1: Paper-to-Digital',
       name: 'Paper-to-Digital',
       quote: '"Get out of paper. Replace spreadsheets. Build the operating rhythm."',
-      color: '#4A9FD4',
+      color: '#29b6d9',
       rgb:   '74,159,212',
       tabClass: 'active-blue',
       tools: [
@@ -2437,7 +2396,7 @@
       label: 'Stage 2: Disciplined',
       name: 'Disciplined',
       quote: '"PMs compliant. Logbook hygiene. Supervisor approvals routine. Discipline compounds."',
-      color: '#00C4B4',
+      color: '#29b6d9',
       rgb:   '0,196,180',
       tabClass: 'active-teal',
       tools: [
@@ -2455,7 +2414,7 @@
       label: 'Stage 3: Predictive-Ready',
       name: 'Predictive-Ready',
       quote: '"Move from reacting to predicting. Anomaly detection. Sensor data. Reliability engineering."',
-      color: '#9B59E8',
+      color: '#a78bfa',
       rgb:   '155,89,232',
       tabClass: 'active-purple',
       tools: [
@@ -2474,7 +2433,7 @@
       label: 'Stage 4: Industry Leader',
       name: 'Industry Leader',
       quote: '"Become an industrial intelligence source, not just a consumer. Engineering, projects, integrations, marketplace."',
-      color: '#FFB800',
+      color: '#f7a21b',
       rgb:   '255,184,0',
       tabClass: 'active-gold',
       tools: [
@@ -2514,7 +2473,7 @@
         </div>
         <p class="font-bold text-white text-xs mb-1">${t.name}</p>
         <p class="text-white/60 text-[11px] leading-relaxed">${t.desc}</p>
-        ${isLink ? `<p class="text-[10px] font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></p>` : ''}
+        ${isLink ? `<p class="text-[10px] font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <span class="ic ic-next" aria-hidden="true"></span></p>` : ''}
       </${closeTag}>`;
     }).join('');
   }
@@ -2646,7 +2605,7 @@
     <!-- Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
          housekeeping nudge no longer outshines the page's real primary action (the
          verdict/next-job). Also bumped to the 44px gloved-field tap target. -->
-    <button onclick="upgradeToAccount()" style="background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Secure account →</button>
+    <button onclick="upgradeToAccount()" style="background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Secure account →</button>
     <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
   </div>
 </div>
@@ -2681,7 +2640,7 @@
     <div class="flex mb-5 rounded-xl overflow-hidden" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
       <button id="tab-signin" onclick="switchAuthTab('signin')" role="tab" aria-selected="true" aria-controls="panel-signin"
         class="flex-1 py-2.5 text-sm font-bold transition-colors"
-        style="background:rgba(247,162,27,0.1); color:#F7A21B; border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
+        style="background:rgba(247,162,27,0.1); color:var(--wh-orange); border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
       <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
         class="flex-1 py-2.5 text-sm font-semibold transition-colors"
         style="color:rgba(255,255,255,0.6);" data-i="signup">Sign Up</button>
@@ -2701,14 +2660,14 @@
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show password">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
       </div>
       <p role="alert" aria-live="assertive" id="si-error" class="text-xs text-red-400 mb-3 hidden"></p>
       <button type="submit" id="si-btn" onclick="submitSignIn()"
         class="w-full rounded-xl py-3 text-sm font-bold"
-        style="background:#F7A21B; color:#162032;" data-i="signin">Sign In</button>
+        style="background:var(--wh-orange); color:var(--wh-navy);" data-i="signin">Sign In</button>
       <!-- Arc I I3/I — password recovery: email reset (real-email users) + supervisor-assisted (no-email workers) -->
       <p style="margin-top:10px; text-align:center;">
         <button type="button" onclick="forgotPassword(event)" style="display:inline; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;" data-i="forgotpwd">Forgot your password?</button>
@@ -2719,7 +2678,7 @@
         <p style="font-size:.65rem; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
         <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
           class="w-full rounded-xl py-2.5 text-sm font-semibold"
-          style="background:rgba(41,182,217,0.08); color:#29B6D9; border:1px solid rgba(41,182,217,0.25);" translate="no">
+          style="background:rgba(41,182,217,0.08); color:var(--wh-blue); border:1px solid rgba(41,182,217,0.25);" translate="no">
           Enterprise SSO (Okta / Azure AD)
         </button>
       </div>
@@ -2742,7 +2701,7 @@
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show password">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
         <div style="position:relative;">
@@ -2751,7 +2710,7 @@
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-confirm',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show confirm password">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
         <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname" aria-label="Display name (shown to teammates)"
@@ -2765,7 +2724,7 @@
       <p role="alert" aria-live="assertive" id="su-error" class="text-xs text-red-400 mb-3 hidden"></p>
       <button type="submit" id="su-btn" onclick="submitSignUp()"
         class="w-full rounded-xl py-3 text-sm font-bold"
-        style="background:#F7A21B; color:#162032;" data-i="createaccount">Create Account</button>
+        style="background:var(--wh-orange); color:var(--wh-navy);" data-i="createaccount">Create Account</button>
       <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);">Username cannot be changed later</p>
     </form>
 
@@ -2776,7 +2735,7 @@
         <p style="color:rgba(255,255,255,0.6); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
           WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
         </p>
-        <button onclick="switchAuthTab('signup')" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;" data-i="createaccountgo">
+        <button onclick="switchAuthTab('signup')" style="background:var(--wh-orange);color:var(--wh-navy);border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;" data-i="createaccountgo">
           Create Account →
         </button>
       </div>
@@ -2910,7 +2869,7 @@
       t.textContent = msg;
       t.setAttribute('role', 'alert');
       t.setAttribute('aria-live', 'polite');
-      t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;white-space:pre-line;' + (kind === 'error' ? 'border-left:3px solid #ef4444;' : '');
+      t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;white-space:pre-line;' + (kind === 'error' ? 'border-left:3px solid #f87171;' : '');
       document.body.appendChild(t);
       setTimeout(() => t.remove(), 5000);
     };
@@ -3169,10 +3128,10 @@
           <div style="font-size:2.5rem; margin-bottom:0.75rem;">&#10003;</div>
           <p style="color:white; font-weight:800; font-size:1rem; margin:0 0 0.5rem;">Account secured!</p>
           <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin:0 0 1.5rem; line-height:1.5;">
-            Your existing records as <strong style="color:#F7A21B;">${escHtml(displayName)}</strong>
+            Your existing records as <strong style="color:var(--wh-orange);">${escHtml(displayName)}</strong>
             are now linked to your account.
           </p>
-          <button onclick="closeSignIn()" style="background:#F7A21B;color:#162032;border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;width:100%;">
+          <button onclick="closeSignIn()" style="background:var(--wh-orange);color:var(--wh-navy);border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;width:100%;">
             Let&#39;s go &#8594;
           </button>
         </div>`;
@@ -3890,7 +3849,7 @@
       // control), the second is a tinted secondary. Ends the "co-equal CTAs" ambiguity.
       _ohActionsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _primary.map((p, i) =>
         i === 0
-          ? `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.color}; color:#162032; border-color:${p.color}; font-weight:800;">${escHtml(p.label)}</a>`
+          ? `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.color}; color:var(--wh-navy); border-color:${p.color}; font-weight:800;">${escHtml(p.label)}</a>`
           : `<a href="${escHtml(p.href)}" class="oh-action" style="background:${p.bg}; color:${p.color}; border-color:${p.br};">${escHtml(p.label)}</a>`
       ).join('');
     }
@@ -4076,8 +4035,8 @@
     if (_ohLoadFailed) {
       const _t = document.getElementById('oh-today');
       if (_t) _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
-        + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#f87171; margin:0 0 2px;">Couldn\'t refresh</p>'
-        + '<p style="font-size:.9rem; color:#F4F6FA; margin:0;">We could not load your latest hive data. Check your connection and try again.</p></div>';
+        + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red); margin:0 0 2px;">Couldn\'t refresh</p>'
+        + '<p style="font-size:.9rem; color:var(--wh-cloud); margin:0;">We could not load your latest hive data. Check your connection and try again.</p></div>';
       return;
     }
 
@@ -4150,7 +4109,7 @@
         { kpi: 'open-jobs',   num: jobsCount,       label: _t('Open Jobs','Bukas na Trabaho'),   color: '#F7A21B', href: 'logbook.html'      },
         { kpi: 'risk-alerts', num: risksCount,      label: _t('Risk Alerts','Alerto sa Panganib'), color: '#f87171', href: 'asset-hub.html'    },
         { kpi: 'pm-overdue',  num: pmOverdueCount,  label: _t('PM Overdue','Lumipas na PM'),  color: '#29B6D9', href: 'pm-scheduler.html' },
-        { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#fb923c', href: 'inventory.html'    },
+        { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#f7a21b', href: 'inventory.html'    },
       ].filter(t => Number(t.num) > 0);
 
       if (tiles.length === 0) {
@@ -4260,7 +4219,7 @@
       if (sensorAnomaly) {
         candidates.push({
           rank: 85,
-          tone: 'high', accent: '#fb923c',
+          tone: 'high', accent: '#f7a21b',
           label: 'Sensor Anomaly',
           headline: `${sensorAnomaly.parameter || 'Reading'} flagged anomaly`,
           detail: 'A live sensor reading is 3-sigma outside the recent baseline. Inspect.',
@@ -4274,7 +4233,7 @@
         // failure_signature_alerts + anomaly_signals).
         candidates.push({
           rank: 75,
-          tone: 'high', accent: '#fb923c',
+          tone: 'high', accent: '#f7a21b',
           label: 'Critical Failure Signature',
           headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.title || 'failure signature detected'}`,
           detail: 'A historical failure pattern just matched. Review before the shift ends.',
@@ -4312,7 +4271,7 @@
         if (critPM) {
           candidates.push({
             rank: 90,
-            tone: 'high', accent: '#fb923c',
+            tone: 'high', accent: '#f7a21b',
             label: 'Critical PM Overdue',
             headline: `${critPM.asset_name || critPM.asset_tag || 'Asset'}: PM due`,
             detail: 'Schedule the technician before the next shift.',
@@ -4342,7 +4301,7 @@
       if (outOfStock.length) {
         candidates.push({
           rank: 70,
-          tone: 'high', accent: '#fb923c',
+          tone: 'high', accent: '#f7a21b',
           label: 'Out of Stock',
           headline: `${outOfStock.length} part${outOfStock.length === 1 ? '' : 's'} at zero`,
           detail: 'Reorder before the next breakdown. Inventory page.',
@@ -4373,11 +4332,11 @@
         el.style.display = 'block';
         el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <a href="${role === 'supervisor' ? 'alert-hub.html' : ((jobs.length === 0 && closedToday === 0) ? 'logbook.html' : 'pm-scheduler.html')}" class="oh-card"
-             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid #4ade80;">
-            <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:#4ade80; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
+             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-green);">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:var(--wh-green); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
             <div style="flex:1; min-width:0;">
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#4ade80; margin:0 0 2px;">${_t('All clear','Malinaw lahat')}</p>
-              <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0;">${_t('Nothing urgent right now.','Walang urgent ngayon.')}</p>
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-green); margin:0 0 2px;">${_t('All clear','Malinaw lahat')}</p>
+              <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('Nothing urgent right now.','Walang urgent ngayon.')}</p>
               <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' ? _t('Review the alert feed or the AMC daily brief.','Tingnan ang alert feed o ang AMC daily brief.') : ((jobs.length === 0 && closedToday === 0) ? _t('Log your first job to get started.','Mag-log ng unang trabaho para makapagsimula.') : _t('Plan your shift in the Day Planner.','Planuhin ang shift mo sa Day Planner.'))}</p>
             </div>
             <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
@@ -4392,7 +4351,7 @@
           <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
             <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">${_t('Today','Ngayon')} &middot; ${escHtml(_tv(pick.label))}</p>
-            <p style="font-size:.92rem; font-weight:700; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
+            <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
             <p style="font-size:.72rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(_tv(pick.detail))}</p>
           </div>
           <span style="font-size:.65rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
@@ -4434,10 +4393,10 @@
 
       el.style.display = 'block';
       el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div class="oh-card" style="padding:16px 18px; border-left:3px solid #F7A21B;">
+        <div class="oh-card" style="padding:16px 18px; border-left:3px solid var(--wh-orange);">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
             <div>
-              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#F7A21B; margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange); margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
               <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">${_t('Finish these three steps to unlock the platform.','Tapusin ang tatlong hakbang para ma-unlock ang platform.')}</p>
             </div>
             <button type="button" onclick="(function(){ try{localStorage.setItem('wh_onboarding_dismissed','1');}catch(_){ /* empty-catch-allow: best-effort silent swallow */ }; document.getElementById('oh-onboarding').style.display='none'; })()"
@@ -4446,16 +4405,16 @@
             </button>
           </div>
           <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:14px;">
-            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,#F7A21B,#FDB94A); transition:width .4s ease;"></div>
+            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light)); transition:width .4s ease;"></div>
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             ${steps.map(s => `
               <a href="${escHtml(s.href)}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; min-height:44px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
-                <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:#4ade80;' : 'background:rgba(247,162,27,.15); color:#F7A21B; border:1px solid rgba(247,162,27,.4);'} font-size:.7rem; font-weight:800;">
+                <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:var(--wh-green);' : 'background:rgba(247,162,27,.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,.4);'} font-size:.7rem; font-weight:800;">
                   ${s.done ? '&#10003;' : s.id}
                 </div>
-                <span style="flex:1; font-size:.82rem; font-weight:600; color:${s.done ? 'rgba(255,255,255,.5)' : '#F4F6FA'}; ${s.done ? 'text-decoration:line-through;' : ''}">${escHtml(s.label)}</span>
-                ${s.done ? '' : `<span style="font-size:.62rem; font-weight:700; color:#F7A21B; white-space:nowrap;">${escHtml(s.cta)} &#8594;</span>`}
+                <span style="flex:1; font-size:.82rem; font-weight:600; color:${s.done ? 'rgba(255,255,255,.5)' : 'var(--wh-cloud)'}; ${s.done ? 'text-decoration:line-through;' : ''}">${escHtml(s.label)}</span>
+                ${s.done ? '' : `<span style="font-size:.62rem; font-weight:700; color:var(--wh-orange); white-space:nowrap;">${escHtml(s.cta)} &#8594;</span>`}
               </a>`).join('')}
           </div>
         </div>`;
@@ -4480,15 +4439,15 @@
         <h2 class="oh-sec-lbl">${_t('Hive Activity Today','Aktibidad ng Hive Ngayon')}</h2>
         <div class="oh-card oh-activity" data-rag-tile="index:hive_activity" data-rag-label="Hive Activity Today" style="padding:14px;">
           <div style="text-align:center;">
-            <span class="ac-num" style="color:#4ade80;">${closedToday}</span>
+            <span class="ac-num" style="color:var(--wh-green);">${closedToday}</span>
             <span class="ac-lbl">${_t('Jobs Closed','Tapos na Trabaho')}</span>
           </div>
           <div style="text-align:center; border-left:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06);">
-            <span class="ac-num" style="color:#29B6D9;">${pmDoneToday}</span>
+            <span class="ac-num" style="color:var(--wh-blue);">${pmDoneToday}</span>
             <span class="ac-lbl">${_t('PM Done','Tapos na PM')}</span>
           </div>
           <div style="text-align:center;">
-            <span class="ac-num" style="color:#a78bfa;">${risks.length}</span>
+            <span class="ac-num" style="color:var(--wh-violet);">${risks.length}</span>
             <span class="ac-lbl">${_t('Active Alerts','Aktibong Alerto')}</span>
           </div>
         </div>`;
@@ -4500,8 +4459,8 @@
       if (!jobs.length) {
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div class="oh-card" style="text-align:center; padding:24px 20px;">
           <div style="font-size:1.4rem; margin-bottom:6px;">✓</div>
-          <div style="font-size:.82rem; font-weight:700; color:#4ade80; margin-bottom:4px;">${_t('All clear','Malinaw lahat')}</div>
-          <div style="font-size:.7rem; color:rgba(255,255,255,.6);">${_t('No open jobs right now. Tap','Walang bukas na trabaho ngayon. I-tap ang')} <strong style="color:#F7A21B;">+ ${_t('Log a Job','Mag-log ng Trabaho')}</strong> ${_t('below if a fault comes up.','sa ibaba kung may masira.')}</div>
+          <div style="font-size:.82rem; font-weight:700; color:var(--wh-green); margin-bottom:4px;">${_t('All clear','Malinaw lahat')}</div>
+          <div style="font-size:.7rem; color:rgba(255,255,255,.6);">${_t('No open jobs right now. Tap','Walang bukas na trabaho ngayon. I-tap ang')} <strong style="color:var(--wh-orange);">+ ${_t('Log a Job','Mag-log ng Trabaho')}</strong> ${_t('below if a fault comes up.','sa ibaba kung may masira.')}</div>
         </div>`;
       } else {
         jobsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = jobs.map(j => {
@@ -4514,7 +4473,7 @@
           const _jhref = _jid ? ('logbook.html?id=' + encodeURIComponent(_jid)) : 'logbook.html';
           return `<div class="oh-job-row">
             <div style="flex:1; min-width:0;">
-              <div style="font-size:.82rem; font-weight:700; color:#F4F6FA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(j.machine || 'Unknown machine')}</div>
+              <div style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(j.machine || 'Unknown machine')}</div>
               <div style="font-size:.65rem; color:rgba(255,255,255,.6); margin-top:2px;">${escHtml(cat)}${ts ? ' · ' + _timeAgo(ts) : ''}</div>
             </div>
             <span class="oh-badge oh-badge-open">Open</span>
@@ -4529,12 +4488,12 @@
     if (stockEl && lowStock.length > 0) {
       stockEl.style.display = 'block';
       stockEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div class="oh-card" style="padding:12px 16px; border-left:3px solid #fb923c;">
-          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#fb923c; margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length})</p>
+        <div class="oh-card" style="padding:12px 16px; border-left:3px solid var(--wh-orange);">
+          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
               <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
-                ${escHtml(i.part_name)} <span style="color:#fb923c;">(${Number(i.qty_on_hand)})</span>
+                ${escHtml(i.part_name)} <span style="color:var(--wh-orange);">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
             ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
           </div>

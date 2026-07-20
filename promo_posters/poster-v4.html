@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>WorkHive Promo · Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="poster-kit.css">
+<style>
+  .blob.a{right:180px;top:90px;width:600px;height:600px;opacity:.8}
+  .blob.c{right:-160px;bottom:-200px;opacity:.7}
+  .vignette{background:radial-gradient(115% 115% at 66% 50%,transparent 42%,rgba(5,9,18,.62) 100%)}
+  .spot{left:760px;top:152px;width:600px;height:600px}
+
+  .rail{position:absolute;left:80px;top:110px;width:470px;z-index:8}
+  .rail .wh-logo{height:64px}
+  .rail .eyebrow{margin-top:30px}
+  .rail .h1{font-size:56px;margin-top:20px}
+  .rail .lede{font-size:19px;margin-top:18px;max-width:430px}
+  .rail .cta{margin-top:30px}
+  .rail .url{margin-top:14px}
+
+  .cc{position:absolute;left:560px;top:0;right:0;bottom:0;z-index:6}
+  .wire{position:absolute;inset:0;z-index:1}
+  .wire line{stroke:rgba(41,182,246,.45);stroke-width:2.5;stroke-dasharray:1 8;stroke-linecap:round}
+  .wire .pulse{stroke:rgba(247,168,37,.6);stroke-width:2.5}
+
+  /* central hub */
+  .hub{position:absolute;left:390px;top:328px;width:220px;height:244px;z-index:5;
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background:radial-gradient(circle at 50% 42%,rgba(41,182,246,.28),rgba(14,24,40,.98));
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:22px}
+  .hub .ring{position:absolute;inset:0;clip-path:inherit;background:linear-gradient(160deg,var(--amber),var(--cyan)) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:2.5px}
+  .hub .bee{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:190px;height:214px;z-index:3}
+  .hub .hl{position:relative;z-index:4;font-size:12px;font-weight:800;letter-spacing:1.4px;color:var(--cyan-lt)}
+
+  /* metric hexes */
+  .mc{position:absolute;width:132px;height:146px;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background:linear-gradient(160deg,rgba(26,42,66,.97),rgba(13,23,38,.97));box-shadow:0 18px 40px rgba(0,0,0,.5)}
+  .mc .ring{position:absolute;inset:0;clip-path:inherit;background:linear-gradient(160deg,var(--amber),var(--cyan)) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:2px;opacity:.9}
+  .mc svg{width:24px;height:24px;stroke:var(--amber-lt);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:2}
+  .mc.c svg{stroke:var(--cyan-lt)}
+  .mc .big{position:relative;z-index:2;font-size:27px;font-weight:800;line-height:1;color:#fff;margin-top:3px}
+  .mc.c .big{color:#fff}
+  .mc .amberbig{color:var(--amber)}
+  .mc .nm{position:relative;z-index:2;font-size:10.5px;font-weight:700;letter-spacing:.3px;color:#aebccb;text-transform:uppercase}
+</style></head>
+<body>
+<div class="poster" id="poster">
+  <div class="hivebg" data-hex="50" data-op="0.06"></div>
+  <div class="blob a"></div><div class="blob c"></div>
+  <div class="spot"></div><div class="vignette"></div>
+
+  <div class="rail">
+    <img class="wh-logo" src="../brand_assets/workhive-logo-tight.png" alt="WorkHive"/>
+    <span class="eyebrow"><span class="dot"></span>LIVE COMMAND CENTER</span>
+    <h1 class="h1">Total command<br>of your <span class="amber">plant floor.</span></h1>
+    <p class="lede">One hive brain fuses your logbook, PM, parts, alerts, and reliability — every number in one honeycomb, updated live.</p>
+    <a class="cta" href="#">Start free in your browser
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <div class="url"><b>workhiveph.com</b> · No download. Works in any browser.</div>
+  </div>
+
+  <div class="cc">
+    <svg class="wire" viewBox="0 0 1040 900">
+      <line class="pulse" x1="500" y1="450" x2="683" y2="344"/>
+      <line x1="500" y1="450" x2="500" y2="238"/>
+      <line class="pulse" x1="500" y1="450" x2="317" y2="344"/>
+      <line x1="500" y1="450" x2="317" y2="556"/>
+      <line class="pulse" x1="500" y1="450" x2="500" y2="662"/>
+      <line x1="500" y1="450" x2="683" y2="556"/>
+    </svg>
+
+    <!-- central hub -->
+    <div class="hub"><span class="ring"></span>
+      <svg class="bee"><use href="#bee-mascot"/></svg>
+      <span class="hl">HIVE BRAIN</span>
+    </div>
+
+    <!-- 6 metric hexes -->
+    <div class="mc c" style="left:434px;top:165px"><span class="ring"></span>
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m8.5 15 2 2 4-4"/></svg>
+      <span class="big">30</span><span class="nm">PM Due</span></div>
+    <div class="mc" style="left:617px;top:271px"><span class="ring"></span>
+      <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="big amberbig">60</span><span class="nm">Alerts</span></div>
+    <div class="mc c" style="left:617px;top:483px"><span class="ring"></span>
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+      <span class="big">87%</span><span class="nm">OEE</span></div>
+    <div class="mc" style="left:434px;top:589px"><span class="ring"></span>
+      <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      <span class="big amberbig" style="font-size:20px">TX-001</span><span class="nm">Risk 96%</span></div>
+    <div class="mc c" style="left:251px;top:483px"><span class="ring"></span>
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>
+      <span class="big">4</span><span class="nm">Low Stock</span></div>
+    <div class="mc" style="left:251px;top:271px"><span class="ring"></span>
+      <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      <span class="big amberbig">12</span><span class="nm">Open Jobs</span></div>
+  </div>
+</div>
+<script src="bee.js"></script><script src="hive.js"></script>
+</body></html>

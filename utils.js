@@ -323,6 +323,12 @@
     });
   } catch (e) { /* empty-catch-allow: MutationObserver is an optional UI enhancement */ }
   function start() {
+    // Arc W · W5 REVERSED (2026-07-19, Ian: "I changed my mind, I prefer the emojis now").
+    // The emoji→SVG auto-swap is DISABLED so the platform's ~430 authored emoji render AS
+    // emoji (emoji-first, the colorful voice Ian prefers). window.whIcon() is retained for
+    // any programmatic caller; the text-node walker + MutationObserver no longer run.
+    // To restore the mono-SVG system, delete this early return.
+    return;
     setTimeout(run, 0);                                   // initial pass once the static DOM is parsed
     if (mo) try { mo.observe(document.body, { childList: true, subtree: true }); } catch (e) { /* empty-catch-allow: observe is best-effort UI enhancement */ }
   }
@@ -592,6 +598,9 @@ window.WH_FIL_COMMON = {
   logwork: 'I-log ang trabaho', schedule: 'I-iskedyul', restock: 'Mag-restock',
   approve:"Aprubahan", reject:"Tanggihan", restore:"Ibalik", release:"I-release", refund:"I-refund", view:"Tingnan", showdetails: 'Ipakita ang detalye', hidedetails: 'Itago ang detalye', loadmore: 'Mag-load pa',
   viewinforum: 'Tingnan sa forum', route: 'Ruta', window: 'Window', status: 'Status',
+  // Shared calendar/form vocabulary (2026-07-19): repeats across dayplanner/logbook/etc. — one entry
+  // here fixes every page that tags these (was causing marked-but-untranslated FIL on dayplanner).
+  day: 'Araw', week: 'Linggo', month: 'Buwan', year: 'Taon', category: 'Kategorya', notes: 'Mga Tala',
   // Shared maturity-gate headings (maturity-gate.js renders these on every gated surface).
   mg_unlocks_at: 'bubukas sa Stair', mg_hive_now: 'Ang hive mo ngayon',
 };

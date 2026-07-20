@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>WorkHive Promo Posters — overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+  #poster{width:1600px;background:linear-gradient(160deg,#0c1626,#0a1220);padding:44px 44px 52px;color:#F7F9FB}
+  .head{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+  .head h1{font-size:34px;font-weight:800;letter-spacing:-.5px}
+  .head h1 .c{color:#29B6F6}.head h1 .a{color:#F5A623}
+  .sub{font-size:15px;color:#9fb0c4;margin-bottom:26px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:26px 26px}
+  .card{background:#0f1a2b;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  .card img{width:100%;display:block;border-bottom:1px solid rgba(255,255,255,.06)}
+  .cap{display:flex;align-items:center;gap:11px;padding:13px 18px}
+  .num{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;color:#11192a;background:linear-gradient(135deg,#F5A623,#FFC24A)}
+  .cap .t{font-size:17px;font-weight:700}
+  .cap .d{font-size:13px;color:#8ea0b4;margin-top:1px}
+  .note{background:#0f1a2b;border:1px solid rgba(41,182,246,.25);border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;justify-content:center}
+  .note h3{font-size:16px;font-weight:700;color:#6FD4FF;margin-bottom:12px}
+  .note li{font-size:13.5px;color:#c5d2e0;line-height:1.7;list-style:none;padding-left:18px;position:relative}
+  .note li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:50%;background:#F5A623}
+</style></head>
+<body>
+<div id="poster">
+  <div class="head"><h1><span class="a">Work</span><span class="c">Hive</span> · Promo Posters</h1></div>
+  <div class="sub">5 concepts · built to the researched design rubric (NN/g · Refactoring-UI · App-Store) · 3200×1800 PNG each</div>
+  <div class="grid">
+    <div class="card"><img src="_out/workhive-promo-1-companion-hero.png" alt="">
+      <div class="cap"><span class="num">1</span><span><div class="t">Companion Hero</div><div class="d">Rail + hero phone + waving bee — the flagship</div></span></div></div>
+    <div class="card"><img src="_out/workhive-promo-2-hive-connects.png" alt="">
+      <div class="cap"><span class="num">2</span><span><div class="t">The Hive Connects Everything</div><div class="d">Hero phone ringed by floating tool-cells</div></span></div></div>
+    <div class="card"><img src="_out/workhive-promo-3-mascot-spotlight.png" alt="">
+      <div class="cap"><span class="num">3</span><span><div class="t">Mascot Spotlight</div><div class="d">The worker-bee is the star</div></span></div></div>
+    <div class="card"><img src="_out/workhive-promo-4-command-center.png" alt="">
+      <div class="cap"><span class="num">4</span><span><div class="t">Honeycomb Command Center</div><div class="d">Bee = HIVE BRAIN in a live-metric HUD</div></span></div></div>
+    <div class="card"><img src="_out/workhive-promo-5-swarm-momentum.png" alt="">
+      <div class="cap"><span class="num">5</span><span><div class="t">Swarm / Momentum</div><div class="d">Kinetic bee swarm + light-trails</div></span></div></div>
+    <div class="note">
+      <h3>How to use these</h3>
+      <ul>
+        <li>16:9 — works as a website hero, LinkedIn/Facebook banner, or slide.</li>
+        <li>Tell me your favourite (or "all") and I'll export crops: square feed, 9:16 story, 1200×630 link-preview.</li>
+        <li>Swap the vector bee for a 3D-rendered one anytime — only the mascot layer changes.</li>
+        <li>Re-render/edit: <b>node tools/render_posters.mjs</b></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body></html>

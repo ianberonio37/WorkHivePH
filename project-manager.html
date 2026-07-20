@@ -22,7 +22,7 @@
 <style>
   :root {
     --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44; --card-hover: #243a55;
-    --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #30D068; --amber: #F4C430; --red: #E15554;
+    --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green); --amber: var(--wh-amber); --red: var(--wh-red);
     --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6); --border: rgba(255,255,255,0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,9 +40,9 @@
   }
   button:hover, .btn:hover { background: var(--card-hover); }
   button.primary, .btn.primary { background: var(--gold); color: #1a1208; border-color: var(--gold); }
-  button.primary:hover { background: #ffb840; }
+  button.primary:hover { background: var(--wh-orange); }
   button.ghost { background: transparent; }
-  button.danger { color: #F58A89; border-color: rgba(225,85,84,0.4); }
+  button.danger { color: var(--wh-red); border-color: rgba(225,85,84,0.4); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   input, select, textarea {
     font-family: inherit; font-size: 16px; /* iOS no-zoom */
@@ -128,14 +128,14 @@
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   }
   .ptype-workorder  { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .ptype-shutdown   { background: rgba(225,85,84,0.18);  color: #F58A89; }
+  .ptype-shutdown   { background: rgba(225,85,84,0.18);  color: var(--wh-red); }
   .ptype-capex      { background: rgba(247,162,27,0.18); color: var(--gold); }
   .ptype-contractor { background: rgba(48,208,104,0.18); color: var(--green); }
   .nature-pill {
     display: inline-block; font-size: 0.6rem; padding: 2px 7px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
   }
-  .nature-reactive   { background: rgba(225,85,84,0.14);  color: #F58A89;     border-color: rgba(225,85,84,0.3); }
+  .nature-reactive   { background: rgba(225,85,84,0.14);  color: var(--wh-red);     border-color: rgba(225,85,84,0.3); }
   .nature-preventive { background: rgba(48,208,104,0.14); color: var(--green); border-color: rgba(48,208,104,0.3); }
   .nature-project    { background: rgba(247,162,27,0.14); color: var(--gold);  border-color: rgba(247,162,27,0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
@@ -151,7 +151,7 @@
   .status-active    { background: rgba(48,208,104,0.18); color: var(--green); }
   .status-on_hold   { background: rgba(244,196,48,0.18); color: var(--amber); }
   .status-complete  { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .status-cancelled { background: rgba(225,85,84,0.18);  color: #F58A89; }
+  .status-cancelled { background: rgba(225,85,84,0.18);  color: var(--wh-red); }
   .status-archived  { background: rgba(255,255,255,0.04); color: var(--muted); }
 
   /* ── Detail view ──────────────────────────────────────────── */
@@ -310,7 +310,7 @@
   .phase-fel1       { background: rgba(255,255,255,0.08); color: var(--muted); }
   .phase-fel2       { background: rgba(41,182,217,0.18); color: var(--blue); }
   .phase-fel3       { background: rgba(48,208,104,0.18); color: var(--green); }
-  .phase-gate       { background: rgba(225,85,84,0.18); color: #F58A89; }
+  .phase-gate       { background: rgba(225,85,84,0.18); color: var(--wh-red); }
   .item-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: 1.1rem; }
   .item-remove:hover { color: var(--red); }
   .add-custom-row {
@@ -332,11 +332,11 @@
 .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
 .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
 .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-.verdict.healthy .verdict-icon { color:#4ade80; }
+.verdict.healthy .verdict-icon { color:var(--wh-green); }
 .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
 .verdict.watch   .verdict-icon { color:var(--wh-orange); }
 .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-.verdict.attn    .verdict-icon { color:#f87171; }
+.verdict.attn    .verdict-icon { color:var(--wh-red); }
 .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
 .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
 /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -464,7 +464,7 @@
     data-rag-tile="project-manager:project_cards"
     data-rag-label="Project card grid"></div>
     <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
   </div>
 
@@ -2603,10 +2603,14 @@ async function cancelCO(id) {
     return;
   }
   if (!(await window.whConfirm('Cancel this change order? It will be hidden from the active queue but kept for history.', { okLabel: 'Cancel CO', cancelLabel: 'Keep' }))) return;
-  const { error } = await db.from('project_change_orders')
+  // P6-C1 optimistic lock (2026-07-19): the `co.status !== 'pending'` check above reads STALE cached
+  // state — atomically guard `.eq('status','pending')` so a concurrent supervisor approve cannot be
+  // clobbered back to 'cancelled' (last-write-wins TOCTOU). .select() detects the 0-row no-op.
+  const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'cancelled', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
-    .eq('id', id);
+    .eq('id', id).eq('status', 'pending').select('id');
   if (error) { showToast(error.message, 'error'); return; }
+  if (!updated || !updated.length) { showToast('That change order was already decided and can no longer be cancelled.'); await refreshDetail(); return; }
   showToast('Change order cancelled.', 'success');
   await refreshDetail();
 }

@@ -18,21 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'orange-wh': '#F7A21B',
-            'blue-wh':   '#29B6D9',
-            'navy-wh':   '#162032',
-          },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -117,7 +103,7 @@
     .mic-btn:active { transform: scale(0.96); }
     .mic-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
     .mic-btn.recording {
-      background: linear-gradient(135deg, #EF5757, #c33b3b);
+      background: linear-gradient(135deg, var(--wh-red), var(--wh-red));
       color: white;
       animation: mic-pulse 1.4s ease-in-out infinite;
     }
@@ -158,12 +144,12 @@
 
     .lang-pill {
       display: inline-flex; align-items: center; gap: 0.35rem;
-      background: rgba(41,182,217,0.14); color: #7adff5;
+      background: rgba(41,182,217,0.14); color: var(--wh-blue);
       border: 1px solid rgba(41,182,217,0.25);
       font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.18rem 0.55rem; border-radius: 999px;
     }
-    .lang-pill.warn { background: rgba(247,162,27,0.14); color: #ffcc7a; border-color: rgba(247,162,27,0.25); }
+    .lang-pill.warn { background: rgba(247,162,27,0.14); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
 
     .transcript-box {
       background: rgba(22,32,50,0.55);
@@ -207,7 +193,7 @@
     .speak-btn {
       background: rgba(247,162,27,0.18);
       border: 1px solid rgba(247,162,27,0.3);
-      color: #ffcc7a;
+      color: var(--wh-orange);
       border-radius: var(--wh-radius-sm); /* R3: PRESS action → rect, not the pill worn by the select toggles/chips */
       font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.3rem 0.7rem; cursor: pointer;
@@ -231,7 +217,7 @@
     .persona-chip.persona-chip-active {
       background: rgba(247,162,27,0.15);
       border-color: rgba(247,162,27,0.45);
-      color: #ffcc7a;
+      color: var(--wh-orange);
     }
     /* Grounded MCP sweep (Wave 1, 2026-06-07): the persona radiogroup was the
        one control missing the >=44px mobile bump that .btn-ghost (line ~96) and
@@ -258,7 +244,7 @@
     .filter-chip:hover  { color: white; border-color: rgba(255,255,255,0.2); }
     .filter-chip:active { transform: scale(0.97); }
     .filter-chip.active {
-      background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: #ffcc7a;
+      background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: var(--wh-orange);
     }
     @media (max-width: 480px) { .filter-chip { min-height: 44px; padding: 0.45rem 0.95rem; } }
 
@@ -322,9 +308,7 @@
     <!-- Header -->
     <header class="flex items-center justify-between mb-5">
       <button onclick="history.back()" class="flex items-center gap-2 text-white/60 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
         <span>Back</span>
       </button>
       <div class="text-center">
@@ -376,12 +360,7 @@
       </div>
 
       <button id="mic-btn" class="mic-btn" aria-label="Hold to talk">
-        <svg id="mic-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
-          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
+        <span class="ic ic-voice" aria-hidden="true"></span>
       </button>
 
       <div id="mic-state" class="text-center text-sm text-white/60 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
@@ -422,7 +401,7 @@
       <div id="history-empty"      class="empty-state text-center text-xs text-white/60 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
       <div id="history-no-results" class="empty-state text-center text-xs text-white/60 py-6" style="display:none;">No entries match those filters.</div>
       <div id="voice-load-more-wrap" class="hidden mt-1 pb-4">
-        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-lg text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-lg text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </section>
 

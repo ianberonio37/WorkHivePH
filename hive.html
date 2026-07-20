@@ -20,18 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { 'orange-wh': '#F7A21B', 'blue-wh': '#29B6D9', 'navy-wh': '#162032' },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -221,7 +210,7 @@
     .btn-danger {
       min-height: 44px;
       background: transparent;
-      color: #f87171;
+      color: var(--wh-red);
       font-weight: 600;
       border-radius: 0.75rem;
       padding: 0.5rem 1rem;
@@ -256,8 +245,8 @@
     #hive-menu:not(.hidden) { display:flex; flex-direction:column; gap:2px; }
     .hive-menu-item { width:100%; text-align:left; background:none; border:none; border-radius:8px; padding:0.6rem 0.75rem; font-family:inherit; font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.82); cursor:pointer; min-height:44px; text-decoration:none; box-sizing:border-box; }
     .hive-menu-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
-    .hive-menu-danger { color:#f87171; }
-    .hive-menu-danger:hover { background:rgba(239,68,68,0.10); color:#f87171; }
+    .hive-menu-danger { color:var(--wh-red); }
+    .hive-menu-danger:hover { background:rgba(239,68,68,0.10); color:var(--wh-red); }
 
     .code-display {
       background: rgba(41,182,217,0.1);
@@ -289,7 +278,7 @@
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .presence-dot.online { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+    .presence-dot.online { background: var(--wh-green); box-shadow: 0 0 6px rgba(34,197,94,0.6); }
     .presence-dot.offline { background: rgba(255,255,255,0.2); }
 
     .feed-card {
@@ -302,8 +291,8 @@
     }
     .feed-card:hover { border-color: rgba(255,255,255,0.15); }
     .feed-card.new-entry { animation: slideIn 0.3s ease; }
-    .feed-log-open   { border-left-color: #ef4444; }
-    .feed-log-closed { border-left-color: #22c55e; }
+    .feed-log-open   { border-left-color: var(--wh-red); }
+    .feed-log-closed { border-left-color: var(--wh-green); }
     .feed-parts      { border-left-color: var(--wh-blue); }
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(-8px); }
@@ -333,8 +322,8 @@
       font-size: 0.6rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .status-open   { background: rgba(239,68,68,0.15); color: #f87171; }
-    .status-closed { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .status-open   { background: rgba(239,68,68,0.15); color: var(--wh-red); }
+    .status-closed { background: rgba(34,197,94,0.15);  color: var(--wh-green); }
 
     .cat-badge {
       display: inline-flex; align-items: center;
@@ -343,9 +332,9 @@
     }
 
     .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .conn-dot.live         { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse 2s infinite; }
-    .conn-dot.reconnecting { background: #f59e0b; }
-    .conn-dot.offline      { background: #ef4444; }
+    .conn-dot.live         { background: var(--wh-green); box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse 2s infinite; }
+    .conn-dot.reconnecting { background: var(--wh-orange); }
+    .conn-dot.offline      { background: var(--wh-red); }
     @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
 
     .avatar-initial {
@@ -416,7 +405,7 @@
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
     <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
     <div class="flex items-center gap-3">
@@ -424,10 +413,8 @@
       <!-- Notification bell -->
       <div class="relative" id="notif-wrapper" style="display:none;">
         <button id="notif-bell" title="Notifications" aria-label="Notifications" style="position:relative; background:none; border:none; cursor:pointer; padding:6px; color:rgba(255,255,255,0.6); min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center;">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-          </svg>
-          <span id="notif-badge" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:#ef4444; border:2px solid rgba(22,32,50,1);"></span>
+          <span class="ic ic-bell" aria-hidden="true"></span>
+          <span id="notif-badge" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--wh-red); border:2px solid rgba(22,32,50,1);"></span>
         </button>
         <!-- Dropdown panel -->
         <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(22,32,50,0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
@@ -450,9 +437,7 @@
     <div id="view-onboard" class="hidden">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.2);">
-          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
+          <span class="ic ic-community" aria-hidden="true"></span>
         </div>
         <h2 class="text-2xl font-black text-white mb-2">Your Hive</h2>
         <p class="text-sm text-white/60 mb-8 leading-relaxed">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
@@ -467,7 +452,7 @@
     <div id="view-create" class="hidden">
       <div class="wh-card p-8 max-w-sm mx-auto mt-8">
         <button id="btn-back-from-create" class="btn-text mb-3">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
           Back
         </button>
         <h2 class="text-xl font-black text-white mb-1">Create Your Hive</h2>
@@ -483,7 +468,7 @@
     <div id="view-code" class="hidden">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
         <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          <span class="ic ic-check" aria-hidden="true"></span>
         </div>
         <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">Hive Created</p>
         <h2 id="code-hive-name" class="text-xl font-black text-white mb-6"></h2>
@@ -498,7 +483,7 @@
     <div id="view-join" class="hidden">
       <div class="wh-card p-8 max-w-sm mx-auto mt-8">
         <button id="btn-back-from-join" class="btn-text mb-3">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
           Back
         </button>
         <h2 class="text-xl font-black text-white mb-1">Join a Hive</h2>
@@ -516,7 +501,7 @@
     <div id="view-welcome" class="hidden">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
         <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#4ade80" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          <span class="ic ic-check" aria-hidden="true"></span>
         </div>
         <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">You're In</p>
         <h2 id="welcome-hive-name" class="text-xl font-black text-white mb-2"></h2>
@@ -556,7 +541,7 @@
           <h1 class="text-2xl font-black text-white" id="board-hive-name" translate="no">Hive Board</h1>
           <div id="hive-role-tag" class="mt-1 hidden">
             <span class="supervisor-tag">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span class="ic ic-check" aria-hidden="true"></span>
               Supervisor
             </span>
           </div>
@@ -734,7 +719,7 @@
       <a id="my-work-card" href="logbook.html" class="wh-card" style="align-items:center; gap:14px; padding:14px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
           <p style="font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.65); margin-bottom:2px;">Your open work</p>
-          <p id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:#F4F6FA; line-height:1.3;">Checking your jobs&#8230;</p>
+          <p id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
           <p id="my-work-sub" style="font-size:0.72rem; color:rgba(255,255,255,0.6); margin-top:2px;"></p>
         </div>
         <span aria-hidden="true" style="font-size:0.72rem; font-weight:700; color:var(--wh-orange); white-space:nowrap;">Open Logbook &#8250;</span>
@@ -765,7 +750,7 @@
           <p class="text-[11px] text-white/60 mt-1" data-i="wo">Open Work Orders</p>
         </div>
         <div class="wh-card p-4 text-center">
-          <p class="text-2xl font-black" style="color:#29B6D9; font-variant-numeric:tabular-nums;" id="stat-members">&#8211;</p>
+          <p class="text-2xl font-black" style="color:var(--wh-blue); font-variant-numeric:tabular-nums;" id="stat-members">&#8211;</p>
           <p class="text-[11px] text-white/60 mt-1" data-i="members">Team Members</p>
         </div>
       </div>
@@ -791,8 +776,8 @@
         <div style="padding:14px 16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:#7DCFFF;">Stair 0 · Paper</span>
-              <span id="stair-composite" style="font-size:1.5rem; font-weight:900; color:#F4F6FA; line-height:1; font-variant-numeric:tabular-nums;">--</span>
+              <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:var(--wh-blue);">Stair 0 · Paper</span>
+              <span id="stair-composite" style="font-size:1.5rem; font-weight:900; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
               <span style="font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
             </div>
             <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
@@ -812,27 +797,27 @@
                semantic palette (green=good / amber=warning). Neutral = length is the only signal. -->
           <div data-dim="process" class="stair-dim-bar">
             <p class="stair-dim-label" data-i="dimProcess">Process</p>
-            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#7DCFFF;"></div></div>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:var(--wh-blue);"></div></div>
             <p class="stair-dim-value">--</p>
           </div>
           <div data-dim="data" class="stair-dim-bar">
             <p class="stair-dim-label" data-i="dimData">Data</p>
-            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#7DCFFF;"></div></div>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:var(--wh-blue);"></div></div>
             <p class="stair-dim-value">--</p>
           </div>
           <div data-dim="resilience" class="stair-dim-bar">
             <p class="stair-dim-label" data-i="dimResilience">Resilience</p>
-            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#7DCFFF;"></div></div>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:var(--wh-blue);"></div></div>
             <p class="stair-dim-value">--</p>
           </div>
           <div data-dim="leadership" class="stair-dim-bar">
             <p class="stair-dim-label" data-i="dimLeadership">Leadership</p>
-            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#7DCFFF;"></div></div>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:var(--wh-blue);"></div></div>
             <p class="stair-dim-value">--</p>
           </div>
           <div data-dim="cultural" class="stair-dim-bar">
             <p class="stair-dim-label" data-i="dimCulture">Culture</p>
-            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:#7DCFFF;"></div></div>
+            <div class="stair-dim-track"><div class="stair-dim-fill" style="background:var(--wh-blue);"></div></div>
             <p class="stair-dim-value">--</p>
           </div>
         </div>
@@ -848,7 +833,7 @@
       <div id="kpipe-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(40,50,80,0.45), rgba(22,32,50,0.85)); border:1px solid rgba(41,182,217,0.18);">
         <div style="padding:12px 16px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(41,182,217,0.18); color:#7DCFFF;" data-i="knowfresh">Knowledge freshness</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(41,182,217,0.18); color:var(--wh-blue);" data-i="knowfresh">Knowledge freshness</span>
             <span id="kpipe-overall" style="font-size:0.7rem; color:rgba(255,255,255,0.55);">--</span>
           </div>
           <div id="kpipe-rows" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top:10px;"></div>
@@ -876,7 +861,7 @@
            back to hives.intent and dismisses. Hidden by default.
            ───────────────────────────────────────────────────────────────── -->
       <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your team?" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
-        <div style="background:#162032; border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:#F4F6FA;">
+        <div style="background:var(--wh-navy); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:var(--wh-cloud);">
           <h2 style="margin:0 0 0.5rem; font-size:1.05rem; font-weight:800; letter-spacing:0.02em;">What should WorkHive focus on for your team?</h2>
           <p style="margin:0 0 1rem; font-size:0.78rem; color:rgba(255,255,255,0.65); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
@@ -900,7 +885,7 @@
             </label>
           </div>
           <div style="display:flex; gap:0.5rem;">
-            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:#162032; background:linear-gradient(135deg,#F7A21B,#FDB94A); border:0; cursor:pointer; min-height:44px;">Save</button>
+            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;">Save</button>
             <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:rgba(255,255,255,0.55); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;">Later</button>
           </div>
         </div>
@@ -923,15 +908,15 @@
         <div style="padding:14px 16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:#4ade80;">Healthy</span>
-              <span id="adoption-risk-score" style="font-size:1.5rem; font-weight:900; color:#F4F6FA; line-height:1; font-variant-numeric:tabular-nums;">--</span>
+              <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:var(--wh-green);">Healthy</span>
+              <span id="adoption-risk-score" style="font-size:1.5rem; font-weight:900; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
               <span style="font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
             </div>
             <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); border:1px solid rgba(255,255,255,0.16); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
           <!-- E1: risk as length (0-100), colored by tier, so severity is preattentive, not a bare number.
                The bar grows + reddens as risk rises (short green = low risk / good). -->
-          <div class="stair-dim-track" style="margin-top:8px; height:6px;"><div id="adoption-risk-fill" class="stair-dim-fill" style="width:0%; background:#4ade80;"></div></div>
+          <div class="stair-dim-track" style="margin-top:8px; height:6px;"><div id="adoption-risk-fill" class="stair-dim-fill" style="width:0%; background:var(--wh-green);"></div></div>
           <p id="adoption-summary" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
           <!-- Source chip — anchors risk score + champion + reasons to
                hive_adoption_score + compute_adoption_risk. Populated by
@@ -960,11 +945,11 @@
         .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
         .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
         .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-        .verdict.healthy .verdict-icon { color:#4ade80; }
+        .verdict.healthy .verdict-icon { color:var(--wh-green); }
         .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
         .verdict.watch   .verdict-icon { color:var(--wh-orange); }
         .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-        .verdict.attn    .verdict-icon { color:#f87171; }
+        .verdict.attn    .verdict-icon { color:var(--wh-red); }
         .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
         .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
         .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
@@ -973,9 +958,9 @@
         .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
         .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
         .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
-        .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+        .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
         .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
-        .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+        .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
         .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
         .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
         .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
@@ -986,8 +971,8 @@
         .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
 
         /* ── v4 UFAI hero (2026-07-14, Ian-approved) — greeting headline + 3 action tiles.
-             Reuses the file's established semantic colors (red #f87171 / orange --wh-orange /
-             blue #29B6D9 / green #4ade80) + --wh tokens; NO second design system. box-shadow/
+             Reuses the file's established semantic colors (red var(--wh-red) / orange --wh-orange /
+             blue var(--wh-blue) / green var(--wh-green)) + --wh tokens; NO second design system. box-shadow/
              transform paint outside the box model = zero CLS. Contrast verified ≥4.5:1 at axe. */
         .verdict.ss-hero { background:transparent; border:0; padding:2px 0; margin-bottom:14px; align-items:flex-start; gap:11px; }
         .verdict.ss-hero .verdict-icon { font-size:1.3rem; margin-top:3px; }
@@ -1001,8 +986,8 @@
         .ss-rb-h { color:rgba(255,255,255,0.5); font-weight:700; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; }
         .ss-rb-it { display:flex; align-items:center; gap:5px; color:rgba(255,255,255,0.75); }
         .ss-rb-it b { color:#fff; font-weight:800; }
-        .ss-rb-it.g, .ss-rb-it.g b { color:#43e08c; }
-        .ss-rb-it.r, .ss-rb-it.r b { color:#f87171; }
+        .ss-rb-it.g, .ss-rb-it.g b { color:var(--wh-green); }
+        .ss-rb-it.r, .ss-rb-it.r b { color:var(--wh-red); }
         .ss-eyebrow { font-size:0.62rem; letter-spacing:0.14em; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:5px; }
         .ss-lang { display:inline-flex; margin-left:auto; align-self:flex-start; border:1px solid rgba(255,255,255,0.16); border-radius:999px; overflow:hidden; font-size:0.62rem; font-weight:800; }
         .ss-lang button { background:transparent; border:0; color:rgba(255,255,255,0.5); padding:0 11px; cursor:pointer; font-family:inherit; font-weight:800; min-height:44px; min-width:44px; }
@@ -1011,13 +996,13 @@
         .ss-lang button.on { background:rgba(247,162,27,0.18); color:var(--wh-orange-light); }
         .ss-lang button:focus-visible { outline:2px solid var(--wh-orange); outline-offset:2px; }
         .ss-foot { text-align:center; color:rgba(255,255,255,0.6); font-size:0.8rem; font-weight:600; margin-top:16px; padding:10px 8px; }
-        .ss-foot span[aria-hidden] { color:#43e08c; font-weight:800; }
+        .ss-foot span[aria-hidden] { color:var(--wh-green); font-weight:800; }
         /* v4 first-run value-first view (O1/O2) */
         .ss-firstrun { padding:18px 16px; border-radius:14px; background:linear-gradient(180deg, rgba(249,178,58,0.08), transparent), var(--wh-navy); border:1px solid rgba(249,178,58,0.28); margin-bottom:14px; }
         .ss-fr-steps { display:flex; align-items:center; gap:0; margin-bottom:14px; }
         .ss-fr-step { font-size:0.72rem; font-weight:700; color:rgba(255,255,255,0.5); white-space:nowrap; }
-        .ss-fr-step.done { color:#43e08c; } .ss-fr-step.now { color:var(--wh-orange); }
-        .ss-fr-bar { flex:1; height:2px; background:rgba(255,255,255,0.14); margin:0 8px; } .ss-fr-bar.done { background:#43e08c; }
+        .ss-fr-step.done { color:var(--wh-green); } .ss-fr-step.now { color:var(--wh-orange); }
+        .ss-fr-bar { flex:1; height:2px; background:rgba(255,255,255,0.14); margin:0 8px; } .ss-fr-bar.done { background:var(--wh-green); }
         .ss-fr-cta { display:flex; align-items:center; justify-content:center; gap:8px; min-height:52px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.95rem; border-radius:12px; text-decoration:none; }
         .ss-fr-cta:hover { background:var(--wh-orange-dark); }
         .ss-fr-note { font-size:0.76rem; color:rgba(255,255,255,0.6); text-align:center; margin-top:10px; }
@@ -1039,20 +1024,20 @@
         .ss-tile .sc-hero { font-size:2rem; font-weight:800; line-height:1.05; margin:8px 0 0; font-variant-numeric:tabular-nums; color:var(--wh-cloud); }
         .ss-tile .ss-tile-label { font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.82); margin-top:2px; }
         .ss-tile .ss-tile-cta { font-size:0.74rem; font-weight:700; margin-top:auto; padding-top:10px; color:rgba(255,255,255,0.55); }
-        .ss-tile .ss-tile-peak { font-size:0.625rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#241606; background:#f87171; padding:3px 9px; border-radius:999px; box-shadow:0 0 0 4px rgba(248,113,113,0.14); }
+        .ss-tile .ss-tile-peak { font-size:0.625rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#241606; background:var(--wh-red); padding:3px 9px; border-radius:999px; box-shadow:0 0 0 4px rgba(248,113,113,0.14); }
         .ss-snooze { margin:-6px -6px -6px auto; color:rgba(255,255,255,0.42); font-size:1.05rem; font-weight:800; letter-spacing:1px; line-height:0.4; border-radius:8px; cursor:pointer; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
         .ss-snooze:hover { color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); }
         .ss-snooze:focus-visible { outline:2px solid var(--wh-orange); outline-offset:1px; }
         .ss-tile.is-red   { background:rgba(248,113,113,0.10); border-color:rgba(248,113,113,0.42); }
-        .ss-tile.is-red   .ss-tile-cap { background:rgba(248,113,113,0.16); color:#f87171; }
-        .ss-tile.is-red   .sc-hero, .ss-tile.is-red .ss-tile-cta { color:#f87171; }
+        .ss-tile.is-red   .ss-tile-cap { background:rgba(248,113,113,0.16); color:var(--wh-red); }
+        .ss-tile.is-red   .sc-hero, .ss-tile.is-red .ss-tile-cta { color:var(--wh-red); }
         .ss-tile.is-amber { background:rgba(247,162,27,0.10); border-color:rgba(247,162,27,0.42); }
         .ss-tile.is-amber .ss-tile-cap { background:rgba(247,162,27,0.16); color:var(--wh-orange); }
         .ss-tile.is-amber .sc-hero, .ss-tile.is-amber .ss-tile-cta { color:var(--wh-orange); }
         .ss-tile.is-accent{ background:rgba(41,182,217,0.10); border-color:rgba(41,182,217,0.38); }
-        .ss-tile.is-accent .ss-tile-cap { background:rgba(41,182,217,0.16); color:#29B6D9; }
-        .ss-tile.is-accent .sc-hero, .ss-tile.is-accent .ss-tile-cta { color:#29B6D9; }
-        .ss-tile.is-clear .sc-hero { color:#4ade80; }
+        .ss-tile.is-accent .ss-tile-cap { background:rgba(41,182,217,0.16); color:var(--wh-blue); }
+        .ss-tile.is-accent .sc-hero, .ss-tile.is-accent .ss-tile-cta { color:var(--wh-blue); }
+        .ss-tile.is-clear .sc-hero { color:var(--wh-green); }
         .ss-tile.is-clear .ss-tile-cta { color:rgba(255,255,255,0.5); }
         @media (prefers-reduced-motion: reduce){ .ss-tile{ transition:none; } .ss-tile:hover{ transform:none; } }
 
@@ -1066,7 +1051,7 @@
         .ss-rd-stair { font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.62); }
         .ss-rd-cta { margin-left:auto; font-size:0.72rem; font-weight:700; color:var(--wh-orange); }
         .ss-rd-track { height:7px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; margin:9px 0 7px; }
-        .ss-rd-track > i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--wh-orange), #43e08c); transition:width 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .ss-rd-track > i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--wh-orange), var(--wh-green)); transition:width 0.5s cubic-bezier(0.4,0,0.2,1); }
         .ss-rd-weak { font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.65); }
         @media (prefers-reduced-motion: reduce){ .ss-rd-track > i { transition:none; } }
 
@@ -1084,22 +1069,18 @@
       <!-- Alerts -->
       <div id="pm-overdue-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
         <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-          </svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
             <p class="text-xs text-white/60" id="pm-overdue-text"></p>
-            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5" style="color:#f87171;min-height:44px;display:inline-flex;align-items:center;">Open PM Scheduler &#8594;</a>
+            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-red);min-height:44px;display:inline-flex;align-items:center;">Open PM Scheduler &#8594;</a>
           </div>
         </div>
       </div>
 
       <div id="stock-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25);">
         <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
+          <span class="ic ic-warning" aria-hidden="true"></span>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
             <p class="text-xs text-white/60" id="stock-alert-text"></p>
@@ -1110,13 +1091,11 @@
 
       <div id="team-stock-alert" class="hidden mb-4 rounded-xl p-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
         <div class="flex items-center gap-2 mb-3">
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
+          <span class="ic ic-parts" aria-hidden="true"></span>
           <p class="text-xs font-bold text-red-400" data-i="teamlow">Teammates Low on Parts</p>
         </div>
         <div id="team-stock-list" class="flex flex-col gap-2"></div>
-        <a href="inventory.html" class="text-[11px] font-semibold mt-2" style="color:#f87171;min-height:44px;display:inline-flex;align-items:center;" data-i="viewinv">View Inventory &#8594;</a>
+        <a href="inventory.html" class="text-[11px] font-semibold mt-2" style="color:var(--wh-red);min-height:44px;display:inline-flex;align-items:center;" data-i="viewinv">View Inventory &#8594;</a>
       </div>
 
       <!-- Today's Brief (AI, auto-loaded, 8h cache). Source chip anchors
@@ -1125,7 +1104,7 @@
       <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest" data-i="brief">Today's Brief</p>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171;">AI</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:var(--wh-red);">AI</span>
         </div>
         <div class="wh-card p-4">
           <p id="todays-brief-source-chip" style="margin:0 0 8px;"></p>
@@ -1140,7 +1119,7 @@
            the supervisor expands it on demand. -->
       <div id="reliability-coach-panel" class="mb-5">
         <button id="coach-toggle-btn" type="button" aria-expanded="false" aria-controls="coach-body"
-          style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(167,139,250,0.06); color:#a78bfa; border:1px solid rgba(167,139,250,0.25); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; min-height:44px;">
+          style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(167,139,250,0.06); color:var(--wh-violet); border:1px solid rgba(167,139,250,0.25); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; min-height:44px;">
           <span style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; opacity:0.95;">AI</span>
             <span data-i="coach">Ask the Reliability Coach</span>
@@ -1159,7 +1138,7 @@
           <p id="coach-source-chip" style="margin:0 0 8px;"></p>
           <div class="flex gap-2">
             <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:16px;" />
-            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.4); border-radius:10px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
+            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:var(--wh-violet); border:1px solid rgba(167,139,250,0.4); border-radius:10px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
           </div>
           <div id="coach-result" style="display:none; margin-top:12px;"></div>
         </div>
@@ -1264,7 +1243,7 @@
       <details id="benchmark-panel" class="hidden wh-disclose">
         <summary>
           <span class="wh-disclose-title">How your hive compares
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:#29B6D9; text-transform:none; letter-spacing:0;">WorkHive network</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue); text-transform:none; letter-spacing:0;">WorkHive network</span>
           </span>
         </summary>
         <div class="wh-disclose-body">
@@ -1285,7 +1264,7 @@
       <details id="pattern-alerts-panel" class="hidden wh-disclose">
         <summary>
           <span class="wh-disclose-title"><span data-i="patterns">Pattern Alerts</span>
-            <span id="pattern-alerts-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:#f87171; text-transform:none; letter-spacing:0;" data-i="prefail">Pre-failure</span>
+            <span id="pattern-alerts-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:var(--wh-red); text-transform:none; letter-spacing:0;" data-i="prefail">Pre-failure</span>
           </span>
         </summary>
         <div class="wh-disclose-body">
@@ -1304,13 +1283,13 @@
         </summary>
         <div class="wh-disclose-body">
           <div id="feed-empty" class="hidden wh-card p-8 text-center">
-            <svg class="w-8 h-8 mx-auto mb-3 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span class="ic ic-minus" aria-hidden="true"></span>
             <p class="text-sm text-white/60">No activity yet in this hive.</p>
             <p class="text-xs text-white/60 mt-1">Logbook entries from team members will appear here.</p>
           </div>
           <div id="feed" class="flex flex-col gap-3"></div>
           <div id="feed-more" class="hidden mt-3">
-            <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:#29B6D9;border:1px solid rgba(41,182,217,0.25);">Load More</button>
+            <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.25);">Load More</button>
           </div>
         </div>
       </details>
@@ -1326,7 +1305,7 @@
         <p class="text-xs mb-3" style="color:rgba(255,255,255,0.6);">Auto-generates a summary of this shift (completed jobs, open items, LOTO alerts, and watch list), ready to share with the next team.</p>
         <p id="handover-source-chip" style="margin:0 0 8px;"></p>
         <button class="handover-btn" onclick="generateHandover()">
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span class="ic ic-doc" aria-hidden="true"></span>
           Generate Shift Handover Report
         </button>
       </div>
@@ -1346,7 +1325,7 @@
             <input aria-label="Handover to&#8230; (incoming technician name)" id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
               <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">&#128203; Copy</button>
-              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;">&#128424; Print</button>
+              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);">&#128424; Print</button>
             </div>
           </div>
         </div>
@@ -1390,7 +1369,7 @@
       <div id="approval-queue" class="hidden mb-5 board-card">
         <div class="flex items-center gap-2 mb-2">
           <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Approval Queue</p>
-          <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:#F7A21B;color:#162032;min-width:18px;text-align:center;"></span>
+          <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--wh-orange);color:var(--wh-navy);min-width:18px;text-align:center;"></span>
         </div>
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
@@ -1404,7 +1383,7 @@
       <div class="mb-5 board-card">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.78);"></span></p>
-          <button id="btn-toggle-members" class="wh-toggle" style="color:#29B6D9; background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-members" class="wh-toggle" style="color:var(--wh-blue); background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
@@ -1415,7 +1394,7 @@
           <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest"><span data-i="supactionlog">Supervisor Action Log</span><span id="audit-log-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.6); text-transform:none; letter-spacing:0;"></span></p>
           <!-- Arc P · Wave 1 (P2): default COLLAPSED (was "Hide"/open) so the audit
                trail no longer stretches the board; toggle JS reads display so this is safe. -->
-          <button id="btn-toggle-audit" class="wh-toggle" style="color:#29B6D9;background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-audit" class="wh-toggle" style="color:var(--wh-blue);background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="audit-log-body" style="display:none;">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
@@ -1615,10 +1594,10 @@ function showView(id) {
 const catColors = {
   'Mechanical':      { bg:'rgba(239,68,68,0.12)',   color:'#f87171' },
   'Electrical':      { bg:'rgba(234,179,8,0.12)',    color:'#facc15' },
-  'Instrumentation': { bg:'rgba(59,130,246,0.12)',   color:'#60a5fa' },
-  'Structural':      { bg:'rgba(168,85,247,0.12)',   color:'#c084fc' },
-  'Process':         { bg:'rgba(20,184,166,0.12)',   color:'#2dd4bf' },
-  'Human Error':     { bg:'rgba(249,115,22,0.12)',   color:'#fb923c' },
+  'Instrumentation': { bg:'rgba(59,130,246,0.12)',   color:'#29b6d9' },
+  'Structural':      { bg:'rgba(168,85,247,0.12)',   color:'#a78bfa' },
+  'Process':         { bg:'rgba(20,184,166,0.12)',   color:'#29b6d9' },
+  'Human Error':     { bg:'rgba(249,115,22,0.12)',   color:'#f7a21b' },
   'Unknown':         { bg:'rgba(107,114,128,0.12)',  color:'#9ca3af' },
 };
 
@@ -1642,9 +1621,7 @@ function buildFeedCard(entry, isNew) {
   return `<div class="feed-card ${borderCls}${isNew ? ' new-entry' : ''}">
     <div class="flex items-start gap-3">
       <div class="activity-icon log">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
+        <span class="ic ic-edit" aria-hidden="true"></span>
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -1673,15 +1650,13 @@ function buildPartsCard(record, isNew) {
   return `<div class="feed-card feed-parts${isNew ? ' new-entry' : ''}">
     <div class="flex items-start gap-3">
       <div class="activity-icon parts">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#29B6D9" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-        </svg>
+        <span class="ic ic-parts" aria-hidden="true"></span>
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
-          <span class="status-badge" style="background:rgba(41,182,217,0.15);color:#5fcce8;">Parts Used</span>
-          ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:#60a5fa;">${jobType}</span>` : ''}
+          <span class="status-badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);">Parts Used</span>
+          ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:var(--wh-blue);">${jobType}</span>` : ''}
           <span class="text-[11px] text-white/60 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white">${jobRef}</p>
@@ -1706,14 +1681,12 @@ function buildPMCard(record, isNew) {
   // consistency; mirrors pm-scheduler.html's FREQ registry).
   const _cf        = s => { s = String(s || '').toLowerCase().trim(); if (s === 'yearly') s = 'annual'; if (s === 'semiannual' || s === 'semi annual') s = 'semi-annual'; if (s === 'biweekly' || s === 'fortnightly') s = 'weekly'; return s; };
   const freqMap    = { daily: 'D', weekly: 'W', monthly: 'M', quarterly: 'Q', 'semi-annual': 'SA', annual: 'Y' };
-  const freqCls    = { daily: 'rgba(244,114,182,0.15);color:#f9a8d4', weekly: 'rgba(56,189,248,0.15);color:#7dd3fc', monthly: 'rgba(41,182,217,0.15);color:#29B6D9', quarterly: 'rgba(167,139,250,0.15);color:#a78bfa', 'semi-annual': 'rgba(251,191,36,0.15);color:#fbbf24', annual: 'rgba(247,162,27,0.15);color:var(--wh-orange)' };
+  const freqCls    = { daily: 'rgba(244,114,182,0.15);color:#f87171', weekly: 'rgba(56,189,248,0.15);color:#29b6d9', monthly: 'rgba(41,182,217,0.15);color:#29B6D9', quarterly: 'rgba(167,139,250,0.15);color:#a78bfa', 'semi-annual': 'rgba(251,191,36,0.15);color:#f7a21b', annual: 'rgba(247,162,27,0.15);color:var(--wh-orange)' };
 
   return `<div class="feed-card${isNew ? ' new-entry' : ''}" style="border-left-color:var(--wh-orange);">
     <div class="flex items-start gap-3">
       <div class="activity-icon log" style="background:rgba(247,162,27,0.12);border-color:rgba(247,162,27,0.3);">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-        </svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -2277,11 +2250,11 @@ async function initBoard() {
 // score on every hive page load. That's the whole point.
 
 const STAIR_PALETTE = [
-  { label: 'Paper',            rgb: '74,159,212',  bg: 'rgba(74,159,212,0.18)',  fg: '#7DCFFF' },
-  { label: 'Digital Logbook',  rgb: '0,196,180',   bg: 'rgba(0,196,180,0.18)',   fg: '#4DEDE0' },
-  { label: 'Disciplined',      rgb: '155,89,232',  bg: 'rgba(155,89,232,0.18)',  fg: '#C4A0FF' },
+  { label: 'Paper',            rgb: '74,159,212',  bg: 'rgba(74,159,212,0.18)',  fg: '#29b6d9' },
+  { label: 'Digital Logbook',  rgb: '0,196,180',   bg: 'rgba(0,196,180,0.18)',   fg: '#29b6d9' },
+  { label: 'Disciplined',      rgb: '155,89,232',  bg: 'rgba(155,89,232,0.18)',  fg: '#a78bfa' },
   { label: 'Predictive-Ready', rgb: '247,162,27',  bg: 'rgba(247,162,27,0.18)',  fg: '#FDB94A' },
-  { label: 'Industry Leader',  rgb: '255,184,0',   bg: 'rgba(255,184,0,0.22)',   fg: '#FFD166' },
+  { label: 'Industry Leader',  rgb: '255,184,0',   bg: 'rgba(255,184,0,0.22)',   fg: '#f7a21b' },
 ];
 
 let _readinessChannel = null;
@@ -3022,7 +2995,7 @@ document.addEventListener('DOMContentLoaded', function () {
         _t('Which assets are most likely to fail next?', 'Aling mga asset ang malamang mabigo susunod?'),
       ];
       examplesWrap.innerHTML = COACH_EXAMPLES.map(q =>
-        `<button type="button" class="coach-example-chip" style="font-size:11px; line-height:1.2; color:#c4b5fd; background:rgba(167,139,250,0.10); border:1px solid rgba(167,139,250,0.3); border-radius:999px; padding:7px 12px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(q)}</button>`
+        `<button type="button" class="coach-example-chip" style="font-size:11px; line-height:1.2; color:var(--wh-violet-text); background:rgba(167,139,250,0.10); border:1px solid rgba(167,139,250,0.3); border-radius:999px; padding:7px 12px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(q)}</button>`
       ).join('');
       examplesWrap.querySelectorAll('.coach-example-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {
@@ -3109,7 +3082,7 @@ async function loadKnowledgePipeline() {
   if (kpipeErr) {
     const rowsEl = document.getElementById('kpipe-rows');
     const overallEl = document.getElementById('kpipe-overall');
-    if (rowsEl) rowsEl.innerHTML = '<div style="font-size:0.62rem; color:#f87171; padding:8px;">' + _t("Couldn't load knowledge freshness: a loading problem, not an empty base. Refresh to retry.", 'Hindi ma-load ang knowledge freshness: problema sa pag-load, hindi walang laman. I-refresh para subukan ulit.') + '</div>';
+    if (rowsEl) rowsEl.innerHTML = '<div style="font-size:0.62rem; color:var(--wh-red); padding:8px;">' + _t("Couldn't load knowledge freshness: a loading problem, not an empty base. Refresh to retry.", 'Hindi ma-load ang knowledge freshness: problema sa pag-load, hindi walang laman. I-refresh para subukan ulit.') + '</div>';
     if (overallEl) overallEl.textContent = _t('Knowledge pipeline unavailable', 'Hindi available ang knowledge pipeline');
     return;
   }
@@ -3153,7 +3126,7 @@ async function loadKnowledgePipeline() {
           ? `<div style="font-size:0.58rem; color:var(--wh-orange); margin-top:2px;">${e(String(r.pending_rows))} ${_t('pending', 'nakabinbin')}</div>`
           : ''}
         ${stale
-          ? `<div style="font-size:0.58rem; color:#f87171; margin-top:2px;">${_t('last updated', 'huling na-update')} ${e(String(r.days_since_last_embed))} ${_t('days ago', 'araw na nakalipas')}</div>`
+          ? `<div style="font-size:0.58rem; color:var(--wh-red); margin-top:2px;">${_t('last updated', 'huling na-update')} ${e(String(r.days_since_last_embed))} ${_t('days ago', 'araw na nakalipas')}</div>`
           : ''}
       </div>
     `;
@@ -3613,14 +3586,14 @@ function _openWorkerProfileDrawer(workerName) {
       'position:fixed; inset:0; z-index:60; display:none; align-items:flex-end; ' +
       'justify-content:center; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);';
     drawer.innerHTML =
-      '<div id="wh-wp-panel" style="background:#162032; border-top:1px solid rgba(255,255,255,0.08); border-radius:18px 18px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
+      '<div id="wh-wp-panel" style="background:var(--wh-navy); border-top:1px solid rgba(255,255,255,0.08); border-radius:18px 18px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
     drawer.addEventListener('click', e => { if (e.target === drawer) drawer.style.display = 'none'; });
     document.body.appendChild(drawer);
   }
   const panel = document.getElementById('wh-wp-panel');
   panel.innerHTML =
     '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">' +
-      '<p style="font-size:.92rem; font-weight:800; color:#F4F6FA; margin:0;">' + escHtml(workerName) + '</p>' +
+      '<p style="font-size:.92rem; font-weight:800; color:var(--wh-cloud); margin:0;">' + escHtml(workerName) + '</p>' +
       '<button type="button" onclick="document.getElementById(\'wh-worker-profile-drawer\').style.display=\'none\'" ' +
               'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.55); border-radius:8px; min-height:44px; min-width:44px; cursor:pointer;">' +
         '&times;' +
@@ -3650,19 +3623,19 @@ function _openWorkerProfileDrawer(workerName) {
       '<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">' +
         '<div style="padding:10px 12px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px;">' +
           '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 2px;">Top discipline</p>' +
-          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(41,182,217,0.08); border:1px solid rgba(41,182,217,0.2); border-radius:10px;">' +
-          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#29B6D9; margin:0 0 2px;">Community XP</p>' +
-          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + xp + '</p>' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-blue); margin:0 0 2px;">Community XP</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + xp + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
           '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:0 0 2px;">Role</p>' +
-          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
           '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:0 0 2px;">Joined</p>' +
-          '<p style="font-size:.82rem; font-weight:700; color:#F4F6FA; margin:0;">' + escHtml(joined) + '</p>' +
+          '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + escHtml(joined) + '</p>' +
         '</div>' +
       '</div>' +
       '<div>' +
@@ -3670,7 +3643,7 @@ function _openWorkerProfileDrawer(workerName) {
         (recent.length
           ? recent.map(r =>
               '<div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:6px;">' +
-                '<p style="font-size:.78rem; font-weight:600; color:#F4F6FA; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
+                '<p style="font-size:.78rem; font-weight:600; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
                 '<p style="font-size:.66rem; color:rgba(255,255,255,0.5); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
                 '<p style="font-size:.6rem; color:rgba(255,255,255,0.6); margin:2px 0 0;">' + (r.created_at ? whFmtDate(r.created_at) : '-') /* FD1a: was bare toLocaleDateString = ambiguous US M/D/Y for PH readers */ + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
               '</div>'
@@ -3840,8 +3813,8 @@ function setConn(state) {
   const label = document.getElementById('conn-label');
   dot.className = 'conn-dot ' + state;
   if (state === 'live')         { label.textContent = 'Live';            label.style.color = '#4ade80'; }
-  else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#fcd34d'; } /* D1 a11y: #f59e0b (~2.9:1) → #fcd34d ≥4.5:1 */
-  else                          { label.textContent = 'Offline';         label.style.color = '#f87171'; } /* D1 a11y: #ef4444 → #f87171 ≥4.5:1 */
+  else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#facc15'; } /* D1 a11y: #f7a21b (~2.9:1) → #facc15 ≥4.5:1 */
+  else                          { label.textContent = 'Offline';         label.style.color = '#f87171'; } /* D1 a11y: #f87171 → #f87171 ≥4.5:1 */
 }
 
 // ── STOCK ALERT (current worker's own inventory) ──
@@ -3897,11 +3870,11 @@ function renderNotifs() {
   }
 
   const iconFor = type => {
-    if (type === 'stock-out')   return '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;margin-top:4px;"></span>';
-    if (type === 'stock-low')   return '<span style="width:8px;height:8px;border-radius:50%;background:#F7A21B;flex-shrink:0;margin-top:4px;"></span>';
-    if (type === 'open-wo')     return '<span style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0;margin-top:4px;"></span>';
-    if (type === 'approval-in') return '<span style="width:8px;height:8px;border-radius:50%;background:#F7A21B;flex-shrink:0;margin-top:4px;"></span>';
-    if (type === 'approval')    return '<span style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'stock-out')   return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-red);flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'stock-low')   return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-orange);flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'open-wo')     return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-blue);flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'approval-in') return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-orange);flex-shrink:0;margin-top:4px;"></span>';
+    if (type === 'approval')    return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-green);flex-shrink:0;margin-top:4px;"></span>';
     return '<span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0;margin-top:4px;"></span>';
   };
 
@@ -3912,7 +3885,7 @@ function renderNotifs() {
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(n.title)}</p>
         <p class="text-[11px] text-white/45 leading-snug mt-0.5">${escHtml(n.body)}</p>
-        ${n.link ? `<a href="${escHtml(n.link)}" class="text-[11px] font-semibold mt-1 inline-block" style="color:#29B6D9;">${escHtml(n.link.replace('.html','').replace('-',' '))} →</a>` : ''}
+        ${n.link ? `<a href="${escHtml(n.link)}" class="text-[11px] font-semibold mt-1 inline-block" style="color:var(--wh-blue);">${escHtml(n.link.replace('.html','').replace('-',' '))} →</a>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -4222,30 +4195,30 @@ function renderApprovalQueue() {
   const assetCards = _pendingAssets.map(a => `
     <div class="rounded-xl p-3" id="appr-asset-${escHtml(a.id)}" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
       <div class="flex items-start gap-2 mb-2">
-        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:#29B6D9;border:1px solid rgba(41,182,217,0.2);">ASSET</span>
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.2);">ASSET</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ': ' + escHtml(a.name) : ''}</p>
           <p class="text-[11px] text-white/60">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="approveItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
-        <button onclick="rejectItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
+        <button onclick="approveItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button onclick="rejectItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
   const partCards = _pendingParts.map(p => `
     <div class="rounded-xl p-3" id="appr-part-${escHtml(p.id)}" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
       <div class="flex items-start gap-2 mb-2">
-        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);">PART</span>
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:var(--wh-violet);border:1px solid rgba(139,92,246,0.2);">PART</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(p.part_number)}: ${escHtml(p.part_name)}</p>
           <p class="text-[11px] text-white/60">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="approveItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
-        <button onclick="rejectItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
+        <button onclick="approveItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button onclick="rejectItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -4973,7 +4946,7 @@ async function askCoach() {
     }).join('');
 
   } catch (e) {
-    result.innerHTML = `<p style="color:#f87171; font-size:0.78rem;">Error: ${escHtml(String(e))}</p>`;
+    result.innerHTML = `<p style="color:var(--wh-red); font-size:0.78rem;">Error: ${escHtml(String(e))}</p>`;
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Ask';
@@ -5088,7 +5061,7 @@ document.getElementById('btn-switch-hive').addEventListener('click', () => {
         <p class="text-sm font-bold text-white truncate">${escHtml(h.name)}</p>
         <p class="text-[11px] text-white/60 capitalize">${escHtml(h.role)}</p>
       </div>
-      ${isActive ? '<span class="text-[10px] font-bold" style="color:#29B6D9;">Active</span>' : ''}
+      ${isActive ? '<span class="text-[10px] font-bold" style="color:var(--wh-blue);">Active</span>' : ''}
     </button>`;
   }).join('');
   modal.classList.remove('hidden');
@@ -5206,23 +5179,23 @@ function generateHandover() {
   </div>`;
 
   if (lotoJobs.length) {
-    html += `<div class="ho-section" style="border-left:3px solid #ef4444;padding-left:0.75rem;background:rgba(239,68,68,0.07);border-bottom:1px solid rgba(239,68,68,0.18);">
-      <p class="ho-label" style="color:#ef4444;">⚠️ Active Isolations / LOTO (${lotoJobs.length})</p>
+    html += `<div class="ho-section" style="border-left:3px solid var(--wh-red);padding-left:0.75rem;background:rgba(239,68,68,0.07);border-bottom:1px solid rgba(239,68,68,0.18);">
+      <p class="ho-label" style="color:var(--wh-red);">⚠️ Active Isolations / LOTO (${lotoJobs.length})</p>
       ${lotoJobs.map(e =>
-        `<div class="ho-item"><span style="color:#ef4444;flex-shrink:0;">🔒</span><span><strong style="color:#fff;">${escHtml(e.machine || '-')}</strong>${e.problem ? ': ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
+        `<div class="ho-item"><span style="color:var(--wh-red);flex-shrink:0;">🔒</span><span><strong style="color:#fff;">${escHtml(e.machine || '-')}</strong>${e.problem ? ': ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
       ).join('')}
     </div>`;
   }
 
   html += `<div class="ho-section">
-    <p class="ho-label" style="color:#4ade80;">✅ Completed This Shift (${completed.length})</p>
+    <p class="ho-label" style="color:var(--wh-green);">✅ Completed This Shift (${completed.length})</p>
     ${completed.length ? completed.slice(0, 8).map(e =>
-      `<div class="ho-item"><span style="color:#4ade80;flex-shrink:0;">✓</span><span>${escHtml(e.machine || '-')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
+      `<div class="ho-item"><span style="color:var(--wh-green);flex-shrink:0;">✓</span><span>${escHtml(e.machine || '-')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
     ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.6);">Nothing closed this shift.</p>'}
   </div>`;
 
   html += `<div class="ho-section">
-    <p class="ho-label" style="color:#f87171;">🔴 Opened This Shift (${openThisShift.length})</p>
+    <p class="ho-label" style="color:var(--wh-red);">🔴 Opened This Shift (${openThisShift.length})</p>
     ${openThisShift.length ? openThisShift.slice(0, 6).map(e =>
       `<div class="ho-item"><span style="color:var(--wh-orange);flex-shrink:0;">•</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
     ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.6);">No new jobs this shift.</p>'}
@@ -5230,19 +5203,19 @@ function generateHandover() {
 
   if (carryForward.length) {
     html += `<div class="ho-section">
-      <p class="ho-label" style="color:#f87171;">🔁 Carry-Forward: Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
+      <p class="ho-label" style="color:var(--wh-red);">🔁 Carry-Forward: Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
       ${carryForward.slice(0, 8).map(e => {
         const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000; // time-window-allow: 3d = OPEN logbook entry triage SLA (same as line 3840)
-        return `<div class="ho-item"><span style="color:${isOD ? '#ef4444' : '#F7A21B'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
+        return `<div class="ho-item"><span style="color:${isOD ? 'var(--wh-red)' : 'var(--wh-orange)'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
       }).join('')}
     </div>`;
   }
 
   if (catEntries.length) {
     html += `<div class="ho-section">
-      <p class="ho-label" style="color:#29B6D9;">📋 Job Categories</p>
+      <p class="ho-label" style="color:var(--wh-blue);">📋 Job Categories</p>
       ${catEntries.map(([name, count]) =>
-        `<div class="ho-item"><span style="color:#29B6D9;flex-shrink:0;">•</span><span>${escHtml(name)}: <strong style="color:#FDB94A;">${count} job${count !== 1 ? 's' : ''}</strong></span></div>`
+        `<div class="ho-item"><span style="color:var(--wh-blue);flex-shrink:0;">•</span><span>${escHtml(name)}: <strong style="color:var(--wh-orange-light);">${count} job${count !== 1 ? 's' : ''}</strong></span></div>`
       ).join('')}
     </div>`;
   }
@@ -5251,7 +5224,7 @@ function generateHandover() {
     html += `<div class="ho-section">
       <p class="ho-label" style="color:var(--wh-orange);">👁️ Watch List: High-frequency Assets</p>
       ${watchList.map(([name, count]) =>
-        `<div class="ho-item"><span style="color:var(--wh-orange);flex-shrink:0;">▲</span><span>${escHtml(name)}: <strong style="color:#FDB94A;">${count} jobs</strong>. Consider inspection.</span></div>`
+        `<div class="ho-item"><span style="color:var(--wh-orange);flex-shrink:0;">▲</span><span>${escHtml(name)}: <strong style="color:var(--wh-orange-light);">${count} jobs</strong>. Consider inspection.</span></div>`
       ).join('')}
     </div>`;
   }

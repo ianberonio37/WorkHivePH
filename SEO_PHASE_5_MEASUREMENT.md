@@ -2,7 +2,7 @@
 
 **Created:** 2026-05-17
 **Owner:** Ian Beronio
-**Status:** Playbook ready. Existing: GSC verification tag in `index.html` L7. Pending: GA4 wiring, Bing verification, prompt-audit ritual launch.
+**Status:** Playbook ready. Done: GSC verification tag in `index.html` L13; **GA4 wired and LIVE** (`G-ENMGLTFR2J`, `index.html` L950); **IndexNow built** (key file + `tools/indexnow_submit.py`, see section below). Pending (Ian-gated, needs your login/deploy): submit sitemap in GSC, register + import in Bing Webmaster Tools, deploy the IndexNow key file, launch the prompt-audit ritual.
 
 The Phase 3 off-site authority playbook activates the 24 `/learn/` articles. Phase 5 makes the activation **measurable**. Without measurement you cannot tell whether the LinkedIn newsletter is working, whether Reddit comments are converting, or whether ChatGPT and Perplexity are citing WorkHive yet.
 
@@ -61,6 +61,34 @@ If GSC import does not work, you can verify Bing with:
 - A DNS CNAME record
 
 Once verified, give me the meta tag code and I'll wire it into all public pages in one batch.
+
+### 2b. IndexNow — instant push-indexing (BUILT, no account needed)
+
+Instead of waiting for Bing to crawl on its own schedule, **IndexNow** lets us *push* every
+public URL to Bing, Microsoft Copilot, Yandex, DuckDuckGo, and Seznam the moment it goes live or
+changes. No dashboard, no Microsoft account, no login. This is the lowest-hassle path to "indexed
+everywhere," and because Copilot + several AI answer engines read the Bing index, it is also an
+AEO/GEO lever.
+
+**What is already built and on disk (local, ready to deploy):**
+- **Key file:** `ea75de4e1f4161c869d7a30bcbad9660.txt` at the web root (proves domain ownership).
+- **Submitter:** `tools/indexnow_submit.py` — zero dependencies; its URL list is single-sourced
+  from `sitemap.xml` (51 URLs) so it can never drift from what Google/Bing crawl.
+
+**The only two steps left (both Ian-gated):**
+1. **Deploy the key file** to production so `https://workhiveph.com/ea75de4e1f4161c869d7a30bcbad9660.txt`
+   returns the key (it 404s today). It rides your normal static-site deploy — the file is already in
+   the web root, just untracked; commit + deploy.
+2. **Run the submitter** (locally, after deploy):
+   ```
+   python tools/indexnow_submit.py --verify    # confirms the key file is live on prod
+   python tools/indexnow_submit.py --submit     # pushes all 51 URLs to the IndexNow network
+   ```
+   `--submit` self-verifies the key file is reachable first and refuses to send otherwise (an
+   unverified submit returns 403 and can rate-limit the domain). Re-run `--submit` (or
+   `--submit --url <new-url>`) whenever you publish or materially change a page.
+
+Dry-run (no network) any time with `python tools/indexnow_submit.py` to see exactly what would be sent.
 
 ### 3. Google Analytics 4 (GA4)
 
@@ -131,8 +159,8 @@ Profound, Otterly, Peec.ai, LLMrefs — these tools automate the manual prompt a
 
 | Item | Where to find it | What I do with it |
 |---|---|---|
-| **GA4 Measurement ID** | `G-XXXXXXXXXX` from analytics.google.com property settings | Wire GA4 snippet into all 26 public pages (index.html + hub + 24 articles) + set up the 6 recommended custom events |
-| **Bing verification meta tag** (if GSC import did not work) | bing.com/webmasters site verification screen | Add to `<head>` of index.html (alongside the existing GSC tag) |
+| ~~**GA4 Measurement ID**~~ | ✅ DONE — `G-ENMGLTFR2J` is already wired into `index.html` L950 and public pages | (no action needed) |
+| **Bing verification meta tag** (only if GSC import did not work) | bing.com/webmasters site verification screen | Add to `<head>` of index.html (alongside the existing GSC tag) |
 | **Microsoft Clarity Project ID** (optional) | clarity.microsoft.com after creating project | Wire snippet to all 26 public pages |
 
 Paste any of these into chat and I will batch-update all pages in one pass.

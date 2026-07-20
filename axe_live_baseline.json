@@ -1,6 +1,6 @@
 {
   "tightened": true,
-  "generated": "2026-07-18T05:49:17.731Z",
+  "generated": "2026-07-19T09:46:40.037Z",
   "pages": {
     "hive.html": 0,
     "inventory.html": 0,
@@ -12,6 +12,7 @@
     "project-manager.html": 0,
     "asset-hub.html": 0,
     "alert-hub.html": 0,
-    "shift-brain.html": 0
+    "shift-brain.html": 0,
+    "community.html": 0
   }
 }

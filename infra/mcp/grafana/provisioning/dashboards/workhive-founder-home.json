@@ -41,15 +41,16 @@
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "area" },
-      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(distinct worker_name) as value from analytics_events where worker_name is not null and created_at > now() - interval '24 hours' and hive_id::text like '$hive'" } ]
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(distinct worker_name) as value from analytics_events where worker_name is not null and created_at > now() - interval '24 hours' and (hive_id::text like '$hive' or hive_id is null)" } ]
     },
     {
-      "id": 3, "type": "stat", "title": "AI cost (24h)",
+      "id": 3, "type": "stat", "title": "AI calls (24h)",
       "gridPos": { "h": 5, "w": 8, "x": 16, "y": 0 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
-      "fieldConfig": { "defaults": { "unit": "currencyUSD", "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 3 }, { "color": "red", "value": 5 } ] } }, "overrides": [] },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" },
-      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select coalesce(sum(cost_usd),0) as value from ai_cost_log where created_at > now() - interval '24 hours' and hive_id::text like '$hive'" } ]
+      "description": "AI chain invocations in 24h. The ACTIONABLE AI metric — $ cost is structurally ~$0 on free-tier models, so call volume (and tokens/latency on Founder-Ops) is what to watch. A runaway loop shows as a call-count spike.",
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "blue", "value": null }, { "color": "orange", "value": 500 }, { "color": "red", "value": 2000 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "area" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from ai_cost_log where created_at > now() - interval '24 hours' and (hive_id::text like '$hive' or hive_id is null)" } ]
     },
     {
       "id": 4, "type": "stat", "title": "Action queue (needs you)",
@@ -73,7 +74,7 @@
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "area" },
-      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from analytics_events where created_at > now() - interval '24 hours' and hive_id::text like '$hive'" } ]
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from analytics_events where created_at > now() - interval '24 hours' and (hive_id::text like '$hive' or hive_id is null)" } ]
     },
     {
       "id": 7, "type": "stat", "title": "Cron jobs failed (24h)",

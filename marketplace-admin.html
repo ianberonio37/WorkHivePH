@@ -62,7 +62,7 @@
     }
     .tab-btn {
       flex: 1 0 auto; min-height: 44px; padding: 0.55rem; border: none; border-radius: 0.5rem;
-      background: transparent; color: #9fb0c3; /* AA contrast on navy (was --wh-steel #7B8794 ≈ 4.3:1, failed) */
+      background: transparent; color: #9fb0c3; /* AA contrast on navy (was --wh-steel var(--wh-steel) ≈ 4.3:1, failed) */
       white-space: nowrap;
       font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer;
       transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
@@ -76,7 +76,7 @@
       border-radius: 999px; font-size: 0.62rem; padding: 0.1rem 0.4rem; font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
-    .tab-count.red { background: rgba(248,113,113,0.2); color: #f87171; }
+    .tab-count.red { background: rgba(248,113,113,0.2); color: var(--wh-red); }
 
     /* Stats row */
     .stats-row {
@@ -89,8 +89,8 @@
     }
     .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
     .stat-num.blue { color: var(--wh-blue); }
-    .stat-num.green { color: #4ade80; }
-    .stat-num.red { color: #f87171; }
+    .stat-num.green { color: var(--wh-green); }
+    .stat-num.red { color: var(--wh-red); }
     .stat-lbl { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.2rem; }
 
     /* Search */
@@ -115,9 +115,9 @@
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; overflow: hidden;
     }
-    .admin-card.draft  { border-left: 3px solid #fbbf24; }
-    .admin-card.published { border-left: 3px solid #4ade80; }
-    .admin-card.removed { border-left: 3px solid #f87171; opacity: 0.7; }
+    .admin-card.draft  { border-left: 3px solid var(--wh-orange); }
+    .admin-card.published { border-left: 3px solid var(--wh-green); }
+    .admin-card.removed { border-left: 3px solid var(--wh-red); opacity: 0.7; }
 
     .card-top {
       display: flex; align-items: flex-start; gap: 0.875rem; padding: 0.875rem;
@@ -136,9 +136,9 @@
       background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08);
     }
     .meta-chip.gold   { background: rgba(247,162,27,0.1); color: var(--wh-orange); border-color: rgba(247,162,27,0.25); }
-    .meta-chip.green  { background: rgba(74,222,128,0.1); color: #4ade80; border-color: rgba(74,222,128,0.2); }
-    .meta-chip.red    { background: rgba(248,113,113,0.1); color: #f87171; border-color: rgba(248,113,113,0.2); }
-    .meta-chip.yellow { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: rgba(251,191,36,0.2); }
+    .meta-chip.green  { background: rgba(74,222,128,0.1); color: var(--wh-green); border-color: rgba(74,222,128,0.2); }
+    .meta-chip.red    { background: rgba(248,113,113,0.1); color: var(--wh-red); border-color: rgba(248,113,113,0.2); }
+    .meta-chip.yellow { background: rgba(251,191,36,0.1); color: var(--wh-orange); border-color: rgba(251,191,36,0.2); }
     .card-desc { font-size: 0.75rem; color: var(--wh-steel-bright); line-height: 1.5; margin-bottom: 0.35rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .card-seller { font-size: 0.72rem; color: var(--wh-steel-bright); }
     .card-seller strong { color: var(--wh-cloud); }
@@ -152,7 +152,7 @@
        per-card CTA (A1 5-second test); Reject stays ghost = clear primary/secondary hierarchy. */
     .btn-approve {
       flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
-      background: linear-gradient(135deg, #16a34a, #22c55e); border: 1px solid rgba(74,222,128,0.5);
+      background: linear-gradient(135deg, var(--wh-green), var(--wh-green)); border: 1px solid rgba(74,222,128,0.5);
       color: #0b1220; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
       transition: filter 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
     }
@@ -161,7 +161,7 @@
     .btn-reject {
       flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
-      color: #f87171; font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
+      color: var(--wh-red); font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 700;
       transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
     }
     .btn-reject:hover { background: rgba(248,113,113,0.18); }
@@ -224,8 +224,8 @@
       white-space: nowrap; max-width: 90vw;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.success { border-color: rgba(74,222,128,0.3); color: #4ade80; }
-    #toast.error   { border-color: rgba(248,113,113,0.3); color: #f87171; }
+    #toast.success { border-color: rgba(74,222,128,0.3); color: var(--wh-green); }
+    #toast.error   { border-color: rgba(248,113,113,0.3); color: var(--wh-red); }
     #toast.info    { border-color: rgba(41,182,217,0.3);  color: var(--wh-blue); }
 
     /* Responsive */
@@ -262,7 +262,7 @@
 
 <!-- Platform admin gate -->
 <div id="supervisor-gate" class="no-access-gate" role="alert">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <span class="ic ic-bell" aria-hidden="true"></span>
   <h2 data-i="ma_gate_title">Platform Admins Only</h2>
   <p data-i="ma_gate_body">This page is for platform admins. Need access? Ask an admin to add you.</p>
   <a href="marketplace.html" data-i="ma_gate_back" style="display:inline-flex;align-items:center;min-height:44px;">Back to Marketplace</a><!-- D1 U2: bilingual gate + plain-language, no raw table name (B5/B4) -->
@@ -308,27 +308,27 @@
   <!-- Tab bar -->
   <div class="tab-bar" role="tablist">
     <button class="tab-btn active" data-tab="draft" role="tab" aria-selected="true">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="ic ic-clock" aria-hidden="true"></span>
       <span data-i="f_pend">Pending</span>
       <span class="tab-count red" id="badge-draft">0</span>
     </button>
     <button class="tab-btn" data-tab="published" role="tab" aria-selected="false">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <span class="ic ic-check" aria-hidden="true"></span>
       <span data-i="f_pub">Published</span>
       <span class="tab-count" id="badge-published">0</span>
     </button>
     <button class="tab-btn" data-tab="sellers" role="tab" aria-selected="false">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span class="ic ic-community" aria-hidden="true"></span>
       <span data-i="f_sellers">Sellers</span>
       <span class="tab-count" id="badge-sellers">0</span>
     </button>
     <button class="tab-btn" data-tab="removed" role="tab" aria-selected="false">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
       <span data-i="f_rem">Removed</span>
       <span class="tab-count" id="badge-removed">0</span>
     </button>
     <button class="tab-btn" data-tab="disputes" role="tab" aria-selected="false" id="tab-disputes">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="ic ic-warning" aria-hidden="true"></span>
       <span data-i="f_disp">Disputes</span>
       <span class="tab-count red" id="badge-disputes">0</span>
     </button>
@@ -336,7 +336,7 @@
 
   <!-- Search -->
   <div class="search-wrap">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="ic ic-search" aria-hidden="true"></span>
     <input class="search-input" id="search-input" type="search" placeholder="Search listings or seller name…" autocomplete="off" aria-label="Search listings or seller name" />
   </div>
 
@@ -344,7 +344,7 @@
   <!-- Content area -->
   <div id="content-area" class="listing-list"></div>
   <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
   </div>
 </main>
 
@@ -551,7 +551,7 @@
 
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="ic ic-search" aria-hidden="true"></span>
         <h3>${_tab === 'draft' ? 'No pending listings' : 'Nothing here'}</h3>
         <p>${_tab === 'draft' ? 'All listings have been reviewed.' : 'No listings with this status.'}</p>
       </div>`;
@@ -574,7 +574,7 @@
             <div class="card-thumb">
               ${hasImg
                 ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`
-                : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+                : `<span class="ic ic-image" aria-hidden="true"></span>`}
             </div>
             <div class="card-info">
               <div class="card-title" translate="no">${e(item.title)}</div>
@@ -596,11 +596,11 @@
           <div class="card-actions">
             ${isDraft ? `
               <button class="btn-approve" data-action="approve" data-id="${e(item.id)}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="ic ic-check" aria-hidden="true"></span>
                 <span data-i="approve">Approve</span>
               </button>
               <button class="btn-reject" data-action="reject" data-id="${e(item.id)}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span class="ic ic-close" aria-hidden="true"></span>
                 <span data-i="reject">Reject</span>
               </button>` : ''}
             ${isPublished ? `
@@ -633,7 +633,7 @@
 
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span class="ic ic-community" aria-hidden="true"></span>
         <h3>No seller profiles yet</h3>
         <p>Sellers appear here after their first listing or Connect onboarding.</p>
       </div>`;
@@ -651,18 +651,18 @@
             <div class="seller-meta">
               Tier: <strong>${e(s.tier || 'bronze')}</strong>
               &nbsp;·&nbsp; Sales: <strong>${e(String(s.total_sales || 0))}</strong>
-              ${s.kyb_verified ? ` &nbsp;·&nbsp; <span style="color:#29B6D9;">ID Verified</span>` : ''}
-              ${s.cert_verified ? ` &nbsp;·&nbsp; <span style="color:#a78bfa;">Cert Verified</span>` : ''}
+              ${s.kyb_verified ? ` &nbsp;·&nbsp; <span style="color:var(--wh-blue);">ID Verified</span>` : ''}
+              ${s.cert_verified ? ` &nbsp;·&nbsp; <span style="color:var(--wh-violet);">Cert Verified</span>` : ''}
             </div>
           </div>
         </div>
         ${certs.length ? `
           <div style="background:rgba(0,0,0,0.2);border-radius:0.5rem;padding:0.625rem;">
-            <div style="font-size:0.65rem;font-weight:700;color:${s.cert_verified ? '#a78bfa' : '#fbbf24'};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;">
+            <div style="font-size:0.65rem;font-weight:700;color:${s.cert_verified ? 'var(--wh-violet)' : 'var(--wh-orange)'};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;">
               ${s.cert_verified ? '✓ Certifications Verified' : 'Certifications Pending Review'}
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
-              ${certs.map(c => `<span style="padding:0.2rem 0.5rem;border-radius:999px;font-size:0.65rem;background:rgba(255,255,255,0.06);color:#F4F6FA;border:1px solid rgba(255,255,255,0.1);">${e(c)}</span>`).join('')}
+              ${certs.map(c => `<span style="padding:0.2rem 0.5rem;border-radius:999px;font-size:0.65rem;background:rgba(255,255,255,0.06);color:var(--wh-cloud);border:1px solid rgba(255,255,255,0.1);">${e(c)}</span>`).join('')}
             </div>
           </div>` : ''}
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
@@ -671,7 +671,7 @@
             : `<button class="btn-verify"   data-action="verify"       data-worker="${e(s.worker_name)}">Verify ID</button>`}
           ${certs.length ? (s.cert_verified
             ? `<button class="btn-unverify" data-action="cert-unverify" data-worker="${e(s.worker_name)}">Remove Cert</button>`
-            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:#a78bfa;">Verify Cert</button>`) : ''}
+            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--wh-violet);">Verify Cert</button>`) : ''}
         </div>
       </div>`;
     }).join('');
@@ -826,8 +826,8 @@
 
     const DISP_STATUS = {
       open:              { label: 'Open: Awaiting Seller', color: '#f87171' },
-      seller_responded:  { label: 'Seller Responded', color: '#fbbf24' },
-      admin_review:      { label: 'Admin Review', color: '#c084fc' },
+      seller_responded:  { label: 'Seller Responded', color: '#f7a21b' },
+      admin_review:      { label: 'Admin Review', color: '#a78bfa' },
       resolved_refund:   { label: 'Resolved: Refunded', color: '#4ade80' },
       resolved_release:  { label: 'Resolved: Released', color: '#29B6D9' },
     };
@@ -839,7 +839,7 @@
 
     if (!filtered.length) {
       area.innerHTML = `<div class="empty-state">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <span class="ic ic-warning" aria-hidden="true"></span>
         <h3>No disputes</h3>
         <p>All clear, no open disputes at this time.</p>
       </div>`;
@@ -864,7 +864,7 @@
                 <span style="color:var(--wh-steel-bright);font-size:0.68rem;font-weight:600;">SELLER REPLY</span>
                 <p style="margin-top:0.25rem;color:#b0b8c4;line-height:1.5;">${e(d.seller_reply)}</p>
               </div>` : ''}
-            ${d.resolved_at ? `<div style="font-size:0.72rem;color:#4ade80;">Resolved ${e(timeAgo(d.resolved_at))}</div>` : ''}
+            ${d.resolved_at ? `<div style="font-size:0.72rem;color:var(--wh-green);">Resolved ${e(timeAgo(d.resolved_at))}</div>` : ''}
           </div>
           ${isOpen ? `
           <div class="card-actions" style="gap:0.4rem;">

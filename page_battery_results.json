@@ -1,8 +1,8 @@
 {
-  "ran": "2026-07-17T21:01:41.886Z",
+  "ran": "2026-07-19T19:31:47.605Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
-  "hive": "636cf7e8-431a-4907-8a9f-43dd4cc216d6",
+  "hive": "(default)",
   "pages": [
     {
       "page": "index.html",
@@ -10,18 +10,13 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=964 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
+          "bodyLen=1268 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -36,6 +31,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -45,18 +50,13 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3093 title=\"Hive Live Board: WorkHive\" loadErrors=0"
+          "bodyLen=584 title=\"Hive Live Board: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -71,6 +71,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -84,14 +94,9 @@
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -107,6 +112,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -119,14 +134,9 @@
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -142,6 +152,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -150,18 +170,13 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2839 title=\"PM Scheduler: WorkHive\" loadErrors=0"
+          "bodyLen=2840 title=\"PM Scheduler: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -176,6 +191,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -207,6 +232,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -215,7 +250,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4379 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=4708 title=\"Alert Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -237,6 +272,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -245,7 +290,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=6062 title=\"Analytics Engine | WorkHive\" loadErrors=0"
+          "bodyLen=1770 title=\"Analytics Engine | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -258,7 +303,7 @@
         "score": 60,
         "xssReflected": false,
         "xssExecuted": false,
-        "inputsFuzzed": 6,
+        "inputsFuzzed": 2,
         "handlerErrors": []
       },
       "P8": {
@@ -266,6 +311,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -297,6 +352,16 @@
         "overflow1280": 0,
         "scrollW390": 375
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -305,7 +370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2759 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2771 title=\"Achievements: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -326,6 +391,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -357,6 +432,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -386,6 +471,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -417,6 +512,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -446,6 +551,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -477,6 +592,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -506,6 +631,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -537,6 +672,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -545,18 +690,13 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4442 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
+          "bodyLen=4173 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -572,6 +712,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -584,14 +734,9 @@
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -607,6 +752,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -619,14 +774,9 @@
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -641,6 +791,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -672,6 +832,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -680,7 +850,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1898 title=\"Project Manager | WorkHive\" loadErrors=0"
+          "bodyLen=1978 title=\"Project Manager | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -701,6 +871,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -732,6 +912,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -762,6 +952,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -770,7 +970,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1292 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
+          "bodyLen=1254 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -791,6 +991,16 @@
         "overflow390": 0,
         "overflow1280": 0,
         "scrollW390": 390
+      },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
       },
       "findings": []
     },
@@ -822,6 +1032,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -830,7 +1050,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4657 title=\"Shift Brain | WorkHive\" loadErrors=0"
+          "bodyLen=4684 title=\"Shift Brain | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -852,6 +1072,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -860,7 +1090,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1953 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=2126 title=\"Audit Log | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -882,6 +1112,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -890,18 +1130,13 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2014 title=\"Voice Journal: WorkHive\" loadErrors=0"
+          "bodyLen=2745 title=\"Voice Journal: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
-        "score": 75,
+        "score": 100,
         "consoleErrors": [],
-        "consoleWarns": [
-          {
-            "t": "warning",
-            "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
-          }
-        ],
+        "consoleWarns": [],
         "badNet": []
       },
       "P4": {
@@ -917,6 +1152,16 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     },
     {
@@ -925,7 +1170,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=10870 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=9319 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -947,16 +1192,30 @@
         "overflow1280": 0,
         "scrollW390": 390
       },
+      "P9": {
+        "score": 90,
+        "imgsNoAlt": 0,
+        "namedlessControls": 0
+      },
+      "P12": {
+        "score": 100,
+        "unhandledRejections": 0,
+        "leakedStack": false
+      },
       "findings": []
     }
   ],
   "summary": {
     "pages": 30,
     "P1": 100,
-    "P2": 93,
+    "P2": 100,
     "P4": 60,
     "P8": 75,
+    "P9": 90,
+    "P12": 100,
     "total_findings": 0,
-    "high_sev": 0
+    "high_sev": 0,
+    "unhandled_pages": [],
+    "a11y_pages": []
   }
 }

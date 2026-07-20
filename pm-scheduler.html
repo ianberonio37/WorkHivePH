@@ -17,21 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'orange-wh': '#FDB94A',
-            'blue-wh':   '#5FCCE8',
-            'navy-wh':   '#162032',
-          },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -88,8 +74,8 @@
     .btn-ghost:active { transform: scale(0.98); }
 
     .btn-danger {
-      /* #f87171 (red-400) on the #162032 card = 5.9:1, clears WCAG 2.2 AA 4.5:1;
-         the prior #ef4444 was 4.33:1 (PM PDDA A-axis). */
+      /* var(--wh-red) (red-400) on the var(--wh-navy) card = 5.9:1, clears WCAG 2.2 AA 4.5:1;
+         the prior var(--wh-red) was 4.33:1 (PM PDDA A-axis). */
       min-height: 40px; background: transparent; color: var(--wh-red-text); font-weight: 600;
       border-radius: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8125rem;
       border: 1px solid rgba(248,113,113,0.4); transition: background 0.2s; cursor: pointer;
@@ -120,8 +106,8 @@
 
     /* Asset status badges */
     .badge-overdue  { background: rgba(239,68,68,0.15); color: var(--wh-red-text); border: 1px solid rgba(239,68,68,0.3); }
-    .badge-duesoon  { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-    .badge-ontrack  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .badge-duesoon  { background: rgba(251,191,36,0.15); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.3); }
+    .badge-ontrack  { background: rgba(34,197,94,0.15);  color: var(--wh-green); border: 1px solid rgba(34,197,94,0.25); }
     .badge-nodata   { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); }
 
     .status-badge {
@@ -139,9 +125,9 @@
     }
     .asset-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
     .asset-card:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
-    .asset-card.overdue  { border-left-color: #ef4444; }
-    .asset-card.duesoon  { border-left-color: #fbbf24; }
-    .asset-card.ontrack  { border-left-color: #4ade80; }
+    .asset-card.overdue  { border-left-color: var(--wh-red); }
+    .asset-card.duesoon  { border-left-color: var(--wh-orange); }
+    .asset-card.ontrack  { border-left-color: var(--wh-green); }
     .asset-card.nodata   { border-left-color: rgba(156,163,175,0.4); }
 
     /* Category pill */
@@ -155,11 +141,11 @@
       display: inline-flex; padding: 1px 7px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     }
-    .freq-D  { background: rgba(244,114,182,0.15); color: #f9a8d4; }
-    .freq-W  { background: rgba(56,189,248,0.15);  color: #7dd3fc; }
+    .freq-D  { background: rgba(244,114,182,0.15); color: var(--wh-red); }
+    .freq-W  { background: rgba(56,189,248,0.15);  color: var(--wh-blue); }
     .freq-M  { background: rgba(41,182,217,0.15); color: var(--wh-blue); }
-    .freq-Q  { background: rgba(167,139,250,0.15); color: #C4B5FD; }
-    .freq-SA { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .freq-Q  { background: rgba(167,139,250,0.15); color: var(--wh-violet-text); }
+    .freq-SA { background: rgba(251,191,36,0.15);  color: var(--wh-orange); }
     .freq-Y  { background: rgba(247,162,27,0.15);  color: var(--wh-orange); }
     .freq-Other { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
 
@@ -176,7 +162,7 @@
       background: rgba(255,255,255,0.2); transition: background 0.2s;
     }
     .step-dot.active { background: var(--wh-orange); }
-    .step-dot.done   { background: #4ade80; }
+    .step-dot.done   { background: var(--wh-green); }
 
     /* Progress bar */
     .progress-bar {
@@ -209,8 +195,8 @@
       border: 2px solid rgba(255,255,255,0.2); background: transparent;
       cursor: pointer; transition: all 0.15s; flex-shrink: 0;
     }
-    .complete-btn:hover { border-color: #4ade80; background: rgba(34,197,94,0.1); }
-    .complete-btn.done { border-color: #4ade80; background: rgba(34,197,94,0.15); }
+    .complete-btn:hover { border-color: var(--wh-green); background: rgba(34,197,94,0.1); }
+    .complete-btn.done { border-color: var(--wh-green); background: rgba(34,197,94,0.15); }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
@@ -297,7 +283,7 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
@@ -310,7 +296,7 @@
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.62); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
-    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62); }
@@ -340,12 +326,12 @@
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92);border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
     <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
     <div class="flex items-center gap-3">
-      <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;">
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange);">
+        <span class="ic ic-community" aria-hidden="true"></span>
         <span id="hive-chip-name" class="font-semibold truncate max-w-[80px]"></span>
       </div>
       <span id="nav-worker" class="text-xs text-white/60 truncate max-w-[100px]"></span>
@@ -440,7 +426,7 @@
 
     <!-- Load More -->
     <div id="pm-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       <p id="pm-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
     </div>
 
@@ -457,9 +443,7 @@
 
   <!-- FAB -->
   <button class="fab" onclick="goAddAsset()" aria-label="Add asset">
-    <svg class="w-6 h-6 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="#162032" stroke-width="2.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-    </svg>
+    <span class="ic ic-add" aria-hidden="true"></span>
   </button>
 </div>
 
@@ -472,7 +456,7 @@
     <!-- Wizard header -->
     <div class="mb-6">
       <button onclick="goBack()" class="flex items-center gap-1.5 text-white/60 hover:text-white/70 text-sm mb-4 transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
       <div class="flex items-center justify-between mb-3">
@@ -480,7 +464,7 @@
         <div id="step-indicator" class="flex gap-1.5 items-center"></div>
       </div>
       <div class="progress-bar">
-        <div id="wizard-progress" class="progress-fill" style="background:#F7A21B;width:25%;"></div>
+        <div id="wizard-progress" class="progress-fill" style="background:var(--wh-orange);width:25%;"></div>
       </div>
     </div>
 
@@ -531,8 +515,8 @@
           <label class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="criticality">Criticality</label>
           <div class="grid grid-cols-3 gap-2" id="crit-group">
             <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)">Critical</button>
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;" onclick="setCrit(this)">Minor</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:var(--wh-orange);background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:var(--wh-green);background:transparent;" onclick="setCrit(this)">Minor</button>
           </div>
         </div>
       </div>
@@ -651,11 +635,11 @@
     <!-- Back + actions -->
     <div class="flex items-center justify-between mb-5">
       <button onclick="goBack()" class="flex items-center gap-1.5 text-white/60 hover:text-white/70 text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
       <div class="flex gap-2">
-        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:#29B6D9;" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
+        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
         <button id="btn-delete-asset" class="btn-danger hidden" onclick="confirmDeleteAsset()" data-i="deleteasset">Delete Asset</button>
       </div>
     </div>
@@ -679,7 +663,7 @@
     <!-- Add Task trigger -->
     <button onclick="openAddTaskSheet()" class="wh-card w-full p-4 mb-4 flex items-center justify-between text-sm font-semibold transition-colors" style="color:rgba(247,162,27,0.8);">
       <span data-i="plusaddtask">+ Add Task</span>
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      <span class="ic ic-add" aria-hidden="true"></span>
     </button>
 
     <!-- PM Tasks section -->
@@ -697,7 +681,7 @@
       <div id="det-history" class="divide-y divide-white/5"></div>
       <div id="det-history-empty" class="hidden text-center py-6 text-white/60 text-xs">No completions recorded yet.</div>
       <div id="det-history-more" class="hidden mt-3">
-        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </div>
 
@@ -708,15 +692,11 @@
 <div class="bottom-nav">
   <div class="flex max-w-2xl mx-auto px-4">
     <button class="nav-tab active" id="tab-dashboard" onclick="showScreen('dashboard')">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-      </svg>
+      <span class="ic ic-home" aria-hidden="true"></span>
       <span data-i="dashboard">Dashboard</span>
     </button>
     <button class="nav-tab" id="tab-add" onclick="goAddAsset()">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-      </svg>
+      <span class="ic ic-add" aria-hidden="true"></span>
       <span data-i="addasset">Add Asset</span>
     </button>
   </div>
@@ -776,7 +756,7 @@
 
     <!-- Asset + date row -->
     <div class="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-      <svg class="w-4 h-4 text-white/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      <span class="ic ic-back" aria-hidden="true"></span>
       <div class="min-w-0">
         <p id="sheet-asset-name" class="text-sm font-semibold text-white truncate"></p>
         <p class="text-xs text-white/60">Completed: <span id="sheet-date" class="text-white/60"></span></p>
@@ -800,7 +780,7 @@
       <label class="flex items-center gap-3 cursor-pointer flex-1">
         <div class="relative">
           <input type="checkbox" id="sheet-log-toggle" class="sr-only" checked />
-          <div id="sheet-toggle-track" class="w-10 h-6 rounded-full transition-colors" style="background:#F7A21B;"></div>
+          <div id="sheet-toggle-track" class="w-10 h-6 rounded-full transition-colors" style="background:var(--wh-orange);"></div>
           <div id="sheet-toggle-thumb" class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform" style="transform:translateX(16px);"></div>
         </div>
         <div>
@@ -1077,12 +1057,12 @@ const TYPE_TO_CATEGORY = {
 const CAT_COLORS = {
   'Rotating Equipment': { bg: 'rgba(41,182,217,0.15)', color: '#5FCCE8' },
   'Static Equipment':   { bg: 'rgba(167,139,250,0.15)', color: '#C4B5FD' },
-  'Electrical':         { bg: 'rgba(251,191,36,0.15)',  color: '#fbbf24' },
+  'Electrical':         { bg: 'rgba(251,191,36,0.15)',  color: '#f7a21b' },
   'Instrumentation':    { bg: 'rgba(34,197,94,0.15)',   color: '#4ade80' },
-  'HVAC':               { bg: 'rgba(244,114,182,0.15)', color: '#f9a8d4' },
+  'HVAC':               { bg: 'rgba(244,114,182,0.15)', color: '#f87171' },
   'Utility Systems':    { bg: 'rgba(247,162,27,0.15)',  color: '#FDB94A' },
   'Civil / Structural': { bg: 'rgba(156,163,175,0.15)', color: '#c3ccd6' },
-  'Material Handling':  { bg: 'rgba(249,115,22,0.15)',  color: '#FDBA74' },
+  'Material Handling':  { bg: 'rgba(249,115,22,0.15)',  color: '#f7a21b' },
 };
 
 function catPill(cat) {
@@ -1098,11 +1078,11 @@ function catPill(cat) {
 // view grouped by EXACT string against ['Monthly','Quarterly','Semi-Annual','Yearly'],
 // hiding Weekly/Annual/Semi-annual = ~half the platform's scope items (PM PDDA F0 keystone).
 const FREQ = [
-  { key: 'Daily',       days: 1,   badge: 'D',  cls: 'freq-D',  color: '#f9a8d4' },
-  { key: 'Weekly',      days: 7,   badge: 'W',  cls: 'freq-W',  color: '#7dd3fc' },
+  { key: 'Daily',       days: 1,   badge: 'D',  cls: 'freq-D',  color: '#f87171' },
+  { key: 'Weekly',      days: 7,   badge: 'W',  cls: 'freq-W',  color: '#29b6d9' },
   { key: 'Monthly',     days: 30,  badge: 'M',  cls: 'freq-M',  color: '#5FCCE8' },
   { key: 'Quarterly',   days: 90,  badge: 'Q',  cls: 'freq-Q',  color: '#C4B5FD' },
-  { key: 'Semi-Annual', days: 180, badge: 'SA', cls: 'freq-SA', color: '#fb923c' },
+  { key: 'Semi-Annual', days: 180, badge: 'SA', cls: 'freq-SA', color: '#f7a21b' },
   { key: 'Annual',      days: 365, badge: 'Y',  cls: 'freq-Y',  color: '#4ade80' },
 ];
 const FREQ_BY_KEY = Object.fromEntries(FREQ.map(f => [f.key, f]));
@@ -1140,7 +1120,7 @@ function statusBadge(st) {
 function critBadge(crit) {
   const map = {
     Critical: 'background:rgba(239,68,68,0.15);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.3);',
-    Major:    'background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);',
+    Major:    'background:rgba(251,191,36,0.15);color:#f7a21b;border:1px solid rgba(251,191,36,0.3);',
     Minor:    'background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);',
   };
   return `<span class="status-badge" style="${map[crit] || ''}">${escHtml(crit || '')}</span>`;
@@ -1687,7 +1667,7 @@ function renderDashboard() {
         <div class="progress-bar">
           <div class="progress-fill" style="
             width:${totalItems ? Math.round(((totalItems - overdueItems) / totalItems) * 100) : 100}%;
-            background:${asset.overall === 'overdue' ? '#ef4444' : asset.overall === 'duesoon' ? '#fbbf24' : '#4ade80'};
+            background:${asset.overall === 'overdue' ? 'var(--wh-red)' : asset.overall === 'duesoon' ? 'var(--wh-orange)' : 'var(--wh-green)'};
           "></div>
         </div>
         <p class="text-xs text-white/60 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
@@ -1769,9 +1749,7 @@ function renderDetail(asset) {
                   <button class="complete-btn ${item.itemStatus === 'ontrack' ? 'done' : ''}"
                     onclick="markDone('${item.id}', this)"
                     title="Mark as completed today">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${item.itemStatus === 'ontrack' ? '#4ade80' : 'currentColor'}" stroke-width="2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
+                    <span class="ic ic-check" aria-hidden="true"></span>
                   </button>
                 </div>
               </div>
@@ -2270,7 +2248,7 @@ function pickRegisteredAsset(id) {
     document.querySelectorAll('.crit-btn').forEach(b => {
       const active = b.dataset.val === selectedCrit;
       if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
-      if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#fbbf24;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
+      if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#f7a21b;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
       if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
     });
   }
@@ -2315,7 +2293,7 @@ function resetWizard() {
     const isDefault = b.dataset.val === 'Major';
     b.classList.toggle('selected', isDefault);
     if (b.dataset.val === 'Critical') b.style.cssText = 'border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;';
-    if (b.dataset.val === 'Major')    b.style.cssText = 'border-color:rgba(251,191,36,0.5);color:#fbbf24;background:rgba(251,191,36,0.08);';
+    if (b.dataset.val === 'Major')    b.style.cssText = 'border-color:rgba(251,191,36,0.5);color:#f7a21b;background:rgba(251,191,36,0.08);';
     if (b.dataset.val === 'Minor')    b.style.cssText = 'border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;';
   });
 }
@@ -2325,7 +2303,7 @@ function setCrit(btn) {
   document.querySelectorAll('.crit-btn').forEach(b => {
     const active = b === btn;
     if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
-    if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#fbbf24;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
+    if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#f7a21b;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
     if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
   });
 }
@@ -2370,7 +2348,7 @@ function renderScopeList() {
           </div>
         </div>
         ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/60 hover:text-red-400 transition-colors p-1" aria-label="Remove">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>` : ''}
       </div>
     `;
@@ -2805,7 +2783,7 @@ if (window.whModalA11y) {
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-bold text-base" data-i="addpmtask">Add PM Task</h3>
       <button onclick="closeAddTaskSheet()" class="text-white/60 hover:text-white/70 p-1 -mr-1" aria-label="Close">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
 

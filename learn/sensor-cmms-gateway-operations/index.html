@@ -303,7 +303,9 @@
         <li><a href="#operating-model">OT/IT operating model that works</a></li>
         <li><a href="#faq">Frequently asked questions</a></li>
         <li><a href="#sources">Sources</a></li></ol></div>
-    <div class="prose-wh"><h2 id="what-gateway">What the Plant Connections gateway does</h2>
+    <div class="prose-wh">
+      <p>Operate the Plant Connections gateway daily, not install-and-forget. Three things keep it reliable: a 5-minute edge-gateway health check each shift, a current sensor inventory with health status, and an OT/IT cybersecurity boundary (built on ISA/IEC 62443) that IT and reliability both signed off. Skip the check and gateway problems surface 6 to 18 hours late, as missing alerts.</p>
+      <h2 id="what-gateway">What the Plant Connections gateway does</h2>
       <p>The edge gateway is a small server (physical or virtual) running on the plant network that:</p>
       <ul><li>Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)</li><li>Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via REST or SOAP API</li><li>Pushes condition summaries and operational data to WorkHive cloud over secure HTTPS</li><li>Pushes WorkHive completion data back to the CMMS for finance and asset register sync</li></ul>
       <p>The gateway runs on-premise so sensitive plant data never leaves your network unencrypted. Only the condition-data summaries WorkHive needs are transmitted. This matters for Philippine plants with cybersecurity policies that restrict direct cloud access from the OT network.</p>

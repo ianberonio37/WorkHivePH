@@ -2,7 +2,7 @@
 name: page-validator-catalog
 type: page
 source: file:validator-catalog.html
-source_sha: 45fb688345d0f939
+source_sha: c5b77c8441212f65
 last_verified: 2026-07-13
 supersedes: null
 ---

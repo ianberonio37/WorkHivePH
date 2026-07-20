@@ -18,21 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'orange-wh': '#F7A21B',
-            'blue-wh':   '#29B6D9',
-            'navy-wh':   '#162032',
-          },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -223,7 +209,7 @@
     }
     .key-toggle:hover { color: rgba(255,255,255,0.7); }
 
-    .error-text { color: #f87171; font-size: 0.78rem; margin-top: 0.35rem; display: none; }
+    .error-text { color: var(--wh-red); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
     .error-text.show { display: block; }
   </style>
 </head>
@@ -238,13 +224,11 @@
       <!-- Back nav -->
       <div class="flex items-center justify-between mb-8">
         <button onclick="handleBack()" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-          </svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
           <span id="back-label">Basic Worker</span>
         </button>
         <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full" style="background:#F7A21B;"></div>
+          <div class="w-2 h-2 rounded-full" style="background:var(--wh-orange);"></div>
           <span class="text-xs text-white/60 font-medium tracking-wide uppercase">Stage 1</span>
         </div>
       </div>
@@ -252,9 +236,7 @@
       <!-- Header -->
       <div class="mb-8">
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.2);">
-          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#F7A21B" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-          </svg>
+          <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h1 class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
         <p class="text-sm text-white/60">Ask anything: technical, operational, planning, safety, or your own job history.</p>
@@ -313,14 +295,12 @@
     <!-- Chat header -->
     <div class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);">
       <button onclick="handleBack()" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
+        <span class="ic ic-back" aria-hidden="true"></span>
         Setup
       </button>
       <div class="flex items-center gap-2">
         <h1 style="margin:0;font-size:0.85rem;font-weight:700;" data-i="chattitle">Work Assistant</h1>
-        <div class="w-2 h-2 rounded-full animate-pulse" style="background:#4ade80;"></div>
+        <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--wh-green);"></div>
         <span id="chat-worker-name" class="text-sm font-semibold text-white/80"></span>
       </div>
       <button onclick="clearChat()" class="text-xs text-white/60 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;" data-i="newchat">New Chat</button>
@@ -337,7 +317,7 @@
       <button id="tab-chat" type="button" role="tab" aria-selected="true"
               onclick="switchAssistantTab('chat')"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
+              style="background:rgba(247,162,27,0.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
         Chat
       </button>
       <button id="tab-journal" type="button" role="tab" aria-selected="false"
@@ -374,9 +354,7 @@
           oninput="autoResize(this)"
         ></textarea>
         <button id="send-btn" class="send-btn" onclick="sendMessage()" aria-label="Send message">
-          <svg class="w-4 h-4 text-navy-wh" fill="none" viewBox="0 0 24 24" stroke="#162032" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-          </svg>
+          <span class="ic ic-send" aria-hidden="true"></span>
         </button>
       </div>
       <p class="text-center text-[10px] text-white/60 mt-2">Powered by WorkHive AI</p>
@@ -837,7 +815,7 @@ happens to know maintenance, not a manual.`;
       wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; max-width:32rem;';
       wrap/* xss-allow: static author-controlled prompt strings, escHtml'd */ .innerHTML =
         `<h2 style="width:100%; font-size:0.68rem; color:rgba(255,255,255,0.62); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
-        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:#F7A21B; background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 14px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
+        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 14px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
       container.appendChild(wrap);
       wrap.querySelectorAll('.starter-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {
@@ -948,7 +926,12 @@ happens to know maintenance, not a manual.`;
     // ── Fetch semantic context before AI call ─────────────────────
     async function getSemanticContext(query) {
       try {
-        const hiveId = localStorage.getItem('wh_hive_id') || null;
+        // Hive-context consistency (2026-07-19): resolve the ACTIVE hive first, exactly like the page's
+        // data reads (wh_active_hive_id, set on sign-in/hive-switch) — the legacy `wh_hive_id` alone is
+        // often null in the modern flow, so the AI-gateway/RAG got NO hive grounding (assistant answered
+        // WITHOUT the team knowledge base) even when the user was in a hive. Live-confirmed: active=<hive>,
+        // legacy=null -> sent null. Now mirrors the reads' `wh_active_hive_id || wh_hive_id` resolution.
+        const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
         // Forward the USER's session JWT: semantic-search's Pillar I tenancy check
         // (verify_jwt=false fn on a service-role client) requires a resolvable identity
         // when hive_id is set, else it 401s and the assistant answers WITHOUT the hive's
@@ -988,7 +971,12 @@ happens to know maintenance, not a manual.`;
       addTypingIndicator();
 
       try {
-        const hiveId = localStorage.getItem('wh_hive_id') || null;
+        // Hive-context consistency (2026-07-19): resolve the ACTIVE hive first, exactly like the page's
+        // data reads (wh_active_hive_id, set on sign-in/hive-switch) — the legacy `wh_hive_id` alone is
+        // often null in the modern flow, so the AI-gateway/RAG got NO hive grounding (assistant answered
+        // WITHOUT the team knowledge base) even when the user was in a hive. Live-confirmed: active=<hive>,
+        // legacy=null -> sent null. Now mirrors the reads' `wh_active_hive_id || wh_hive_id` resolution.
+        const hiveId = localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id') || null;
         let reply = null;
 
         // Fetch semantic context FIRST: enriches both orchestrator and fallback paths
@@ -1166,7 +1154,7 @@ happens to know maintenance, not a manual.`;
   </footer>
 </main>
 
-<script>window.WH_FIL_PAGE={tryasking:'Subukang itanong',newchat:'Bagong Chat',a_chat:'Chat',a_journal:'Journal'};</script>
+<script>window.WH_FIL_PAGE={chattitle:'Katulong sa Trabaho',tryasking:'Subukang itanong',newchat:'Bagong Chat',a_chat:'Chat',a_journal:'Journal'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

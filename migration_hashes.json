@@ -352,5 +352,9 @@
   "20260718000002_cron_health_view.sql": "94b2ceac5a9452758a3e07bccc3d8d360aa2a65024d9cbed7ebf959a870e4a96",
   "20260718000003_storage_health_view.sql": "2ac718039a932bfac5a76b8a43b4d378a075f3712688a44a6362ec3ec6983cff",
   "20260718000004_register_ops_seller_canonical_sources.sql": "a63263dfc7a21e00e9898b008adc750033bbecb6cbc60ec6420ce4c7a45d8120",
-  "20260718000005_db_size_history.sql": "c497522a63fcbe1d6a5309d0d5f677b8b7ef56cd3f1605c7fc23dc1422521d7b"
+  "20260718000005_db_size_history.sql": "c497522a63fcbe1d6a5309d0d5f677b8b7ef56cd3f1605c7fc23dc1422521d7b",
+  "20260719000001_inventory_partnumber_unique.sql": "406e7d7f5abfdd02b399e82acea4722bf943bc3d1d5c71991aba419a89430de4",
+  "20260719000002_guard_marketplace_order_status.sql": "086d5fe438ca18a02036f36f0822f770107eef5bd71ca15e28c391140d4e06bb",
+  "20260719000003_seller_rating_verified_only.sql": "c4039c10ad3adad77b731956cbe8e526c993355cf970d264ef3a412da4788a44",
+  "20260719000004_numeric_nonnegative_bounds.sql": "d2cd26932ebfef8940a6f52cfdaf8046f3baca5d8e85b0bb7dede47ef2568486"
 }

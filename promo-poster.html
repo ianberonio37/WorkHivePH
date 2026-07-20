@@ -10,17 +10,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --wh-orange:#F7A21B; --wh-orange-dark:#D88A0E; --wh-orange-light:#FDB94A;
-    --wh-blue:#29B6D9; --wh-blue-dark:#1A9ABF; --wh-blue-light:#5FCCE8;
-    --wh-navy:#162032; --wh-navy-mid:#1F2E45; --wh-navy-light:#2A3D58;
-    --wh-steel:#A9B6C4; --wh-cloud:#F4F6FA; --wh-body:#C9D2DE;
+    --wh-orange:var(--wh-orange); --wh-orange-dark:var(--wh-orange-dark); --wh-orange-light:var(--wh-orange-light);
+    --wh-blue:var(--wh-blue); --wh-blue-dark:var(--wh-blue-dark); --wh-blue-light:var(--wh-blue-light);
+    --wh-navy:var(--wh-navy); --wh-navy-mid:var(--wh-navy-mid); --wh-navy-light:var(--wh-navy-light);
+    --wh-steel:var(--wh-steel-bright); --wh-cloud:var(--wh-cloud); --wh-body:#C9D2DE;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{background:#0c121d;font-family:'Poppins',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 
   .poster{
     position:relative;width:1240px;height:1240px;overflow:hidden;color:var(--wh-cloud);
-    background:linear-gradient(158deg,#13243a 0%,#162032 38%,#1b2a40 70%,#23344e 100%);
+    background:linear-gradient(158deg,#13243a 0%,var(--wh-navy) 38%,#1b2a40 70%,#23344e 100%);
   }
   /* aurora glow blobs */
   .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.5;pointer-events:none}
@@ -108,7 +108,7 @@
   .url b{color:var(--wh-cloud);font-weight:700}
 
   /* ════ 9:16 STORY VARIANT (?v=story) ════ */
-  body.story .poster{width:1080px;height:1920px;background:linear-gradient(172deg,#13243a 0%,#162032 42%,#1b2a40 74%,#23344e 100%)}
+  body.story .poster{width:1080px;height:1920px;background:linear-gradient(172deg,#13243a 0%,var(--wh-navy) 42%,#1b2a40 74%,#23344e 100%)}
   body.story .blob-orange{width:600px;height:600px;left:-170px;top:-150px}
   body.story .blob-blue{width:740px;height:740px;right:-250px;bottom:-240px}
   body.story .blob-orange2{display:none}

@@ -37,7 +37,7 @@
     /* ── Layout ── */
     .page { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem; }
     .page-header { margin-bottom: 1rem; }
-    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    .page-header h1 { font-size: 1.9rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; } /* Arc-W focal: heading ≥2.3× body median (was 1.5rem/1.83×) */
     .page-header p { font-size: 0.8rem; color: #9AA8B6; margin-top: 0.25rem; }
     .ctx-pill { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 600; color: var(--wh-blue);
       background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.2rem 0.6rem; margin-top: 0.5rem; }
@@ -75,7 +75,7 @@
     .preview-bar .btn-sm { min-height: 44px; }
     .btn-add { width: 100%; margin-top: 0.6rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: var(--wh-blue-light); }
     .btn-add:active { background: rgba(41,182,217,0.15); }
-    .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #f87171;
+    .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--wh-red);
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
     .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: #cbd5e1;
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
@@ -114,16 +114,16 @@
     .kw-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0.7rem 0 0.4rem; }
     .kw-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .kw-chip { font-size: 0.72rem; font-weight: 600; border-radius: 999px; border: 1px solid; white-space: nowrap; }
-    .kw-have { color: #7FE0A6; background: rgba(46,158,91,0.12); border-color: rgba(46,158,91,0.4);
+    .kw-have { color: var(--wh-green); background: rgba(46,158,91,0.12); border-color: rgba(46,158,91,0.4);
       display: inline-flex; align-items: center; min-height: 30px; padding: 0 0.6rem; }
-    .kw-miss { color: #FFD08A; background: rgba(217,138,41,0.10); border-color: rgba(217,138,41,0.4);
+    .kw-miss { color: var(--wh-orange); background: rgba(217,138,41,0.10); border-color: rgba(217,138,41,0.4);
       display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.8rem; cursor: pointer; }
     .kw-miss[aria-pressed="true"] { background: rgba(95,204,232,0.18); border-color: var(--wh-blue-light); color: #cdeffa; }
 
     /* ── Quantification coach (Experience) ── */
     .quant-coach { font-size: 0.7rem; line-height: 1.4; border-radius: 0.5rem; padding: 0.5rem 0.7rem; margin-bottom: 0.7rem;
-      color: #FFD08A; background: rgba(217,138,41,0.10); border: 1px solid rgba(217,138,41,0.3); }
-    .quant-coach.ok { color: #7FE0A6; background: rgba(46,158,91,0.10); border-color: rgba(46,158,91,0.3); }
+      color: var(--wh-orange); background: rgba(217,138,41,0.10); border: 1px solid rgba(217,138,41,0.3); }
+    .quant-coach.ok { color: var(--wh-green); background: rgba(46,158,91,0.10); border-color: rgba(46,158,91,0.3); }
 
     /* ── Extraction option toggle ── */
     .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; min-height: 44px;
@@ -182,6 +182,7 @@
   <div class="aurora"><div class="aurora-blob aurora-blob-1"></div><div class="aurora-blob aurora-blob-2"></div></div>
 
   <main class="page" id="main">
+    <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 0.91 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2.25rem}</style>
     <div id="offline-banner">⚠ You're offline: changes are saved on this device and will sync when you reconnect.</div>
 
     <!-- chip-allow: this page reads v_logbook_truth + v_skill_badges_truth ONCE to PRE-FILL a resume (not a live KPI display); per-item data provenance is shown via srcChip, so a page-level source/freshness chip does not apply. -->
@@ -207,8 +208,8 @@
       </div>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
-      <p id="upload-status" style="font-size:0.72rem;color:#5FCCE8;margin-top:0.6rem;display:none;"></p>
-      <p style="font-size:0.66rem;color:#7B8794;margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime: it builds on what you already have.</p>
+      <p id="upload-status" style="font-size:0.72rem;color:var(--wh-blue-light);margin-top:0.6rem;display:none;"></p>
+      <p style="font-size:0.66rem;color:var(--wh-steel);margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime: it builds on what you already have.</p>
       <script>
         // P11 i18n — adopt the SHARED data-i/_t system (utils.js WH_FIL_PAGE lever, P5 lever ladder).
         // First batch: upload-card chrome + header actions. Natural Taglish, English domain terms kept.
@@ -403,7 +404,7 @@
       'Logbook':      { c: '#F7A21B', b: 'rgba(247,162,27,0.12)' },
       'Profile':      { c: '#4ade80', b: 'rgba(74,222,128,0.12)' },
       'AI suggested': { c: '#a78bfa', b: 'rgba(167,139,250,0.14)' },
-      'Uploaded':     { c: '#2dd4bf', b: 'rgba(45,212,191,0.12)' },
+      'Uploaded':     { c: '#29b6d9', b: 'rgba(45,212,191,0.12)' },
       'You typed':    { c: '#94A3B8', b: 'rgba(148,163,184,0.12)' },
     };
     function srcChip(src) {
@@ -575,7 +576,7 @@
       return `<div class="card">
         <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
         ${sec.key === 'work' ? '<div id="quant-coach" class="quant-coach" role="status" aria-live="polite" style="display:none;"></div>' : ''}
-        ${body || `<p style="font-size:0.76rem;color:#7B8794;">Nothing here yet.</p>`}
+        ${body || `<p style="font-size:0.76rem;color:var(--wh-steel);">Nothing here yet.</p>`}
         <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
     }
@@ -792,7 +793,7 @@
       // E2 consistent states: shared shimmer skeleton while saved resumes load
       // (was a plain "Loading…" the List View Contract didn't recognize).
       if (typeof whListSkeleton === 'function') whListSkeleton(wrap, 3);
-      else wrap.innerHTML = '<div style="font-size:0.74rem;color:#7B8794;padding:0.4rem 0;">Loading…</div>';
+      else wrap.innerHTML = '<div style="font-size:0.74rem;color:var(--wh-steel);padding:0.4rem 0;">Loading…</div>';
       let docs;
       try {
         docs = await listResumes();
@@ -805,7 +806,7 @@
         return;
       }
       if (!docs.length) {
-        wrap.innerHTML = '<p style="font-size:0.74rem;color:#7B8794;padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
+        wrap.innerHTML = '<p style="font-size:0.74rem;color:var(--wh-steel);padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
         return;
       }
       wrap.innerHTML = docs.map((d) => {
@@ -874,7 +875,7 @@
         const id = delBtn.getAttribute('data-rm-del');
         const actions = delBtn.closest('.rm-row-actions');
         if (actions) actions.innerHTML =
-          `<span style="font-size:0.68rem;color:#f87171;">Delete?</span>` +
+          `<span style="font-size:0.68rem;color:var(--wh-red);">Delete?</span>` +
           `<button class="btn btn-ghost btn-sm" data-rm-del-yes="${escHtml(id)}" type="button">Yes</button>` +
           `<button class="btn btn-ghost btn-sm" data-rm-del-no="1" type="button">No</button>`;
       }
@@ -1576,20 +1577,20 @@
       const e = escHtml;
       const total = _jdKeywords.length, have = _jdKeywords.filter(k => k.have).length;
       const pct = total ? Math.round(have / total * 100) : 0;
-      const color = pct >= 70 ? '#7FE0A6' : pct >= 40 ? '#FFD08A' : '#FF8A8A';
+      const color = pct >= 70 ? '#4ade80' : pct >= 40 ? '#f7a21b' : '#f87171';
       const miss = _jdKeywords.filter(k => !k.have), hit = _jdKeywords.filter(k => k.have);
       let html = `<div class="jd-score-head"><span class="jd-score-pct" style="color:${color}">${pct}%</span>`
         + `<span class="jd-score-sub">${have} of ${total} key terms in your resume</span></div>`;
       html += `<div class="jd-bar"><span style="width:${pct}%;background:${color}"></span></div>`;
       if (miss.length) {
-        html += `<div class="kw-group-title" style="color:#FFD08A">Missing from your resume (${miss.length})</div>`;
+        html += `<div class="kw-group-title" style="color:var(--wh-orange)">Missing from your resume (${miss.length})</div>`;
         html += `<div class="kw-wrap" id="jd-miss-wrap">${miss.map(k =>
           `<button type="button" class="kw-chip kw-miss" data-term="${e(k.term)}" aria-pressed="${_jdSelected.has(k.term)}">${k.importance === 'high' ? '★ ' : ''}${e(k.term)}</button>`).join('')}</div>`;
-        html += `<p style="font-size:0.68rem;color:#7B8794;margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
+        html += `<p style="font-size:0.68rem;color:var(--wh-steel);margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
         html += `<button type="button" id="btn-jd-add" class="btn btn-primary" style="width:100%;margin-top:0.6rem;display:none;">+ Add selected to Skills</button>`;
       }
       if (hit.length) {
-        html += `<div class="kw-group-title" style="color:#7FE0A6">Already covered (${hit.length})</div>`;
+        html += `<div class="kw-group-title" style="color:var(--wh-green)">Already covered (${hit.length})</div>`;
         html += `<div class="kw-wrap">${hit.map(k => `<span class="kw-chip kw-have">✓ ${e(k.term)}</span>`).join('')}</div>`;
       }
       panel.innerHTML = html;
@@ -1649,9 +1650,9 @@
       if (!panel) return;
       const e = escHtml;
       panel.innerHTML =
-        `<div class="kw-group-title" style="color:#5FCCE8">Your cover letter draft</div>` +
+        `<div class="kw-group-title" style="color:var(--wh-blue-light)">Your cover letter draft</div>` +
         `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:1rem;line-height:1.5;">${e(letter)}</textarea>` +
-        `<p style="font-size:0.68rem;color:#7B8794;margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
+        `<p style="font-size:0.68rem;color:var(--wh-steel);margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
         `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">` +
         `<button type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
         `<button type="button" id="cl-download" class="btn btn-ghost btn-sm" style="flex:1;min-width:120px;">⬇ Download .txt</button></div>`;
@@ -1717,7 +1718,7 @@
         // OFW variant: conservative, centered header (international agency style), still single-column + ATS-safe
         '.resume-paper.tpl-ofw{font-family:Arial,Helvetica,sans-serif;}',
         '.resume-paper.tpl-ofw .r-name{color:#0d2a4a;text-align:center;letter-spacing:0.02em;}',
-        '.resume-paper.tpl-ofw .r-label{color:#1f5fa8;font-weight:600;text-align:center;}',
+        '.resume-paper.tpl-ofw .r-label{color:#29b6d9;font-weight:600;text-align:center;}',
         '.resume-paper.tpl-ofw .r-contact{text-align:center;}',
         '.resume-paper.tpl-ofw .r-sec-title{color:#0d2a4a;border-color:#0d2a4a;}',
       ].join('');

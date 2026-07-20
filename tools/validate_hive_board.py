@@ -40,6 +40,21 @@ STAMP = re.compile(r"classList\.add\(\s*['\"]is-supervisor['\"]\s*\)")
 # creator can't read yet (membership is inserted afterwards), so it 403s and hive creation
 # breaks. Match a `.from('hives').insert(...)` whose chain then hits `.select(`.
 CREATE_RETURNING = re.compile(r"""\.from\(\s*['"]hives['"]\s*\)\s*\.insert\((?:[^;]{0,400}?)\.select\(""", re.S)
+# L5 (P6 concurrent-edit, 2026-07-19): approveItem/rejectItem MUST carry the P6-C1 optimistic lock
+# — the status update is filtered `.eq('status','pending')` so a concurrent approve/reject (or a
+# double-click / stale queue card) on an ALREADY-resolved item is a 0-row no-op, never a re-flip.
+# Verified live (rolled-back DB race: writerA approve=1 row, writerB reject=0 rows, final=approved).
+# `[^;]` (not `[\s\S]`) bounds the match to a SINGLE chained statement — the optimistic lock lives in
+# the same `db...update(...).eq(...)` chain as the update, so it must not span across the `;` into the
+# neighbouring approve/reject function (that would let a guard-less update pass by borrowing its sibling's).
+P6_APPROVE_LOCK = re.compile(r"""status:\s*['"]approved['"][^;]{0,300}?\.eq\(\s*['"]status['"]\s*,\s*['"]pending['"]\s*\)""")
+P6_REJECT_LOCK  = re.compile(r"""status:\s*['"]rejected['"][^;]{0,300}?\.eq\(\s*['"]status['"]\s*,\s*['"]pending['"]\s*\)""")
+# L6 (P7 UI-locks + recovery, 2026-07-19): the approval-queue read must be HONEST-DEGRADED — a read
+# FAILURE sets `_approvalReadErr` (vs a legitimately-empty queue) AND the render keeps the section
+# visible on error (`total === 0 && !_approvalReadErr`) so a failed load shows "couldn't load", never
+# a fake "All caught up" that would HIDE pending items awaiting supervisor approval (P2-01/P7-02).
+P7_DEGRADED_SET      = re.compile(r"""_approvalReadErr\s*=\s*!!\(""")
+P7_DEGRADED_CONSUMED = re.compile(r"""total\s*===\s*0\s*&&\s*!_approvalReadErr""")
 
 
 def check_text(html: str) -> list[str]:
@@ -56,6 +71,18 @@ def check_text(html: str) -> list[str]:
         fails.append("L4 hive creation chains `.select()` on the `hives` insert — INSERT...RETURNING "
                      "hits the SELECT policy on a hive the creator can't read yet (403). "
                      "Client-generate the id and insert WITHOUT .select().")
+    if not P6_APPROVE_LOCK.search(html):
+        fails.append("L5 approveItem lost its P6-C1 optimistic lock (.eq('status','pending') on the "
+                     "'approved' update) — a concurrent approve/reject can re-flip a resolved item.")
+    if not P6_REJECT_LOCK.search(html):
+        fails.append("L5 rejectItem lost its P6-C1 optimistic lock (.eq('status','pending') on the "
+                     "'rejected' update) — a concurrent approve/reject can re-flip a resolved item.")
+    if not P7_DEGRADED_SET.search(html):
+        fails.append("L6 the approval-queue read no longer sets `_approvalReadErr` from a read error "
+                     "(P7-02 honest-degraded) — a failed load could render a fake-empty 'All caught up'.")
+    if not P7_DEGRADED_CONSUMED.search(html):
+        fails.append("L6 renderApprovalQueue no longer keeps the queue visible on error "
+                     "(`total === 0 && !_approvalReadErr`) — a failed read would HIDE pending items.")
     return fails
 
 
@@ -73,13 +100,38 @@ def self_test() -> bool:
     ok = True
     good = """<script>if(_role==='supervisor')document.documentElement.classList.add('is-supervisor');</script>
     <style>html.is-supervisor #supervisor-summary.hidden { min-height:618px; }</style>
-    <script>approveItem('asset_nodes', id)</script>"""
+    <script>
+    async function approveItem(t,id){ await db.from(t).update({ status: 'approved', approved_by: WN })
+      .eq('id', id).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id'); }
+    async function rejectItem(t,id){ await db.from(t).update({ status: 'rejected' })
+      .eq('id', id).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id'); }
+    _approvalReadErr = !!(assetsRes.error || partsRes.error);
+    queueEl.classList.toggle('hidden', total === 0 && !_approvalReadErr);
+    </script>"""
     if check_text(good):
-        print(f"{R}self-test FAIL: flagged a compliant page.{X}"); ok = False
+        print(f"{R}self-test FAIL: flagged a compliant page: {check_text(good)}{X}"); ok = False
     if not check_text("""<script>db.from('assets').update({})</script>"""):
         print(f"{R}self-test FAIL: missed a db.from('assets') write.{X}"); ok = False
     if not check_text("<style>#supervisor-summary.hidden{min-height:618px}</style>"):
         print(f"{R}self-test FAIL: missed an un-role-scoped reserve.{X}"); ok = False
+    # L5: an approve update WITHOUT the pending guard must be caught (re-flip race open). Build a
+    # standalone snippet that has the reject lock + degraded markers but NOT the approve lock, so
+    # only the L5-approve failure fires.
+    no_approve_lock = """<style>html.is-supervisor #supervisor-summary.hidden{min-height:618px}</style>
+      <script>document.documentElement.classList.add('is-supervisor');
+      db.from(t).update({ status: 'approved' }).eq('id', id).select('id');
+      db.from(t).update({ status: 'rejected' }).eq('id', id).eq('status', 'pending').select('id');
+      _approvalReadErr = !!(r.error); queueEl.classList.toggle('h', total === 0 && !_approvalReadErr);</script>"""
+    if not any("L5 approveItem" in f for f in check_text(no_approve_lock)):
+        print(f"{R}self-test FAIL: missed approveItem missing the P6 optimistic lock.{X}"); ok = False
+    # L6: a render that hides the queue on a bare `total === 0` (no !_approvalReadErr) must be caught.
+    no_degraded_consume = """<style>html.is-supervisor #supervisor-summary.hidden{min-height:618px}</style>
+      <script>document.documentElement.classList.add('is-supervisor');
+      db.from(t).update({ status: 'approved' }).eq('id', id).eq('status', 'pending').select('id');
+      db.from(t).update({ status: 'rejected' }).eq('id', id).eq('status', 'pending').select('id');
+      _approvalReadErr = !!(r.error); queueEl.classList.toggle('h', total === 0);</script>"""
+    if not any("L6 renderApprovalQueue" in f for f in check_text(no_degraded_consume)):
+        print(f"{R}self-test FAIL: missed the queue hiding on error (honest-degraded lost).{X}"); ok = False
     # L4 tests the CREATE_RETURNING regex directly (check_text also runs the L2 presence
     # checks, which fire on any bare snippet lacking the reserve/stamp).
     if not CREATE_RETURNING.search("const {data} = await db.from('hives').insert({name}).select().single();"):

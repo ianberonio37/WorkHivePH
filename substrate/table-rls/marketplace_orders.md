@@ -2,7 +2,7 @@
 name: table-rls-marketplace_orders
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_orders
-source_sha: d9db2a5567f857bf
+source_sha: 58b8ed2161957ae7
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -19,6 +19,8 @@ Policies:
 - `marketplace_orders_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
 - `mkt_orders_read` [SELECT · roles=public] USING=`((buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS a` CHECK=`∅`
 - `mkt_orders_update` [UPDATE · roles=public] USING=`((buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS a` CHECK=`((buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS a`
+
+Guard triggers: `trg_guard_marketplace_order_status`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

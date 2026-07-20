@@ -16,22 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-  // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'orange-wh': '#F7A21B',
-            'blue-wh':   '#29B6D9',
-            'navy-wh':   '#162032',
-          },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -83,10 +68,10 @@
     }
     .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
     .part-card.stock-surplus  { border-left-color: rgb(56,189,248); }
-    .part-card.stock-ok  { border-left-color: #4ade80; }
+    .part-card.stock-ok  { border-left-color: var(--wh-green); }
     .part-card.stock-low { border-left-color: var(--wh-orange); }
     .part-card.stock-critical { border-left-color: rgb(251,113,133); }
-    .part-card.stock-out { border-left-color: #f87171; }
+    .part-card.stock-out { border-left-color: var(--wh-red); }
     @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 
     /* Inputs */
@@ -135,7 +120,7 @@
     .btn-danger:hover { background: rgba(239,68,68,0.2); }
 
     .btn-green {
-      background: rgba(34,197,94,0.12); color: #4ade80;
+      background: rgba(34,197,94,0.12); color: var(--wh-green);
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
       cursor: pointer; border: 1px solid rgba(34,197,94,0.25); min-height: 44px;
@@ -145,7 +130,7 @@
 
     /* Marketplace bridge (Inventory <-> Marketplace parts-flow fabric) */
     .mkt-bridge-btn {
-      background: rgba(41,182,217,0.12); color: #7fdcef;
+      background: rgba(41,182,217,0.12); color: var(--wh-blue);
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
       cursor: pointer; border: 1px solid rgba(41,182,217,0.3); min-height: 44px;
@@ -216,11 +201,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -255,6 +240,7 @@
 
   <!-- MAIN -->
   <main class="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 py-8">
+    <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 1.2 → ≥1.5) */ main > *:not(:last-child){margin-bottom:2rem}</style>
 
     <!-- Header -->
     <div id="wh-inv-header" class="mb-6">
@@ -266,10 +252,10 @@
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">0</span> <span class="text-white/60">parts</span></span>
-          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:#F7A21B">0</span> <span class="text-white/60">low</span></span>
+          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:var(--wh-orange)">0</span> <span class="text-white/60">low</span></span>
           <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">0</span> <span class="text-white/60">out</span></span>
           <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <span class="ic ic-add" aria-hidden="true"></span>
             <span data-i="addpart">Add Part</span>
           </button>
         </div>
@@ -329,19 +315,15 @@
     <!-- Low stock alert banner -->
     <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3.5 mb-6 flex items-center gap-3"
          style="background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.2);">
-      <svg class="w-4 h-4 flex-shrink-0" style="color:#F7A21B" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-      </svg>
-      <span id="low-stock-banner-text" class="text-sm font-semibold" style="color:#F7A21B"></span>
+      <span class="ic ic-back" aria-hidden="true"></span>
+      <span id="low-stock-banner-text" class="text-sm font-semibold" style="color:var(--wh-orange)"></span>
     </div>
 
     <!-- Search + filter -->
     <div class="card p-4 mb-6">
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
+          <span class="ic ic-search" aria-hidden="true"></span>
           <input aria-label="Search part name, number, or linked asset..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search part name, number, or linked asset..." />
         </div>
         <!-- Arc V L-lens: 8 part categories in a flat <select> (>7 = Miller). A datalist combobox is
@@ -374,15 +356,13 @@
 
     <!-- Load More -->
     <div id="inv-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
     </div>
 
     <!-- Empty state -->
     <div id="empty-state" class="text-center py-20 empty-state">
-      <svg class="w-12 h-12 mx-auto mb-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7"/>
-      </svg>
+      <span class="ic ic-parts" aria-hidden="true"></span>
       <p class="text-sm text-white/60 font-medium">No parts in inventory yet.</p>
       <p class="text-xs text-white/60 mt-1">Add your first spare part to start monitoring stock levels.</p>
       <button id="empty-add-btn" class="btn-primary text-sm mt-5 px-6" data-i="addfirstpart">Add Your First Part</button>
@@ -390,9 +370,7 @@
 
     <!-- No results -->
     <div id="no-results" class="text-center py-16 empty-state hidden">
-      <svg class="w-10 h-10 mx-auto mb-3 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
+      <span class="ic ic-search" aria-hidden="true"></span>
       <p class="text-sm text-white/60">No parts match your search.</p>
     </div>
 
@@ -413,7 +391,7 @@
   <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative">
       <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 id="part-modal-title" class="font-black text-xl text-white mb-6" data-i="addpart">Add Part</h2>
       <div class="space-y-4">
@@ -428,12 +406,8 @@
               <datalist id="existing-part-numbers"></datalist>
               <!-- Phase E.3d: Scan barcode / QR to auto-fill Part Number -->
               <button type="button" id="inv-scan-btn" aria-label="Scan part barcode with camera"
-                      style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:#F7A21B; border:1px solid rgba(247,162,27,0.3); border-radius:0.75rem; cursor:pointer;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/>
-                  <path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/>
-                  <line x1="7" y1="12" x2="17" y2="12"/>
-                </svg>
+                      style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.3); border-radius:0.75rem; cursor:pointer;">
+                <span class="ic ic-scan" aria-hidden="true"></span>
               </button>
             </div>
           </div>
@@ -499,9 +473,7 @@
           <label id="f-photo-dropzone" for="f-photo-input"
             class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
             style="background:rgba(255,255,255,0.03);">
-            <svg class="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
+            <span class="ic ic-image" aria-hidden="true"></span>
             <span class="text-xs text-white/60" data-i="tapattach">Tap to attach photo</span>
           </label>
           <div id="f-photo-preview" class="mt-2" style="position:relative; display:none;">
@@ -526,7 +498,7 @@
   <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
       <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 class="font-black text-lg text-white mb-1" data-i="usestock">Use Stock</h2>
       <p id="use-modal-part-name" class="text-xs text-white/60 mb-5"></p>
@@ -554,7 +526,7 @@
   <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
       <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 class="font-black text-lg text-white mb-1" data-i="restock">Restock</h2>
       <p id="restock-modal-part-name" class="text-xs text-white/60 mb-5"></p>
@@ -579,7 +551,7 @@
   <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[88vh] overflow-y-auto p-7 relative">
       <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <div id="detail-content"></div>
     </div>
@@ -770,7 +742,7 @@ const STATUS_COLORS = {
   surplus:  { bg:'rgba(56,189,248,0.15)',  text:'rgb(56,189,248)', border:'rgba(56,189,248,0.25)' },
   ok:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80', border:'rgba(34,197,94,0.25)' },
   low: { bg:'rgba(247,162,27,0.15)', text:'#FDB94A', border:'rgba(247,162,27,0.25)' },
-  critical: { bg:'rgba(251,113,133,0.18)', text:'#FDA4AF', border:'rgba(251,113,133,0.30)' },
+  critical: { bg:'rgba(251,113,133,0.18)', text:'#f87171', border:'rgba(251,113,133,0.30)' },
   out: { bg:'rgba(239,68,68,0.15)',  text:'#FCA5A5', border:'rgba(239,68,68,0.25)' },
 };
 const CAT_COLORS = {
@@ -797,8 +769,8 @@ function catBadge(cat) {
 
 function approvalBadge(item) {
   if (!HIVE_ID) return ''; // solo: no approval flow
-  if (item.status === 'pending')  return `<span class="badge" style="background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.35);">Pending Approval</span>`;
-  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.28);">Rejected</span>`;
+  if (item.status === 'pending')  return `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.35);">Pending Approval</span>`;
+  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(239,68,68,0.12);color:var(--wh-red);border:1px solid rgba(239,68,68,0.28);">Rejected</span>`;
   return '';
 }
 
@@ -807,9 +779,9 @@ function assetBadge(id) {
 }
 
 function txnIcon(type) {
-  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(34,197,94,0.2);color:#4ade80;flex-shrink:0;">+</span>`;
-  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:#f87171;flex-shrink:0;">−</span>`;
-  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:#29B6D9;flex-shrink:0;">~</span>`;
+  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(34,197,94,0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
+  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
+  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:var(--wh-blue);flex-shrink:0;">~</span>`;
   return '';
 }
 
@@ -1053,13 +1025,13 @@ function renderParts() {
               ${approvalBadge(item)}
             </div>
             <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/60 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              <span class="ic ic-next" aria-hidden="true"></span>
             </button>
           </div>
           <p class="text-sm text-white/70 font-medium mb-2">${nm}</p>
           <div class="flex items-center gap-2 flex-wrap mb-3">
             ${item.bin_location ? `<span class="text-[11px] text-white/60 flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span class="ic ic-location" aria-hidden="true"></span>
               ${escHtml(item.bin_location)}
             </span>` : ''}
             ${linked.map(a => assetBadge(a)).join('')}
@@ -1070,23 +1042,23 @@ function renderParts() {
               <span class="text-3xl font-black leading-none" style="color:${sc.text}">${item.qty_on_hand}</span>
               <span class="text-xs text-white/60">${escHtml(item.unit || 'pcs')}</span>
               ${item.min_qty > 0 ? `<span class="text-[11px] text-white/60">Min: ${item.min_qty}</span>` : ''}
-              ${getReservedQty(item.id) > 0 ? `<span class="text-[11px] font-semibold" style="color:#fb923c; background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
+              ${getReservedQty(item.id) > 0 ? `<span class="text-[11px] font-semibold" style="color:var(--wh-orange); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
             </div>
             <div class="flex gap-2">
               <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                <span class="ic ic-minus" aria-hidden="true"></span>
                 <span data-i="inv_use">Use</span>
               </button>
               <button onclick="openRestockModal('${item.id}')" class="btn-green text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span class="ic ic-add" aria-hidden="true"></span>
                 <span data-i="restock">Restock</span>
               </button>
               ${!locked && st === 'surplus' ? `<button onclick="sellSurplus('${item.id}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5" title="You hold 3x+ your minimum of this part: list the surplus on the Marketplace for another plant" aria-label="You hold 3x or more of your minimum of this part: list the surplus on the Marketplace for another plant">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5a1.99 1.99 0 011.41.59l7 7a2 2 0 010 2.82l-5 5a2 2 0 01-2.82 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span class="ic ic-list" aria-hidden="true"></span>
                 <span data-i="inv_sellsurplus">Sell surplus</span>
               </button>` : ''}
               ${(st === 'low' || st === 'out' || st === 'critical') && !locked ? `<button onclick="findOnMarketplace('${item.id}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5" title="Below reorder: source this part from other plants on the Marketplace" aria-label="Below reorder: source this part from other plants on the Marketplace">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 6a5 5 0 100 10 5 5 0 000-10z"/></svg>
+                <span class="ic ic-search" aria-hidden="true"></span>
                 <span data-i="inv_findmkt">Find on Marketplace</span>
               </button>` : ''}
             </div>
@@ -1295,6 +1267,13 @@ async function submitPart() {
   if (!partNumber) { showFormError(errEl, 'Part Number is required.'); document.getElementById('f-part-number').focus(); return; }
   if (!partName)   { showFormError(errEl, 'Part Name is required.'); document.getElementById('f-part-name').focus(); return; }
   if (qtyRaw === '') { showFormError(errEl, 'Qty on Hand is required.'); document.getElementById('f-qty').focus(); return; }
+  // Client-side numeric + non-negative check — immediate feedback that mirrors the DB CHECK
+  // (inventory_items_qty_on_hand_nonneg / min_qty_nonneg, mig 20260719000004), so a bad value is
+  // caught here instead of surfacing as a server rejection.
+  const _qn = parseFloat(qtyRaw);
+  if (isNaN(_qn) || _qn < 0) { showFormError(errEl, 'Qty on Hand must be 0 or a positive number.'); document.getElementById('f-qty').focus(); return; }
+  const _mr = document.getElementById('f-min-qty').value;
+  if (_mr !== '' && (isNaN(parseFloat(_mr)) || parseFloat(_mr) < 0)) { showFormError(errEl, 'Min Qty must be 0 or a positive number.'); document.getElementById('f-min-qty').focus(); return; }
 
   const items = loadInventory();
   if (items.some(i => i.part_number.toUpperCase() === partNumber.toUpperCase() && i.id !== editingItemId)) {
@@ -1405,10 +1384,23 @@ async function submitPart() {
     } else {
       const { error: insertErr } = await db.from('inventory_items').upsert(_row);
       if (insertErr) {
+        // A concurrent double-submit can slip past the client-side pre-check (both clicks read the
+        // same cached list, neither sees the other) — the DB unique index (part_number, hive_id)
+        // rejects the loser with 23505. That's a PERMANENT conflict, NOT a network hiccup, so it must
+        // NOT go to the offline retry queue (which would loop forever). Surface the same friendly
+        // message as the pre-check and revert the phantom local row.
+        const isDup = insertErr.code === '23505' || /duplicate key|already exists/i.test(insertErr.message || '');
+        if (isDup) {
+          items.pop(); _items = items;   // undo the optimistic push (item is the last element)
+          showFormError(errEl, 'A part with this Part Number already exists.');
+          document.getElementById('f-part-number').focus();
+          return;
+        }
         if (window._whInvQueue) {  // network hiccup while "online": queue it, don't lose the write
           await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
           showToast('Network issue: saved offline, will retry automatically.');
         } else {
+          items.pop(); _items = items;   // revert the phantom local row on a hard failure
           showFormError(errEl, 'Could not save part: ' + insertErr.message); return;
         }
       }
@@ -1689,12 +1681,12 @@ function openDetailModal(id) {
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
-      <svg class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:#F7A21B" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-      <p class="text-xs font-semibold" style="color:#F7A21B;">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
+      <span class="ic ic-back" aria-hidden="true"></span>
+      <p class="text-xs font-semibold" style="color:var(--wh-orange);">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
     </div>` : ''}
     ${item.status === 'rejected' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.22);">
-      <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+      <span class="ic ic-back" aria-hidden="true"></span>
       <p class="text-xs font-semibold text-red-400">Rejected by supervisor. Edit the part details and save to resubmit for approval.</p>
     </div>` : ''}
 
@@ -2243,6 +2235,7 @@ async function validateHiveMembership() {
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
     pagetitle: 'Inventory ng Spare Parts',
+    inv_use: 'Gamitin', inv_sellsurplus: 'Ibenta ang sobra', inv_findmkt: 'Hanapin sa Marketplace',
     addpart: 'Magdagdag ng Part',
     outofstock: 'Ubos ang stock',
     lowstock: 'Mababa ang stock',

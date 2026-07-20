@@ -1,0 +1,105 @@
+/* WorkHive promo poster kit — shared design system for all 5 landscape posters.
+   Brand v1.0: Amber #F5A623 · Cyan #29B6F6 · Navy #0D1928 · Steel #6E8498 · Poppins */
+:root{
+  --amber:#F5A623; --amber-lt:#FFC24A; --amber-dk:#D8800E;
+  --cyan:#29B6F6; --cyan-lt:#6FD4FF; --cyan-dk:#1A93CC;
+  --navy:#0D1928; --navy-2:#13233b; --navy-3:#1b2f4c;
+  --steel:#6E8498; --steel-lt:#A9B6C4; --cloud:#F7F9FB;
+  --ink:#0b1523;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#070d16;font-family:'Poppins',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+.poster{position:relative;width:1600px;height:900px;overflow:hidden;color:var(--cloud);
+  background:radial-gradient(1200px 900px at 70% 18%,#20344f 0%,#152743 40%,#0d1a2e 72%,#0a1322 100%);}
+/* glow blobs */
+.blob{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.blob.a{width:720px;height:720px;background:radial-gradient(circle,rgba(247,168,37,.34),transparent 62%)}
+.blob.c{width:820px;height:820px;background:radial-gradient(circle,rgba(41,182,246,.30),transparent 62%)}
+.blob.a2{width:520px;height:520px;background:radial-gradient(circle,rgba(247,168,37,.16),transparent 60%)}
+
+/* honeycomb lattice motif */
+.hivebg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.hivebg svg{width:100%;height:100%}
+.hexline{fill:none;stroke:rgba(140,175,215,.12);stroke-width:1.4}
+.hex-amber{fill:none;stroke:rgba(247,168,37,.55);stroke-width:2.4}
+.hex-cyan{fill:none;stroke:rgba(41,182,246,.5);stroke-width:2.4}
+.hex-fill-amber{fill:rgba(247,168,37,.10);stroke:rgba(247,168,37,.5);stroke-width:2}
+.hex-fill-cyan{fill:rgba(41,182,246,.10);stroke:rgba(41,182,246,.5);stroke-width:2}
+
+/* logo */
+.wh-logo{display:block;filter:drop-shadow(0 8px 26px rgba(247,168,37,.25))}
+
+/* generic content layer */
+.inner{position:relative;z-index:5;width:100%;height:100%}
+
+/* headline system */
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;
+  background:rgba(41,182,246,.12);border:1px solid rgba(41,182,246,.4);
+  font-size:14px;font-weight:600;letter-spacing:.4px;color:var(--cyan-lt)}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.h1{font-weight:800;line-height:1.06;letter-spacing:-1px;color:var(--cloud)}
+.h1 .amber{color:var(--amber)}
+.h1 .cyan{color:var(--cyan-lt)}
+.lede{font-weight:400;color:#C9D6E4;line-height:1.5}
+
+/* CTA + url */
+.cta{display:inline-flex;align-items:center;gap:11px;padding:16px 30px;border-radius:999px;text-decoration:none;
+  background:linear-gradient(95deg,var(--amber) 0%,var(--amber-lt) 100%);
+  color:#11192a;font-weight:700;font-size:19px;letter-spacing:.2px;box-shadow:0 16px 34px rgba(247,168,37,.34)}
+.cta svg{width:19px;height:19px;stroke:#11192a;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.url{font-size:15px;font-weight:500;color:var(--steel-lt)}
+.url b{color:var(--cloud);font-weight:700}
+
+/* subject spotlight + edge vignette (P8: separate hero from a receding bg) */
+.spot{position:absolute;border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(circle,rgba(247,168,37,.30),rgba(41,182,246,.10) 46%,transparent 68%);filter:blur(44px)}
+.vignette{position:absolute;inset:0;z-index:2;pointer-events:none}
+
+/* phone frame — layered elevation (P5: soft big ambient + tight contact) */
+.phone{position:absolute;border-radius:40px;background:#080d15;padding:9px;
+  box-shadow:0 6px 16px rgba(0,0,0,.45),0 40px 78px rgba(0,0,0,.62),0 0 0 1.6px rgba(255,255,255,.10),inset 0 0 0 2px rgba(255,255,255,.03)}
+.phone .screen{position:relative;border-radius:32px;overflow:hidden;background:#0F1923;aspect-ratio:430/932}
+.phone img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.phone .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:82px;height:9px;border-radius:99px;background:rgba(0,0,0,.6);z-index:2}
+.phone .glare{position:absolute;inset:0;border-radius:32px;background:linear-gradient(125deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 34%);pointer-events:none;z-index:3}
+
+/* floating data flag */
+.flag{position:absolute;z-index:20;display:flex;align-items:center;gap:11px;padding:11px 16px;border-radius:16px;
+  background:rgba(16,26,42,.94);border:1px solid rgba(247,168,37,.5);
+  box-shadow:0 22px 46px rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.flag .ic{width:34px;height:34px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(247,168,37,.18)}
+.flag .ic svg{width:19px;height:19px;stroke:var(--amber);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.flag .l1{font-size:11.5px;font-weight:700;letter-spacing:.6px;color:var(--amber);text-transform:uppercase}
+.flag .l2{font-size:15px;font-weight:600;color:var(--cloud);margin-top:1px}
+.flag.cyan{border-color:rgba(41,182,246,.5)}
+.flag.cyan .ic{background:rgba(41,182,246,.16)}
+.flag.cyan .ic svg{stroke:var(--cyan-lt)}
+.flag.cyan .l1{color:var(--cyan-lt)}
+
+/* hexagon tool-cell (Sabsi-style floating token) */
+.cell{position:absolute;z-index:15;width:118px;height:132px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:7px;
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  background:linear-gradient(160deg,rgba(28,44,68,.96),rgba(15,25,40,.96));
+  box-shadow:0 20px 44px rgba(0,0,0,.5)}
+.cell::before{content:"";position:absolute;inset:2px;clip-path:inherit;
+  background:linear-gradient(160deg,rgba(41,182,246,.10),rgba(247,168,37,.06));
+  border:0}
+.cell .ring{position:absolute;inset:0;clip-path:inherit;
+  background:linear-gradient(160deg,var(--amber),var(--cyan)) border-box;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:2px;opacity:.85}
+.cell svg{width:34px;height:34px;stroke:var(--amber-lt);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:2}
+.cell.c svg{stroke:var(--cyan-lt)}
+.cell .nm{position:relative;z-index:2;font-size:12.5px;font-weight:700;color:var(--cloud);letter-spacing:.2px}
+
+/* bee placement helpers */
+.bee{position:absolute;z-index:25;pointer-events:none}
+.beeaura{position:absolute;z-index:24;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(247,168,37,.42),transparent 62%);filter:blur(22px)}
+
+/* footer trust line */
+.trust{font-size:13.5px;color:var(--steel-lt);letter-spacing:.2px}
+.trust b{color:#dfe8f1}

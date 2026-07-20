@@ -2,7 +2,7 @@
 name: skill-data-engineer
 type: skill
 source: skill:data-engineer
-source_sha: 5e3b99938911e5bb
+source_sha: c9258f3c7c66fa0c
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -23,8 +23,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
-      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
-      --red: #f87171; --amber: #fb923c; --yellow: #facc15; --purple: #a78bfa;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
+      --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
@@ -199,11 +199,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
@@ -212,9 +212,9 @@
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
-    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:#4ade80; }
+    .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
-    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:#f87171; }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
@@ -363,7 +363,7 @@
     <div id="anomaly-engine-panel" class="amc-card" style="display:none; background:linear-gradient(145deg, rgba(58,42,88,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(167,139,250,0.25);">
       <div class="amc-head">
         <div>
-          <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:#a78bfa; border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
+          <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:var(--wh-violet); border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
           <span id="anomaly-engine-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
@@ -382,7 +382,7 @@
       <div class="empty-sub">No active alerts in your hive right now.</div>
     </div>
     <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -717,20 +717,30 @@
     if (rejectBtn)  rejectBtn.disabled  = true;
     showAmcMsg(newStatus === 'approved' ? 'Approving brief...' : 'Rejecting brief...');
 
-    const { error } = await db.from('amc_briefings')
+    // P6-C1 optimistic lock (approval-lock class, 2026-07-19): the `_amcBrief.status !== 'pending'`
+    // check above reads STALE cached state — atomically guard `.eq('status','pending')` so a concurrent
+    // supervisor approve/reject (or a double-click) cannot re-flip an already-decided brief and OVERWRITE
+    // the first approver's attribution. .select() detects the 0-row no-op.
+    const { data: updated, error } = await db.from('amc_briefings')
       .update({
         status:        newStatus,
         approved_by:   WORKER_NAME,
         approved_at:   new Date().toISOString(),
       })
       .eq('id', _amcBrief.id)
-      .eq('hive_id', HIVE_ID);
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'pending')
+      .select('id');
 
     if (approveBtn) approveBtn.disabled = false;
     if (rejectBtn)  rejectBtn.disabled  = false;
 
     if (error) {
       showAmcMsg('Could not save: ' + (error.message || 'unknown error'));
+      return;
+    }
+    if (!updated || !updated.length) {
+      showAmcMsg('That brief was already decided by another supervisor.');
       return;
     }
     // Record the supervisor decision in the canonical audit trail.
@@ -1692,7 +1702,7 @@
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
 
-<script>window.WH_FIL_PAGE={ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled'};</script>
+<script>window.WH_FIL_PAGE={approvebrief:'Aprubahan ang brief',joinhive:'Sumali sa hive para makita ang mga alerto',ah_seen:'Nakita',ah_seenbtn:'👁 Nakita',ah_snooze:'⏳ Snooze 7d',ah_handled:'✓ Handled'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

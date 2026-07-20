@@ -59,7 +59,11 @@ function adminQuery(sql) {
 // ─── config ─────────────────────────────────────────────────────────────────
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
-const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // Baguio Textile Mills
+// HIVE default fixed 2026-07-19 (Ian-sanctioned systemic stale-hive drive): was 9b4eaeac — BOTH test
+// accounts (leandromarquez + bryangarcia) are members of 636cf7e8, NOT 9b4eaeac. The stale default made
+// every gate using this recipe get RLS 0-rows → scan EMPTY pages (false confidence). 636cf7e8 = the real
+// Baguio Textile Mills hive both accounts belong to.
+const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // Baguio Textile Mills (real)
 const ACCOUNTS = {
   supervisor: { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234', worker: 'Leandro Marquez' },
   worker: { email: 'bryangarcia@auth.workhiveph.com', pw: 'test1234', worker: 'Bryan Garcia' },

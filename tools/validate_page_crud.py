@@ -59,6 +59,16 @@ def main() -> int:
     err = (r.stderr or "").strip()
     if err and r.returncode != 0:
         print("  stderr:", err[:400])
+    # Cleanup: hive_audit_log is append-only (owner-DELETE is a no-op by design), so the harness's
+    # forged-actor probe row persists. Remove it via service-role psql so the gate never pollutes
+    # the shared local DB ([[feedback_live_mcp_writes_pollute_test_db]]). Best-effort; never fails the gate.
+    try:
+        subprocess.run(
+            ["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
+             "-c", "delete from hive_audit_log where action='crudgate_probe' and target_type='probe';"],
+            capture_output=True, text=True, timeout=30)
+    except Exception:
+        pass
     return r.returncode
 
 

@@ -73,9 +73,18 @@ async function runPage(context, pageFile) {
     P1: { score: 0, notes: [] }, P2: { score: 0, consoleErrors: [], consoleWarns: [], badNet: [] },
     P4: { score: 0, xssReflected: false, xssExecuted: false, inputsFuzzed: 0, handlerErrors: [] },
     P8: { score: 0, overflow390: null, overflow1280: null, scrollW390: null },
+    P9: { score: 0, imgsNoAlt: 0, namedlessControls: 0 },
+    P12: { score: 0, unhandledRejections: 0, leakedStack: false },
     findings: [],
   };
   const page = await context.newPage();
+  // P12 (error-handling, 2026-07-19): capture UNHANDLED promise rejections on load — a page that leaves a
+  // promise rejection unhandled has an error path that fails OPEN (no catch), the exact P12 defect class.
+  // Injected before any page script runs so it sees rejections from the earliest async work.
+  await page.addInitScript(() => {
+    window.__whUnhandled = 0;
+    window.addEventListener('unhandledrejection', () => { window.__whUnhandled++; });
+  });
   const consoleMsgs = [];
   const netResp = [];
   page.on('console', m => { const t = m.type(); if (t === 'error' || t === 'warning') consoleMsgs.push({ t, text: (m.text() || '').slice(0, 300) }); });
@@ -176,6 +185,37 @@ async function runPage(context, pageFile) {
     if (o390.over > 1) rec.findings.push({ phase: 'P8', sev: 3, detail: `overflow @390: scrollW=${o390.scrollW} over=${o390.over}px worst=${o390.worst}` });
     if (o1280.over > 1) rec.findings.push({ phase: 'P8', sev: 2, detail: `overflow @1280: scrollW=${o1280.scrollW} over=${o1280.over}px worst=${o1280.worst}` });
 
+    // ── P12 error-handling: unhandled-rejection-free on load ──
+    const unhandled = await page.evaluate(() => window.__whUnhandled || 0).catch(() => 0);
+    rec.P12.unhandledRejections = unhandled;
+    rec.P12.score = unhandled === 0 ? 100 : 50;
+    // sev 3 (GATE-FAILING): all 30 pages verified 0 unhandled rejections on load (2026-07-19 battery run),
+    // so this is now a locked invariant — a NEW unhandled promise rejection (an error path that fails open)
+    // FAILs the gate, exactly like a broken load / 5xx / XSS / @390 overflow.
+    if (unhandled > 0) rec.findings.push({ phase: 'P12', sev: 3, detail: `${unhandled} unhandled promise rejection(s) on load (error path fails open — add a .catch)` });
+
+    // ── P9 accessibility (lightweight): the 2 highest-frequency SERIOUS axe failures without the CDN —
+    //    (a) a VISIBLE <img> with no alt attribute (missing text alternative), (b) a VISIBLE actionable
+    //    control (<button>/<a href>/[role=button]) with NO accessible name (no text, aria-label,
+    //    aria-labelledby, or title). Icon-only buttons are the usual offender. Full axe serious/critical
+    //    stays MCP-interactive; this catches regressions of the two commonest violations mechanically.
+    const a11y = await page.evaluate(() => {
+      const vis = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
+      const imgsNoAlt = [...document.querySelectorAll('img:not([alt]):not([role="presentation"]):not([aria-hidden="true"])')].filter(vis).length;
+      const ctrls = [...document.querySelectorAll('button, a[href], [role="button"]')].filter(vis);
+      const namedless = ctrls.filter(el => {
+        const name = (el.textContent || '').trim() || el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.getAttribute('title')
+          || (el.querySelector('img[alt]') && el.querySelector('img[alt]').getAttribute('alt')) || '';
+        return !String(name).trim();
+      }).length;
+      return { imgsNoAlt, namedless };
+    }).catch(() => ({ imgsNoAlt: 0, namedless: 0 }));
+    rec.P9 = { score: (a11y.imgsNoAlt === 0 && a11y.namedless === 0) ? 90 : 50, imgsNoAlt: a11y.imgsNoAlt, namedlessControls: a11y.namedless };
+    // sev 3 (GATE-FAILING): all 30 pages verified 0 img-no-alt AND 0 namedless-control (2026-07-19 battery
+    // run), so these two highest-frequency SERIOUS axe failures are now locked — a NEW one FAILs the gate.
+    if (a11y.imgsNoAlt > 0) rec.findings.push({ phase: 'P9', sev: 3, detail: `${a11y.imgsNoAlt} visible <img> with no alt (missing text alternative)` });
+    if (a11y.namedless > 0) rec.findings.push({ phase: 'P9', sev: 3, detail: `${a11y.namedless} visible control(s) with NO accessible name (icon-only button/link)` });
+
     rec.ok = true;
   } catch (e) {
     rec.err = String(e).slice(0, 240);
@@ -199,17 +239,19 @@ async function runPage(context, pageFile) {
     const rec = await runPage(ctx, p);
     out.pages.push(rec);
     const f = rec.findings.length;
-    console.log(`  ${p.padEnd(26)} P1=${rec.P1.score} P2=${rec.P2.score} P4=${rec.P4.score} P8=${rec.P8.score}  findings=${f}${rec.err ? '  ERR ' + rec.err : ''}`);
+    console.log(`  ${p.padEnd(26)} P1=${rec.P1.score} P2=${rec.P2.score} P4=${rec.P4.score} P8=${rec.P8.score} P9=${rec.P9.score} P12=${rec.P12.score}  findings=${f}${rec.err ? '  ERR ' + rec.err : ''}`);
     for (const fd of rec.findings.filter(x => x.sev >= 3)) console.log(`      [S${fd.sev}|${fd.phase}] ${fd.detail}`);
   }
   await ctx.close(); await browser.close();
 
   // rollups
   const avg = k => Math.round(out.pages.reduce((s, p) => s + (p[k]?.score || 0), 0) / out.pages.length);
-  out.summary = { pages: out.pages.length, P1: avg('P1'), P2: avg('P2'), P4: avg('P4'), P8: avg('P8'), total_findings: out.pages.reduce((s, p) => s + p.findings.length, 0), high_sev: out.pages.reduce((s, p) => s + p.findings.filter(f => f.sev >= 3).length, 0) };
+  out.summary = { pages: out.pages.length, P1: avg('P1'), P2: avg('P2'), P4: avg('P4'), P8: avg('P8'), P9: avg('P9'), P12: avg('P12'), total_findings: out.pages.reduce((s, p) => s + p.findings.length, 0), high_sev: out.pages.reduce((s, p) => s + p.findings.filter(f => f.sev >= 3).length, 0), unhandled_pages: out.pages.filter(p => p.P12.unhandledRejections > 0).map(p => p.page), a11y_pages: out.pages.filter(p => (p.P9.imgsNoAlt + p.P9.namedlessControls) > 0).map(p => `${p.page}(alt:${p.P9.imgsNoAlt},noname:${p.P9.namedlessControls})`) };
   writeFileSync(RESULTS, JSON.stringify(out, null, 2));
   console.log('\n' + '='.repeat(64));
-  console.log(`PAGE BATTERY — P1=${out.summary.P1} P2=${out.summary.P2} P4=${out.summary.P4} P8=${out.summary.P8} (mean across ${out.summary.pages} pages)`);
+  console.log(`PAGE BATTERY — P1=${out.summary.P1} P2=${out.summary.P2} P4=${out.summary.P4} P8=${out.summary.P8} P9=${out.summary.P9} P12=${out.summary.P12} (mean across ${out.summary.pages} pages)`);
+  if (out.summary.unhandled_pages.length) console.log(`  ⚠ P12 unhandled rejections on: ${out.summary.unhandled_pages.join(', ')}`);
+  if (out.summary.a11y_pages.length) console.log(`  ⚠ P9 a11y gaps on: ${out.summary.a11y_pages.join(', ')}`);
   console.log(`findings=${out.summary.total_findings} (high-sev=${out.summary.high_sev})  -> ${RESULTS}`);
 
   // ── gate mode: fail on any sev>=3 regression (broken load / 5xx / executed-or-reflected XSS / mobile overflow) ──
@@ -221,6 +263,6 @@ async function runPage(context, pageFile) {
       for (const h of hard) console.log(`  ${h}`);
       process.exit(1);
     }
-    console.log(`\n[GATE] PASS — all ${out.pages.length} pages: clean load (P1), no 5xx (P2), no executed/reflected XSS (P4), no @390 overflow (P8).`);
+    console.log(`\n[GATE] PASS — all ${out.pages.length} pages: clean load (P1), no 5xx (P2), no executed/reflected XSS (P4), no @390 overflow (P8), 0 img-no-alt/namedless-control (P9), 0 unhandled rejections (P12).`);
   }
 })();

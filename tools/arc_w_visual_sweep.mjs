@@ -93,7 +93,7 @@ function snapshotMS() {
       const scored = raw ? scoreArcW(raw) : { __err: err || 'navigate-failed' };
       records.push({ page: pg, role, viewport: vp.name, scored, err });
       const lf = scored.__err ? `ERR ${scored.__err}` :
-        `cards ${String(scored.cards).padStart(3)} flat ${String(scored.flat).padStart(3)} focal ${scored.focalRatio} peers ${scored.maxPeerPanels} hues ${scored.distinctAccentHues} icons ${scored.iconSources} -> floor ${scored.lens_floor}`;
+        `cards ${String(scored.cards).padStart(3)} flat ${String(scored.flat).padStart(3)} focal ${scored.focalRatio} gRatio ${scored.groupingRatio ?? '?'} wsF ${scored.whitespace_floor} peers ${scored.maxPeerPanels} hues ${scored.distinctAccentHues} icons ${scored.iconSources} -> floor ${scored.lens_floor}`;
       console.log(`  ${pg.padEnd(24)} ${vp.name.padEnd(8)} ${lf}`);
     }
   }

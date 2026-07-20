@@ -213,13 +213,22 @@ export const ARC_W_PROBE = () => {
   const NON_ICON = /[©®™ℹ‼⁉️]/g;
   let emojiIcons = 0;
   for (const el of textEls) { const own = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').replace(NON_ICON, ''); if (emojiRe.test(own)) emojiIcons++; }
-  const svgIcons = [...document.querySelectorAll('svg')].filter(vis).length;
+  // svgIcons = only genuine ICON-sized SVGs. EXCLUDE non-icon graphics: charts (large/>40px),
+  // avatars, rating stars, sparklines, QR — those are data-viz/identity, not the icon SYSTEM.
+  const svgIcons = [...document.querySelectorAll('svg')].filter(vis).filter(s => {
+    const b = s.getBoundingClientRect();
+    if (b.width > 40 || b.height > 40) return false;                 // charts / big graphics
+    if (b.width < 10 && b.height < 10) return false;                 // tiny status dots / bullets — decoration, not an icon glyph
+    if (s.closest('.wh-avatar,.avatar,[class*="avatar"],.stars,.wh-fb-star,.rating,[class*="chart"],[class*="spark"],[class*="qr"]')) return false;
+    return true;
+  }).length;
   let imgIcons = 0;
   for (const el of [...document.querySelectorAll('img')].filter(vis)) { const b = el.getBoundingClientRect(); if (b.width <= 56 && b.height <= 56) imgIcons++; }
-  // I lens — count GLYPH icon systems only: emoji vs inline-SVG. A small <img> is a logo/avatar/
-  // thumbnail, NOT part of the icon SYSTEM, so it's informational (imgIcons), not a gated source.
-  // The roadmap target is "one icon system (inline-SVG)" → a page with emoji eliminated + the wh-i
-  // SVG set = 1 source = pass. (Calibrated 2026-06-25 alongside the W5 emoji→SVG standardization.)
+  // I lens — count GLYPH icon systems only: emoji vs inline-SVG-icon. A small <img> is a logo/avatar/
+  // thumbnail, NOT part of the icon SYSTEM (informational imgIcons, not gated). REVERSED 2026-07-19
+  // (Ian: "I prefer the emojis now"): the target is now ONE icon system = EMOJI — a page whose icon
+  // glyphs are emoji + the central `.ic` library (CSS ::before) = 1 source = pass; a page that still
+  // MIXES emoji with leftover inline-SVG ICONS = 2 = flag (the emoji-first rollout drives it to 1).
   const iconSources = [emojiIcons > 0, svgIcons > 0].filter(Boolean).length;
 
   // is this a KPI/dashboard page? (the H focal gate is "per KPI page" — a chat/feed/log/form page

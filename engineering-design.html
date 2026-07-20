@@ -14,17 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { 'orange-wh': '#F7A21B', 'blue-wh': '#29B6D9', 'navy-wh': '#162032' },
-          fontFamily: { poppins: ['Poppins', 'sans-serif'] },
-        },
-      },
-    };
-  </script>
+  <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -263,7 +253,7 @@
     #report-panel .total-row td { font-weight: 700; background: #f9f9f9; }
     #report-panel .result-highlight { background: #fffbf0; border: 1.5px solid var(--wh-orange); border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
     #report-panel .result-highlight .res-label { font-size: 0.78rem; color: #666; }
-    /* U-1 (deep-arc P3): --wh-orange-dark (#d88a0e) on cream #fffbf0 measured 2.68:1 — the
+    /* U-1 (deep-arc P3): --wh-orange-dark (var(--wh-orange-dark)) on cream #fffbf0 measured 2.68:1 — the
        headline RESULT was the least-readable text on the page. #8a4b00 is a dark amber that
        stays on-brand and clears WCAG AA 4.5:1 on the cream highlight (verified live via axe). */
     #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #8a4b00; }
@@ -292,7 +282,7 @@
     #drawing-panel.svg-edit-mode svg polygon,
     #drawing-panel.svg-edit-mode svg polyline,
     #drawing-panel.svg-edit-mode svg path { cursor: crosshair; }
-    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid #1565c0; border-radius:0.4rem; padding:0.35rem 0.85rem; font-size:0.73rem; color:#1565c0; margin-bottom:0.6rem; }
+    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:0.4rem; padding:0.35rem 0.85rem; font-size:0.73rem; color:var(--wh-blue); margin-bottom:0.6rem; }
 
     /* History card */
     .hist-card {
@@ -592,7 +582,7 @@
       <div class="flex items-center gap-3">
         <a href="index.html" style="color:rgba(255,255,255,0.72);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
-          <h1 class="font-bold text-sm" style="color:#F7A21B;margin:0;" data-i="ed_title">Engineering Design</h1>
+          <h1 class="font-bold text-sm" style="color:var(--wh-orange);margin:0;" data-i="ed_title">Engineering Design</h1>
           <div class="text-xs" style="color:rgba(255,255,255,0.6);">Design Calculation Tool</div>
           <!-- Arc L/L1 CLS: filled by renderSourceChip() in init() (deterministic
                freshness+source+2 notes ≈ 161px @390). Reserve it so the header doesn't
@@ -635,9 +625,7 @@
         <!-- Search box -->
         <div class="card p-4 mb-4">
           <div class="search-wrap mb-0">
-            <svg class="search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-            </svg>
+            <span class="ic ic-search" aria-hidden="true"></span>
             <!-- count is DERIVED from CALC_TYPES_UI by syncCalcCounts() at init (deep-arc P1/F-3); this static value is only the first-paint hint -->
             <input aria-label="Search all 55 calculations…" id="calc-search" type="search" placeholder="Search all 55 calculations…" oninput="searchCalcs(this.value)" />
           </div>
@@ -647,7 +635,7 @@
         <div id="recent-calcs-row" style="display:none;" class="mb-2"></div>
 
         <div class="card p-5" id="step1-card">
-          <div class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
+          <div class="text-xs font-600 mb-3" style="color:var(--wh-orange);text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
           <div class="flex gap-3" style="flex-wrap:wrap;">
             <button class="discipline-pill active" translate="no" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">10</span></button>
             <button class="discipline-pill" translate="no" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
@@ -660,7 +648,7 @@
 
         <!-- Step 2: Calc Type -->
         <div class="card p-5" id="step2-card" style="opacity:0.5;pointer-events:none;">
-          <h2 class="text-xs font-600 mb-3" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
+          <h2 class="text-xs font-600 mb-3" style="color:var(--wh-orange);text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
           <!-- Arc L/L1 CLS: this grid ships EMPTY and is filled by selectDiscipline('HVAC')
                in init() (after the deferred bundle parses). Reserve the MEASURED default-
                discipline fill height (HVAC = 11 cards + 2 sub-headers ≈ 893px @390) so the
@@ -673,7 +661,7 @@
         <!-- Step 3: Inputs -->
         <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
           <div class="flex items-center justify-between gap-2 mb-3">
-            <div class="text-xs font-600" style="color:#F7A21B;text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
+            <div class="text-xs font-600" style="color:var(--wh-orange);text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
                  stay untouched. The engine always receives SI (runCalculation normalizes). -->
@@ -699,24 +687,24 @@
         <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
           <div class="font-semibold text-lg mb-2">No Report Yet</div>
-          <div class="text-sm" style="color:rgba(255,255,255,0.6);">Fill in the inputs on the left and click<br><strong style="color:#F7A21B;">Run Calculation</strong> to generate your report.</div>
+          <div class="text-sm" style="color:rgba(255,255,255,0.6);">Fill in the inputs on the left and click<br><strong style="color:var(--wh-orange);">Run Calculation</strong> to generate your report.</div>
         </div>
 
         <!-- Loading state -->
         <div id="report-loading" class="card p-10 text-center hidden" style="min-height:400px;display:none;flex-direction:column;align-items:center;justify-content:center;">
           <!-- Spinner -->
-          <div class="spinner mb-6" style="width:48px;height:48px;border-width:4px;border-color:rgba(247,162,27,0.15);border-top-color:#F7A21B;"></div>
+          <div class="spinner mb-6" style="width:48px;height:48px;border-width:4px;border-color:rgba(247,162,27,0.15);border-top-color:var(--wh-orange);"></div>
           <!-- Brand label -->
-          <div class="font-bold mb-3" style="color:#F7A21B;font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
+          <div class="font-bold mb-3" style="color:var(--wh-orange);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
           <!-- Rotating status message -->
           <div id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
           <!-- Sub-label -->
           <div class="text-sm" style="color:rgba(255,255,255,0.35);">Standards-grade analysis in progress</div>
           <!-- Dot progress indicator -->
           <div class="flex gap-2 mt-5">
-            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:#F7A21B;animation:dotPulse 1.4s ease-in-out infinite;"></div>
-            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:#F7A21B;animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
-            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:#F7A21B;animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
+            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out infinite;"></div>
+            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
+            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
           </div>
         </div>
 
@@ -731,7 +719,7 @@
           </div>
           <!-- AI-7 (deep-arc P5): disclose AI-drafted content + display where trust should/should not go -->
           <div class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.6);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
-            ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong style="color:#29B6D9;">AI-drafted; review before use</strong>.
+            ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong style="color:var(--wh-blue);">AI-drafted; review before use</strong>.
           </div>
           <div id="report-panel"></div>
         </div>
@@ -743,7 +731,7 @@
           <div id="bom-trigger">
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
-                <div class="font-semibold text-sm" style="color:#F7A21B;">📋 Generate BOM + Scope of Works</div>
+                <div class="font-semibold text-sm" style="color:var(--wh-orange);">📋 Generate BOM + Scope of Works</div>
                 <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
               </div>
               <button onclick="generateBomSowChecklist()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
@@ -752,7 +740,7 @@
 
           <!-- Loading state -->
           <div id="bom-loading" class="hidden card p-8 text-center mt-4">
-            <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
+            <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:var(--wh-orange);"></div>
             <div class="font-semibold text-sm mb-1">Generating standard items...</div>
             <div class="text-xs" style="color:rgba(255,255,255,0.6);">AI is preparing BOM and SOW from your calculation results</div>
           </div>
@@ -821,7 +809,7 @@
           <div id="drawing-trigger">
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
-                <div class="font-semibold text-sm" style="color:#F7A21B;">📐 Generate System Diagram</div>
+                <div class="font-semibold text-sm" style="color:var(--wh-orange);">📐 Generate System Diagram</div>
                 <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.6);">Generates a system diagram from your calculation results</div>
               </div>
               <button onclick="generateDrawing()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
@@ -830,7 +818,7 @@
 
           <!-- Loading state -->
           <div id="drawing-loading" class="hidden card p-8 text-center mt-4">
-            <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:#F7A21B;"></div>
+            <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:var(--wh-orange);"></div>
             <div class="font-semibold text-sm mb-1">Building diagram...</div>
             <div class="text-xs" style="color:rgba(255,255,255,0.6);">Generating HVAC system schematic</div>
           </div>

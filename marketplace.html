@@ -63,6 +63,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
+  <link rel="stylesheet" href="wh-icons.css" />  <!-- centralized emoji icon library -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -79,7 +80,7 @@
     .aurora-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07; }
     .aurora-blob.a1 { width: 600px; height: 600px; background: var(--wh-orange); top: -200px; left: -200px; }
     .aurora-blob.a2 { width: 500px; height: 500px; background: var(--wh-blue); bottom: -150px; right: -150px; }
-    .aurora-blob.a3 { width: 400px; height: 400px; background: #c084fc; top: 40%; left: 30%; }
+    .aurora-blob.a3 { width: 400px; height: 400px; background: var(--wh-violet); top: 40%; left: 30%; }
 
     /* Layout */
     .page { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 7rem; }
@@ -209,7 +210,7 @@
       padding: 0.2rem 0.5rem; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
     }
-    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #E8B27A; border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange); border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
     .badge-verified {
@@ -249,7 +250,7 @@
       color: var(--wh-cloud);
     }
     .heart-btn:hover { background: rgba(15,25,35,0.95); transform: scale(1.08); }
-    .heart-btn.saved { color: #f87171; background: rgba(248,113,113,0.15); }
+    .heart-btn.saved { color: var(--wh-red); background: rgba(248,113,113,0.15); }
     .heart-btn.saved:hover { background: rgba(248,113,113,0.25); }
 
     /* Card body */
@@ -264,9 +265,9 @@
       background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.08);
     }
     .cond-chip { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
-    .cond-chip.new   { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+    .cond-chip.new   { background: rgba(74,222,128,0.1); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.2); }
     .cond-chip.used  { background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.1); }
-    .cond-chip.refurb { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+    .cond-chip.refurb { background: rgba(251,191,36,0.1); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.2); }
 
     /* Card footer */
     .card-footer {
@@ -481,8 +482,8 @@
       white-space: nowrap; max-width: 90vw;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.success { border-color: rgba(74,222,128,0.3); color: #4ade80; }
-    #toast.error   { border-color: rgba(248,113,113,0.3); color: #f87171; }
+    #toast.success { border-color: rgba(74,222,128,0.3); color: var(--wh-green); }
+    #toast.error   { border-color: rgba(248,113,113,0.3); color: var(--wh-red); }
     #toast.info    { border-color: rgba(41,182,217,0.3);  color: var(--wh-blue); }
 
     /* Load More button */
@@ -510,11 +511,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -533,6 +534,7 @@
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <main class="page">
+  <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 1.2 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2rem}</style>
   <div id="no-results" class="empty-state" hidden>No listings match those filters.</div>
 
   <div class="page-header">
@@ -588,17 +590,17 @@
   <!-- Section tabs -->
   <div class="section-tabs" role="tablist" aria-label="Marketplace sections">
     <button class="section-tab active" data-section="parts" role="tab" aria-selected="true">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
+      <span class="ic ic-parts" aria-hidden="true"></span>
       <span class="tab-label" data-i="tabparts">Parts</span>
       <span class="tab-count" id="count-parts">0</span>
     </button>
     <button class="section-tab" data-section="training" role="tab" aria-selected="false">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span class="ic ic-training" aria-hidden="true"></span>
       <span class="tab-label" data-i="tabtraining">Training</span>
       <span class="tab-count" id="count-training">0</span>
     </button>
     <button class="section-tab" data-section="jobs" role="tab" aria-selected="false">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      <span class="ic ic-jobs" aria-hidden="true"></span>
       <span class="tab-label" data-i="tabjobs">Jobs</span>
       <span class="tab-count" id="count-jobs">0</span>
     </button>
@@ -607,36 +609,36 @@
   <!-- Trust bar -->
   <div class="trust-bar">
     <div class="trust-item">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      <span class="ic ic-verified" aria-hidden="true"></span>
       ID-Verified Sellers
     </div>
     <div class="trust-item hide-sm">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span class="ic ic-secure" aria-hidden="true"></span>
       Secure Inquiries
     </div>
     <div class="trust-item hide-sm">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="ic ic-free" aria-hidden="true"></span>
       Free, No Platform Fees
     </div>
     <div class="trust-item right">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span class="ic ic-list" aria-hidden="true"></span>
       <span id="txt-total-listings">0 listings</span>
     </div>
-    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
+      <span class="ic ic-save" aria-hidden="true"></span>
       <span data-i="watchlist">Watchlist</span>
     </button>
-    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:#a78bfa;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="Saved Searches">
+      <span class="ic ic-saved" aria-hidden="true"></span>
       <span data-i="searches">Searches</span>
-      <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:#F7A21B;color:#1a1a1a;font-size:0.6rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
+      <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:var(--wh-orange);color:#1a1a1a;font-size:0.6rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
     </button>
-    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:#29B6D9;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
+      <span class="ic ic-list" aria-hidden="true"></span>
       My Listings
     </a>
-    <a id="btn-admin-link" href="founder-console.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:#fca5a5;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Founder Console">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/></svg>
+    <a id="btn-admin-link" href="founder-console.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Founder Console">
+      <span class="ic ic-admin" aria-hidden="true"></span>
       Admin
     </a>
   </div>
@@ -644,15 +646,15 @@
   <!-- Search + filter row -->
   <div class="search-row">
     <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="ic ic-search" aria-hidden="true"></span>
       <input aria-label="Search listings..." class="search-input" id="search-input" type="search" placeholder="Search listings..." autocomplete="off" />
     </div>
     <button class="btn-filter" id="btn-price-filter" aria-expanded="false" aria-controls="price-filter-panel">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      <span class="ic ic-filter" aria-hidden="true"></span>
       <span data-i="price">Price</span>
     </button>
     <button class="btn-filter" id="btn-compare" aria-pressed="false">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="ic ic-compare" aria-hidden="true"></span>
       <span data-i="compare">Compare</span>
     </button>
   </div>
@@ -674,7 +676,7 @@
        part number matches what this hive stocks (the marketplace analog of Community "my people"). -->
   <section id="parts-for-assets" style="display:none;margin:0.25rem 0 0.85rem;" aria-label="Parts for your assets">
     <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:0.45rem;flex-wrap:wrap;">
-      <span style="font-size:0.82rem;font-weight:700;color:#7fdcef;">Parts for your assets</span>
+      <span style="font-size:0.82rem;font-weight:700;color:var(--wh-blue);">Parts for your assets</span>
       <span style="font-size:0.68rem;color:#9aa6b3;">listed by other plants, matched to what you stock</span>
     </div>
     <div id="parts-for-assets-rail" role="list" style="display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.35rem;"></div>
@@ -684,10 +686,12 @@
   <div class="listings-info" id="listings-info"></div>
 
   <!-- Grid -->
-  <!-- role=feed (not list): children are <article> cards; article is not a valid
-       listitem, so the list/listitem pairing tripped axe aria-allowed-role.
-       feed is the WAI-ARIA pattern for a scrollable set of article cards. -->
-  <div class="listing-grid" id="listing-grid" role="feed" aria-label="Marketplace listings"
+  <!-- role=feed is set DYNAMICALLY by renderListings (only when the grid holds role=article cards) and
+       REMOVED for the empty-state / loading-skeleton (non-article children) — a static role="feed" on an
+       empty grid is a critical aria-required-children violation (WCAG). feed is the WAI-ARIA pattern for a
+       scrollable set of <article> cards; article is not a valid listitem, so list/listitem tripped
+       aria-allowed-role. Starts role-less (a valid plain div when empty). -->
+  <div class="listing-grid" id="listing-grid" aria-label="Marketplace listings"
     data-rag-tile="marketplace:listing_grid"
     data-rag-label="Marketplace listing grid"></div>
 
@@ -699,20 +703,20 @@
 
 <!-- FAB -->
 <button id="fab-post" title="Post a listing" aria-label="Post a listing">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f1923" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  <span class="ic ic-post ic-lg" aria-hidden="true"></span>
 </button>
 
 <!-- Compare action bar (only visible in Compare mode with selections) -->
 <div id="compare-bar" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:0.875rem 1rem calc(0.875rem + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(15,25,35,0.85),rgba(15,25,35,0.98));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(247,162,27,0.2);">
   <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
-    <div style="font-size:0.85rem;font-weight:700;color:#F4F6FA;">
+    <div style="font-size:0.85rem;font-weight:700;color:var(--wh-cloud);">
       <span id="compare-count">0</span> <span style="color:#9aa6b3;font-weight:600;">selected</span>
       <span style="font-size:0.7rem;color:#9aa6b3;font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
       <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9aa6b3;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
-      <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,#F7A21B,#FDB94A);border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+        <span class="ic ic-send" aria-hidden="true"></span>
         <span data-i="requestquotes">Request Quotes</span>
       </button>
     </div>
@@ -728,7 +732,7 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-post">Post a Listing</span>
     <button class="btn-close-sheet" id="btn-close-post" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
   <form id="form-post" novalidate>
@@ -768,7 +772,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
         <label class="form-label" for="post-desc" style="margin:0;" data-i="description">Description</label>
         <button type="button" id="post-ai-assist" aria-label="Suggest a category and description with AI"
-          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:#7fdcef;font-family:'Poppins',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
+          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
           <span aria-hidden="true">✨</span><span id="post-ai-assist-label" data-i="aiassist">AI assist</span>
         </button>
       </div>
@@ -779,7 +783,7 @@
       <div class="form-group">
         <label class="form-label" for="post-price" data-i="priceph">Price (PHP)</label>
         <input class="wh-input" type="number" id="post-price" placeholder="Leave blank if negotiable" min="0" step="0.01" />
-        <div id="post-price-hint" style="font-size:0.7rem;color:#7fdcef;margin-top:0.3rem;display:none;"></div>
+        <div id="post-price-hint" style="font-size:0.7rem;color:var(--wh-blue);margin-top:0.3rem;display:none;"></div>
       </div>
       <div class="form-group">
         <label class="form-label" for="post-location" data-i="location">Location</label>
@@ -797,21 +801,21 @@
       <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="post-image-empty" style="color:#9aa6b3;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.4rem;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;">Tap to add a photo</div>
+          <span class="ic ic-image ic-lg" aria-hidden="true"></span>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add a photo</div>
           <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
         </div>
         <div id="post-image-preview" style="display:none;">
           <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="post-image-status" style="font-size:0.7rem;color:#9aa6b3;margin-top:0.5rem;"></div>
-          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
+          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="post-image-url" value="" />
     </div>
 
     <div class="info-notice">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="ic ic-info" aria-hidden="true"></span>
       Listings are reviewed before publishing. The marketplace is free: buyers contact you directly via the inquiry form, with no platform fees.
     </div>
 
@@ -822,7 +826,7 @@
         <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:#9aa6b3;">0 / 100</span>
       </div>
       <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
-        <div id="quality-bar" style="height:100%;width:0%;background:#f87171;transition:width 0.3s,background 0.3s;"></div>
+        <div id="quality-bar" style="height:100%;width:0%;background:var(--wh-red);transition:width 0.3s,background 0.3s;"></div>
       </div>
       <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:#9aa6b3;line-height:1.6;"></div>
     </div>
@@ -840,7 +844,7 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-detail">Listing</span>
     <button class="btn-close-sheet" id="btn-close-detail" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
   <div id="detail-content"></div>
@@ -855,7 +859,7 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-inquiry">Contact Seller</span>
     <button class="btn-close-sheet" id="btn-close-inquiry" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
   <form id="form-inquiry" novalidate>
@@ -877,7 +881,7 @@
       <textarea class="wh-textarea" id="inq-message" maxlength="1000" placeholder="A template will appear here. Edit any line you want, then send." style="min-height:140px;" required></textarea>
     </div>
     <div class="info-notice">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="ic ic-info" aria-hidden="true"></span>
       Sellers are expected to respond within 48 hours. The marketplace is free: you arrange any payment directly with the seller, off-platform.
     </div>
     <button type="submit" class="btn-primary" id="btn-submit-inquiry" data-i="sendinquiry">Send Inquiry</button>
@@ -893,13 +897,13 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-saved-searches">Saved Searches</span>
     <button class="btn-close-sheet" id="btn-close-saved-searches" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
 
   <!-- Save current panel — only shown when at least one filter is active -->
   <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
-    <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:#29B6D9;">Save current search</div>
+    <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue);">Save current search</div>
     <div id="save-current-summary" style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
@@ -912,7 +916,7 @@
 
   <div id="saved-searches-content">
     <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
+      <span class="ic ic-saved ic-xl" aria-hidden="true"></span>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved searches…</p>
     </div>
   </div>
@@ -927,7 +931,7 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-rfq">Request Quotes</span>
     <button class="btn-close-sheet" id="btn-close-rfq" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
   <form id="form-rfq" novalidate>
@@ -948,7 +952,7 @@
       <textarea class="wh-textarea" id="rfq-message" placeholder="Specs, quantity, delivery location, timeline…" required style="min-height:140px;font-size:1rem;"></textarea>
     </div>
     <div class="info-notice">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="ic ic-info" aria-hidden="true"></span>
       The same message goes to every seller you selected. Sellers reply directly via your contact info.
     </div>
     <button type="submit" class="btn-primary" id="btn-submit-rfq" data-i="sendallquotes">Send All Quote Requests</button>
@@ -964,12 +968,12 @@
   <div class="sheet-header">
     <span class="sheet-title" id="title-sheet-watchlist">My Watchlist</span>
     <button class="btn-close-sheet" id="btn-close-watchlist" aria-label="Close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <span class="ic ic-close" aria-hidden="true"></span>
     </button>
   </div>
   <div id="watchlist-content">
     <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="ic ic-save ic-xl" aria-hidden="true"></span>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved listings…</p>
     </div>
   </div>
@@ -1227,7 +1231,7 @@
     if (list) {
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
         <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size:0.72rem;">
-          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F4F6FA;">${e(item.title)}</span>
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--wh-cloud);">${e(item.title)}</span>
           <span style="color:#9aa6b3;white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
         </div>`).join('');
     }
@@ -1380,8 +1384,8 @@
 
       if (!items.length) {
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polygon points="19 21 12 17 5 21 5 5 19 5 19 21"/></svg>
-          <h2 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved searches</h2>
+          <span class="ic ic-saved ic-xl" aria-hidden="true"></span>
+          <h2 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">No saved searches</h2>
           <p style="font-size:0.78rem;">Set filters above and save them here for quick reuse.</p>
         </div>`;
         return;
@@ -1391,7 +1395,7 @@
       content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(s => {
         const mm = matchMap[s.id] || {};
         const matchPill = Number(mm.new_count) > 0
-          ? `<span style="font-size:0.62rem;font-weight:800;color:#1a1a1a;background:#F7A21B;border-radius:999px;padding:0.1rem 0.45rem;">${mm.new_count} new</span>`
+          ? `<span style="font-size:0.62rem;font-weight:800;color:#1a1a1a;background:var(--wh-orange);border-radius:999px;padding:0.1rem 0.45rem;">${mm.new_count} new</span>`
           : (Number(mm.total_count) > 0
               ? `<span style="font-size:0.62rem;color:#9aa6b3;">${mm.total_count} match${Number(mm.total_count) > 1 ? 'es' : ''}</span>`
               : `<span style="font-size:0.62rem;color:#9aa6b3;">no matches yet</span>`);
@@ -1408,15 +1412,15 @@
               <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
               <span style="display:inline-flex;gap:0.3rem;align-items:center;">
                 ${matchPill}
-                ${s.email ? '<span style="font-size:0.62rem;color:#a78bfa;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
+                ${s.email ? '<span style="font-size:0.62rem;color:var(--wh-violet);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
               </span>
             </div>
             <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
               <button class="btn-delete-search" data-id="${e(s.id)}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Delete</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Delete</button>
             </div>
           </div>`;
       }).join('');
@@ -1435,7 +1439,7 @@
         btn.addEventListener('click', () => deleteSavedSearch(btn.dataset.id));
       });
     } catch (_err) {
-      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load saved searches. Try again.</p>`;
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:var(--wh-red);padding:1rem 0;">Could not load saved searches. Try again.</p>`;
     }
   }
 
@@ -1592,8 +1596,8 @@
       btn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
       btn.setAttribute('aria-label',  isSaved ? 'Remove from watchlist' : 'Save to watchlist');
       btn/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = isSaved
-        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
-        : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+        ? `<span class="ic ic-save" aria-hidden="true"></span>`
+        : `<span class="ic ic-save" aria-hidden="true"></span>`;
     });
     /* Also update the detail sheet Save button if it's open */
     const detailBtn = document.getElementById('btn-detail-save');
@@ -1619,8 +1623,8 @@
       if (!ids.length) {
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div style="text-align:center;padding:2.5rem 1rem;color:#9aa6b3;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <h3 style="font-size:0.95rem;font-weight:700;color:#F4F6FA;margin:0.625rem 0 0.4rem;">No saved listings</h3>
+            <span class="ic ic-save ic-xl" aria-hidden="true"></span>
+            <h3 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">No saved listings</h3>
             <p style="font-size:0.78rem;">Tap the heart on any listing to save it for later.</p>
           </div>`;
         return;
@@ -1649,17 +1653,17 @@
           <div style="display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);${removed ? 'opacity:0.6;' : ''}">
             <div style="width:60px;height:60px;border-radius:0.5rem;flex-shrink:0;background:rgba(42,61,88,0.8);display:flex;align-items:center;justify-content:center;overflow:hidden;">
               ${hasImg ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" style="width:100%;height:100%;object-fit:cover;" />`
-                       : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa6b3" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+                       : `<span class="ic ic-image ic-lg" aria-hidden="true"></span>`}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-size:0.82rem;font-weight:700;line-height:1.3;margin-bottom:0.2rem;">${e(item.title)}</div>
               <div style="font-size:0.7rem;color:#9aa6b3;">
                 ${e(fmtPrice(item.price))} &nbsp;·&nbsp; ${e(item.section)} &nbsp;·&nbsp; ${e(item.seller_name || 'Seller')}
-                ${removed ? `<br><span style="color:#f87171;">No longer available</span>` : ''}
+                ${removed ? `<br><span style="color:var(--wh-red);">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:#F7A21B;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
-                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
+                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
               </div>
             </div>
           </div>`;
@@ -1678,7 +1682,7 @@
         });
       });
     } catch (_err) {
-      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#f87171;padding:1rem 0;">Could not load watchlist. Try again.</p>`;
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:var(--wh-red);padding:1rem 0;">Could not load watchlist. Try again.</p>`;
     }
   }
 
@@ -1697,12 +1701,12 @@
         <div class="card-image">
           ${hasImg
             ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`
-            : `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
-          ${_compareMode ? `<div class="compare-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>` : ''}
+            : `<span class="ic ic-image ic-xl" aria-hidden="true"></span>`}
+          ${_compareMode ? `<div class="compare-check"><span class="ic ic-check" aria-hidden="true"></span></div>` : ''}
           <div class="card-badges">
             <span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
             ${item.seller_verified
-              ? `<span class="badge-verified"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>`
+              ? `<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>`
               : ''}
             ${_communityTrustedSellers.has(item.seller_name)
               ? `<span title="Voice of the Hive in the WorkHive community" style="display:inline-flex;align-items:center;gap:0.15rem;padding:0.15rem 0.4rem;border-radius:999px;font-size:0.6rem;font-weight:700;background:rgba(41,182,217,0.9);color:#04212b;">🐝 Trusted</span>`
@@ -1712,8 +1716,8 @@
                   aria-pressed="${_watchlist.has(item.id) ? 'true' : 'false'}"
                   aria-label="${_watchlist.has(item.id) ? 'Remove from watchlist' : 'Save to watchlist'}">
             ${_watchlist.has(item.id)
-              ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
-              : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`}
+              ? `<span class="ic ic-save" aria-hidden="true"></span>`
+              : `<span class="ic ic-save" aria-hidden="true"></span>`}
           </button>
           ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
         </div>
@@ -1725,7 +1729,7 @@
               ? `<span class="cond-chip ${condClass(item.condition)}">${e(condLabel(item.condition))}</span>`
               : ''}
             ${item.location
-              ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${e(item.location)}</span>`
+              ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><span class="ic ic-location" aria-hidden="true"></span>${e(item.location)}</span>`
               : ''}
           </div>
           <div class="card-footer">
@@ -1841,32 +1845,36 @@
     if (!_listings.length) {
       const emptyConfig = {
         parts: {
-          icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0"/><path d="M4.93 19.07a10 10 0 0 0 14.14 0"/><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+          icon:  `<span class="ic ic-parts ic-xl" aria-hidden="true"></span>`,
           title: 'No spare parts listed yet',
           body:  'Be the first to sell bearings, motors, valves, electrical, or consumables to industrial plants across the Philippines. Free to list: buyers contact you directly via phone or email.',
           cta:   'Post a Parts Listing',
         },
         training: {
-          icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+          icon:  `<span class="ic ic-training ic-xl" aria-hidden="true"></span>`,
           title: 'No training courses yet',
           body:  'Share your industrial expertise. Post a course on Electrical, Mechanical, Instrumentation, Safety/LOTO, CMMS, or Certification Prep. Workers across the country are looking for trainers like you.',
           cta:   'Post a Training Course',
         },
         jobs: {
-          icon:  `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>`,
+          icon:  `<span class="ic ic-jobs ic-xl" aria-hidden="true"></span>`,
           title: 'No jobs posted yet',
           body:  'Post a service request (you need work done) or list yourself as a service provider for inspection, repair, installation, welding, or shutdown work.',
           cta:   'Post a Job',
         },
       };
       const cfg = emptyConfig[_section] || emptyConfig.parts;
+      // A11y (2026-07-19): role="feed" REQUIRES >=1 role=article child (WCAG aria-required-children). An
+      // empty/loading grid holds only a non-article empty-state/skeleton, so DROP the feed role when there
+      // are no cards (restored below when article cards render). Was a critical axe violation on empty feed.
+      grid.removeAttribute('role');
       grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="empty-state">
           ${cfg.icon}
           <h3>${escHtml(cfg.title)}</h3>
           <p style="max-width:420px;margin:0 auto;">${escHtml(cfg.body)}</p>
           <button class="btn-post-first" id="btn-empty-post">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span class="ic ic-post" aria-hidden="true"></span>
             ${escHtml(cfg.cta)}
           </button>
         </div>`;
@@ -1874,6 +1882,7 @@
       return;
     }
 
+    grid.setAttribute('role', 'feed');  // restored: the grid now holds role=article cards (see removeAttribute above)
     grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _listings.map(cardHtml).join('');
 
     grid.querySelectorAll('.btn-view').forEach(btn => {
@@ -1912,6 +1921,7 @@
   function showSkeletons() {
     const grid = document.getElementById('listing-grid');
     if (!grid) return;
+    grid.removeAttribute('role');  // A11y: skeletons are non-article; role=feed restored when cards render
     // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js) —
     // this page's hand-rolled copy was LIFTED there (grid variant), per the §10 lever.
     if (typeof whCardSkeleton === 'function') { whCardSkeleton(grid, 8, { variant: 'grid' }); return; }
@@ -2095,7 +2105,7 @@
             <div class="review-header">
               <div style="display:flex;align-items:center;gap:0.4rem;">
                 <span class="review-author">${e(rv.reviewer_name)}</span>
-                ${rv.verified_purchase ? `<span class="badge-verified" style="font-size:0.6rem;padding:0.1rem 0.4rem;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>` : ''}
+                ${rv.verified_purchase ? `<span class="badge-verified" style="font-size:0.6rem;padding:0.1rem 0.4rem;"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>` : ''}
                 <span class="stars" style="font-size:0.75rem;">${renderStars(rv.rating)}</span>
               </div>
               <span class="review-date">${e(timeAgo(rv.created_at))}</span>
@@ -2112,7 +2122,7 @@
       <div class="detail-image">
         ${item.image_url
           ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" />`
-          : `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+          : `<span class="ic ic-image ic-xl" aria-hidden="true"></span>`}
       </div>
       <div class="detail-price">${e(fmtPrice(item.price))}</div>
       <div class="detail-title">${e(item.title)}</div>
@@ -2134,7 +2144,7 @@
       <div class="detail-section">
         <div class="detail-section-label" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Seller</span>
-          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:#29B6D9;text-decoration:none;font-weight:600;">View profile →</a>
+          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue);text-decoration:none;font-weight:600;">View profile →</a>
         </div>
         <div class="seller-card">
           <div style="flex-shrink:0;padding-bottom:${(_sellerTiers[item.seller_name]||0)>0?'10px':'0'}">${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 42)}</div>
@@ -2153,7 +2163,7 @@
               if (sp.response_rate != null)   bits.push(Math.round(Number(sp.response_rate) * 100) + '% reply rate');
               if (sp.total_sales)             bits.push(sp.total_sales + ' sale' + (sp.total_sales > 1 ? 's' : ''));
               return bits.length
-                ? `<div class="seller-card-meta" style="margin-top:0.2rem;color:#7fdcef;">${bits.map(e).join('&nbsp;&nbsp;·&nbsp;&nbsp;')}</div>`
+                ? `<div class="seller-card-meta" style="margin-top:0.2rem;color:var(--wh-blue);">${bits.map(e).join('&nbsp;&nbsp;·&nbsp;&nbsp;')}</div>`
                 : '';
             })()}
             <div class="seller-badges">
@@ -2165,17 +2175,17 @@
                 const isTopRated  = ratingAvg >= 4.5 && ratingCount >= 5;
                 const out = [];
                 if (sp.kyb_verified || item.seller_verified) {
-                  out.push(`<span class="badge-verified"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>ID Verified</span>`);
+                  out.push(`<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`);
                 }
                 if (sp.cert_verified) {
-                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>`);
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
                 }
                 if (isTopRated) {
-                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:#F7A21B;border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
                 }
                 // X-axis: community authority vouches for a seller (esp. one with few ratings — cold-start trust)
                 if (sellerRep && (sellerRep.is_voice_of_hive || sellerRep.trust_tier === 'top_contributor')) {
-                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:#29B6D9;border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
+                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
                 }
                 if (!out.length) {
                   out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#9aa6b3;">Unverified</span>`);
@@ -2184,7 +2194,7 @@
               })()}
             </div>
             ${sellerProfile?.cert_verified && sellerProfile?.certifications
-              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:#9aa6b3;line-height:1.5;"><strong style="color:#a78bfa;">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
+              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:#9aa6b3;line-height:1.5;"><strong style="color:var(--wh-violet);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
               : ''}
           </div>
         </div>
@@ -2200,12 +2210,12 @@
         <button class="btn-cta" id="btn-detail-contact">Contact Seller</button>
       </div>
       ${item.section === 'parts' ? `<button class="btn-secondary" id="btn-detail-receive" style="width:100%;margin-top:0.625rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;" title="Close the loop: once you receive this part, add it to your plant's inventory" aria-label="Close the loop: once you receive this part, add it to your plant's inventory">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+          <span class="ic ic-inventory-in" aria-hidden="true"></span>
           Received this? Add to your inventory
         </button>` : ''}
       ${sellerProfile?.messenger_username
-        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:#0084ff;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.36 2 1.85 6.18 1.85 11.4c0 2.91 1.4 5.5 3.6 7.21V22l3.31-1.82c.88.24 1.81.37 2.74.37 5.64 0 10.15-4.18 10.15-9.41C22.15 6.18 17.64 2 12 2zm1.07 12.55l-2.55-2.71-4.97 2.71 5.46-5.79 2.55 2.71 4.97-2.71-5.46 5.79z"/></svg>
+        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
+            <span class="ic ic-message" aria-hidden="true"></span>
             Message on Messenger
           </a>`
         : ''}`;
@@ -2353,8 +2363,8 @@
       rail.innerHTML = rows.map(r => `
         <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
           style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:0.6rem;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
-          <div style="font-size:0.62rem;font-weight:700;color:#7fdcef;font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
-          <div style="font-size:0.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
+          <div style="font-size:0.62rem;font-weight:700;color:var(--wh-blue);font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
           <div style="font-size:0.68rem;color:#9aa6b3;">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
         </button>`).join('');
       sec.style.display = 'block';
@@ -2674,15 +2684,15 @@
     if (numEl) numEl.textContent = score + ' / 100';
     if (barEl) {
       barEl.style.width = score + '%';
-      barEl.style.background = score >= 75 ? '#4ade80' : score >= 50 ? '#fbbf24' : '#f87171';
+      barEl.style.background = score >= 75 ? '#4ade80' : score >= 50 ? '#f7a21b' : '#f87171';
     }
-    if (numEl) numEl.style.color = score >= 75 ? '#4ade80' : score >= 50 ? '#fbbf24' : '#f87171';
+    if (numEl) numEl.style.color = score >= 75 ? '#4ade80' : score >= 50 ? '#f7a21b' : '#f87171';
 
     if (tipsEl) {
       if (!tips.length) {
-        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span style="color:#4ade80;">✓ Great listing: buyers love specifics like yours.</span>';
+        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span style="color:var(--wh-green);">✓ Great listing: buyers love specifics like yours.</span>';
       } else {
-        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<strong style="color:#F4F6FA;">To improve:</strong><br>' +
+        tipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<strong style="color:var(--wh-cloud);">To improve:</strong><br>' +
           tips.slice(0, 4).map(t => '• ' + escHtml(t)).join('<br>');
       }
     }

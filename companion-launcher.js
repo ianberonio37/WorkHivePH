@@ -558,10 +558,7 @@
 
         <!-- Page Context Tag -->
         <div id="wh-ai-context-tag">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="#29B6D9" stroke-width="2"/>
-            <path d="M12 8v4l3 3" stroke="#29B6D9" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+          <span class="ic ic-clock" aria-hidden="true"></span>
           Context: <strong style="color:#fff; font-weight:600;">${ctx.label}</strong>
         </div>
 
@@ -572,19 +569,11 @@
         <!-- Input -->
         <div id="wh-ai-input-row">
           <button id="wh-ai-mic" aria-label="${_tt('Voice command', 'Utos sa boses')}" title="${_tt('Voice command', 'Utos sa boses')}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#162032" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
-              <path d="M19 10v2a7 7 0 01-14 0v-2"/>
-              <line x1="12" y1="19" x2="12" y2="23"/>
-              <line x1="8" y1="23" x2="16" y2="23"/>
-            </svg>
+            <span class="ic ic-voice" aria-hidden="true"></span>
           </button>
           <textarea id="wh-ai-input" rows="1" placeholder="${_tt('Ask anything…', 'Magtanong ng kahit ano…')}" aria-label="${_tt('Message', 'Mensahe')}"></textarea>
           <button id="wh-ai-send" aria-label="${_tt('Send', 'Ipadala')}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M22 2L11 13" stroke="#162032" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M22 2L15 22l-4-9-9-4 20-7z" stroke="#162032" stroke-width="2.5" stroke-linejoin="round"/>
-            </svg>
+            <span class="ic ic-send" aria-hidden="true"></span>
           </button>
         </div>
 

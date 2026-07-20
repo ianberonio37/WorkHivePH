@@ -22,8 +22,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
-      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: #4ade80;
-      --red: #f87171; --purple: #a78bfa;
+      --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
+      --red: var(--wh-red); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
       --border: rgba(255,255,255,0.07);
     }
@@ -145,11 +145,11 @@
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
-    .verdict.healthy .verdict-icon { color:#4ade80; }
+    .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
-    .verdict.attn    .verdict-icon { color:#f87171; }
+    .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
     .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
@@ -224,7 +224,7 @@
     <!-- Phase 4 (2026-06-10): interim cross-link — plant-connections is the supervisor
          MONITOR surface for everything configured here (sync health, sensor bridge,
          gateway audit); long-term these two pages merge into one. -->
-    <p style="margin-top:6px;font-size:11px;"><a href="plant-connections.html" style="color:var(--blue, #38bdf8);">Monitor sync health, sensor feeds &amp; gateway activity in Plant Connections &rarr;</a></p>
+    <p style="margin-top:6px;font-size:11px;"><a href="plant-connections.html" style="color:var(--blue, var(--wh-blue));">Monitor sync health, sensor feeds &amp; gateway activity in Plant Connections &rarr;</a></p>
   </div>
 
   <!-- Getting Started workflow guide (dismissible) -->
@@ -970,7 +970,7 @@
   function _confidenceBadge(level, label) {
     const styles = {
       exact:   'background:rgba(74,222,128,0.12); color:#4ade80; border:1px solid rgba(74,222,128,0.3);',
-      partial: 'background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.3);',
+      partial: 'background:rgba(251,191,36,0.12); color:#f7a21b; border:1px solid rgba(251,191,36,0.3);',
       none:    'background:rgba(248,113,113,0.1); color:#f87171; border:1px solid rgba(248,113,113,0.25);',
       skipped: 'background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.08);',
     };
@@ -1444,7 +1444,7 @@
     if (quality && Object.keys(quality).length) {
       const scoreEntries = Object.entries(quality);
       const avgScore = Math.round(scoreEntries.reduce((s, [, v]) => s + v, 0) / scoreEntries.length);
-      const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 60 ? '#fbbf24' : 'var(--red)';
+      const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 60 ? '#f7a21b' : 'var(--red)';
       const scoreLabel = (k) => ({
         pct_machine:'Machine tag', pct_problem:'Problem desc', pct_root_cause:'Root cause',
         pct_closed_at:'Closed-at date', pct_hours:'Actual hours',
@@ -1461,7 +1461,7 @@
           </div>
           <div style="display:flex; flex-direction:column; gap:6px;">
             ${scoreEntries.map(([k, v]) => {
-              const c = v >= 80 ? 'var(--green)' : v >= 60 ? '#fbbf24' : 'var(--red)';
+              const c = v >= 80 ? 'var(--green)' : v >= 60 ? '#f7a21b' : 'var(--red)';
               return `<div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:.68rem; color:var(--muted); width:110px; flex-shrink:0;">${scoreLabel(k)}</span>
                 <div style="flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px;">
@@ -1876,7 +1876,7 @@
         const qs    = row.quality_score || {};
         const vals  = Object.values(qs).filter(v => typeof v === 'number');
         const avgQ  = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
-        const qColor = avgQ === null ? 'var(--muted)' : avgQ >= 80 ? 'var(--green)' : avgQ >= 60 ? '#fbbf24' : 'var(--red)';
+        const qColor = avgQ === null ? 'var(--muted)' : avgQ >= 80 ? 'var(--green)' : avgQ >= 60 ? '#f7a21b' : 'var(--red)';
         const dt    = whFmtDate(row.created_at, { time: true, year: false }); // FD1a canonical
 
         return `

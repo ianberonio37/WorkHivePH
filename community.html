@@ -92,8 +92,8 @@
     .pc-stat span { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.55); }
     .pc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
     .pc-tier.voice_of_the_hive { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.4); }
-    .pc-tier.top_contributor  { background: rgba(41,182,217,0.14); color: #6fd3ef; border: 1px solid rgba(41,182,217,0.4); }
-    .pc-tier.active_contributor { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.35); }
+    .pc-tier.top_contributor  { background: rgba(41,182,217,0.14); color: var(--wh-blue); border: 1px solid rgba(41,182,217,0.4); }
+    .pc-tier.active_contributor { background: rgba(34,197,94,0.12); color: var(--wh-green); border: 1px solid rgba(34,197,94,0.35); }
     .pc-tier.new_member { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
     .pc-seller-link {
       display: flex; align-items: center; justify-content: space-between; gap: 8px; text-decoration: none;
@@ -105,9 +105,9 @@
 
     /* ── Connection dot ── */
     .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .conn-dot.live         { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse-dot 2s infinite; }
-    .conn-dot.reconnecting { background: #f59e0b; }
-    .conn-dot.offline      { background: #ef4444; }
+    .conn-dot.live         { background: var(--wh-green); box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse-dot 2s infinite; }
+    .conn-dot.reconnecting { background: var(--wh-orange); }
+    .conn-dot.offline      { background: var(--wh-red); }
     @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
     @media (max-width: 767px) { .conn-dot.live { animation: none !important; } }
 
@@ -119,7 +119,7 @@
       color: rgba(255,255,255,0.8); white-space: nowrap; flex-shrink: 0;
     }
     .presence-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .presence-dot.online  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+    .presence-dot.online  { background: var(--wh-green); box-shadow: 0 0 6px rgba(34,197,94,0.6); }
     .presence-dot.offline { background: rgba(255,255,255,0.2); }
     #presence-bar::-webkit-scrollbar { display: none; }
 
@@ -133,9 +133,9 @@
     }
     .filter-chip:hover { border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.8); }
     .filter-chip.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
-    .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
-    .filter-chip.cat-technical.active  { background: rgba(41,182,217,0.12); border-color: rgba(41,182,217,0.4); color: #6fd3ef; }
-    .filter-chip.cat-announce.active   { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.4); color: #c084fc; }
+    .filter-chip.cat-safety.active     { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: var(--wh-red-text); }
+    .filter-chip.cat-technical.active  { background: rgba(41,182,217,0.12); border-color: rgba(41,182,217,0.4); color: var(--wh-blue); }
+    .filter-chip.cat-announce.active   { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.4); color: var(--wh-violet); }
     .filter-chip.cat-marketplace.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
 
     /* ── Post cards ── */
@@ -147,9 +147,9 @@
     .post-card:hover { border-color: rgba(255,255,255,0.14); }
     .post-card.new-entry { animation: slideIn 0.3s ease; }
     .post-card.cat-general     { border-left-color: rgba(255,255,255,0.2); }
-    .post-card.cat-safety      { border-left-color: #ef4444; }
+    .post-card.cat-safety      { border-left-color: var(--wh-red); }
     .post-card.cat-technical   { border-left-color: var(--wh-blue); }
-    .post-card.cat-announcement{ border-left-color: #c084fc; }
+    .post-card.cat-announcement{ border-left-color: var(--wh-violet); }
     .post-card.cat-marketplace { border-left-color: var(--wh-orange); }
     .post-card.pinned          { border-left-color: var(--wh-orange); }
     @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
@@ -160,12 +160,12 @@
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
-    .cat-safety      { background: rgba(239,68,68,0.15); color: #fca5a5; }
-    .cat-technical   { background: rgba(41,182,217,0.12); color: #6fd3ef; }
+    .cat-safety      { background: rgba(239,68,68,0.15); color: var(--wh-red-text); }
+    .cat-technical   { background: rgba(41,182,217,0.12); color: var(--wh-blue); }
     .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange); }
-    .cat-announcement{ background: rgba(168,85,247,0.12); color: #c084fc; }
+    .cat-announcement{ background: rgba(168,85,247,0.12); color: var(--wh-violet); }
     .badge-pinned    { background: rgba(247,162,27,0.15); color: var(--wh-orange); }
-    .badge-mod       { background: rgba(239,68,68,0.12); color: #fca5a5; }
+    .badge-mod       { background: rgba(239,68,68,0.12); color: var(--wh-red-text); }
 
     /* ── Avatar initials ── */
     .avatar-initial {
@@ -196,7 +196,7 @@
       border-left: 2px solid rgba(255,255,255,0.06); margin-left: 12px; padding-left: 14px;
     }
     .reply-card.accepted {
-      border-left-color: #4ade80; background: rgba(74,222,128,0.06);
+      border-left-color: var(--wh-green); background: rgba(74,222,128,0.06);
       border-radius: 0 0.5rem 0.5rem 0; padding-top: 8px; padding-bottom: 8px; margin-bottom: 6px;
     }
 
@@ -209,7 +209,7 @@
     .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.6); flex-shrink: 0; }
     .lb-rank.gold   { color: var(--wh-orange); }
     .lb-rank.silver { color: #94a3b8; }
-    .lb-rank.bronze { color: #b45309; }
+    .lb-rank.bronze { color: var(--wh-orange); }
 
     /* ── Bottom sheet (post composer) ── */
     .sheet-overlay {
@@ -376,7 +376,7 @@
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div style="max-width:900px; margin:0 auto; padding:0 1.25rem; height:56px; display:flex; align-items:center; justify-content:space-between;">
     <a href="index.html" class="home-link" aria-label="WorkHive home" style="display:flex; align-items:center; gap:8px; min-height:44px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
     </a>
     <div style="display:flex; align-items:center; gap:12px;">
@@ -430,7 +430,7 @@
         <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
           <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')" data-i="c_feed">Feed</button>
           <button class="tab-btn" id="tab-global" onclick="switchTab('global')" data-i="c_global">🌐 Global</button>
-          <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;"><span data-i="c_mod">Mod Queue</span> <span id="mod-count" data-wh-prov="1" style="display:none; background:rgba(239,68,68,0.2); color:#f87171; font-size:0.6rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
+          <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;"><span data-i="c_mod">Mod Queue</span> <span id="mod-count" data-wh-prov="1" style="display:none; background:rgba(239,68,68,0.2); color:var(--wh-red); font-size:0.6rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
         <!-- a11y (WCAG 4.1.2 nested-interactive): mod-count carries data-wh-prov="1" so the
              global provenance-hover.js enhancer SKIPS it (its attach() bails on dataset.whProv).
              The count badge lives INSIDE the #tab-mod <button>, so an injected provenance info-
@@ -551,9 +551,7 @@
 
 <!-- ── FAB: New Post ── -->
 <button id="fab-post" aria-label="Write a new post" onclick="openComposer()">
-  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#162032" stroke-width="2.5">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-  </svg>
+  <span class="ic ic-add" aria-hidden="true"></span>
 </button>
 
 <!-- ── SHEET: Post Composer ── -->
@@ -562,7 +560,7 @@
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
       <h2 id="composer-title" style="font-size:1rem; font-weight:800; margin:0;">New Post</h2>
       <button class="btn-icon" onclick="closeComposer()" aria-label="Close">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
 
@@ -582,7 +580,7 @@
 
     <!-- Share publicly (supervisor-only); auto-locked ON for announcements -->
     <label id="post-public-row" for="post-public" style="display:none; align-items:center; gap:10px; margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:0.625rem; cursor:pointer;">
-      <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#4ade80;" aria-label="Share publicly with all WorkHive teams" />
+      <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:var(--wh-green);" aria-label="Share publicly with all WorkHive teams" />
       <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
         🌐 Share with all WorkHive teams
         <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
@@ -598,7 +596,7 @@
 
     <details class="wh-help" style="font-size:0.78rem; color:rgba(255,255,255,0.7);">
       <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px; min-height:44px;">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span class="ic ic-doc" aria-hidden="true"></span>
         Community guidelines
         <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400;">tap to read</span>
       </summary>
@@ -623,10 +621,10 @@
       <h2 id="thread-title" style="font-size:1rem; font-weight:800; margin:0;">Thread</h2>
       <div style="display:flex; gap:4px; align-items:center;">
         <button class="btn-icon" onclick="copyThreadLink()" aria-label="Copy link to this thread" title="Copy link">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span class="ic ic-link" aria-hidden="true"></span>
         </button>
         <button class="btn-icon" onclick="closeThread()" aria-label="Close thread">
-          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
     </div>
@@ -647,7 +645,7 @@
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
       <h2 id="report-title" style="font-size:1rem; font-weight:800; margin:0;">Report Post</h2>
       <button class="btn-icon" onclick="closeReport()" aria-label="Close">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
 
@@ -677,7 +675,7 @@
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
       <h2 id="person-title" style="font-size:1rem; font-weight:800; margin:0;">Member</h2>
       <button class="btn-icon" onclick="closePersonCard()" aria-label="Close member card">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
     <div id="person-body"></div>
@@ -1203,7 +1201,7 @@
 
       if (isFiltered) {
         el.innerHTML = `<div class="empty-state">
-          <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <span class="ic ic-search" aria-hidden="true"></span>
           <p style="color:rgba(255,255,255,0.6); font-size:0.875rem;">No posts match your search or filter.</p>
         </div>`;
       } else {
@@ -1218,7 +1216,7 @@
           </p>
           <ul style="margin:0 0 1.25rem; padding-left:1.2rem; font-size:0.82rem; color:rgba(255,255,255,0.7); line-height:1.7;">
             <li><strong>Tap the orange + button</strong> to write a post.</li>
-            <li>Use categories to organise: <span style="color:#f87171;">Safety</span>, <span style="color:var(--wh-blue);">Technical</span>, General.</li>
+            <li>Use categories to organise: <span style="color:var(--wh-red);">Safety</span>, <span style="color:var(--wh-blue);">Technical</span>, General.</li>
             <li>React with 👍 🔧 🔥 👀 or open a thread to reply.</li>
             <li>Type <strong>@</strong> in the message to mention a teammate.</li>
             ${HIVE_ROLE === 'supervisor' ? '<li>As supervisor: tick "Share with all WorkHive teams" to publish a post globally.</li>' : '<li>See something off? Use the ⚠️ report button, your supervisor will review it.</li>'}
@@ -1287,12 +1285,12 @@
 
     const pinnedBadge  = p.pinned  ? `<span class="cat-badge badge-pinned">PINNED</span>` : '';
     const flaggedBadge = p.flagged ? `<span class="cat-badge badge-mod">FLAGGED</span>` : '';
-    const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:#4ade80;">PUBLIC</span>` : '';
+    const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:var(--wh-green);">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
 
     const modActions = HIVE_ROLE === 'supervisor' ? `
       ${isMine ? `<button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span class="ic ic-edit" aria-hidden="true"></span>
       </button>` : ''}
       <button class="btn-icon" onclick="togglePin('${p.id}', ${p.pinned})" title="${p.pinned ? 'Unpin' : 'Pin'}" aria-label="${p.pinned ? 'Unpin post' : 'Pin post'}">
         <svg width="15" height="15" fill="${p.pinned ? '#F7A21B' : 'none'}" viewBox="0 0 24 24" stroke="${p.pinned ? '#F7A21B' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
@@ -1304,16 +1302,16 @@
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.flagged ? '#f87171' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
       </button>
       <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete post">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span class="ic ic-delete" aria-hidden="true"></span>
       </button>` : (isMine ? `
       <button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span class="ic ic-edit" aria-hidden="true"></span>
       </button>
       <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete my post">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span class="ic ic-delete" aria-hidden="true"></span>
       </button>` : `
       <button class="btn-icon" onclick="openReport('${p.id}')" title="Report this post to your supervisor" aria-label="Report this post">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+        <span class="ic ic-warning" aria-hidden="true"></span>
       </button>`);
 
     // Read reaction data from reactionMap (populated before renderFeed is called)
@@ -1340,7 +1338,7 @@
             ${rxBtn('fire','Fire','🔥')}
             ${rxBtn('eyes','Eyes','👀')}
             <button class="reaction-btn" style="margin-left:auto;" onclick="openThread('${p.id}')" aria-haspopup="dialog" aria-label="Open thread and reply" id="reply-btn-${escHtml(p.id)}">
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span class="ic ic-list" aria-hidden="true"></span>
               <span id="reply-count-${escHtml(p.id)}">${replyCountMap[p.id] || 0}</span>
             </button>
             <div style="display:flex; gap:4px; align-items:center;">${modActions}</div>
@@ -1571,7 +1569,7 @@
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
           <div style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
-            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            <span class="ic ic-globe" aria-hidden="true"></span>
             From <strong style="color:rgba(255,255,255,0.6); margin-left:2px;">${escHtml(hiveName)}</strong>
           </div>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -2105,7 +2103,7 @@
     el.innerHTML = sorted.map(r => {
       const accepted = r.is_accepted === true;
       const badge = accepted
-        ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.35);">✓ Best answer</span>`
+        ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background:rgba(74,222,128,0.15);color:var(--wh-green);border:1px solid rgba(74,222,128,0.35);">✓ Best answer</span>`
         : '';
       const markBtn = canMark
         ? `<button type="button" class="reaction-btn" style="font-size:0.66rem;padding:3px 9px;min-height:44px;" onclick="markAnswer('${escJsAttr(r.id)}', ${accepted ? 'false' : 'true'})" aria-pressed="${accepted}">${accepted ? 'Unmark' : '✓ Mark as answer'}</button>`
@@ -2227,7 +2225,7 @@
       const initials = m.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       return `<div class="presence-chip">
         <div class="presence-dot online"></div>
-        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#7dd3fc; flex-shrink:0;">${escHtml(initials)}</div>
+        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:var(--wh-blue); flex-shrink:0;">${escHtml(initials)}</div>
         <span>${escHtml(m.worker_name)}</span>
       </div>`;
     }).join('');
@@ -2693,7 +2691,7 @@
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 
-<script>window.WH_FIL_PAGE={comm_title:'Komunidad',c_feed:'Feed',c_global:'🌐 Global',c_mod:'Mod Queue',c_all:'Lahat',c_general:'Pangkalahatan',c_safety:'Kaligtasan',c_tech:'Teknikal',c_parts:'Parts / Serbisyo',c_announce:'Mga Anunsyo',c_loadmore:'Mag-load pa ng posts'};</script>
+<script>window.WH_FIL_PAGE={comm_feed_heading:'Feed ng talakayan',comm_title:'Komunidad',c_feed:'Feed',c_global:'🌐 Global',c_mod:'Mod Queue',c_all:'Lahat',c_general:'Pangkalahatan',c_safety:'Kaligtasan',c_tech:'Teknikal',c_parts:'Parts / Serbisyo',c_announce:'Mga Anunsyo',c_loadmore:'Mag-load pa ng posts'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

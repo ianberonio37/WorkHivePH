@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>WorkHive Promo · Swarm Momentum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="poster-kit.css">
+<style>
+  .poster{background:radial-gradient(1100px 900px at 78% 30%,#213a5a 0%,#152845 42%,#0c1a30 74%,#081120 100%)}
+  .blob.a{left:380px;bottom:-220px;opacity:.7}
+  .blob.c{right:-160px;top:-220px;opacity:.7}
+  .vignette{background:radial-gradient(120% 120% at 74% 44%,transparent 44%,rgba(5,9,18,.58) 100%)}
+  .spot{left:1082px;top:158px;width:600px;height:600px}
+
+  .headline{position:absolute;left:80px;top:236px;width:640px;z-index:8}
+  .headline .wh-logo{position:absolute;left:0;top:-166px;height:60px}
+  .headline .eyebrow{margin-bottom:20px}
+  .headline .h1{font-size:66px}
+  .headline .lede{font-size:20px;margin-top:20px;max-width:540px}
+  .headline .cta{margin-top:30px}
+  .headline .url{margin-top:14px}
+
+  .beeaura{left:958px;top:172px;width:300px;height:300px}
+  .bee-big{position:absolute;left:940px;top:150px;width:252px;height:284px;transform:rotate(-10deg);z-index:25;
+    filter:drop-shadow(0 24px 40px rgba(0,0,0,.5))}
+  .swarm{position:absolute;z-index:20}
+</style></head>
+<body>
+<div class="poster" id="poster">
+  <div class="hivebg" data-hex="54" data-op="0.06"></div>
+  <div class="blob a"></div><div class="blob c"></div>
+  <div class="spot"></div><div class="vignette"></div>
+
+  <!-- LIGHT TRAILS -->
+  <svg style="position:absolute;inset:0;z-index:2" viewBox="0 0 1600 900" fill="none">
+    <defs>
+      <linearGradient id="trail" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#29B6F6" stop-opacity="0"/>
+        <stop offset=".55" stop-color="#29B6F6" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#F7A825" stop-opacity=".95"/>
+      </linearGradient>
+      <linearGradient id="trail2" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#F7A825" stop-opacity="0"/>
+        <stop offset="1" stop-color="#F7A825" stop-opacity=".8"/>
+      </linearGradient>
+      <filter id="tblur"><feGaussianBlur stdDev="3"/></filter>
+    </defs>
+    <g filter="url(#tblur)" stroke-linecap="round" fill="none">
+      <path d="M430 800 Q760 660 1080 300" stroke="url(#trail)" stroke-width="7"/>
+      <path d="M520 830 Q820 700 1060 360" stroke="url(#trail2)" stroke-width="4"/>
+      <path d="M360 720 Q680 620 980 340" stroke="url(#trail)" stroke-width="3" opacity=".6"/>
+    </g>
+  </svg>
+
+  <!-- HEADLINE -->
+  <div class="headline">
+    <img class="wh-logo" src="../brand_assets/workhive-logo-tight.png" alt="WorkHive"/>
+    <span class="eyebrow"><span class="dot"></span>PREDICTIVE MAINTENANCE · MADE SIMPLE</span>
+    <h1 class="h1">Stop breakdowns<br>before they<br><span class="amber">cost you.</span></h1>
+    <p class="lede">The whole hive moves together — logbook to alerts to reliability — so a small signal never becomes a stopped line.</p>
+    <a class="cta" href="#">Start free in your browser
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <div class="url"><b>workhiveph.com</b> · No download. Works in any browser.</div>
+  </div>
+
+  <!-- PHONE -->
+  <div class="phone" style="width:330px;left:1198px;top:168px;transform:rotate(-6deg);z-index:14">
+    <div class="screen"><div class="notch"></div><img src="../wh_home_clean.png" alt=""><div class="glare"></div></div>
+  </div>
+  <div class="flag" style="left:1236px;top:92px;z-index:22">
+    <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+    <span><div class="l1">Caught Early · Today</div><div class="l2">TX-001 · 96% · MTBF 9d</div></span>
+  </div>
+  <div class="flag cyan" style="left:1290px;top:648px;z-index:22">
+    <span class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+    <span><div class="l1">OEE · World-Class</div><div class="l2">87% · ISO 22400</div></span>
+  </div>
+
+  <!-- SWARM -->
+  <div class="beeaura"></div>
+  <svg class="swarm" style="left:800px;top:420px;width:150px;height:125px;transform:rotate(-8deg)"><use href="#bee-mini"/></svg>
+  <svg class="swarm" style="left:664px;top:560px;width:120px;height:100px;transform:rotate(-12deg)"><use href="#bee-mini"/></svg>
+  <svg class="swarm" style="left:544px;top:668px;width:96px;height:80px;transform:rotate(-6deg);z-index:19"><use href="#bee-mini"/></svg>
+  <svg class="swarm" style="left:436px;top:748px;width:72px;height:60px;transform:rotate(-14deg);z-index:19"><use href="#bee-mini"/></svg>
+  <svg class="bee-big"><use href="#bee-mascot"/></svg>
+</div>
+<script src="bee.js"></script><script src="hive.js"></script>
+</body></html>
