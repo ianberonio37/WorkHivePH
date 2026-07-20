@@ -600,7 +600,7 @@
       });
     };
     window.setRole = function(role){
-      if (role !== 'worker') role = 'supervisor';
+      if (role !== 'worker') role = 'supervisor'; // role-check-allow: report-audience normalization (coerce to worker|supervisor label), not the ambient storage role
       _role = role;
       document.querySelectorAll('.role-btn').forEach(function(b){
         b.classList.toggle('active', b.id === 'role-' + role);
@@ -760,7 +760,7 @@
           '<div class="doc-meta" style="text-align:right;">' +
             '<div><b>Report Date:</b> ' + escHtml(fmtDate(endISO)) + '</div>' +
             '<div><b>Period:</b> ' + escHtml(fmtDate(startISO)) + ' – ' + escHtml(fmtDate(endISO)) + ' (' + _period + 'd)</div>' +
-            '<div><b>Audience:</b> ' + (_role === 'worker' ? 'Worker' : 'Supervisor') + '</div>' +
+            '<div><b>Audience:</b> ' + (_role === 'worker' /* role-check-allow: report-audience data field ('worker'/'supervisor' label), not the ambient storage role */ ? 'Worker' : 'Supervisor') + '</div>' +
           '</div>' +
         '</div>' +
         '<section id="ar-cover">' +

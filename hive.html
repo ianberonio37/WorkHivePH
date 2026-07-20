@@ -396,7 +396,7 @@
     var _role = '';
     try { var _hs = JSON.parse(localStorage.getItem('wh_hives') || '[]'); var _h = _hs.find(function (x) { return x && x.id === _id; }); _role = (_h && _h.role) || ''; } catch (e) { /* empty-catch-allow: malformed wh_hives → fall back to wh_hive_role below */ }
     _role = _role || localStorage.getItem('wh_hive_role') || '';
-    if (_role === 'supervisor') document.documentElement.classList.add('is-supervisor');
+    if (_role === 'supervisor') document.documentElement.classList.add('is-supervisor'); // role-check-allow: _role derives from wh_hives membership (falls back to wh_hive_role) — richer than WHRoles.isSupervisor(); best-effort CLS hint
   } catch (e) { /* empty-catch-allow: role-stamp is a best-effort CLS hint; never block paint */ }
 </script>
 <div class="aurora-bg"></div>
@@ -2002,7 +2002,7 @@ async function submitJoin() {
   localStorage.setItem('wh_hive_name',      hive.name);
   localStorage.setItem('wh_hive_role',      joinRole);
   localStorage.setItem('wh_active_hive_id', hive.id);
-  if (joinRole === 'supervisor') localStorage.setItem('wh_hive_code', codeVal);
+  if (joinRole === 'supervisor') localStorage.setItem('wh_hive_code', codeVal); // role-check-allow: joinRole is the role being JOINED AS in the hive-join flow (a form value), not the ambient user role
   const _existingJ = getHiveList().filter(h => h.id !== hive.id);
   saveHiveList([..._existingJ, { id: hive.id, name: hive.name, role: joinRole, code: codeVal }]);
   HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = joinRole;
@@ -3349,7 +3349,7 @@ async function loadMembers() {
   }
   list.innerHTML = membersData.map(m => {
     const isMe    = m.worker_name === WORKER_NAME;
-    const isSup   = m.role === 'supervisor';
+    const isSup   = m.role === 'supervisor'; // role-check-allow: m.role is a per-member DB field (the listed member's role), not the ambient user role
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
     const canReset = HIVE_ROLE === 'supervisor' && !isMe && !isSup;  // supervisor resets a WORKER's password (Arc I I3/I)
     const openJobs = openByWorker[m.worker_name] || 0;

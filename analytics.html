@@ -2664,11 +2664,11 @@
   // Defaults from HIVE_ROLE — the only actual roles in hive_members per the
   // multitenant model.
 
-  let _role = HIVE_ROLE === 'supervisor' ? 'supervisor' : 'worker';
+  let _role = HIVE_ROLE === 'supervisor' /* role-check-allow: page-local view derivation from HIVE_ROLE (=wh_hive_role), coerced to supervisor|worker */ ? 'supervisor' : 'worker';
 
   function setRole(role) {
     // Clamp to known roles — Manager was retired (was UI-only, not a real role)
-    if (role !== 'supervisor') role = 'worker';
+    if (role !== 'supervisor') role = 'worker'; // role-check-allow: view-toggle normalization (coerce to supervisor|worker), not a direct ambient-role gate
     _role = role;
     document.querySelectorAll('.role-btn').forEach(b => {
       setActive(b, b.id === `role-${role}`);
@@ -2686,7 +2686,7 @@
 
     if (!desc && !pred && !presc) { el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
 
-    if (_role === 'supervisor') {
+    if (_role === 'supervisor') { // role-check-allow: _role is a page-local view toggle coerced from HIVE_ROLE/passed role (supervisor|worker), not a direct ambient-role read
       el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = buildSupervisorView(desc, pred, presc);
     } else {
       el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = buildWorkerView(pred, presc);

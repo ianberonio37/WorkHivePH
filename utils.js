@@ -1091,20 +1091,19 @@ if (typeof window !== 'undefined') {
 // platform-wide instead of hand-repeating the fallback chain (the design-system lever).
 function whHiveId() {
   try {
-    return localStorage.getItem('wh_active_hive_id')
-        || localStorage.getItem('wh_hive_id')      // alias
-        || localStorage.getItem('hive_id')         // alias
+    return localStorage.getItem('wh_active_hive_id') // canonical
+        || localStorage.getItem('wh_hive_id')        // live alias (still written on hive-switch)
         || null;
   } catch (_) { return null; /* storage blocked (private mode / disabled) */ }
 }
 function whWorker() {
   try {
-    return localStorage.getItem('wh_last_worker')
-        || localStorage.getItem('workerName')      // alias
-        || localStorage.getItem('wh_worker_name')  // alias
+    return localStorage.getItem('wh_last_worker')    // canonical (the only worker key ever written)
         || null;
   } catch (_) { return null; /* storage blocked */ }
 }
+// NB: the registry's other alias reads (hive_id / workerName / wh_worker_name) were DEAD — never
+// written anywhere in the codebase (get-without-set) — so they're dropped, not read defensively.
 if (typeof window !== 'undefined') { window.whHiveId = whHiveId; window.whWorker = whWorker; }
 
 // ─────────────────────────────────────────────

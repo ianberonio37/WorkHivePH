@@ -2,8 +2,8 @@
  * wh-roles.js — canonical CLIENT-side RBAC SSOT (PLATFORM_CENTRALIZATION_ROADMAP · +RBAC surface).
  * ─────────────────────────────────────────────────────────────────────────────
  * The role→capability truth was DRIFTED: `localStorage.getItem('wh_hive_role')` +
- * `role === 'supervisor'` were hand-repeated across pages (isSupervisor computed 25×,
- * `role === 'supervisor'` 13×, 125 raw 'supervisor' literals), so a role-gating decision
+ * raw `role`-string equality checks were hand-repeated across pages (isSupervisor computed 25×,
+ * the raw supervisor check 13×, 125 raw 'supervisor' literals), so a role-gating decision
  * lived in dozens of places instead of one. This is the ONE canonical reader + capability map.
  *
  * SECURITY NOTE (honoured): this is a CLIENT-side UX gate only — it decides what a worker
@@ -60,7 +60,7 @@
   function whIsEngineer()   { return whRole() === 'engineer'; }
   function whIsField()      { return whRole() === 'field'; }
 
-  // Capability check — the preferred gate: whCan('approve') instead of role === 'supervisor'.
+  // Capability check — the preferred gate: whCan('approve') instead of a raw role-string check.
   // Fails OPEN to false only when a role IS stored and lacks the capability; an EMPTY role
   // (solo/new — the nav-hub 'all' default) is treated as permissive so a lone tech isn't locked out.
   function whCan(cap) {

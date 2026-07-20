@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-07-20T11:36:44Z",
+    "generated_at": "2026-07-20T15:26:25Z",
     "seam_count": 173,
     "by_kind": {
       "saas\u2192ai": 39,
@@ -1648,7 +1648,7 @@
       "caller": "analytics-report.html",
       "callee": "analytics-orchestrator",
       "file": "analytics-report.html",
-      "line": 633,
+      "line": 632,
       "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
       "contract_test": null
     },
@@ -1658,7 +1658,7 @@
       "caller": "analytics.html",
       "callee": "analytics-orchestrator",
       "file": "analytics.html",
-      "line": 906,
+      "line": 905,
       "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
       "contract_test": null
     },
@@ -1698,7 +1698,7 @@
       "caller": "report-sender.html",
       "callee": "scheduled-agents",
       "file": "report-sender.html",
-      "line": 1639,
+      "line": 1637,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
       "contract_test": null
     },
@@ -1708,7 +1708,7 @@
       "caller": "report-sender.html",
       "callee": "voice-report-intent",
       "file": "report-sender.html",
-      "line": 1515,
+      "line": 1513,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
       "contract_test": null
     },
@@ -1748,7 +1748,7 @@
       "caller": "voice-handler.js",
       "callee": "agentic-rag-loop",
       "file": "voice-handler.js",
-      "line": 7749,
+      "line": 7746,
       "evidence": "const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/agentic-rag-loop', {",
       "contract_test": null
     },
@@ -1758,7 +1758,7 @@
       "caller": "voice-handler.js",
       "callee": "ai-gateway",
       "file": "voice-handler.js",
-      "line": 7813,
+      "line": 7810,
       "evidence": "const resp = await fetcher(SUPABASE_URL + '/functions/v1/ai-gateway', {",
       "contract_test": null
     },
@@ -1768,7 +1768,7 @@
       "caller": "voice-handler.js",
       "callee": "embed-entry",
       "file": "voice-handler.js",
-      "line": 764,
+      "line": 762,
       "evidence": "// /functions/v1/embed-entry call when that path is exposed without",
       "contract_test": null
     },
@@ -1778,7 +1778,7 @@
       "caller": "voice-handler.js",
       "callee": "voice-semantic-rag",
       "file": "voice-handler.js",
-      "line": 6140,
+      "line": 6137,
       "evidence": "const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/voice-semantic-rag', {",
       "contract_test": null
     }

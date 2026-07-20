@@ -32,10 +32,7 @@
     "wh_voice_session_id"
   ],
   "aliases": {
-    "wh_hive_id": "wh_active_hive_id",
-    "hive_id": "wh_active_hive_id",
-    "workerName": "wh_last_worker",
-    "wh_worker_name": "wh_last_worker"
+    "wh_hive_id": "wh_active_hive_id"
   },
   "prefixes": [
     "wh_ai_history_",

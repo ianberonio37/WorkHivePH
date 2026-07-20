@@ -1044,7 +1044,7 @@
       ).join('');
       const more = disc.length > 2
         ? `<span style="font-size:0.62rem; color:rgba(255,255,255,0.55);">+${disc.length - 2} more</span>` : '';
-      const roleLabel = r.role === 'supervisor' ? 'Supervisor' : 'Technician';
+      const roleLabel = r.role === 'supervisor' ? 'Supervisor' : 'Technician'; // role-check-allow: r.role is a per-member DB field (the post author's role), not the ambient user role
       return `<div style="display:flex; align-items:flex-start; gap:0.6rem; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
         <div style="flex-shrink:0;padding-bottom:${(tiers[r.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(r.worker_name, tiers[r.worker_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
