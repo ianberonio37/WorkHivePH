@@ -94,13 +94,15 @@ def layer1_page_structure():
         issues.append(_check("html_exists", False, "project-manager.html not found"))
         return issues
 
-    # 1. Identity gate (3-key chain)
-    has_3key = bool(re.search(
+    # 1. Identity gate — canonical whWorker()/whHiveId() accessor (PLATFORM_CENTRALIZATION C-P4)
+    # centralizes the fallback chain; a page using it satisfies the read (aliases provably dead).
+    # Fall back to accepting the literal 3-key chain for any page not yet converted.
+    has_3key = ("whWorker(" in html or "whHiveId(" in html) or bool(re.search(
         r"wh_last_worker.*wh_worker_name.*workerName",
         html, re.DOTALL,
     ))
     issues.append(_check("identity_3key_chain", has_3key,
-                         "project-manager.html must read wh_last_worker || wh_worker_name || workerName"))
+                         "project-manager.html must read identity via whWorker()/whHiveId() (utils.js) or the 3-key chain"))
 
     # 2. Hive gate present
     issues.append(_check("hive_gate", "hive-gate" in html and "validateHiveMembership" in html,
