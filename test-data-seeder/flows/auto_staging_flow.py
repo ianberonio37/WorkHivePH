@@ -46,12 +46,13 @@ def run(page, errors, warnings, log) -> dict:
     results = []
 
     log("Auto-Staging Flow: locating seeded hive...")
-    members = db.table("hive_members").select("worker_name, hive_id").limit(1).execute().data
+    members = db.table("hive_members").select("worker_name, hive_id, auth_uid").limit(1).execute().data
     if not members:
         return {"results": [("WARN", "No seeded hive_members — Auto-Staging needs hive context")]}
 
     worker_name = members[0]["worker_name"]
     hive_id     = members[0]["hive_id"]
+    auth_uid    = members[0].get("auth_uid")   # D3: attribute the seeded inventory rows to their worker
     asset_name  = "Compressor AC-77 (auto-staging-test)"
     now         = datetime.datetime.utcnow()
     log(f"  Worker: {worker_name}, Hive: {hive_id}")
@@ -87,6 +88,7 @@ def run(page, errors, warnings, log) -> dict:
                 "id":            f"AS-{sku}",
                 "hive_id":       hive_id,
                 "worker_name":   worker_name,
+                "auth_uid":      auth_uid,
                 "part_name":     name,
                 "part_number":   sku,
                 "category":      "Mechanical",

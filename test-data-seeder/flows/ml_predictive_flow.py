@@ -36,14 +36,18 @@ ASSETS = [
     ("HVAC Unit AHU-01",       180,  "Filter clogging",    False),  # stable
 ]
 
-CATEGORIES  = ["Mechanical", "Electrical", "Mechanical", "Mechanical", "Mechanical", "HVAC"]
+# CANONICAL (2026-07-20): these land in the `logbook` table the app reads, so category +
+# root_cause MUST match the app's canonical vocabulary (logbook.html #f-category disciplines +
+# the 12-value root-cause dropdown), or the WorkHive Tester data checks flag them. "HVAC" is not
+# a logbook discipline (an AHU is Mechanical); the mechanistic causes below map to the canonical 12.
+CATEGORIES  = ["Mechanical", "Electrical", "Pneumatic", "Mechanical", "Mechanical", "Mechanical"]
 ROOT_CAUSES = [
-    "Insufficient lubrication",
-    "Hydraulic seal degradation",
-    "Cooling failure",
-    "Mineral scale accumulation",
-    "Belt tension loss",
-    "Filter saturation",
+    "Lubrication Failure",     # Bearing failure  (was "Insufficient lubrication")
+    "Wear",                    # Seal leak        (was "Hydraulic seal degradation")
+    "Overload",                # Overheating      (was "Cooling failure")
+    "Contamination / Dirt",    # Scale buildup    (was "Mineral scale accumulation")
+    "Wear",                    # Belt wear        (was "Belt tension loss")
+    "Contamination / Dirt",    # Filter clogging  (was "Filter saturation")
 ]
 
 
@@ -100,6 +104,9 @@ def run(page, errors, warnings, log) -> dict:
     for idx, (asset_name, interval_days, failure_mode, _) in enumerate(ASSETS):
         category  = CATEGORIES[idx]
         root_cause = ROOT_CAUSES[idx]
+        # logbook.machine stores the bare tag (LETTERS-DIGITS), same as seeders/logbook.py
+        # ("machine": asset["asset_id"]); the app joins on it. The tag is the name's last token.
+        asset_tag = asset_name.split()[-1]
 
         # Seed 18 months of history at this interval
         months_back = 18
@@ -113,7 +120,7 @@ def run(page, errors, warnings, log) -> dict:
                 "id":               str(uuid.uuid4()),
                 "hive_id":          hive_id,
                 "worker_name":      worker_name,
-                "machine":          asset_name,
+                "machine":          asset_tag,
                 "maintenance_type": "Breakdown / Corrective",
                 "category":         category,
                 "root_cause":       root_cause,

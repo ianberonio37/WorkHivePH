@@ -30,12 +30,13 @@ def run(page, errors, warnings, log) -> dict:
     results = []
 
     log("Alert Hub Flow: locating seeded hive...")
-    members = db.table("hive_members").select("worker_name, hive_id").limit(1).execute().data
+    members = db.table("hive_members").select("worker_name, hive_id, auth_uid").limit(1).execute().data
     if not members:
         return {"results": [("WARN", "No seeded hive_members — Alert Hub needs a hive context")]}
 
     worker_name = members[0]["worker_name"]
     hive_id     = members[0]["hive_id"]
+    auth_uid    = members[0].get("auth_uid")   # D3: attribute the seeded inventory row to its worker
     now         = datetime.datetime.utcnow()
     log(f"  Worker: {worker_name}, Hive: {hive_id}")
 
@@ -72,6 +73,7 @@ def run(page, errors, warnings, log) -> dict:
             "id":            f"at-ms32-{int(__import__('time').time())}",
             "hive_id":       hive_id,
             "worker_name":   worker_name,
+            "auth_uid":      auth_uid,
             "part_name":     "Mechanical Seal MS-32 (alert-test)",
             "part_number":   "MS-32-AT",
             "category":      "Mechanical",

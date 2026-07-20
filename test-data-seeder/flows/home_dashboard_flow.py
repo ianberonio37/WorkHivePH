@@ -36,12 +36,13 @@ def run(page, errors, warnings, log) -> dict:
     results = []
 
     log("Home Dashboard Flow: checking seeded hive + worker...")
-    rows = db.table("hive_members").select("worker_name, hive_id").limit(1).execute().data
+    rows = db.table("hive_members").select("worker_name, hive_id, auth_uid").limit(1).execute().data
     if not rows:
         return {"results": [("WARN", "No seeded hive_members — dashboard will show empty state (still valid)")]}
 
     worker_name = rows[0]["worker_name"]
     hive_id     = rows[0]["hive_id"]
+    auth_uid    = rows[0].get("auth_uid")   # D3: attribute the seeded inventory rows to their worker
     now         = datetime.datetime.utcnow()
     log(f"  Worker: {worker_name}, Hive: {hive_id}")
 
@@ -99,6 +100,7 @@ def run(page, errors, warnings, log) -> dict:
             "id":            f"hd-bsk-{int(now.timestamp())}",
             "hive_id":       hive_id,
             "worker_name":   worker_name,
+            "auth_uid":      auth_uid,
             "part_name":     "Bearing Seal Kit 6205",
             "part_number":   "BSK-6205",
             "category":      "Mechanical",
@@ -111,6 +113,7 @@ def run(page, errors, warnings, log) -> dict:
             "id":            f"hd-vba-{int(now.timestamp())}",
             "hive_id":       hive_id,
             "worker_name":   worker_name,
+            "auth_uid":      auth_uid,
             "part_name":     "V-Belt Type A-54",
             "part_number":   "VB-A54",
             "category":      "Mechanical",
