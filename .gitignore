@@ -149,3 +149,4 @@ index-sectors.png
 .fastgate.out
 .fullgate.out
 backups/
+.releasegate*.out
