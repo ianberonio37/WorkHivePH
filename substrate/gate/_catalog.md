@@ -2,7 +2,7 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: b6224935525a6d40
+source_sha: f6c206a07f9ea8e8
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -177,7 +177,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 
 ### Memory System (6)
 - `memory_db_backup` [fail] — Memory M1.1+M1.2: memory.db backup/restore round-trip + VACUUM shrink drill
-- `memory_health_gate` ⚡ [fail] — Memory M2.2: retriever health-regression gate (silent_rate / p95 / grounding thresholds)
+- `memory_health_gate` ⚡ [fail] — Memory M2.2: retriever health-regression gate (silent_rate / median+p95 latency / grounding thresholds)
 - `memory_prune_transcripts` ⚡ [fail] — Memory M4.1: transcript prune mechanism (evicts only old never-retrieved, keeps the rest)
 - `memory_recall_eval` [fail] — Memory M2.1: retriever recall@k eval (25 golden pairs, ratcheted to health floors)
 - `memory_supersedes` ⚡ [fail] — Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)
