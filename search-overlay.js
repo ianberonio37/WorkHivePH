@@ -115,8 +115,8 @@
           display: flex; flex-direction: column;
           padding-top: max(80px, env(safe-area-inset-top, 0px));
           padding-bottom: env(safe-area-inset-bottom, 0px);
-          font-family: 'Poppins', system-ui, -apple-system, sans-serif;
-          color: #F4F6FA;
+          font-family: var(--wh-font, 'Poppins', system-ui, -apple-system, sans-serif);
+          color: var(--wh-cloud, #F4F6FA);
         }
         #wh-search-overlay .ws-shell {
           width: 100%; max-width: 640px; margin: 0 auto;
@@ -138,7 +138,7 @@
         #wh-search-overlay input {
           flex: 1; min-width: 0;
           background: transparent; border: none; outline: none;
-          color: #F4F6FA; font-family: inherit; font-size: 16px; font-weight: 500;
+          color: var(--wh-cloud, #F4F6FA); font-family: inherit; font-size: 16px; font-weight: 500;
         }
         #wh-search-overlay input::placeholder { color: rgba(255,255,255,0.35); }
         #wh-search-overlay .ws-kbd-hint {
@@ -188,7 +188,7 @@
         }
         #wh-search-overlay .ws-row-text { min-width: 0; flex: 1; }
         #wh-search-overlay .ws-row-title {
-          font-size: 13.5px; font-weight: 600; color: #F4F6FA;
+          font-size: 13.5px; font-weight: 600; color: var(--wh-cloud, #F4F6FA);
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         #wh-search-overlay .ws-row-meta {

@@ -12,6 +12,29 @@
 (function () {
   'use strict';
 
+  // ─── Centralized behavioural patterns (wh-patterns.js · Axis 3): the canonical
+  // launcher-defer / click-outside / reveal-decouple / panel-cap idioms the shared
+  // chrome delegates to. Loaded FIRST so window.WHPatterns is present before any chrome
+  // wires its events (clicks happen long after load; a defensive fallback covers the gap).
+  if (!document.querySelector('script[data-wh-patterns]')) {
+    const wp = document.createElement('script');
+    wp.src = 'wh-patterns.js';
+    wp.async = false;
+    wp.setAttribute('data-wh-patterns', '1');
+    document.head.appendChild(wp);
+  }
+
+  // ─── Canonical client RBAC SSOT (wh-roles.js · +RBAC): window.WHRoles — the ONE role
+  // reader + capability map, replacing scattered `localStorage.getItem('wh_hive_role')` +
+  // raw role-string checks. Client UX gate only (server RLS is the authority). Loaded early.
+  if (!document.querySelector('script[data-wh-roles]')) {
+    const wr = document.createElement('script');
+    wr.src = 'wh-roles.js';
+    wr.async = false;
+    wr.setAttribute('data-wh-roles', '1');
+    document.head.appendChild(wr);
+  }
+
   // ─── Arc Y · Y1: Lazy-load the Wayfinding chrome (in-app Back + breadcrumb +
   // scroll-restore + deep-link highlight) so every page gets "where am I / how do
   // I get back" without per-page wiring. Closes the back:N on ~30 pages + fixes
@@ -114,6 +137,20 @@
     ll.async = true;
     ll.setAttribute('data-wh-learn-link', '1');
     document.head.appendChild(ll);
+  }
+
+  // ─── Centralized design tokens (tokens.css): the SINGLE source of truth for the
+  // brand palette / radii / type / shadows (var(--wh-*)). nav-hub loads on every page,
+  // so injecting the token sheet here GUARANTEES the design-system vocabulary is present
+  // for ALL shared chrome (this hub, the companion, feedback + connectivity widgets) —
+  // so those components can consume var(--wh-orange) etc. instead of hardcoding hex that
+  // drifts. Idempotent: ~28 pages already <link> it in <head>; this only fills the gap
+  // on the rest. Mirrors the wh-icons.css centralisation just below.
+  if (!document.querySelector('link[href*="tokens.css"]')) {
+    const tk = document.createElement('link');
+    tk.rel = 'stylesheet';
+    tk.href = 'tokens.css';
+    document.head.appendChild(tk);
   }
 
   // ─── Centralized icon library (wh-icons.css): nav-hub loads on every page, so
@@ -238,8 +275,8 @@
   function _defaultMode() {
     var role = localStorage.getItem('wh_hive_role') || '';
     // role-allow: nav display mode ('field' | 'supervisor' | 'engineer'), not an auth role
-    if (role === 'supervisor') return 'supervisor';
-    if (role === 'engineer')   return 'engineer';
+    if (role === 'supervisor') return 'supervisor'; // role-allow role-check-allow: nav-hub IS the role->mode SSOT (maps auth role to a display mode)
+    if (role === 'engineer')   return 'engineer';   // role-allow role-check-allow: nav-hub IS the role->mode SSOT
     // Workers default to 'field'. Solo mode (no hive) gets 'field' too --
     // it's the tightest tool set and matches what a lone tech needs day-to-day.
     return 'field';
@@ -470,7 +507,7 @@
           bottom: 24px;
           right: 24px;
           z-index: 9998;
-          font-family: 'Poppins', sans-serif;
+          font-family: var(--wh-font, 'Poppins', sans-serif);
         }
 
         /* ── FAB ── */
@@ -478,7 +515,7 @@
           width: 56px;
           height: 56px;
           border-radius: 16px;
-          background: linear-gradient(135deg, #162032, #1F2E45);
+          background: linear-gradient(135deg, var(--wh-navy, #162032), var(--wh-navy-mid, #1F2E45));
           border: 1.5px solid rgba(247,162,27,0.35);
           cursor: pointer;
           display: flex;
@@ -499,7 +536,7 @@
           transition: transform 0.1s ease;
         }
         #wh-hub-fab.open {
-          border-color: #F7A21B;
+          border-color: var(--wh-orange, #F7A21B);
           box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 4px rgba(247,162,27,0.12);
         }
         #wh-hub-fab svg { pointer-events: none; transition: transform 0.22s ease; }
@@ -533,8 +570,8 @@
           top: -3px; right: -3px;
           width: 13px; height: 13px;
           border-radius: 50%;
-          background: #F7A21B;
-          border: 2px solid #162032;
+          background: var(--wh-orange, #F7A21B);
+          border: 2px solid var(--wh-navy, #162032);
           box-shadow: 0 0 0 0 rgba(247,162,27,0.5);
           animation: wh-hub-dot-pulse 1.8s ease-in-out infinite;
           pointer-events: none;
@@ -550,11 +587,11 @@
           min-width: 16px; height: 16px;
           padding: 0 4px;
           border-radius: 8px;
-          background: #F7A21B;
+          background: var(--wh-orange, #F7A21B);
           color: #10192B;
           font-size: 9px; font-weight: 700; line-height: 16px;
           text-align: center;
-          font-family: 'Poppins', sans-serif;
+          font-family: var(--wh-font, 'Poppins', sans-serif);
           box-shadow: 0 1px 4px rgba(0,0,0,0.4);
         }
 
@@ -564,7 +601,7 @@
           bottom: 68px;
           right: 0;
           width: 400px;
-          background: linear-gradient(160deg, #1F2E45 0%, #162032 100%);
+          background: linear-gradient(160deg, var(--wh-navy-mid, #1F2E45) 0%, var(--wh-navy, #162032) 100%);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 20px;
           box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
@@ -573,7 +610,18 @@
           transform: translateY(10px) scale(0.96);
           pointer-events: none;
           transition: opacity 0.2s ease, transform 0.2s ease-out;
+          /* FAB-CONSOLIDATION: the panel now carries the header pill + Companion/Feedback
+             row at the TOP, so on short viewports it must never clip them off-screen (the
+             panel grows upward from the FAB). Cap to the viewport and scroll the whole
+             panel — the header/action row are then always reachable at scrollTop 0. */
+          max-height: var(--wh-panel-max-h, calc(100dvh - 100px));
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(247,162,27,0.2) transparent;
         }
+        #wh-hub-panel::-webkit-scrollbar { width: 4px; }
+        #wh-hub-panel::-webkit-scrollbar-thumb { background: rgba(247,162,27,0.2); border-radius: 2px; }
         #wh-hub-panel.open {
           opacity: 1;
           transform: translateY(0) scale(1);
@@ -599,7 +647,7 @@
         #wh-hub-panel-header strong {
           font-size: 11px;
           font-weight: 600;
-          color: #F7A21B;
+          color: var(--wh-orange, #F7A21B);
           letter-spacing: 0.04em;
         }
 
@@ -644,13 +692,13 @@
         .wh-hub-quick-tile.active {
           background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35);
         }
-        .wh-hub-quick-tile.active .wh-hub-quick-icon { color: #F7A21B; }
+        .wh-hub-quick-tile.active .wh-hub-quick-icon { color: var(--wh-orange, #F7A21B); }
         .wh-hub-quick-icon { color: rgba(255,255,255,0.7); display:flex; }
         .wh-hub-quick-label {
           font-size: 9px; color: rgba(255,255,255,0.72); font-weight: 500; /* WCAG AA: 0.6 measured 4.32:1 (<4.5), 0.72 clears it */
-          text-align: center; line-height: 1.2; font-family: 'Poppins', sans-serif;
+          text-align: center; line-height: 1.2; font-family: var(--wh-font, 'Poppins', sans-serif);
         }
-        .wh-hub-quick-tile.active .wh-hub-quick-label { color: #F7A21B; }
+        .wh-hub-quick-tile.active .wh-hub-quick-label { color: var(--wh-orange, #F7A21B); }
 
         /* ── Divider ── */
         .wh-hub-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 10px 0 6px; }
@@ -661,7 +709,7 @@
           padding: 6px 2px; background: none; border: none; cursor: pointer;
           color: rgba(255,255,255,0.35); font-size: 10px; font-weight: 600;
           text-transform: uppercase; letter-spacing: 0.1em;
-          font-family: 'Poppins', sans-serif; margin-bottom: 2px;
+          font-family: var(--wh-font, 'Poppins', sans-serif); margin-bottom: 2px;
           transition: color 0.2s ease;
         }
         #wh-hub-all-toggle:hover { color: rgba(255,255,255,0.65); }
@@ -681,7 +729,7 @@
           min-height: 44px;
           font-size: 16px; /* exact 16px — iOS Safari auto-zooms on any input < 16px */
           color: rgba(255,255,255,0.85);
-          font-family: 'Poppins', sans-serif; outline: none;
+          font-family: var(--wh-font, 'Poppins', sans-serif); outline: none;
           transition: border-color 0.15s, background 0.15s;
         }
         #wh-hub-search::placeholder { color: rgba(255,255,255,0.6); } /* WCAG AA */
@@ -744,16 +792,16 @@
           background: rgba(247,162,27,0.1);
           border-color: rgba(247,162,27,0.3);
         }
-        .wh-hub-tile.active .wh-hub-tile-icon { color: #F7A21B; }
-        .wh-hub-tile.active .wh-hub-tile-label { color: #F7A21B; }
+        .wh-hub-tile.active .wh-hub-tile-icon { color: var(--wh-orange, #F7A21B); }
+        .wh-hub-tile.active .wh-hub-tile-label { color: var(--wh-orange, #F7A21B); }
 
         /* AI accent tile */
         .wh-hub-tile.accent:not(.active) {
           background: rgba(41,182,217,0.07);
           border-color: rgba(41,182,217,0.2);
         }
-        .wh-hub-tile.accent:not(.active) .wh-hub-tile-icon { color: #29B6D9; }
-        .wh-hub-tile.accent:not(.active) .wh-hub-tile-label { color: #29B6D9; }
+        .wh-hub-tile.accent:not(.active) .wh-hub-tile-icon { color: var(--wh-blue, #29B6D9); }
+        .wh-hub-tile.accent:not(.active) .wh-hub-tile-label { color: var(--wh-blue, #29B6D9); }
         .wh-hub-tile.accent:not(.active):hover {
           background: rgba(41,182,217,0.13);
           border-color: rgba(41,182,217,0.35);
@@ -782,7 +830,7 @@
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #F7A21B;
+          background: var(--wh-orange, #F7A21B);
         }
 
         /* ── Role mode switcher (Phase D) ── */
@@ -822,9 +870,93 @@
         .wh-hub-mode-btn:hover { color: rgba(255,255,255,0.7); }
         .wh-hub-mode-btn.active {
           background: rgba(247,162,27,0.15);
-          color: #F7A21B;
+          color: var(--wh-orange, #F7A21B);
         }
         .wh-hub-mode-icon { font-size: 11px; line-height: 1; }
+
+        /* ── FAB-CONSOLIDATION (2026-07-20): connectivity status pill in the header ──
+           Ian: "make the feedback, companion, and online widget be put in the nav-hub…
+           they overlap" + "the goal is a centralize design and component library." So
+           this chrome is built ENTIRELY on the design tokens (tokens.css, injected by
+           nav-hub above) — brand colour via var(--wh-*) / rgba(var(--wh-*-rgb), a), radii
+           via var(--wh-radius*), type via var(--wh-font), tap floor via var(--wh-control-h).
+           No hardcoded brand hex → a palette change in tokens.css restyles this too. The
+           pill mirrors the retired .wh-conn-chip states via the SEMANTIC tokens. */
+        #wh-hub-conn-pill {
+          display: inline-flex; align-items: center; gap: var(--wh-space-1, 4px);
+          padding: 5px 10px; min-height: 30px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: var(--wh-radius-pill, 999px);
+          color: var(--wh-text-faint, rgba(255,255,255,0.72));
+          font-family: var(--wh-font, 'Poppins', sans-serif); font-size: 10px; font-weight: 600;
+          letter-spacing: 0.02em; cursor: pointer;
+          transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        #wh-hub-conn-pill:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); }
+        #wh-hub-conn-dot {
+          width: 8px; height: 8px; border-radius: var(--wh-radius-pill, 999px); flex-shrink: 0;
+          background: var(--wh-green, #4ade80); box-shadow: 0 0 6px rgba(74,222,128,0.6);
+        }
+        #wh-hub-conn-pill[data-state="offline"],
+        #wh-hub-conn-pill[data-state="degraded"] {
+          background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.5); color: var(--wh-red-text, #fecaca);
+        }
+        #wh-hub-conn-pill[data-state="offline"] #wh-hub-conn-dot,
+        #wh-hub-conn-pill[data-state="degraded"] #wh-hub-conn-dot {
+          background: var(--wh-red, #f87171); box-shadow: 0 0 6px rgba(248,113,113,0.6);
+        }
+        #wh-hub-conn-pill[data-state="slow"] {
+          background: rgba(var(--wh-orange-rgb, 247,162,27),0.16); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.5); color: #fde68a;
+        }
+        #wh-hub-conn-pill[data-state="slow"] #wh-hub-conn-dot {
+          background: var(--wh-orange, #F7A21B); box-shadow: 0 0 6px rgba(var(--wh-orange-rgb, 247,162,27),0.6);
+        }
+        #wh-hub-conn-badge {
+          min-width: 16px; padding: 0 4px; border-radius: var(--wh-radius-sm, 8px);
+          background: rgba(var(--wh-orange-rgb, 247,162,27),0.9); color: var(--wh-navy, #162032);
+          font-size: 9px; font-weight: 800; text-align: center; line-height: 16px;
+        }
+
+        /* Connectivity detail — folded in from the retired .wh-conn-popover, toggled by the pill */
+        #wh-hub-conn-detail {
+          margin: 0 0 var(--wh-space-3, 12px); padding: 10px 12px;
+          background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.06);
+          border-radius: var(--wh-radius, 12px); font-size: 11px;
+        }
+        #wh-hub-conn-detail.hidden { display: none; }
+        #wh-hub-conn-detail .wh-hub-conn-row {
+          display: flex; justify-content: space-between; gap: var(--wh-space-2, 8px); padding: 3px 0;
+          border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        #wh-hub-conn-detail .wh-hub-conn-row:first-child { border-top: 0; }
+        #wh-hub-conn-detail .k { color: var(--wh-text-muted, rgba(255,255,255,0.62)); }
+        #wh-hub-conn-detail .v { color: rgba(255,255,255,0.85); font-weight: 600; }
+        #wh-hub-conn-detail .help { margin-top: 6px; color: var(--wh-text-muted, rgba(255,255,255,0.5)); font-size: 10px; line-height: 1.4; }
+
+        /* ── FAB-CONSOLIDATION: Assistant action row (Companion + Feedback) — token-built ── */
+        #wh-hub-assist-row {
+          display: grid; grid-template-columns: 1fr 1fr; gap: var(--wh-space-2, 8px); margin: 0 0 var(--wh-space-3, 12px);
+        }
+        .wh-hub-assist-btn {
+          display: flex; align-items: center; justify-content: center; gap: var(--wh-space-2, 8px);
+          min-height: 48px; padding: 10px 12px; border-radius: var(--wh-radius, 12px);
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.9); font-family: var(--wh-font, 'Poppins', sans-serif);
+          font-size: 12px; font-weight: 600; cursor: pointer;
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease-out;
+        }
+        .wh-hub-assist-btn:hover  { transform: translateY(-2px); }
+        .wh-hub-assist-btn:active { transform: scale(0.96); }
+        .wh-hub-assist-btn .ic { font-size: 16px; }
+        #wh-hub-open-companion {
+          background: rgba(var(--wh-blue-rgb, 41,182,217),0.1); border-color: rgba(var(--wh-blue-rgb, 41,182,217),0.28); color: var(--wh-blue, #29B6D9);
+        }
+        #wh-hub-open-companion:hover { background: rgba(var(--wh-blue-rgb, 41,182,217),0.18); border-color: rgba(var(--wh-blue-rgb, 41,182,217),0.45); }
+        #wh-hub-open-feedback {
+          background: rgba(var(--wh-orange-rgb, 247,162,27),0.1); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.28); color: var(--wh-orange, #F7A21B);
+        }
+        #wh-hub-open-feedback:hover { background: rgba(var(--wh-orange-rgb, 247,162,27),0.18); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.45); }
 
         /* ── Mobile ── */
         @media (max-width: 480px) {
@@ -845,11 +977,36 @@
       <div id="wh-hub-panel" role="dialog" aria-label="${_tt('Navigation hub', 'Nabigasyon')}">
         <div id="wh-hub-panel-header">
           <span>WorkHive</span>
-          <strong>${current.label}</strong>
+          <!-- FAB-CONSOLIDATION: live connectivity status pill (was the corner .wh-conn-chip) -->
+          <button type="button" id="wh-hub-conn-pill" data-state="online" aria-label="${_tt('Connection status', 'Katayuan ng koneksyon')}" title="${_tt('Connection status', 'Katayuan ng koneksyon')}">
+            <span id="wh-hub-conn-dot" aria-hidden="true"></span>
+            <span id="wh-hub-conn-label">Online</span>
+            <span id="wh-hub-conn-badge" style="display:none;" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <!-- FAB-CONSOLIDATION: connectivity detail, folded in from the retired popover (toggled by the pill) -->
+        <div id="wh-hub-conn-detail" class="hidden" role="region" aria-label="${_tt('Connectivity detail', 'Detalye ng koneksyon')}">
+          <div class="wh-hub-conn-row"><span class="k">${_tt('Status', 'Katayuan')}</span><span class="v" id="wh-hub-conn-status">Online</span></div>
+          <div class="wh-hub-conn-row"><span class="k">${_tt('Network', 'Network')}</span><span class="v" id="wh-hub-conn-net">—</span></div>
+          <div class="wh-hub-conn-row"><span class="k">${_tt('Pending writes', 'Naka-pila')}</span><span class="v" id="wh-hub-conn-queue">0</span></div>
+          <div class="help">${_tt('Pending writes save to this device and send automatically when the connection returns. You can keep working offline.', 'Ang mga naka-pila ay naka-save sa device na ito at awtomatikong ipapadala pagbalik ng koneksyon. Puwede kang magpatuloy offline.')}</div>
+        </div>
+
+        <!-- FAB-CONSOLIDATION: Assistant actions — Companion + Feedback (consolidated from the corner FABs) -->
+        <div id="wh-hub-assist-row">
+          <button type="button" id="wh-hub-open-companion" class="wh-hub-assist-btn" aria-label="${_tt('Open companion', 'Buksan ang katulong')}">
+            <span class="ic ic-ai" aria-hidden="true"></span>
+            <span>${_tt('Companion', 'Katulong')}</span>
+          </button>
+          <button type="button" id="wh-hub-open-feedback" class="wh-hub-assist-btn" aria-label="${_tt('Send feedback', 'Magpadala ng feedback')}">
+            <span aria-hidden="true">💬</span>
+            <span>${_tt('Feedback', 'Feedback')}</span>
+          </button>
         </div>
 
         <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
-        <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:#F7A21B; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="Open global search">
+        <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:var(--wh-orange, #F7A21B); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="Open global search">
           <span class="ic ic-search" aria-hidden="true"></span>
           <span style="flex:1;">${_tt('Search assets, jobs, parts, PMs', 'Maghanap ng assets, trabaho, parts, PM')}</span>
           <span style="font-size:9px; font-weight:700; padding:2px 5px; background:rgba(247,162,27,0.15); border:1px solid rgba(247,162,27,0.3); border-radius:4px;">⌘K</span>
@@ -892,6 +1049,42 @@
     document.body.appendChild(wrapper);
   }
 
+  // ─── FAB-CONSOLIDATION: connectivity pill painter ─────────────────────────────
+  // Reads the connectivity-widget snapshot (window.whConnectivitySnapshot, exposed
+  // by connectivity-widget.js) and paints the header pill + inline detail rows. The
+  // widget still mounts on every page (its chip is just hidden), so the snapshot is
+  // normally present; if it hasn't mounted yet, fall back to navigator.onLine so the
+  // pill is never blank. Best-effort — never throws into the hub open path.
+  function paintConnPill() {
+    var pill = document.getElementById('wh-hub-conn-pill');
+    if (!pill) return;
+    function apply(s) {
+      pill.setAttribute('data-state', s.stateKey || 'online');
+      var lbl = document.getElementById('wh-hub-conn-label'); if (lbl) lbl.textContent = s.label || 'Online';
+      var badge = document.getElementById('wh-hub-conn-badge');
+      if (badge) {
+        if (s.depth > 0) { badge.style.display = 'inline-block'; badge.textContent = String(s.depth); }
+        else badge.style.display = 'none';
+      }
+      var st = document.getElementById('wh-hub-conn-status');
+      if (st) st.textContent = !s.online ? 'Offline'
+        : !s.backendOk ? 'Online, backend unavailable'
+        : s.slow ? 'Online (slow link)' : 'Online';
+      var net = document.getElementById('wh-hub-conn-net');
+      if (net) net.textContent = (!s.net || s.net === 'unknown') ? 'unknown' : String(s.net).toUpperCase();
+      var q = document.getElementById('wh-hub-conn-queue'); if (q) q.textContent = String(s.depth || 0);
+    }
+    try {
+      if (typeof window.whConnectivitySnapshot === 'function') {
+        window.whConnectivitySnapshot().then(apply).catch(function () { /* empty-catch-allow: pill snapshot is best-effort */ });
+      } else {
+        apply({ stateKey: navigator.onLine ? 'online' : 'offline',
+                label: navigator.onLine ? 'Online' : 'Offline',
+                online: navigator.onLine, backendOk: true, slow: false, net: 'unknown', depth: 0 });
+      }
+    } catch (_) { /* empty-catch-allow: pill paint is best-effort */ }
+  }
+
   // ─── Open / Close ─────────────────────────────────────────────────────────────
   function openHub() {
     isOpen = true;
@@ -899,8 +1092,11 @@
     document.getElementById('wh-hub-fab').classList.add('open');
     document.getElementById('wh-hub-fab').setAttribute('aria-expanded', 'true');
     document.getElementById('wh-hub-panel').classList.add('open');
-    // Reveal floating-AI button alongside the panel (floating-ai.js listens to this class)
+    // Legacy hook (kept harmless): companion + conn-chip no longer react to this class
+    // — the companion is now launched from the Companion row (body.wh-companion-open).
     document.body.classList.add('wh-hub-open');
+    // Refresh the connectivity status pill each time the panel opens.
+    paintConnPill();
   }
 
   function closeHub() {
@@ -1056,14 +1252,22 @@
       }
     });
 
-    document.addEventListener('click', e => {
-      const hub   = document.getElementById('wh-hub');
-      const aiWgt = document.getElementById('wh-ai-widget');
-      // Don't close the hub when clicking the floating-AI widget — the AI
-      // button lives outside #wh-hub so would otherwise trigger closeHub()
-      // before the AI click handler could fire, making the button disappear.
-      if (isOpen && hub && !hub.contains(e.target) && !(aiWgt && aiWgt.contains(e.target))) closeHub();
-    });
+    // Axis-3 pattern: close-on-click-outside delegated to the canonical WHPatterns
+    // helper. exceptSelector '#wh-ai-widget' is resolved at click-time so the async-
+    // loaded companion (which lives OUTSIDE #wh-hub) never triggers closeHub() before
+    // its own click handler fires. Inline fallback if wh-patterns.js isn't loaded yet.
+    if (window.WHPatterns && typeof window.WHPatterns.clickOutside === 'function') {
+      window.WHPatterns.clickOutside(document.getElementById('wh-hub'), function () { closeHub(); }, {
+        isOpen: function () { return isOpen; },
+        exceptSelector: '#wh-ai-widget'
+      });
+    } else {
+      document.addEventListener('click', e => {
+        const hub   = document.getElementById('wh-hub');
+        const aiWgt = document.getElementById('wh-ai-widget');
+        if (isOpen && hub && !hub.contains(e.target) && !(aiWgt && aiWgt.contains(e.target))) closeHub();
+      });
+    }
 
     /* Search — real-time filter on All Tools grid */
     const searchInput = document.getElementById('wh-hub-search');
@@ -1084,6 +1288,42 @@
         window.WHSearch.open();
       }
     });
+
+    /* ── FAB-CONSOLIDATION wiring ──────────────────────────────────────────────
+       The header pill toggles the connectivity detail; the two Assistant buttons
+       launch the companion + feedback panels that used to be corner FABs. Each
+       stops propagation so the click never reaches the companion's / hub's own
+       click-outside-to-close handlers, and defers the open one tick so the current
+       click has fully finished dispatching before the target panel appears. */
+    document.getElementById('wh-hub-conn-pill')?.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const det = document.getElementById('wh-hub-conn-detail');
+      if (det) det.classList.toggle('hidden');
+      paintConnPill();
+    });
+
+    // Axis-3 pattern: delegate the launcher-defer idiom to the canonical WHPatterns
+    // helper (falls back inline only if wh-patterns.js hasn't loaded yet — clicks
+    // land long after load, so the fallback effectively never fires).
+    function _launch(e, openFn) {
+      if (window.WHPatterns && typeof window.WHPatterns.launchPanel === 'function') {
+        window.WHPatterns.launchPanel(e, openFn, { before: closeHub });
+      } else {
+        if (e) e.stopPropagation();
+        closeHub();
+        setTimeout(function () { try { openFn(); } catch (_) { /* empty-catch-allow: launcher fallback */ } }, 0);
+      }
+    }
+    document.getElementById('wh-hub-open-companion')?.addEventListener('click', function (e) {
+      _launch(e, function () { if (window.WHAssistant && window.WHAssistant.open) window.WHAssistant.open(); });
+    });
+    document.getElementById('wh-hub-open-feedback')?.addEventListener('click', function (e) {
+      _launch(e, function () { if (window.WHFeedback && window.WHFeedback.open) window.WHFeedback.open(); });
+    });
+
+    /* Keep the pill live if connectivity flips while the panel is open. */
+    window.addEventListener('online',  paintConnPill);
+    window.addEventListener('offline', paintConnPill);
 
     /* Mode switcher — Phase D. Click changes mode, persists, and rebuilds the
        grid + Recent row in place so the user sees the filtered view immediately. */

@@ -1,0 +1,25 @@
+{
+  "files": {
+    "nav-hub.js": 0,
+    "companion-launcher.js": 0,
+    "wh-feedback-fab.js": 0,
+    "connectivity-widget.js": 0,
+    "voice-handler.js": 0,
+    "wh-persona.js": 0,
+    "wh-tts.js": 0,
+    "wh-patterns.js": 0,
+    "offline-queue.js": 0,
+    "session-timeout.js": 0,
+    "form-autosave.js": 0,
+    "device-fingerprint.js": 0,
+    "wayfinding.js": 0,
+    "search-overlay.js": 0,
+    "learn-link.js": 0,
+    "wh-help.js": 0,
+    "onboarding.js": 0,
+    "provenance-hover.js": 0,
+    "utils.js": 0,
+    "components.css": 0
+  },
+  "total": 0
+}

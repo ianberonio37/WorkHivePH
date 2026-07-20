@@ -94,6 +94,20 @@ button, input, select, textarea, optgroup { font-family: inherit; }
   /* z-scale — one ladder so overlays/modals/toasts stack predictably. */
   --wh-z-base: 1; --wh-z-sticky: 100; --wh-z-overlay: 1000; --wh-z-modal: 1100; --wh-z-toast: 1200;
 
+  /* ── Component tokens (DTCG tier 3, 2026-07-20 · PLATFORM_CENTRALIZATION_ROADMAP C-P1) ──
+     High-reuse SHAPE + MOTION decisions declared ONCE so the shared chrome (nav-hub,
+     companion, feedback, connectivity, the resilience scripts) stops hardcoding them —
+     Axis-2 purity. The corner-chrome FAB layer sits ABOVE the app z-scale by design
+     (it must never be occluded by page content or modals it summons). */
+  --wh-z-fab: 9998;          /* nav-hub + feedback + connectivity corner chrome */
+  --wh-z-companion: 9999;    /* companion widget, one above the hub */
+  --wh-fab-size: 56px;       /* the canonical FAB square/circle */
+  --wh-fab-gap: 12px;        /* spacing between stacked corner FABs */
+  --wh-panel-max-h: calc(100dvh - 100px);   /* a corner panel caps to the viewport + scrolls */
+  /* Motion — the ONE spring + duration vocabulary (was hardcoded per widget). */
+  --wh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --wh-dur-fast: 0.15s; --wh-dur: 0.2s; --wh-dur-slow: 0.25s;
+
   /* Muted TEXT on dark surfaces — the recurring "secondary label" colour. Measured
      floor: alpha >= 0.62 clears WCAG AA on the wh-card gradient. This is the ONE home
      for it; a page must reference the token / .wh-text-muted, never hardcode an alpha.

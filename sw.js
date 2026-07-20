@@ -3,7 +3,11 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v162';  // bump 2026-07-19: EMOJI-FIRST — utils.js walker disabled (Arc W W5
+const CACHE_NAME  = 'workhive-shell-v163';  // bump 2026-07-20: PLATFORM_CENTRALIZATION — NEW /wh-patterns.js
+                                            // (Axis-3 behavioural idioms) + Axis-2 chrome purity wave (nav-hub/companion/
+                                            // feedback/connectivity/etc. brand literals → var(--wh-*); tokens.css component
+                                            // tier). Without this bump PWA users keep the stale chrome JS. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v162';  // bump 2026-07-19: EMOJI-FIRST — utils.js walker disabled (Arc W W5
                                             // reversed), nav-hub.js emoji nav + wh-icons.css central icon library
                                             // (see feedback_centralized_icon_library_emoji_first); re-prime shell
                                             // so PWA users do not keep the stale cached copies.
@@ -73,6 +77,8 @@ const SHELL_FILES = [
   '/components.css',          // S11: shared component CSS (was inline-duplicated on ~15 pages)
   '/wh-icons.css',            // 2026-07-19: central emoji icon library (.ic ic-*); nav-hub.js also injects the <link>
   '/nav-hub.js',
+  '/wh-patterns.js',          // 2026-07-20: centralized behavioural idioms (Axis-3), loaded early by nav-hub
+  '/wh-roles.js',             // 2026-07-20: canonical client RBAC SSOT (window.WHRoles), loaded early by nav-hub
   '/button-lock.js',
   '/offline-banner.js',
   '/offline-fallback.html',   // Arc S D-003: SW navigation fallback shell for offline non-precached pages

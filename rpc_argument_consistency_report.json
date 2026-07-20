@@ -1,6 +1,6 @@
 {
   "summary": {
-    "files_scanned": 164,
+    "files_scanned": 166,
     "total_calls": 62,
     "total_drift": 0,
     "baseline": 0,
@@ -260,7 +260,15 @@
       "issues": []
     },
     {
+      "file": "wh-patterns.js",
+      "issues": []
+    },
+    {
       "file": "wh-persona.js",
+      "issues": []
+    },
+    {
+      "file": "wh-roles.js",
       "issues": []
     },
     {

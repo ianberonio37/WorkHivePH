@@ -150,3 +150,18 @@ index-sectors.png
 .fullgate.out
 backups/
 .releasegate*.out
+
+# 2026-07-20: throwaway process logs + verification screenshots + generated posters (regenerable)
+.asr.out
+.fastgate*.out
+.nightcrawl*.out
+companion-fab-resting.png
+companion-ux-1.png
+hub-consolidated-open.png
+observe-home.png
+observe-growth.png
+observe-home-fixed.png
+observe-db-security.png
+errors-with-edge.png
+promo_posters/
+.push.out

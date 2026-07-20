@@ -113,7 +113,7 @@
       skip.href = '#' + main.id;
       skip.textContent = 'Skip to main content';
       skip.style.cssText = 'position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);' +
-        'background:#F7A21B;color:#0f1923;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;' +
+        'background:var(--wh-orange, #F7A21B);color:#0f1923;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;' +
         'font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;' +
         'box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s ease;box-sizing:border-box;';
       skip.addEventListener('focus', function () { skip.style.transform = 'translateY(0)'; });

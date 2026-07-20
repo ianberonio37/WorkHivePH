@@ -53,6 +53,11 @@
     (<code>component_adoption_baseline.json</code>), the same floors the platform gate ratchets.</p>
   <p id="ds-provenance" class="ds-src"></p>
 
+  <!-- PLATFORM_CENTRALIZATION_ROADMAP C-P5: the 3 axes of centralization, measured live.
+       Adoption (do surfaces use the canonical?) · Purity (is the canonical built from tokens?)
+       · Pattern (are recurring behaviours centralized?). -->
+  <div id="ds-axes"></div>
+
   <details class="wh-help">
     <summary>How this page works</summary>
     <p>Each card is one canonical primitive from the registry: what it is, when to use it, and its live
@@ -88,6 +93,34 @@
   (base.rows || []).forEach(r => { adoption[r.id] = r; });
   const prov = document.getElementById('ds-provenance');
   prov.textContent = 'source: design_component_registry.json v' + reg.version + ' · census: ' + (base.generated || '').slice(0, 10) + ' · ' + (base.family_pages || 0) + ' family pages';
+
+  // ── C-P5: the 3 centralization axes, measured live from the real baselines ──
+  (async function renderAxes() {
+    const axesEl = document.getElementById('ds-axes');
+    if (!axesEl) return;
+    let purity = null, storage = null;
+    // fetchWithTimeout (utils.js, loaded on this page) so a hung server can't strand the panel
+    // (resilience floor); the call is inside try/catch (error-handling floor). No bare fetch().
+    try { purity = await window.fetchWithTimeout('component_purity_baseline.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits purity if absent */ }
+    try { storage = await window.fetchWithTimeout('storage_key_registry.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits storage if absent */ }
+    const files = (purity && purity.files) || {};
+    const total = Object.keys(files).length;
+    const pure = Object.values(files).filter(v => v === 0).length;
+    const impure = purity ? (purity.total || 0) : '?';
+    const pPct = total ? Math.round(100 * pure / total) : 0;
+    const canon = (storage && storage.canonical) ? storage.canonical.length : 0;
+    const aliases = (storage && storage.aliases) ? Object.keys(storage.aliases).length : 0;
+    const card = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--wh-radius,12px);padding:12px 14px;';
+    const bar = 'height:6px;border-radius:var(--wh-radius-pill, 999px);background:rgba(255,255,255,0.08);overflow:hidden;margin-top:8px;';
+    axesEl.innerHTML =
+      '<section class="ds-class"><h2>Centralization axes: measured live</h2>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">' +
+        '<div style="' + card + '"><strong>Axis 1 · Adoption</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Do surfaces USE the canonical? The layer boards below (F/A/D/AU/AV) are the measured census.</p></div>' +
+        '<div style="' + card + '"><strong>Axis 2 · Purity: ' + pPct + '%</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the canonical itself built from tokens? <b>' + pure + '/' + total + '</b> shared-chrome files pure · <b>' + impure + '</b> raw brand literals.</p><div style="' + bar + '"><div style="height:100%;width:' + pPct + '%;background:var(--wh-green,#4ade80)"></div></div></div>' +
+        '<div style="' + card + '"><strong>Axis 3 · Pattern: 4/4</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Are behaviours centralized? <code>wh-patterns.js</code>: launchPanel · clickOutside · revealVia · capPanel.</p></div>' +
+        '<div style="' + card + '"><strong>Storage-key SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))"><b>' + canon + '</b> canonical keys · <b>' + aliases + '</b> drift-aliases tracked (<code>storage_key_registry.json</code>).</p></div>' +
+      '</div></section>';
+  })();
 
   const e = escHtml;
 

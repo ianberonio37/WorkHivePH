@@ -18,7 +18,7 @@
 //   - rate limiting at DB layer, friendly retry message at UI layer
 //
 // Skills consulted:
-//   designer       — brand colors (#F7A21B), Poppins, 0.75rem radius
+//   designer       — brand colors (var(--wh-orange)), Poppins font + 0.75rem radius
 //   mobile-maestro — 56×56 FAB clears safe-area-inset-bottom, 16px input
 //                    font-size to avoid iOS zoom, 44px+ tap targets
 //   security       — escHtml on every render path; no innerHTML with
@@ -82,6 +82,11 @@
     mount();
   }
 
+  // ── Public API (FAB-CONSOLIDATION) ──────────────────────────────────────────
+  // The nav-hub's "Send feedback" row calls window.WHFeedback.open() now that the
+  // standalone corner FAB is hidden. openPanel/closePanel are hoisted declarations.
+  window.WHFeedback = { open: openPanel, close: closePanel };
+
   // ── Mount ──────────────────────────────────────────────────────────────────
   function mount() {
     injectStyles();
@@ -104,8 +109,8 @@
         bottom: max(24px, env(safe-area-inset-bottom, 0px));
         width: 56px; height: 56px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #F7A21B, #FDB94A);
-        color: #162032;
+        background: linear-gradient(135deg, var(--wh-orange, #F7A21B), var(--wh-orange-light, #FDB94A));
+        color: var(--wh-navy, #162032);
         font-size: 24px; line-height: 1;
         border: none;
         cursor: pointer;
@@ -116,15 +121,15 @@
       }
       .wh-fb-fab:hover  { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.45), 0 2px 8px rgba(247,162,27,.55); }
       .wh-fb-fab:active { transform: scale(.95); }
-      .wh-fb-fab:focus-visible { outline: 3px solid #29B6D9; outline-offset: 2px; }
+      .wh-fb-fab:focus-visible { outline: 3px solid var(--wh-blue, #29B6D9); outline-offset: 2px; }
 
       .wh-fb-panel {
         position: fixed;
         top: 0; right: 0; bottom: 0;
         width: 380px; max-width: 100vw;
-        background: linear-gradient(180deg, #1F2E45, #162032);
-        color: #F4F6FA;
-        font-family: 'Poppins', system-ui, sans-serif;
+        background: linear-gradient(180deg, var(--wh-navy-mid, #1F2E45), var(--wh-navy, #162032));
+        color: var(--wh-cloud, #F4F6FA);
+        font-family: var(--wh-font, 'Poppins', system-ui, sans-serif);
         box-shadow: -8px 0 32px rgba(0,0,0,.55);
         z-index: 9999;
         transform: translateX(100%);
@@ -147,18 +152,18 @@
       }
       .wh-fb-hdr h2 { margin: 0; font-size: 1.1rem; font-weight: 600; }
       .wh-fb-close {
-        background: none; border: none; color: #F4F6FA;
+        background: none; border: none; color: var(--wh-cloud, #F4F6FA);
         font-size: 1.5rem; line-height: 1; cursor: pointer;
         padding: .25rem .5rem; border-radius: .5rem;
       }
       .wh-fb-close:hover { background: rgba(255,255,255,.08); }
-      .wh-fb-close:focus-visible { outline: 2px solid #29B6D9; outline-offset: 2px; }
+      .wh-fb-close:focus-visible { outline: 2px solid var(--wh-blue, #29B6D9); outline-offset: 2px; }
 
       .wh-fb-body { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
 
       .wh-fb-section-label {
         font-size: .75rem; text-transform: uppercase;
-        color: #7B8794; letter-spacing: .04em;
+        color: var(--wh-steel, #7B8794); letter-spacing: .04em;
         margin-bottom: .5rem; font-weight: 600;
       }
 
@@ -171,7 +176,7 @@
         border: 1px solid rgba(255,255,255,.1);
         border-radius: .75rem;
         padding: .75rem .5rem;
-        color: #F4F6FA;
+        color: var(--wh-cloud, #F4F6FA);
         cursor: pointer;
         font-size: .85rem;
         display: flex; flex-direction: column;
@@ -180,7 +185,7 @@
       }
       .wh-fb-kind:hover { border-color: rgba(247,162,27,.5); }
       .wh-fb-kind.active {
-        border-color: #F7A21B;
+        border-color: var(--wh-orange, #F7A21B);
         background: rgba(247,162,27,.12);
       }
       .wh-fb-kind .icon { font-size: 1.4rem; }
@@ -191,16 +196,16 @@
         display: block;
         font-size: .85rem; font-weight: 500;
         margin-bottom: .35rem;
-        color: #F4F6FA;
+        color: var(--wh-cloud, #F4F6FA);
       }
-      .wh-fb-field label .opt { color: #7B8794; font-weight: 400; }
+      .wh-fb-field label .opt { color: var(--wh-steel, #7B8794); font-weight: 400; }
 
       .wh-fb-input, .wh-fb-textarea {
         width: 100%;
         background: rgba(22,32,50,.6);
         border: 1px solid rgba(255,255,255,.1);
         border-radius: .75rem;
-        color: #F4F6FA;
+        color: var(--wh-cloud, #F4F6FA);
         padding: .75rem 1rem;
         font-size: 16px;             /* iOS zoom guard (mobile-maestro rule) */
         font-family: inherit;
@@ -215,29 +220,29 @@
       .wh-fb-star {
         background: none; border: none; cursor: pointer;
         font-size: 1.5rem; line-height: 1;
-        padding: .25rem; color: #2A3D58;
+        padding: .25rem; color: var(--wh-navy-light, #2A3D58);
         transition: color .15s;
         min-width: 44px; min-height: 44px;        /* touch target */
       }
-      .wh-fb-star.filled { color: #F7A21B; }
-      .wh-fb-star:focus-visible { outline: 2px solid #29B6D9; outline-offset: 2px; border-radius: .25rem; }
+      .wh-fb-star.filled { color: var(--wh-orange, #F7A21B); }
+      .wh-fb-star:focus-visible { outline: 2px solid var(--wh-blue, #29B6D9); outline-offset: 2px; border-radius: .25rem; }
 
       .wh-fb-meta {
-        font-size: .75rem; color: #7B8794;
+        font-size: .75rem; color: var(--wh-steel, #7B8794);
         background: rgba(0,0,0,.18);
         border-radius: .5rem;
         padding: .5rem .75rem;
         margin-bottom: 1rem;
       }
       .wh-fb-meta code {
-        font-family: inherit; color: #5FCCE8;
+        font-family: inherit; color: var(--wh-blue-light, #5FCCE8);
       }
 
       .wh-fb-actions { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.07); }
       .wh-fb-submit {
         width: 100%;
-        background: linear-gradient(135deg, #F7A21B, #FDB94A);
-        color: #162032; font-weight: 700;
+        background: linear-gradient(135deg, var(--wh-orange, #F7A21B), var(--wh-orange-light, #FDB94A));
+        color: var(--wh-navy, #162032); font-weight: 700;
         border: none; border-radius: .75rem;
         padding: .85rem 1.5rem;
         font-size: .9rem;
@@ -277,6 +282,14 @@
       @media (prefers-reduced-motion: reduce) {
         .wh-fb-panel, .wh-fb-fab { transition: none; }
       }
+
+      /* FAB-CONSOLIDATION (2026-07-20): the standalone corner feedback button is
+         retired — feedback is now launched from the nav-hub's "Send feedback" row
+         (window.WHFeedback.open()), so the bottom-right corner holds ONE FAB (the
+         hub) instead of four overlapping ones. The FAB stays in the DOM (its click
+         still opens the panel as a harmless fallback) but is hidden from view. The
+         slide-in panel itself is untouched. */
+      .wh-fb-fab { display: none !important; }
     `;
     const style = document.createElement('style');
     style.setAttribute('data-wh-feedback', '1');

@@ -84,7 +84,7 @@
     var css = 'a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,' +
       'textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible,[role="button"]:focus-visible,' +
       '[role="link"]:focus-visible,[role="tab"]:focus-visible,[contenteditable="true"]:focus-visible{' +
-      'outline:2px solid #F7A21B !important;outline-offset:2px !important;border-radius:3px;}';
+      'outline:2px solid var(--wh-orange, #F7A21B) !important;outline-offset:2px !important;border-radius:3px;}';
     var st = document.createElement('style');
     st.id = 'wh-a11y-focus';
     st.textContent = css;
@@ -644,7 +644,7 @@ function whProgressStrip(label, done, total, opts) {
     + ' style="margin:0 0 12px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">'
     +   '<span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.62);">' + e(_tt(label)) + '</span>'
-    +   '<span style="font-size:.72rem;font-weight:800;color:#F4F6FA;font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.62);">' + e(_tt('of')) + ' ' + total + '</span></span>'
+    +   '<span style="font-size:.72rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.62);">' + e(_tt('of')) + ' ' + total + '</span></span>'
     + '</div>'
     + '<div class="wh-progress-track" style="height:6px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;">'
     +   '<div class="wh-progress-fill" style="width:' + pct + '%;height:100%;border-radius:999px;background:' + fillCol + ';transition:width .4s;"></div>'
@@ -863,7 +863,7 @@ function whFreshnessChip(target, tsMillis, opts) {
   el.setAttribute('aria-live', 'polite');
   el.innerHTML =
     '<span class="wh-fresh-dot" aria-hidden="true" style="width:8px;height:8px;border-radius:50%;'
-    + 'display:inline-block;margin-right:6px;background:' + (stale ? 'var(--wh-orange)' : '#4ade80') + ';"></span>'
+    + 'display:inline-block;margin-right:6px;background:' + (stale ? 'var(--wh-orange)' : 'var(--wh-green, #4ade80)') + ';"></span>'
     + '<span class="wh-fresh-txt" style="font-size:0.72rem;color:rgba(255,255,255,0.6);">'
     + _tt('Updated', 'Na-update') + ' ' + when + suffix + '</span>';
 }
@@ -992,7 +992,7 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '.wh-risk-row,.wh-pmdue-row,.wh-parts-row{min-height:44px;box-sizing:border-box}' +
     '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.72);line-height:1.5}' +
     '.wh-list-error .wh-list-error-icon{font-size:1.4rem}' +
-    '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#F4F6FA;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
+    '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud, #F4F6FA);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
     '.wh-list-error button:hover{border-color:rgba(255,255,255,0.32)}';
   (document.head || document.documentElement).appendChild(whListStatesCss);
 }
@@ -1126,7 +1126,7 @@ function renderRiskStrip(rows, opts) {
     return '<a href="' + e(href) + '" class="wh-risk-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     whOhBadge(lvl, r.risk_level)
-      +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(r.asset_name) + '</span>'
+      +     '<span style="font-size:.78rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(r.asset_name) + '</span>'
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
       +     '<span style="font-size:.65rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(mtbf) + '</span>'
@@ -1136,7 +1136,7 @@ function renderRiskStrip(rows, opts) {
   }).join('');
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #f87171;">'
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid var(--wh-red, #f87171);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
     +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FCA5A5);margin:0;">' + e(opts.title) + '</p>'
     +     '<a href="asset-hub.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
@@ -1178,11 +1178,11 @@ function renderPmDueStrip(rows, opts) {
     return '<a href="' + e(href) + '" class="wh-pmdue-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     whOhBadge(badge, over ? 'OVERDUE' : 'DUE')
-      +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
+      +     '<span style="font-size:.78rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
       +     (crit ? '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(crit) + '</span>' : '')
-      +     '<span style="font-size:.68rem;font-weight:700;color:' + (over ? '#FCA5A5' : '#FDB94A') + ';white-space:nowrap;">' + e(status) + '</span>'
+      +     '<span style="font-size:.68rem;font-weight:700;color:' + (over ? 'var(--wh-red-text, #FCA5A5)' : 'var(--wh-orange-light, #FDB94A)') + ';white-space:nowrap;">' + e(status) + '</span>'
       +   '</div>'
       + '</a>';
   }).join('');
@@ -1191,9 +1191,9 @@ function renderPmDueStrip(rows, opts) {
     : '';
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:pm_due_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid #29B6D9;">'
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:pm_due_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:14px 16px;border-left:3px solid var(--wh-blue, #29B6D9);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#29B6D9;margin:0;">' + e(opts.title) + '</p>'
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-blue, #29B6D9);margin:0;">' + e(opts.title) + '</p>'
     +     (scopeChip || '<a href="pm-scheduler.html" style="font-size:.62rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">PM Scheduler &#8594;</a>')
     +   '</div>' + inner + '</div>';
 }
@@ -1267,7 +1267,7 @@ function renderPartsStrip(rows, opts) {
     return '<a href="' + e(href) + '" class="wh-parts-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;">'
       +   '<div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">'
       +     whOhBadge(badge, label)
-      +     '<span style="font-size:.78rem;font-weight:600;color:#F4F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
+      +     '<span style="font-size:.78rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e(name) + '</span>'
       +   '</div>'
       +   '<span style="font-size:.62rem;color:rgba(255,255,255,.6);white-space:nowrap;flex-shrink:0;">' + e(meta) + '</span>'
       + '</a>';
@@ -1319,13 +1319,13 @@ function renderActionBrief(brief, opts) {
   var hChip = opts.horizon
     ? '<span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72);">' + e(opts.horizon) + '</span>'
     : '';
-  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:14px 16px;border-left:3px solid #a78bfa;">'
+  return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:14px 16px;border-left:3px solid var(--wh-violet, #a78bfa);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a78bfa;margin:0;">' + e(opts.title || 'Action Brief') + '</p>' + hChip
+    +     '<p style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-violet, #a78bfa);margin:0;">' + e(opts.title || 'Action Brief') + '</p>' + hChip
     +   '</div>'
-    +   (summary ? '<p style="font-size:.82rem;font-weight:600;color:#F4F6FA;margin:0;line-height:1.4;">' + e(summary) + '</p>' : '')
-    +   listBlock(opts.horizon === 'strategic' ? 'This quarter' : opts.horizon === 'shift' ? 'This shift' : opts.horizon === 'today' ? 'Today' : 'This week', brief.this_week, '#f87171')
-    +   listBlock('Watch list', brief.watch_list, '#F7A21B')
+    +   (summary ? '<p style="font-size:.82rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);margin:0;line-height:1.4;">' + e(summary) + '</p>' : '')
+    +   listBlock(opts.horizon === 'strategic' ? 'This quarter' : opts.horizon === 'shift' ? 'This shift' : opts.horizon === 'today' ? 'Today' : 'This week', brief.this_week, 'var(--wh-red, #f87171)')
+    +   listBlock('Watch list', brief.watch_list, 'var(--wh-orange, #F7A21B)')
     + '</div>';
 }
 if (typeof window !== 'undefined') window.renderActionBrief = renderActionBrief;
@@ -1482,9 +1482,9 @@ let _whKpiTileId = 0;
 function renderKpiTile(opts) {
   opts = opts || {};
   const COLORS = {
-    green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: '#4ade80',  label: '✓ Healthy'  },
-    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: '#F7A21B',  label: '⚠ Watch'    },
-    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: '#f87171',  label: '✗ Critical' },
+    green:  { bg: 'rgba(74,222,128,0.08)',   border: 'rgba(74,222,128,0.3)',   text: 'var(--wh-green, #4ade80)',  label: '✓ Healthy'  },
+    yellow: { bg: 'rgba(247,162,27,0.08)',   border: 'rgba(247,162,27,0.3)',   text: 'var(--wh-orange, #F7A21B)',  label: '⚠ Watch'    },
+    red:    { bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)',  text: 'var(--wh-red, #f87171)',  label: '✗ Critical' },
     grey:   { bg: 'rgba(255,255,255,0.03)',  border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.6)', label: 'No data' },
   };
   const c   = COLORS[opts.color] || COLORS.grey;
@@ -1563,10 +1563,10 @@ if (typeof window !== 'undefined' && !window.toggleKPI) {
 function renderCompactStat(opts) {
   opts = opts || {};
   const PALETTE = {
-    red:    '#f87171',
+    red:    'var(--wh-red, #f87171)',
     orange: '#fb923c',
-    yellow: '#facc15',
-    green:  '#4ade80',
+    yellow: 'var(--wh-amber, #facc15)',
+    green:  'var(--wh-green, #4ade80)',
     blue:   '#60a5fa',
     grey:   'rgba(255,255,255,0.55)',
   };
@@ -1608,10 +1608,10 @@ function renderCompactStat(opts) {
 function renderAlertPreview(opts) {
   opts = opts || {};
   const SEV = {
-    critical: { bg: 'rgba(248,113,113,0.10)', border: '#f87171', label: '🔴 CRITICAL' },
-    high:     { bg: 'rgba(247,162,27,0.10)',  border: '#F7A21B', label: '🟠 HIGH' },
-    medium:   { bg: 'rgba(250,204,21,0.10)',  border: '#facc15', label: '🟡 MEDIUM' },
-    low:      { bg: 'rgba(74,222,128,0.10)',  border: '#4ade80', label: '🟢 LOW' },
+    critical: { bg: 'rgba(248,113,113,0.10)', border: 'var(--wh-red, #f87171)', label: '🔴 CRITICAL' },
+    high:     { bg: 'rgba(247,162,27,0.10)',  border: 'var(--wh-orange, #F7A21B)', label: '🟠 HIGH' },
+    medium:   { bg: 'rgba(250,204,21,0.10)',  border: 'var(--wh-amber, #facc15)', label: '🟡 MEDIUM' },
+    low:      { bg: 'rgba(74,222,128,0.10)',  border: 'var(--wh-green, #4ade80)', label: '🟢 LOW' },
   };
   const s = SEV[opts.severity] || SEV.medium;
   const kindIcon = ({
@@ -1973,16 +1973,16 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       'padding:16px;animation:wh-fade-in 0.12s ease-out;';
 
     overlay.innerHTML =
-      '<div style="background:#162032;border:1px solid rgba(255,255,255,0.1);border-radius:14px;' +
+      '<div style="background:var(--wh-navy, #162032);border:1px solid rgba(255,255,255,0.1);border-radius:14px;' +
         'padding:20px 22px;max-width:440px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.5);">' +
-        '<p id="' + escHtml(titleId) + '" style="font-size:0.95rem;font-weight:600;color:#F4F6FA;' +
+        '<p id="' + escHtml(titleId) + '" style="font-size:0.95rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);' +
           'margin:0 0 14px;line-height:1.45;">' + escHtml(message) + '</p>' +
         (withInput
           ? '<input id="' + escHtml(inputId) + '" type="text" ' +
             'aria-label="' + escHtml(inputLabel || message) + '" ' +
             'value="' + escHtml(inputDefault || '') + '" ' +
             'style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);' +
-            'background:rgba(255,255,255,0.04);color:#F4F6FA;font-size:0.9rem;font-family:inherit;' +
+            'background:rgba(255,255,255,0.04);color:var(--wh-cloud, #F4F6FA);font-size:0.9rem;font-family:inherit;' +
             'margin-bottom:14px;min-height:44px;" />'
           : ''
         ) +
@@ -1992,7 +1992,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
             'border-radius:8px;padding:9px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;' +
             'min-height:44px;font-family:inherit;">' + escHtml(cancelLabel) + '</button>' +
           '<button type="button" data-wh-modal-ok ' +
-            'style="background:#F7A21B;color:#162032;border:none;border-radius:8px;padding:9px 16px;' +
+            'style="background:var(--wh-orange, #F7A21B);color:var(--wh-navy, #162032);border:none;border-radius:8px;padding:9px 16px;' +
             'font-size:0.85rem;font-weight:700;cursor:pointer;min-height:44px;font-family:inherit;">' +
             escHtml(okLabel) + '</button>' +
         '</div>' +
@@ -2283,15 +2283,15 @@ async function isPlatformAdmin(db) {
 // ─────────────────────────────────────────────
 
 // tier.color is used as small TEXT ("Iron Technician" chip) as well as ring/tint —
-// each value must clear WCAG AA 4.5:1 on the dark tints. Iron #7B8794 measured
+// each value must clear WCAG AA 4.5:1 on the dark tints. Iron #7B8794 measured (purity-allow: prose comment, not a CSS value)
 // 3.08 and Bronze #CD7F32 2.6–3.3 as text (2026-07-16); lightened same-hue.
 const ACHIEVEMENT_TIERS = [
-  { id: 'legend',   min: 91, color: '#F7A21B', label: 'Legend'   },
-  { id: 'platinum', min: 76, color: '#5FCCE8', label: 'Platinum' },
-  { id: 'gold',     min: 51, color: '#F7A21B', label: 'Gold'     },
+  { id: 'legend',   min: 91, color: 'var(--wh-orange, #F7A21B)', label: 'Legend'   },
+  { id: 'platinum', min: 76, color: 'var(--wh-blue-light, #5FCCE8)', label: 'Platinum' },
+  { id: 'gold',     min: 51, color: 'var(--wh-orange, #F7A21B)', label: 'Gold'     },
   { id: 'silver',   min: 26, color: '#94A3B8', label: 'Silver'   },
   { id: 'bronze',   min: 11, color: '#E8B27A', label: 'Bronze'   },
-  { id: 'iron',     min:  0, color: '#A9B6C4', label: 'Iron'     },
+  { id: 'iron',     min:  0, color: 'var(--wh-steel-bright, #A9B6C4)', label: 'Iron'     },
 ];
 
 function getWorkerTier(topLevel) {
@@ -2347,24 +2347,24 @@ async function loadWorkerTiers(db, workerNames) {
     /* regardless of border thickness/style. Metallic inset shadows give depth. */
     '.wh-avatar{position:relative;border-radius:50%;flex-shrink:0;',
     'box-sizing:border-box;',
-    'background:linear-gradient(135deg,#1F2E45,#2A3D58);',
+    'background:linear-gradient(135deg,var(--wh-navy-mid, #1F2E45),var(--wh-navy-light, #2A3D58));',
     'display:flex;align-items:center;justify-content:center;',
-    'font-family:"Poppins",sans-serif;font-weight:700;color:#F4F6FA;',
+    'font-family:var(--wh-font, "Poppins",sans-serif);font-weight:700;color:var(--wh-cloud, #F4F6FA);',
     'border:4px solid var(--tier-clr,#7B8794);',
     'box-shadow:inset 1px 1px 2px rgba(255,255,255,0.18),',
     '           inset -1px -1px 2px rgba(0,0,0,0.45);}',
 
     '.wh-avatar-lvl{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);',
-    'background:var(--tier-clr,#7B8794);color:#162032;',
+    'background:var(--tier-clr,#7B8794);color:var(--wh-navy, #162032);',
     'font-size:9px;font-weight:800;padding:1px 5px;',
-    'border-radius:999px;border:2px solid #162032;',
+    'border-radius:999px;border:2px solid var(--wh-navy, #162032);',
     'min-width:20px;text-align:center;line-height:1.5;',
     'pointer-events:none;white-space:nowrap;z-index:3;',
     'box-shadow:0 2px 6px rgba(0,0,0,0.45),',
     '           inset 0 1px 0 rgba(255,255,255,0.3);}',
 
     /* ── IRON: DASHED border (incomplete/starting feel) + slow breathing ──── */
-    '.wh-tier-iron{border:4px dashed #7B8794;animation:wh-breathe-iron 4s ease-in-out infinite;}',
+    '.wh-tier-iron{border:4px dashed var(--wh-steel, #7B8794);animation:wh-breathe-iron 4s ease-in-out infinite;}',
 
     /* ── BRONZE: RIDGE border (3D embossed metal) + warm shimmer ─────────── */
     '.wh-tier-bronze{border:4px ridge #CD7F32;animation:wh-shimmer 3s ease-in-out infinite;}',
@@ -2380,7 +2380,7 @@ async function loadWorkerTiers(db, workerNames) {
     'animation:wh-spin 3s linear infinite;}',
 
     /* ── GOLD: solid + 4 SPARKLE DOTS rotating like a crown ──────────────── */
-    '.wh-tier-gold{border:4px solid #F7A21B;animation:wh-glow-gold 2.4s ease-in-out infinite;}',
+    '.wh-tier-gold{border:4px solid var(--wh-orange, #F7A21B);animation:wh-glow-gold 2.4s ease-in-out infinite;}',
     '.wh-tier-gold::after{content:"";position:absolute;inset:-3px;border-radius:50%;',
     'pointer-events:none;z-index:0;',
     'background:',
@@ -2391,7 +2391,7 @@ async function loadWorkerTiers(db, workerNames) {
     'animation:wh-spin 4s linear infinite;}',
 
     /* ── PLATINUM: CONCENTRIC — solid inner + outer rotating dashed ring ─── */
-    '.wh-tier-platinum{border:4px solid #29B6D9;animation:wh-glow-blue 2.4s ease-in-out infinite;}',
+    '.wh-tier-platinum{border:4px solid var(--wh-blue, #29B6D9);animation:wh-glow-blue 2.4s ease-in-out infinite;}',
     '.wh-tier-platinum::after{content:"";position:absolute;inset:-7px;border-radius:50%;',
     'border:2px dashed rgba(41,182,217,0.85);',
     'pointer-events:none;z-index:0;',
@@ -2400,7 +2400,7 @@ async function loadWorkerTiers(db, workerNames) {
     /* ── LEGEND: animated multi-color gradient ring + halo ───────────────── */
     '.wh-tier-legend{border:4px solid transparent;}',
     '.wh-tier-legend::before{content:"";position:absolute;inset:-4px;border-radius:50%;',
-    'background:conic-gradient(#F7A21B,#FDB94A,#29B6D9,#5FCCE8,#F7A21B);',
+    'background:conic-gradient(var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A),var(--wh-blue, #29B6D9),var(--wh-blue-light, #5FCCE8),var(--wh-orange, #F7A21B));',
     'animation:wh-spin 2s linear infinite;z-index:-1;',
     'filter:drop-shadow(0 0 10px rgba(247,162,27,0.6));}',
     '.wh-tier-legend::after{content:"";position:absolute;inset:-10px;border-radius:50%;',

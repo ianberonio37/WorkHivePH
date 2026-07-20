@@ -1,0 +1,48 @@
+{
+  "canonical": [
+    "upgrade_banner_dismissed",
+    "wh.signup_role",
+    "wh_active_hive_id",
+    "wh_ai_history_",
+    "wh_analytics_filters",
+    "wh_asset_view",
+    "wh_cmms_guide_dismissed",
+    "wh_community_last_seen:",
+    "wh_hive_code",
+    "wh_hive_maturity_stair",
+    "wh_hive_name",
+    "wh_hive_role",
+    "wh_hives",
+    "wh_lang",
+    "wh_last_report_email",
+    "wh_last_worker",
+    "wh_lifeplanner_",
+    "wh_nav_mode",
+    "wh_onb_audit_visited",
+    "wh_onboarding_dismissed",
+    "wh_persona",
+    "wh_pm_groups_",
+    "wh_pm_recent_",
+    "wh_resume_promote_dedupe",
+    "wh_session_id",
+    "wh_shift_end_hour",
+    "wh_voice_brevity",
+    "wh_voice_journal_persona",
+    "wh_voice_lang_pref",
+    "wh_voice_session_id"
+  ],
+  "aliases": {
+    "wh_hive_id": "wh_active_hive_id",
+    "hive_id": "wh_active_hive_id",
+    "workerName": "wh_last_worker",
+    "wh_worker_name": "wh_last_worker"
+  },
+  "prefixes": [
+    "wh_ai_history_",
+    "wh_community_last_seen:",
+    "wh_lifeplanner_",
+    "wh_pm_groups_",
+    "wh_pm_recent_"
+  ],
+  "note": "SSOT for client storage keys (PLATFORM_CENTRALIZATION C-P4). A key is CANONICAL or a registered ALIAS-of-canonical. Drift found 2026-07-20: hive-id (3 keys) + worker (3 keys). Convergence to a canonical accessor (whHiveId()/whWorker() in utils.js) is the follow-on wave; until then the aliases are tracked here + reported by validate_storage_keys.py --check."
+}

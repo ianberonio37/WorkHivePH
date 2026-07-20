@@ -29,8 +29,8 @@
 
   var RUNG_COLOR = {
     descriptive:  '#9CA3AF',
-    diagnostic:   '#F7A21B',
-    predictive:   '#29B6D9',
+    diagnostic:   '#F7A21B', // purity-allow: applied via hex-alpha concat (color+'22'/'55'), var() can't take an alpha suffix
+    predictive:   '#29B6D9', // purity-allow: applied via hex-alpha concat (color+'22'/'55'), var() can't take an alpha suffix
     prescriptive: '#34D399',
   };
 

@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:359
-source_sha: d77ad8a4b5f64cb4
+source: dir:supabase/migrations:360
+source_sha: f81a13dd3855db69
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (359 migrations)
+## migration · catalog (360 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000009_drop_phantom_columns_seeder_only` — tables:amc_briefings,parts_staged_reservations,platform_feedback,project_items,sensor_readings,sensor_topic_map
 - `20260520000010_v_alert_truth` — (misc DDL/DML)
 - `20260520000011_v_amc_truth` — (misc DDL/DML)
 - `20260520000012_v_sensor_truth` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260719000003_seller_rating_verified_only` — fns:update_seller_rating
 - `20260719000004_numeric_nonnegative_bounds` — tables:inventory_items,logbook,marketplace_listings,marketplace_orders
 - `20260720000001_parts_reservation_idempotency` — (misc DDL/DML)
+- `20260720000002_fix_fetch_active_alerts_type` — fns:fetch_active_alerts
 
 (showing last 200)
 

@@ -53,7 +53,7 @@
 
   const SUPERVISOR_STEPS = [
     { id: 'signed_in',        label: 'Sign in',                    check: ctx => !!ctx.workerName },
-    { id: 'created_hive',     label: 'Lead a hive',                check: ctx => !!ctx.hiveId && ctx.role === 'supervisor' },
+    { id: 'created_hive',     label: 'Lead a hive',                check: ctx => !!ctx.hiveId && ctx.role === 'supervisor' }, // role-check-allow: ctx.role is a passed data field, not the ambient storage role (WHRoles reads storage)
     { id: 'approved_member',  label: 'Approve or reject a submission', check: async ctx => await _has(ctx.db, 'hive_audit_log', { hive_id: ctx.hiveId, action: 'approve_item' }) },
     { id: 'registered_asset', label: 'Register an asset',          check: async ctx => await _has(ctx.db, 'asset_nodes', { hive_id: ctx.hiveId, status: 'approved' }) },
     { id: 'set_pm',           label: 'Set a PM template',          check: async ctx => await _has(ctx.db, 'pm_assets', { hive_id: ctx.hiveId }) },
@@ -82,9 +82,9 @@
 
   async function whOnboardingProgress(db, opts) {
     opts = opts || {};
-    const role = opts.role === 'supervisor' ? 'supervisor' : 'worker';
+    const role = opts.role === 'supervisor' ? 'supervisor' : 'worker'; // role-check-allow: opts.role is a passed data field, not the ambient storage role
     const ctx  = { db, hiveId: opts.hiveId, workerName: opts.workerName, role };
-    const steps = role === 'supervisor' ? SUPERVISOR_STEPS : WORKER_STEPS;
+    const steps = role === 'supervisor' ? SUPERVISOR_STEPS : WORKER_STEPS; // role-check-allow: `role` derived from opts.role above (passed data field)
     const results = [];
     for (const s of steps) {
       let done = false;
@@ -122,7 +122,7 @@
     const T = (en) => (typeof window._t === 'function' ? window._t(en, _FIL[en]) : en);
     const isFil = typeof window !== 'undefined' && window.WH_LANG === 'fil';
     const pct = Math.round(100 * progress.completed / progress.total);
-    const title = progress.role === 'supervisor' ? T('Supervisor setup') : T('Get started');
+    const title = progress.role === 'supervisor' ? T('Supervisor setup') : T('Get started'); // role-check-allow: progress.role is a passed data field, not the ambient storage role
     const subtitle = isFil
       ? `${progress.completed} sa ${progress.total} hakbang tapos`
       : `${progress.completed} of ${progress.total} steps complete`;
@@ -145,7 +145,7 @@
       if (isNext) nextSeen = true;
       const marker = `<span aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; flex-shrink:0;
           background:${s.done ? 'rgba(74,222,128,0.18)' : isNext ? 'rgba(247,162,27,0.22)' : 'rgba(255,255,255,0.06)'};
-          color:${s.done ? '#4ade80' : isNext ? '#F7A21B' : 'rgba(255,255,255,0.45)'};
+          color:${s.done ? 'var(--wh-green, #4ade80)' : isNext ? 'var(--wh-orange, #F7A21B)' : 'rgba(255,255,255,0.45)'};
           border:1px solid ${s.done ? 'rgba(74,222,128,0.4)' : isNext ? 'rgba(247,162,27,0.5)' : 'rgba(255,255,255,0.08)'};
           font-weight:800; font-size:12px;">${s.done ? '✓' : '·'}</span>`;
       const labelStyle = s.done ? 'text-decoration:line-through; color:rgba(255,255,255,0.55);'
@@ -154,7 +154,7 @@
       const label   = `<span style="${labelStyle} flex:1;">${_esc(T(s.label))}</span>`;
       const rowStyle = 'display:flex; align-items:center; gap:8px; min-height:44px; padding:4px 0; font-size:12px;';
       if (!s.done && href) {
-        return `<li><a href="${href}" style="${rowStyle} text-decoration:none; color:inherit;">${marker}${label}<span aria-hidden="true" style="color:#F7A21B; font-weight:700; flex-shrink:0;">&#8594;</span></a></li>`;
+        return `<li><a href="${href}" style="${rowStyle} text-decoration:none; color:inherit;">${marker}${label}<span aria-hidden="true" style="color:var(--wh-orange, #F7A21B); font-weight:700; flex-shrink:0;">&#8594;</span></a></li>`;
       }
       return `<li style="${rowStyle}">${marker}${label}</li>`;
     }).join('');
@@ -168,13 +168,13 @@
       <div style="padding:14px 16px;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(247,162,27,0.18); color:#F7A21B;">${_esc(title)}</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(247,162,27,0.18); color:var(--wh-orange, #F7A21B);">${_esc(title)}</span>
             <span style="font-size:12px; color:rgba(255,255,255,0.62); font-variant-numeric:tabular-nums;">${_esc(subtitle)}</span>
           </div>
-          <span style="font-size:14px; font-weight:800; color:#F7A21B; font-variant-numeric:tabular-nums;">${pct}%</span>
+          <span style="font-size:14px; font-weight:800; color:var(--wh-orange, #F7A21B); font-variant-numeric:tabular-nums;">${pct}%</span>
         </div>
         <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:3px; margin:8px 0; overflow:hidden;">
-          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,#F7A21B,#FDB94A); border-radius:3px; transition:width 0.4s ease;"></div>
+          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A)); border-radius:3px; transition:width 0.4s ease;"></div>
         </div>
         <ul style="list-style:none; padding:0; margin:6px 0 0;">${items}</ul>
         ${endowed}

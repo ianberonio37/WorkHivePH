@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 6941b8c14f95eccb
+source_sha: b6224935525a6d40
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (616) — the 'what's already gated' brain
+## gate · registered validators (620) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,7 +205,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (427)
+### Platform (431)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `achievements` ⚡ [fail] — Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)
@@ -318,6 +318,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `companion-stack` ⚡ [fail] — Companion Stack capstone self-coverage (Agent/Memory/RAG/Safety; forward-only on Major grounded defects)
 - `compliance` ⚡ [fail] — Enterprise Compliance Baseline Validator
 - `component-adoption` ⚡ [fail] — Component Adoption (canonical design-library adoption per registry row; forward-only floors, auto-tighten; no inline redefinitions)
+- `component-purity` ⚡ [blocker] — Component Purity Ratchet (PLATFORM_CENTRALIZATION C-P0/Axis-2: shared-chrome SSOT files must not add RAW brand literals — use var(--wh-*, <fallback>); fallback-
 - `console-log-drift` ⚡ [fail] — console.log Production Drift (no console.log outside catch/DEBUG-guard in production code; forward-only ratchet)
 - `content-quality` ⚡ [fail] — Content Quality Validator (embed guard, schema drift, label quality)
 - `content_page_hygiene` ⚡ [fail] — Deepwalk content fold: /learn article presentation floor (D4/D5/D7/D17)
@@ -386,6 +387,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `episodic-memory-wiring` ⚡ [fail] — Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)
 - `event-listener-cleanup` ⚡ [fail] — Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)
 - `external-link-rel` ⚡ [fail] — External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)
+- `fab-consolidation` ⚡ [blocker] — FAB Consolidation Contract (bottom-right corner stays consolidated into the nav-hub; companion/feedback/connectivity launch from inside the hub, no standalone c
 - `faithfulness-rail` ⚡ [fail] — CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTIO
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
@@ -554,6 +556,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rls-open-policy` ⚡ [fail] — RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)
 - `rls-readiness` ⚡ [fail] — RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)
 - `rls-symmetry` ⚡ [fail] — RLS Policy Symmetry (4-layer: write-without-read + read-without-create + update gap + CRUD matrix)
+- `role-checks` ⚡ [blocker] — Client RBAC Ratchet (PLATFORM_CENTRALIZATION +RBAC: raw `role === 'supervisor'` comparisons may only FALL — new client role-gates must use window.WHRoles.isSupe
 - `role-string-consistency` ⚡ [fail] — Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)
 - `rpc-argument-consistency` ⚡ [fail] — RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)
 - `rpc-write-integrity` [fail] — RPC write-integrity (LIVE: every public plpgsql function's INSERT covers its target's NOT NULL columns + only writes tables that EXIST — locks two silent-100%-f
@@ -584,6 +587,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `standards-alignment` ⚡ [fail] — Standards Alignment Auditor (Tier S — formula required_inputs supersets cited standard OR honestly declared partial_variant)
 - `state-machine-integrity` ⚡ [fail] — State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)
 - `status-enum-drift` ⚡ [fail] — Status-Enum Drift Guard (WH_STATUS_ENUMS == canonical DB enum; critique W3)
+- `storage-keys` ⚡ [blocker] — Storage-Key Registry (PLATFORM_CENTRALIZATION C-P4: every localStorage/sessionStorage key is CANONICAL or a registered ALIAS in storage_key_registry.json; a new
 - `substrate-freshness` ⚡ [fail] — Platform Knowledge Substrate freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md). The substrate/ chunk index (tools/build_substrat
 - `supabase-object-existence` ⚡ [fail] — Supabase Object Existence (every .from/.rpc/REST object must exist in the canonical registry; forward-only ratchet)
 - `supabase-singleton` ⚡ [fail] — Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)

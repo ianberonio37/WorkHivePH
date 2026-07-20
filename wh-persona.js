@@ -189,7 +189,7 @@
   // illustrated portrait, NOT photorealistic. Filipino features, warm brown
   // skin, gentle expression.
   //   Hezekiah — 40s, soft beard stubble, kind eyes, navy shirt with WorkHive
-  //              orange accent (#F7A21B) on the collar or strap. Background
+  //              orange accent (var(--wh-orange, #F7A21B)) on the collar or strap. Background
   //              soft warm gradient.
   //   Zaniah   — 35s, hair tied back practically, kind expression, navy/blue
   //              blouse with WorkHive orange accent. Same gradient background.
@@ -239,7 +239,7 @@
     return '<span class="wh-persona-avatar" role="img" '
       + 'aria-label="Companion ' + (PERSONAS[key].name) + '" '
       + 'style="display:inline-flex;width:' + px + 'px;height:' + px
-      + 'px;border-radius:50%;background:linear-gradient(135deg,#F7A21B,#FDB94A);'
+      + 'px;border-radius:50%;background:linear-gradient(135deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A));'
       + 'align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;'
       + 'pointer-events:none;-webkit-user-drag:none;user-select:none;">'
       + inner + '</span>';

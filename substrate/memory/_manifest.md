@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:527-files
-source_sha: 73ed8a72ac97a2ed
+source: memory-curated:528-files
+source_sha: 789abd3a803f0a67
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (527 durable topic files)
+## memory · curated auto-memory (528 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=154 · project=285 · reference=88
+**By type:** feedback=155 · project=285 · reference=88
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -57,6 +57,7 @@ Entries (name · type · sha):
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
 - `feedback_external_reference_is_a_research_task_not_a_ceiling` · feedback · b4ce91f9b25b3cd2
 - `feedback_f5_silent_zero_fanout_method` · feedback · 08f76478b043de50
+- `feedback_fab_consolidation_into_nav_hub` · feedback · 7f15d40a03931cdd
 - `feedback_false_blocker_and_idle_tick_are_stops` · feedback · d950b3fb25e1e2fd
 - `feedback_false_ceiling_start_the_container` · feedback · 35cbf496f20a0f84
 - `feedback_family_resemblance_cross_page_lens` · feedback · 07a404794b0d4dc1
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `reference_page_battery_gate` · reference · b02d180551e7293a
 - `reference_pareto_content_design_sources` · reference · 2b8945e6a1f91641
 - `reference_pattern_catalog` · reference · 66f667d2d1e2c828
-- `reference_per_page_bughunt_roadmap` · reference · 4904a28b3e6dee39
-- … +27 more (all included in the fingerprint)
+- … +28 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

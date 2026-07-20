@@ -5,7 +5,7 @@ the platform should obey - and currently no Playwright spec exercises it.
 
 **Check coverage:** 82.5% (269 of 326 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 93.2% (41 of 44 per-page validators - loose, validator-level)
-**Raw coverage:** 77.4% (309 of 399 validators)
+**Raw coverage:** 77.1% (309 of 401 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -487,7 +487,7 @@ page would just duplicate the validator with 50x the runtime.
 - `validate_optimistic_ui.py` (no named checks) - validate_optimistic_ui
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (85)
+## Infrastructure gaps (87)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -528,6 +528,7 @@ layer; no Playwright scenario is needed.
 - `validate_drop_if_exists.py` (1 checks) - validate_drop_if_exists
 - `validate_duplicate_html_id.py` (1 checks) - validate_duplicate_html_id
 - `validate_em_dash.py` (1 checks) - validate_em_dash
+- `validate_fab_consolidation.py` (no named checks) - validate_fab_consolidation
 - `validate_fields.py` (no named checks) - validate_fields
 - `validate_fk_on_delete.py` (1 checks) - validate_fk_on_delete
 - `validate_followup_queue_wiring.py` (7 checks) - validate_followup_queue_wiring
@@ -565,6 +566,7 @@ layer; no Playwright scenario is needed.
 - `validate_reproducible_build_pin.py` (1 checks) - validate_reproducible_build_pin
 - `validate_reset_coverage.py` (2 checks) - validate_reset_coverage
 - `validate_rls_strict.py` (1 checks) - validate_rls_strict
+- `validate_role_checks.py` (no named checks) - validate_role_checks
 - `validate_schema_coverage.py` (no named checks) - validate_schema_coverage
 - `validate_seed_consumer_contract.py` (3 checks) - validate_seed_consumer_contract
 - `validate_seeder_insert_columns.py` (1 checks) - validate_seeder_insert_columns
@@ -579,4 +581,4 @@ layer; no Playwright scenario is needed.
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 - `validate_verified_state_wiring.py` (1 checks) - validate_verified_state_wiring
 
-_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 85 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 87 infrastructure._

@@ -43,7 +43,7 @@
       // min-height 44 = the tap-target floor (F1). The two stacked caption lines
       // only measured 29px tall, so the whole guide link was under-size on every
       // page that renders it.
-      a.style.cssText = 'display:flex;align-items:center;gap:8px;color:#F7A21B;text-decoration:none;flex:1;min-width:0;min-height:44px;';
+      a.style.cssText = 'display:flex;align-items:center;gap:8px;color:var(--wh-orange, #F7A21B);text-decoration:none;flex:1;min-width:0;min-height:44px;';
       a.innerHTML = '<span aria-hidden="true" style="font-size:1rem;">📖</span>' +
         '<span style="min-width:0;"><span style="display:block;color:rgba(255,255,255,0.5);font-weight:500;font-size:0.68rem;">New to this page?</span>' +
         '<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Read the guide</span></span>';

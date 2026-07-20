@@ -100,12 +100,12 @@
       'position:fixed', 'inset:0', 'z-index:99999',
       'display:flex', 'align-items:center', 'justify-content:center',
       'background:rgba(11,15,26,0.78)', 'backdrop-filter:blur(4px)',
-      'font-family:"Poppins",system-ui,sans-serif', 'color:#F4F6FA',
+      'font-family:var(--wh-font, "Poppins",system-ui,sans-serif)', 'color:var(--wh-cloud, #F4F6FA)',
     ].join(';');
 
     const card = document.createElement('div');
     card.style.cssText = [
-      'background:#162032', 'border:1px solid rgba(255,255,255,0.12)',
+      'background:var(--wh-navy, #162032)', 'border:1px solid rgba(255,255,255,0.12)',
       'border-radius:1rem', 'padding:1.5rem 1.25rem',
       'max-width:340px', 'width:calc(100vw - 2rem)',
       'box-shadow:0 12px 40px rgba(0,0,0,0.55)', 'text-align:center',
@@ -117,8 +117,8 @@
         This tablet has been idle for 15 minutes. Confirm you are still working, or sign out so the next worker can take over.
       </p>
       <div style="display:flex;gap:0.5rem;">
-        <button id="wh-idle-continue" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:#162032;background:linear-gradient(135deg,#F7A21B,#FDB94A);border:0;cursor:pointer;min-height:44px;">Continue</button>
-        <button id="wh-idle-signout" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:#F4F6FA;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);cursor:pointer;min-height:44px;">Sign out</button>
+        <button id="wh-idle-continue" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:var(--wh-navy, #162032);background:linear-gradient(135deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A));border:0;cursor:pointer;min-height:44px;">Continue</button>
+        <button id="wh-idle-signout" type="button" style="flex:1;padding:0.7rem;border-radius:0.6rem;font-weight:700;font-size:0.8rem;color:var(--wh-cloud, #F4F6FA);background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);cursor:pointer;min-height:44px;">Sign out</button>
       </div>
     `;
     overlay.appendChild(card);

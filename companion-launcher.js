@@ -208,20 +208,24 @@
           bottom: 24px;   /* same anchor as nav-hub; springs to 96px when hub opens */
           right: 24px;
           z-index: 9999;
-          /* Hidden by default — revealed when nav-hub opens (body.wh-hub-open).
-             Using scale + translate so the button feels like it pops out of the
-             nav-hub FAB rather than just fading in from nowhere. */
+          /* Hidden by default. FAB-CONSOLIDATION (2026-07-20): the companion no
+             longer springs out when the nav-hub merely OPENS — that produced the
+             cluttered, colliding corner (the launcher avatar overlapped the hub +
+             feedback + conn-chip). It is now revealed ONLY when explicitly launched
+             from the nav-hub's "Companion" row, which toggles body.wh-companion-open.
+             Using scale + translate so it still feels like it pops from the FAB. */
           transform: scale(0.4) translateY(24px);
           opacity: 0;
           pointer-events: none;
           transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
                       opacity 0.18s ease,
                       bottom 0.22s ease;
-          font-family: 'Poppins', sans-serif;
+          font-family: var(--wh-font, 'Poppins', sans-serif);
         }
 
-        /* Spring in when nav-hub opens; tuck back when it closes */
-        body.wh-hub-open #wh-ai-widget {
+        /* Spring in when launched from the nav-hub Companion row; tuck back on close.
+           openPanel() adds body.wh-companion-open, closePanel() removes it. */
+        body.wh-companion-open #wh-ai-widget {
           bottom: 96px;
           transform: scale(1) translateY(0);
           opacity: 1;
@@ -279,7 +283,7 @@
           font-weight: 700;
           line-height: 18px;
           text-align: center;
-          box-shadow: 0 0 0 2px #162032;
+          box-shadow: 0 0 0 2px var(--wh-navy, #162032);
           pointer-events: none;
           display: none; /* shown only when there are due nudges */
         }
@@ -317,7 +321,7 @@
           right: 0;
           width: 340px;
           max-height: 480px;
-          background: linear-gradient(160deg, #1F2E45 0%, #162032 100%);
+          background: linear-gradient(160deg, var(--wh-navy-mid, #1F2E45) 0%, var(--wh-navy, #162032) 100%);
           border: 1px solid rgba(247,162,27,0.2);
           border-radius: 16px;
           box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
@@ -347,14 +351,14 @@
         }
         .wh-ai-avatar {
           width: 32px; height: 32px;
-          background: linear-gradient(135deg,#F7A21B,#29B6D9);
+          background: linear-gradient(135deg,var(--wh-orange, #F7A21B),var(--wh-blue, #29B6D9));
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
           flex-shrink: 0;
         }
         .wh-ai-header-text { flex: 1; }
         .wh-ai-header-text strong { display: block; color: #fff; font-size: 13px; font-weight: 600; }
-        .wh-ai-header-text span   { color: #F7A21B; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+        .wh-ai-header-text span   { color: var(--wh-orange, #F7A21B); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
         #wh-ai-close {
           background: none; border: none; color: rgba(255,255,255,0.4);
           cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px;
@@ -372,7 +376,7 @@
           border: 1px solid rgba(41,182,217,0.2);
           border-radius: 8px;
           font-size: 10px;
-          color: #29B6D9;
+          color: var(--wh-blue, #29B6D9);
           display: flex;
           align-items: center;
           gap: 6px;
@@ -419,14 +423,14 @@
           color: rgba(255,255,255,0.9);
           border-bottom-left-radius: 4px;
         }
-        .wh-msg.assistant strong { color: #F7A21B; }
+        .wh-msg.assistant strong { color: var(--wh-orange, #F7A21B); }
 
         /* ── Bridge button (→ Work Assistant) ── */
         .wh-bridge-btn {
           display: inline-flex; align-items: center; gap: 6px;
           margin-top: 8px; padding: 7px 12px;
           background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.3);
-          border-radius: 8px; color: #29B6D9; font-size: 11.5px; font-weight: 600;
+          border-radius: 8px; color: var(--wh-blue, #29B6D9); font-size: 11.5px; font-weight: 600;
           text-decoration: none; cursor: pointer;
           transition: background 0.15s, border-color 0.15s;
         }
@@ -446,7 +450,7 @@
         }
         .wh-typing span {
           width: 6px; height: 6px;
-          background: #F7A21B;
+          background: var(--wh-orange, #F7A21B);
           border-radius: 50%;
           animation: wh-dot 1.2s ease-in-out infinite;
         }
@@ -472,7 +476,7 @@
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: 10px;
           color: #fff;
-          font-family: 'Poppins', sans-serif;
+          font-family: var(--wh-font, 'Poppins', sans-serif);
           font-size: 16px; /* exact 16px — iOS Safari auto-zooms on any input < 16px */
           padding: 8px 12px;
           outline: none;
@@ -484,7 +488,7 @@
         #wh-ai-input::placeholder { color: rgba(255,255,255,0.25); }
         #wh-ai-send {
           width: 44px; height: 44px;
-          background: linear-gradient(135deg, #F7A21B, #FDB94A);
+          background: linear-gradient(135deg, var(--wh-orange, #F7A21B), var(--wh-orange-light, #FDB94A));
           border: none;
           border-radius: 10px;
           cursor: pointer;
@@ -500,7 +504,7 @@
         /* ── Mic button (Step A: unified entry point to voice-router) ── */
         #wh-ai-mic {
           width: 44px; height: 44px;
-          background: linear-gradient(135deg, #29B6D9, #1f8aab);
+          background: linear-gradient(135deg, var(--wh-blue, #29B6D9), #1f8aab);
           border: none;
           border-radius: 10px;
           cursor: pointer;
@@ -511,7 +515,7 @@
         }
         #wh-ai-mic:hover  { transform: scale(1.06); box-shadow: 0 4px 14px rgba(31,138,171,0.45); }
         #wh-ai-mic:active { transform: scale(0.96); }
-        #wh-ai-mic svg path, #wh-ai-mic svg line { stroke: #162032; }
+        #wh-ai-mic svg path, #wh-ai-mic svg line { stroke: var(--wh-navy, #162032); }
 
         /* Companion Streamline Step A: hide the standalone blue voice
            button from voice-handler.js — the in-panel mic is now the
@@ -530,7 +534,7 @@
 
         /* ── Mobile Adjustments ── */
         @media (max-width: 480px) {
-          body.wh-hub-open #wh-ai-widget { bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px)); }
+          body.wh-companion-open #wh-ai-widget { bottom: max(88px, calc(env(safe-area-inset-bottom) + 88px)); }
           #wh-ai-widget { right: 16px; }
           #wh-ai-panel  { width: calc(100vw - 32px); right: 0; }
         }
@@ -1163,6 +1167,12 @@ happens to know maintenance, not a manual.`;
   // ─── Panel Toggle ─────────────────────────────────────────────────────────────
   function openPanel() {
     isOpen = true;
+    // FAB-CONSOLIDATION + Axis-3 reveal-decouple: reveal the widget via its OWN body
+    // class (delegated to the canonical WHPatterns.revealVia), independent of the nav-hub.
+    // This is the root fix for the piggyback collision (the companion used to ride
+    // body.wh-hub-open). Inline fallback if wh-patterns.js isn't loaded yet.
+    if (window.WHPatterns && window.WHPatterns.revealVia) window.WHPatterns.revealVia('wh-companion-open', true);
+    else document.body.classList.add('wh-companion-open');
     document.getElementById('wh-ai-panel').classList.add('open');
 
     // Show greeting on first open. A pending proactive nudge takes priority over
@@ -1179,6 +1189,11 @@ happens to know maintenance, not a manual.`;
   function closePanel() {
     isOpen = false;
     document.getElementById('wh-ai-panel').classList.remove('open');
+    // FAB-CONSOLIDATION + Axis-3 reveal-decouple: tuck the whole widget away again
+    // (idle corner = just the single nav-hub FAB). Kept out of the drag handler so a
+    // drag doesn't hide it. Delegated to the canonical WHPatterns.revealVia.
+    if (window.WHPatterns && window.WHPatterns.revealVia) window.WHPatterns.revealVia('wh-companion-open', false);
+    else document.body.classList.remove('wh-companion-open');
   }
 
   // ─── Drag + Snap ─────────────────────────────────────────────────────────────

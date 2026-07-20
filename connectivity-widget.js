@@ -90,6 +90,27 @@
              backendOk: _backendOk, degraded: navigator.onLine && !_backendOk };
   };
 
+  // FAB-CONSOLIDATION (2026-07-20): the standalone corner chip is retired — the
+  // connectivity status now renders as a live pill inside the nav-hub panel. The
+  // hub calls this one async snapshot (computed exactly like refresh()) to paint the
+  // pill + the Status / Network / Pending-writes detail rows. Kept here so the
+  // network logic (ping throttle, bandwidth class, queue depth) has a single owner.
+  window.whConnectivitySnapshot = async function () {
+    const online = navigator.onLine;
+    const net    = bandwidthClass();
+    let depth = 0;
+    try {
+      if (typeof window.whGetQueueDepth === 'function') {
+        const d = await window.whGetQueueDepth();
+        depth = d.total || 0;
+      }
+    } catch (_) { /* empty-catch-allow: queue depth is best-effort */ }
+    const backendOk = online ? await pingBackend() : false;
+    const stateKey = !online ? 'offline' : !backendOk ? 'degraded' : isSlowLink() ? 'slow' : 'online';
+    const label    = !online ? 'Offline' : !backendOk ? 'Backend down' : isSlowLink() ? 'Slow' : 'Online';
+    return { online, backendOk, slow: isSlowLink(), net, depth, label, stateKey };
+  };
+
   const STYLE = `
     .wh-conn-chip {
       position: fixed;
@@ -105,10 +126,10 @@
       padding: 0.35rem 0.65rem;
       min-height: 44px;
       border-radius: 999px;
-      font-family: 'Poppins', system-ui, sans-serif;
+      font-family: var(--wh-font, 'Poppins', system-ui, sans-serif);
       font-size: 0.66rem;
       font-weight: 700;
-      color: #F4F6FA;
+      color: var(--wh-cloud, #F4F6FA);
       background: rgba(22, 32, 50, 0.82);
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(6px);
@@ -124,23 +145,23 @@
     body.wh-hub-open .wh-conn-popover { bottom: 13rem; }
     .wh-conn-dot {
       width: 8px; height: 8px; border-radius: 50%;
-      background: #4ade80;
+      background: var(--wh-green, #4ade80);
       box-shadow: 0 0 6px rgba(74,222,128,0.6);
     }
     .wh-conn-chip[data-state="offline"] { background: rgba(248,113,113,0.18); border-color: rgba(248,113,113,0.45); color: #fecaca; }
-    .wh-conn-chip[data-state="offline"] .wh-conn-dot { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.6); }
+    .wh-conn-chip[data-state="offline"] .wh-conn-dot { background: var(--wh-red, #f87171); box-shadow: 0 0 6px rgba(248,113,113,0.6); }
     .wh-conn-chip[data-state="slow"] { background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.5); color: #fde68a; }
-    .wh-conn-chip[data-state="slow"] .wh-conn-dot { background: #F7A21B; box-shadow: 0 0 6px rgba(247,162,27,0.6); }
+    .wh-conn-chip[data-state="slow"] .wh-conn-dot { background: var(--wh-orange, #F7A21B); box-shadow: 0 0 6px rgba(247,162,27,0.6); }
     /* Arc S D-004: backend-degraded (device online but Supabase unreachable/5xx) */
     .wh-conn-chip[data-state="degraded"] { background: rgba(248,113,113,0.18); border-color: rgba(248,113,113,0.55); color: #fecaca; }
-    .wh-conn-chip[data-state="degraded"] .wh-conn-dot { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.6); }
+    .wh-conn-chip[data-state="degraded"] .wh-conn-dot { background: var(--wh-red, #f87171); box-shadow: 0 0 6px rgba(248,113,113,0.6); }
     .wh-conn-badge {
       display: inline-block;
       min-width: 18px;
       padding: 0 5px;
       border-radius: 999px;
       background: rgba(247,162,27,0.85);
-      color: #162032;
+      color: var(--wh-navy, #162032);
       font-size: 0.58rem;
       font-weight: 800;
       text-align: center;
@@ -158,8 +179,8 @@
       border-radius: 0.75rem;
       backdrop-filter: blur(10px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-      font-family: 'Poppins', system-ui, sans-serif;
-      color: #F4F6FA;
+      font-family: var(--wh-font, 'Poppins', system-ui, sans-serif);
+      color: var(--wh-cloud, #F4F6FA);
       font-size: 0.72rem;
       line-height: 1.45;
     }
@@ -175,6 +196,13 @@
     .wh-conn-popover .wh-conn-label { color: rgba(255,255,255,0.55); }
     .wh-conn-popover .wh-conn-value { font-weight: 700; }
     .wh-conn-popover .wh-conn-help  { margin-top: 0.6rem; color: rgba(255,255,255,0.5); font-size: 0.62rem; }
+
+    /* FAB-CONSOLIDATION (2026-07-20): the standalone corner chip + popover are
+       retired — connectivity status now lives as a live pill inside the nav-hub
+       panel (fed by window.whConnectivitySnapshot()). They stay in the DOM (the
+       refresh loop still updates whConnectivityState() for pages' read-only banners)
+       but are hidden so the bottom-right corner holds only the single hub FAB. */
+    .wh-conn-chip, .wh-conn-popover { display: none !important; }
   `;
 
   function mount() {

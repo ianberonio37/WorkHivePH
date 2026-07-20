@@ -87,11 +87,11 @@
       position: fixed; z-index: 9999;
       max-width: min(300px, calc(100vw - 1rem));
       background: rgba(22, 32, 50, 0.98);
-      color: #F4F6FA;
+      color: var(--wh-cloud, #F4F6FA);
       border: 1px solid rgba(247,162,27,0.4);
       border-radius: 0.65rem;
       padding: 0.7rem 0.85rem;
-      font-family: 'Poppins', system-ui, sans-serif;
+      font-family: var(--wh-font, 'Poppins', system-ui, sans-serif);
       font-size: 0.72rem;
       line-height: 1.5;
       box-shadow: 0 8px 24px rgba(0,0,0,0.45);
@@ -101,7 +101,7 @@
       margin: 0 0 0.25rem;
       font-size: 0.78rem;
       font-weight: 800;
-      color: #F7A21B;
+      color: var(--wh-orange, #F7A21B);
     }
     .wh-help-pop p { margin: 0; color: rgba(255,255,255,0.82); }
     .wh-help-pop .wh-help-source {
