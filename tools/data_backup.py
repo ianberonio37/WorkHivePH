@@ -30,11 +30,20 @@ DB = "supabase_db_workhive"
 G = "\033[92m"; R = "\033[91m"; Y = "\033[93m"; B = "\033[1m"; X = "\033[0m"
 
 # The data classes RTO_RPO_DECLARATION.md commits to recovering (the rows that matter).
+# Arc S R-lens DEPTH (2026-07-20): the list under-covered — it missed the hive's PM PLAN, the tenant
+# records, marketplace/sales, and user-authored work (calcs/resumes/community/voice). For a maintenance
+# product, losing a hive's PM program or its sales is unrecoverable data-loss = the exact Arc S thesis.
+# Backup covers the PRIMARY user-authored/operational rows (caches/embeddings/analytics are regenerable).
 CRITICAL_TABLES = [
-    "worker_profiles", "hive_members",                       # auth/identity (RPO 0)
-    "logbook", "pm_completions", "inventory_items", "inventory_transactions",
-    "assets", "asset_nodes", "projects", "project_items",     # active operational
-    "hive_audit_log",                                         # audit trail
+    "hives", "worker_profiles", "hive_members",              # tenant + auth/identity (RPO 0)
+    "logbook", "pm_completions", "pm_assets", "pm_scope_items",  # work log + the PM PLAN (unrecoverable if lost)
+    "inventory_items", "inventory_transactions",             # stock + ledger
+    "asset_nodes", "projects", "project_items",              # active operational ("assets" was a stale alias)
+    "engineering_calcs", "resume_documents", "resume_versions",  # user-authored saved work
+    "community_posts", "community_replies", "skill_profiles",    # community + skills
+    "voice_journal_entries",                                 # field voice logs
+    "marketplace_listings", "marketplace_orders", "marketplace_sellers",  # marketplace / sales
+    "hive_audit_log",                                        # audit trail
 ]
 
 
@@ -71,9 +80,12 @@ def do_backup(tables: list[str]) -> int:
     args = ["docker", "exec", DB, "pg_dump", "-U", "postgres", "-d", "postgres", "--data-only", "--no-owner"]
     for t in tables:
         args += ["--table", f"public.{t}"]
-    dump = subprocess.run(args, capture_output=True, text=True, timeout=300)
-    if dump.returncode != 0:
-        print(f"  {R}FAIL{X} pg_dump: {dump.stderr.strip()[:200]}")
+    # Explicit UTF-8: pg_dump emits UTF-8, but text=True defaults to the locale encoding (cp1252 on
+    # Windows) which can yield a None/garbled stdout on a clean (rc=0) dump — a backup tool must never
+    # crash opaquely on that (Arc S R-lens robustness, 2026-07-20).
+    dump = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
+    if dump.returncode != 0 or not dump.stdout:
+        print(f"  {R}FAIL{X} pg_dump (rc={dump.returncode}): {(dump.stderr or 'empty stdout — no data captured').strip()[:200]}")
         return 1
     out.write_text(dump.stdout, encoding="utf-8")
     manifest = {"created_at": ts, "file": out.name, "tables": {t: _rowcount(t) for t in tables}}

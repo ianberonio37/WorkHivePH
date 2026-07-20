@@ -179,3 +179,17 @@ The high-value local veins are worked out — all mode-branched calcs swept, Q2'
 - Q4 form-spec coverage (`SPECS` per calc) toward a reliable 53/53 DOM ratchet under a warm stack.
 
 **Ian-gated outward (the standing gate — PIVOT to local, never a turn-stop):** commit HEAD `31ccfea`; prod re-deploy the 4 fixed calc modules (`fire_sprinkler` / `bolt_torque` / `harmonic_distortion` / `clean_agent_suppression`) + `engineering-calc-agent/index.ts` to Railway; set prod `PYTHON_API_KEY` so the live gate authenticates.
+
+---
+
+## 7. Q6 — PER-PAGE VALUE-CORRECTNESS extension (2026-07-20, Ian picked "correctness arc" after the security bughunt)
+
+Arc Q proved the CALC/ENGINE layer computes right. Q6 extends it to **every user-facing displayed value** across all pages, using the QA WHAT-axis: (a) canonical-source · (b) calculation · (c) cross-surface parity · (d) db-truth · (e) provenance. **Finding: like the security matrix, the surface is extensively pre-covered — reuse-first, not greenfield.**
+
+- **Scaffold built:** `tools/build_correctness_scoreboard.py` → **`CORRECTNESS_SCOREBOARD.md`** (sibling of the bughunt scoreboard), registered gate **`correctness-scoreboard`** (`--check` FAILs if a contracted metric loses source/formula/static-parity coverage). Current: **10 contracted metrics · 10 COVERED · 0 GAP · 6 multi-page.**
+- **Fix 1 (honesty) — classifier precision:** `audit_displayed_values.py` mis-classified 11 `*-label` UI text anchors (focus/mic/back/toggle/step/stage labels) as "unknown" (implying un-triaged metrics). A bare `-label`/`-txt` element has no numeric identity → now classified `raw`. Result: **0 uncontracted · 0 unknown** (was 11 unknown). Same precision lesson as the read-isolation name-filter + derive-placeholder fixes: classify by evidence, not a loose id match.
+- **Fix 2 (verification) — cross-page contract-parity is CLEAN:** the apparent "2 formula inconsistencies" (`level`, `risk`) were TOKEN COLLISIONS across genuinely-distinct metrics (skill_level vs achievement_level; adoption_risk vs composite_risk), not divergence. Grouping by `formula_id` (the true metric unit, not the coarse display token) → every metric renders via ONE formula across all its pages. No metric computes two ways.
+- **Reuse map (the surface Q6 rides on):** Arc Q calc/engine (`validate_calc_formula_accuracy` 63/63 · `validate_calc_live_value` · reliability/OEE · engines 10/10) · source (`validate_kpi_source_registry` one-metric-one-source · `validate_user_facing_kpi_canonical` · `validate_canonical_anchor`) · provenance (lineage gates · `validate_truth_view_signal_trust`).
+- **Q6 residual (narrow, tracked — NOT a coverage hole):** **RUNTIME cross-surface parity** — a live Playwright probe that a HIVE-LEVEL multi-page KPI (essentially just `adoption_risk_score`; the other 5 multi-page metrics — pump-head, skill-level, achievement-level, seller-quality — are PER-INSTANCE and legitimately differ) renders the identical live value on each page. Contract-parity is proven static (above); runtime divergence would require a caching/timing bug on that one metric. Low marginal value; the sibling of Arc Q's external-reference constant-table residual.
+
+**⇒ Q6 verdict: the per-page value-correctness surface is COVERED + now SCAFFOLDED + gated (drift-proof). The correctness arc mirrors the security arc — extensively pre-built, driven to a clean measured state, with one narrow live-probe residual explicitly tracked.**

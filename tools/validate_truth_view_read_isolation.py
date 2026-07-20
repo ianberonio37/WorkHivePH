@@ -65,8 +65,11 @@ def main():
     if b is None:
         return _skip("need a second populated hive for the cross-hive read probe")
     hive_b = b[0]
+    # Every v_* view WITH a hive_id column is hive-scoped and must isolate — NOT just the *_truth-named
+    # ones (2026-07-20: the per-page bughunt scoreboard found v_sensor_recent / v_active_anomaly_alerts /
+    # v_audit_unified are hive_id views read by pages but were skipped purely on the name suffix).
     views_res = _psql("SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
-                      "WHERE n.nspname='public' AND c.relkind='v' AND c.relname LIKE 'v\\_%truth' "
+                      "WHERE n.nspname='public' AND c.relkind='v' AND c.relname LIKE 'v\\_%' "
                       "AND EXISTS (SELECT 1 FROM information_schema.columns col WHERE col.table_name=c.relname AND col.column_name='hive_id') "
                       "ORDER BY c.relname;")
     if views_res is None:

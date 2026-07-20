@@ -32,6 +32,10 @@ G = "\033[92m"; R = "\033[91m"; Y = "\033[93m"; B = "\033[1m"; X = "\033[0m"
 DEDUP_PATHS = [
     ("pm_completions",     ["scope_item_id", "worker_name", "completed_at"], "pm-scheduler.html"),
     ("project_links",      ["project_id", "link_type", "link_id"],           "project-manager.html"),
+    # Arc S C-lens depth (2026-07-20): the parts-staging accept fired an unguarded insert in parallel with a
+    # guarded status-update — a double-accept (offline-retry/timeout/2nd device past the button-disable) made
+    # duplicate reservations. Fixed: UNIQUE(recommendation_id,item_id) mig 20260720000001 + client upsert-ignore.
+    ("parts_staged_reservations", ["recommendation_id", "item_id"],          "asset-hub.html"),
 ]
 
 

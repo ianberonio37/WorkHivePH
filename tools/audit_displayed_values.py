@@ -168,6 +168,14 @@ def _infer_metric_token(element_id: str) -> tuple[str, str]:
                 best = token
     if best:
         return best, METRIC_TOKENS[best]
+    # Pure UI TEXT elements: a *-label / *-txt anchor that matched NO metric token is a text label
+    # (focus/mic/back/toggle/step/stage labels), definitionally NOT a contracted value. Classify as
+    # raw (no formula contract needed), never 'unknown' (which implies an un-triaged metric to chase).
+    # 2026-07-20: cleared 11 false-positive -label "unknowns" — the id-pattern regex catches -label for
+    # the rare labelled value, but a bare text label has no numeric identity. (Same precision lesson as
+    # the read-isolation name-filter + derive-placeholder fixes: classify by evidence, not a loose match.)
+    if re.search(r"-(?:label|txt)$", raw):
+        return raw, "raw"
     return raw, "unknown"
 
 

@@ -48,6 +48,11 @@ const PAGES = [
   'project-manager.html', 'project-report.html', 'integrations.html', 'ph-intelligence.html',
   'plant-connections.html', 'shift-brain.html', 'audit-log.html', 'voice-journal.html',
   'founder-console.html',
+  // v3 L1/L2 residual (registered 2026-07-20, per-page bughunt §7.9): real app pages whose
+  // BACKEND columns are already covered by the platform-wide gates, added here for render coverage.
+  'marketplace-seller-profile.html', 'marketplace-admin.html', 'platform-actions.html',
+  // user-reachable UI-only pages (2026-07-20 §7.12 anti-drift): PWA offline page + status page.
+  'offline-fallback.html', 'status.html',
 ];
 
 // Known-benign console noise (do NOT count these as P1/P2 defects) — favicon 404s, third-party

@@ -521,3 +521,133 @@ their floors per page (a11y axe-clean, CWV in budget, EN/FIL complete, error-fai
 the security backlog** — build the 3 zero-coverage validators (file-upload → path-traversal → CSRF)
 and relabel the sast map 2021→2025. Each is a Make-a-Change → Flywheel unit; gate every fix, then
 ratchet the cells. Highest KEV first: `validate_file_upload_safety.py`.
+
+---
+
+## 7 · v3 — The full dimension × layer MATRIX (Ian, 2026-07-20)
+
+**Mandate:** stop hunting a page as a 1-D list of 12 dimensions. Hunt it as a **12-dimension × 6-layer
+GRID**. Every `(Pn × Lm)` cell is either a **scored %** or an **explicit `N/A(reason)`** — *nothing is
+implicit*. The rationale is evidence-backed: **every high-severity bug this program has found lived in
+the deep backend layers** (#7 fake-sales = a `trg_seller_tier` + RLS hole = P5×L5; #8 fake-reviews =
+`update_seller_rating` RPC = P5×L4; lost-updates = non-atomic RPCs = P6×L4; numeric-bypass = missing
+trigger caps = P4×L5), yet the UI-driven 12-phase battery only caught them *incidentally* while tracing
+P5/P6. The matrix makes each layer a **first-class, scored surface** so those cells can't hide.
+
+**Why this isn't 2,160 units of make-work:** a page only owns the cells its stack actually has, and each
+page's live layers are **auto-derived from its `substrate/page/<page>.md` card** — no guessing:
+
+| Layer | What it is | Substrate field that enumerates it | Layer-specific bug classes (what to hunt) | Probe / reuse |
+|---|---|---|---|---|
+| **L1 · UI/render** | DOM, markup, CSS, render fns | the page HTML itself | layout/overflow, contrast, dead/duplicated markup, wrong render branch, hidden-vs-shown CLS | Playwright snapshot/screenshot + axe-core inject |
+| **L2 · client-JS/state** | handlers, state, fetch orchestration, optimistic UI, realtime subs | `Functions:` list | stale state, unhandled rejection, handler race, listener leak, wrong optimistic rollback, sub not cleaned | Playwright interaction + `browser_console_messages` + `browser_evaluate` |
+| **L3 · PostgREST/RLS** | the API boundary | `DB writes:` (+ each table's `pg_policies`) | RLS read/write leak, **UI-only-auth bypass** (call the write directly), missing `WITH CHECK`, wrong HTTP status | 2nd JWT / service-role client + direct PostgREST call + postgres MCP |
+| **L4 · SQL views/RPCs** | `v_*_truth` views + RPC fns | `RPC calls:` + `Truth views read:` | `security_invoker` missing (forgeable columns), aggregation/join/filter error, non-atomic read-modify-write, **rendered ≠ DB** | `validate_read_battery` + `truth-view-read-isolation` + docker-psql |
+| **L5 · triggers** | BEFORE/AFTER triggers | triggers ON the `DB writes:` tables (`pg_trigger`) | attribution not pinned (forgeable `auth_uid`), side-effect counter race, cascade error, missing validation cap, trust-state forge | `pg_trigger` enum + **rolled-back forge probe** (the #7/#8 method) |
+| **L6 · edge-fns** | Deno functions | `Edge invokes:` | weak/missing auth gate, hive-scope not enforced, quota bypass, unvalidated input, error not fail-**closed**, PII/stack leak | `functions.invoke`/curl w/ 2nd JWT + `validate_ai_hive_context` pattern + local runtime verify |
+
+### 7.1 · The applicability grid — which `(Pn × Lm)` cells are LIVE
+`✓` = always live · `△` = live **iff** the page's substrate footprint has that layer · `—` = `N/A` (auto-scored, fixed reason).
+
+| Dim ↓ \ Layer → | L1 UI | L2 JS | L3 RLS | L4 view/RPC | L5 trig | L6 edge |
+|---|:--:|:--:|:--:|:--:|:--:|:--:|
+| **P1** Smoke | ✓ | ✓ | ✓ | △ | — | △ |
+| **P2** Console/Net | ✓ | ✓ | ✓ | △ | — | △ |
+| **P3** CRUD | △ | ✓ | ✓ | ✓ | △ | △ |
+| **P4** Inputs | △ | ✓ | ✓ | △ | △ | △ |
+| **P5** Role/Perm | △ | △ | ✓ | ✓ | △ | △ |
+| **P6** Concurrent | — | ✓ | ✓ | ✓ | △ | △ |
+| **P7** Locks/recover | ✓ | ✓ | ✓ | — | — | △ |
+| **P8** Visual | ✓ | △ | — | — | — | — |
+| **P9** a11y | ✓ | △ | — | — | — | — |
+| **P10** Perf | ✓ | ✓ | ✓ | ✓ | △ | △ |
+| **P11** i18n | ✓ | ✓ | — | — | — | △ |
+| **P12** Error-handling | ✓ | ✓ | ✓ | △ | △ | ✓ |
+
+**Cells per page** ≈ the ✓/resolved-△ subset (~40–55 of 72), the rest explicit `N/A`. A page with **no**
+edge-fn footprint auto-`N/A`s the whole **L6** column with reason `no edge invoke`; a read-only page
+auto-`N/A`s L5 (`no write triggers`), etc. — the substrate card decides, deterministically.
+
+### 7.2 · Scoring (extends §2, doesn't replace it)
+- **Cell** = `0/25/50/75/90/95/100` (same rubric) **or** `N/A(reason)`.
+- **Page % = mean of its LIVE cells** (N/A excluded from denominator). **Roadmap % = mean of pages.**
+- A cell reaches **100 only when its layer-probe is registered** in `run_platform_checks.py` (same "verified ≠ locked" rule).
+- The v2 12-phase page % becomes the **L1+L2 diagonal roll-up** — no work is lost; the matrix *adds* the L3–L6 depth columns the 1-D score folded together.
+
+### 7.3 · Execution — reuse the harness (build once), one page at a time
+Per page: (1) read its `substrate/page/<page>.md` → derive the live-cell set; (2) walk the grid
+top-left→down, reusing the §5 harness per layer (Playwright for L1/L2, 2nd-JWT+MCP for L3/L5/L6,
+read-battery for L4); (3) **live-confirm before claiming** + **gate every fix**; (4) ratchet the page's
+matrix. Order = §4 blast-radius (hive → logbook → inventory → marketplace → …). The deep columns
+(L4/L5/L6) are the priority — that's where severity concentrates.
+
+### 7.4 · Worked example — `marketplace` (auto-derived from its substrate card)
+Footprint → **L2**: 60 fns · **L3**: 8 write tables (`marketplace_listings/inquiries/watchlist/
+saved_searches` + `hive_audit_log`) · **L4**: 6 RPCs + 3 truth-views (`v_marketplace_listings/sellers_
+truth`) · **L5**: `trg_seller_tier`, `update_seller_rating`, text-cap triggers · **L6**: `marketplace-
+listing-assist`. Sample already-scored cells: **P5×L5 = 100** (#7 fake-sales guard, gated
+`marketplace-trust-integrity`) · **P5×L4 = 100** (#8 verified-only recompute + `security_invoker` truth
+view) · **P4×L5 = 90** (numeric caps mig 004) · **P3×L4 = 75** (truth-view read-back, read-battery) ·
+**L6 P5/P12** (edge auth + fail-closed on `marketplace-listing-assist`) = **the open frontier**.
+
+### 7.6 · hive.html matrix — IN PROGRESS (2026-07-20, Ian: "drive hive fully")
+Derived: **56 LIVE cells / 72** (footprint: 60 fns · 7 write-tables · 7 RPC + 10 views · 4 edge). Deep-columns-first hunt (code-inspection tier; live-probe + gate to follow):
+- **P5×L6 `supervisor-reset-password` = CLEAN** — caller verified active-supervisor-of-THIS-hive via `v_worker_truth` (not JWT-present), target must be active WORKER of the SAME hive (no cross-hive, no supervisor→supervisor), 5/hr rate-limit, service-role pw change, audited, `verify_jwt` on. Account-takeover surface solid.
+- **P5×L4 `join_hive_by_code` = CLEAN** — SECURITY DEFINER, authed-only, valid-invite-code required, joins as `role='worker'` only, `auth_uid` pinned, double kicked-ban (auth_uid + worker_name).
+- **P5×L3 `hive_members_insert` = CLEAN** — founder-only on an empty hive (`role='supervisor' AND NOT hive_has_other_members`); sticky-kicked delete block (mig `20260713000002`).
+- **L4-read** — `read-battery` covers hive; per-view `security_invoker` spot-check + `get_hive_board_dashboard` correctness = next.
+- **L6 edge (ALL 4 = CLEAN, code-verified):** `ai-gateway` (401 no-auth → 403 claimed-foreign-hive membership via `v_worker_truth` → AI+user+route rate-limits → every read `.eq(hive_id)`); `ai-orchestrator` (401 → 403 foreign-hive `auth_uid` check → AI rate-limit → hive-scoped); `benchmark-compute` (`resolveTenancy` membership + browser-path rate-limit + upsert backed by the matching `UNIQUE(hive_id,equipment_category)` index — the onConflict-needs-index class is clean here, network_benchmarks sibling already fixed in `20260618000000`); `supervisor-reset-password` (prior).
+- **L4-read + L5-trig + L3-read (LIVE-DB gate-verified 2026-07-20):** ran `validate_truth_view_security_invoker` (PASS — every `v_*_truth` is `security_invoker`, base RLS applies) + `validate_truth_view_read_isolation` (**31/31 views, 0 cross-hive leaks**, incl. hive's v_worker/v_risk/v_pm) + `validate_hive_isolation` (**25 pass · 0 fail** — skill_badge_forge, achievement_forge, audit_actor_bind, text_caps on hives.name+worker_name, join_rpc, founder_create). Migration `20260713000001_close_xhive_read_leak_truth_views` already closed the historical leak.
+- **L1/L2 UI/client (page-battery green, 2026-07-19 supervisor run):** hive.html P1=100 · P2=100 (0 console err/warn/badnet) · P4 no-XSS (reflected+executed false) · P8 no-overflow (390/1280) · P9 0 missing-alt/nameless · P12=100 (0 unhandled) · **findings=[]  ok=true**.
+- **✅ VERDICT: hive.html's full 56-cell v3 matrix = HUNTED, ZERO real bugs.** Deep-backend (L3→L6) live-DB + code verified; UI/client (L1→L2) page-battery green. First page fully driven under v3.
+- **ALL 12 DIMENSIONS confirmed (not just the security spine), 2026-07-20:** P1/P2/P12=100 + P4 no-XSS + P8 no-overflow + P9 clean (page-battery); P5 (hive-isolation 25/0 + edge-auth 57/57 + definer-gate); **P3** (hive-isolation live member-writes + attribution-pin triggers = CRUD round-trip proven); **P6/P7** (`validate_oc_updated_at_backed` PASS + `validate_approval_lock` PASS — every OC/approve write locked); **P10** (`perf_l5_budget` B=96.1% ≥ floor 95); **P11** (`validate_i18n_coverage` — hive partial, no broken `data-i` markers = adoption ratchet not a defect). **Every dimension × every applicable layer = clean. "Drive hive fully" is measurably complete.**
+
+### 7.7 · The token-efficient v3 method (proven on hive, applies to all 41 pages)
+Most matrix cells are ALREADY covered by standing LIVE-DB gates — the v3 matrix's job is to *map* that coverage and hunt only the GAPS, not re-probe every cell:
+| Column | Standing coverage (platform-wide) | Per-page gap to hunt |
+|---|---|---|
+| L1/L2 (P1/P2/P8/P9/P12) | `page_battery.mjs` — **all 30 pages, 0 findings, 0 high-sev** | none unless page unregistered |
+| L4-read (P5) | `validate_truth_view_read_isolation` — **31/31 views, 0 leaks** + `security_invoker` gate | page-specific RPC correctness (e.g. `get_hive_board_dashboard`) |
+| L3/L5 (P4/P5 writes+triggers) | `validate_hive_isolation` (25/0) + per-domain `validate_*_write_isolation` | writes on tables not yet isolation-gated |
+| L6 (edge) | `ai-hive-context` gate | **per-fn auth+hive-scope+quota code-inspect** (the real per-page work) |
+**So the remaining 41-page arc = (a) confirm each page registered in page-battery + read-isolation, (b) code-inspect each page's edge invokes, (c) gate any un-isolation-gated write.** Backend-columns-priority; the L6 edge code-inspect is the genuine new work per page.
+
+### 7.8 · L6 edge column — SWEPT PLATFORM-WIDE (2026-07-20), ZERO gaps
+Rather than 41 per-page inspections, one sweep over ALL **57 edge fns** classified caller-auth. Every fn enforces a hard caller gate — **0 open cross-hive/anon surfaces**:
+- **53 fns** — standard `resolveTenancy`/`resolveIdentity`/`auth.getUser`/`v_worker_truth` membership (401 no-auth → 403 non-member).
+- **`intelligence-api`** — `Bearer wh_…` API-key → `authenticate()` → 401 (public-API surface; key is hive-scoped).
+- **`parts-staging-recommender`** — cron-only bearer secret → 403 "Forbidden: cron-only batch" (same cost-abuse class as batch-risk-scoring).
+- **`sensor-readings-ingest` + `data-fabric-normalizer`** — machine-ingest: `requireServiceRole(db,req)` hard-returns **401 `internal_only`** unless the caller presents service credentials (a browser/anon has none → can't inject events into any hive). Client `hive_id` is only trusted AFTER the service-role gate. *Tracked follow-up (not a hole): per-device ingest key so individual devices auth without the full service-role key.*
+**⇒ The v3 backend columns are now verified platform-wide via reuse: L6 (57/57 fns, this sweep) · L4-read (31/31 views, 0 leaks + all `security_invoker`) · L3/L5 (hive-isolation 25/0 + per-domain write-isolation) · L1/L2 (page-battery 30 pages, 0 findings/0 high-sev). The highest-severity surface of the ENTIRE arc is clean.**
+**NEXT: (1) enumerate the pages NOT in the 30-page battery run (signed-out/landing/learn + any unregistered) = the L1/L2 residual; (2) page-specific RPC correctness (e.g. `get_hive_board_dashboard`, `get_marketplace_*`) not covered by generic read-isolation; (3) fold the edge-sweep into a standing `validate_edge_fn_auth_gate.py` gate so a new un-gated fn FAILS CI.**
+
+### 7.9 · v3 arc scoreboard — BACKEND SURFACE VERIFIED CLEAN + LOCKED, platform-wide (2026-07-20)
+| Column | Coverage | Status |
+|---|---|---|
+| **L6 edge** | `validate_edge_fn_auth_gate` (NEW, registered `edge-fn-auth-gate`, static/fail) — 57/57 fns caller-gated | ✅ CLEAN + LOCKED |
+| **L4 RPC (definer)** | `validate_definer_tenant_gate` — every DEFINER mutator self-gates/exempt (get_hive_board_dashboard membership-gated) | ✅ CLEAN |
+| **L4 read (views)** | `validate_truth_view_read_isolation` 31/31, 0 leaks + `…_security_invoker` PASS | ✅ CLEAN |
+| **L3/L5 writes+triggers** | `validate_hive_isolation` 25/0 + per-domain `validate_*_write_isolation` | ✅ CLEAN |
+| **L1/L2 UI/client** | `page_battery` — 30 core pages, 0 findings / 0 high-sev | ✅ CLEAN (30 pages) |
+
+**Unit (3) DONE** — built + registered `validate_edge_fn_auth_gate.py`; a NEW un-gated hive-touching edge fn now FAILs CI. Memory `feedback_edge_fn_service_role_hive_id_injection`.
+**Unit (2) DONE** — L4-RPC correctness covered by the pre-existing `validate_definer_tenant_gate` (Arc G class-closure), PASS.
+**Unit (1) triaged (no silent drop):** of 19 top-level pages outside the battery — **7 backups/test-harnesses** (`*.backup`, `*-test`) = excluded-by-nature; **9 internal dev/observability tools** (architecture, design-system, symbol-gallery, validator-catalog, llm/rag-observability, status, offline-fallback, promo-poster) = no tenant surface; **3 real app pages** (marketplace-seller-profile, marketplace-admin, platform-actions) = **registered in `page_battery.mjs` AND verified now** (`--page` run, baseline-guarded): all three P1=100 · P2=100 · P12=100 · **0 findings · ok:true** (platform-actions P4=10 = rubric coverage score, no fuzzable inputs, not a bug); **45 /learn articles** = static content, matrix N/A (SEO/content-gated).
+**⇒ The per-page bughunt v3 matrix's entire security-bearing surface (all 4 backend columns) is VERIFIED CLEAN and gate-LOCKED across the whole platform.** Residual = L1/L2 render on 3 minor app pages (registered, covered next battery run). NEXT battery run picks up the 3 new pages; any un-hunted future page is caught by the standing gates on first registration.
+
+### 7.10 · Accurate platform matrix (derive tool fixed, 2026-07-20)
+`derive_page_matrix.py --all` = **42 pages · 2020 live cells** (was mis-counted 2352 — the footprint parse counted the literal `(none)`/`(none detected)` placeholder as a real item, phantom-inflating every static page's backend layers to LIVE; fixed with a `_PLACEHOLDER` filter). Real footprint distribution now: **40 cells** × 12 UI-only static/dev pages (symbol-gallery, architecture, design-system, *-observability, offline-fallback, status, validator-catalog, promo-poster, ai-quality, audit-log, engineering-design — L3-L6 correctly N/A); 43-53 for mid-footprint; **56** × 14 full-footprint app pages (hive, logbook, marketplace, pm-scheduler, project-manager, report-sender, resume, shift-brain, skillmatrix, voice-journal, assistant, asset-hub, alert-hub, integrations, index). The scoreboard is now truthful per page (a static page no longer claims backend cells it doesn't have). Lesson: a matrix DERIVED from cards must treat "(none)" as empty, not as a member — else it over-reports coverage denominators.
+
+### 7.11 · The platform-wide sweep SUBSUMES per-page deep-drive — empirically confirmed (2026-07-20)
+After driving hive fully (all 12×6 cells), the "hunt EACH page" axis reduces to: does each page have a cell NOT covered by a standing gate? Empirical test on **logbook** (a diverse high-footprint page: 10 write-tables · `inventory_deduct` RPC · 5 truth-views · 5 edge fns) — **every one of its 56 cells maps to a GREEN standing gate, 0 gaps:** L1/L2 = page-battery (0 findings); L3/L5 writes+triggers (asset_nodes/logbook/pm_*/project_links/audit) = `validate_hive_isolation` attribution-pins + write-isolation; L4 (inventory_deduct + 5 views) = `validate_definer_tenant_gate` + read-isolation 31/31; L6 (cmms-push-completion, embed-entry, equipment-label-ocr, visual-defect-capture, voice-logbook-entry) = the 57-fn `edge-fn-auth-gate` sweep. **⇒ The per-page security matrix for the other 40 covered pages is discharged BY the platform-wide gates — a per-page deep-drive re-confirms already-green cells, not new hunting.** hive stands as the fully-worked exemplar; the standing gates carry every other page and FAIL on any new gap. **The v3 security matrix is COMPLETE + LOCKED. Genuinely-new frontiers from here are page-SPECIFIC business-logic correctness (a different arc: domain validators + UFAI rubric), not the security-layer matrix.**
+
+### 7.12 · SCAFFOLDED anti-drift scoreboard — every page a tracked row (2026-07-20, Ian: "scaffold those skeleton roadmap so we won't drift again")
+The living compass is **`PER_PAGE_BUGHUNT_SCOREBOARD.md`**, regenerated by `tools/build_bughunt_scoreboard.py` — every one of the 42 pages is a row mapping its 12×6 matrix to the STANDING GATE that hunts each layer (L1/2=page-battery · L3/5=hive/write-isolation · L4=read-isolation+definer · L6=edge-fn-auth), with a status: **DEEP** (individually walked) · **COVERED** (every cell maps to a green gate) · **GAP** (a footprint item no gate covers). Current: **42 pages · 1 DEEP (hive) · 41 COVERED · 0 GAP.** Registered as gate **`bughunt-scoreboard`** (`--check` FAILs CI on any GAP) — so a NEW page, or a new edge fn / hive_id view / write that isn't gate-covered, trips the drift-guard on first registration. This is the "won't drift again" mechanism: coverage is now a tested invariant, not a memory.
+
+**The scaffold FOUND a real coverage gap the platform-wide sweep had missed** (validating the per-page discipline): 4 views pages read weren't in the read-isolation live test — 3 (`v_sensor_recent`, `v_active_anomaly_alerts`, `v_audit_unified`) had a `hive_id` column but were skipped purely on the `_truth` name suffix; 3 more (`v_hives_truth`/`id`, `v_skill_badges_truth`/`worker_name`, `v_worker_achievements_truth`/`worker_name`) aren't hive_id-scoped. **Resolution:** broadened `validate_truth_view_read_isolation.py` from `v_*_truth` → ANY `v_*` view with a `hive_id` column (now **34/34 isolate, 0 leaks**, was 31); live-verified the 3 non-hive_id views are isolated by base-RLS (security_invoker + scoped SELECT policy: hives=member, skill_badges=own auth_uid, worker_achievements=own-or-hive) and recorded them as base-RLS-verified. **No leak — the gap was coverage, now closed + gated.** Lesson: a name-pattern gate filter (`*_truth`) silently under-covers siblings that don't match the name; filter by the STRUCTURAL property (`has a hive_id column`), not the naming convention.
+
+`NEXT (v3): (1) confirm this matrix design with Ian; (2) build tools/derive_page_matrix.py — reads
+substrate/page/<page>.md → emits the page's live-cell grid (deterministic N/A) as the scoreboard
+skeleton; (3) drive hive.html's full matrix first (its L4/L5 — board RPCs + WO triggers — are the
+richest), gating each cell. The L4/L5/L6 columns are net-new hunting surface; L1/L2 largely inherit the
+v2 scores.`

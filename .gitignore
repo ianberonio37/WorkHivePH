@@ -144,3 +144,8 @@ ai-quality-palette.png
 hive-palette.png
 index-emoji-check.png
 index-sectors.png
+
+# temp gate output + local data-backup artifacts (Arc S)
+.fastgate.out
+.fullgate.out
+backups/

@@ -1851,7 +1851,10 @@
       }));
 
       const [resvRes, recRes] = await Promise.allSettled([
-        db.from('parts_staged_reservations').insert(reservations),
+        // Idempotent: a double-accept (offline-retry / timeout re-send / 2nd device) that races the
+        // client button-disable is a no-op, not a duplicate reservation — backed by the UNIQUE
+        // (recommendation_id, item_id) index (mig 20260720000001, Arc S C-lens). ignoreDuplicates → ON CONFLICT DO NOTHING.
+        db.from('parts_staged_reservations').upsert(reservations, { onConflict: 'recommendation_id,item_id', ignoreDuplicates: true }),
         db.from('parts_staging_recommendations')
           .update({ status: 'accepted', acted_at: new Date().toISOString(), acted_by: WORKER_NAME })
           .eq('id', _stagingRec.id).is('acted_at', null),  // P6-C1: only act on an un-acted recommendation (no double-act re-flip)
