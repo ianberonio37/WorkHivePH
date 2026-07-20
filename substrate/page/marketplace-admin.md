@@ -2,7 +2,7 @@
 name: page-marketplace-admin
 type: page
 source: file:marketplace-admin.html
-source_sha: 23b881ad4e4592c2
+source_sha: 26dfc003f493cf47
 last_verified: 2026-07-13
 supersedes: null
 ---

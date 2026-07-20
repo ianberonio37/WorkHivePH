@@ -2,7 +2,7 @@
 name: page-shift-brain
 type: page
 source: file:shift-brain.html
-source_sha: 307d98eb71ac40aa
+source_sha: 1d06fca08f8fd101
 last_verified: 2026-07-13
 supersedes: null
 ---

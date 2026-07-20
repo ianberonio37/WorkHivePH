@@ -2,7 +2,7 @@
 name: page-project-report
 type: page
 source: file:project-report.html
-source_sha: f9f11dec4a85d0ba
+source_sha: 253d1aca6d99c3a5
 last_verified: 2026-07-13
 supersedes: null
 ---

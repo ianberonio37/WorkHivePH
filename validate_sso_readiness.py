@@ -72,12 +72,20 @@ def check_identity_chain(pages, keys):
             issues.append({"check": "identity_chain", "page": page,
                            "reason": f"{page} not found"})
             continue
+        # PLATFORM_CENTRALIZATION C-P4: pages now read the worker via the canonical whWorker()
+        # accessor (utils.js), which IS the centralized identity read — and targets ONE key
+        # (wh_last_worker), which is MORE SSO-consistent than 3 scattered keys, not less. The
+        # wh_worker_name/workerName aliases are provably dead (never written — see
+        # storage_key_registry.json + validate_localstorage_key_consistency, 0 get-without-set),
+        # so a page using whWorker()/whHiveId() fully satisfies this layer.
+        if "whWorker(" in content or "whHiveId(" in content:
+            continue
         missing = [k for k in keys if k not in content]
         if missing:
             issues.append({"check": "identity_chain", "page": page,
                            "reason": (f"{page} identity chain missing keys: {missing} — "
-                                      f"workers whose session used a missing key appear anonymous; "
-                                      f"SSO migration cannot consistently target one key across all pages")})
+                                      f"use the canonical whWorker() accessor (utils.js) or read all 3 keys; "
+                                      f"SSO migration targets wh_last_worker consistently")})
     return issues
 
 

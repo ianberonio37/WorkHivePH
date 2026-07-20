@@ -2,7 +2,7 @@
 name: page-engineering-design
 type: page
 source: file:engineering-design.html
-source_sha: 40ebde51454214bc
+source_sha: 7808c8611ddcc98e
 last_verified: 2026-07-13
 supersedes: null
 ---

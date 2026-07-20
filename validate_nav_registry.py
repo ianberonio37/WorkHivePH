@@ -147,10 +147,15 @@ def check_identity_keys(tools):
         content = read_file(t["href"])
         if not content:
             continue
+        # PLATFORM_CENTRALIZATION C-P4: pages now read identity via the canonical whWorker()/
+        # whHiveId() accessors (utils.js) which centralize the fallback chain; the alias keys are
+        # provably dead (never written). A page using the accessor satisfies this check.
+        if "whWorker(" in content or "whHiveId(" in content:
+            continue
         for key in IDENTITY_KEYS:
             if key not in content:
                 issues.append({"check": "identity_keys", "page": t["href"], "key": key,
-                               "reason": f"{t['href']} ('{t['label']}') missing identity key '{key}' — workers who set only this key are treated as anonymous"})
+                               "reason": f"{t['href']} ('{t['label']}') missing identity key '{key}' — use whWorker()/whHiveId() (utils.js) or read all keys"})
     return issues
 
 

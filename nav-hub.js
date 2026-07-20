@@ -185,7 +185,7 @@
     // theme-color (mobile browser chrome) — the canonical brand orange; change it HERE, once.
     if (!document.querySelector('meta[name="theme-color"]')) {
       const m = document.createElement('meta');
-      m.name = 'theme-color'; m.content = '#F7A21B';
+      m.name = 'theme-color'; m.content = '#F7A21B'; // purity-allow: a <meta> attribute value can't be a CSS var(); this literal = --wh-orange (the canonical, one place)
       head.appendChild(m);
     }
   })();

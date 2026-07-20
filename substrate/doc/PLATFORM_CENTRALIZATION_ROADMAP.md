@@ -2,7 +2,7 @@
 name: doc-PLATFORM_CENTRALIZATION_ROADMAP
 type: doc
 source: file:PLATFORM_CENTRALIZATION_ROADMAP.md
-source_sha: 68c1ca21b089e794
+source_sha: 5328804ef75b7635
 last_verified: 2026-07-13
 supersedes: null
 ---
