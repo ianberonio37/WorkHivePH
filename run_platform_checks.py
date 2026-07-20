@@ -4846,7 +4846,7 @@ VALIDATORS = [
         "id":      "memory_health_gate",
         "script":  "tools/memory_health_gate.py",
         "args":    [],
-        "label":   "Memory M2.2: retriever health-regression gate (silent_rate / p95 / grounding thresholds)",
+        "label":   "Memory M2.2: retriever health-regression gate (silent_rate / median+p95 latency / grounding thresholds)",
         "group":   "Memory System",
         "report":  None,
         "skip_if_fast": False,
