@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:526-files
-source_sha: 3c1804f70763e0d4
+source: memory-curated:527-files
+source_sha: 73ed8a72ac97a2ed
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (526 durable topic files)
+## memory · curated auto-memory (527 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=153 · project=285 · reference=88
+**By type:** feedback=154 · project=285 · reference=88
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -52,6 +52,7 @@ Entries (name · type · sha):
 - `feedback_dont_get_stuck_in_postgres_files_are_truth` · feedback · 3bfbf46a7610fbbb
 - `feedback_dont_kill_inflight_tracked_job` · feedback · 05f55a0800ebbecd
 - `feedback_dont_stop_hold_trajectory_in_memento` · feedback · 207e84b2ef5bf546
+- `feedback_edge_fn_service_role_hive_id_injection` · feedback · f8a77c2b29d58491
 - `feedback_eng_design_ux` · feedback · 504dc284569e5eec
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
 - `feedback_external_reference_is_a_research_task_not_a_ceiling` · feedback · b4ce91f9b25b3cd2
@@ -162,7 +163,7 @@ Entries (name · type · sha):
 - `feedback_universal_a11y_shared_component` · feedback · a8572a09a2717a70
 - `feedback_use_ai_chain_always` · feedback · 905931942d0ceb65
 - `feedback_validation_workflow` · feedback · 28e1a0281875f868
-- `feedback_validator_design_patterns` · feedback · 67b447d7b7e83172
+- `feedback_validator_design_patterns` · feedback · 7a74b9e86c5278c8
 - `feedback_video_positioning_generic_memory_first` · feedback · e32ed9f3f3961687
 - `feedback_walkthrough_finds_to_validators` · feedback · ac9fb0ae05ce1736
 - `feedback_we_own_it_all_no_disclaiming` · feedback · 2922ebf1bdb75c91
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `reference_pareto_content_design_sources` · reference · 2b8945e6a1f91641
 - `reference_pattern_catalog` · reference · 66f667d2d1e2c828
 - `reference_per_page_bughunt_roadmap` · reference · 4904a28b3e6dee39
-- `reference_persistence_doctrine` · reference · 9ef508fb20b7c80c
-- … +26 more (all included in the fingerprint)
+- … +27 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

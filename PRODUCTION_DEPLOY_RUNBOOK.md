@@ -1,3 +1,58 @@
+# Production Deploy Runbook — accumulated release (2026-07-20) ← CURRENT
+
+**Owner: Ian (all outward steps are Ian-gated).** Claude prepared + pre-flighted; the push commands are yours to run from YOUR environment. **No deploy credentials are configured locally, so Claude cannot and did not push anything** — and cannot verify the remote migration state (which of these are already applied). `supabase db push` is idempotent (applies only migrations absent from the remote `schema_migrations` history), so the exact last-deployed point does not change the commands; step 1a confirms it live.
+
+> **⚠ This is a LARGE two-week accumulated release** superseding the 2026-07-06 scope below (kept as history). If the 2026-07-06 deploy was already run, `db push` simply skips those 14 and applies the rest. If it was NOT, it applies all of them in timestamp order — same command either way.
+
+## 0.NEW — What ships (measured at HEAD `0893c52`, 2026-07-20)
+
+| Leg | Payload | Command |
+|---|---|---|
+| **A · DB** | **93 migrations** `20260706000001` → `20260720000001` (all additive/idempotent; the only DELETEs are the LRU embedding-cache eviction; immutability-clean, 359 tracked) | `npx supabase db push` |
+| **B · Edge** | **57 fns**: deploy 55 via script + `login` & `supervisor-reset-password` SEPARATELY + **delete 5** removed Stripe fns + `marketplace-listing-assist` is new (ships in the 55) | see B below |
+| **C · Frontend** | 2 weeks of HTML/JS/CSS/asset changes | `git push origin master` → Netlify auto-build |
+
+**Order: A → B → C** (edge fns depend on the new RPCs; the frontend calls the edge fns).
+
+### Leg A — DB (from repo root; the `&` in the path breaks npx → subst a clean drive first)
+```powershell
+subst Z: "c:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st"
+Z:
+npx supabase migration list      # 1a. CONFIRM which are remote-pending (needs your creds — I can't)
+npx supabase db push             # 1b. applies all pending in timestamp order
+```
+
+### Leg B — Edge (still on Z:)
+```powershell
+# 1. the 55 in the script (blanket --no-verify-jwt):
+powershell -ExecutionPolicy Bypass -File deploy-functions.ps1
+# 2. the 2 NOT in the script — deploy each so config.toml governs verify_jwt:
+npx supabase functions deploy login --no-verify-jwt          # public auth entry (verify_jwt=false)
+npx supabase functions deploy supervisor-reset-password      # ⚠ NO --no-verify-jwt — this fn REQUIRES jwt (config.toml verify_jwt=true); the blanket flag would break its supervisor auth
+# 3. remove the 5 deleted Stripe fns from prod (db push does NOT delete edge fns):
+npx supabase functions delete marketplace-checkout marketplace-connect-onboard marketplace-connect-status marketplace-release marketplace-webhook
+```
+
+### Leg C — Frontend
+```powershell
+git push origin master           # Netlify auto-builds (publish = ".")
+```
+
+## 5.NEW — Pre-flight result (verified 2026-07-20, not asserted)
+- **Destructive-DDL scan (93 migrations) — CLEAN.** 5 migrations flagged; each verified safe-in-context: `20260708000002` fault_knowledge DELETE is a **de-dup** (`WHERE rn>1`, keeps most-recent per source); `20260707000005` + `20260711000002` DROP a CHECK constraint then immediately re-ADD the corrected one; `20260707000006`/`…07` DELETEs are inside function bodies (delete-worker-data on-demand + the retention cron), not migration-time wipes. **No table/column drop, no unconditional data delete.**
+- **Deleted-fn safety — CLEAN.** The 5 removed Stripe fns (marketplace-checkout/connect-onboard/connect-status/release/webhook) have **0 live references** in any shipped `.html`/`.js` (marketplace was migrated off Stripe) → safe to `functions delete` from prod without breaking a page.
+- **`run_platform_checks --fast` = 0 FAIL** (after the MEMORY.md slim).
+- **`release_gate.py --skip-ui --no-seed` = GATE BLOCK (static 1 FAIL + data 4 FAIL), triaged:**
+  - **Static 1 FAIL — Substrate freshness — FIXED.** This session's roadmap/tool edits drifted the substrate chunk index; `python tools/build_substrate.py` rebuilt it → gate now **PASS (611 chunks fresh)**. This was the only deployable-code static failure.
+  - **Data 4 FAIL — pre-existing LOCAL-SEED-DATA debt, NOT deployable-code regressions** (verified: this session touched none of these contracts; prod uses real data, not this seed): (1) 5 seed machines missing tag IDs; (2) a seeded `pm_assets` row with category `HVAC` outside the validator set; (3) 69 seed breakdowns with off-enum `root_cause`; (4) 6/87 `inventory_items` seed rows missing `auth_uid` — these are seeder-created service-role rows; the CODE enforces auth_uid on real client writes via **3 attribution triggers** (hive-isolation 25/0). Same class the 2026-07-06 deploy pushed past (§5b).
+- **⇒ Deployable code is clean.** For Leg C, the pre-push hook re-runs this gate: either fix the local seed first, or `git push --no-verify` (precedented for the seed-data class — the DB migrations/edge fns/frontend being pushed are unaffected by local seed content).
+
+## 6.NEW — Post-deploy smoke (prod)
+1. Sign in (login + auth path). 2. Create a logbook entry (quota trigger allows honest use). 3. Fire one AI action (ai-gateway + budget guard). 4. Open marketplace + accept a parts-staging rec twice fast (proves the new `parts_staged_reservations` UNIQUE idempotency — no dup). 5. Watch Supabase logs for `54000`/`23505` spikes.
+
+---
+---
+
 # Production Deploy Runbook — accumulated release (2026-07-06)
 
 **Owner: Ian (all outward steps are Ian-gated).** Claude prepared + pre-flighted this; the three

@@ -2,13 +2,13 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: 78dff460cffad90f
+source_sha: a0c371737eb5341d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## fk · relational-integrity graph (145 foreign keys)
 
-**UNINDEXED FK columns (22)** — slow joins + table-locking cascade deletes; add an index on the child column:
+**UNINDEXED FK columns (21)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
@@ -22,7 +22,6 @@ supersedes: null
 - `marketplace_inquiries`.`hive_id` -> `hives`
 - `marketplace_orders`.`hive_id` -> `hives`
 - `marketplace_sellers`.`hive_id` -> `hives`
-- `parts_staged_reservations`.`recommendation_id` -> `parts_staging_recommendations`
 - `pf_intervals`.`fmea_mode_id` -> `rcm_fmea_modes`
 - `platform_feedback`.`auth_uid` -> `auth.users`
 - `platform_knowledge_graph_facts`.`superseded_by` -> `platform_knowledge_graph_facts`

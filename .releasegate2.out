@@ -1,0 +1,729 @@
+
+[96m================================================================[0m
+[96m  WORKHIVE RELEASE GATE[0m
+[96m================================================================[0m
+
+[17:01:07] Pre-flight checks
+  [92m✓[0m Docker running
+  [92m✓[0m Local Supabase reachable on 127.0.0.1:54321
+
+[17:01:07] Phase 1: skipping reseed (--no-seed)
+
+[17:01:07] Phase 2: Static validators (Platform Guardian)
+    ========================================================================
+      WorkHive Platform Guardian
+      2026-07-20 17:01  |  FAST mode (skip live API)  |  Python 3.12.4
+    ========================================================================
+      Baseline loaded from 2026-07-20 01:40
+      ENGINEERING CALCULATOR
+      --------------------------------------------------------------------
+      RUN   Engineering Calc Suite (L1+L2a+L2b)                   PASS  24.0s
+      PLATFORM
+      --------------------------------------------------------------------
+      RUN   Auto-discovery Validator (HTML classified, edge fns in config, validators registered)  PASS   0.1s
+      RUN   Gate Observability (Mega Gate persists a durable log + verdict on every terminal path)  PASS   0.1s
+      RUN   Seeder Insert-Columns (forward-only: no NEW seeder writes a column absent from the live table)  PASS   0.4s
+      RUN   Frequency-Map Consistency (every PM frequency maps to its canonical interval days; live view + code copies agree)  PASS   0.5s
+      RUN   Truth-View Consumer-Columns (forward-only: no NEW consumer reads a column absent from the v_*_truth view it queries — catches PROJ-DRIFT)  PASS   0.6s
+      RUN   Attribution integrity (every CLIENT insert/upsert into an auth_uid-no-default table must set auth_uid — locks the auth_uid-drop bug class found live 2026-07-06 on inventory_transactions/pm-scheduler/logbook/integrations/marketplace-seller/asset-hub; unresolvable payloads need an attribution-allow marker)  PASS   0.6s
+      RUN   Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + timeout fetch and does not spawn a 2nd GoTrueClient — locks the raw-createClient idle-401 class found live 2026-07-06 on voice-handler.js/search-overlay.js; standalone public pages carry a singleton-exempt marker; dim-14)  PASS   0.3s
+      RUN   Embed-auth / tenancy-gated edge-fn JWT forwarding (every browser fetch to embed-entry forwards the user session JWT as Bearer so its Pillar I tenancy check resolves — locks the client-drops-JWT 401 class found live 2026-07-07 on skillmatrix/logbook/pm-scheduler/voice-handler; without it the write lands but the skill/fault/PM embedding is silently dropped from the RAG index; dim-4)  PASS   0.2s
+      RUN   Voice-journal single-write (the companion agent:'voice-journal' gateway call already persists the turn server-side via persistJournalEntry with an embedding — so NO client _saveJournalTurn/insert may run on its success or clarify path; locks the double-write class found+proven-live 2026-07-07 on voice-handler.js where every companion voice turn was journaled twice, one copy embedding-less; client saves belong only on non-gateway paths [shortcuts / RAG short-circuit / offline catch]; dim-4)  PASS   0.2s
+      RUN   agent_memory persist-complete (the store_memory_turn RPC's INSERT names every NOT NULL column [worker_name/agent_id/kind] + sets kind to a CHECK-allowed literal — locks the class found live 2026-07-07 where the RPC omitted 3 NOT NULL cols and failed 100% silently, killing the companion's session-memory layer [voice-handler _storeTurn -> _fetchRecentMemory]; dim-4/dim-13)  PASS   0.4s
+      RUN   Display-correctness fix regression gate (STATIC: asserts the 2026-07-13 bug-hunt render-logic fixes are still present — a revert removes the marker and this FAILs, catching what a DB probe can't see. Locks: achievements 'XP this week' summed from a dedicated 7-day query not the .limit(30) list [limit-as-aggregate undercount] + init surfaces whListError on a query error not a fake 'No achievements yet'; asset-hub 'Total assets'/'Critical' via count:'exact' not the .limit(200) list length; ai-quality loadCostLog/loadReplyFeedback throw on {error} instead of swallowing it as [] + dropped the unused user_feedback column; inventory supervisor fetches the full pending approval queue + stock counts exclude non-approved; hive adoption card shows a neutral 'No data yet' tier when there's no snapshot not a green 'Healthy' + PM-overdue count/banner reset on hive-switch. Complements the LIVE validate_hive_write_isolation.py)  PASS   0.1s
+      RUN   per-page bughunt v3 L6 — every hive-touching edge fn must gate its caller (STATIC, no DB). A Supabase edge fn runs with SERVICE_ROLE (RLS-bypass); one that reads/writes tenant data keyed by a CLIENT hive_id WITHOUT first proving caller entitlement = cross-tenant write/read injection by any anon caller. The 2026-07-20 sweep of all 57 fns found every one gated (resolveTenancy/resolveIdentity/requireServiceRole/getUser/authenticate/cron-secret, or verify_jwt=true); 4 exempt (login = session-creator; resume-extract/resume-polish IGNORE hive_id [Pillar P back-compat]; voice-journal-agent uses hive_id only as ai_cost_log telemetry). A NEW fn that references hive_id but ships without a caller gate FAILs until reviewed + explicitly allowlisted. Baseline 0 ungated  PASS   0.1s
+      RUN   P6 lost-update regression gate (STATIC): asserts NO page HTML writes a value-integrity counter (qty_on_hand/xp_total/total_sales/rating_avg/votes/points/balance/...) via client .update()/.upsert() with a client-computed absolute value - every such mutation must go through an atomic server RPC (inventory_deduct/inventory_restock FOR-UPDATE, increment_*, grade_*) that serialises the read-modify-write under a row lock. Locks the class fixed by mig 20260713000008; the 2026-07-14 live sweep found 0 client counter-writes and this keeps it at 0. Static (no DB) so it runs in --fast and never flakes.  PASS   0.1s
+      RUN   Platform Knowledge Substrate freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md). The substrate/ chunk index (tools/build_substrate.py: metadata-prefixed .md chunks over pages / edge-fns / table-RLS / DEFINER-RPCs / skills / docs) lets a task RETRIEVE the relevant slice (a ~1KB page map) instead of a Workflow fan-out re-reading the whole platform (logbook.html 301KB, etc.) every run - the token-sustainability fix (Ian 2026-07-13: fan-out burned 0.5-3M tokens/run). This gate anchors every chunk to its source by a source_sha (file-content hash for page/edge-fn/skill/doc; live DB introspection for table-rls/rpc) and FAILs if any chunk DRIFTED (source changed but the chunk was not rebuilt) - treats the substrate as code, the doc-drift CI model. FIX on FAIL: python tools/build_substrate.py. DB-dependent chunks skip cleanly if docker absent; file-based always checked; fast (file hashing + one introspection pass).  FAIL  10.7s
+      RUN   PKS P3 memory retrieval cache - coverage + budget (PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP L3). The SQLite FTS5+TF-IDF cache (Memento memory.db - project_memento_local_memory_cache P0-P10, already built) delivers the prompt-matched memory slice (<2.5K tokens) per prompt; so MEMORY.md is kept a slim DOCTRINE-CORE + recent refs, with older reference/project pointers RETRIEVAL-ONLY (surfaced on demand, not loaded whole). This gate asserts (a) every durable reference/project memory file on disk is INDEXED in memory.db (FTS5-retrievable - so a pointer-light MEMORY.md loses nothing), and (b) MEMORY.md is under the 24.4KB native hard load cap (FAIL over cap = entries silently truncating). FIX: re-run the Memento indexer (coverage gap) or `python tools/memory_cache.py --slim --apply` (over budget). Ends the whole-MEMORY.md-load budget pressure that climbed to the cap this session (Ian 2026-07-13).  PASS   2.0s
+      RUN   Night Crawler distill quality guard self-test (tools/night_crawler.py --selftest — deterministic, no network/AI, instant). The crawler's distiller now EVALUATES its output before bagging it (distill_quality, an Evaluator-Optimizer step): a thin / link-inflated / all-provenance / boilerplate distill is REFUSED not written, and a soft-404 / bot-wall error page is skipped BEFORE distilling (is_error_page) — so a nav/link-index or dead-URL page can't pollute substrate/external/. Born 2026-07-17 from the 12-Factor README distilling to license mush + 2 NN/g chunks the old harvest distilled from 404 pages. This gate runs the guard's fixtures (link_density + distill_quality + is_error_page: a good chunk passes; mush / 404 / all-provenance / NO_DURABLE_CONTENT fail) so a regression in the quality heuristics breaks the build. FIX on FAIL: the guard logic in tools/night_crawler.py changed — restore the fixtures' invariants.  PASS   0.2s
+      RUN   AI-context hive-resolution consistency (static) — a hive-id variable must never be ASSIGNED from the LEGACY `wh_hive_id` alone; the canonical resolution is `wh_active_hive_id || wh_hive_id || <default>` (bug-hunt roadmap P5, 2026-07-19). Live bug it locks: assistant.html's AI-gateway + semantic-RAG calls used `getItem('wh_hive_id') || null` while every data read used the active-first form — so in the modern flow (wh_active_hive_id set, wh_hive_id null) the assistant sent NULL hive context and answered WITHOUT the team knowledge base. Legit legacy reads (a `legId` backfill, the notif-key string concat) don't match the bug shape and are exempt. Forward-only, fast, no stack. Self-test: --selftest.  PASS   0.2s
+      RUN   Approval optimistic-lock class (static) — every client approve-write that stamps `approved_at: new Date()` must carry an optimistic lock (`.eq('status','pending')` OR `.is('approved_at',null)`) in the SAME chained update (bug-hunt roadmap P6/P7, 2026-07-19). Without it a concurrent approve / double-click / stale card silently OVERWRITES the first supervisor's approval attribution (approved_by/approved_at) = a last-write-wins accountability leak. Live-proven on rcm_fmea_modes (writerB re-approve overwrote 'Supervisor A'); the sweep it locks found 3 gaps — asset-hub approveFmeaMode/approveStrategy + alert-hub actOnAmcBrief (amc_briefings) + project-manager cancelCO — all fixed to mirror approveAssetNode/approveCO. Clears/restores (approved_at:null) are exempt. Forward-only, fast, no stack. Self-test: --selftest.  PASS   0.1s
+      RUN   Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no concurrent-edit race possible). This gate asserts they STAY edit-free; if one gains a .update/.upsert its covered-by-nature basis is void → FAIL, forcing a real P6 hunt + re-score (bug-hunt roadmap, 2026-07-17). Forward-only, fast. Self-test: --selftest.  PASS   0.1s
+      RUN   Leave-audit ordering (hive.html writeAuditLog is awaitable + performLeave AWAITS the member_left audit BEFORE the hive_members self-delete — locks the race found live 2026-07-07 where fire-and-forget audit + awaited delete silently lost the audit trail once the delete committed first and RLS [hive_id IN user_hive_ids()] rejected the late insert; dim-6 destructive-action audit-trail)  PASS   0.1s
+      RUN   Assistant multi-turn recall (ai-orchestrator's 0-agents 'not enough data' deflection must stay MEMORY-AWARE — guarded by memoryBlock + RECALL_RE — so a 'what did I just tell you?' recall question answers from the working buffer instead of deflecting; locks the CL5 defect found+fixed+live-verified 2026-07-08 where the Work Assistant had ZERO multi-turn recall while voice-journal recalled fine; dim-13)  PASS   0.1s
+      RUN   CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTION fabrication — 'Updated maintenance record'/'Log entry added' claims of writes it can't do [verified 0 logbook rows / 0 followups], stripped by _shared/action_provenance.ts; (2) ungrounded-KPI — token-accurate grounding + the no-provenance 'Your split is X%' hedge. Asserts both rails imported, token-accurate, committed-tested, and wired before the synthesis return; teeth-proven. Found+fixed+live-verified 2026-07-08; dim-13)  PASS   0.1s
+      RUN   Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboard-operable — focusable + role=button + Enter/Space activation, incl. dynamic renders. Gate asserts the polyfill is present + every active clickable-bearing page loads utils.js/fixes inline. Found+FIXED live 2026-07-07 platform-wide, not baselined)  PASS   0.2s
+      RUN   Plain language (no consumer-tech jargon [KYB/IDOR/RLS], internal terms, or removed-payment vestige [escrow/2307/GMV] in user-facing static copy — audience is EVERY Filipino worker, not just engineers; Ian 2026-07-06. Industrial acronyms MTBF/OEE/RCM are WARN-only, expand on first use; marketplace marketing articles rewritten free/contact-only)  PASS   0.8s
+      RUN   Supervisor-approval backstop (approval-gated tables asset_nodes/rcm_fmea_modes/rcm_strategies carry the tg_guard_approval trigger so a worker cannot self-approve or delete signed-off work via direct PostgREST — locks the UI-only-gate privilege-escalation class found + exploited live 2026-07-07; dim-2)  PASS   0.4s
+      RUN   Deep-Link Param Contracts (forward-only: no NEW emitted ?param lacks a .get() reader in its destination — catches the dead-param class from the Phase-6b edge walk)  PASS   0.7s
+      RUN   KPI Source Registry (one metric = one official derivation; consumers must read it and never re-derive a documented wrong way — catches the F4 26-vs-4 class)  PASS   0.4s
+      RUN   Tester Coverage Validator (every live tool page is in PUBLIC_PAGES + 4 flow PAGES lists)  PASS   0.1s
+      RUN   Schema Coverage Validator (auto-derived from migrations, table+column existence)  PASS   1.3s
+      RUN   Reset Coverage Validator (every migration table is in reset.py)  PASS   0.2s
+      RUN   Edge Function Config Validator (config.toml coverage)  PASS   0.1s
+      RUN   Cross-Page Flow Validator                             PASS   0.1s
+      RUN   DOM Reference Integrity Validator (bare getElementById on missing elements)  PASS   0.5s
+      RUN   Asset Brain Foundation Validator (schema, RLS, realtime publication)  PASS   0.2s
+      RUN   Canonical Sources Registry Validator (truth-scattering fix foundation + L2 drift detection)  PASS   0.4s
+      RUN   KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)  PASS   0.2s
+      RUN   Calm Dashboard Canonical-Wiring Audit (per-tile classify: canonical/drift/gap/allowed)  PASS   0.2s
+      RUN   Pareto Content Gate (Arc P: displayed defensive-copy ratchet -> 0; per-page P1/P3 metrics)  PASS   1.6s
+      RUN   No-Em-Dash Gate (Arc P: displayed em-dash ratchet, forward-only toward 0)  PASS   1.0s
+      RUN   Canonical Drift — Platform-Wide Miner (L-1.5: TIER A = KPI page + canonical drift; produces baseline)  PASS   6.3s
+      RUN   User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)  PASS   0.2s
+      RUN   Cross-Migration Table-Collision Auditor (catches CREATE TABLE IF NOT EXISTS with incompatible column sets across migrations)  PASS   0.2s
+      RUN   Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)  PASS  90.6s
+      RUN   Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)  PASS  376.6s
+      RUN   Tier Contract Auditor (Fuel/Engine/Brain/Glue registry health + chain integrity)  PASS   0.2s
+      RUN   Standards Alignment Auditor (Tier S — formula required_inputs supersets cited standard OR honestly declared partial_variant)  PASS   0.1s
+      RUN   AI Prompt Standards Audit (Tier B — edge fn prompts mentioning a metric must cite its canonical standard)  PASS   0.4s
+      RUN   Displayed Values Audit (Tier S coverage — every value rendered to users should map to a formula contract OR be classified as raw display)  PASS   0.2s
+      RUN   Partial-Label Honesty Audit (Tier S rendering — every page displaying a partial-variant metric must render the honesty marker near the value)  PASS   0.6s
+      RUN   Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)  PASS   0.2s
+      RUN   JS Syntax Sanity (no `await` inside non-async function/IIFE in inline scripts)  PASS   2.4s
+      RUN   Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)  PASS   0.6s
+      RUN   Canonical Anchor Gate (8-layer forward-anchor: fuel/engine/Tier A/Tier C/formula/standard/dashboard/capture)  PASS   2.2s
+      RUN   Audit Scanner Scope (meta-validator: every consumer-scanning audit covers _shared + subdir HTML)  PASS   0.1s
+      RUN   Truth-View Signal-Trust (no local re-derivation alongside v_*_truth reads; forward-only ratchet)  PASS   3.0s
+      RUN   Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)  PASS   0.5s
+      RUN   KPI Count-Query Safety (no .limit(N) + .length as canonical KPI count; forward-only ratchet)  PASS   0.3s
+      RUN   Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)  PASS   0.1s
+      RUN   User-Facing Jargon (no v_*_truth / RPC / code-ident / *.md / SQL on the glass; chip source: exempt; forward-only ratchet)  PASS   0.3s
+      RUN   Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)  PASS   0.2s
+      RUN   Component Adoption (canonical design-library adoption per registry row; forward-only floors, auto-tighten; no inline redefinitions)  PASS   3.0s
+      RUN   API Adoption (canonical _shared/ module adoption per edge function; forward-only floors, auto-tighten)  PASS   0.2s
+      RUN   DB Adoption (canonical RLS/policy/invoker pattern adoption per table/view; forward-only floors, auto-tighten)  PASS   0.2s
+      RUN   AU Adoption (client auth floor: identity restore + session-settled reads per page; forward-only floors)  PASS   0.3s
+      RUN   AV Adoption (offline canonical set per page: full 5-script unit; forward-only floor + no-partial rule)  PASS   0.1s
+      RUN   Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)  PASS   0.2s
+      RUN   Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)  PASS   0.2s
+      RUN   Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)  PASS   0.4s
+      RUN   Realtime Payload Columns (payload.new/old.X must be a real column on the subscribed table; forward-only ratchet)  PASS   0.2s
+      RUN   Edge Function Invoke (every functions.invoke('X') target must exist; forward-only ratchet)  PASS   0.4s
+      RUN   RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)  PASS   0.2s
+      RUN   Image / Asset Existence (every local asset ref must resolve to a file; forward-only ratchet)  PASS   0.1s
+      RUN   Service Worker SHELL_FILES (every precache path must exist; forward-only ratchet)  PASS   0.1s
+      RUN   Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)  PASS   0.2s
+      RUN   Supabase Object Existence (every .from/.rpc/REST object must exist in the canonical registry; forward-only ratchet)  PASS   0.2s
+      RUN   Edge Import/Export Resolution (every named relative import resolves to a real export; forward-only ratchet)  PASS   0.2s
+      RUN   Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)  PASS   0.1s
+      RUN   Verified-State Wiring (v_asset_state_truth conflict resolution stays wired into ai-gateway; forward-only ratchet)  PASS   0.2s
+      RUN   getElementById Orphan Setter (every JS id lookup must have a matching <id> in HTML; forward-only ratchet)  PASS   0.7s
+      RUN   Time-Window Consistency (same context keyword must use same N*day window across files; forward-only ratchet)  PASS   1.0s
+      RUN   Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)  PASS   0.6s
+      RUN   Inline Handler Existence (every onclick/onchange/... fn must be defined; forward-only ratchet)  PASS   0.7s
+      RUN   Empty Catch Block (try/catch{} that silently swallows errors; forward-only ratchet)  PASS   0.2s
+      RUN   setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)  PASS   0.5s
+      RUN   document.write Usage (forbidden API; forward-only ratchet)  PASS   0.5s
+      RUN   Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)  PASS   3.2s
+      RUN   Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)  PASS   0.1s
+      RUN   Viewport user-scalable=no (a11y anti-pattern: blocks pinch-zoom; forward-only ratchet)  PASS   0.1s
+      RUN   innerHTML escHtml Audit (interpolating template literals must escape; XSS guard, forward-only ratchet)  PASS   0.2s
+      RUN   Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)  PASS   0.3s
+      RUN   ARIA Label Coverage (every interactive element has an accessible name; forward-only ratchet)  PASS   0.2s
+      RUN   Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)  PASS   0.8s
+      RUN   Playwright Selector Existence (every locator('#X') id must exist on target page; forward-only ratchet)  PASS   0.4s
+      RUN   localStorage Key Consistency (every key must be set AND read; forward-only ratchet)  PASS   0.4s
+      RUN   CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)  PASS   0.3s
+      RUN   pg_cron Target Existence (jobs reference real tables + RPCs; forward-only ratchet)  PASS   0.2s
+      RUN   Trigger Function Existence (CREATE TRIGGER target functions exist; forward-only ratchet)  PASS   0.1s
+      RUN   Meta Description Coverage (every page has description + og:title + og:image + canonical; forward-only ratchet)  PASS   0.1s
+      RUN   Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)  PASS   0.1s
+      RUN   Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)  PASS   0.2s
+      RUN   Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)  PASS   0.1s
+      RUN   Canonical URL Consistency (<link rel=canonical> points at the page; forward-only ratchet)  PASS   0.1s
+      RUN   Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)  PASS   0.5s
+      RUN   External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)  PASS   0.2s
+      RUN   Button Type in Form (every <button> inside <form> declares type=button/submit/reset; forward-only ratchet)  PASS   0.2s
+      RUN   SECURITY DEFINER search_path (every definer fn pins search_path; covers ALTER FUNCTION hardening; forward-only ratchet)  PASS   0.3s
+      RUN   Duplicate <script>/<link> Tags (no per-page duplicates of script src or stylesheet href; forward-only ratchet)  PASS   0.2s
+      RUN   Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)  PASS   0.5s
+      RUN   Duplicate HTML id (every static id is unique per document; forward-only ratchet)  PASS   0.2s
+      RUN   <img> alt Coverage (every <img> declares an alt attribute; forward-only ratchet)  PASS   0.2s
+      RUN   JSON.parse Safety (every JSON.parse() is inside try/catch; forward-only ratchet)  PASS   0.4s
+      RUN   fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)  PASS   0.6s
+      RUN   Edge Status/Body Consistency (HTTP status matches body ok/error semantics; forward-only ratchet)  PASS   0.1s
+      RUN   Edge Unpinned Imports (every remote import pins @version; supply-chain hardening; forward-only ratchet)  PASS   0.2s
+      RUN   Timer Cleanup (setInterval has clearInterval; high-count setTimeout has clearTimeout; forward-only ratchet)  PASS   0.6s
+      RUN   CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)  PASS   0.3s
+      RUN   ADD COLUMN DEFAULT (every ADD COLUMN NOT NULL has a DEFAULT; backfill safety; forward-only ratchet)  PASS   0.1s
+      RUN   <form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)  PASS   0.1s
+      RUN   Edge OPTIONS Preflight (body-consuming edge fn handles CORS preflight; forward-only ratchet)  PASS   0.1s
+      RUN   <input type=password> Form Wrapper (password inputs wrapped in <form> for autofill+save; forward-only ratchet)  PASS   0.1s
+      RUN   FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)  PASS   0.4s
+      RUN   Edge Body Size Guard (req.json() in try/catch or has Content-Length/sizeLimit check; DoS hardening; forward-only ratchet)  PASS   0.2s
+      RUN   <select> Placeholder (every <select> has explicit selected/value=''/disabled-placeholder first option; forward-only ratchet)  PASS   0.1s
+      RUN   RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)  PASS   0.3s
+      RUN   console.log Production Drift (no console.log outside catch/DEBUG-guard in production code; forward-only ratchet)  PASS   0.6s
+      RUN   <a href='javascript:'> Anti-Pattern (use <button> for actions; reserve <a href> for navigation; forward-only ratchet)  PASS   0.1s
+      RUN   CREATE VIEW SELECT * (every view projects explicit columns; preserves canonical-registry coverage; forward-only ratchet)  PASS   0.3s
+      RUN   <meta http-equiv=refresh> (no auto-redirect anti-pattern; use JS or 30x; forward-only ratchet)  PASS   0.2s
+      RUN   SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)  PASS   0.6s
+      RUN   Icon-Only Button aria-label (svg-only <button> has aria-label/title/sr-only; forward-only ratchet)  PASS   0.2s
+      RUN   Edge Response Content-Type (every new Response(JSON.stringify) sets application/json; comment-stripped; forward-only ratchet)  PASS   0.3s
+      RUN   DROP IF EXISTS Idempotency (every DROP TABLE/VIEW/FUNCTION/POLICY/INDEX/TRIGGER/TYPE includes IF EXISTS; forward-only ratchet)  PASS   0.2s
+      RUN   <table> Accessible Name (every table has caption/aria-label/role=presentation; forward-only ratchet)  PASS   0.2s
+      RUN   Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)  PASS   0.6s
+      RUN   Persona Contract Validator (8-layer: modules + server + client + gateway + hive + migrations + key parity + Step D differentiation)  PASS   0.1s
+      RUN   Legacy Worker Decommission Validator (no production JS calls workhive-assistant.workers.dev)  PASS   3.3s
+      RUN   ai-gateway Anon Voice-Journal Contract (4-layer: ANON_OK_AGENTS set + auth-gate skip + authUid persistence guard + AGENT_ROUTES entry)  PASS   0.1s
+      RUN   Voice Canonical Anchor Validator (4-layer: classifier + fetch + wiring + DATA block in prompt)  PASS   0.1s
+      RUN   Voice Routing Unification (Phase 0: router output passing)  PASS   0.1s
+      RUN   Voice Companion Phase 1 (multi-agent orchestrator)    PASS   0.1s
+      RUN   Voice Companion Phase 1.5 (semantic RAG with pgvector)  PASS   0.1s
+      RUN   Voice Companion Phase 2 (multi-model A/B testing)     PASS   0.1s
+      RUN   Voice Companion Phase 3 (error recovery + anon memory)  PASS   0.1s
+      RUN   Companion Page Coverage (L0: every nav-hub page must load companion-launcher.js)  PASS   0.1s
+      RUN   Companion Source Coverage (L0: the Sources Gateway — every v_*_truth view triaged in companion_source_registry.json)  PASS   0.3s
+      RUN   Memory Integrity (Phase 2: session memory, turn tracking, dedup)  PASS   0.1s
+      RUN   Dialog Flow (Phase 4: intent refinement, clarification, slot-filling)  PASS   0.1s
+      RUN   Dialog Affirmation Bypass (5-layer: regex + vocabulary + word-cap + callsite bypass + shouldClarify symmetry)  PASS   0.1s
+      RUN   Dialog Follow-up Handlers (6-layer: negation + vocabulary + noise + state-clear + upstream + clarify-streak ceiling)  PASS   0.1s
+      RUN   Dialog Continuity (5-layer: prompt builder + DIALOG STATE block + PRIOR TOPIC HANDLE + slot enumeration + PH/English pronoun vocabulary)  PASS   0.1s
+      RUN   Dialog Recovery + Safety (5-layer: recovery helper + recovery vocabulary + clarification_pending guard + crisis line present + crisis line positioned)  PASS   0.1s
+      RUN   Dialog Quality Extended (10-layer: turns #5-#14 — persona-switch + stale-guard + topic-interrupt + thanks + asset-prime + greeting + code-switch + sensitive-topic + worker-name + repeat)  PASS   0.1s
+      RUN   AI Companion Trust + Observability (10-layer: turns #15-#24 — hallucination guard + citation + audio interrupt + TTS latency + rate-limit + fallback UX + acronym SSML + assistant journal pull + cost-cap + end ack)  PASS   0.1s
+      RUN   AI Companion Intelligence (10-layer: turns #25-#34 — shift + repeated-issue + standards + shortcuts + thumbs + discipline + goodbye + confidence + pacing + alerts override)  PASS   0.1s
+      RUN   AI Companion Collaboration + Wellbeing (10-layer: turns #35-#44 — action confirm + wellbeing + encouragement + skill gap + handover + batch + explainability + co-worker mention + fatigue + transcript export)  PASS   0.1s
+      RUN   AI Companion Resilience + Memory (10-layer: turns #45-#54 — offline + cache + escalation + terminology + branching + photo intent + avatar state + benchmark + summary + identity drift)  PASS   0.1s
+      RUN   AI Companion Workflow + Personalization (10-layer: turns #55-#64 — proactive + maturity + slot expiry + action replay + language + brevity + timer + URL prefill + mic quality + action queue)  PASS   0.1s
+      RUN   AI Companion Orchestration + Integration (10-layer: turns #65-#74 — pdf export + pronunciation + voice-execute lock + avatar animation + cross-hive RPC + digest + push + session lock + accent + streaming)  PASS   0.1s
+      RUN   AI Companion Trust Deployment (10-layer: turns #75-#84 — toxicity + question shape + freshness + rate-limit + share + readback + scope + correction + confidence label + crisis extension)  PASS   0.1s
+      RUN   AI Companion Input Normalization + Onboarding (10-layer: turns #85-#94 — precision rule + asset-tag normalization + time-range + ack style + forbidden topics + mic env + pin + help + KPI translation + new-worker welcome)  PASS   0.1s
+      RUN   AI Companion Integration + Audit (10-layer: turns #95-#104 — audit log + quiet hours + preflight + idle cleanup + error analytics + session tag + deep link + grammar guess + phrase pool + shift-end)  PASS   0.1s
+      RUN   AI Companion Proactive Assistance + Learning (10-layer: turns #105-#114 — PM sync drift + skill-level adaptation + cross-asset pattern + intent history + sentiment over time + asset warm-up + symptom normalizer + shift boundary + knowledge gap + mentor handoff)  PASS   0.1s
+      RUN   AI Companion Compliance + Data Governance (10-layer: turns #115-#124 — PII scrubber + consent capture + retention + right-to-erasure + audit CSV + suspicious activity + AI disclosure + locale-aware dates + monthly cost cap + voice drift advisory)  PASS   0.2s
+      RUN   AI Companion Multi-Modal + Accessibility (10-layer: turns #125-#134 — camera capture + file attachment + reduced motion + aria-live + keyboard nav + CB-safe palette + large text + haptic + voice-only mode + live captions)  PASS   0.1s
+      RUN   AI Companion Operational Excellence (10-layer: turns #135-#144 — health ping + self-test + feature flags + browser support + network adapt + memory pressure + clock drift + background pause + crash recovery + presence heartbeat)  PASS   0.1s
+      RUN   AI Companion Team Coordination (10-layer: turns #145-#154 — active sessions + handoff + shared notes + concurrency alert + watchlist + broadcast + resolution + cross-shift continuity + buddy mode + mention notifications)  PASS   0.1s
+      RUN   AI Companion External Integration (10-layer: turns #155-#164 — SAP PM webhook + Maximo poll + OPC-UA tag + MQTT topic + Slack + email digest + Teams card + ICS calendar + signature compare + outbound retry queue)  PASS   0.1s
+      RUN   AI Companion Advanced Analytics (10-layer: turns #165-#174 — 3σ anomaly + Weibull MTBF + Pareto + linear trend + seasonal peak + trimmed mean + z-score + correlation + Weibull CDF + availability)  PASS   0.1s
+      RUN   AI Companion Safety + Permit-to-Work (10-layer: turns #175-#184 — LOTO + hot work + confined space + PPE matrix + near-miss + JSA + gas test + incident + energy isolation + permit expiry)  PASS   0.1s
+      RUN   Agentic RAG Loop Phase 1 (18-layer: edge fn + 5 stages + hive scoping + FREE-TIER-ONLY + callAI + rate limit + retry cap + grader threshold + question cap + trace + cost log + migration + 4-place sync + em-dash safety + JSON mode)  PASS   0.1s
+      RUN   Hierarchical Period Summaries Phase 2 (16-layer: migration + 5 levels + RLS + aggregator + Breakdown/Corrective filter + FREE-TIER-ONLY + callAI + hive scoping + row cap + empty short-circuit + upsert + 4-place sync + em-dash safety + cost log)  PASS   0.1s
+      RUN   Tiered Model Router Phase 4 (9-layer: TASK_PROFILES + 11 profiles + free-tier values + reorderChain + callAI signature + reorderChain usage + Phase 1 stages wired + Phase 2 digest wired + no paid models)  PASS   0.1s
+      RUN   Agentic RAG Observability Phase 8 (10-layer: page exists + calm-dashboard meta + utils + hive gate + hive-scoped query + narrow select + 4 render fns + escHtml + bounded fetch + window filter)  PASS   0.1s
+      RUN   Temporal RAG Orchestrator Phase 3 (17-layer: edge fn + decompose + 3 granularities + auto-heuristic + MAX_PERIODS + MAX_PARALLEL + runBounded + reads Phase 2 + 2x callAI + sub/fold taskProfiles + FREE-TIER + hive scoping + rate limit before fan-out + 4-place sync + cost log + em-dash safety)  PASS   0.1s
+      RUN   Agent Episodic Memory Phase 7 (12-layer: migration + 4 types + RLS + edge fn + recall+store ops + caps + content cap + importance×log rank + batch cap + hive scoping + 4-place sync + no raw fetch)  PASS   0.1s
+      RUN   Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + no LLM + 4-place sync)  PASS   0.1s
+      RUN   Cold Lakehouse Archive Phase 6 (10-layer contract: edge fn + 4 supported tables + 200 ok:true hyparquet read + storage list + hive scoping + Python exporter + --commit dry-run default + ARCHIVE_AGE_MONTHS=18 + no auto-delete safety + 4-place sync)  PASS   0.1s
+      RUN   Cold Archive Wiring (Hierarchical layer: hyparquet Parquet read stays wired into cold-archive-query - _shared helpers + parquetReadObjects + bounds + ok:true)  PASS   0.2s
+      RUN   Semantic Fact Extractor Wiring (Semantic layer: logbook -> KG triples -> embed -> idempotent upsert into knowledge_graph_facts; _shared/semantic-facts.ts helpers + dedupe migration + 4-place sync)  PASS   0.1s
+      RUN   Skill Library Wiring (Procedural layer: embed procedural memories + match_procedural_memories cosine RPC + _shared/skill-library.ts matcher + ai-gateway injection for fix agents)  PASS   0.1s
+      RUN   Follow-up Queue Wiring (Prospective layer: agent_followups store + _shared/followups.ts enqueue/recall-due/surface + ai-gateway surfacing + envelope-driven enqueue for task agents)  PASS   0.1s
+      RUN   RAG Flywheel (processor + loop orchestrator + canonical tile tags + KPI seeds + walk template branches + lane D retriever)  PASS   0.1s
+      RUN   RAG Flywheel Locks (inter-tile throttle + domain prefix + view-name self-check + positive-framing seeds + cold_archive demotion)  PASS   0.2s
+      RUN   AI Companion Knowledge Graph (10-layer: turns #185-#194 — entity + relation + triple + RAG block + FNV hash + chunking + citation + query rewrite + reasoning trace + KB version)  PASS   0.1s
+      RUN   AI Companion Energy + Sustainability (10-layer: turns #195-#204 — EnPI + PH carbon factor + peak demand + 5σ energy anomaly + standby waste + water + air leak + motor efficiency + sustainability bundle + energy query)  PASS   0.1s
+      RUN   AI Companion Multi-Language NLU (10-layer: turns #205-#214 — Cebuano + Ilonggo + Tagalog imperative + code-switch ratio + politeness register + PH time phrases + number words + filler strip + stop words + slang dict)  PASS   0.1s
+      RUN   Proactive Alerts (Phase 5: KPI spikes, risk escalation, overdue PM)  PASS   0.1s
+      RUN   Voice Alert Formatting (Phase 5: alerts render with descriptions, not IDs)  PASS   0.6s
+      RUN   Offline Resilience (Phase 6: snapshot caching, response queue)  PASS   0.1s
+      RUN   TTS Quality Metrics (Phase 7: latency logging, cache)  PASS   0.1s
+      RUN   Avatar State Management (Phase 10: emotion tracking, animations)  PASS   0.1s
+      RUN   Multilingual Support (Phase 11: term translation, language prefs)  PASS   0.1s
+      RUN   Voice Data Flow Audit (Phase 3/5/8: KB RAG, proactive alerts, analytics)  PASS   0.1s
+      RUN   RAG Integrity (Phase 1.5: semantic search, KB chunks, embeddings)  PASS   0.1s
+      RUN   Analytics Integrity (Phase 8: conversation quality metrics, health view)  PASS   0.1s
+      RUN   Team Coordination (Phase 9: cross-hive alerts, best practices sharing)  PASS   0.1s
+      RUN   Tier C Contract Regression Validator (good/bad fixtures per agent contract)  PASS   0.1s
+      RUN   Tier F Capture Contract Regression Validator (good/bad payload fixtures per input surface)  PASS   0.1s
+      RUN   Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)  PASS   7.2s
+      RUN   Tier G / Layer 9 Capability Catalog & Dedup (every user-facing function pinned to one primary surface)  PASS   0.4s
+      RUN   Playwright Coverage (every LIVE_TOOL_PAGE has tests/<page>.spec.ts with a real goto)  PASS   0.1s
+      RUN   Seed -> Consumer Contract (TZ-aware date columns + JSONB key contract for AMC-like blobs)  PASS   0.4s
+      RUN   WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)  PASS   0.9s
+      RUN   Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)  PASS   0.3s
+      RUN   Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)  PASS   0.6s
+      RUN   Schema Phantom Column Detector (4-layer: phantom reads + dead columns + alias drift + layer hotspots)  PASS   0.7s
+      RUN   PostgREST Embed Integrity (4-layer: phantom target + phantom embed column + missing FK + embed distribution)  PASS   0.7s
+      RUN   KG Facts Scope Split (4-layer: platform table + RPC + voice-handler fan-out + no broadcast pattern)  PASS   0.2s
+      RUN   Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)  PASS   1.9s
+      RUN   Migration Immutability (4-layer: edited-after-first-commit + filename convention + whitespace-only + recency)  PASS  57.5s
+      RUN   RLS Policy Symmetry (4-layer: write-without-read + read-without-create + update gap + CRUD matrix)  PASS   0.2s
+      RUN   Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)  PASS   0.3s
+      RUN   PII Egress to Third Parties (4-layer: direct-fetch+PII + AI-prompt+PII + host distribution + PII reach)  PASS   0.5s
+      RUN   Index Coverage (4-layer: high-freq unindexed + med-freq unindexed + coverage matrix + tables-with-only-PK)  PASS   0.3s
+      RUN   CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)  PASS   0.2s
+      RUN   AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)  PASS   0.3s
+      RUN   Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)  PASS   1.0s
+      RUN   Canonical Overlap (L-1 Layer 2 -- blocks phantom tables + undocumented surface overlaps)  PASS   0.1s
+      RUN   Loads-Utils-JS (3-layer: required + allowlist-freshness + census)  PASS   0.2s
+      RUN   Validator cp1252-Guard (3-layer: required + allowlist + placement)  PASS   0.3s
+      RUN   Cascade Behavior (4-layer: no-on-delete-clause + explicit-no-action + distribution + orphan-risk)  PASS   0.3s
+      RUN   Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)  PASS   7.8s
+      RUN   Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)  PASS   2.2s
+      RUN   JSONB Schema Drift (4-layer: unread JSONB + reader-without-writer + key inventory + column census)  PASS  28.0s
+      RUN   Validator Self-Coverage Meta-Gate (4-layer: missing script + unregistered + report mismatch + census)  PASS   0.1s
+      RUN   Validator Freshness / Decay Meta-Gate (P3: declared anchors still match target + never-fired-stale-target census)  PASS   0.6s
+      RUN   AI Asset Versioning (C5: prompts/eval-sets/model-chain/judge versioned + hash-locked like migrations)  PASS   0.2s
+      RUN   AI Eval Regression Gate (C3 Phase 1: score locked-test split vs frozen golden; degrade-to-SKIP without data)  PASS   0.2s
+      RUN   Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)  PASS   0.1s
+      RUN   Companion Held-Out Diverse Gate (§0.7: novel-phrasing fabrication floor; threshold-not-zero; degrade-to-SKIP without a fresh board)  PASS   0.1s
+      RUN   AI Seams Inventory (C4 Phase 1: catalog SaaS→AI / AI→tenant / AI→quota boundaries + forward-only ratchet)  PASS  14.7s
+      RUN   AI Seam Contract-Test Coverage (C4 Phase 2a: forward-only on uncovered seam count; floor auto-lowers as tests get wired)  PASS   7.9s
+      RUN   Meta-Gate Recorder (C4 Phase 2c: observation-mode promotion; writes per-domain decision to meta_gate_decisions.jsonl per gate run)  PASS   0.3s
+      RUN   C-track Self-Coverage (meta: 9 artifacts + 5 validators + registry + roadmap labels of the Self-Improving Gate C-track)  PASS   0.1s
+      RUN   Grounded MCP Sweep Self-Coverage (meta: every done page in the roadmap keeps its crystallized journey lock)  PASS   0.1s
+      RUN   Companion Stack capstone self-coverage (Agent/Memory/RAG/Safety; forward-only on Major grounded defects)  PASS   0.1s
+      RUN   Modal A11y Debt Ratchet (no NEW hand-rolled modal without role=dialog+aria-modal; critique C7)  PASS   0.2s
+      RUN   Prod path leak (no committed /workhive/ resource paths — they 404 in production)  PASS   1.4s
+      RUN   Status-Enum Drift Guard (WH_STATUS_ENUMS == canonical DB enum; critique W3)  PASS   0.1s
+      RUN   Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)  PASS   7.2s
+      RUN   Cache Invalidation (4-layer: shell missing + shell drift + version history + shell inventory)  PASS   3.3s
+      RUN   Cross-Hive Realtime Filter Coverage (4-layer: missing filter + channel naming + scoped distribution + density)  PASS   1.7s
+      RUN   Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)  PASS   1.2s
+      RUN   Agent Memory Integrity (4-layer: schema + RLS + index + retention)  PASS   0.1s
+      RUN   AI Gateway Routing (4-layer: gateway present + routes exist + canonical coverage + inventory)  PASS   0.1s
+      RUN   Agent Handoff Contract (4-layer: handoff keys + specialist awareness + worker_name trust + inventory)  PASS   0.1s
+      RUN   SQL Function Security Posture (4-layer: DEFINER+search_path + trigger explicit + matrix + aggregate)  PASS   0.4s
+      RUN   SECURITY DEFINER Hive-Membership Gate (every DEFINER hive-fn gated OR service_role-only)  PASS   0.2s
+      RUN   Admin Gate Enforcement (founder-console, marketplace-admin must verify admin)  PASS   0.1s
+      RUN   HTML ID Uniqueness (4-layer: dup-within-file + cross-page drift + density + reserved-name)  PASS   1.0s
+      RUN   Trigger Reentrancy Safety (4-layer: self-write guard + indirect loop + inventory + depth adoption)  PASS   0.5s
+      RUN   Schema Migration Order Safety (4-layer: table order + column order + function order + dependency matrix)  PASS   0.6s
+      RUN   Auth Boundary Coverage (4-layer: HTML identity + edge auth + identity distribution + anon writes)  PASS   1.7s
+      RUN   AI Evaluation Coverage (4-layer: registry present + fixture coverage + eval cron + quality log)  PASS   0.2s
+      RUN   Edge Function Bundle Bloat (4-layer: LOC + imports + distribution + dynamic adoption)  PASS   0.7s
+      RUN   Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)  PASS   0.4s
+      RUN   Module-Scope Mutable State (4-layer: unbounded growth + eviction adoption + inventory + clean fns)  PASS   2.6s
+      RUN   Date Arithmetic Safety (4-layer: space-date + parse-vs-ISO + ms literals + TZ-naive helpers)  PASS   1.3s
+      RUN   Cron Job Functional Coverage (4-layer: target exists + config entry + AI gate + density)  PASS   0.1s
+      RUN   JSONB Index Drift (4-layer: missing GIN + arrow freq + inventory + op distribution)  PASS   0.9s
+      RUN   Test Page Drift (4-layer: smaller + larger + orphans + inventory)  PASS   0.2s
+      RUN   Embedding Coverage & Freshness (4-layer: refresh pipeline + vector index + source coverage + dim inventory)  PASS   0.8s
+      RUN   AI Cost Observability (4-layer: ledger + callAI logs + dashboard + invocations)  PASS   0.3s
+      RUN   Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)  PASS   1.1s
+      RUN   Q0 Logbook Quota Pilot (per-day rate-limit trigger + server text caps + friendly UX + photo size assert; the Q2-replication template)  PASS   0.1s
+      RUN   Q2/Q5 Quota Coverage Ratchet (every high-write table has a per-day cap on a REAL timestamp column; FAILs if a new surface ships uncapped)  PASS   1.7s
+      RUN   Q3 Text+Upload Cap Ratchet (server-side text-cap trigger per high-write table + upload size/duration caps; no unbounded user input)  PASS   1.6s
+      RUN   Q5 Unified Quota Board (aggregates all quota dimensions into one measured board; FAILs if any bound is red)  PASS   2.9s
+      RUN   Per-Page Quota Audit (EVERY production feature page's write tables are capped or documented-excluded; FAILs on any uncapped page write)  PASS   0.2s
+      RUN   Q6 Global LLM Budget Guard (the org-shared-pool layer above per-tenant caps: atomic row-locked consume RPC + daily circuit-breaker + per-minute burst smoother that sheds background/passes interactive + fail-open + wired at the gateway; FAILs if any regress)  PASS   0.2s
+      RUN   Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative triggers ATTACHED + status-fixed RAISE 54000; catches the trigger-drift + 'warn'-status bug classes)  PASS   0.5s
+      RUN   Q5-b Embedding/Growth Retention (embedding_cache LRU auto-prune cron + prune fn; canonical big tables via the safe DRY-RUN-default, double-gated cold_archive_prune step-3 whose safety gate provably never deletes without a verified Parquet snapshot)  PASS   0.2s
+      RUN   Q5 Realtime Cap + Graceful-429 (whRealtimeSubscribe bounds channels PER CLIENT against the verified 200-concurrent free-tier wall + degrades overflow/offline to visibility-aware polling + frees the slot on stop; scope-aware 429 UX maps each gateway body (burst/platform/daily/hourly) to the right hint; C5+C6 run Node behavioural tests as real teeth)  PASS   0.3s
+      RUN   Q5-a Inline Image Detector-Guard (server-side base64 photo size cap on logbook+inventory_items backstopping the <=700KB client compression + photo_attach_stats() telemetry; the right-sized move since measured attach-rate is 0% — full Storage-offload stays deferred until the rate climbs)  PASS   0.3s
+      RUN   Q4 AI Daily Ceiling (per-day AI window on ai_rate_limits+ai_user_rate_limits denies scope='day' at the daily cap; the deno-gated live-runtime 429 is proven via a Node local-substitute that drives the REAL checkAIRateLimit/checkSoloRateLimit decision — deploy Ian-gated)  PASS   0.2s
+      RUN   Data Retention / Right-to-Erasure (4-layer: delete path + helper + PII inventory + retention)  PASS   0.3s
+      RUN   AI Input Bounds / Safety (4-layer: field slices + any slice + slice constants + input inventory)  PASS   0.5s
+      RUN   AI Alignment / Provenance (4-layer: source stamp + provenance cols + dashboard filter + inventory)  PASS   0.4s
+      RUN   AI Payload Hygiene (4-layer: no select-star + module prompts + limit bounds + payload inventory)  PASS   0.3s
+      RUN   pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)  PASS   0.3s
+      RUN   PDF Pipeline / Knowledge Ingestion (4-layer: jobs table + runner fn + coverage + inventory)  PASS   0.9s
+      RUN   RAG Completeness (4-layer: rerank helper + budget helper + rerank adoption + inventory)  PASS   0.3s
+      RUN   Platform Gateway Coverage (4-layer: gateway present + routes exist + coverage + inventory)  PASS   0.1s
+      RUN   Platform Gateway Audit Completeness (4-layer: schema + writes + RLS + retention)  PASS   0.3s
+      RUN   Gateway Tenancy Verification (Pillar I: client hive_id must be membership-verified; ratchet 34->0)  PASS  101.2s
+      RUN   Gateway Policy Hive-Binding (Pillar P: anon-capable fns must rate-limit on the verified tenant, never a raw client hive_id)  PASS   0.2s
+      RUN   AI Pattern Compliance (4-layer: rate-gate-first + fallback chain + JSON mode + cost concentration)  PASS   0.2s
+      RUN   State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)  PASS   0.5s
+      RUN   Audit Log Coverage (4-layer: unaudited writers + dead audit columns + critical-table coverage + writer matrix)  PASS   0.6s
+      RUN   Cron Schedule Integrity (4-layer: function existence + scheduled-agents routing + config drift + schedule sanity)  PASS   0.2s
+      RUN   RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)  PASS   0.3s
+      RUN   Auth Migration Readiness (Phase A audit: sibling coverage + auth_uid columns + identity gate strength)  PASS   0.2s
+      RUN   Edge Function Caller Contract (4-layer: function existence + required field coverage + phantom fields + orphan functions)  PASS   0.2s
+      RUN   Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)  PASS   0.5s
+      RUN   Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)  PASS   0.3s
+      RUN   Edge Function Response Contract (4-layer: function returns + caller field validity + introspection coverage + error-only detection)  PASS   0.2s
+      RUN   Realtime Subscription Cleanup (4-layer: cleanup pairing + lifecycle wiring + const-decl warning + asymmetry metric)  PASS   0.9s
+      RUN   Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)  PASS   0.1s
+      RUN   Maturity Gating Validator (Phase 0.5: gated pages load maturity-gate.js + call checkMaturityGate + render honest empty state)  PASS   0.1s
+      RUN   AMC Validator (Phase 1.9: amc_briefings migration + cost log + realtime + alert-hub subscription + canonical anchor)  PASS   0.1s
+      RUN   Visual Defect Capture Validator (Phase 1.9: callAIMultimodal + rate-limit + MIME whitelist + fire-and-forget embed + cost log)  PASS   0.1s
+      RUN   Sensor Pipeline Validator (Phase 1.9: sensor_readings schema + realtime + asset-hub subscription + anomaly module)  PASS   0.1s
+      RUN   Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)  PASS   0.1s
+      RUN   Day Planner Validator (Phase 1.9: DILO/WILO/MILO/YILO tabs + schedule_items + nav-hub linkage + auth-aware)  PASS   0.1s
+      RUN   Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)  PASS   0.4s
+      RUN   Adoption Observability Validator (Phase 3.6: hive_adoption_score migration + supervisor card + onboarding stepper + intent capture + canonical anchors)  PASS   0.2s
+      RUN   Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)  PASS   0.1s
+      RUN   Enterprise Unlock Validator (Phase 5: retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console)  PASS   0.2s
+      RUN   Industry-Defining Validator (Phase 6: knowledge graph + drone inspections + standards registry + federated opt-in + insurance bridge view + MaaS consulting engagements)  PASS   0.2s
+      RUN   Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)  PASS   0.3s
+      RUN   Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)  PASS   0.3s
+      RUN   Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)  PASS   0.1s
+      RUN   Arc X Cognitive-Load HARD Gate (L1 real-login hive resolution / Issue #1)  PASS   0.1s
+      RUN   Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)  PASS   0.2s
+      RUN   Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)  PASS   0.1s
+      DATA QUALITY
+      --------------------------------------------------------------------
+      RUN   Logbook Consistency (closed_at set, Open no closed_at, parts txn parity)  PASS   3.5s
+      RUN   Pattern Alerts Quality (no <think> leak, valid rule_ids, non-empty text)  PASS   2.0s
+      RUN   Inventory Integrity (no negative qty, valid txn types, qty_after accuracy)  PASS   2.0s
+      RUN   Hive Validator                                        PASS   0.2s
+      RUN   Logbook Validator                                     PASS   0.1s
+      RUN   Inventory Validator                                   PASS   0.1s
+      RUN   Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)  PASS   0.4s
+      RUN   PM Scheduler Validator                                PASS   0.1s
+      RUN   Skill Matrix Validator                                PASS   0.3s
+      RUN   Report Sender Validator (32 checks: structure + UI + logic + PWA)  PASS   0.1s
+      RUN   Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)  PASS   0.3s
+      RUN   Assistant Validator                                   PASS   0.2s
+      RUN   AI Context Quality Validator                          PASS   0.2s
+      RUN   Input Guards Validator                                PASS   0.8s
+      RUN   Schema Consistency Validator                          PASS   6.0s
+      RUN   Observability Validator                               PASS   0.9s
+      RUN   Data Governance Validator                             PASS   0.5s
+      RUN   PWA Integrity Validator                               PASS   2.4s
+      RUN   Accessibility Baseline Validator                      PASS   0.6s
+      RUN   Tenant Boundary Escape Validator (5-layer, +nullable auth_uid RLS trap)  PASS   2.4s
+      RUN   AI Prompt Regression Validator (4-layer: consistency + content + parity + Tier-S citation)  PASS   0.1s
+      RUN   Timer and Scheduled Job Hygiene                       PASS   1.5s
+      RUN   XSS / escHtml Coverage Validator                      PASS   2.0s
+      RUN   SEO and Page Metadata Validator                       PASS   0.2s
+      RUN   Mobile UX Compliance Validator                        PASS   0.7s
+      RUN   Nav Hub Registry Validator                            PASS   0.1s
+      RUN   Performance Anti-Pattern Validator                    PASS   1.5s
+      RUN   Catalog Approval Status Validator                     PASS   0.2s
+      RUN   Drawing Standards Compliance Validator                PASS   1.6s
+      RUN   Diagram Inputs Contract Validator (inp.xxx vs collectInputs keys)  PASS   0.1s
+      RUN   Enterprise Compliance Baseline Validator              PASS   0.2s
+      RUN   Notification and Alert Health Validator               PASS   0.1s
+      RUN   Predictive Analytics Data Quality Validator           PASS   0.1s
+      RUN   Vector Knowledge Base Schema Validator                PASS   0.5s
+      RUN   AI Provider Chain Validator                           PASS   0.1s
+      RUN   Edge Function API Contract Validator                  PASS   0.3s
+      RUN   AI Output Attribution Validator                       PASS   0.2s
+      RUN   Context Window Management Validator                   PASS   0.1s
+      RUN   Knowledge Base Freshness Validator                    PASS   0.7s
+      RUN   SSO Readiness Validator                               PASS   0.6s
+      RUN   Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)  PASS   4.4s
+      RUN   Integration Security Baseline Validator (3-layer, +cors dynamic, +deploy coverage)  PASS   0.8s
+      RUN   CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)  PASS   0.1s
+      RUN   Digital Twin Schema Readiness Validator               PASS   0.6s
+      RUN   IoT and MQTT Protocol Safety Validator                PASS   1.1s
+      RUN   Content Quality Validator (embed guard, schema drift, label quality)  PASS   0.1s
+      AI VALIDATION
+      --------------------------------------------------------------------
+      RUN   Content Grounding: Article<->Page Taxonomy Consistency (forward-only ratchet)  PASS   0.4s
+      RUN   Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)  PASS   0.1s
+      RUN   CSP Hardening Ratchet (index.html inline-handler/un-nonced-script debt frozen; forward-only toward strict CSP)  PASS   0.1s
+      RUN   Data Governance Validator (ownership, metadata, write path, versioning)  PASS   1.0s
+      RUN   AI Data Pipeline Validator (stale data, silos, latency, observability)  PASS   0.1s
+      RUN   Data Quality Validator (duplicates, incomplete, bias, inconsistent formats)  PASS   0.1s
+      RUN   Analytics Engine Validator (4-layer: HTML + Edge + Python + AST)  PASS   2.5s
+      RUN   Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)  PASS   0.2s
+      RUN   ML Layer Validator (5-layer: features + API + artifacts + edge fns + UI)  PASS   0.1s
+      RUN   Playwright Staleness Gate (L13 — walkthrough coverage + finding closure + chip assertions)  PASS   0.1s
+      RUN   Companion Launcher Page Coverage (L0 — every nav-hub page has companion-launcher.js)  PASS   0.1s
+      RUN   Companion Source Coverage (L0 — the Sources Gateway: every v_*_truth view triaged in companion_source_registry.json)  PASS   0.4s
+      RUN   AI Self-Improvement: Voice Kb Context                 PASS   0.1s
+      RUN   AI Self-Improvement: Voice Alert Order                PASS   0.1s
+      RUN   AI Self-Improvement: Voice Response Latency           PASS   0.1s
+      RUN   AI Self-Improvement: Response Format Validation       PASS   0.1s
+      RUN   AI Self-Improvement: Data Completeness                PASS   0.1s
+      RUN   AI Self-Improvement: Calc Formula Accuracy            PASS   0.9s
+      RUN   Calc API JSON-Serializability (numpy-500 / silent-TS-fallback class)  PASS   1.2s
+      RUN   Deep-arc P1: Engineering-Design registry SSOT (counts derive from CALC_TYPES_UI; no drift/orphans)  PASS   0.1s
+      RUN   Deep-arc P3: Engineering-Design report a11y (contrast U-1/U-4, 44px U-6, label/announce passes U-2/U-3/U-8)  PASS   0.1s
+      RUN   Deep-arc P4: Engineering-Design XSS/output-encoding (no row-into-onclick I-7, no raw narrative I-6, validateBeforeSave I-5)  PASS   0.1s
+      RUN   Deep-arc P5: Engineering-Design AI egress integrity (timeout AI-4, honest copy AI-5, disclosure AI-7, friendly errors AI-8, narration grounding AI-1)  PASS   0.1s
+      RUN   Deep-arc P7/F-5: Engineering-Design silent-zero ratchet (result `|| 0` alias-chains can't grow past baseline)  PASS   0.1s
+      RUN   Deep-arc P6/A-6: Engineering-Design scoped SI/IP units toggle (engine normalized to SI; universal/ambiguous units excluded)  PASS   0.1s
+      RUN   AI Self-Improvement: Analytics Engine Value Accuracy  PASS   1.6s
+      RUN   UFAI: Analytics Engine scoreboard invariants (anti-drift lock)  PASS   0.1s
+      RUN   AI Self-Improvement: Project Manager EVM + CPM Value Accuracy  PASS   0.7s
+      RUN   AI Self-Improvement: Reliability P-F Interval Value Accuracy  PASS   0.1s
+      RUN   Arc F: Python API auth gate (edge↔python shared secret)  PASS   0.7s
+      RUN   Arc F: Python API supply-chain (hard-import declaration + CVE scan)  PASS   0.4s
+      RUN   Arc H: Voice-router determinism oracle (routing/tool-selection value-correctness)  PASS   2.3s
+      RUN   Arc H: AI rate-limit coverage (no unbounded frontend-direct LLM call; LLM10)  PASS   3.7s
+      RUN   Arc R: SSRF egress (tenant-controlled fetch routed through ssrf-guard; A10)  PASS   0.2s
+      RUN   Arc R: public-fn authZ (no verify_jwt=false LLM fn without auth/rate-limit; A01)  PASS   0.1s
+      RUN   Arc R: migration grant-regression (a revoked lock not silently re-granted; A01)  PASS   0.3s
+      RUN   Arc R: public-fn write authZ (no anon-triggerable service-role writer; A01/BFLA)  PASS   0.1s
+      RUN   Arc R: DOM-XSS DB-field escaping (DB free-text in HTML must be escHtml; A03)  PASS   0.1s
+      RUN   Hive Board: asset write on asset_nodes + role-scoped reserve + RLS migration  PASS   0.1s
+      RUN   Arc R: AI input caps (user text length-capped before LLM; LLM10)  PASS   0.1s
+      RUN   Arc R: committed .env secret (no credential in a tracked dotfile; A02)  PASS   0.1s
+      RUN   Arc R: SRI on pinned CDN scripts (supply-chain; A08)  PASS   0.1s
+      RUN   Arc R: SAST OWASP-map completeness (full Top-10 mapped; meta)  PASS   0.1s
+      RESILIENCE / DR
+      --------------------------------------------------------------------
+      RUN   Arc S/C: dedup UNIQUE constraints (exactly-once on retries)  PASS   0.2s
+      RUN   Arc S/C: optimistic-lock compare-and-set (no lost-update)  PASS   0.1s
+      RUN   Arc S/C: optimistic-UI rollback (no phantom-saved row)  PASS   0.1s
+      RUN   Arc S/C: atomic multi-step writes (no partial-write corruption)  PASS   0.1s
+      RUN   Arc S/F: dependency timeout (no infinite hang)        PASS   0.1s
+      RUN   Arc S/F: AI all-down degrade (no silent empty)        PASS   0.1s
+      RUN   Arc S/F: CDN resilience (no silent dead lib)          PASS   0.1s
+      RUN   Arc S/F: external circuit-breaker (Resend/CMMS, no hammering)  PASS   0.1s
+      RUN   Arc S/D: offline write queue (no lost field write)    PASS   0.1s
+      RUN   Arc S/D: offline-queue retry/backoff/dead-letter      PASS   0.1s
+      RUN   Arc S/D: precache + offline navigation fallback (no blank tab)  PASS   0.1s
+      RUN   Arc S/D: backend-degraded detection (not just navigator.onLine)  PASS   0.1s
+      RUN   Arc S/R: DR claims backed (no false-sense recovery doc)  PASS   0.1s
+      MEMORY SYSTEM
+      --------------------------------------------------------------------
+      RUN   Memory M3.1: topic-file write-quality lint (type/name/description, no silent type=unknown)  PASS   0.8s
+      RUN   Memory M2.2: retriever health-regression gate (silent_rate / p95 / grounding thresholds)  PASS   0.3s
+      RUN   Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)  PASS   0.2s
+      RUN   Memory M4.1: transcript prune mechanism (evicts only old never-retrieved, keeps the rest)  PASS   0.1s
+      COMPANION MEMORY
+      --------------------------------------------------------------------
+      RUN   Companion Memory C1.1: memory gate has teeth (degraded locked-test FAILs, clean passes)  PASS   0.1s
+      RUN   Companion Memory C2.1: supersedes down-rank (obsolete procedure ranks below its replacement)  PASS   0.4s
+      RUN   Companion Memory C3.2: memory health gate (structural + procedural-embedding integrity)  PASS   1.2s
+      RUN   Companion Memory C2.3: re-embed-retry (null procedural becomes searchable after re-embed)  PASS   0.4s
+      RUN   Companion Memory C2.2: write-side semantic dedup (near-dup procedural merges, distinct inserts)  PASS   0.4s
+      RUN   Arc I: account-enumeration resistance (login uniform-response + signup RPC carve-out; ASVS V2.2)  PASS   0.1s
+      RUN   Arc I: signup bot-protection wiring (Turnstile configure-to-enable; ASVS V2.1)  PASS   0.1s
+      RUN   Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)  PASS   0.1s
+      RUN   Arc H: companion output escaping (LLM05 — untrusted LLM output can't XSS)  PASS   0.2s
+      RUN   Analytics I3/I6: send-report-email HTML-injection (every email sink escaped)  PASS   0.2s
+      RUN   Analytics AI2/F5: action-plan synthesis reads real phase keys (no ungrounded AI)  PASS   0.1s
+      RUN   Analytics A4/AI3/A6: page invariants (chart CLS reserve, honest label, no em-dash)  PASS   0.1s
+      RUN   Analytics F1b: canonical OEE quality = good/total (report matches page)  PASS   0.1s
+      RUN   Analytics F1d: PM compliance is SMRP-weighted (hero matches its count)  PASS   0.2s
+      RUN   Arc H: AI prompt-injection posture (untrusted input out of system prompt; LLM01)  PASS   0.2s
+      RUN   Arc H: PII-egress redaction ISO carve-out (D25, shared redactPII.ts, deterministic)  PASS   0.1s
+      RUN   Arc H: multi-turn PII egress rail (K2, memory_block + summariser, redactMemoryText)  PASS   0.1s
+      RUN   Arc H: no browser page bypasses ai-gateway with a direct external-model call (K1, Ext-1)  PASS   1.1s
+      RUN   Arc H: piiSafe companion context carries no person-name (K4, page_context egress)  PASS   0.2s
+      RUN   Arc H: ASR-confidence clarify-gate intact (X-FIND, garbled voice does not confabulate)  PASS   0.1s
+      RUN   Arc H/V: indigenous stack keeps local-first + fallback (data sovereignty, no hard external dep)  PASS   0.1s
+      RUN   AI Companion: reasoning/persona-scaffold leak strip (untagged CoT never reaches the reply)  PASS   0.4s
+      RUN   Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)  PASS   0.1s
+      RUN   Deepwalk D18: destructive-safety (delete/reset confirm-gated via shared whConfirm)  PASS   0.1s
+      RUN   Deepwalk D19: idle-session robustness (autoRefreshToken + wake-refresh, no stale 401)  PASS   0.1s
+      RUN   Deepwalk D20: client resilience (timeout-bounded fetch + offline/connectivity UX)  PASS   0.1s
+      RUN   Deepwalk content fold: /learn article presentation floor (D4/D5/D7/D17)  PASS   0.2s
+      RUN   AI Self-Improvement: Artifact-Alignment Correctness (§13.13)  PASS   0.2s
+      SENTINEL
+      --------------------------------------------------------------------
+      RUN   Sentinel Review (L0->L2 bridge: coverage + pattern + depth + freshness)  PASS  13.1s
+      RUN   Sentinel Baseline Ratchet (forward-only behavioral coverage; locks at first run)  PASS   0.1s
+      SEO CLOSED LOOP
+      --------------------------------------------------------------------
+      RUN   Em-Dash Validator (no em or en dashes in public body text)  PASS   0.1s
+      PLATFORM FEEDBACK
+      --------------------------------------------------------------------
+      RUN   Feedback Widget Validator (3-layer: script wiring + form integrity + schema RLS/rate-limit/resolved_at)  PASS   0.1s
+      RUN   Contact Consistency Validator (3-layer: no stale hello@/ian.beronio37@ + canonical admin@ present)  PASS   0.1s
+      RUN   GA4 Coverage Validator (4-layer: GA4 block + wh-ga4.js load + canonical ID + custom-events file)  PASS   0.2s
+      RUN   Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)  PASS   0.1s
+      RUN   Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)  PASS   0.1s
+      RUN   Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)  PASS   0.1s
+      RUN   llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)  PASS   0.1s
+      RUN   AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)  PASS   0.1s
+      P1 ROADMAP
+      --------------------------------------------------------------------
+      RUN   Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)  PASS   0.1s
+      RUN   Envelope Conformance (every edge fn imports _shared/envelope.ts OR is exempt)  PASS   0.1s
+      RUN   Health Endpoint (every load-bearing edge fn handles /health)  PASS   0.1s
+      RUN   Render Budget (per-page HTML + inline JS + external script ratchet)  PASS   0.2s
+      RUN   Migration Immutability Strict (sha256 every migration; FAIL on edit-after-first-observation)  PASS   0.1s
+      RUN   Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)  PASS   0.1s
+      RUN   Full-Stack × Gate Coverage Meta-Gate (every artefact named in the study's 13×6 matrix must exist)  PASS   0.1s
+      RUN   Rate-Limit Adoption (every callAI fn calls checkAIRateLimit/checkUserRateLimit/checkRouteRateLimit)  PASS   0.2s
+      RUN   LLM Cache Adoption (count of fns using cached() from _shared/cache.ts; floor ratchet)  PASS   0.1s
+      RUN   Structured Log Adoption (count of fns importing + calling log.* from _shared/logger.ts; floor ratchet)  PASS   0.1s
+      RUN   Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper-integrity + L2 forward-only adoption floor; live fault-inject-proven)  PASS   0.2s
+      RUN   Grafana SLO Provisioning Gate (Arc T/T5+T4: the repo-provisioned golden-signal dashboard workhive-slo-arct - 6 panels over wh_traces/v_wh_traces_slo on the supabase_local datasource - AND the alert routing (rule wh_slo_edge_errors + contact point + policy) exist, parse, and stay wired; static, no running Grafana needed)  PASS   0.1s
+      RUN   Reproducible Build Pin (L1 .tool-versions + L2 package-lock + L3 engines.node agreement)  PASS   0.1s
+      ARC K
+      --------------------------------------------------------------------
+      RUN   Arc K Live-Page Journeys Ratchet (live-as-a-user JTBDs never regress non-live + deterministic floor never grows; reads live_page_journeys_results.json vs baseline)  PASS   0.1s
+      ARC V
+      --------------------------------------------------------------------
+      RUN   Arc V EFFORTLESS 3-Lens Ratchet (E: total click-hops CEILING - any new friction fails + excess-click debt never grows; L: cognitive-load floor never grows - Miller >7-choice/>40 walls/competing CTAs; F: Doherty flow floor never grows - slow-and-silent actions + dead-ends; reads arc_v_results.json vs baseline)  PASS   0.1s
+      RUN   Arc V EFFORTLESS Family-Capstone Ratchet (cross-page JOBS stay effortless: continuity never breaks - no hop bounces to sign-in / loses hive context; cumulative hop-cost never exceeds ideal; reads arc_v_capstone_results.json vs baseline)  PASS   0.1s
+      ARC W
+      --------------------------------------------------------------------
+      RUN   Arc W VISUAL UI/UX 9-Lens Ratchet (D depth/H focal/W whitespace/G grouping/C consistency/V dashboard/T color-type/M-S motion-state/I icon - every per-lens violation floor is a forward-only CEILING so visual quality can't rot; + M/S control-state CSS-rule floor :active/:focus-visible can't drop; reads arc_w_results.json vs baseline)  PASS   0.1s
+      ARC Y
+      --------------------------------------------------------------------
+      RUN   Arc Y INTUITION GRADIENT Ratchet (per-page 5-lens novice floor never drops: L1 jargon-without-gloss can't grow / L3 first-paint overwhelm ceiling / L4 displayed-value-vs-DB-truth can't go silent / L5 in-app BACK can't disappear / L6 dead-links+unlabeled can't grow; 3-persona gradient measured by intuition_gradient_harness.mjs; reads intuition_gradient_report.json vs intuition_gradient_baseline.json)  PASS   0.1s
+      FORWARD-BUILD
+      --------------------------------------------------------------------
+      RUN   FB2 Browser-CI Multi-Persona Live Floor Ratchet (every page walked HEADLESS as field-tech/supervisor/new-worker/admin = role x viewport x hive; the persona-delta live floor - per-persona runtime/security/serious-a11y breakage a single-identity sweep can't see - never falls + every persona's sign-in holds; reads browser_ci_persona_board.json vs baseline; full re-drive = node tools/browser_ci_persona_walk.mjs --accept)  PASS   0.1s
+      RUN   RLS Policy Substrate Miner (L-1.5: USING(true) / WITH CHECK(true) / missing TO clause)  PASS   0.1s
+      RUN   Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)  PASS   1.6s
+      RUN   RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)  PASS   0.2s
+      RUN   Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)  PASS   0.2s
+      MATURITY P1
+      --------------------------------------------------------------------
+      RUN   Capacity-Signals Miner (LB G-1.5: realtime channel/subscribe/teardown + unbounded select shape)  PASS   0.6s
+      RUN   Connection-Surface Discovery (LB G-1: every subscribing surface registered + budgeted)  PASS   0.2s
+      RUN   Connection-Pool Saturation Ratchet (LB GH: leak surfaces frozen at 0 + surface count + alarm declared)  PASS   0.1s
+      RUN   Load-Resilience Sentinel (LB GS: load_probe + LOAD-SLO + DEGRADED-MODE + 429/503 graceful degrade)  PASS   0.1s
+      RUN   Health-Surface Miner (AV G-1.5: /health coverage shape across all edge fns)  PASS   0.1s
+      RUN   Health-Surface Discovery (AV G-1: count of fns without /health frozen at baseline — new health-less fn FAILs)  PASS   0.1s
+      RUN   Game-Day Readiness (AV GH: game_day + verify_backups + RTO/RPO + rollback runbook + SLO all present)  PASS   0.1s
+      MATURITY P2
+      --------------------------------------------------------------------
+      RUN   Cache-Signals Miner (CA G-1.5: CDN _headers + LLM cached() adopters + SW shell precache shape)  PASS   0.1s
+      RUN   Rate-Limit-Signals Miner (RL G-1.5: per-fn rate-limit primitives + verifiedHiveId bucketing-key shape)  PASS   0.1s
+      RUN   Cache Efficiency Ratchet (CA GH: CDN Cache-Control rules present + LLM cached() adopter floor)  PASS   0.1s
+      RUN   Rate-Limit Fairness Sentinel (RL GS: no fn buckets on a spoofable client hive_id; latent ratchet; keystone fair)  PASS   0.1s
+      MATURITY P3
+      --------------------------------------------------------------------
+      RUN   Deploy-Signals Miner (H G-1.5: edge fn registration/deploy coverage + rollback/pre-deploy presence)  PASS   0.1s
+      RUN   CI-Signals Miner (CI G-1.5: workflow count/triggers + gate-running + .tool-versions pin)  PASS   0.1s
+      RUN   Deploy-Safety Sentinel (H GS: rollback runbook + pre-deploy gate + undeployed-fn ratchet)  PASS   0.1s
+      RUN   CI-Gate Sentinel (CI GS: local ci_gate + a workflow runs the gate + reproducible pin + wired trigger)  PASS   0.1s
+      RUN   Log-Surface Discovery (L G-1: count of fns logging raw console.* without logger.ts frozen at baseline)  PASS   0.3s
+      RUN   Log-Correlation Sentinel (L GS: structured logger + trace_id correlation + JSON + trace-store aggregation)  PASS   0.1s
+      MATURITY P4
+      --------------------------------------------------------------------
+      RUN   OpenAPI Sync (A capability: openapi.json covers every edge fn in ALL_FUNCTIONS, no ghost routes; re-run tools/gen_openapi.py on drift)  PASS   0.1s
+      RUN   Layer sub-discipline COVERAGE (A7.4 §14.5: 99-item rubric checklist across 13 layers; forward-only ratchet — a layer losing validator/tool evidence FAILs. Measures presence-of-mechanism = upper bound on true-scope depth, NOT depth)  PASS   2.3s
+      RUN   Gateway-axis MEASURED (G2 §14.6: derives each layer's PEP-chokepoint grade from REAL bypass reports — gateway_coverage/tenancy/policy-hive-binding/canonical-sources/kpi-canonical; forward-only on bypass count. 7/13 measured; data-gateway bypass = G1 target → 0)  PASS   0.2s
+      RUN   HONEST per-layer depth (§14.6: Gateway PEP × Gate ratchet × Prod-real, 13 layers; forward-only composite ratchet. Stricter than the 13x6 matrix + coverage — requires a PREVENTION chokepoint + prod-real, not detection/local-substitute. Overall 64.1%; Gateway axis 7.5/13 = the frontier, now 7 grades instrument-backed via gateway-bypass)  PASS   0.1s
+      RUN   Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)  PASS   0.1s
+      RUN   AI Self-Improvement: Visual Defect Confidence         PASS   0.1s
+      ARC L
+      --------------------------------------------------------------------
+      RUN   Arc L Performance & Scale ratchet (forward-only: S/E/R/B pass-counts >= locked baseline; floors S90/E85/R85/B95)  PASS   0.1s
+      READINESS GATE
+      --------------------------------------------------------------------
+      WARN  Git working tree                        5 uncommitted file(s)
+      SKIP  Python API (Render)                     --fast mode
+      SKIP  Supabase edge function                  --fast mode
+      FAILURES
+      --------------------------------------------------------------------
+      FAIL  Platform Knowledge Substrate freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md). The substrate/ chunk index (tools/build_substrate.py: metadata-prefixed .md chunks over pages / edge-fns / table-RLS / DEFINER-RPCs / skills / docs) lets a task RETRIEVE the relevant slice (a ~1KB page map) instead of a Workflow fan-out re-reading the whole platform (logbook.html 301KB, etc.) every run - the token-sustainability fix (Ian 2026-07-13: fan-out burned 0.5-3M tokens/run). This gate anchors every chunk to its source by a source_sha (file-content hash for page/edge-fn/skill/doc; live DB introspection for table-rls/rpc) and FAILs if any chunk DRIFTED (source changed but the chunk was not rebuilt) - treats the substrate as code, the doc-drift CI model. FIX on FAIL: python tools/build_substrate.py. DB-dependent chunks skip cleanly if docker absent; file-based always checked; fast (file hashing + one introspection pass).
+             FAIL: 17 substrate chunk(s) are STALE (source changed, chunk not rebui
+      REGRESSIONS DETECTED (was PASS, now FAIL):
+      REG  Platform Knowledge Substrate freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md). The substrate/ chunk index (tools/build_substrate.py: metadata-prefixed .md chunks over pages / edge-fns / table-RLS / DEFINER-RPCs / skills / docs) lets a task RETRIEVE the relevant slice (a ~1KB page map) instead of a Workflow fan-out re-reading the whole platform (logbook.html 301KB, etc.) every run - the token-sustainability fix (Ian 2026-07-13: fan-out burned 0.5-3M tokens/run). This gate anchors every chunk to its source by a source_sha (file-content hash for page/edge-fn/skill/doc; live DB introspection for table-rls/rpc) and FAILs if any chunk DRIFTED (source changed but the chunk was not rebuilt) - treats the substrate as code, the doc-drift CI model. FIX on FAIL: python tools/build_substrate.py. DB-dependent chunks skip cleanly if docker absent; file-based always checked; fast (file hashing + one introspection pass).
+    ========================================================================
+      BLOCKED — fix failures before deploying
+      507 PASS  1 FAIL  0 WARN  108 SKIP  |  951.8s total
+      Saved platform_health.json
+
+[17:16:59] Phase 3: Data tests (DB integrity)
+    WorkHive Test Runner — data-level checks
+    Local Supabase: http://127.0.0.1:54321
+    0. Pre-test smoke — table counts
+    ────────────────────────────────
+      ✓ PASS hives: 3
+      ✓ PASS hive_members: 15
+      ✓ PASS logbook: 3772
+      ✓ PASS pm_assets: 91
+      ✓ PASS pm_completions: 1591
+      ✓ PASS inventory_items: 87
+      ✓ PASS inventory_transactions: 463
+      ✓ PASS skill_profiles: 15
+      ⚠ WARN skill_badges: 148 (expected ~30, off by >40%)
+      ✓ PASS marketplace_listings: 27
+      ✓ PASS community_posts: 112
+    0. Pre-test smoke — logbook spot-check
+    ──────────────────────────────────────
+      ✓ PASS worker_name uses display-name format: ['Pablo Aguilar', 'Pablo Aguilar', 'Pablo Aguilar']
+      ✗ FAIL machine field missing tag IDs: ['Centrifugal Pump CP-01', 'Air Compressor AC-02', 'HVAC Unit AHU-01', 'TX-001', 'AC-003']
+      ✓ PASS date spread = 538 days across sample (max 538d back)
+      ✗ FAIL category has invalid values: ['HVAC']
+      ✓ PASS maintenance_type values valid: {'Breakdown / Corrective': 39, 'Preventive Maintenance': 10, 'Inspection': 1}
+    0. Pre-test smoke — worker_profiles
+    ───────────────────────────────────
+      ✓ PASS worker_profiles: 15 rows
+      ✓ PASS all emails end with @auth.workhiveph.com
+      ✓ PASS all usernames match ^[a-z0-9_]+$
+    2. Hive isolation — every hive-scoped row tagged
+    ────────────────────────────────────────────────
+      ✓ PASS pm_assets: every row has hive_id
+      ✓ PASS logbook: every row has hive_id
+      ✓ PASS pm_completions: every row has hive_id
+      ✓ PASS pm_scope_items: every row has hive_id
+      ✓ PASS inventory_items: every row has hive_id
+      ✓ PASS inventory_transactions: every row has hive_id
+      ✓ PASS marketplace_listings: every row has hive_id
+      ✓ PASS community_posts: every row has hive_id
+    2. Hive isolation — workers/logbook hive consistency
+    ────────────────────────────────────────────────────
+      ✓ PASS sampled 5 workers — all logbook entries match their hive_members.hive_id
+    3. Logbook — breakdown field population
+    ───────────────────────────────────────
+      ✗ FAIL 69 breakdowns have invalid root_cause values
+      ✓ PASS all failure_consequence values are valid
+      ⚠ WARN only 29% of breakdowns have readings_json
+      ✓ PASS breakdowns with root_cause set: 98%
+      ✓ PASS breakdowns with failure_consequence set: 29%
+    3. Logbook — status distribution
+    ────────────────────────────────
+      ✓ PASS status distribution sensible — Open: 46 (1%) · Closed: 3726 (99%)
+    3. Logbook — parts_used presence
+    ────────────────────────────────
+      ✓ PASS 93/200 breakdowns have parts_used
+    4. Inventory — qty math
+    ───────────────────────
+      ✓ PASS no inventory_items with negative qty_on_hand
+      ✓ PASS 12 items below min_qty (low-stock alerts will fire — good)
+    4. Inventory — transaction integrity
+    ────────────────────────────────────
+      ✓ PASS all sampled 463 transactions reference existing items
+    4. Inventory — transaction types
+    ────────────────────────────────
+      ✓ PASS transaction types: {'use': 280, 'restock': 116, 'adjustment': 67}
+    5. PM — scope frequency values
+    ──────────────────────────────
+      ✓ PASS PM frequency distribution: {'Weekly': 102, 'Monthly': 99, 'Quarterly': 93, 'Semi-annual': 31, 'Annual': 91}
+    5. PM — completions linkage
+    ───────────────────────────
+      ✓ PASS all 500 sampled completions have scope_item_id
+      ✓ PASS all completions have asset_id
+    7. Skill — badge levels & scores
+    ────────────────────────────────
+      ✓ PASS all badge levels in 1-5: {1: 79, 2: 35, 3: 20, 4: 10, 5: 4}
+      ✓ PASS all exam scores 0-100, avg=74.6
+    7. Skill — passed/score consistency
+    ───────────────────────────────────
+      ⚠ WARN 41 passed attempts have score < 70 (check pass threshold)
+    8. Community — category values
+    ──────────────────────────────
+      ✓ PASS community categories: {'general': 51, 'technical': 36, 'safety': 20, 'announcement': 5}
+    8. Community — posts/author cap (badge_key bug avoidance)
+    ─────────────────────────────────────────────────────────
+      ✓ PASS 5 (author, hive) pairs hit ≥10 posts — 4 voice_of_the_hive badge(s) awarded
+    10. Marketplace — sections / statuses / conditions
+    ──────────────────────────────────────────────────
+      ✓ PASS marketplace sections: {'parts': 15, 'training': 6, 'jobs': 6}
+      ✓ PASS listing statuses: {'published': 21, 'draft': 3, 'sold': 3}
+      ✓ PASS conditions: {'new': 22, 'refurb': 4, 'used': 1}
+    21. Cross-page — logbook ↔ assets linkage
+    ─────────────────────────────────────────
+      ✓ PASS all 428 asset-linked logbook entries reference a real asset node
+    21. Cross-page — auth_uid populated everywhere
+    ──────────────────────────────────────────────
+      ⚠ WARN logbook: 72/3772 rows (1%) missing auth_uid
+      ✗ FAIL inventory_items: 6/87 rows (6%) missing auth_uid
+      ⚠ WARN inventory_transactions: 10/463 rows (2%) missing auth_uid
+      ⚠ WARN pm_assets: 1/91 rows (1%) missing auth_uid
+      ✓ PASS pm_completions: 100% of 1591 rows have auth_uid set
+      ✓ PASS skill_profiles: 100% of 15 rows have auth_uid set
+      ✓ PASS skill_badges: 100% of 148 rows have auth_uid set
+      ✓ PASS hive_members: 100% of 15 rows have auth_uid set
+    22. Canonical — Tier-S file ↔ DB registry drift
+    ───────────────────────────────────────────────
+      ✓ PASS all 21 standards in canonical/standards.json registered in DB (217 DB rows total)
+    22. Canonical — every formula.implemented_in page exists
+    ────────────────────────────────────────────────────────
+      ✓ PASS all 10 pages referenced by formula_contracts.json exist
+    Manual / browser-driven items (still on you)
+    ────────────────────────────────────────────
+      — MANUAL 1. Authentication & identity — needs browser sign-in (Playwright will cover later)
+      — MANUAL 3. Logbook UI tests (form fields, edit-in-place, offline queue) — manual click-through
+      — MANUAL 6. Analytics — chart rendering / period selector — manual
+      — MANUAL 8. Community UI tests (composer, virtual list, realtime) — manual
+      — MANUAL 11-18. Other UI pages — manual click-through
+      — MANUAL 19. Mobile (375px) — manual via DevTools
+      — MANUAL 20. Performance / console — manual via DevTools
+    ────────────────────────────────────────────────────────────
+      Summary  51 pass  ·  6 warn  ·  4 fail
+    ────────────────────────────────────────────────────────────
+
+[17:17:03] Phase 4: UI tests (skipped, --skip-ui)
+
+
+
+
+
+[91m================================================================[0m
+[91m  GATE BLOCK — push aborted[0m
+[91m================================================================[0m
+
+  static: FAIL — 507 PASS  1 FAIL  0 WARN  108 SKIP  |  951.8s total
+  data: FAIL — Summary  51 pass  ·  6 warn  ·  4 fail
+  ui: PASS — skipped
+  ai_deep: PASS — skipped (no --with-ai-deep)
+  battery: PASS — skipped (no --with-battery)
+  content: PASS — skipped (no --with-content)
+  fullstack: PASS — skipped (no --with-fullstack)
+
+Durable verdict -> C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\.tmp\last_mega_gate_verdict.json
+Durable log     -> C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st\.tmp\mega_gate_20260720_170107.log
+  Score: 48/100 (Broken)
+  Streak: broken (was 1 days)
+
+Fix the failures above, then re-run.
+To bypass (NOT recommended): git push --no-verify

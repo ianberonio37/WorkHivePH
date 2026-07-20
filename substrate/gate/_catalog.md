@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 358f2eb16379e8c5
+source_sha: 6941b8c14f95eccb
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (613) — the 'what's already gated' brain
+## gate · registered validators (616) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,7 +205,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (424)
+### Platform (427)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `achievements` ⚡ [fail] — Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)
@@ -282,6 +282,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `avatar-state` ⚡ [fail] — Avatar State Management (Phase 10: emotion tracking, animations)
 - `axe-live-authed` [fail] — Axe a11y — AUTHENTICATED write surfaces (LIVE: password-grants a seeded supervisor + scans the 9 Tier-1 write pages [hive/inventory/logbook/pm-scheduler/skillma
 - `benchmark-rollup-faithfulness` [fail] — Cross-hive benchmark rollup faithfulness (LIVE: every `network_benchmarks` cross-tenant rollup must == the EXACT aggregate of the current per-hive `hive_benchma
+- `bughunt-scoreboard` [fail] — per-page bughunt v3 ANTI-DRIFT scoreboard — regenerates PER_PAGE_BUGHUNT_SCOREBOARD.md (every page's 12x6 matrix mapped to its covering gate) and FAILs if any p
 - `bundle-bloat` ⚡ [fail] — Edge Function Bundle Bloat (4-layer: LOC + imports + distribution + dynamic adoption)
 - `button-type-in-form` ⚡ [fail] — Button Type in Form (every <button> inside <form> declares type=button/submit/reset; forward-only ratchet)
 - `c-track-self-coverage` ⚡ [fail] — C-track Self-Coverage (meta: 9 artifacts + 5 validators + registry + roadmap labels of the Self-Improving Gate C-track)
@@ -321,6 +322,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `content-quality` ⚡ [fail] — Content Quality Validator (embed guard, schema drift, label quality)
 - `content_page_hygiene` ⚡ [fail] — Deepwalk content fold: /learn article presentation floor (D4/D5/D7/D17)
 - `context-window` ⚡ [fail] — Context Window Management Validator
+- `correctness-scoreboard` [fail] — CORRECTNESS anti-drift scoreboard — the value-at-the-glass sibling of bughunt-scoreboard. Regenerates CORRECTNESS_SCOREBOARD.md mapping every contracted user-fa
 - `cors-wildcard` ⚡ [fail] — CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)
 - `cron-functional` ⚡ [fail] — Cron Job Functional Coverage (4-layer: target exists + config entry + AI gate + density)
 - `cron-health` [fail] — Cron health (LIVE: no active pg_cron job's latest run failed with a CODE error — locks the unattended-silent-failure class found live 2026-07-07, where the soft
@@ -362,6 +364,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `edge-caller-contract` ⚡ [fail] — Edge Function Caller Contract (4-layer: function existence + required field coverage + phantom fields + orphan functions)
 - `edge-config` ⚡ [blocker] — Edge Function Config Validator (config.toml coverage)
 - `edge-contracts` ⚡ [fail] — Edge Function API Contract Validator
+- `edge-fn-auth-gate` ⚡ [fail] — per-page bughunt v3 L6 — every hive-touching edge fn must gate its caller (STATIC, no DB). A Supabase edge fn runs with SERVICE_ROLE (RLS-bypass); one that read
 - `edge-function-invoke` ⚡ [fail] — Edge Function Invoke (every functions.invoke('X') target must exist; forward-only ratchet)
 - `edge-import-exports` ⚡ [fail] — Edge Import/Export Resolution (every named relative import resolves to a real export; forward-only ratchet)
 - `edge-observed-coverage` [fail] — Edge observability coverage (fix-to-ZERO: every AI edge fn in ai_seams_catalog.ai_fns has serveObserved in its index.ts — the Arc-T net that lands a wh_traces e
