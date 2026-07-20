@@ -163,6 +163,33 @@
     document.head.appendChild(ic);
   }
 
+  // ─── Shared <head> BRAND BOILERPLATE SSOT (PLATFORM_CENTRALIZATION C-P4 · shared-<head> wave).
+  // The SEO-critical <head> (title / meta description / canonical / og: / JSON-LD) stays STATIC
+  // per-page — crawlers need it in the served HTML and it is per-page CONTENT, so it is NEVER
+  // injected here. Only the brand BOILERPLATE — favicons (assets exist at root; were linked on
+  // 0/32 pages) + theme-color (drifted across 3 values: orange/navy/violet) — is centralized so it
+  // is ONE source instead of 32 drifting copies. Each is added ONLY IF ABSENT (a page that declares
+  // its own wins), so this is idempotent and never duplicates.
+  (function injectHeadBoilerplate() {
+    const head = document.head || document.documentElement;
+    const addLink = (rel, href, attrs) => {
+      if (document.querySelector('link[rel="' + rel + '"]')) return;
+      const l = document.createElement('link');
+      l.rel = rel; l.href = href;
+      if (attrs) Object.keys(attrs).forEach(k => l.setAttribute(k, attrs[k]));
+      head.appendChild(l);
+    };
+    addLink('icon', 'favicon.svg', { type: 'image/svg+xml' });   // modern SVG favicon
+    addLink('alternate icon', 'favicon.ico');                    // .ico fallback (older browsers)
+    addLink('apple-touch-icon', 'workhive-logo-tight.png');      // iOS home-screen icon
+    // theme-color (mobile browser chrome) — the canonical brand orange; change it HERE, once.
+    if (!document.querySelector('meta[name="theme-color"]')) {
+      const m = document.createElement('meta');
+      m.name = 'theme-color'; m.content = '#F7A21B';
+      head.appendChild(m);
+    }
+  })();
+
   // ─── Tool Registry ────────────────────────────────────────────────────────────
   // section: null = no header (home only) | string = group label shown in All Tools grid
   // roles: undefined = universal (visible in every mode) | array = visible only in those modes

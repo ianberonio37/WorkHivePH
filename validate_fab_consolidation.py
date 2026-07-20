@@ -41,6 +41,8 @@ CONTRACT = [
         "wh-patterns.js",         # C-P3: loads the pattern library early
         "WHPatterns.launchPanel", # C-P3: launcher-defer idiom delegated
         "WHPatterns.clickOutside",# C-P3: close-on-click-outside idiom delegated
+        "injectHeadBoilerplate",  # shared-<head> wave: centralized favicon + theme-color injection
+        "favicon.svg",            # shared-<head>: the SVG favicon SSOT (0/32 pages linked it before)
     ], []),
     ("companion-launcher.js", "companion self-reveals via wh-companion-open, launched from the hub", [
         "wh-companion-open",      # self-contained reveal class
