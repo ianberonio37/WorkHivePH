@@ -34,9 +34,18 @@ except ImportError:
 
 BASE_URL = "http://127.0.0.1:5000/workhive"
 
-# Test identity for hive-gated pages (most mature hive + actual member)
-TEST_WORKER_NAME = "Pablo Aguilar"  # supervisor in test hive (validated against hive_members)
-TEST_HIVE_ID = "586fd158-42d1-4853-a406-64a4695e71c4"  # Stair 2, composite 87 (highest)
+# Test identity for hive-gated pages — RESOLVED at runtime from the live hive_members row
+# (test_identity pattern); "validated against hive_members" ONCE still rots at the next reseed.
+TEST_WORKER_NAME = "Pablo Aguilar"
+def _resolve_hive():
+    try:
+        import sys as _s, pathlib as _p
+        _s.path.insert(0, str(_p.Path(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("pabloaguilar@auth.workhiveph.com").hive_id
+    except Exception:
+        return "586fd158-42d1-4853-a406-64a4695e71c4"  # hive fallback (stale-known)
+TEST_HIVE_ID = _resolve_hive()
 
 # ─────────────────────────────────────────────────────────────────────
 # CALIBRATED SCENARIOS (Using Real Page Selectors)

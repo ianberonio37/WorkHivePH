@@ -1501,7 +1501,7 @@ async function submitUse() {
     items[idx].qty_on_hand = newQty;
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                                   // cache; RPC persisted qty+txn to DB
-    addTransaction(activeItemId, 'use', -qty, newQty, '', jobRef);    // local UI cache ([3]/[4]); realtime reconciles
+    addTransaction(activeItemId, 'use', -qty, newQty, '', jobRef, { serverWritten: true });    // RPC wrote the txn; cache-only
   } else {
     // Solo (localStorage only) OR offline (single-user — no concurrency race): client read-modify-write.
     items[idx].qty_on_hand -= qty;
@@ -1570,7 +1570,7 @@ async function submitRestock() {
     items[idx].qty_on_hand = newQty;
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                            // cache; RPC persisted qty+txn to DB
-    addTransaction(activeItemId, 'restock', qty, newQty, note); // local UI cache ([3]/[4]); realtime reconciles
+    addTransaction(activeItemId, 'restock', qty, newQty, note, null, { serverWritten: true }); // RPC wrote the txn; cache-only
   } else {
     // Solo (localStorage only) OR offline (single-user — no race): client read-modify-write.
     items[idx].qty_on_hand += qty;
@@ -1634,7 +1634,7 @@ async function _autoLinkInventoryToProject(item) {
   } catch (_) { /* empty-catch-allow: best-effort project bundling, never blocks the use */ }
 }
 
-function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef) {
+function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef, opts) {
   const txns = loadTransactions();
   txns.push({
     id:          Date.now().toString() + Math.random().toString(36).slice(2, 6),
@@ -1649,6 +1649,11 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef) {
     hive_id:     HIVE_ID || null,
     created_at:  new Date().toISOString(),
   });
+  // RPC-backed paths (inventory_deduct / inventory_restock) already wrote the txn SERVER-SIDE
+  // inside the RPC — the client re-insert here was a DUPLICATE: RLS blocks it and the user saw
+  // a scary "Transaction save failed" toast on a SUCCESSFUL deduct (found by Arc-K INV2, 2026-07-22;
+  // and had RLS allowed it, the ledger would double-write). serverWritten = cache locally only.
+  if (opts && opts.serverWritten) { _txns = txns; return; }
   saveTransactions(txns);
 }
 
@@ -1828,17 +1833,21 @@ document.getElementById('empty-add-btn').addEventListener('click',  () => openAd
 if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
 document.getElementById('part-modal-close').addEventListener('click', closePartModal);
-document.getElementById('part-submit-btn').addEventListener('click',  submitPart);
+// P7 double-submit lock: withButtonLock disables the button for the whole async run (single-flight
+// guard: a 2nd tap while disabled is a no-op). Without it, a fast double-tap fired the write TWICE —
+// submitUse/submitRestock call the NON-idempotent inventory_deduct/restock RPC, so two taps = a DOUBLE
+// stock movement (PRODUCTION_FIXES #47). button-lock.js is included at the page foot.
+document.getElementById('part-submit-btn').addEventListener('click',  function () { window.withButtonLock(this, submitPart); });
 document.getElementById('part-cancel-btn').addEventListener('click',  closePartModal);
 document.getElementById('part-modal').addEventListener('click', e => { if (e.target === document.getElementById('part-modal')) closePartModal(); });
 
 document.getElementById('use-modal-close').addEventListener('click',  closeUseModal);
-document.getElementById('use-submit-btn').addEventListener('click',   submitUse);
+document.getElementById('use-submit-btn').addEventListener('click',   function () { window.withButtonLock(this, submitUse); });
 document.getElementById('use-cancel-btn').addEventListener('click',   closeUseModal);
 document.getElementById('use-modal').addEventListener('click', e => { if (e.target === document.getElementById('use-modal')) closeUseModal(); });
 
 document.getElementById('restock-modal-close').addEventListener('click',  closeRestockModal);
-document.getElementById('restock-submit-btn').addEventListener('click',   submitRestock);
+document.getElementById('restock-submit-btn').addEventListener('click',   function () { window.withButtonLock(this, submitRestock); });
 document.getElementById('restock-cancel-btn').addEventListener('click',   closeRestockModal);
 document.getElementById('restock-modal').addEventListener('click', e => { if (e.target === document.getElementById('restock-modal')) closeRestockModal(); });
 

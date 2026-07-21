@@ -35,8 +35,18 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "tools" / "page_battery.mjs"
-# The live Baguio hive for the seeded accounts (the harness HIVE constant 9b4eaeac is stale).
-LIVE_HIVE = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"
+# RESOLVED at runtime from the seeded account's live hive_members row (test_identity pattern) —
+# pinning rotted twice (9b4eaeac → 636cf7e8 → deleted by a reseed). Literal = fallback only.
+# (Belt+suspenders: page_battery.mjs signs in via live_page_journeys.signIn, which ALSO
+# self-resolves membership since 2026-07-21 — this keeps the env it passes truthful too.)
+def _resolve_live_hive() -> str:
+    try:
+        sys.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return "636cf7e8-431a-4907-8a9f-43dd4cc216d6"   # hive fallback (stale-known)
+LIVE_HIVE = _resolve_live_hive()
 
 
 def _up(url: str, timeout: float = 3.0) -> bool:

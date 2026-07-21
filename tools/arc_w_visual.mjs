@@ -136,10 +136,27 @@ export const ARC_W_PROBE = () => {
   // as 30 ungrouped panels. Heterogeneous/distinct siblings each still count, so a genuine wall of
   // different widgets is preserved. (Calibrated 2026-06-25 — evidence: asset-hub's 30 = the asset
   // list, inventory's 27 = the part-card list; the raw count over-flagged lists like Arc V density.)
+  // Collapse a homogeneous list by its STRUCTURAL base card-class, not the full className: per-item
+  // state/spacing modifiers (e.g. inventory's `part-card stock-critical p-5 mb-3` vs `part-card
+  // stock-ok p-5 mb`) fragment one logical list into <4-each buckets so the ≥4 list-run collapse never
+  // fires and a 8-item part list reads as 8 ungrouped panels (false grouping_floor). Key on the first
+  // token matching the card/panel/tile/widget pattern so all `part-card *` variants share ONE key and
+  // the list collapses to 1 — the rubric's stated intent ("inventory's 27 = the part-card list = 1").
+  // A genuine wall of DIFFERENT widgets keeps distinct base classes, so it still counts individually.
+  const baseCardKey = (c) => {
+    const cn = (typeof c.className === 'string') ? c.className.trim() : '';
+    if (cn) {
+      const tok = cn.split(/\s+/).find(t => /(^|-)(card|panel|tile|widget)$/.test(t));
+      if (tok) return tok;
+      const first = cn.split(/\s+/)[0];
+      if (first) return first;
+    }
+    return c.tagName;
+  };
   const byParent = new Map();
   for (const c of cards) {
     const p = c.parentElement; if (!p) continue;
-    const cls = (typeof c.className === 'string' && c.className.trim()) ? c.className.trim() : c.tagName;
+    const cls = baseCardKey(c);
     let m = byParent.get(p); if (!m) { m = new Map(); byParent.set(p, m); }
     m.set(cls, (m.get(cls) || 0) + 1);
   }

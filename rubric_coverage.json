@@ -1,0 +1,523 @@
+{
+  "summary": {
+    "dims_total": 63,
+    "dims_accounted": 63,
+    "dims_with_pct": 54,
+    "board_pages": 32,
+    "board_mean": 100,
+    "s2_shared_chrome": 100,
+    "cross_page": {
+      "S3": 94,
+      "instances": 52,
+      "modal": 49,
+      "candidates": 4,
+      "pages": 27
+    }
+  },
+  "dims": {
+    "A1": {
+      "class": "A",
+      "title": "5-second test",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "A2": {
+      "class": "A",
+      "title": "Scannability",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "A3": {
+      "class": "A",
+      "title": "Cognitive load / progressive disclosure",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "B1": {
+      "class": "B",
+      "title": "Microcopy / concision",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "B2": {
+      "class": "B",
+      "title": "Plain voice & tone",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "B3": {
+      "class": "B",
+      "title": "Readability (<=20 words, grade <=8, active)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "B4": {
+      "class": "B",
+      "title": "Explanation microcopy plain",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "B5": {
+      "class": "B",
+      "title": "No raw internals in user copy",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "C1": {
+      "class": "C",
+      "title": "Visual hierarchy",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "C2": {
+      "class": "C",
+      "title": "Colour & contrast (WCAG)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "C3": {
+      "class": "C",
+      "title": "Whitespace / gestalt",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "C4": {
+      "class": "C",
+      "title": "Typography (tabular KPIs)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "D1": {
+      "class": "D",
+      "title": "Affordances & signifiers",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "D2": {
+      "class": "D",
+      "title": "Feedback < 400ms (Doherty)",
+      "verdict": "judged",
+      "owner": "battery",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "D3": {
+      "class": "D",
+      "title": "Consistency / one vocabulary",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "E1": {
+      "class": "E",
+      "title": "Data-viz / KPI",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "E2": {
+      "class": "E",
+      "title": "Empty / loading / error",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "E3": {
+      "class": "E",
+      "title": "Trust / transparency",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "E4": {
+      "class": "E",
+      "title": "Digest, don't dump (answer not working)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "F1": {
+      "class": "F",
+      "title": "Mobile / touch >= 44px",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "F2": {
+      "class": "F",
+      "title": "Accessibility (WCAG/POUR)",
+      "verdict": "judged",
+      "owner": "battery",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "F3": {
+      "class": "F",
+      "title": "Emotional design / peak-end",
+      "verdict": "judged",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "G1": {
+      "class": "G",
+      "title": "Visibility of system status",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "G2": {
+      "class": "G",
+      "title": "Match the real world",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "G3": {
+      "class": "G",
+      "title": "Aesthetic-minimalist",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "G4": {
+      "class": "G",
+      "title": "Single freshness source",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "H1": {
+      "class": "H",
+      "title": "Goal-gradient",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "H2": {
+      "class": "H",
+      "title": "Zeigarnik / open loops",
+      "verdict": "judged",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "H3": {
+      "class": "H",
+      "title": "Serial position",
+      "verdict": "judged",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "H4": {
+      "class": "H",
+      "title": "Selective attention (no ad-like content)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "I1": {
+      "class": "I",
+      "title": "Core Web Vitals",
+      "verdict": "judged",
+      "owner": "battery",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 98
+    },
+    "I2": {
+      "class": "I",
+      "title": "Perceived performance",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "J1": {
+      "class": "J",
+      "title": "Prevent slips",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "J2": {
+      "class": "J",
+      "title": "Forgiveness / undo",
+      "verdict": "judged",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "K1": {
+      "class": "K",
+      "title": "Safety-first signalling (never colour-alone)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "K2": {
+      "class": "K",
+      "title": "Field legibility & reach",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "L1": {
+      "class": "L",
+      "title": "Honest design (no deceptive patterns)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "L2": {
+      "class": "L",
+      "title": "Information scent",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "M1": {
+      "class": "M",
+      "title": "Labels & structure",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "M2": {
+      "class": "M",
+      "title": "Validation & recovery",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "N1": {
+      "class": "N",
+      "title": "i18n mechanism + expansion resilience (NOT % translated)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "O1": {
+      "class": "O",
+      "title": "Value-first, not a tour",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "O2": {
+      "class": "O",
+      "title": "Pull > push help",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Q1": {
+      "class": "Q",
+      "title": "prefers-reduced-motion",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "R1": {
+      "class": "R",
+      "title": "Spacing scale (declared tokens / 8-pt)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "R2": {
+      "class": "R",
+      "title": "Alignment & grid (no overflow)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "R3": {
+      "class": "R",
+      "title": "Treatment uniformity (cards AND controls)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "R4": {
+      "class": "R",
+      "title": "Regions & whitespace (no orphan voids)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "R5": {
+      "class": "R",
+      "title": "Vertical flow & section cohesion",
+      "verdict": "judged",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "S1": {
+      "class": "S",
+      "title": "Token conformance (radius + typeface)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "S2": {
+      "class": "S",
+      "title": "Shared chrome parity",
+      "verdict": "measured",
+      "owner": "family-sweep",
+      "source": "family board W2 (shared-chrome) + codebase-integrity nav-registry",
+      "pct": 100
+    },
+    "S3": {
+      "class": "S",
+      "title": "Card-primitive parity",
+      "verdict": "measured",
+      "owner": "family-sweep",
+      "source": "component_consistency_corpus.json (modal conformance)",
+      "pct": 94
+    },
+    "T1": {
+      "class": "T",
+      "title": "Content reachability (no fixed-height scroll-trap)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "T2": {
+      "class": "T",
+      "title": "Text fits its box (no clip/overlap)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "T3": {
+      "class": "T",
+      "title": "Tap responsiveness (touch-action: manipulation)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "T4": {
+      "class": "T",
+      "title": "Native scroll containment (overscroll-behavior)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "T5": {
+      "class": "T",
+      "title": "Safe-area (viewport-fit=cover)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "T6": {
+      "class": "T",
+      "title": "Long-list virtualization",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "T7": {
+      "class": "T",
+      "title": "Clean JS thread (no console noise on load)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": null
+    },
+    "T8": {
+      "class": "T",
+      "title": "Interactive-state semantics (aria-pressed/expanded/selected)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "V1": {
+      "class": "V",
+      "title": "No collision / overlap (content + floating chrome)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 97
+    },
+    "W1": {
+      "class": "W",
+      "title": "Back / escape affordance",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "W2": {
+      "class": "W",
+      "title": "Shared-chrome consistency (companion+avatar+hub)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    }
+  }
+}

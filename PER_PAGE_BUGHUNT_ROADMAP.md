@@ -98,37 +98,37 @@ read-correctness (rendered==DB) for the read-heavy pages + gate the live P3/P5 r
 
 | Page | P1 Smoke | P2 Con/Net | P3 CRUD | P4 Inputs | P5 Role | P6 Concur | P7 Locks | P8 Visual | **Page %** |
 |------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| index.html (landing/ops-home) | 100 | 100 | 95 | 90 | 95 | 90 | 90 | 95 | **94** |
-| hive.html | 100 | 100 | 100 | 90 | 100 | 100 | 100 | 90 | **98** |
-| logbook.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| inventory.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| pm-scheduler.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| asset-hub.html | 100 | 100 | 95 | 90 | 95 | 100 | 90 | 95 | **96** |
-| alert-hub.html | 100 | 100 | 95 | 90 | 95 | 100 | 90 | 90 | **95** |
-| analytics.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| analytics-report.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| achievements.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| ai-quality.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| skillmatrix.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| resume.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| community.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| public-feed.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| marketplace.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 90 | **94** |
-| marketplace-seller*.html (×3) | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| dayplanner.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| engineering-design.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| assistant.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| report-sender.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| project-manager.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| project-report.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| integrations.html | 100 | 100 | 95 | 90 | 95 | 90 | 90 | 95 | **94** |
-| ph-intelligence.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
+| index.html (landing/ops-home) | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| hive.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| logbook.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| inventory.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| pm-scheduler.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| asset-hub.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| alert-hub.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| analytics.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| analytics-report.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| achievements.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| ai-quality.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| skillmatrix.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| resume.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| community.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| public-feed.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| marketplace.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| marketplace-seller*.html (×3) | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| dayplanner.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| engineering-design.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| assistant.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| report-sender.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| project-manager.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| project-report.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| integrations.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| ph-intelligence.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
 | ~~predictive.html~~ RETIRED 2026-06-10 (Phase 4; risk-360 absorbed into asset-hub; no live dead-link, 'predictive' is an assistant routing keyword) | — | — | — | — | — | — | — | — | **n/a** |
-| plant-connections.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| shift-brain.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| audit-log.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
-| voice-journal.html | 100 | 100 | 100 | 90 | 95 | 90 | 90 | 95 | **95** |
-| founder-console.html | 100 | 100 | 100 | 90 | 95 | 100 | 90 | 95 | **96** |
+| plant-connections.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| shift-brain.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| audit-log.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| voice-journal.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
+| founder-console.html | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | **100** |
 
 **Session 7 (2026-07-19) — hive.html Tier-1 to 96% (8-phase).** Drove the top daily-driver page's three
 open cells to gated-100: **P3 65→100** (mapped hive.html's OWN write surface — `hives` create/intent,
@@ -194,7 +194,170 @@ only write — INSERT+READ policies only, no UPDATE/DELETE = tamper-proof feedba
 + update no-op + delete 0-rows). assistant P3 75→90. **shift-brain P3 75→90** (read-only page — no write
 surface; read gated by read-battery). Final `validate_crud_rollback` = **6 tables, 0 pollution, teeth**.
 Remaining P3-write frontier (deferred, more involved): integrations (bulk CMMS import, 10 tables),
-founder-console (marketplace_sellers admin), resume_versions.
+founder-console (marketplace_sellers admin — VERIFIED 2026-07-19, admin-JWT probe below), resume_versions
+(**DONE 2026-07-21**: crud-rollback extended with an `update_noop` mode — resume_versions has
+INSERT+SELECT+DELETE own-scoped policies but NO UPDATE policy, so a snapshot is immutable-once-written
+while the owner may still prune; gate mints the parent CV in-tx via CTE for the FK, asserts create+
+auth-pin, the update NO-OPs (doc stays `{}`), own-delete works — **7/7 tables GREEN, 0 pollution**;
+resume P3 = gated 100, the table/text honesty gap closed).
+
+**CMMS bulk-import P3 — DONE 2026-07-21/22, with 4 REAL BUGS (#9-#12) found + fixed + gate-locked
+(`validate_cmms_import_rollback.py`, registered `cmms-import-rollback`, live rolled-back supervisor-JWT
++ static teeth).** Building the probe surfaced the whole class stack: **#9 STATUS-CLAMP chunk-kill** — an
+unmapped raw status (`OPEN`, `In Progress`, any unmapped SAP/Maximo code) passed through
+`normalizeRow` RAW into `external_sync.status` (CHECK Open/Closed/Cancelled) → 23514 → the WHOLE
+≤500-row chunk failed; live-proven; fixed with a case-canonicalizing clamp (raw code preserved in
+`status_raw` → sync_payload) + the dry-run warning corrected (it promised "import as-is" — impossible).
+**#10 Cancelled→logbook kill** — a correctly-mapped 'Cancelled' WO (SAP I0076/Maximo CAN) passes
+external_sync but violates `logbook_status_check` (Open/Closed/Resolved) → same chunk-kill; fixed
+(Cancelled records as Closed in logbook + closed_at stamped; sync keeps the true Cancelled). **#11 DEAD
+fault_knowledge write, silently failing ~2 months** — the import's direct `fault_knowledge` insert has
+been RLS-CHECK-false-blocked since mig `20260513000003` (knowledge writes are embed-entry service-role
+only), and because supabase-js does NOT throw, the failure was swallowed AND the import loop's try/catch
+was DEAD CODE for ALL four entity types (failed chunks counted as imported). Fixed: dead write deleted
+(the embed-logbook trigger already routes every imported logbook row → embed-entry WITH embedding —
+the client insert would have poisoned the RAG index with unembedded duplicates), every batch write now
+error-checked (`if (sErr) throw sErr`). **#12 inventory_items.id text-NOT-NULL-NO-DEFAULT** — the
+inventory import supplies no id → every imported part 23502-failed at runtime (the Arc-K `logbook.id`
+class, third bite). Fixed durably: mig `20260721000001` gives the 3 opaque text-id tables
+(inventory_items/logbook/inventory_transactions) `default gen_random_uuid()::text`; excluded by
+disposition: achievement_definitions (semantic slugs), schedule_items (stable-id idempotency),
+bigint ids (identity-sequence change). Gate legs GREEN 10/10: FKLOCK 42501 held, all upserts run
+TWICE (re-import idempotent, 1 row), attribution pins (worker_name + approved_by + submitted_by on
+asset_nodes) hold under forge, duplicate-guard read via `v_external_sync_truth`, audit write lands.
+Page reloads 0 console errors; loaded code verified (clamp + status_raw + error-checks present).
+integrations P3 95→100. **The P3-write frontier is now EMPTY.**
+
+**P6 concurrent-edit — the last P6-partial pages CLOSED via a disposition gate (`validate_p6_concurrency_class.py`,
+registered `p6-concurrency-class`, live + static teeth), 2026-07-21.** Two P6 gates already covered
+OC-guarded edits (`oc-updated-at-backed`: inventory/pm-scheduler/integrations `integration_configs`) and
+12 read-only pages (`readonly-p6-no-edit`); this gate covers the REST by proving each page's write is
+race-safe by its structural CLASS + LIVE-verifying the load-bearing invariant: **idempotent-upsert**
+(skillmatrix `skill_profiles`/onConflict worker_name · marketplace-seller `marketplace_sellers` ·
+dayplanner `schedule_items`) — full-object upsert on a UNIQUE-index-backed key → concurrent writes
+CONVERGE (no partial lost-update; verified index exists + no read-modify-write delta + a **live rolled-back
+double-upsert converges to 1 row w/ the 2nd value**); **owner-scoped-update** (resume `resume_documents` ·
+marketplace `marketplace_saved_searches` · marketplace-seller `marketplace_inquiries` · voice-journal
+`worker_profiles`) — UPDATE RLS is own-identity/party-scoped (`auth.uid()`/`auth_worker_names()`, not
+`true`) → no cross-user lost-update (a same-user two-tab last-write on a full-object payload is expected
+UX, recoverable via version history where it exists); **forward-only-status** (shift-brain `shift_plans`
+— `tg_shift_plans_forward_status` blocks a concurrent regress); **create-once-insert** (index
+`worker_profiles`, unique auth_uid). **The gate CAUGHT a real error in my own first-pass disposition**
+(the `.from('shift_plans')…\n.update()` and `worker_profiles` writes are MULTI-LINE chains a single-line
+grep missed — I had wrongly filed shift-brain/voice-journal as "no client write"), forcing the correct
+FORWARD/OWNER reclassification — the per-page discipline validating itself. **9 pages + the live
+convergence probe GREEN.** Ratcheted P6 90→100 on index, inventory, pm-scheduler, skillmatrix, resume,
+marketplace, marketplace-seller, dayplanner, shift-brain, voice-journal, integrations. **The P6
+concurrent-edit axis is now gate-locked on every page.**
+
+**P7 UI-locks/loading/recovery — the double-submit CLASS closed + gate-locked, 2026-07-21
+(`validate_double_submit_lock.py`, registered `double-submit-lock`, static teeth).** Auditing the P7
+lock residual found **2 REAL double-submit bugs (#13-#14)**: **#13 inventory** — `submitUse`/`submitRestock`/
+`submitPart` were wired `addEventListener('click', submitUse)` BARE while `submitUse`/`submitRestock` call
+the **non-idempotent `inventory_deduct`/`inventory_restock` RPC** → a fast double-tap (a factory-floor
+phone reality) fired the deduct TWICE = a **double stock movement** (the exact PRODUCTION_FIXES #47
+concern the button-lock.js helper exists to prevent, never wired on these 3 buttons). Fixed: wrapped all
+three in `withButtonLock(this, H)` (single-flight guard — a 2nd tap while disabled is a no-op;
+**live-verified**: a double-invoke fires the handler exactly once). **#14 logbook `submitAsset`** (bare) —
+each tap mints a fresh uuid so the `asset_nodes` upsert's PK-onConflict doesn't match → a 2nd tap
+23505s on the `(hive_id, tag)` unique index (a confusing error toast + wasted embed write); fixed with a
+self-disable guard (button-lock.js isn't on logbook). **Built the class gate**: every
+`getElementById(...).addEventListener('click', H)` bound to a WRITE handler (write-y name OR a
+`db.from().insert/upsert/update/delete`/`db.rpc` body) must single-flight-lock (wrapper OR self-disable);
+read-only `.select()` handlers + JS `Set/Array.delete()` are excluded (the Map.size false-positive class —
+caught + fixed 2 during build: `_jdSelected.delete()` and the read-only `runAutofill`). **42 pages GREEN.**
+report-sender `saveContact` was already self-locking (verified). With this + `loading-state` (skeletons/
+button-lock adoption) + `approval-lock` (pending-approval optimistic locks) + `page-battery` P12 (offline
+no-crash / degraded / unhandled-rejection) + `read-battery` (empty-state-vs-error), **all four P7
+sub-properties — UI-locks · loading · recovery/offline · empty-vs-error — are gate-locked platform-wide.**
+Ratcheted P7 90→100 across every app page. **P7 axis COMPLETE.**
+
+**P4 Inputs — the client empty/format half CLOSED + gated, 2026-07-21 (`validate_input_validation_guard.py`,
+registered `input-validation-guard`, static teeth).** P4 was server-comprehensive (XSS: innerhtml-eschtml/
+dom-xss-fields/battery reflected-XSS · server bounds: 31 `trg_text_caps_*` + numeric-bounds mig 004) and
+its duplicate-submit half was just gated (`double-submit-lock`); the LAST un-gated sub-property was
+client-side empty/format validation. Built a gate asserting every write-submit handler that reads a
+USER-TYPED field must validate it before the `db.from().insert/upsert/update`/`db.rpc` write (a runtime
+`whValidateCapture` contract OR a pre-write guard: an `if→return` branch and/or an error surface). The
+build was evidence-disciplined — the first pass flagged 12, of which **11 were FALSE POSITIVES** (silent
+`if(qty<=0)return` guards + `showToast('Write something first')` wordings my first GUARD regex was too
+narrow to match — broadened to recognize any pre-write validation branch, per verify-before-asserting),
+leaving **1 REAL BUG (#15): project-manager `saveProgressLog`** inserted `log_date` (`date NOT NULL`) +
+`pct_complete` (`smallint` 0..100 CHECK) straight from the form → an empty date or out-of-range % POSTed
+raw and returned a confusing `22007`/`23514` server error; **fixed** with a friendly pre-write guard
+(require a date, clamp % to 0-100, non-negative hours). Gate GREEN 42 pages. **All four P4 sub-properties
+(XSS · server-bounds · duplicate-submit · client empty/format) are now gate-locked platform-wide.**
+Ratcheted P4 90→100 across every app page. **P4 axis COMPLETE.**
+
+**P5 Role/Permission — the UI-role-gate DEFENSE-IN-DEPTH invariant PROVEN + gate-locked, 2026-07-21
+(`validate_role_gate_server_backstop.py`, registered `role-gate-server-backstop`, live).** The P5 security
+half was already comprehensively gated (read-iso 34/34 · write-iso 25/0 · self-elevation clean ·
+attribution-pinned · UI-only-auth-bypass live-proven). The residual 5 was the UI-role-gate: 9 pages source
+`HIVE_ROLE` from localStorage (tamperable) and hide supervisor actions on `HIVE_ROLE==='supervisor'`. That
+is safe ONLY because the SERVER independently enforces supervisor/admin on every such write — a worker who
+tampers localStorage sees a button the server rejects (42501), not an escalation. Rather than a risky
+9-page auth-init refactor, **proved + locked the load-bearing invariant**: every table written behind a
+supervisor UI gate MUST be server-backstopped. The gate CAUGHT `sso_configs` on the first run (my
+supervisor-clause regex missed it) — which turned out to be **write-locked** (`WITH CHECK false`,
+service-role-only = a STRONGER backstop than an RLS role clause), so I taught the gate to recognize the
+fully-locked case. **10/10 supervisor-gated tables server-backstopped** (asset_nodes/inventory_items via
+`tg_guard_approval`; api_keys/integration_configs/hive_retention_config/shift_plans via RLS-role;
+marketplace_sellers via `is_marketplace_admin`; rcm_fmea_modes/rcm_strategies via guard-trigger; sso_configs
+write-locked). A FUTURE page adding a client-only supervisor gate on an un-backstopped table now FAILs CI
+(the UI-only-auth privilege-escalation class found+exploited live 2026-07-07). Ratcheted P5 95→100.
+**P5 axis COMPLETE.**
+
+**⇒ SCOREBOARD STATE (2026-07-22):** the 8-phase per-page mean is **~99%** — **every page 98-99** (only
+alert-hub/marketplace/hive carry a P8=90). **SEVEN axes at gated-100 platform-wide: P1·P2·P3·P4·P5·P6·P7.**
+P3 CLOSED on the last 3 residual pages this session: asset-hub (new `asset_nodes` crud-rollback leg —
+attribution-pinned + approval-guarded create + own update/delete), alert-hub (both writes gate-round-tripped:
+`anomaly_signals` status UPDATE via `anomaly-status-forward`, `hive_audit_log` append via `attribution-pinned`),
+and **index** (new `worker_profiles` `update_only` leg — the create-ONCE non-deletable identity row can't do a
+create→update→delete round-trip, so the gate proves the two ops it DOES support: a forged-auth_uid insert is
+RLS-blocked + the own-UPDATE lands, rolled back). **crud-rollback now 9/9 tables green.**
+
+**P8 Visual — the LAST cell CLOSED: Ian decided "use only emojis" (2026-07-22).** The P8=90 on hive /
+alert-hub / marketplace was the deferred icon-system fork. Ian resolved it: **emoji-only** — which is
+already the implemented state (the emoji→SVG walker is disabled; `wh-icons.css` renders every `.ic-*` as an
+emoji; the ~50 hand-authored SVG icon slots were converted in the W5/W6 visual arc). **Live-verified**:
+marketplace's 56 `.ic` slots ALL render emoji (📦📚💼✅🔒…), **0 non-chart SVGs**; the functional glyphs
+(check ✓ / close ✕ / caret ▾ / back ←) are themeable TEXT typography, not a second icon system (the rubric
+excludes them). **Measured + gated**: the `arc_w_visual_sweep` on all 3 pages = **icon_floor 0, lens_floor 0**
+(desktop + mobile) — exactly ONE icon system (`icons 1`), every one of the 9 visual lenses (depth · focal ·
+whitespace · grouping · color · icon · consistency) at floor 0, locked by the registered `arc-w-visual`
+regression ratchet (baseline 0). With the icon fork Ian-decided + the arc-W 9-lens suite at floor 0 +
+page-battery @390 overflow-clean + axe contrast, P8's visual-regression is comprehensively measured, gated,
+and design-settled. Ratcheted P8 90/95 → **100 platform-wide**.
+
+**FULL-SWEEP CONFIRMATION (caught + fixed a real calibration gap before the claim could stand).** The
+platform-wide `arc_w_visual_sweep` (25 pages) initially went RED — `grouping_floor 4 > baseline 0` on
+**inventory** — proving the discipline: never claim a gate green from a partial `--page` run. It was NOT
+real clutter: inventory's 8 `part-card` list items were fragmented by per-card STATE/SPACING modifier
+classes (`stock-critical`/`ok`/`surplus` + `mb-3`/`mb`), so the ≥4-same-class list-collapse (which keyed on
+the FULL className) saw 2+1+3+2 = 8 sub-buckets and never fired → one list read as 8 ungrouped panels. Fixed
+`arc_w_visual.mjs` to collapse by the **structural base card-class** (the `*-card`/`*-panel` token), honoring
+the rubric's own stated intent ("inventory's part-card list = 1 group"); a genuine wall of DIFFERENT widgets
+keeps distinct base classes so it still counts. inventory 8→3 peers → grouping_floor 0. **Re-ran the FULL
+25-page sweep: lens_floor 0, ALL 9 lenses at floor 0 (depth·focal·whitespace·grouping·color·icon), `arc-w-visual`
+gate GREEN ("ratchet held: lens_floor 0 <= 0").** P8=100 platform-wide is now confirmed by a clean full sweep.
+
+## ✅ ROADMAP 100% — every page, every phase, gate-locked (2026-07-22)
+
+**All 31 live pages are at 100% (8/8 phases), mean = 100%.** Every one of the 8 phases is backed by a
+registered gate: P1/P2 (`page-battery`) · P3 (`crud-rollback` 9 tables + `page-crud` + `read-battery` +
+`cmms-import-rollback`) · P4 (`innerhtml-eschtml`/`dom-xss-fields` + text-caps + numeric-bounds +
+`double-submit-lock` + `input-validation-guard`) · P5 (`truth-view-read-isolation` + `hive-isolation` +
+`attribution-pinned` + `role-gate-server-backstop`) · P6 (`oc-updated-at-backed` + `readonly-p6-no-edit` +
+`p6-concurrency-class` + `approval-lock`) · P7 (`double-submit-lock` + `loading-state` + `approval-lock` +
+`page-battery` P12) · P8 (`arc-w-visual` 9-lens floor 0 + `page-battery` overflow + `axe` contrast). A
+regression on ANY phase of ANY page now FAILs CI. **This session** added **6 gates** (cmms-import-rollback,
+p6-concurrency-class, double-submit-lock, input-validation-guard, role-gate-server-backstop, + crud-rollback
+extended 6→9 tables), fixed **7 real bugs (#9-#15)**, and shipped migration `20260721000001`. All work is
+LOCAL/uncommitted at Ian's commit gate; the migration awaits prod-apply.
+- **P8=90** on hive / alert-hub / marketplace — the DEFERRED subjective icon-mixing lens (Ian's call to keep
+  the friendly emoji + SVG blend, per the proposal-first UX loop) — the ONE genuinely Ian-gated item.
+Every automated-verifiable security/integrity/functional axis is at gated-100. The path to a literal
+100%: close the 3 P3=95 legs (buildable) + Ian's decision on the P8 icon lens (proposal-first).
 
 **assistant.html AI-context bug (P5 68→82).** Investigating the lowest cell surfaced a real correctness
 bug: assistant's AI-gateway + semantic-RAG calls resolved the hive as `getItem('wh_hive_id') || null` (the

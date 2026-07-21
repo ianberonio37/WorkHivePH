@@ -872,7 +872,15 @@
     // block, not a separate script tag, so it adds no net-new un-nonced inline script (the CSP
     // ratchet holds at baseline 12). A known signed-in user must not see the marketing landing paint
     // then collapse into ops-home (that swap moved the footer ~200px, CLS 0.24).
-    try{if((whWorker())&&(whHiveId())){document.documentElement.classList.add('wh-signed-in');}}catch(_){/* empty-catch-allow: private-mode/localStorage-blocked, fall through to the marketing landing */}
+    // GUARDED (2026-07-22): this anti-CLS paint-hint runs BEFORE utils.js, so a bare whWorker()/
+    // whHiveId() threw ReferenceError (caught) → the wh-signed-in class NEVER applied → the exact
+    // landing→ops-home CLS flash this block exists to prevent still happened for signed-in users.
+    // typeof-guard + read the raw keys pre-utils (paint-hint only; utils accessors used everywhere else).
+    try{
+      var _sw = (typeof whWorker === 'function') ? whWorker() : localStorage.getItem('wh_last_worker'); /* storage-key-allow: pre-utils paint-hint */
+      var _sh = (typeof whHiveId === 'function') ? whHiveId() : (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id')); /* storage-key-allow: pre-utils paint-hint */
+      if(_sw && _sh){document.documentElement.classList.add('wh-signed-in');}
+    }catch(_){/* empty-catch-allow: private-mode/localStorage-blocked, fall through to the marketing landing */}
     // Local dev URL bridge v2: production uses /learn/, /logbook.html etc.
     // as root-absolute URLs. Locally everything serves under /workhive/.
     // This script rewrites root-absolute links to /workhive/<path>/index.html

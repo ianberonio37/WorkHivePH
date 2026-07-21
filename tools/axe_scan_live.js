@@ -55,7 +55,7 @@ const PAGES = [
 // 0 rows → the gate scanned EMPTY pages, missing populated-content a11y). His real hive is 636cf7e8 (the
 // same stale-hive the page-crud/live gates already pin via WH_TEST_HIVE). Now scans REAL rendered content.
 const SUPERVISOR = 'leandromarquez';
-const HIVE_ID    = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6';
+const HIVE_ID    = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // hive fallback only — resolveHive() reads live membership
 const HIVE_NAME  = 'Baguio Textile Mills';
 const WORKER     = 'Leandro Marquez';
 const WCAG_TAGS  = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -93,11 +93,36 @@ function skip(reason) {
   process.exit(0);
 }
 
+// Resolve the user's REAL hive from the live hive_members row via PostgREST (test_identity
+// pattern) — the HIVE_ID pin rots across reseeds (636cf7e8 was deleted; a dead hive = RLS
+// 0-rows = the axe gate scans EMPTY pages again, the exact bug the 2026-07-19 pin "fixed").
+function resolveHive(key, session) {
+  return new Promise((resolve) => {
+    try {
+      const uid = session && session.user && session.user.id;
+      if (!uid) return resolve(null);
+      const u = new URL(`${GOTRUE}/rest/v1/hive_members?auth_uid=eq.${uid}&status=eq.active&select=hive_id&limit=1`);
+      const req = http.request({ hostname: u.hostname, port: u.port, path: u.pathname + u.search,
+        headers: { apikey: key, Authorization: `Bearer ${session.access_token}` } }, (res) => {
+        let d = '';
+        res.on('data', (c) => d += c);
+        res.on('end', () => {
+          try { const j = JSON.parse(d); resolve(j[0] && j[0].hive_id ? j[0].hive_id : null); }
+          catch (_) { resolve(null); }
+        });
+      });
+      req.on('error', () => resolve(null));
+      req.end();
+    } catch (_) { resolve(null); }
+  });
+}
+
 (async () => {
   const key = anonKey();
   if (!key) skip('local anon key not found (tests/_db-cleanup.ts)');
   const session = await grantSession(key);
   if (!session) skip('supervisor password-grant failed (GoTrue down or seeder absent)');
+  const liveHive = (await resolveHive(key, session)) || HIVE_ID;   // pin = fallback only
 
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -123,7 +148,7 @@ function skip(reason) {
     localStorage.setItem('wh_hive_role', 'supervisor');
     localStorage.setItem('wh_hives', JSON.stringify([{ id: hiveId, name: hiveName, role: 'supervisor', code: '' }]));
     localStorage.setItem('wh_nav_mode', 'engineer');
-  }, { sess: session, hiveId: HIVE_ID, hiveName: HIVE_NAME, worker: WORKER });
+  }, { sess: session, hiveId: liveHive, hiveName: HIVE_NAME, worker: WORKER });
 
   const detail = {};
   for (const p of PAGES) {

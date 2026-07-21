@@ -23,6 +23,23 @@ FUNCS_DIR = ROOT / "supabase" / "functions"
 OUT = ROOT / "backend_edge_probe.json"
 BASE = "http://127.0.0.1:54321/functions/v1"
 ORIGIN = "http://127.0.0.1:5000"
+
+_LIVE_HIVE_CACHE: list[str] = []
+
+
+def _live_hive() -> str:
+    """The seeded user's REAL hive, resolved once from the live hive_members row (test_identity
+    pattern) — a pinned UUID rots across reseeds, and a dead hive makes the I4 probe 403
+    not_a_member = a 4xx 'pass' for the WRONG reason (tenancy, not the input-size path)."""
+    if not _LIVE_HIVE_CACHE:
+        try:
+            import sys as _s
+            _s.path.insert(0, str(ROOT / "tools" / "lib"))
+            from test_identity import resolve_test_identity
+            _LIVE_HIVE_CACHE.append(resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id)
+        except Exception:
+            _LIVE_HIVE_CACHE.append("9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7")  # hive fallback (stale-known)
+    return _LIVE_HIVE_CACHE[0]
 # Never POST to these (money / at-least-once) — OPTIONS only.
 POST_SKIP = re.compile(r"marketplace|webhook|release|checkout|connect|cmms-push|trigger-ml|send-report")
 
@@ -104,7 +121,9 @@ def probe(fn: str, key: str, jwt: str = "") -> dict:
     _, o4 = curl(["-w", "\n@@%{http_code}", "-X", "POST", url,
                   "-H", f"Authorization: Bearer {auth}", "-H", f"apikey: {key}",
                   "-H", "Content-Type: application/json", "-H", f"Origin: {ORIGIN}",
-                  "-d", json.dumps({"text": "A" * 20000, "hive_id": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"})])
+                  # hive resolved at runtime (stale pin would 403 not_a_member = a 4xx "pass"
+                  # for the WRONG reason — tenancy, not the input-size path this probe proves)
+                  "-d", json.dumps({"text": "A" * 20000, "hive_id": _live_hive()})])
     m4 = re.search(r"@@(\d+)\s*$", o4)
     c4 = int(m4.group(1)) if m4 else 0
     rec["li_i4_ok"] = c4 != 0 and c4 < 500

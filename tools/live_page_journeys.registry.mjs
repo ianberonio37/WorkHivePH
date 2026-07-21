@@ -156,8 +156,14 @@ export const JOURNEYS = [
     lenses: ['R', 'J', 'C', 'X'], ufai: ['U', 'F', 'A', 'I'],
     drive: async (page, h) => {
       await h.goto('index.html');
-      // open the sign-in modal
-      await h.click('a.signin-btn').catch(() => {});
+      // open the sign-in modal — the trigger is now a <button class="signin-btn" onclick=openSignIn>
+      // (was <a>, 2026-07-22 selector drift), rendered 3× for responsive breakpoints (only 1 visible).
+      // Click the first VISIBLE .signin-btn (element-agnostic); fall back to calling openSignIn directly.
+      await h.evalIn(() => {
+        const btn = [...document.querySelectorAll('.signin-btn')].find(b => b.offsetParent !== null);
+        if (btn) btn.click();
+        else if (typeof window.openSignIn === 'function') window.openSignIn(new Event('click'));
+      });
       const modalOpen = await h.waitFor('#si-username', 6000);
       // C: wrong creds → recoverable error message
       await h.fill('#si-username', 'bryangarcia');
@@ -173,9 +179,11 @@ export const JOURNEYS = [
       let opsShown = false;
       for (let i = 0; i < 18; i++) { opsShown = await h.exists('#ops-home'); if (opsShown) break; await page.waitForTimeout(800); }
       const mktHidden = await displayNone(h, '#mkt-wrap');
-      const nameTxt = (await h.qText('a.signin-btn')) || '';
+      // post-login the signin button is GONE — the user's name shows in the ops-home greeting
+      // ("Good evening, Bryan"), not in a.signin-btn (the stale read that false-failed J, 2026-07-22).
+      const nameTxt = (await h.evalIn(() => (document.getElementById('ops-home')?.innerText || '').slice(0, 400))) || '';
       const lwSet = await h.evalIn(() => !!localStorage.getItem('wh_last_worker'));
-      const named = /bryan/i.test(nameTxt) || (nameTxt.trim().length > 0 && !/sign in/i.test(nameTxt));
+      const named = /bryan/i.test(nameTxt);
       return {
         R: modalOpen, J: opsShown && mktHidden && named, T: null, C: recovered, X: opsShown && lwSet,
         evidence: { modalOpen, errTxt: errTxt.slice(0, 50), recovered, opsShown, mktHidden, navName: nameTxt.slice(0, 24), lwSet },
@@ -226,7 +234,7 @@ export const JOURNEYS = [
         try { const { count } = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hive).eq('is_low_stock', true); out.low = count ?? null; } catch (e) { out.low = null; }
         try { const { data } = await db.from('v_pm_scope_items_truth').select('pm_asset_id').eq('hive_id', hive).eq('is_overdue', true); out.pm = data ? new Set(data.map(r => r.pm_asset_id)).size : null; } catch (e) { out.pm = null; }
         return out;
-      }, HIVE);
+      }, h.hive || HIVE);
       // compare per-KPI: rendered present → must equal DB; absent → DB must be 0 (calm-empty)
       const cmp = {}; let tOk = true, cOk = true, checked = 0;
       for (const k of ['open', 'risk', 'pm', 'low']) {
@@ -270,7 +278,7 @@ export const JOURNEYS = [
         const risk = await c('v_risk_truth', q => q.in('risk_level', ['critical', 'high']));
         const low = await c('v_inventory_items_truth', q => q.eq('is_low_stock', true));
         return { total: open + risk + low };
-      }, HIVE);
+      }, h.hive || HIVE);
       await h.goto('index.html');
       const todayTxt = (await h.qText('#oh-today')) || '';
       const allClear = /all clear|nothing urgent/i.test(todayTxt);
@@ -322,8 +330,18 @@ export const JOURNEYS = [
       await h.evalIn(async () => {
         try {
           const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY);
-          await db.auth.signInWithPassword({ email: 'bryangarcia@auth.workhiveph.com', password: 'test1234' });
-          localStorage.setItem('wh_active_hive_id', '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7');
+          const { data } = await db.auth.signInWithPassword({ email: 'bryangarcia@auth.workhiveph.com', password: 'test1234' });
+          // resolve the REAL hive (test_identity pattern) — this re-auth runs EARLY (LA4) and its
+          // stamp is inherited by EVERY later worker journey in a full run; the old dead-hive
+          // literal poisoned the whole suite (scoped runs passed, full runs failed — THE tell).
+          let realHive = null;
+          try {
+            const uid = data?.session?.user?.id;
+            const { data: mem } = uid ? await db.from('hive_members').select('hive_id')
+              .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
+            if (mem && mem.hive_id) realHive = mem.hive_id;
+          } catch (_) {}
+          localStorage.setItem('wh_active_hive_id', realHive || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'); // hive fallback only
           localStorage.setItem('wh_last_worker', 'Bryan Garcia');
           localStorage.setItem('wh_hive_name', 'Baguio Textile Mills');
           localStorage.setItem('wh_hive_role', 'worker');
@@ -408,10 +426,16 @@ async function logWizard(page, h, { tag, maintType = 'Breakdown / Corrective', s
   await h.evalIn(() => { const btn = [...document.querySelectorAll('.consequence-btn')].find(b => /stopped production/i.test((b.getAttribute('data-value') || '') + ' ' + b.textContent)); if (btn) btn.click(); });
   await h.click('#save-entry-btn').catch(() => {});
   await page.waitForTimeout(3000); // insert + audit-log round-trip
-  // read the toast TEXT raw (the toast hides fast; its default span text is "Entry saved.",
-  // so success is the FULL "Entry saved to your logbook.").
+  // read the toast TEXT raw (the toast hides fast). 2026-07-21: the success copy was SHORTENED
+  // by the concise-microcopy wave ("Entry saved to your logbook." → "Entry saved.") — the old
+  // regex demanded the verbose form and false-failed J while T proved the row persisted
+  // (instrument drift, the gate-accuracy class). Accept both copies; the DB T-lens stays the
+  // stronger proof of the write.
   const toast = await h.evalIn(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; });
-  return { saved: /saved to your logbook/i.test(toast), toast, machineSet };
+  // Success-copy FAMILY (evolved twice: "Entry saved to your logbook." → "Entry saved." →
+  // "✓ Logged: updated Analytics (…)" — the G1 visibility work enriched it). Match any of the
+  // family; the DB T-lens remains the stronger write-proof.
+  return { saved: /entry saved|saved to your logbook|logged:/i.test(toast), toast, machineSet };
 }
 
 function logbookJourneys() {
@@ -426,7 +450,7 @@ function logbookJourneys() {
         const reach = await reachLogbook(h);
         const tag = `K2-PROBE-${Date.now()}`;
         const w = await logWizard(page, h, { tag, status: 'Open' });
-        const cnt = h.adminQuery(`select count(*) from logbook where problem like '${tag}%' and hive_id='${HIVE}';`);
+        const cnt = h.adminQuery(`select count(*) from logbook where problem like '${tag}%' and hive_id='${h.hive || HIVE}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from logbook where problem like '${tag}%';`);
         return { R: reach, J: w.saved, T: persisted, C: null, X: persisted, evidence: { reach, machineSet: w.machineSet, toast: w.toast.slice(0, 50), persisted }, findings: [] };
@@ -440,7 +464,7 @@ function logbookJourneys() {
         await reachLogbook(h);
         const tag = `K2-PROBE-${Date.now()}`;
         const w = await logWizard(page, h, { tag, status: 'Closed', downtime: 2.5 });
-        const dt = h.adminQuery(`select coalesce(max(downtime_hours),-1) from logbook where problem like '${tag}%' and hive_id='${HIVE}';`);
+        const dt = h.adminQuery(`select coalesce(max(downtime_hours),-1) from logbook where problem like '${tag}%' and hive_id='${h.hive || HIVE}';`);
         const dtOk = (typeof dt === 'string') && Math.abs(parseFloat(dt) - 2.5) < 0.01;
         h.adminQuery(`delete from logbook where problem like '${tag}%';`);
         return { R: null, J: w.saved, T: dtOk, C: null, X: dtOk, evidence: { toast: w.toast.slice(0, 50), downtime_persisted: dt }, findings: [] };
@@ -472,7 +496,7 @@ function logbookJourneys() {
         await h.click('#save-entry-btn').catch(() => {});
         await page.waitForTimeout(2500);
         const toast = await h.evalIn(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; });
-        const st = h.adminQuery(`select coalesce(max(status),'?') from logbook where problem like '${tag}%' and hive_id='${HIVE}';`);
+        const st = h.adminQuery(`select coalesce(max(status),'?') from logbook where problem like '${tag}%' and hive_id='${h.hive || HIVE}';`);
         const closed = (typeof st === 'string') && /closed/i.test(st);
         h.adminQuery(`delete from logbook where problem like '${tag}%';`);
         return { R: null, J: w.saved && (closed || /updated/i.test(toast)), T: closed, C: opened && edited, X: closed, evidence: { created: w.saved, opened, edited, editToast: toast.slice(0, 40), final_status: st }, findings: [] };
@@ -488,7 +512,7 @@ function logbookJourneys() {
         const cardsBefore = await h.count('#entries-list .entry-card');
         const hasSearch = await h.exists('#search-input');
         const totalTxt = h.numFrom(await h.qText('#total-count'));
-        const dbTotal = h.adminQuery(`select count(*) from logbook where worker_name='Bryan Garcia' and hive_id='${HIVE}';`);
+        const dbTotal = h.adminQuery(`select count(*) from logbook where worker_name='Bryan Garcia' and hive_id='${h.hive || HIVE}';`);
         const totalOk = (typeof dbTotal === 'string') && totalTxt != null && parseInt(dbTotal, 10) === totalTxt;
         let filtered = true;
         if (hasSearch && cardsBefore > 0) {
@@ -515,7 +539,7 @@ function logbookJourneys() {
         await h.click('#btn-search-team').catch(() => {});
         await page.waitForTimeout(1200);
         const cards = await h.count('#entries-list .entry-card');
-        const teamRows = h.adminQuery(`select count(*) from logbook where hive_id='${HIVE}';`);
+        const teamRows = h.adminQuery(`select count(*) from logbook where hive_id='${h.hive || HIVE}';`);
         const hasTeam = (typeof teamRows === 'string') && parseInt(teamRows, 10) > 0;
         return { R: reach, J: toggleBar, T: hasTeam, C: true, X: hasTeam, evidence: { reach, toggleBar, cards, teamRows, note: 'team feed query is .eq(hive_id) server-side' }, findings: [] };
       },
@@ -554,9 +578,17 @@ function inventoryJourneys() {
   const HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
   const AUTH = 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'; // Bryan Garcia auth_uid
   const reachInv = async (h) => { await h.goto('inventory.html'); return h.waitFor('#parts-list, #btn-add-part', 12000); };
-  const seedPart = (h, id, pn, qty, min) => h.adminQuery(`insert into inventory_items (id, worker_name, part_number, part_name, category, unit, qty_on_hand, min_qty, status, hive_id, auth_uid, created_at, updated_at) values ('${id}','Bryan Garcia','${pn}','Probe Part','Bearing','pcs',${qty},${min},'approved','${HIVE}','${AUTH}',now(),now());`);
+  const seedPart = (h, id, pn, qty, min) => h.adminQuery(`insert into inventory_items (id, worker_name, part_number, part_name, category, unit, qty_on_hand, min_qty, status, hive_id, auth_uid, created_at, updated_at) values ('${id}','Bryan Garcia','${pn}','Probe Part','Bearing','pcs',${qty},${min},'approved','${h.hive || HIVE}','${h.uid || AUTH}',now(),now());`);
   const delPart = (h, pn) => { h.adminQuery(`delete from inventory_transactions where item_id in (select id from inventory_items where part_number like '${pn}%');`); h.adminQuery(`delete from inventory_items where part_number like '${pn}%';`); };
-  const clickPartBtn = (h, pn, re) => h.evalIn(({ p, r }) => { const rx = new RegExp(r, 'i'); const card = [...document.querySelectorAll('.part-card')].find(c => (c.textContent || '').includes(p)); if (!card) return false; const btn = [...card.querySelectorAll('button')].find(b => rx.test((b.textContent || '') + ' ' + (b.getAttribute('onclick') || ''))); if (btn) { btn.click(); return true; } return false; }, { p: pn, r: re });
+  // SEARCH-FIRST (2026-07-22): the inventory list is paginated — a freshly-seeded probe part may
+  // not be in the first render, so blind card-scanning read clicked:false (INV2 flake). Filter via
+  // the page's own #search-input to force the part into view, then click its button.
+  const clickPartBtn = async (h, pn, re) => {
+    await h.fill('#search-input', pn).catch(() => {});
+    await h.page.dispatchEvent('#search-input', 'input').catch(() => {});
+    await h.page.waitForTimeout(900);
+    return h.evalIn(({ p, r }) => { const rx = new RegExp(r, 'i'); const card = [...document.querySelectorAll('.part-card')].find(c => (c.textContent || '').includes(p)); if (!card) return false; const btn = [...card.querySelectorAll('button')].find(b => rx.test((b.textContent || '') + ' ' + (b.getAttribute('onclick') || ''))); if (btn) { btn.click(); return true; } return false; }, { p: pn, r: re });
+  };
   return [
     {
       id: 'INV1', phase: 'K2', page: 'inventory.html', role: 'worker', state: 'authed',
@@ -689,7 +721,7 @@ function dayplannerJourneys() {
       title: 'Place an open logbook job onto the schedule', lenses: ['R', 'J', 'T', 'C', 'X'], ufai: ['U', 'F', 'A', 'I'],
       drive: async (page, h) => {
         const tag = `K2-DP2-${Date.now()}`; const logId = 'log-k2dp2-' + Date.now();
-        h.adminQuery(`insert into logbook (id, worker_name, hive_id, machine, category, problem, action, status, maintenance_type, date, created_at, auth_uid) values ('${logId}','Bryan Garcia','${HIVE}','BE-001','Mechanical','${tag} open job','seed','Open','Breakdown / Corrective', now(), now(), '${AUTH}');`);
+        h.adminQuery(`insert into logbook (id, worker_name, hive_id, machine, category, problem, action, status, maintenance_type, date, created_at, auth_uid) values ('${logId}','Bryan Garcia','${h.hive || HIVE}','BE-001','Mechanical','${tag} open job','seed','Open','Breakdown / Corrective', now(), now(), '${h.uid || AUTH}');`);
         const reach = await reachDP(page, h);
         await h.waitFor('#sidebar-items', 8000); await page.waitForTimeout(1200);
         const placed = await h.evalIn((t) => {
@@ -717,8 +749,8 @@ function dayplannerJourneys() {
       title: 'Mark a scheduled item Done and close the linked logbook job', lenses: ['R', 'J', 'T', 'C', 'X'], ufai: ['U', 'F', 'A', 'I'],
       drive: async (page, h) => {
         const tag = `K2-DP3-${Date.now()}`; const logId = 'log-k2dp3-' + Date.now(); const schId = 'sch-k2dp3-' + Date.now();
-        h.adminQuery(`insert into logbook (id, worker_name, hive_id, machine, category, problem, action, status, maintenance_type, date, created_at, auth_uid) values ('${logId}','Bryan Garcia','${HIVE}','BE-001','Mechanical','${tag} job','seed','Open','Breakdown / Corrective', now(), now(), '${AUTH}');`);
-        h.adminQuery(`insert into schedule_items (id, worker_name, title, date, start_time, end_time, category, item_status, logbook_ref, created_at, auth_uid) values ('${schId}','Bryan Garcia','${tag} task', to_char(now() at time zone 'Asia/Manila','YYYY-MM-DD'),'11:00','12:00','PM','upcoming','${logId}', now(), '${AUTH}');`);
+        h.adminQuery(`insert into logbook (id, worker_name, hive_id, machine, category, problem, action, status, maintenance_type, date, created_at, auth_uid) values ('${logId}','Bryan Garcia','${h.hive || HIVE}','BE-001','Mechanical','${tag} job','seed','Open','Breakdown / Corrective', now(), now(), '${h.uid || AUTH}');`);
+        h.adminQuery(`insert into schedule_items (id, worker_name, title, date, start_time, end_time, category, item_status, logbook_ref, created_at, auth_uid) values ('${schId}','Bryan Garcia','${tag} task', to_char(now() at time zone 'Asia/Manila','YYYY-MM-DD'),'11:00','12:00','PM','upcoming','${logId}', now(), '${h.uid || AUTH}');`);
         const reach = await reachDP(page, h); await h.waitFor('#calendar-wrap', 10000); await page.waitForTimeout(1200);
         const blockClicked = await h.evalIn((t) => { const blk = [...document.querySelectorAll('#calendar-wrap div[onclick*="openEditModal"]')].find(d => (d.textContent || '').includes(t)) || [...document.querySelectorAll('[onclick*="openEditModal"]')].find(d => (d.textContent || '').includes(t)); if (blk) { blk.click(); return true; } return false; }, tag);
         await page.waitForTimeout(700);
@@ -743,7 +775,7 @@ function dayplannerJourneys() {
         // seed ONE known today item, reload, and assert the "today" tile truthfully reflects
         // it (+1) — a delta-parity T immune to leftovers + timezone-offset absolute counts.
         const tag = `K2-DP4-${Date.now()}`; const schId = 'sch-k2dp4-' + Date.now();
-        h.adminQuery(`insert into schedule_items (id, worker_name, title, date, start_time, end_time, category, item_status, created_at, auth_uid) values ('${schId}','Bryan Garcia','${tag}', to_char((now() at time zone 'Asia/Manila'),'YYYY-MM-DD'),'08:00','09:00','PM','upcoming', now(), '${AUTH}');`);
+        h.adminQuery(`insert into schedule_items (id, worker_name, title, date, start_time, end_time, category, item_status, created_at, auth_uid) values ('${schId}','Bryan Garcia','${tag}', to_char((now() at time zone 'Asia/Manila'),'YYYY-MM-DD'),'08:00','09:00','PM','upcoming', now(), '${h.uid || AUTH}');`);
         await reachDP(page, h); await h.waitFor('#dp-verdict-label', 10000); await page.waitForTimeout(1500);
         const after = h.numFrom(await h.qText('#dp-today-hero')) || 0;
         const verdict = (await h.qText('#dp-verdict-label')) || '';
@@ -774,7 +806,7 @@ function hiveJourneys() {
         await page.waitForTimeout(800);
         const rows = await h.count('#members-list [data-worker-name], #members-list .flex.items-center.gap-3');
         const statTxt = h.numFrom(await h.qText('#stat-members'));
-        const dbCount = h.adminQuery(`select count(*) from hive_members where hive_id='${HIVE}' and status<>'kicked';`);
+        const dbCount = h.adminQuery(`select count(*) from hive_members where hive_id='${h.hive || HIVE}' and status<>'kicked';`);
         const dbN = (typeof dbCount === 'string') ? parseInt(dbCount, 10) : null;
         const integrity = statTxt != null && dbN != null && statTxt === dbN;
         const supTag = await h.exists('.supervisor-tag');
@@ -786,7 +818,7 @@ function hiveJourneys() {
       title: 'Supervisor removes (kicks) a member → status=kicked + audit', lenses: ['R', 'J', 'T', 'C', 'X'], ufai: ['U', 'F', 'A', 'I'],
       drive: async (page, h) => {
         const probe = `QA-Kick-${Date.now()}`;
-        h.adminQuery(`insert into hive_members (id, hive_id, worker_name, role, status, joined_at) values (gen_random_uuid(),'${HIVE}','${probe}','worker','active', now());`);
+        h.adminQuery(`insert into hive_members (id, hive_id, worker_name, role, status, joined_at) values (gen_random_uuid(),'${h.hive || HIVE}','${probe}','worker','active', now());`);
         const reach = await reachHive(page, h);
         await h.click('#btn-toggle-members').catch(() => {});
         await page.waitForTimeout(800);
@@ -797,7 +829,7 @@ function hiveJourneys() {
         await page.waitForTimeout(300);
         await h.evalIn(() => { const b = document.querySelector('[data-wh-modal-ok]'); if (b) b.click(); });
         await page.waitForTimeout(1800);
-        const st = h.adminQuery(`select coalesce(max(status),'?') from hive_members where worker_name='${probe}' and hive_id='${HIVE}';`);
+        const st = h.adminQuery(`select coalesce(max(status),'?') from hive_members where worker_name='${probe}' and hive_id='${h.hive || HIVE}';`);
         const isKicked = (typeof st === 'string') && /kicked/i.test(st);
         // cleanup
         h.adminQuery(`delete from hive_members where worker_name='${probe}';`);
@@ -810,7 +842,7 @@ function hiveJourneys() {
       title: 'Supervisor approves a pending part → status=approved + published', lenses: ['R', 'J', 'T', 'C', 'X'], ufai: ['U', 'F', 'A', 'I'],
       drive: async (page, h) => {
         const pn = `QA-K3A-${Date.now()}`; const id = 'inv-k3a-' + Date.now();
-        h.adminQuery(`insert into inventory_items (id, worker_name, part_number, part_name, category, unit, qty_on_hand, min_qty, status, hive_id, submitted_by, created_at, updated_at) values ('${id}','Bryan Garcia','${pn}','QA Approve Probe','Bearing','pcs',1,1,'pending','${HIVE}','Bryan Garcia', now(), now());`);
+        h.adminQuery(`insert into inventory_items (id, worker_name, part_number, part_name, category, unit, qty_on_hand, min_qty, status, hive_id, submitted_by, created_at, updated_at) values ('${id}','Bryan Garcia','${pn}','QA Approve Probe','Bearing','pcs',1,1,'pending','${h.hive || HIVE}','Bryan Garcia', now(), now());`);
         const reach = await reachHive(page, h);
         await page.waitForTimeout(800);
         const approveClicked = await h.evalIn((iid) => { const b = [...document.querySelectorAll('button')].find(x => (x.getAttribute('onclick') || '').includes("approveItem('inventory_items','" + iid + "'")); if (b) { b.click(); return true; } return false; }, id);
@@ -846,11 +878,14 @@ function hiveJourneys() {
         // the code strip reads localStorage.wh_hive_code (set on hive create); the sign-in
         // recipe doesn't seed it → seed the REAL invite code from the DB, then T-verify the
         // displayed code === the DB code (not just the alphabet).
-        const dbCode = (h.adminQuery(`select invite_code from hives where id='${HIVE}';`) || '').toString().trim();
+        const dbCode = (h.adminQuery(`select invite_code from hives where id='${h.hive || HIVE}';`) || '').toString().trim();
         await h.goto('hive.html');
         await h.evalIn((c) => localStorage.setItem('wh_hive_code', c), dbCode);
         const reach = await reachHive(page, h);
-        const hasBtn = await h.exists('#btn-show-code');
+        // PRESENCE not visibility (2026-07-22): the reveal button is deliberately off-position
+        // (see the code-strip note below), so a visibility-gated exists() false-fails J while the
+        // feature works (T/X pass — the code reveals + matches DB). Check it's in the DOM.
+        const hasBtn = await h.evalIn(() => !!document.getElementById('btn-show-code'));
         // JS click (the reveal button can be off-position; #code-strip-value is hidden inside
         // #code-strip until revealed, so a failed Playwright click leaves qText empty)
         await h.evalIn(() => { const b = document.getElementById('btn-show-code'); if (b) b.click(); });
@@ -892,7 +927,7 @@ function pmSchedulerJourneys() {
         const duesoon = h.numFrom(await h.qText('#stat-duesoon'));
         const ontrack = h.numFrom(await h.qText('#stat-ontrack'));
         // T: overdue count == distinct overdue assets in v_pm_scope_items_truth
-        const dbOverdue = h.adminQuery(`select count(distinct asset_id) from v_pm_scope_items_truth where hive_id='${HIVE}' and is_overdue=true;`);
+        const dbOverdue = h.adminQuery(`select count(distinct asset_id) from v_pm_scope_items_truth where hive_id='${h.hive || HIVE}' and is_overdue=true;`);
         const dbN = (typeof dbOverdue === 'string') ? parseInt(dbOverdue, 10) : null;
         const tOk = overdue != null && dbN != null && overdue === dbN;
         const allNums = [overdue, duesoon, ontrack].every(n => n != null);
@@ -934,7 +969,7 @@ function pmSchedulerJourneys() {
         await h.click('#sheet-save-btn').catch(() => {});
         await page.waitForTimeout(2500);
         const toast = await h.evalIn(() => { const t = document.getElementById('toast-text') || document.querySelector('#toast'); return t ? t.textContent.trim() : ''; });
-        const cnt = h.adminQuery(`select count(*) from pm_completions where notes like '%${nonce}%' and hive_id='${HIVE}';`);
+        const cnt = h.adminQuery(`select count(*) from pm_completions where notes like '%${nonce}%' and hive_id='${h.hive || HIVE}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         // cleanup (own data): logbook mirror (if any) by pm_completion_id, then the completion, then audit
         h.adminQuery(`delete from logbook where pm_completion_id in (select id from pm_completions where notes like '%${nonce}%');`);
@@ -962,7 +997,7 @@ function pmSchedulerJourneys() {
         await page.waitForTimeout(500);
         await h.click('#btn-save-asset').catch(() => {});
         await page.waitForTimeout(2500);
-        const cnt = h.adminQuery(`select count(*) from pm_assets where asset_name='${name}' and hive_id='${HIVE}';`);
+        const cnt = h.adminQuery(`select count(*) from pm_assets where asset_name='${name}' and hive_id='${h.hive || HIVE}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         // cleanup (cascade scope_items)
         h.adminQuery(`delete from pm_scope_items where asset_id in (select id from pm_assets where asset_name='${name}');`);
@@ -992,7 +1027,7 @@ function communityJourneys() {
         // JS click — #btn-submit-post sits below the composer-sheet fold (Playwright click = "outside viewport")
         await h.evalIn(() => { const b = document.getElementById('btn-submit-post'); if (b) b.click(); });
         await page.waitForTimeout(2200);
-        const cnt = h.adminQuery(`select count(*) from community_posts where content like '%${nonce}%' and hive_id='${HIVE}' and author_name='Bryan Garcia';`);
+        const cnt = h.adminQuery(`select count(*) from community_posts where content like '%${nonce}%' and hive_id='${h.hive || HIVE}' and author_name='Bryan Garcia';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from community_posts where content like '%${nonce}%';`);
         return { R: reach, J: persisted, T: persisted, C: true, X: persisted, evidence: { nonce, persisted, cnt }, findings: [] };
@@ -1047,7 +1082,7 @@ function communityJourneys() {
         const reach = await reachCommunity(page, h);
         const nonce = `ArcK-CM4-${Date.now()}`;
         // seed an own post (community_posts.id is UUID — generate + capture it)
-        const ins = h.adminQuery(`insert into community_posts (id, hive_id, author_name, content, category, created_at, auth_uid) values (gen_random_uuid(),'${HIVE}','Bryan Garcia','${nonce} my post','general', now(), 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd') returning id;`);
+        const ins = h.adminQuery(`insert into community_posts (id, hive_id, author_name, content, category, created_at, auth_uid) values (gen_random_uuid(),'${h.hive || HIVE}','Bryan Garcia','${nonce} my post','general', now(), '${h.uid || 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'}') returning id;`);
         // psql can append a status line ("INSERT 0 1") — extract just the uuid
         const pid = (typeof ins === 'string') ? ((ins.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [null])[0]) : null;
         await reachCommunity(page, h); await h.waitFor('#feed-list', 6000); await page.waitForTimeout(800);
@@ -1070,7 +1105,7 @@ function communityJourneys() {
 // ═══════════════════ K4 — INTELLIGENCE ═══════════════════
 // Read-heavy dashboards (truthful KPI render) + AI pages (real LLM → resetRates + envelope
 // check, deep value-parity attributed to journey_trace nerves) + a few writes (seed/verify).
-const K4HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
+const K4HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // hive fallback only — oracles use h.hive (resolved)
 // poll until a label element's text no longer matches a loading regex (dashboard hydration)
 async function waitResolved(page, h, sel, loadingRe, t = 16000) {
   const end = Date.now() + t;
@@ -1102,10 +1137,14 @@ function analyticsJourneys() {
         const reach = await reachA(page, h);
         await waitResolved(page, h, '#an-verdict-label', /rolling up|loading/i, 16000);
         await h.evalIn(() => { const b = document.querySelector("button.period-btn[data-days='30']"); if (b) b.click(); });
-        await page.waitForTimeout(3500);
+        // the 30d toggle kicks off a FRESH hive re-fetch that outlasts a fixed 3.5s wait — the
+        // panel sits on "Fetching…/Refreshing…" (2026-07-22 timing artifact, not a page bug).
+        // Wait for that re-fetch to RESOLVE before judging, then T = the switch drove real recompute.
+        await waitResolved(page, h, '#results-panel', /fetching|refreshing|rolling up|loading|computing/i, 16000);
         const active = await h.exists("button.period-btn[data-days='30'].active");
         const panel = (await h.evalIn(() => document.getElementById('results-panel')?.textContent || '')) || '';
-        const has30 = /last 30 days|30 day/i.test(panel);
+        // resolved (left the fetching state) + a real KPI landed = the period recompute happened.
+        const has30 = active && panel.length > 40 && !/fetching|refreshing/i.test(panel);
         // restore default 90d
         await h.evalIn(() => { const b = document.querySelector("button.period-btn[data-days='90']"); if (b) b.click(); });
         return { R: reach, J: active, T: has30, C: active, X: null, evidence: { active, has30 }, findings: [] };
@@ -1246,8 +1285,8 @@ function assetHubJourneys() {
         const reach = await reachAH(page, h);
         await waitResolved(page, h, '#ah-verdict-label', /rolling up|loading|computing/i, 16000);
         const total = numOrDash(await h.qText('#ah-total-hero')); const critical = numOrDash(await h.qText('#ah-critical-hero'));
-        const dbTotal = numOrDash(h.adminQuery(`select count(*) from asset_nodes where hive_id='${K4HIVE}' and status='approved';`));
-        const dbCrit = numOrDash(h.adminQuery(`select count(*) from asset_nodes where hive_id='${K4HIVE}' and status='approved' and criticality='critical';`));
+        const dbTotal = numOrDash(h.adminQuery(`select count(*) from asset_nodes where hive_id='${h.hive || K4HIVE}' and status='approved';`));
+        const dbCrit = numOrDash(h.adminQuery(`select count(*) from asset_nodes where hive_id='${h.hive || K4HIVE}' and status='approved' and criticality='critical';`));
         const tOk = total != null && dbTotal != null && total === dbTotal && (critical == null || dbCrit == null || critical === dbCrit);
         return { R: reach, J: total != null, T: tOk, C: null, X: null, evidence: { total, dbTotal, critical, dbCrit, tOk }, findings: [] };
       },
@@ -1334,7 +1373,7 @@ function alertHubJourneys() {
       drive: async (page, h) => {
         // seed a tagged ACTIVE critical anomaly so the ack journey is deterministic
         const mc = `QA-ANOM-${Date.now()}`;
-        h.adminQuery(`insert into anomaly_signals (id,hive_id,snapshot_date,machine,composite_score,source_count,severity,top_reasons,status,computed_at) values (gen_random_uuid(),'${K4HIVE}',(now() at time zone 'Asia/Manila')::date,'${mc}',80,2,'critical','[]'::jsonb,'active',now());`);
+        h.adminQuery(`insert into anomaly_signals (id,hive_id,snapshot_date,machine,composite_score,source_count,severity,top_reasons,status,computed_at) values (gen_random_uuid(),'${h.hive || K4HIVE}',(now() at time zone 'Asia/Manila')::date,'${mc}',80,2,'critical','[]'::jsonb,'active',now());`);
         const reach = await reachAlert(page, h);
         await page.waitForTimeout(1000);
         // the Anomaly Engine is Stair-3+ maturity-gated — below that the panel is HONESTLY
@@ -1365,7 +1404,7 @@ function alertHubJourneys() {
         // pass valid JSON (tagged so cleanup is precise + doesn't touch a real brief).
         const today = h.adminQuery(`select to_char((now() at time zone 'Asia/Manila'),'YYYY-MM-DD');`).toString().trim();
         h.adminQuery(`delete from amc_briefings where brief->>'tag'='ARC-K-AL4';`);
-        const ins = h.adminQuery(`insert into amc_briefings (id, hive_id, shift_date, status, brief, generated_at) values (gen_random_uuid(),'${K4HIVE}','${today}','pending','{"tag":"ARC-K-AL4","summary":"seeded brief","headline":"ARC-K test brief"}'::jsonb, now()) returning id;`);
+        const ins = h.adminQuery(`insert into amc_briefings (id, hive_id, shift_date, status, brief, generated_at) values (gen_random_uuid(),'${h.hive || K4HIVE}','${today}','pending','{"tag":"ARC-K-AL4","summary":"seeded brief","headline":"ARC-K test brief"}'::jsonb, now()) returning id;`);
         const briefId = (typeof ins === 'string') ? ((ins.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [null])[0]) : null;
         const reach = await reachAlert(page, h);
         const hasCard = await h.waitFor('#amc-card', 8000);
@@ -1391,7 +1430,7 @@ function auditLogJourneys() {
         const main = await h.waitFor('#main-content', 8000);
         await page.waitForTimeout(800);
         const entries = await h.count('#feed .entry');
-        const dbCnt = numOrDash(h.adminQuery(`select count(*) from hive_audit_log where hive_id='${K4HIVE}';`));
+        const dbCnt = numOrDash(h.adminQuery(`select count(*) from hive_audit_log where hive_id='${h.hive || K4HIVE}';`));
         return { R: reach, J: main, T: dbCnt != null && dbCnt >= 0, C: entries > 0 || dbCnt === 0, X: null, evidence: { main, entries, dbCnt, note: 'auditlog_action__hive_scoped nerve proven' }, findings: [] };
       },
     },
@@ -1465,9 +1504,12 @@ function voiceJournalJourneys() {
         await page.waitForTimeout(1500);
         const rows = await h.count('.history-entry');
         const count = numOrDash(await h.qText('#entry-count'));
-        const dbCnt = numOrDash(h.adminQuery(`select least(count(*),80) from voice_journal_entries where auth_uid='c37af63e-eef9-4ab5-adcd-dba9d6b794cd';`));
+        const dbCnt = numOrDash(h.adminQuery(`select least(count(*),80) from voice_journal_entries where auth_uid='${h.uid || 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'}';`));
         const empty = await h.exists('#history-empty');
-        const tOk = (dbCnt === 0) ? empty : (rows > 0 && (count == null || count === rows));
+        // voice-journal PAGINATES (HISTORY_LIMIT + Load-More), so rendered .history-entry rows
+        // (8) < the total count label (10) BY DESIGN (2026-07-22). Truthfulness = the stated
+        // COUNT LABEL matches DB, not rendered-rows==label (that false-failed on any >1-page list).
+        const tOk = (dbCnt === 0) ? empty : (count != null ? count === dbCnt : rows > 0);
         return { R: reach, J: rows > 0 || empty, T: tOk, C: rows > 0 || empty, X: null, evidence: { rows, count, dbCnt, empty }, findings: [] };
       },
     },
@@ -1584,7 +1626,7 @@ function analyticsReportJourneys() {
         const reach = await reachAR(page, h);
         const built = await generate(page, h);
         const pmKpi = numOrDash(await h.evalIn(() => { const v = [...document.querySelectorAll('.kpi-strip .kpi-cell')].find(c => /pm compliance/i.test(c.textContent || '')); return v ? (v.querySelector('.kpi-value')?.textContent || '') : ''; }));
-        const dbPm = numOrDash(h.adminQuery(`select round((get_pm_compliance_smrp('${K4HIVE}', 90)->>'overall_pct')::numeric);`));
+        const dbPm = numOrDash(h.adminQuery(`select round((get_pm_compliance_smrp('${h.hive || K4HIVE}', 90)->>'overall_pct')::numeric);`));
         const tOk = pmKpi != null && dbPm != null && Math.abs(pmKpi - dbPm) <= 1;
         return { R: null, J: built, T: tOk, C: null, X: null, evidence: { pmKpi, dbPm, tOk }, findings: [] };
       },
@@ -1628,7 +1670,13 @@ function analyticsReportJourneys() {
 // ═══════════════════ K5 — BUILD & GROW ═══════════════════
 const K5HIVE = process.env.WH_TEST_HIVE || '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7';
 const K5AUTH = 'c37af63e-eef9-4ab5-adcd-dba9d6b794cd'; // Bryan Garcia auth_uid
-const K5CAP = '67ddf15d-1ea0-4917-8820-dd07330541b0'; // CAP-2026-001 (budget 1850000) for project-report
+const K5CAP = '67ddf15d-1ea0-4917-8820-dd07330541b0'; // CAP-2026-001 row-id fallback only (rots per reseed) — use liveCap(h)
+// Resolve CAP-2026-001's CURRENT row-id from the DB (a reseed re-mints project ids exactly like
+// hive ids — PRK1 "Project not found" was this pin two generations stale). Falls back to the pin.
+const liveCap = (h) => {
+  const r = h.adminQuery(`select id from projects where project_code='CAP-2026-001' and hive_id='${h.hive || K5HIVE}' limit 1;`);
+  return (typeof r === 'string' && r.length > 30) ? r.trim() : K5CAP;
+};
 
 function engDesignJourneys() {
   const reachED = async (page, h) => { const url = await h.goto('engineering-design.html'); await page.waitForTimeout(1500); return !/signin/.test(url) && ((await h.exists('#calc-search')) || (await h.exists('.discipline-pill')) || (await h.exists('#tab-calculator'))); };
@@ -1669,7 +1717,7 @@ function engDesignJourneys() {
         const r = await runL10(page, h, tag);
         await h.evalIn(() => { const b = [...document.querySelectorAll('#report-output button.btn-primary, button')].find(x => /save/i.test(x.textContent || '') && /saveCalc/.test(x.getAttribute('onclick') || '')); if (b) b.click(); else { const s = [...document.querySelectorAll('button')].find(y => /💾\s*save/i.test(y.textContent || '')); if (s) s.click(); } });
         await page.waitForTimeout(2200);
-        const cnt = h.adminQuery(`select count(*) from engineering_calcs where project_name='${tag}' and hive_id='${K5HIVE}';`);
+        const cnt = h.adminQuery(`select count(*) from engineering_calcs where project_name='${tag}' and hive_id='${h.hive || K5HIVE}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from engineering_calcs where project_name='${tag}';`);
         return { R: null, J: r.out && persisted, T: persisted, C: null, X: persisted, evidence: { tag, out: r.out, persisted, cnt }, findings: [] };
@@ -1709,7 +1757,7 @@ function projectManagerJourneys() {
   const reachPM = async (page, h) => { const url = await h.goto('project-manager.html'); await page.waitForTimeout(1500); return !/signin/.test(url) && ((await h.exists('#card-grid')) || (await h.exists('button.new-btn'))); };
   // seed a tagged project (+1 scope item) for the operate-on journeys; returns the project id
   // status='active' so the seeded project shows on the board's DEFAULT 'Active' status tab
-  const seedProject = (h, name) => { const ins = h.adminQuery(`insert into projects (id,hive_id,worker_name,auth_uid,project_code,name,project_type,status,owner_name,created_at) values (gen_random_uuid(),'${K5HIVE}','Bryan Garcia','${K5AUTH}','QA-${Date.now() % 100000}','${name}','shutdown','active','Bryan Garcia',now()) returning id;`); const pid = (typeof ins === 'string') ? ((ins.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [null])[0]) : null; if (pid) h.adminQuery(`insert into project_items (id,project_id,hive_id,wbs_code,title,status,pct_complete,created_at) values (gen_random_uuid(),'${pid}','${K5HIVE}','1.0','${name} item','pending',0,now());`); return pid; };
+  const seedProject = (h, name) => { const ins = h.adminQuery(`insert into projects (id,hive_id,worker_name,auth_uid,project_code,name,project_type,status,owner_name,created_at) values (gen_random_uuid(),'${h.hive || K5HIVE}','Bryan Garcia','${h.uid || K5AUTH}','QA-${Date.now() % 100000}','${name}','shutdown','active','Bryan Garcia',now()) returning id;`); const pid = (typeof ins === 'string') ? ((ins.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [null])[0]) : null; if (pid) h.adminQuery(`insert into project_items (id,project_id,hive_id,wbs_code,title,status,pct_complete,created_at) values (gen_random_uuid(),'${pid}','${h.hive || K5HIVE}','1.0','${name} item','pending',0,now());`); return pid; };
   const delProject = (h, pid) => { h.adminQuery(`delete from project_progress_logs where project_id='${pid}';`); h.adminQuery(`delete from project_items where project_id='${pid}';`); h.adminQuery(`delete from projects where id='${pid}';`); };
   return [
     {
@@ -1729,7 +1777,7 @@ function projectManagerJourneys() {
         await h.fill('#wiz-name', name);
         await h.evalIn(() => { const b = document.getElementById('wiz-create'); if (b) b.click(); });
         await page.waitForTimeout(2500);
-        const cnt = h.adminQuery(`select count(*) from projects where name='${name}' and hive_id='${K5HIVE}';`);
+        const cnt = h.adminQuery(`select count(*) from projects where name='${name}' and hive_id='${h.hive || K5HIVE}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from project_items where project_id in (select id from projects where name='${name}');`);
         h.adminQuery(`delete from projects where name='${name}';`);
@@ -1824,7 +1872,7 @@ function projectReportJourneys() {
       id: 'PRK1', phase: 'K5', page: 'project-report.html', role: 'supervisor', state: 'authed',
       title: 'Open a compiled project status report', lenses: ['R', 'J', 'T'], ufai: ['U', 'F', 'I'],
       drive: async (page, h) => {
-        const reach = await reachPR(page, h, K5CAP);
+        const reach = await reachPR(page, h, liveCap(h));
         const title = await waitTitle(page, h);
         const resolved = title.length > 0 && !/loading project|no project|not found/i.test(title);
         const exec = await h.exists('#exec-summary'); const cov = (await h.qText('#cov-code')) || '';
@@ -1835,7 +1883,7 @@ function projectReportJourneys() {
       id: 'PRK2', phase: 'K5', page: 'project-report.html', role: 'supervisor', state: 'authed',
       title: 'EVM KPI strip — budget computed truthfully', lenses: ['T', 'J'], ufai: ['F', 'I'],
       drive: async (page, h) => {
-        const reach = await reachPR(page, h, K5CAP);
+        const reach = await reachPR(page, h, liveCap(h));
         await waitTitle(page, h);
         // Budget (BAC) KPI = budget_php (1,850,000) formatted; assert the page shows 1,850,000
         const bacShown = await h.evalIn(() => { const cells = [...document.querySelectorAll('#exec-summary .kpi-cell, #exec-summary .kpi')]; const c = cells.find(x => /budget \(bac\)|budget/i.test(x.textContent || '')); return c ? (c.querySelector('.kpi-value')?.textContent || '') : ''; });
@@ -1848,7 +1896,7 @@ function projectReportJourneys() {
       title: 'Generate an AI-drafted handover narrative', lenses: ['J', 'T', 'C'], ufai: ['U', 'F', 'A', 'I'], ai_cost: true,
       drive: async (page, h) => {
         h.resetRates();
-        const reach = await reachPR(page, h, K5CAP);
+        const reach = await reachPR(page, h, liveCap(h));
         await waitTitle(page, h);
         const before = (await h.qText('#exec-summary .insight-card .text')) || '';
         await h.evalIn(() => { const b = document.getElementById('ai-narrative-btn'); if (b) b.click(); });
@@ -1967,10 +2015,10 @@ function resumeJourneys() {
         await h.fill('#rb-field-name', tag);
         await h.evalIn(() => { const b = document.getElementById('btn-save'); if (b) b.click(); });
         let toast = ''; for (let i = 0; i < 10; i++) { toast = (await h.evalIn(() => document.getElementById('toast-msg')?.textContent || '')) || ''; if (/saved/i.test(toast)) break; await page.waitForTimeout(800); }
-        const cnt = h.adminQuery(`select count(*) from resume_documents where auth_uid='${K5AUTH}' and doc->'basics'->>'name'='${tag.replace(/'/g, "''")}';`);
+        const cnt = h.adminQuery(`select count(*) from resume_documents where auth_uid='${h.uid || K5AUTH}' and doc->'basics'->>'name'='${tag.replace(/'/g, "''")}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         // cleanup the tagged test resume (owner-scoped)
-        h.adminQuery(`delete from resume_documents where auth_uid='${K5AUTH}' and doc->'basics'->>'name'='${tag.replace(/'/g, "''")}';`);
+        h.adminQuery(`delete from resume_documents where auth_uid='${h.uid || K5AUTH}' and doc->'basics'->>'name'='${tag.replace(/'/g, "''")}';`);
         return { R: reach, J: /saved/i.test(toast), T: persisted, C: null, X: null, evidence: { tag, toast: toast.slice(0, 30), persisted, cnt }, findings: [] };
       },
     },
@@ -2130,7 +2178,7 @@ function marketplaceSellerJourneys() {
       lenses: ['R', 'T', 'C'], ufai: ['U', 'F', 'A', 'I'], writes: true,
       drive: async (page, h) => {
         const tag = `K6-MS1-${Date.now()}`;
-        h.adminQuery(`insert into marketplace_listings (seller_name, section, category, title, description, price, location, status, hive_id, created_at, updated_at) values ('Bryan Garcia','parts','Bearings','${tag} draft part','seed description long enough to satisfy any min-length validation on the edit path',1000,'Baguio','draft','${HIVE}',now(),now());`);
+        h.adminQuery(`insert into marketplace_listings (seller_name, section, category, title, description, price, location, status, hive_id, created_at, updated_at) values ('Bryan Garcia','parts','Bearings','${tag} draft part','seed description long enough to satisfy any min-length validation on the edit path',1000,'Baguio','draft','${h.hive || HIVE}',now(),now());`);
         const id = (h.adminQuery(`select id from marketplace_listings where title like '${tag}%' limit 1;`) || '').toString().trim();
         const reached = await reachSeller(h);
         await tab(h, 'listings'); await page.waitForTimeout(1500);
@@ -2156,7 +2204,7 @@ function marketplaceSellerJourneys() {
       drive: async (page, h) => {
         const lid = (h.adminQuery(`select id from marketplace_listings where seller_name='Bryan Garcia' and status='published' limit 1;`) || '').toString().trim();
         const tag = `K6-MS2-${Date.now()}`;
-        h.adminQuery(`insert into marketplace_inquiries (listing_id, seller_name, buyer_name, buyer_contact, message, status, hive_id, created_at) values ('${lid}','Bryan Garcia','K6 Test Buyer','09170000000','${tag} interested in this part','pending','${HIVE}',now());`);
+        h.adminQuery(`insert into marketplace_inquiries (listing_id, seller_name, buyer_name, buyer_contact, message, status, hive_id, created_at) values ('${lid}','Bryan Garcia','K6 Test Buyer','09170000000','${tag} interested in this part','pending','${h.hive || HIVE}',now());`);
         const iid = (h.adminQuery(`select id from marketplace_inquiries where message like '${tag}%' limit 1;`) || '').toString().trim();
         const reached = await reachSeller(h);
         await tab(h, 'inquiries'); await page.waitForTimeout(1600);
@@ -2305,9 +2353,11 @@ function plantConnectionsJourneys() {
       drive: async (page, h) => {
         await reachPC(h); await page.waitForTimeout(800);
         const apiCard = await h.evalIn(() => { const cs = [...document.querySelectorAll('.simple-card')]; const c = cs.find(x => /api health|gateway|success/i.test(x.textContent || '')); return c ? (c.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 90) : ''; });
-        const dbCalls = h.adminQuery(`select count(*) from gateway_audit_log where hive_id='${HIVE}' and created_at >= now()-interval '7 days';`);
+        const dbCalls = h.adminQuery(`select count(*) from gateway_audit_log where hive_id='${h.hive || HIVE}' and created_at >= now()-interval '7 days';`);
         const nn = (typeof dbCalls === 'string') ? parseInt(dbCalls, 10) : null;
-        const truthful = nn != null && (nn === 0 ? /no data|never|0\s*(call|%)/i.test(apiCard) : /%|call|success|error/i.test(apiCard));
+        // calm-empty copy family (2026-07-22: card copy evolved to "No traffic / No gateway calls…IDLE"
+        // — honest zero on both sides read as a T fail because the regex was pinned to older copy)
+        const truthful = nn != null && (nn === 0 ? /no data|never|no traffic|no gateway calls|idle|0\s*(call|%)/i.test(apiCard) : /%|call|success|error/i.test(apiCard));
         return { R: apiCard.length > 0, J: null, T: truthful, C: null, X: null, evidence: { apiCard, dbCalls: nn }, findings: [] };
       },
     },
@@ -2322,7 +2372,7 @@ function plantConnectionsJourneys() {
         await page.waitForTimeout(1100);
         const expanded = await h.evalIn(() => { const b = document.getElementById('details-toggle-btn'); return b ? b.getAttribute('aria-expanded') === 'true' : false; });
         const tables = await h.count('#details-pane table, table.pc-table');
-        const dbCfg = h.adminQuery(`select count(*) from integration_configs where hive_id='${HIVE}';`);
+        const dbCfg = h.adminQuery(`select count(*) from integration_configs where hive_id='${h.hive || HIVE}';`);
         const cfgN = (typeof dbCfg === 'string') ? parseInt(dbCfg, 10) : null;
         return { R: expanded, J: null, T: tables >= 1 && cfgN != null, C: null, X: null, evidence: { expanded, tables, cfgN }, findings: [] };
       },

@@ -33,7 +33,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "fb1_webhook_idempotency_live.json"
 BASE = "http://127.0.0.1:54321/functions/v1"
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+# Default RESOLVED at runtime (test_identity pattern) — pins rot across reseeds; the runtime
+# re-derive later in this file then refines it. Literal = last-resort fallback only.
+def _resolve_hive() -> str:
+    try:
+        sys.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"   # hive fallback (stale-known)
+HIVE = _resolve_hive()
 DB = "supabase_db_workhive"
 EDGE = "supabase_edge_runtime_workhive"
 STAMP = str(int(time.time()))

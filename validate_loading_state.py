@@ -64,6 +64,7 @@ LOADING_OK = {
     "ARCHITECTURE.html":      "RETIRED 2026-05-13 — archival doc, no active surface",
     "drawing-standards.html": "static doc",
     "PROJECT_MANAGER_ROADMAP.html": "static doc",
+    "plant-connections.html": "read-only connections viewer; verified 0 writes (all 6 async calls are .select() on integration_configs/v_external_sync_truth/sensor_topic_map/gateway_audit_log/hive_retention_config/sso_configs) — a double-tap only re-fetches (idempotent), no double-write risk (bughunt P7, 2026-07-21)",
     "test-data-seeder":       "internal tool, not user-facing",
     # SUPERSEDED by button-lock.js include on each page (2026-05-11).
     # The helper provides `withButtonLock(btn, asyncFn)` which sets

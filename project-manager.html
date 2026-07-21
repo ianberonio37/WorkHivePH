@@ -2327,11 +2327,20 @@ function openProgressLog() {
   openModal('modal-progress');
 }
 async function saveProgressLog() {
+  // P4 client validation before the write: log_date is `date NOT NULL` (an empty field POSTs '' →
+  // a confusing raw "invalid input syntax for type date" server error) and pct_complete is a
+  // smallint 0..100 CHECK (out-of-range → a raw 23514). Guard both with a friendly message.
+  const logDate = $('p-date').value;
+  const pct = Number($('p-pct').value || 0);
+  const hoursRaw = $('p-hours').value;
+  if (!logDate) { showToast('Pick a log date.', 'error'); $('p-date').focus(); return; }
+  if (!Number.isFinite(pct) || pct < 0 || pct > 100) { showToast('% complete must be between 0 and 100.', 'error'); $('p-pct').focus(); return; }
+  if (hoursRaw && (!Number.isFinite(Number(hoursRaw)) || Number(hoursRaw) < 0)) { showToast('Hours worked must be 0 or more.', 'error'); $('p-hours').focus(); return; }
   const payload = {
     project_id: _detailId, hive_id: HIVE_ID,
-    log_date: $('p-date').value, reported_by: WORKER_NAME,
-    pct_complete: Number($('p-pct').value || 0),
-    hours_worked: $('p-hours').value ? Number($('p-hours').value) : null,
+    log_date: logDate, reported_by: WORKER_NAME,
+    pct_complete: pct,
+    hours_worked: hoursRaw ? Number(hoursRaw) : null,
     notes: $('p-notes').value.trim() || null,
     blockers: $('p-blockers').value.trim() || null,
   };

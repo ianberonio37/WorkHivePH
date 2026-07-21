@@ -1,8 +1,975 @@
 {
-  "ran": "2026-06-24T19:58:23.553Z",
+  "ran": "2026-07-21T13:51:05.368Z",
   "seeder": "http://127.0.0.1:5000",
-  "hive": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7",
+  "hive": "636cf7e8-431a-4907-8a9f-43dd4cc216d6",
+  "preflight": {
+    "seeder": 200,
+    "gotrue": 200,
+    "edge_fn": 400,
+    "python_api": 200,
+    "db_psql": true
+  },
+  "degraded": [],
   "journeys": [
+    {
+      "id": "LA1",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "First-time visitor: landing loads and the value is obvious",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "mkt": true,
+        "opsHidden": true,
+        "hero": "Access Your\n          Memory\n          Free Industrial Tools",
+        "cta": true,
+        "joinTarget": true
+      },
+      "err": null
+    },
+    {
+      "id": "LA2",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "Visitor joins the early-access waitlist and gets confirmation (→ early_access_emails)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "btnTxt": "You're on the list!",
+        "email": "k1-probe-1784641877287@plant.test",
+        "db_count": 1,
+        "db_path": "service-role psql (anon is write-only)",
+        "recoverable": true
+      },
+      "err": null
+    },
+    {
+      "id": "LA3",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "Curious visitor explores How-It-Works + opens an FAQ before committing",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "platform": true,
+        "faqSection": true,
+        "navLinks": 3,
+        "faqOpen": true
+      },
+      "err": null
+    },
+    {
+      "id": "LA5",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "Visitor reaches a free tool from the landing (\"Free to use — sign up to start\")",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "rowText": "Free to use, sign up to start:",
+        "honestLabel": true,
+        "ctas": 4,
+        "signupOpen": true,
+        "signupTab": true,
+        "stillAnon": true,
+        "note": "free-platform: tool CTAs open signup (truthful), no stale guest promise"
+      },
+      "err": null
+    },
+    {
+      "id": "LA4",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "Returning worker opens the Sign-In modal, recovers from a bad password, then lands on home",
+      "lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "modalOpen": true,
+        "errTxt": "Wrong username or password.",
+        "recovered": true,
+        "opsShown": true,
+        "mktHidden": true,
+        "navName": "Good evening, Bryan 👋\n\n",
+        "lwSet": true
+      },
+      "err": null
+    },
+    {
+      "id": "HM1",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "state": "home-authed",
+      "title": "Signed-in worker: home becomes the operational launchpad with a personalized greeting",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "ops": true,
+        "mktHidden": true,
+        "greeting": "Good evening, Bryan 👋",
+        "date": "Tuesday, Jul 21 · Evening Shift",
+        "hiveChip": "🐝 Baguio Textile Mills"
+      },
+      "err": null
+    },
+    {
+      "id": "HM2",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "state": "home-authed",
+      "title": "Home KPI tiles show real counts that match the canonical truth views (and honor the calm-empty contract)",
+      "lenses": [
+        "T",
+        "R",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "rendered": {
+          "open": 9,
+          "risk": 6,
+          "pm": 1,
+          "low": 3
+        },
+        "truth": {
+          "open": 9,
+          "risk": 6,
+          "low": 3,
+          "pm": 1
+        },
+        "cmp": {
+          "open": "9 vs db 9 OK",
+          "risk": "6 vs db 6 OK",
+          "pm": "1 vs db 1 OK",
+          "low": "3 vs db 3 OK"
+        },
+        "checked": 4
+      },
+      "err": null
+    },
+    {
+      "id": "HM3",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "state": "home-authed",
+      "title": "Today's One Thing gives ONE truthful verdict + role-correct primary actions (worker vs supervisor)",
+      "lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "todayCard": 1,
+        "actions": 2,
+        "firstActionWorker": "Log a Job",
+        "firstActionSup": "Hive Board",
+        "workerActionOk": true,
+        "supActionOk": true,
+        "anySignal": true,
+        "allClear": false,
+        "today": "!\n          \n            Today · PM Overdue\n      "
+      },
+      "err": null
+    },
+    {
+      "id": "HM4",
+      "phase": "K1",
+      "page": "index.html",
+      "role": "worker",
+      "state": "home-authed",
+      "title": "From home, reach My Open Jobs + All Tools, deep-link to a tool, and sign out cleanly",
+      "lenses": [
+        "R",
+        "J",
+        "X",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "ops": true,
+        "jobsWrap": true,
+        "toolsGrid": true,
+        "toolLinks": 4,
+        "analyticsUrl": "http://127.0.0.1:5000/workhive/analytics.html",
+        "landed": true,
+        "signedOut": true,
+        "mktBack": true
+      },
+      "err": null
+    },
+    {
+      "id": "LOG1",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Log a new repair/breakdown captured against the right machine",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "reach": true,
+        "machineSet": true,
+        "toast": "✓ Logged: updated Analytics (MTBF/MTTR + failure f",
+        "persisted": true
+      },
+      "err": null
+    },
+    {
+      "id": "LOG2",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Record downtime when closing a fix so MTTR stays truthful",
+      "lenses": [
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "toast": "✓ Logged: updated Analytics (MTBF/MTTR + failure f",
+        "downtime_persisted": "2.5"
+      },
+      "err": null
+    },
+    {
+      "id": "LOG3",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Resolve (close) an open job so the Open backlog + KPI drop",
+      "lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "created": true,
+        "opened": true,
+        "edited": true,
+        "editToast": "Entry updated.",
+        "final_status": "Closed"
+      },
+      "err": null
+    },
+    {
+      "id": "LOG4",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Review my own logbook history + find a past repair by search/filter",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "reach": true,
+        "cardsBefore": 20,
+        "totalTxt": 300,
+        "dbTotal": "300",
+        "totalOk": true,
+        "filtered": true
+      },
+      "err": null
+    },
+    {
+      "id": "LOG5",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor browses the whole team feed, hive-scoped (no cross-tenant bleed)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "reach": true,
+        "toggleBar": true,
+        "cards": 30,
+        "teamRows": "900",
+        "note": "team feed query is .eq(hive_id) server-side"
+      },
+      "err": null
+    },
+    {
+      "id": "LOG6",
+      "phase": "K2",
+      "page": "logbook.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Export my logbook entries to CSV for an offline report/audit",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "reach": true,
+        "hasExport": true,
+        "downloaded": true,
+        "toast": "Exported 200 entries."
+      },
+      "err": null
+    },
+    {
+      "id": "INV1",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Add a new spare part to inventory",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "reach": true,
+        "modal": true,
+        "toast": "K2-PART-1784642043807 submitted for supervisor app",
+        "persisted": true
+      },
+      "err": null
+    },
+    {
+      "id": "INV2",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Use (deduct) stock from a part for a job",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "clicked": true,
+        "modal": true,
+        "toast": "Used 2 pcs of K2-USE-1784642053107 → fee",
+        "qtyAfter": "18"
+      },
+      "err": null
+    },
+    {
+      "id": "INV3",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Restock a part to replenish quantity on hand",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "clicked": true,
+        "modal": true,
+        "toast": "Restocked 10 pcs of K2-RES-1784642062342",
+        "qtyAfter": "11"
+      },
+      "err": null
+    },
+    {
+      "id": "INV4",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Find a part by name/number/category/stock level",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "reach": true,
+        "before": 8,
+        "filtered": true
+      },
+      "err": null
+    },
+    {
+      "id": "INV5",
+      "phase": "K2",
+      "page": "inventory.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Open a part's detail card (stock, linked assets, txn history)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "opened": true,
+        "modal": true,
+        "content": true
+      },
+      "err": null
+    },
     {
       "id": "DAY1",
       "phase": "K2",
@@ -203,9 +1170,3685 @@
         "tOk": true
       },
       "err": null
+    },
+    {
+      "id": "HV1",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor opens the team roster — every active member, count-integrity",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "reach": true,
+        "rows": 3,
+        "statTxt": 3,
+        "dbN": 3,
+        "integrity": true,
+        "supTag": true
+      },
+      "err": null
+    },
+    {
+      "id": "HV2",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor removes (kicks) a member → status=kicked + audit",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "probe": "QA-Kick-1784642142770",
+        "kickClicked": true,
+        "final_status": "kicked"
+      },
+      "err": null
+    },
+    {
+      "id": "HV3",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor approves a pending part → status=approved + published",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "pn": "QA-K3A-1784642156759",
+        "approveClicked": true,
+        "final_status": "approved"
+      },
+      "err": null
+    },
+    {
+      "id": "HV4",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor can reach Reset-PW for a worker (affordance + gate; reset itself = prior gate)",
+      "lenses": [
+        "R",
+        "J",
+        "A"
+      ],
+      "ufai": [
+        "U",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "reach": true,
+        "hasResetBtn": false,
+        "opened": true,
+        "confirmShown": true,
+        "note": "affordance+gate verified; actual reset = validate_password_recovery (prior arc)"
+      },
+      "err": null
+    },
+    {
+      "id": "HV5",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor reveals the hive invite code",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "dbCode": "YW43G7",
+        "code": "YW43G7",
+        "valid": true
+      },
+      "err": null
+    },
+    {
+      "id": "HV6",
+      "phase": "K3",
+      "page": "hive.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor reviews the hive action log (audit)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "reach": true,
+        "section": true,
+        "rows": 50,
+        "empty": false,
+        "note": "T attributed: auditlog_action__hive_scoped nerve (journey_trace)"
+      },
+      "err": null
+    },
+    {
+      "id": "PM1",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "See overdue / due-soon / compliance at a glance (matches the truth view)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "overdue": 1,
+        "duesoon": 28,
+        "ontrack": 1,
+        "dbOverdue": "1",
+        "tOk": true
+      },
+      "err": null
+    },
+    {
+      "id": "PM2",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Open an overdue asset + see its overdue tasks (badges match the view)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "overdueCards": 1,
+        "opened": true,
+        "detailShown": true,
+        "overallStatus": "Overdue",
+        "hasOverdueRow": true
+      },
+      "err": null
+    },
+    {
+      "id": "PM3",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Complete a PM task — findings logged + persisted",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "sheetOpened": true,
+        "toast": "✓ PM done → PM compliance recomputed on ",
+        "persisted": true
+      },
+      "err": null
+    },
+    {
+      "id": "PM4",
+      "phase": "K3",
+      "page": "pm-scheduler.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor adds a PM asset via the wizard (+ worker is gated out)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "A"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "name": "ARC-K-PM4-1784642231295",
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "CM1",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Post a message to the hive board",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "nonce": "ArcK-CM1-1784642246316",
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "CM2",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "React to a teammate's post with an emoji",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "pid": "e4ce8aaf-d7d3-431e-9632-739a56a18ed3",
+        "reacted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "CM3",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Open a thread and reply",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "pid": "0f78265c-602b-4c5a-b617-1e8d40e47a84",
+        "nonce": "ArcK-CM3-1784642267979",
+        "replied": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "CM4",
+      "phase": "K3",
+      "page": "community.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Soft-delete my own post (reversible)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "pid": "0adcf4d7-e1b8-4f13-b871-9db6e3840cd2",
+        "found": true,
+        "state": "deleted"
+      },
+      "err": null
+    },
+    {
+      "id": "AN1",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Read the reliability verdict (OEE/MTBF/PM) at a glance",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "verdict": "Reliability KPIs need action",
+        "oee": 86,
+        "mtbf": 5.8,
+        "pm": 87,
+        "action": "CH-001 fails every 5.8 days. C"
+      },
+      "err": null
+    },
+    {
+      "id": "AN2",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Change the analysis window (30d) → KPIs recompute",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "active": true,
+        "has30": true
+      },
+      "err": null
+    },
+    {
+      "id": "AN3",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Diagnostic phase — why failures happen",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "banner": "🔍🔍 Phase 2: Diagnostic Analytics. Why ",
+        "hasCard": true
+      },
+      "err": null
+    },
+    {
+      "id": "AN4",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Prescriptive phase — AI action plan (or deterministic ranking)",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "card": true,
+        "note": "AI plan OR deterministic ranking renders"
+      },
+      "err": null
+    },
+    {
+      "id": "AN5",
+      "phase": "K4",
+      "page": "analytics.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor recomputes hive risk scores on demand",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "hasBtn": true,
+        "label": "Recompute risk",
+        "toast": "Risk scores recomputed for thi"
+      },
+      "err": null
+    },
+    {
+      "id": "AK1",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Ask the AI assistant a question → grounded non-empty answer",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": false,
+        "T": false,
+        "C": false,
+        "X": null
+      },
+      "live": false,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R"
+      ],
+      "evidence": {
+        "answered": false,
+        "typingGone": false,
+        "note": "grounded LLM reply envelope (deep value = probabilistic, attributed to grounding contract)"
+      },
+      "err": null
+    },
+    {
+      "id": "AK2",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Worker reviews which records are available as AI context",
+      "lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "shown": 300,
+        "dbCnt": 300,
+        "tOk": true
+      },
+      "err": null
+    },
+    {
+      "id": "AK3",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Worker rates an AI reply → feedback persists",
+      "lenses": [
+        "J",
+        "C",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": false,
+        "T": false,
+        "C": false,
+        "X": null
+      },
+      "live": false,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [],
+      "evidence": {
+        "rated": false,
+        "persisted": false,
+        "cnt": "0"
+      },
+      "err": null
+    },
+    {
+      "id": "AK4",
+      "phase": "K4",
+      "page": "assistant.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Switch from Chat to the embedded Voice Journal tab",
+      "lenses": [
+        "R",
+        "J",
+        "X",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "journalShown": true,
+        "chatBack": true
+      },
+      "err": null
+    },
+    {
+      "id": "AH1",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Fleet health rollup (total / critical / pending)",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "total": 30,
+        "dbTotal": 30,
+        "critical": 6,
+        "dbCrit": 6,
+        "tOk": true
+      },
+      "err": null
+    },
+    {
+      "id": "AH2",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Open an asset 360 — true history rollup",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "nodeId": "9e870430-6b2b-4f89-a7e0-7763aefee87d",
+        "detailShown": true,
+        "tag": "BE-001",
+        "lb": 28,
+        "dbLb": 28,
+        "tOk": true
+      },
+      "err": null
+    },
+    {
+      "id": "AH3",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Per-asset Risk Profile (score/level/MTBF) or honest empty",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "scored": true,
+        "emptyCard": false
+      },
+      "err": null
+    },
+    {
+      "id": "AH4",
+      "phase": "K4",
+      "page": "asset-hub.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Ask Asset Brain a grounded question about the asset",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": false,
+        "T": false,
+        "C": false,
+        "X": null
+      },
+      "live": false,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R"
+      ],
+      "evidence": {
+        "answered": false
+      },
+      "err": null
+    },
+    {
+      "id": "AL1",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Read the alert intelligence rollup",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "verdict": "Needs your attention now",
+        "crit": 11
+      },
+      "err": null
+    },
+    {
+      "id": "AL2",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Filter the feed by signal type (Risk)",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "active": true,
+        "onlyRisk": true
+      },
+      "err": null
+    },
+    {
+      "id": "AL3",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Acknowledge a fused anomaly signal",
+      "lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "mc": "QA-ANOM-1784642514777",
+        "panelVisible": false,
+        "clicked": false,
+        "acked": false,
+        "gatedTruthful": true,
+        "note": "anomaly engine Stair-3+ maturity-gated (honest hidden); ack proven by alerthub_ack__status nerve (attributed)"
+      },
+      "err": null
+    },
+    {
+      "id": "AL4",
+      "phase": "K4",
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Review + approve the AMC daily brief",
+      "lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "today": "2026-07-21",
+        "briefId": "a98bfc65-61b1-4025-ba46-f31468391fa4",
+        "hasCard": true,
+        "clicked": true,
+        "final_status": "approved"
+      },
+      "err": null
+    },
+    {
+      "id": "AU1",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor reads the who-did-what feed",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "main": true,
+        "entries": 30,
+        "dbCnt": 66,
+        "note": "auditlog_action__hive_scoped nerve proven"
+      },
+      "err": null
+    },
+    {
+      "id": "AU2",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Filter the audit log by action",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "before": 30,
+        "selected": "approve_amc_brief",
+        "after": 10
+      },
+      "err": null
+    },
+    {
+      "id": "AU3",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Expand an entry detail + export CSV",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "toggled": true,
+        "metaShown": true,
+        "downloaded": true
+      },
+      "err": null
+    },
+    {
+      "id": "AU4",
+      "phase": "K4",
+      "page": "audit-log.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Worker is correctly DENIED the audit log (supervisor-only gate)",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "gated": true,
+        "mainHidden": true,
+        "noEntries": true,
+        "note": "access-control: worker denied"
+      },
+      "err": null
+    },
+    {
+      "id": "VJ1",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Browse past voice-journal entries (history truthful to DB)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "rows": 8,
+        "count": 12,
+        "dbCnt": 12,
+        "empty": false
+      },
+      "err": null
+    },
+    {
+      "id": "VJ2",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Search/filter past entries",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "hasSearch": true,
+        "before": 8,
+        "filtered": true
+      },
+      "err": null
+    },
+    {
+      "id": "VJ3",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Set companion persona — persists to worker_profiles",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "prev": "zaniah",
+        "active": true,
+        "db": "hezekiah",
+        "persisted": true
+      },
+      "err": null
+    },
+    {
+      "id": "VJ4",
+      "phase": "K4",
+      "page": "voice-journal.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Record→transcribe→reply surface reachable (live mic attributed)",
+      "lenses": [
+        "R",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "C"
+      ],
+      "evidence": {
+        "micBtn": true,
+        "personaRow": true,
+        "note": "live record needs a mic stream headless cannot supply → transcription round-trip attributed to validate_ai_live_invoke (Arc H)"
+      },
+      "err": null
+    },
+    {
+      "id": "AQ1",
+      "phase": "K4",
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "AI-health verdict + 3 cards (or honest maturity-empty)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "verdict": false,
+        "cards": 0,
+        "emptyGate": true
+      },
+      "err": null
+    },
+    {
+      "id": "AQ2",
+      "phase": "K4",
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Recommended action + drill into per-function AI detail",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "emptyGate": true,
+        "note": "maturity-gated honest-empty (no detail to drill)"
+      },
+      "err": null
+    },
+    {
+      "id": "AQ3",
+      "phase": "K4",
+      "page": "ai-quality.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Worker honestly gated until Stair 2 (or full dashboard)",
+      "lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "emptyGate": true,
+        "verdict": false,
+        "oneState": true,
+        "noBounce": true
+      },
+      "err": null
+    },
+    {
+      "id": "AR1",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Compile the print-ready analytics report",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "built": true,
+        "exec": true,
+        "findings": true,
+        "pdfReady": true,
+        "noErr": true
+      },
+      "err": null
+    },
+    {
+      "id": "AR2",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Executive KPIs are truthful (PM compliance shown==DB)",
+      "lenses": [
+        "T",
+        "J"
+      ],
+      "ufai": [
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "pmKpi": 87,
+        "dbPm": 87,
+        "tOk": true
+      },
+      "err": null
+    },
+    {
+      "id": "AR3",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Switch report period + audience pivot",
+      "lenses": [
+        "J",
+        "C",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "p30": true,
+        "roleWorker": true
+      },
+      "err": null
+    },
+    {
+      "id": "AR4",
+      "phase": "K4",
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Edit cover + save as PDF (print path)",
+      "lenses": [
+        "J",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "disabledBefore": true,
+        "built": true,
+        "enabledAfter": true,
+        "printed": true
+      },
+      "err": null
+    },
+    {
+      "id": "ED1",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Run Bearing Life (L10) → correct ISO 281 result",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "out": true,
+        "exactOracle": false,
+        "numericL10": true,
+        "sample": " Tip: Click any underlined field to edit before downloading. In the print dialog, uncheck \"Headers and footers\" for a cl"
+      },
+      "err": null
+    },
+    {
+      "id": "ED2",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Save a calc to hive history + find it again",
+      "lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "tag": "ARCK-ED2-1784642726099",
+        "out": true,
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "ED3",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Global search finds the right calculator",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "found": true,
+        "narrowed": 1
+      },
+      "err": null
+    },
+    {
+      "id": "ED4",
+      "phase": "K5",
+      "page": "engineering-design.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Generate a procurement BOM + Scope of Works from a calc",
+      "lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "out": true,
+        "panel": true,
+        "items": 10
+      },
+      "err": null
+    },
+    {
+      "id": "PMK1",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Supervisor creates a project via the wizard",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "name": "ARC-K K5 PMK1 1784642775816",
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "PMK2",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Add a WBS scope item to a project",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "pname": "ARC-K-PMK2-1784642784007",
+        "opened": true,
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "PMK3",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Mark a scope item done → project progress rolls up",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "pname": "ARC-K-PMK3-1784642797564",
+        "opened": true,
+        "final_status": "done"
+      },
+      "err": null
+    },
+    {
+      "id": "PMK4",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Log daily progress (with a blocker)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "pname": "ARC-K-PMK4-1784642813269",
+        "opened": true,
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "PMK5",
+      "phase": "K5",
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "AI pre-fills a project from a plain-language description",
+      "lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C"
+      ],
+      "evidence": {
+        "modal": true,
+        "prefilled": true,
+        "note": "AI intent pre-fills wizard; no DB write by itself"
+      },
+      "err": null
+    },
+    {
+      "id": "PRK1",
+      "phase": "K5",
+      "page": "project-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Open a compiled project status report",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "title": "CAP-2026-001: Compressor Replacement (FE",
+        "exec": true,
+        "cov": "CAP-2026-001"
+      },
+      "err": null
+    },
+    {
+      "id": "PRK2",
+      "phase": "K5",
+      "page": "project-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "EVM KPI strip — budget computed truthfully",
+      "lenses": [
+        "T",
+        "J"
+      ],
+      "ufai": [
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "bacShown": "₱1,850,000",
+        "tOk": true,
+        "oracle": "1,850,000"
+      },
+      "err": null
+    },
+    {
+      "id": "PRK3",
+      "phase": "K5",
+      "page": "project-report.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Generate an AI-drafted handover narrative",
+      "lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "drafted": true,
+        "rerunnable": true
+      },
+      "err": null
+    },
+    {
+      "id": "SKK1",
+      "phase": "K5",
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Skill matrix truthfully renders the worker badges (badge→level)",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "cards": 5,
+        "dbN": 2,
+        "shownMax": 2,
+        "tOk": true,
+        "note": "badge→level render truthful; quiz-earn flow is the write twin (nerve proven)"
+      },
+      "err": null
+    },
+    {
+      "id": "SKK2",
+      "phase": "K5",
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Raise a discipline target → persists to skill_profiles",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "prev": "4",
+        "before": 4,
+        "after": 3,
+        "expected": 3,
+        "db": "3",
+        "persisted": true
+      },
+      "err": null
+    },
+    {
+      "id": "ACHK1",
+      "phase": "K5",
+      "page": "achievements.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Growth at a glance (XP/level/tier truthful)",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "name": "Bryan Garcia",
+        "shownLevel": 115,
+        "dbN": 60,
+        "tOk": false
+      },
+      "err": null
+    },
+    {
+      "id": "ACHK2",
+      "phase": "K5",
+      "page": "achievements.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Per-domain badge grid + expand a domain",
+      "lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "domains": 12,
+        "expanded": true,
+        "stillExpanded": true
+      },
+      "err": null
+    },
+    {
+      "id": "RESK1",
+      "phase": "K5",
+      "page": "resume.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Auto-fill resume from WorkHive skill/profile/logbook data",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "sheet": true,
+        "rows": 17,
+        "toast": "Added 16 items. Edit anything ",
+        "added": true
+      },
+      "err": null
+    },
+    {
+      "id": "RESK3",
+      "phase": "K5",
+      "page": "resume.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Save resume to the cloud (owner-scoped resume_documents)",
+      "lenses": [
+        "R",
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "tag": "K5TEST Bryan 1784642906925",
+        "toast": "✓ Resume saved.",
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "RESK4",
+      "phase": "K5",
+      "page": "resume.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Preview + export the resume (JSON/PDF)",
+      "lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "overlay": true,
+        "paper": true,
+        "downloaded": true
+      },
+      "err": null
+    },
+    {
+      "id": "MK1",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "anon",
+      "state": "anon",
+      "title": "Visitor browses listings by section + search (free, no sign-in to read)",
+      "lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "cards": 9,
+        "dbN": 9,
+        "tabs": 3,
+        "recover": true
+      },
+      "err": null
+    },
+    {
+      "id": "MK2",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Post a new marketplace listing (free to list)",
+      "lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "sheet": true,
+        "persisted": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "MK3",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Save a listing to my watchlist + see it in My Saved",
+      "lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "lid": "5f07ec9b-18f0-4c11-8ef0-d1943298b4c3",
+        "saved": true,
+        "sheet": true
+      },
+      "err": null
+    },
+    {
+      "id": "MK4",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Contact a seller about a listing (the free alternative to checkout)",
+      "lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C",
+        "X"
+      ],
+      "evidence": {
+        "contacted": true,
+        "inqSheet": true,
+        "sent": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "MK5",
+      "phase": "K6",
+      "page": "marketplace.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Save the current search so I can re-run it later",
+      "lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": null,
+        "J": true,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "sheet": true,
+        "saved": true,
+        "cnt": "1"
+      },
+      "err": null
+    },
+    {
+      "id": "MS1",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Edit one of my draft listings and re-submit it",
+      "lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "opened": true,
+        "sheet": true,
+        "setOk": true,
+        "toast": "Listing updated. Re-submitted for review",
+        "finalTitle": "K6-MS1-1784642967126 EDITED"
+      },
+      "err": null
+    },
+    {
+      "id": "MS2",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Reply to a buyer inquiry and mark it replied",
+      "lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "lid": "f194818c-99fc-4d7c-a698-e84960ec90cf",
+        "rendered": true,
+        "clicked": true,
+        "finalStatus": "replied"
+      },
+      "err": null
+    },
+    {
+      "id": "MS3",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "Save my Messenger handle so buyers can reach me directly (free contact)",
+      "lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "T",
+        "C"
+      ],
+      "evidence": {
+        "prior": "",
+        "saved": "bryan.repair.k6",
+        "ok": true,
+        "preview": true
+      },
+      "err": null
+    },
+    {
+      "id": "MS5",
+      "phase": "K6",
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "View my seller performance (views/inquiries/conversion)",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "cards": 21,
+        "hasContent": true
+      },
+      "err": null
+    },
+    {
+      "id": "IN1",
+      "phase": "K6",
+      "page": "integrations.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Import CMMS work-order history (CSV) for cold-start analytics",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "A",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T",
+        "X"
+      ],
+      "evidence": {
+        "uploaded": true,
+        "parsed": true,
+        "external_sync": 2,
+        "logbook": 2
+      },
+      "err": null
+    },
+    {
+      "id": "IN5",
+      "phase": "K6",
+      "page": "integrations.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Configure + test a Live CMMS Sync connection (external SAP/Maximo API)",
+      "lenses": [
+        "R",
+        "C"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": true,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": null,
+        "C": true,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "C"
+      ],
+      "passed_lenses": [
+        "R",
+        "C"
+      ],
+      "evidence": {
+        "form": true,
+        "result": "Testing connection..."
+      },
+      "err": null
+    },
+    {
+      "id": "PC1",
+      "phase": "K6",
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "See CMMS integration health at a glance",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "verdict": true,
+        "card": true,
+        "cmms": true
+      },
+      "err": null
+    },
+    {
+      "id": "PC3",
+      "phase": "K6",
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Check gateway API health (7-day success rate) — truthful to the audit log",
+      "lenses": [
+        "R",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "T"
+      ],
+      "evidence": {
+        "apiCard": "API health (7d) No traffic No gateway calls in last 7 days IDLE",
+        "dbCalls": 0
+      },
+      "err": null
+    },
+    {
+      "id": "PC5",
+      "phase": "K6",
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "Expand engineering details to inspect raw configs/syncs/audit",
+      "lenses": [
+        "R",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": null,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "T"
+      ],
+      "evidence": {
+        "expanded": true,
+        "tables": 2,
+        "cfgN": 9
+      },
+      "err": null
     }
   ],
   "findings": [
+    {
+      "page": "index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "inventory.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "svg#toast-icon — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "inventory.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "inventory.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:color-contrast",
+      "severity": 2,
+      "evidence": "1 node(s): .wh-kbd-a11y > div:nth-child(2)",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:target-size",
+      "severity": 2,
+      "evidence": "1 node(s): div[aria-label=\"Add task at 9 AM\"]",
+      "owner": "qa-tester"
+    },
     {
       "page": "dayplanner.html",
       "role": "worker",
@@ -220,24 +4863,73 @@
       "page": "dayplanner.html",
       "role": "worker",
       "layer": "heuristic",
-      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
-      "basis": "designer / WCAG-4.1.2",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "button.view-tab.active — 1 toggle(s) missing pressed/selected state",
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
-      "page": "dayplanner.html",
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "3/42 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-inner.w-full — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div.presence-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span.presence-dot.online — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "pm-scheduler.html",
       "role": "worker",
       "layer": "heuristic",
-      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
       "basis": "designer / WCAG-4.1.2",
-      "severity": 1,
-      "evidence": "button.view-tab — 3 toggle(s) missing pressed/selected state",
+      "severity": 2,
+      "evidence": "div.sheet-panel — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
       "owner": "designer"
     },
     {
-      "page": "dayplanner.html",
+      "page": "pm-scheduler.html",
       "role": "worker",
       "layer": "heuristic",
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
@@ -247,59 +4939,888 @@
       "owner": "designer"
     },
     {
-      "page": "dayplanner.html",
+      "page": "pm-scheduler.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-panel — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "1/66 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:color-contrast",
+      "severity": 2,
+      "evidence": "3 node(s): .presence-chip > div:nth-child(2) | #post-0f78265c-602b-4c5a-b617-1e8d40e47a84 ",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "community.html",
       "role": "worker",
       "layer": "heuristic",
-      "rule": "A keyboard skip-to-content link improves operability for keyboard/AT users",
-      "basis": "qa-tester / WCAG-2.4.1",
-      "severity": 0,
-      "evidence": "body — no skip-to-content link found",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#composer-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#thread-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#report-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#person-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#undo-toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#undo-toast-btn — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div.presence-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "analytics.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "assistant.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "asset-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#fmea-modal-card — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "asset-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#rcm-modal-card — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "asset-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "alert-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "audit-log.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "1/7 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "audit-log.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "voice-journal.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ai-quality.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "layer": "floor",
+      "rule": "axe:color-contrast",
+      "severity": 2,
+      "evidence": "6 node(s): div:nth-child(3) > .sev-chip.red | #ar-predictive > .asset-card-grid > .asset-c",
       "owner": "qa-tester"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:color-contrast",
+      "severity": 2,
+      "evidence": "4 node(s): .result-highlight > div:nth-child(1) > div:nth-child(1) | .result-highlight > d",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:scrollable-region-focusable",
+      "severity": 2,
+      "evidence": "2 node(s): table:nth-child(4) | table:nth-child(10)",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.toggle-btn.active — 2 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.toggle-btn — 3 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal.wizard-modal — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-foot — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast-container — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "A page should expose an <h1> landmark; the current state-view should surface a visible heading",
+      "basis": "qa-tester / WCAG-1.3.1 (axe page-has-heading-one parity)",
+      "severity": 0,
+      "evidence": "h1 — h1 present in DOM (axe ok) but 0 visible in this state-view — consider a visible heading for SR nav",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal.wizard-modal — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-foot — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast-container — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "project-manager.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "A page should expose an <h1> landmark; the current state-view should surface a visible heading",
+      "basis": "qa-tester / WCAG-1.3.1 (axe page-has-heading-one parity)",
+      "severity": 0,
+      "evidence": "h1 — h1 present in DOM (axe ok) but 0 visible in this state-view — consider a visible heading for SR nav",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "project-report.html",
+      "role": "supervisor",
+      "layer": "floor",
+      "rule": "axe:color-contrast",
+      "severity": 2,
+      "evidence": "2 node(s): .phase-gate | .phase-close",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "project-report.html",
+      "role": "supervisor",
+      "layer": "floor",
+      "rule": "axe:scrollable-region-focusable",
+      "severity": 2,
+      "evidence": "8 node(s): .wh-scroll-x:nth-child(2) | .wh-scroll-x:nth-child(4) | .wh-scroll-x:nth-child(",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "project-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.modal-footer — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "achievements.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "achievements.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-text — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "achievements.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "resume.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-foot — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "resume.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "span#toast-msg — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#sheet-edit — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "integrations.html",
+      "role": "supervisor",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "5/21 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "integrations.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     }
   ],
   "summary": {
-    "journeys_total": 4,
-    "applicable": 4,
-    "live": 4,
-    "external": 0,
-    "live_pct": 100,
-    "floor_findings": 0,
-    "heuristic_findings": 5,
+    "journeys_total": 103,
+    "applicable": 102,
+    "live": 99,
+    "external": 1,
+    "live_pct": 97.1,
+    "floor_findings": 12,
+    "heuristic_findings": 76,
     "critic_catalog_rules": 209
   },
   "per_page": [
+    {
+      "page": "index.html",
+      "live": 9,
+      "applicable": 9,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "logbook.html",
+      "live": 6,
+      "applicable": 6,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "inventory.html",
+      "live": 5,
+      "applicable": 5,
+      "external": 0,
+      "live_pct": 100
+    },
     {
       "page": "dayplanner.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
       "live_pct": 100
+    },
+    {
+      "page": "hive.html",
+      "live": 6,
+      "applicable": 6,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "pm-scheduler.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "community.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "analytics.html",
+      "live": 5,
+      "applicable": 5,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "assistant.html",
+      "live": 2,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 50
+    },
+    {
+      "page": "asset-hub.html",
+      "live": 3,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 75
+    },
+    {
+      "page": "alert-hub.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "audit-log.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "voice-journal.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "ai-quality.html",
+      "live": 3,
+      "applicable": 3,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "analytics-report.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "engineering-design.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "project-manager.html",
+      "live": 5,
+      "applicable": 5,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "project-report.html",
+      "live": 3,
+      "applicable": 3,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "skillmatrix.html",
+      "live": 2,
+      "applicable": 2,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "achievements.html",
+      "live": 2,
+      "applicable": 2,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "resume.html",
+      "live": 3,
+      "applicable": 3,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "marketplace.html",
+      "live": 5,
+      "applicable": 5,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "marketplace-seller.html",
+      "live": 4,
+      "applicable": 4,
+      "external": 0,
+      "live_pct": 100
+    },
+    {
+      "page": "integrations.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 1,
+      "live_pct": 100
+    },
+    {
+      "page": "plant-connections.html",
+      "live": 3,
+      "applicable": 3,
+      "external": 0,
+      "live_pct": 100
     }
   ],
   "per_lens": {
     "R": {
-      "applicable": 4,
-      "pass": 4,
+      "applicable": 89,
+      "pass": 89,
       "pct": 100
     },
     "J": {
-      "applicable": 4,
-      "pass": 4,
-      "pct": 100
+      "applicable": 92,
+      "pass": 89,
+      "pct": 96.7
     },
     "T": {
-      "applicable": 4,
-      "pass": 4,
-      "pct": 100
+      "applicable": 80,
+      "pass": 77,
+      "pct": 96.3
     },
     "C": {
-      "applicable": 4,
-      "pass": 4,
-      "pct": 100
+      "applicable": 71,
+      "pass": 68,
+      "pct": 95.8
     },
     "X": {
-      "applicable": 3,
-      "pass": 3,
+      "applicable": 40,
+      "pass": 40,
       "pct": 100
     }
   }

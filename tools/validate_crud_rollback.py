@@ -27,8 +27,20 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 G = "\033[92m"; R = "\033[91m"; B = "\033[1m"; X = "\033[0m"
 CHECK_NAMES = ["validate_crud_rollback"]
 DB = "supabase_db_workhive"
-WORKER_UID = "4153311f-624d-4ec0-b509-e69cb5a8f4cd"   # Bryan Garcia (worker)
-HIVE = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"          # Baguio Textile Mills
+# Bryan Garcia (worker) — BOTH the uid and the hive are RESOLVED at runtime from the live
+# hive_members row (test_identity pattern): a reseed re-mints hive ids AND auth uids, so any
+# pinned pair rots into RLS 0-rows = vacuous pass. Literals = last-resort fallback only.
+def _resolve_worker():
+    try:
+        import sys as _s
+        _s.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        i = resolve_test_identity("bryangarcia@auth.workhiveph.com")
+        return i.user_id, i.hive_id
+    except Exception:
+        return ("4153311f-624d-4ec0-b509-e69cb5a8f4cd",   # uid fallback (stale-known)
+                "636cf7e8-431a-4907-8a9f-43dd4cc216d6")   # hive fallback (stale-known)
+WORKER_UID, HIVE = _resolve_worker()
 
 # Per table (fully data-driven): the INSERT, a WHERE `marker`, an `update`+`update_check`, and a `verify`
 # SQL expression that emits three booleans `pin_ok|hive_ok|auth_ok` computed IN SQL for this table's shape —
@@ -89,6 +101,47 @@ TABLES = [
         "update": "update ai_reply_feedback set rating=-1 where question='CRUDGATE-ROLLBACK q'",
         "update_check": ("rating::text", "1"),  # immutable: the -1 update is a no-op, rating stays 1
     },
+    {   # asset-hub/logbook PRIMARY entity — attribution-PINNED (trg_bind_submitter_asset_nodes) + approval-
+        # guarded (tg_guard_approval: a worker CANNOT insert 'approved'; status must be 'pending') +
+        # side-effect (daily-cap/text-cap triggers) => rollback gate. uuid PK has a default. Bug-hunt P3
+        # (index/asset-hub residual), 2026-07-22.
+        "name": "asset_nodes",
+        "insert": ("insert into asset_nodes(worker_name, auth_uid, tag, name, iso_class, location, criticality, level, status, hive_id, submitted_by) "
+                   "values('{FORGE}', '{uid}', 'CRUDGATE-AN-1', 'CRUDGATE-ROLLBACK asset', 'General', '', 'medium', 'equipment', 'pending', '{hive}', '{FORGE}')"),
+        "marker": "tag = 'CRUDGATE-AN-1'",
+        "verify": "(worker_name <> '{FORGE}')||'|'||(hive_id = '{hive}')||'|'||(auth_uid = '{uid}')",
+        "update": "update asset_nodes set location='EDITED' where tag='CRUDGATE-AN-1'",
+        "update_check": ("location", "EDITED"),
+    },
+    {   # index.html onboarding — worker_profiles is a create-ONCE identity row (unique auth_uid) with
+        # INSERT/READ/UPDATE-own policies but NO DELETE policy (you don't delete your identity), so a
+        # create->update->delete round-trip can't run. `update_only` mode gates the two operations the table
+        # DOES support: (1) a FORGED-auth_uid insert is RLS-blocked (create-security, CHK auth_uid=auth.uid()),
+        # (2) an own-scoped UPDATE of the existing row lands. Rolled back. Bug-hunt P3 (index residual), 2026-07-22.
+        "name": "worker_profiles",
+        "update_only": True,
+        "forge_insert": ("insert into worker_profiles(auth_uid, username, display_name) "
+                         "values('00000000-0000-0000-0000-0000000000ff', 'crudgate_forge', 'FORGED')"),
+        "update": "update worker_profiles set display_name='CRUDGATE EDITED' where auth_uid='{uid}'",
+        "update_check": ("display_name", "CRUDGATE EDITED"),
+        "marker": "auth_uid = '{uid}'",
+    },
+    {   # OWNER-scoped resume version SNAPSHOTS (resume.html snapshotVersion). INSERT+SELECT+DELETE
+        # policies only, NO UPDATE policy — a version is immutable once written, but the owner PRUNES
+        # (page keeps 10, deletes the tail), so update must NO-OP while own-delete must work
+        # (`update_noop`, not `immutable`). daily-cap + text-cap triggers -> rollback gate. No hive_id
+        # (personal) — hive axis N/A; the parent CV is minted in the same tx via CTE so the FK resolves.
+        "name": "resume_versions",
+        "update_noop": True,
+        "insert": ("with cv as (insert into resume_documents(id, auth_uid, worker_name, hive_id, title, doc, template) "
+                   "values(gen_random_uuid(), '{uid}', 'Bryan Garcia', '{hive}', 'CRUDGATE-RB parent cv', '{{}}'::jsonb, 'basic') returning id) "
+                   "insert into resume_versions(id, resume_id, auth_uid, doc, note) "
+                   "select gen_random_uuid(), cv.id, '{uid}', '{{}}'::jsonb, 'CRUDGATE-ROLLBACK v1' from cv"),
+        "marker": "note = 'CRUDGATE-ROLLBACK v1'",
+        "verify": "true||'|'||true||'|'||(auth_uid = '{uid}')",
+        "update": "update resume_versions set doc='{{\"edited\":true}}'::jsonb where note='CRUDGATE-ROLLBACK v1'",
+        "update_check": ("doc::text", "{}"),  # no UPDATE policy: the edit must be a 0-row no-op, doc stays {}
+    },
     {   # HIVE-shared report recipients (no auth_uid, no pin). pin + auth axes N/A (emit true); scoped by hive.
         "name": "report_contacts",
         "insert": ("insert into report_contacts(id, hive_id, name, email, label) "
@@ -105,6 +158,22 @@ def _run_table(t: dict) -> str:
     """Run one rolled-back CRUD transaction; return 'OK' or a FAIL reason (or SKIP:...)."""
     fmt = dict(hive=HIVE, uid=WORKER_UID, FORGE=FORGE)
     ucol, uval = t["update_check"]
+    if t.get("update_only"):
+        # create-once, non-deletable identity table: gate (1) a forged-auth_uid insert is RLS-blocked,
+        # (2) an own-scoped UPDATE of the existing row lands. No insert/delete round-trip (by design).
+        sql = f"""
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{{"sub":"{WORKER_UID}","role":"authenticated"}}';
+do $$ begin
+  {t['forge_insert'].format(**fmt)};
+  raise notice 'FORGE|false';
+exception when others then raise notice 'FORGE|true'; end $$;
+{t['update'].format(**fmt)};
+select 'UPDATE|'||{ucol} from {t['name']} where {t['marker'].format(**fmt)};
+rollback;
+"""
+        return _run_update_only(t, sql, uval)
     sql = f"""
 begin;
 set local role authenticated;
@@ -141,13 +210,34 @@ rollback;
         return "FAIL:auth_uid-wrong-or-lost"
     upd = lines.get("UPDATE", "")
     if upd.split("|", 1)[-1] != uval:
-        # For immutable tables `uval` is the UNCHANGED value (the update must be a no-op).
-        return f"FAIL:{'immutability-broken(update took)' if t.get('immutable') else 'update-not-persisted'}({upd})"
+        # For immutable/update_noop tables `uval` is the UNCHANGED value (the update must be a no-op).
+        noop = t.get("immutable") or t.get("update_noop")
+        return f"FAIL:{'immutability-broken(update took)' if noop else 'update-not-persisted'}({upd})"
     dele = lines.get("DELETE", "")
     want_del = "0" if t.get("immutable") else "1"   # immutable: own-DELETE must be a NO-OP (append-only)
     if dele.split("|", 1)[-1] != want_del:
         return (f"FAIL:immutability-broken(delete affected rows)({dele})" if t.get("immutable")
                 else f"FAIL:own-delete-broken({dele})")
+    return "OK"
+
+
+def _run_update_only(t: dict, sql: str, uval: str) -> str:
+    """Forge-block + own-update gate for a create-once, non-deletable identity table (FORGE on stderr NOTICE)."""
+    try:
+        r = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres",
+                            "-t", "-A", "-v", "ON_ERROR_STOP=1"],
+                           input=sql, capture_output=True, text=True, timeout=40)
+    except Exception as e:
+        return "SKIP:docker-unreachable(" + str(e)[:40] + ")"
+    out = (r.stdout or "") + (r.stderr or "")
+    if "could not" in out.lower() or "no such container" in out.lower() or "cannot connect" in out.lower():
+        return "SKIP:db-unreachable"
+    forge = next((ln.replace("NOTICE:", "").strip() for ln in out.splitlines() if "FORGE|" in ln), "")
+    if forge != "FORGE|true":
+        return "FAIL:forge-insert-NOT-blocked(a foreign auth_uid profile insert succeeded — RLS CHK hole)"
+    upd = next((ln for ln in out.splitlines() if ln.startswith("UPDATE|")), "")
+    if upd.split("|", 1)[-1] != uval:
+        return f"FAIL:own-update-did-not-land({upd})"
     return "OK"
 
 

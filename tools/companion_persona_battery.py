@@ -32,8 +32,20 @@ import urllib.error
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 EDGE = "http://127.0.0.1:54321"
-HIVE = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"  # leandro's current Baguio hive (9b4eaeac… was dead/reseeded → 403)
 WORKER_EMAIL = "leandromarquez@auth.workhiveph.com"
+# HIVE is RESOLVED at runtime from the user's live hive_members row (test_identity pattern) —
+# a pinned UUID here rotted TWICE across reseeds (9b4eaeac → 636cf7e8 → deleted). The literal
+# below is only the last-resort fallback if the resolver itself fails.
+_HIVE_FALLBACK = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"
+def _resolve_hive() -> str:
+    try:
+        import sys as _s
+        _s.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity(WORKER_EMAIL).hive_id
+    except Exception:
+        return _HIVE_FALLBACK
+HIVE = _resolve_hive()
 
 HEZEKIAH_MARK = re.compile(r"\b\d+\s*(?:nm|n·m|newton|rpm|°c|deg|bar|psi)\b|\btorque\b|\bnaks\b", re.I)
 ZANIAH_MARK = re.compile(r"\b(?:oee|mtbf|mttr|kpi|ratio|planned[- ]vs[- ]reactive|criticality|availability)\b|\bhala\b", re.I)

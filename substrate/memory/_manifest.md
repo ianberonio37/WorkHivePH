@@ -1,22 +1,23 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:529-files
-source_sha: 779cc63459a2e861
+source: memory-curated:534-files
+source_sha: 5a64ec5e0bae0391
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (529 durable topic files)
+## memory · curated auto-memory (534 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=156 · project=285 · reference=88
+**By type:** feedback=159 · project=286 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
 
 Entries (name · type · sha):
 - `drawing_standards_skill` · reference · 16ac90968a9af898
+- `feedback_accessor_before_utils_load_order` · feedback · 33cdfb92667cf8e6
 - `feedback_ai_provider` · feedback · b197e3dd063d1acc
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_anti_seesaw_lineage_discipline` · feedback · 8cd491bab51b8c5e
@@ -66,6 +67,7 @@ Entries (name · type · sha):
 - `feedback_fuel_engine_brain_metaphor` · feedback · 156389609ba95129
 - `feedback_full_audience_spectrum` · feedback · 8033eab32bc196cd
 - `feedback_gate_green_is_part_of_done` · feedback · 7993d8ff6dd0822d
+- `feedback_gate_inside_gate_false_fails_use_median` · feedback · cb361d6eb4711b40
 - `feedback_gate_registration_cascade_exposes_bugs` · feedback · a5f40dfbd74a08b2
 - `feedback_grep_matched_the_comment_not_the_link` · feedback · 6ec5edc64e89c2cb
 - `feedback_handoff_trigger_phrases` · feedback · 291e2bd41d9ee4ad
@@ -149,6 +151,7 @@ Entries (name · type · sha):
 - `feedback_soft_judge_do_it_yourself` · feedback · 44ccf0873e6c5b0d
 - `feedback_spring_physics` · feedback · 8f6da95f2819876b
 - `feedback_sse_cursor_pattern` · feedback · f78f592a8f88dd3c
+- `feedback_stale_hive_fixture_mjs_mirror` · feedback · 33f26fe65d29e357
 - `feedback_stale_html_debugging` · feedback · 5495b355c28d38a4
 - `feedback_stay_local_dont_suggest_prod_push` · feedback · 6fae9116a369ca5a
 - `feedback_storage_ssot_bigbang_sweep` · feedback · cb6a14d1f5a3847a
@@ -450,6 +453,7 @@ Entries (name · type · sha):
 - `project_truth_view_signal_trust_2026_05_20` · project · 7826b515e5bad09f
 - `project_ufai_battery_altitude_architecture` · project · 3d5e137a258bfdf2
 - `project_ufai_battery_wave0_2026_06_07` · project · 89487491c8ef56ca
+- `project_ufai_rubric_centralization_roadmap` · project · bebfb2e405744e9b
 - `project_unified_mega_gate` · project · 2d7cb61e76e5aac2
 - `project_user_facing_jargon_audit_2026_06_14` · project · b1bf92bcd52e47d5
 - `project_video_storyboard_narration_2026_06_10` · project · e5c3479ad3e15b4b
@@ -512,10 +516,6 @@ Entries (name · type · sha):
 - `reference_marketplace_partsflow_and_trust` · reference · 52b6a06f9e8c3272
 - `reference_my_people_trade_discovery` · reference · ea8176868e78e989
 - `reference_nav_hub_community_unread_badge` · reference · f0afd7596ea9f2a5
-- `reference_notebooklm_py_quirks` · reference · a7a58751637d2b0c
-- `reference_npx_ampersand_path_bug` · reference · ba3a515ce087621a
-- `reference_page_battery_gate` · reference · b02d180551e7293a
-- `reference_pareto_content_design_sources` · reference · 2b8945e6a1f91641
-- … +29 more (all included in the fingerprint)
+- … +34 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

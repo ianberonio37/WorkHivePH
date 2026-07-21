@@ -98,8 +98,12 @@
   const SHELL_SEL = '[id^="wh-ai"],[id^="wh-hub"],[class*="wh-ai-"],[class*="wh-hub-"],#wh-companion,nav-hub';
   const AXE_CDN = 'https://cdn.jsdelivr.net/npm/axe-core@4.10.2/axe.min.js';
   const WV_CDN  = 'https://unpkg.com/web-vitals@4?module';
-  // 2026 Google CWV "good" thresholds.
+  // 2026 Google CWV "good" thresholds. SSOT = ufai-rubric-spec.json (dim I1); this is a
+  // GATE-LOCKED MIRROR — validate_rubric_parity asserts these == the JSON I1 values, so a
+  // CWV threshold lives in one place across the rubric lens + this battery.
+  /* I1_CWV_THRESHOLDS_START */
   const CWV_GOOD = { LCP: 2500, INP: 200, CLS: 0.1 };
+  /* I1_CWV_THRESHOLDS_END */
 
   const _state = {
     console: [],          // errors/warns captured AFTER boot (past ones = MCP)

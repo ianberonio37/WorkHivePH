@@ -5,7 +5,17 @@ from playwright.sync_api import sync_playwright
 
 BASE_URL = "http://127.0.0.1:5000/workhive"
 TEST_WORKER_NAME = "Leandro Marquez"
-TEST_HIVE_ID = "586fd158-42d1-4853-a406-64a4695e71c4"
+# TEST_HIVE_ID resolved at runtime from the live membership (test_identity pattern) —
+# a pinned UUID rots across reseeds. Literal = hive fallback only.
+def _resolve_hive(_fallback="586fd158-42d1-4853-a406-64a4695e71c4"):
+    try:
+        import sys as _s, pathlib as _p
+        _s.path.insert(0, str(_p.Path(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return _fallback
+TEST_HIVE_ID = _resolve_hive()
 
 with sync_playwright() as p:
     browser = p.chromium.launch()

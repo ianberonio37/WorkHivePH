@@ -29,7 +29,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "backend_live_invoke.json"
 BASE = "http://127.0.0.1:54321/functions/v1"
-HIVE = "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"
+# HIVE resolved at runtime from the seeded account's live hive_members row (test_identity
+# pattern) — this lib is imported by 5+ sweeps, and its old pin (9b4eaeac) was TWO reseeds
+# dead (the vacuous-pass class). Literal below = last-resort fallback only.
+def _resolve_hive() -> str:
+    try:
+        sys.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7"   # hive fallback (stale-known)
+HIVE = _resolve_hive()
 FOREIGN = "00000000-0000-0000-0000-000000000000"
 PROJECT = "fda1dff3-067a-47b1-b093-148caf788a16"
 ASSET = "b9ba9440-0c2f-44a6-bc21-003f0451dba0"

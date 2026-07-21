@@ -1,5 +1,5 @@
 /* ============================================================================
- * survey_ufai_rubric.js — the A–R RUBRIC lens (44 dims), as ONE injectable
+ * survey_ufai_rubric.js — the A–W RUBRIC lens (61 dims encoded), as ONE injectable
  * ============================================================================
  * Ian, 2026-07-15: "retrieve our entire UFAI UI UX class dimensions by our
  * substrate, then use it as your lens to re-survey the entire analytics pages
@@ -9,7 +9,8 @@
  *   ufai_battery.js grades the FIVE PILLARS (U/F/A/I/C) — axe, CWV, tap, wiring,
  *   value-correctness. It is the kernel and this file does NOT duplicate it.
  *   This is the *other* ruler: `substrate/reference/ufai-ux-rubric.md`'s
- *   **18 classes A–R / 44 dims**, each a CITED rule (NN/g, Laws of UX, WCAG,
+ *   **21 classes A–W / 63 dims** (61 encoded here; S2/S3 are cross-page, owned by
+ *   family_rubric_sweep.mjs), each a CITED rule (NN/g, Laws of UX, WCAG,
  *   GOV.UK, web.dev). Ad-hoc probing kept surveying whatever the last finding
  *   pointed at; this walks the ruler start-to-finish so nothing is dropped.
  *
@@ -37,6 +38,28 @@
 () => {
   const V = '1.0.0';
   if (window.__RUBRIC && window.__RUBRIC._v === V) return { already: true, _v: V };
+
+  // ── RUBRIC_THRESHOLDS ── the canonical numeric floors (UR-P1). The SSOT is
+  // ufai-rubric-spec.json; this is a GENERATED MIRROR kept in sync by the
+  // `rubric-parity` gate (tools/validate_rubric_parity.py), which FAILs the build if
+  // any value here diverges from the JSON. Detectors read `TH.<dim>.<key>` instead of a
+  // scattered literal, so a threshold lives in exactly one place. window.__RUBRIC_THRESHOLDS
+  // (harness-injected from the JSON) overrides the mirror when present.
+  /* RUBRIC_THRESHOLDS_START */
+  const RUBRIC_THRESHOLDS = {
+    B3: { maxSentenceWords: 20, maxFkGrade: 8, minGradedWords: 12 },
+    C1: { maxDisplaySizes: 3, maxSizeTiers: 10 },
+    C2: { contrastNormal: 4.5, contrastLarge: 3, largePx: 24, largeBoldPx: 18.66 },
+    D3: { maxButtonShapes: 6 },
+    E4: { maxIdsPerBlock: 7 },
+    F1: { minTapPx: 44 },
+    K2: { minTapPx: 44 },
+    T6: { maxPeerRows: 150, noListBelow: 30 },
+    A3: { maxPrimaryCta: 2 },
+  };
+  /* RUBRIC_THRESHOLDS_END */
+  const TH = (window.__RUBRIC_THRESHOLDS && typeof window.__RUBRIC_THRESHOLDS === 'object')
+    ? window.__RUBRIC_THRESHOLDS : RUBRIC_THRESHOLDS;
 
   const $$ = (sel, root) => [...(root || document).querySelectorAll(sel)];
   const vis = (e) => {
@@ -237,7 +260,7 @@
     ).values()];
     out.push(M('A1', '5-second test', [
       h1.length >= 1,                      // purpose nameable
-      big.length <= 3,                     // a clear DISPLAY SCALE (not a scatter). The
+      big.length <= TH.C1.maxDisplaySizes,                     // a clear DISPLAY SCALE (not a scatter). The
                                            // 5-second test NEEDS hierarchy -- hero(32-38)
                                            // + section(24) + emphasis/stat(20-22) is a
                                            // legitimate 3-tier scale with one dominant top.
@@ -310,7 +333,7 @@
       cappedLists.length >= 1 || (longTables.length === 0 && structuralBlocks.length <= 12),
       $$('[role="tab"], .phase-tab, .period-btn', R).filter(vis).length <= 12,  // Hick: few options first
       structuralBlocks.length <= 40,
-      primaryCta.length <= 2,             // one recommended action highlighted
+      primaryCta.length <= TH.A3.maxPrimaryCta,   // one recommended action highlighted
     ].filter(Boolean).length, 4, `disclosures=${cappedLists.length} longTables=${longTables.length}`));
 
     // ── B · Language ────────────────────────────────────────────────────────
@@ -384,7 +407,7 @@
     // -> false passive on "The top risk is GEN-003" (shift-brain). Requiring lowercase [a-z]{2,} excludes
     // codes (GEN/GEN-003/TT-001) while still catching "is broken / was replaced". §16.1 the ruler, not the page.
     const PASSIVE = /\b(?:[Ww]as|[Ww]ere|[Ii]s|[Aa]re|[Bb]een|[Bb]eing|[Bb]e)\s+[a-z]{2,}(?:ed|en)\b(?!\s+(?:by\s+you|to))/;
-    const longOnes = sentences.filter((s) => s.t.split(/\s+/).length > 20);
+    const longOnes = sentences.filter((s) => s.t.split(/\s+/).length > TH.B3.maxSentenceWords);
     const passiveOnes = sentences.filter((s) => PASSIVE.test(s.t));
     // Flesch-Kincaid is a REGRESSION fitted on running prose -- it is meaningless on a
     // short label: "Phase 1: Descriptive Analytics." (4 words) scored grade 12.5 purely
@@ -415,7 +438,7 @@
     // validity range and would push a pointless rewrite onto clear copy. The >20-word and
     // passive-voice checks are structural, not statistical, so they keep the 8-word floor.
     // (This is the same trap as scoring a dim with no honest denominator.)
-    const FK_MIN_WORDS = 12;
+    const FK_MIN_WORDS = TH.B3.minGradedWords;
     const graded = sentences
       .map((s) => ({ ...s, t: stripCite(s.t) }))
       .filter((s) => s.t.split(/\s+/).length >= FK_MIN_WORDS);
@@ -424,7 +447,7 @@
       const syl = words.reduce((a, w) => a + syllables(w), 0);
       return 0.39 * words.length + 11.8 * (syl / Math.max(words.length, 1)) - 15.59;
     };
-    const overGrade = graded.filter((s) => fk(s.t) > 8);
+    const overGrade = graded.filter((s) => fk(s.t) > TH.B3.maxFkGrade);
     const b3Checks = [
       longOnes.length === 0,        // GOV.UK: <=20 words
       passiveOnes.length === 0,     // NN/g: active voice
@@ -444,12 +467,12 @@
     // ── C · Visual craft ────────────────────────────────────────────────────
     // (`big` is declared up in the A block — A1 and C1 grade the same display tier.)
     out.push(M('C1', 'Visual hierarchy', [
-      big.length <= 3,                     // a clear DISPLAY SCALE = hero+section+emphasis (3
+      big.length <= TH.C1.maxDisplaySizes,                     // a clear DISPLAY SCALE = hero+section+emphasis (3
                                            // tiers), NOT a scatter. Same threshold A1 uses --
                                            // both measure `big`, so they must agree; <=2 wrongly
                                            // failed pm-scheduler/hive/alert-hub for having a
                                            // correct 3-tier hierarchy. A scatter is 4+.
-      sizes.length <= 10,
+      sizes.length <= TH.C1.maxSizeTiers,
       true,                                // red/warm reserved — verified by C2/K1 below
     ].filter(Boolean).length, 3, `bigSizes=[${big.join(',')}] distinct=${sizes.length}`));
 
@@ -475,7 +498,7 @@
         ? Math.min(...fgStops.map((st) => ratioVs({ ...st, a: 1 }, bg)))
         : ratioVs(comp, bg);
       const fs = parseFloat(s.fontSize), fw = parseInt(s.fontWeight) || 400;
-      const need = (fs >= 24 || (fs >= 18.66 && fw >= 700)) ? 3 : 4.5;
+      const need = (fs >= TH.C2.largePx || (fs >= TH.C2.largeBoldPx && fw >= 700)) ? TH.C2.contrastLarge : TH.C2.contrastNormal;
       cTotal++;
       if (cr >= need) cPass++;
       else {
@@ -513,7 +536,7 @@
       : NA('D1', 'Affordances & signifiers', 'no icon-only controls in this state'));
     out.push(J('D2', 'Feedback < 400ms (Doherty)', 'needs a REAL trusted click + a click->paint timer; MCP-driven, not page-JS'));
     const btnShapes = [...new Set($$('button', R).filter(vis).map(b => { const s = getComputedStyle(b); return `${s.borderRadius}|${s.minHeight}`; }))];
-    out.push(M('D3', 'Consistency / one vocabulary', btnShapes.length <= 6 ? 1 : 0, 1,
+    out.push(M('D3', 'Consistency / one vocabulary', btnShapes.length <= TH.D3.maxButtonShapes ? 1 : 0, 1,
       `${btnShapes.length} distinct button shapes`));
 
     // ── E · Data & state ────────────────────────────────────────────────────
@@ -592,7 +615,7 @@
       // one "- MACHINE (permit …)" per line, rendered pre-wrap) is scannable, not a dump. Judge the
       // WORST single line's code count, not the element total -- >7 on ONE line is the real dump.
       const worstLine = Math.max(0, ...t.split(/\n/).map((ln) => (ln.match(IDLIKE) || []).length));
-      if (ids && ids.length > 7 && worstLine > 7) e4.dumps.push({ ids: ids.length, text: t.slice(0, 60) });
+      if (ids && ids.length > TH.E4.maxIdsPerBlock && worstLine > TH.E4.maxIdsPerBlock) e4.dumps.push({ ids: ids.length, text: t.slice(0, 60) });
     });
 
     // (3) TRANSLATE THE STATISTIC — a bare coefficient is not a finding.
@@ -683,7 +706,7 @@
     const isDurationBlock = (e) => !!e.closest('.calendar-wrap, [class*="cal-grid"], [class*="timeline-grid"], [aria-label*="calendar timeline" i], [aria-label*="timeline" i]')
       || /(^|\s)(sched-block|cal-event|tl-block|event-block)/.test(typeof e.className === 'string' ? e.className : '');
     const small = inter.map(e => ({ e, r: e.getBoundingClientRect() }))
-      .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < 44 || o.r.height < 44) && !isDurationBlock(o.e))
+      .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < TH.F1.minTapPx || o.r.height < TH.F1.minTapPx) && !isDurationBlock(o.e))
       .map(o => ({ w: Math.round(o.r.width), h: Math.round(o.r.height), t: (o.e.innerText || o.e.getAttribute('aria-label') || '').slice(0, 18) }));
     out.push(inter.length
       ? M('F1', 'Mobile / touch >= 44px', inter.length - small.length, inter.length,
@@ -727,7 +750,7 @@
     const jargon = textEls.filter(e => JARGON.test(ownText(e)));
     out.push(M('G2', 'Match the real world', jargon.length === 0 ? 1 : 0, 1,
       jargon.length ? `system jargon leaked: "${ownText(jargon[0]).slice(0, 26)}"` : 'no system jargon in copy'));
-    out.push(M('G3', 'Aesthetic-minimalist', primaryCta.length <= 2 ? 1 : 0, 1,
+    out.push(M('G3', 'Aesthetic-minimalist', primaryCta.length <= TH.A3.maxPrimaryCta ? 1 : 0, 1,
       `${inter.length} controls, ${primaryCta.length} primary CTA`));
 
     // ── H · Behavioral ──────────────────────────────────────────────────────
@@ -1351,10 +1374,10 @@
         const kids = e.children ? e.children.length : 0;
         if (kids > t6) { t6 = kids; t6sel = e.id ? '#' + e.id : (e.className || e.tagName).toString().slice(0, 24); }
       }
-      out.push(t6 <= 30
+      out.push(t6 <= TH.T6.noListBelow
         ? NA('T6', 'Long-list virtualization', `no long list (worst scroll container = ${t6} children)`)
-        : M('T6', 'Long-list virtualization', t6 <= 150 ? 1 : 0, 1,
-          t6 <= 150 ? `longest list ${t6} nodes (<=150 ok)` : `${t6} peer nodes mounted in ${t6sel} — virtualize / paginate (RN FlatList)`));
+        : M('T6', 'Long-list virtualization', t6 <= TH.T6.maxPeerRows ? 1 : 0, 1,
+          t6 <= TH.T6.maxPeerRows ? `longest list ${t6} nodes (<=${TH.T6.maxPeerRows} ok)` : `${t6} peer nodes mounted in ${t6sel} — virtualize / paginate (RN FlatList)`));
 
       // T7 Clean JS thread — measured by ufai_battery.js F-pillar (console history invisible post-load here)
       out.push(NA('T7', 'Clean JS thread (no console noise on load)', 'measured by ufai_battery.js consoleErrorsSinceBoot'));

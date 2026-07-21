@@ -456,7 +456,11 @@
 // SUPABASE
 // ─────────────────────────────────────────────
 // db initialized after supabase-js CDN loads (see script block below)
-let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+// GUARDED (2026-07-21): this block runs BEFORE <script src="utils.js"> (bottom of the page),
+// so a bare whWorker() call threw ReferenceError -> WORKER_NAME never initialized -> the init
+// IIFE threw -> the WHOLE page stuck on "Loading day plan..." for EVERY user (found by the
+// Arc-K DAY1-4 cluster). The storage-SSOT sweep's accessor is re-read at init, after utils loads.
+let WORKER_NAME = (typeof whWorker === 'function' ? whWorker() : '') || '';
 var _authUid = null; // C3b: populated at init from Supabase Auth session
 // C4: redirect deferred to db init block — checks auth session first
 
@@ -1717,6 +1721,8 @@ document.addEventListener('keydown', e => {
   );
   logPageView(db);
   (async () => {
+    // utils.js is loaded by now — re-read the canonical accessor the early block couldn't.
+    if (!WORKER_NAME && typeof whWorker === 'function') WORKER_NAME = whWorker() || '';
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
     // Phase B (auth migration): converted .then() to await so _authUid is populated

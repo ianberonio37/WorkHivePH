@@ -35,10 +35,19 @@ GATEWAY_URL = os.environ.get("WH_GATEWAY_URL", "http://127.0.0.1:54321/functions
 ANON = "sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ"
 JWT = os.environ.get("WH_JWT", "")
 # Default hive must be a REAL, member-backed hive or the ANSWER-phase gateway invoke 403s
-# "not_a_member". 9b4eaeac… was a dead/reseeded UUID (0 members) → stale fixture. Pablo Aguilar
-# (the arc's canonical live user) is an active supervisor of Lucena Pharmaceutical Mfg. Override
-# with WH_HIVE_ID to match whatever WH_JWT user you supply.
-HIVE_ID = os.environ.get("WH_HIVE_ID", "c9def338-fd73-4b19-8ef1-ee57625953d6")
+# "not_a_member". 2026-07-21: the pinned Lucena id (c9def338) rotted at the next reseed exactly
+# like 9b4eaeac before it — so the default is RESOLVED at runtime from Pablo Aguilar's live
+# hive_members row (test_identity pattern). Override with WH_HIVE_ID to match your WH_JWT user.
+def _resolve_default_hive() -> str:
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _s.path.insert(0, str(_P(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("pabloaguilar@auth.workhiveph.com").hive_id
+    except Exception:
+        return "c9def338-fd73-4b19-8ef1-ee57625953d6"   # hive fallback (stale-known)
+HIVE_ID = os.environ.get("WH_HIVE_ID") or _resolve_default_hive()
 
 # family, spoken text, edge-tts voice, expected-ISO-lang, reply grade (markers, anti-markers)
 PROBES = [

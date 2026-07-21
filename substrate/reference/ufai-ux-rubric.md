@@ -7,7 +7,7 @@ last_verified: 2026-07-14
 supersedes: null
 ---
 
-## reference · UFAI UI/UX rubric (18 classes A–S · ~49 dimensions) — the page-redesign ruler
+## reference · UFAI UI/UX rubric (21 classes A–W · 63 dimensions) — the page-redesign ruler
 
 Synthesis of the Night-Crawler UX harvest (`substrate/external/external-ux-*` — retrieve the named
 chunk for the full cited rules). Grade any page's BEFORE against these; design the AFTER toward them.

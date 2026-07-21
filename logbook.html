@@ -2220,13 +2220,22 @@ async function submitAsset() {
     hive_id: HIVE_ID || null,
     submitted_by: WORKER_NAME
   };
+  // P7 double-submit lock (button-lock.js isn't on this page → self-disable). Without it a fast
+  // double-tap re-runs submitAsset: each tap mints a fresh uuid so the upsert's PK-based onConflict
+  // doesn't match, and the 2nd write hits the (hive_id, tag) unique index → a confusing 23505 toast
+  // + a wasted embed write. Disable-before-await + the top-of-await state makes a 2nd tap a no-op
+  // (a disabled button dispatches no click once tap-1 has disabled it synchronously before yielding).
+  const _sb = document.getElementById('asset-submit-btn');
+  if (_sb) _sb.disabled = true;
   // Save to Supabase first: only update memory on confirmed success
   const { error } = await db.from('asset_nodes').upsert(_assetToNode({ ...asset, worker_name: WORKER_NAME }));
   if (error) {
     console.error('asset save:', error.message);
     showToast('Save failed: ' + error.message);
+    if (_sb) _sb.disabled = false;
     return;
   }
+  if (_sb) _sb.disabled = false;
   writeAuditLog('register_asset', 'assets', asset.id, asset.asset_id, {
     name: asset.name, type: asset.type, criticality: asset.criticality, status: asset.status,
   });

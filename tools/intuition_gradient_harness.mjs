@@ -46,7 +46,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const BASE   = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SB_URL = process.env.WH_SUPABASE_URL  || 'http://127.0.0.1:54321';
-const HIVE   = process.env.WH_TEST_HIVE     || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // real hive (9b4eaeac was stale → empty-page scans)
+const HIVE   = process.env.WH_TEST_HIVE     || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // hive fallback only — signIn resolves the real hive from the live membership
 
 // Real auth accounts (live DB): worker + supervisor only. engineer == supervisor session.
 const ACCOUNTS = {
@@ -144,7 +144,16 @@ async function signIn(context, role) {
     try {
       const db = window._whSupabaseClient || window.getDb(url, window.SUPABASE_KEY);
       const { data, error } = await db.auth.signInWithPassword({ email: acct.email, password: acct.pw });
-      localStorage.setItem('wh_active_hive_id', hive); localStorage.setItem('wh_hive_id', hive);
+      // resolve the REAL hive from the live membership (test_identity pattern); the passed
+      // constant is a stale-known fallback (pins rot across reseeds).
+      let realHive = hive;
+      try {
+        const uid = data?.session?.user?.id;
+        const { data: mem } = uid ? await db.from('hive_members').select('hive_id')
+          .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
+        if (mem && mem.hive_id) realHive = mem.hive_id;
+      } catch (_) { /* keep fallback */ }
+      localStorage.setItem('wh_active_hive_id', realHive); localStorage.setItem('wh_hive_id', realHive);
       localStorage.setItem('wh_last_worker', acct.worker); localStorage.setItem('wh_hive_name', hiveName);
       localStorage.setItem('wh_hive_role', acct.role);
       if (acct.role === 'supervisor') localStorage.setItem('wh_nav_mode', 'supervisor');

@@ -38,7 +38,17 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 BASE = "http://127.0.0.1:54321/functions/v1"
-HIVE = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"   # Baguio Textile Mills (leandro's current hive; 9b4eaeac… was dead/reseeded → 403)
+# HIVE resolved at runtime from the live hive_members row (test_identity pattern) — the pinned
+# UUID rotted TWICE across reseeds (9b4eaeac → 636cf7e8 → deleted). Literal = fallback only.
+def _resolve_hive() -> str:
+    try:
+        import sys as _s, pathlib as _p
+        _s.path.insert(0, str(_p.Path(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return "636cf7e8-431a-4907-8a9f-43dd4cc216d6"
+HIVE = _resolve_hive()
 DB = "supabase_db_workhive"
 RESULTS = "fb4_grounding_results.json"
 BASELINE = "fb4_grounding_baseline.json"

@@ -86,7 +86,25 @@ function snapshotMS() {
       try {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto(`${SEEDER}/workhive/${pg}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await page.waitForTimeout(2200);                    // let async render settle (same as Arc V load probe)
+        // CONTENT-STABILITY settle (2026-07-21) — the fixed 2200ms wait was a fixed-wait RACE:
+        // asset-hub's live+snapshot data wave sometimes outlasts it, so the probe read the pre-data
+        // shell (cards 0 → focal false-fail vs the banked floor-0 baseline) while the live page is
+        // healthy (84 cards). Same fix family_rubric_sweep.mjs proved: require 3 stable reads
+        // (400ms apart) of the content fingerprint AND a >=2.2s elapsed floor (never settle on the
+        // initial skeleton), cap 8s. Fast pages exit at the floor; slow data waves get real time.
+        await page.evaluate(async () => {
+          const fp = () => document.body.innerText.length + '|' +
+            document.querySelectorAll('[class*="card"],[class*="tile"],[class*="panel"]').length;
+          const t0 = Date.now();
+          let last = fp(), stable = 0;
+          while (Date.now() - t0 < 8000) {
+            await new Promise(r => setTimeout(r, 400));
+            const now = fp();
+            stable = (now === last) ? stable + 1 : 0;
+            last = now;
+            if (stable >= 3 && Date.now() - t0 >= 2200) break;
+          }
+        });
         raw = await page.evaluate(ARC_W_PROBE);
       } catch (e) { err = String(e).slice(0, 140); }
       await page.close();

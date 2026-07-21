@@ -6,7 +6,17 @@ import time
 
 BASE_URL = "http://127.0.0.1:5000/workhive"
 TEST_WORKER_NAME = "Leandro Marquez"
-TEST_HIVE_ID = "3776bd17-97f0-4a3c-a850-11c992cb140c"
+# TEST_HIVE_ID resolved at runtime from the live membership (test_identity pattern) —
+# a pinned UUID rots across reseeds. Literal = hive fallback only.
+def _resolve_hive(_fallback="3776bd17-97f0-4a3c-a850-11c992cb140c"):
+    try:
+        import sys as _s, pathlib as _p
+        _s.path.insert(0, str(_p.Path(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return _fallback
+TEST_HIVE_ID = _resolve_hive()
 
 with sync_playwright() as p:
     browser = p.chromium.launch()

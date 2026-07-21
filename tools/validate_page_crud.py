@@ -22,7 +22,15 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "tools" / "validate_page_crud.mjs"
-LIVE_HIVE = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"
+# RESOLVED at runtime (test_identity pattern) — pins rot across reseeds. Literal = fallback only.
+def _resolve_live_hive() -> str:
+    try:
+        sys.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return "636cf7e8-431a-4907-8a9f-43dd4cc216d6"   # hive fallback (stale-known)
+LIVE_HIVE = _resolve_live_hive()
 
 
 def _up(url: str, timeout: float = 3.0) -> bool:

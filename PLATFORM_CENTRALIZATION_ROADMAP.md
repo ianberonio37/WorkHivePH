@@ -202,21 +202,26 @@ at-scale are all in `substrate/external/`).
 
 ---
 
-## §5 — NEXT queue (load-bearing on resume)
+## §5 — NEXT queue (load-bearing on resume — REFRESHED 2026-07-21; the v0.1 queue below it is history)
 
-- **DONE this session (the seed of C-P0/C-P2):** FAB consolidation (feedback+companion+connectivity → the
-  nav-hub; one corner FAB), `validate_fab_consolidation.py` contract gate (green), nav-hub now injects
-  `tokens.css` platform-wide, the new consolidation CSS made token-pure. Migration `20260720000002`
-  fixed `fetch_active_alerts` (companion proactive alerts were dead). All uncommitted → Ian's commit gate.
-- **RESOLVED FORKS (Ian, 2026-07-20):** (a) doc structure = **new master doc** (this file); (b) scope =
-  **expanded** (+i18n/Comms/Billing/Onboard/RBAC/Jobs = 25 surfaces); (c) drive order = **Axis-2 Purity
-  first**, per the night-crawl evidence (governance-machinery-then-waves, highest backlog-coupling first).
-- **IMMEDIATE (C-P0):** build `tools/component_purity_census.py` over the SSOT file set; measure the real
-  Axis-2 gap platform-wide (seed number: 59 raw brand-hex in the 4 chrome files).
-- **THEN (C-P1→C-P2):** component tokens in `tokens.css` (`--wh-fab-size`/`--wh-panel-max-h`/`--wh-z-fab`/
-  `--wh-ease-*`), then the chrome purity wave (59 → 0), one file per wave, live-verified + ratchet-locked.
-- **OPEN for Ian's review:** is the 3-axis framing right? any of the 25 surfaces mis-scoped? Then C-P0 starts.
-- **Ian-gated:** commit the FAB work; prod-push migration `20260720000002` + the shared-chrome changes.
+- **ARC STATE: COMPLETE + LANDED.** C-P0→C-P6 all ✅ (see §0 scoreboard); the three "gated follow-on"
+  adoption waves all SHIPPED and landed at `origin/master @ 1ff7193` (2026-07-21): storage convergence
+  **149→0** (whHiveId()/whWorker()), RBAC convergence **14→0** (wh-roles.js SSOT, ratchet at 0),
+  shared-`<head>` SSOT (favicon 0→32, theme-color unified). Full release gate ALL PASS.
+- **SIBLING ARC (2026-07-21): the RULER centralized too** — `UFAI_RUBRIC_CENTRALIZATION_ROADMAP.md`
+  applies these same 3 axes to the UFAI rubric toolchain (spec SSOT `ufai-rubric-spec.json` + gates
+  `rubric-parity`/`rubric-coverage` + mirror blocks in both lens instruments). All phases ✅.
+- **REMAINING (evidence-parked, not active):** a behavioral-kernel codegen for the lens injectables
+  (verified regressive — build only if the injectables proliferate); C-P4's comms/billing/jobs rows stay
+  governed-forward (no measured drift today — re-census only when a 2nd channel/tier/queue actually lands).
+- **Ian-gated:** commit the 2026-07-21 rubric-SSOT work (spec, gates, mirror blocks, coverage board, panel card).
+
+### §5.1 — the v0.1 queue (historical, superseded above)
+
+- ~~IMMEDIATE (C-P0): build `tools/component_purity_census.py`~~ → built + gate registered (v0.2).
+- ~~THEN (C-P1→C-P2): component tokens + the chrome purity wave 59→0~~ → 106→0 across 20/20 files (v0.2-v0.3).
+- ~~OPEN for Ian's review: 3-axis framing / 25-surface scope~~ → approved; drive executed (v0.2-v0.4).
+- ~~Ian-gated: commit FAB work + migration `20260720000002`~~ → landed @ 1ff7193.
 
 ## §6 — DRIVE LEDGER
 | Date | Delta |

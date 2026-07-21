@@ -5,7 +5,7 @@
 import { chromium } from 'playwright';
 const SEEDER = 'http://127.0.0.1:5000';
 const EMAIL = 'pabloaguilar@auth.workhiveph.com', PASSWORD = 'test1234';
-const HIVE = 'c9def338-fd73-4b19-8ef1-ee57625953d6', WORKER = 'Pablo Aguilar';
+const HIVE = 'c9def338-fd73-4b19-8ef1-ee57625953d6', WORKER = 'Pablo Aguilar'; // hive fallback only — signIn resolves live membership
 const pages = process.argv.slice(2);
 
 const browser = await chromium.launch();
@@ -15,8 +15,16 @@ await s.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentload
 await s.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 15000 }).catch(() => {});
 await s.evaluate(async ({ email, password, hive, worker }) => {
   try { const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY);
-    await db.auth.signInWithPassword({ email, password });
-    localStorage.setItem('wh_active_hive_id', hive); localStorage.setItem('wh_last_worker', worker); localStorage.setItem('wh_hive_role', 'supervisor');
+    const { data } = await db.auth.signInWithPassword({ email, password });
+    // resolve the REAL hive from the live membership; the constant is a stale-known fallback
+    let realHive = hive;
+    try {
+      const uid = data?.session?.user?.id;
+      const { data: mem } = uid ? await db.from('hive_members').select('hive_id')
+        .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
+      if (mem && mem.hive_id) realHive = mem.hive_id;
+    } catch (_) {}
+    localStorage.setItem('wh_active_hive_id', realHive); localStorage.setItem('wh_last_worker', worker); localStorage.setItem('wh_hive_role', 'supervisor');
   } catch (e) {} }, { email: EMAIL, password: PASSWORD, hive: HIVE, worker: WORKER });
 await s.close();
 

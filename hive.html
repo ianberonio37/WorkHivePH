@@ -391,7 +391,12 @@
   // JS does (active hive's role from wh_hives, else wh_hive_role). DB re-validation later
   // (initHive) corrects a stale role; the reserve is a paint-time CLS hint, not a gate.
   try {
-    var _id = whHiveId() || '';
+    // GUARDED (2026-07-21): this paint-time block runs BEFORE utils.js, so a bare whHiveId()
+    // threw (caught below) and the supervisor CLS reserve hint was SILENTLY DEAD every load.
+    // Pre-utils fallback reads the raw keys (paint-hint only; canonical accessor everywhere else).
+    var _id = (typeof whHiveId === 'function' ? whHiveId()
+      : (localStorage.getItem('wh_active_hive_id') /* storage-key-allow: pre-utils paint-hint fallback */
+         || localStorage.getItem('wh_hive_id') /* storage-key-allow: pre-utils paint-hint fallback */)) || '';
     var _role = '';
     try { var _hs = JSON.parse(localStorage.getItem('wh_hives') || '[]'); var _h = _hs.find(function (x) { return x && x.id === _id; }); _role = (_h && _h.role) || ''; } catch (e) { /* empty-catch-allow: malformed wh_hives → fall back to wh_hive_role below */ }
     _role = _role || localStorage.getItem('wh_hive_role') || '';

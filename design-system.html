@@ -103,6 +103,9 @@
     // (resilience floor); the call is inside try/catch (error-handling floor). No bare fetch().
     try { purity = await window.fetchWithTimeout('component_purity_baseline.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits purity if absent */ }
     try { storage = await window.fetchWithTimeout('storage_key_registry.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits storage if absent */ }
+    let rubricSpec = null, rubricBoard = null;
+    try { rubricSpec = await window.fetchWithTimeout('ufai-rubric-spec.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits rubric SSOT if absent */ }
+    try { rubricBoard = await window.fetchWithTimeout('family_rubric_scoreboard.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits sweep coverage if absent */ }
     const files = (purity && purity.files) || {};
     const total = Object.keys(files).length;
     const pure = Object.values(files).filter(v => v === 0).length;
@@ -110,6 +113,10 @@
     const pPct = total ? Math.round(100 * pure / total) : 0;
     const canon = (storage && storage.canonical) ? storage.canonical.length : 0;
     const aliases = (storage && storage.aliases) ? Object.keys(storage.aliases).length : 0;
+    const rDims = rubricSpec ? Object.keys(rubricSpec).filter(k => /^[A-Z][0-9]$/.test(k)).length : 0;
+    const rThr = rubricSpec ? Object.values(rubricSpec).reduce((n, d) => n + (d && d.thresholds ? Object.keys(d.thresholds).length : 0), 0) : 0;
+    const rPages = (rubricBoard && rubricBoard.summary) ? (rubricBoard.summary.measuredPages || 0) : 0;
+    const rMean = (rubricBoard && rubricBoard.summary && rubricBoard.summary.mean != null) ? rubricBoard.summary.mean : '?';
     const card = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--wh-radius,12px);padding:12px 14px;';
     const bar = 'height:6px;border-radius:var(--wh-radius-pill, 999px);background:rgba(255,255,255,0.08);overflow:hidden;margin-top:8px;';
     axesEl.innerHTML =
@@ -119,6 +126,7 @@
         '<div style="' + card + '"><strong>Axis 2 · Purity: ' + pPct + '%</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the canonical itself built from tokens? <b>' + pure + '/' + total + '</b> shared-chrome files pure · <b>' + impure + '</b> raw brand literals.</p><div style="' + bar + '"><div style="height:100%;width:' + pPct + '%;background:var(--wh-green,#4ade80)"></div></div></div>' +
         '<div style="' + card + '"><strong>Axis 3 · Pattern: 4/4</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Are behaviours centralized? <code>wh-patterns.js</code>: launchPanel · clickOutside · revealVia · capPanel.</p></div>' +
         '<div style="' + card + '"><strong>Storage-key SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))"><b>' + canon + '</b> canonical keys · <b>' + aliases + '</b> drift-aliases tracked (<code>storage_key_registry.json</code>).</p></div>' +
+        '<div style="' + card + '"><strong>UFAI Rubric SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the RULER itself centralized? <b>' + rDims + '</b> dims + <b>' + rThr + '</b> thresholds in one <code>ufai-rubric-spec.json</code>; the lens + battery single-source their floors from gate-locked mirror blocks (<code>rubric-parity</code> gate). <b>' + rPages + '/32</b> pages swept · mean <b>' + rMean + '</b>.</p></div>' +
       '</div></section>';
   })();
 

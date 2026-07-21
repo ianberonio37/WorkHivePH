@@ -33,8 +33,20 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 G = "\033[92m"; R = "\033[91m"; B = "\033[1m"; X = "\033[0m"
 CHECK_NAMES = ["validate_marketplace_trust_integrity"]
 DB = "supabase_db_workhive"
-WORKER_UID = "4153311f-624d-4ec0-b509-e69cb5a8f4cd"   # Bryan Garcia (worker/buyer)
-HIVE = "636cf7e8-431a-4907-8a9f-43dd4cc216d6"          # Baguio Textile Mills
+# Bryan Garcia (worker/buyer) — uid + hive RESOLVED at runtime (test_identity pattern; a reseed
+# re-mints both, and a pinned pair rots into RLS 0-rows = vacuous pass). Literals = fallback only.
+def _resolve_worker():
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _s.path.insert(0, str(_P(__file__).resolve().parent / "lib"))
+        from test_identity import resolve_test_identity
+        i = resolve_test_identity("bryangarcia@auth.workhiveph.com")
+        return i.user_id, i.hive_id
+    except Exception:
+        return ("4153311f-624d-4ec0-b509-e69cb5a8f4cd",   # uid fallback (stale-known)
+                "636cf7e8-431a-4907-8a9f-43dd4cc216d6")   # hive fallback (stale-known)
+WORKER_UID, HIVE = _resolve_worker()
 
 # Each check: a rolled-back psql script; PASS iff `expect` substring appears in the output.
 JWT = ("set local role authenticated;\n"

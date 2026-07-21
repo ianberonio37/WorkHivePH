@@ -45,34 +45,36 @@ export type FlagshipSpec = {
   endTagline: string; endSub: string; endCta: string;
 };
 
-// The hand-tuned flagship (idea: "the breakdown nobody caught") = the default + the
-// living style reference. The Python driver overrides this per video idea.
+// The living style reference + fallback (idea: "access your memory"). On-brand per
+// CONTENT_MESSAGING_RESEARCH: memory/build-your-own-AI/save-time positioning, a fresh
+// curiosity hook (NOT 3AM), real screens, and ZERO invented tags (no TX-001). The
+// Python driver overrides this per video idea.
 export const DEFAULT_SPEC: FlagshipSpec = {
   hook: [
-    {text: '3AM.', size: 150, weight: 900},
-    {text: 'The line just stopped.', size: 78},
-    {text: 'Again.', size: 88, weight: 900, color: 'orange'},
+    {text: 'You already', size: 92},
+    {text: 'solved this.', size: 150, weight: 900},
+    {text: 'Can you remember how?', size: 72, color: 'orange', accentWords: ['remember']},
   ],
   stakes: [
-    {text: 'No warning.', size: 84},
-    {text: 'No history.', size: 84},
-    {text: 'A whole shift, gone.', size: 70, color: 'steel', accentWords: ['gone']},
+    {text: 'Your best fixes', size: 84},
+    {text: 'live in your head.', size: 84},
+    {text: 'Until they walk out the door.', size: 60, color: 'steel', accentWords: ['walk', 'out']},
   ],
   reveal: {
-    caption: 'WorkHive saw it coming.', accent: ['WorkHive'], screen: 'wh_home_clean.png',
-    flagTitle: 'Critical Risk · Today', flagSub: 'TX-001 · 96% · MTBF 9d', flagColor: 'orange', flagSide: 'left',
+    caption: 'Build your own AI.', accent: ['your', 'AI'], screen: 'wh_assistant_fresh.png',
+    flagTitle: 'Your AI, your plant', flagSub: 'Learns your hive, not the web', flagColor: 'orange', flagSide: 'right',
   },
   plan: {
-    caption: 'Fix it on your schedule.', accent: ['your', 'schedule'], screen: 'wh_analytics_clean.png',
-    flagTitle: 'OEE · World Class', flagSub: '87% · ISO 22400', flagColor: 'blue', flagSide: 'right',
+    caption: 'It remembers, so you don\'t.', accent: ['remembers'], screen: 'wh_logbook_clean.png',
+    flagTitle: 'Every fix, kept', flagSub: 'Found again in one tap', flagColor: 'blue', flagSide: 'left',
   },
   payoff: [
-    {text: 'Less downtime.', size: 86},
-    {text: 'Longer asset life.', size: 86, color: 'orange'},
-    {text: 'Lower cost.', size: 86, color: 'blue'},
+    {text: 'Never lose a fix again.', size: 78},
+    {text: 'An AI that\'s truly yours.', size: 78, color: 'orange'},
+    {text: 'Hours back, every week.', size: 74, color: 'blue'},
   ],
-  endTagline: 'Built for the plant floor.',
-  endSub: 'Free. Mobile-first. Philippines.',
+  endTagline: 'Access your memory.',
+  endSub: 'Free · mobile-first · for every Filipino worker',
   endCta: 'workhiveph.com · start free',
 };
 
@@ -198,18 +200,109 @@ const Flag: React.FC<{title: string; sub: string; delay: number; color?: string;
 };
 
 // ════════════════════════════════════════════════════════════
+//  WorkHive AI Companion — the animated guide/mascot (on-brand, pure SVG,
+//  no new deps). A glowing hive-cell face: blink + look + smile, an antenna
+//  spark, a pulsing halo. Moods: greet | idle | think | happy.
+//  Research (CONTENT_MESSAGING_RESEARCH §2): character-driven explainers lift
+//  watch-time, retention, recall & brand identity. The worker is the HERO;
+//  this companion is the GUIDE (StoryBrand). It supplements the loved product
+//  screenshots — it never replaces them.
+// ════════════════════════════════════════════════════════════
+type Mood = 'greet' | 'idle' | 'think' | 'happy';
+
+const Companion: React.FC<{
+  size: number; delay?: number; mood?: Mood; look?: number; thinkUntil?: number;
+}> = ({size, delay = 0, mood = 'idle', look = 0, thinkUntil = 0}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const local = frame - delay;
+  const f = Math.max(0, local);
+  const s = spring({frame: local, fps, config: {damping: 12, stiffness: 120, mass: 0.7}});
+  const pop = interpolate(s, [0, 1], [0.35, 1]);
+  const bob = Math.sin(f * 0.09) * size * 0.022;      // gentle idle float
+  const tilt = Math.sin(f * 0.055) * 2.4;             // subtle wobble
+  const blink = f % 82 < 4 ? 0.12 : 1;                // blink ~every 2.7s
+  const glow = 0.55 + 0.45 * Math.sin(f * 0.13);
+  const m: Mood = thinkUntil > 0 ? (local < thinkUntil ? 'think' : 'happy') : mood;
+  const eyeDX = look * 4.5;                            // pupils track the product
+  const isHappy = m === 'happy' || m === 'greet';
+  const W = size, H = size * 1.4;
+  const pupilR = blink > 0.5 ? 3.4 : 0.7;
+  return (
+    <div style={{position: 'relative', width: W, height: H, opacity: s,
+      transform: `translateY(${bob}px) rotate(${tilt}deg) scale(${pop})`}}>
+      {/* pulsing halo */}
+      <div style={{position: 'absolute', left: '50%', top: '52%', width: W * 1.5, height: W * 1.5,
+        transform: 'translate(-50%,-50%)', borderRadius: '50%', filter: `blur(${W * 0.09}px)`,
+        background: `radial-gradient(circle, ${ORANGE}${isHappy ? '88' : '55'}, transparent 66%)`,
+        opacity: 0.45 + 0.4 * glow}} />
+      <svg width={W} height={H} viewBox="0 -20 100 140" style={{position: 'relative', overflow: 'visible'}}>
+        <defs>
+          <linearGradient id="whc-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#22344e" />
+            <stop offset="1" stopColor="#111d2e" />
+          </linearGradient>
+          <radialGradient id="whc-cheek" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stopColor={ORANGE} stopOpacity="0.55" />
+            <stop offset="1" stopColor={ORANGE} stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {/* antenna spark (the "AI") */}
+        <line x1="50" y1="2" x2="50" y2="-11" stroke={ORANGE} strokeWidth="2.4" strokeLinecap="round" />
+        <circle cx="50" cy="-14" r="8" fill="none" stroke={ORANGE} strokeWidth="1.4" opacity={0.25 + 0.5 * glow} />
+        <circle cx="50" cy="-14" r="4.6" fill={ORANGE_LT} />
+        {/* hive-cell body */}
+        <polygon points="50,4 92,29 92,86 50,111 8,86 8,29" fill="url(#whc-body)"
+          stroke={ORANGE} strokeWidth="2.6" strokeLinejoin="round" />
+        <polygon points="50,12 85,32 85,83 50,103 15,83 15,32" fill="none"
+          stroke={BLUE} strokeWidth="1.1" opacity="0.35" />
+        {/* cheeks */}
+        <circle cx="30" cy="66" r="9" fill="url(#whc-cheek)" opacity={isHappy ? 1 : 0.5} />
+        <circle cx="70" cy="66" r="9" fill="url(#whc-cheek)" opacity={isHappy ? 1 : 0.5} />
+        {/* eyes */}
+        <ellipse cx="37" cy="52" rx="8" ry={9 * blink} fill={CLOUD} />
+        <ellipse cx="63" cy="52" rx="8" ry={9 * blink} fill={CLOUD} />
+        <circle cx={37 + eyeDX} cy="53" r={pupilR} fill="#0f1a29" />
+        <circle cx={63 + eyeDX} cy="53" r={pupilR} fill="#0f1a29" />
+        <circle cx={35.2 + eyeDX} cy="50.4" r="1.5" fill="#fff" opacity={blink > 0.5 ? 0.9 : 0} />
+        <circle cx={61.2 + eyeDX} cy="50.4" r="1.5" fill="#fff" opacity={blink > 0.5 ? 0.9 : 0} />
+        {/* mouth by mood */}
+        {m === 'think' ? (
+          <circle cx="50" cy="75" r="3.2" fill="none" stroke={CLOUD} strokeWidth="2.2" />
+        ) : isHappy ? (
+          <path d="M 39 71 Q 50 86 61 71 Q 50 77 39 71 Z" fill={ORANGE_LT} stroke={ORANGE}
+            strokeWidth="1.4" strokeLinejoin="round" />
+        ) : (
+          <path d="M 41 72 Q 50 79 59 72" fill="none" stroke={CLOUD} strokeWidth="2.6" strokeLinecap="round" />
+        )}
+      </svg>
+      {/* thinking dots */}
+      {m === 'think' && (
+        <div style={{position: 'absolute', left: '63%', top: 0, display: 'flex', gap: W * 0.035}}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{width: W * 0.055, height: W * 0.055, borderRadius: '50%', background: ORANGE_LT,
+              opacity: 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(f * 0.3 - i * 1.1))}} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ════════════════════════════════════════════════════════════
 //  Beats
 // ════════════════════════════════════════════════════════════
 const center: React.CSSProperties = {alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 80px'};
 
 const Hook: React.FC<{lines: Line[]}> = ({lines}) => {
-  const frame = useCurrentFrame();
-  const pulse = 0.5 + 0.5 * Math.sin(frame * 0.4);
+  const {isLand, isSquare} = useLayout();
+  const cSize = isLand ? 208 : isSquare ? 240 : 300;
+  // Face on the first frame = a pattern-interrupt + face-close-up hook (§1),
+  // and it introduces the mascot that closes the loop on the end card.
   return (
-    <AbsoluteFill style={center}>
-      <div style={{position: 'absolute', top: '32%', width: 300, height: 300, borderRadius: '50%',
-        border: `2px solid ${RED}`, opacity: 0.18 + 0.18 * pulse, transform: `scale(${1 + pulse * 0.25})`}} />
-      <Lines lines={lines} gap={18} step={13} base={4} />
+    <AbsoluteFill style={{...center, gap: isLand ? 4 : 20}}>
+      <Companion size={cSize} mood="greet" delay={0} />
+      <Lines lines={lines} gap={16} step={13} base={10} />
     </AbsoluteFill>
   );
 };
@@ -218,7 +311,7 @@ const Stakes: React.FC<{lines: Line[]}> = ({lines}) => (
   <AbsoluteFill style={center}><Lines lines={lines} gap={22} step={12} /></AbsoluteFill>
 );
 
-const ProductBeat: React.FC<{data: ProductSpec; localDur: number}> = ({data, localDur}) => {
+const ProductBeat: React.FC<{data: ProductSpec; localDur: number; thinkUntil?: number}> = ({data, localDur, thinkUntil = 0}) => {
   const {isLand, isSquare} = useLayout();
   const phoneW = isLand ? 392 : isSquare ? 346 : 486;
   const flagTop = phoneW * (data.screen.includes('analytics') ? 0.6 : 0.5);
@@ -226,6 +319,19 @@ const ProductBeat: React.FC<{data: ProductSpec; localDur: number}> = ({data, loc
   const flag = (
     <Flag title={data.flagTitle} sub={data.flagSub} delay={42} color={color}
       style={data.flagSide === 'left' ? {left: -36, top: flagTop} : {right: isLand ? -20 : -26, top: flagTop}} />
+  );
+  // AI companion sits on the side OPPOSITE the flag and looks at the screen —
+  // the guide walking the worker through the product (never covering it).
+  const compSide: 'left' | 'right' = data.flagSide === 'left' ? 'right' : 'left';
+  const cSize = isLand ? 136 : isSquare ? 140 : 152;
+  const compStyle: React.CSSProperties = compSide === 'left'
+    ? {position: 'absolute', left: -cSize * 0.5, bottom: -cSize * 0.16, zIndex: 3}
+    : {position: 'absolute', right: -cSize * 0.5, bottom: -cSize * 0.16, zIndex: 3};
+  const companion = (
+    <div style={compStyle}>
+      <Companion size={cSize} delay={30} mood="happy" thinkUntil={thinkUntil}
+        look={compSide === 'left' ? 1 : -1} />
+    </div>
   );
   if (isLand) {
     return (
@@ -236,6 +342,7 @@ const ProductBeat: React.FC<{data: ProductSpec; localDur: number}> = ({data, loc
         <div style={{position: 'relative'}}>
           <Phone src={data.screen} width={phoneW} localDur={localDur} />
           {flag}
+          {companion}
         </div>
       </AbsoluteFill>
     );
@@ -247,6 +354,7 @@ const ProductBeat: React.FC<{data: ProductSpec; localDur: number}> = ({data, loc
       <div style={{position: 'relative', marginTop: isSquare ? 26 : 40}}>
         <Phone src={data.screen} width={phoneW} localDur={localDur} />
         {flag}
+        {companion}
       </div>
     </AbsoluteFill>
   );
@@ -255,12 +363,14 @@ const ProductBeat: React.FC<{data: ProductSpec; localDur: number}> = ({data, loc
 const Payoff: React.FC<{lines: Line[]}> = ({lines}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const {isPort} = useLayout();
   const hex = spring({frame: frame - 4, fps, config: {damping: 18, stiffness: 80}});
   return (
-    <AbsoluteFill style={center}>
+    <AbsoluteFill style={{...center, gap: isPort ? 22 : 12}}>
       <svg width={300} height={348} viewBox="0 0 100 116" fill="none" stroke={ORANGE} strokeWidth="2.4"
         style={{position: 'absolute', opacity: 0.12 * hex, transform: `scale(${interpolate(hex, [0, 1], [0.6, 1])})`}}>
         <polygon points={HEX} /></svg>
+      <Companion size={isPort ? 148 : 124} mood="happy" delay={6} />
       <Lines lines={lines} gap={20} step={16} />
     </AbsoluteFill>
   );
@@ -269,10 +379,13 @@ const Payoff: React.FC<{lines: Line[]}> = ({lines}) => {
 const EndCard: React.FC<{tagline: string; sub: string; cta: string}> = ({tagline, sub, cta}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const {isLand} = useLayout();
   const logo = spring({frame, fps, config: {damping: 14, stiffness: 110, mass: 0.8}});
   const ctaS = spring({frame: frame - 26, fps, config: {damping: 15, stiffness: 130}});
   return (
     <AbsoluteFill style={center}>
+      {/* mascot closes the loop it opened in the hook (loop-completion, §1/§9) */}
+      <div style={{marginBottom: 4}}><Companion size={isLand ? 146 : 184} mood="happy" delay={2} /></div>
       <Img src={staticFile('workhive-logo-tight.png')}
         style={{width: 460, opacity: logo, transform: `scale(${interpolate(logo, [0, 1], [0.8, 1])})`,
           filter: 'drop-shadow(0 10px 30px rgba(247,162,27,.3))'}} />
@@ -304,7 +417,7 @@ export const FlagshipReel: React.FC<Partial<FlagshipSpec>> = (props) => {
         <TransitionSeries.Transition presentation={fade()} timing={fadeT} />
         <TransitionSeries.Sequence durationInFrames={BEAT.stakes}><Stakes lines={spec.stakes} /></TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({direction: 'from-bottom'})} timing={springT} />
-        <TransitionSeries.Sequence durationInFrames={BEAT.reveal}><ProductBeat data={spec.reveal} localDur={BEAT.reveal} /></TransitionSeries.Sequence>
+        <TransitionSeries.Sequence durationInFrames={BEAT.reveal}><ProductBeat data={spec.reveal} localDur={BEAT.reveal} thinkUntil={66} /></TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({direction: 'from-right'})} timing={springT} />
         <TransitionSeries.Sequence durationInFrames={BEAT.plan}><ProductBeat data={spec.plan} localDur={BEAT.plan} /></TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={fadeT} />

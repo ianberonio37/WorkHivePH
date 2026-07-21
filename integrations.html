@@ -1067,13 +1067,19 @@
     }
     // Default: work_order
     const rawStatus  = get(_mapping.status);
-    const normStatus = STATUS_NORM[_systemType]?.[rawStatus] || rawStatus || 'Open';
+    // external_sync.status CHECK allows only Open/Closed/Cancelled — an unmapped raw code
+    // passed through as-is 23514-rejects the WHOLE 500-row chunk (live-proven), so clamp:
+    // canonicalize case variants, everything else falls back to 'Open'. The raw code is
+    // preserved in status_raw -> sync_payload, so no source truth is lost.
+    const mappedStatus = STATUS_NORM[_systemType]?.[rawStatus] || rawStatus || 'Open';
+    const normStatus = { open:'Open', closed:'Closed', cancelled:'Cancelled' }[String(mappedStatus).toLowerCase()] || 'Open';
     const rawType    = get(_mapping.maintenance_type);
     const normType   = TYPE_NORM[_systemType]?.[rawType] || rawType || 'Breakdown / Corrective';
     return {
       external_id:      get(_mapping.external_id),
       machine:          get(_mapping.machine),
       status:           normStatus,
+      status_raw:       rawStatus || null,
       maintenance_type: normType,
       problem:          get(_mapping.problem),
       root_cause:       get(_mapping.root_cause),
@@ -1105,10 +1111,10 @@
       if (rawStatusCol) {
         const unknownStatus = _csvRows.filter(r => {
           const raw = String(r[rawStatusCol] || '').trim();
-          return raw && !knownStatuses.has(raw) && !['Open','Closed','Cancelled'].includes(raw);
+          return raw && !knownStatuses.has(raw) && !['open','closed','cancelled'].includes(raw.toLowerCase());
         });
         if (unknownStatus.length)
-          issues.push({ level: 'warn', msg: `${unknownStatus.length} rows have unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); they will import as-is, not normalized` });
+          issues.push({ level: 'warn', msg: `${unknownStatus.length} rows have unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); they will import with status "Open" (the original code is kept in the sync record)` });
       }
       const noMachine = allNorm.filter(r => r.external_id && !r.machine).length;
       if (noMachine)
@@ -1213,23 +1219,24 @@
           problem:          r.problem || 'Imported from CMMS',
           action:           r.action  || '',
           knowledge:        r.root_cause || '',
-          status:           r.status,
+          // logbook_status_check allows only Open/Closed/Resolved — a 'Cancelled' WO (valid
+          // for external_sync) 23514-kills the whole chunk's logbook insert (live-proven);
+          // record it as Closed here, the sync record keeps the true 'Cancelled'.
+          status:           r.status === 'Cancelled' ? 'Closed' : r.status,
           created_at:       r.created_at || now,
           maintenance_type: r.maintenance_type,
           root_cause:       r.root_cause || '',
           downtime_hours:   r.actual_hours || 0,
           hive_id:          HIVE_ID,
-          closed_at:        r.status === 'Closed' ? (r.closed_at || now) : null,
+          closed_at:        r.status !== 'Open' ? (r.closed_at || now) : null,
           parts_used:       [],
         }));
 
-      const fkRows = logRows
-        .filter(r => r.problem || r.action || r.knowledge)
-        .map(r => ({
-          hive_id: HIVE_ID, machine: r.machine, category: r.category,
-          problem: r.problem || null, root_cause: r.root_cause || null,
-          action: r.action || null, knowledge: null, worker_name: WORKER_NAME,
-        }));
+      // fault_knowledge is NOT written here: it is client-INSERT-LOCKED (RLS CHECK false, mig
+      // 20260513000003). The embed-logbook AFTER-INSERT trigger already routes every imported
+      // logbook row through the embed-entry edge fn (service-role), which writes fault_knowledge
+      // WITH its embedding + logbook_id upsert key — a direct client insert silently failed AND
+      // would have added unembedded duplicate rows to the RAG index.
 
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);
@@ -1237,11 +1244,15 @@
         document.getElementById('progress-label').textContent = whFmtNum(i) + ' of ' + whFmtNum(total) + ' rows...';
         const sBatch = syncRows.slice(i, i + CHUNK);
         const lBatch = logRows.slice(i, i + CHUNK);
-        const fBatch = fkRows.slice(i, i + CHUNK);
         try {
-          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
-          if (lBatch.length) await db.from('logbook').insert(lBatch);
-          if (fBatch.length) await db.from('fault_knowledge').insert(fBatch);
+          // supabase-js does NOT throw on API errors — without the .error checks the catch below
+          // is dead code and a failed chunk is silently counted as imported.
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          if (sErr) throw sErr;
+          if (lBatch.length) {
+            const { error: lErr } = await db.from('logbook').insert(lBatch);
+            if (lErr) throw lErr;
+          }
           imported += sBatch.length;
         } catch (e) {
           console.error('batch error:', e);
@@ -1277,8 +1288,10 @@
         const sBatch = syncRows.slice(i, i + CHUNK);
         const aBatch = assetRows.slice(i, i + CHUNK);
         try {
-          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
-          await db.from('asset_nodes').upsert(aBatch, { onConflict: 'hive_id,tag' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          if (sErr) throw sErr;
+          const { error: aErr } = await db.from('asset_nodes').upsert(aBatch, { onConflict: 'hive_id,tag' });
+          if (aErr) throw aErr;
           imported += sBatch.length;
         } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
       }
@@ -1295,7 +1308,8 @@
         const sBatch = syncRows.slice(i, i + CHUNK);
         const rBatch = validRows.slice(i, i + CHUNK);
         try {
-          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          if (sErr) throw sErr;
           const pmRows = rBatch.map(r => ({
             hive_id:          HIVE_ID,
             worker_name:      WORKER_NAME,
@@ -1307,7 +1321,8 @@
             criticality:      'Major',
             last_anchor_date: r.last_done || now.slice(0, 10),
           }));
-          const { data: inserted } = await db.from('pm_assets').insert(pmRows).select('id');
+          const { data: inserted, error: pmErr } = await db.from('pm_assets').insert(pmRows).select('id');
+          if (pmErr) throw pmErr;
           if (inserted?.length) {
             const scopeRows = inserted.map((pm, idx) => ({
               asset_id:    pm.id,
@@ -1352,8 +1367,10 @@
         const sBatch = syncRows.slice(i, i + CHUNK);
         const vBatch = invRows.slice(i, i + CHUNK);
         try {
-          await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
-          await db.from('inventory_items').upsert(vBatch, { onConflict: 'part_number,hive_id' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          if (sErr) throw sErr;
+          const { error: vErr } = await db.from('inventory_items').upsert(vBatch, { onConflict: 'part_number,hive_id' });
+          if (vErr) throw vErr;
           imported += sBatch.length;
         } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
       }

@@ -1,0 +1,32 @@
+{
+  "stale": 31,
+  "files": [
+    ".tmp_overflow_probe3.mjs",
+    "_ah_probe.mjs",
+    "tools\\arc_u_focus_trap_probe.mjs",
+    "tools\\arc_u_full_impact_scan.mjs",
+    "tools\\b3_diagnostic.mjs",
+    "tools\\cls_attribution.mjs",
+    "tools\\cls_diagnostic.mjs",
+    "tools\\cls_reserve_probe.mjs",
+    "tools\\cls_top_probe.mjs",
+    "tools\\collision_shot.mjs",
+    "tools\\f1_debug.mjs",
+    "tools\\flip_debug.mjs",
+    "tools\\frontend_a1_responsive.mjs",
+    "tools\\frontend_i6_secrets.mjs",
+    "tools\\lcp_probe.mjs",
+    "tools\\live_page_journeys.registry.mjs",
+    "tools\\overlay_rubric_sweep.mjs",
+    "tools\\perf_scale_sweep.mjs",
+    "tools\\r1_gap_diagnostic.mjs",
+    "tools\\r3_diagnostic.mjs",
+    "tools\\read_correctness_probe.mjs",
+    "tools\\render_sweep.mjs",
+    "tools\\state_probe.mjs",
+    "tools\\validate_hive_battery.mjs",
+    "tools\\validate_narrative_grounding.py",
+    "tools\\validate_page_crud.mjs",
+    "tools\\validate_read_battery.mjs"
+  ]
+}

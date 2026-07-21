@@ -48,10 +48,17 @@ ROOT = Path(__file__).resolve().parent.parent
 BASE = "http://127.0.0.1:54321"
 PYAPI = "http://127.0.0.1:8000"   # FastAPI compute API (TTS for the H4/F transcription round-trip)
 # HIVE must be the hive the CREDS persona is an ACTIVE member of, else ai-gateway et al reject the
-# claimed hive_id with 403 tenancy_denied (index.ts ~L799). The seeder re-assigns memberships, so
-# this is derived, not guessed: leandromarquez is active supervisor of c19a6094 "Baguio Textile
-# Mills" (verified via hive_members 2026-07-08). A stale HIVE here 403s EVERY live probe.
-HIVE = "c19a6094-a0b7-44b4-b18d-05fdbcfe78fe"
+# claimed hive_id with 403 tenancy_denied (index.ts ~L799). 2026-07-21: even "verified-then-pinned"
+# rots (c19a6094 was verified 2026-07-08 and was dead by 07-21) — so RESOLVE at runtime from the
+# live hive_members row (test_identity pattern); the literal is only the last-resort fallback.
+def _resolve_hive() -> str:
+    try:
+        sys.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        return resolve_test_identity("leandromarquez@auth.workhiveph.com").hive_id
+    except Exception:
+        return "c19a6094-a0b7-44b4-b18d-05fdbcfe78fe"   # hive fallback (stale-known)
+HIVE = _resolve_hive()
 CREDS = {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234"}
 REPORT = ROOT / "ai_live_invoke_results.json"
 

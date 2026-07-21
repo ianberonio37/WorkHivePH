@@ -48,10 +48,27 @@ GREEN="\033[92m"; RED="\033[91m"; YEL="\033[93m"; CYAN="\033[96m"; BOLD="\033[1m
 
 USERS = {
     "leandro": {"email": "leandromarquez@auth.workhiveph.com", "password": "test1234",
+                # hive fallback only — _refresh_user_hives() overwrites from the live membership
                 "hive_id": "9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7", "worker": "Leandro Marquez", "persona": "zaniah"},
     "pablo":   {"email": "pabloaguilar@auth.workhiveph.com", "password": "test1234",
+                # hive fallback only — _refresh_user_hives() overwrites from the live membership
                 "hive_id": "3792d7f0-59e2-42e6-b04f-6e6ef4e4713d", "worker": "Pablo Aguilar", "persona": "hezekiah"},
 }
+# hive_ids above are stale-known FALLBACKS — resolve each persona's REAL hive at import from
+# the live hive_members row (test_identity pattern; pins rot across reseeds → 403 not_a_member).
+def _refresh_user_hives() -> None:
+    try:
+        import sys as _s
+        _s.path.insert(0, str(ROOT / "tools" / "lib"))
+        from test_identity import resolve_test_identity
+        for u in USERS.values():
+            try:
+                u["hive_id"] = resolve_test_identity(u["email"], u["password"]).hive_id
+            except Exception:
+                pass   # keep the fallback for this persona
+    except Exception:
+        pass
+_refresh_user_hives()
 
 # Asset tags that exist in NO hive — used to bait the asset-existence guard.
 FAKE_ASSETS = ["P-203", "P-101", "C-01", "AC-099", "BLR-404", "CHILLER-7", "PUMP-X", "MTR-50", "COMP-3", "GEN-77"]

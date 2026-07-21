@@ -29,7 +29,7 @@ import { writeFileSync, readFileSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'pabloaguilar@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
-const HIVE = process.env.WH_TEST_HIVE || 'c9def338-fd73-4b19-8ef1-ee57625953d6';
+const HIVE = process.env.WH_TEST_HIVE || 'c9def338-fd73-4b19-8ef1-ee57625953d6'; // hive fallback only — signIn resolves live membership
 const WORKER = process.env.WH_TEST_WORKER || 'Pablo Aguilar';
 
 // Deep-link state a page's REAL use requires (never measure a bounced shell).
@@ -78,7 +78,17 @@ async function signInOnce(context) {
     try {
       const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY);
       const { data, error } = await db.auth.signInWithPassword({ email, password });
-      localStorage.setItem('wh_active_hive_id', hive);
+      // resolve the REAL hive from the live membership (test_identity pattern) — a stale
+      // pinned hive makes membership-gated pages render "needs a hive" and the rubric
+      // would grade THAT state (the Arc-W asset-hub false-regression class).
+      let realHive = hive;
+      try {
+        const uid = data?.session?.user?.id;
+        const { data: mem } = uid ? await db.from('hive_members').select('hive_id')
+          .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
+        if (mem && mem.hive_id) realHive = mem.hive_id;
+      } catch (_) { /* keep fallback */ }
+      localStorage.setItem('wh_active_hive_id', realHive);
       localStorage.setItem('wh_last_worker', worker);
       // pabloaguilar IS a supervisor on this hive — set the role the gated pages read
       // (audit-log/integrations/marketplace-admin gate on wh_hive_role !== 'supervisor'),

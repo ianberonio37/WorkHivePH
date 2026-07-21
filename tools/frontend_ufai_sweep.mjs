@@ -28,7 +28,7 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'leandromarquez@auth.workhiveph.com';
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
-const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // Baguio Textile Mills
+const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // hive fallback only — signIn resolves live membership
 const WORKER = process.env.WH_TEST_WORKER || 'Leandro Marquez'; // display_name; set so WORKER_NAME-gated pages (marketplace-seller) render instead of the auth gate
 // Pages whose REAL use requires a query param (deep-link) — measure them in that state,
 // not their empty/bounced no-param default. marketplace-seller-profile reads ?worker=<seller>.
@@ -510,7 +510,15 @@ async function signInOnce(context) {
     try {
       const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY);
       const { data, error } = await db.auth.signInWithPassword({ email, password });
-      localStorage.setItem('wh_active_hive_id', hive);
+      // resolve the REAL hive from the live membership (test_identity pattern; pins rot)
+      let realHive = hive;
+      try {
+        const uid = data?.session?.user?.id;
+        const { data: mem } = uid ? await db.from('hive_members').select('hive_id')
+          .eq('auth_uid', uid).eq('status', 'active').limit(1).maybeSingle() : { data: null };
+        if (mem && mem.hive_id) realHive = mem.hive_id;
+      } catch (_) { /* keep fallback */ }
+      localStorage.setItem('wh_active_hive_id', realHive);
       localStorage.setItem('wh_last_worker', worker); // so WORKER_NAME-gated pages (marketplace-seller) render their dashboard, not the auth gate
       return { ok: !error && !!data?.session, err: error ? String(error.message || error) : null };
     } catch (e) { return { ok: false, err: String(e) }; }

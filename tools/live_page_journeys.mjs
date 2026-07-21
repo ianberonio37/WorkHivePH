@@ -63,7 +63,7 @@ const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
 // accounts (leandromarquez + bryangarcia) are members of 636cf7e8, NOT 9b4eaeac. The stale default made
 // every gate using this recipe get RLS 0-rows → scan EMPTY pages (false confidence). 636cf7e8 = the real
 // Baguio Textile Mills hive both accounts belong to.
-const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // Baguio Textile Mills (real)
+const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // hive fallback only — signIn resolves live membership
 const ACCOUNTS = {
   supervisor: { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234', worker: 'Leandro Marquez' },
   worker: { email: 'bryangarcia@auth.workhiveph.com', pw: 'test1234', worker: 'Bryan Garcia' },
@@ -137,24 +137,55 @@ async function signIn(context, role) {
     try {
       const db = window._whSupabaseClient || window.getDb(url, window.SUPABASE_KEY);
       const { data, error } = await db.auth.signInWithPassword({ email, password });
+      // RESOLVE the hive from the DB membership SSOT, don't assert it (2026-07-21).
+      // The hardcoded HIVE constant drifted from the reseeded DB (accounts moved to another
+      // hive), so every journey stamped a hive the account is NOT a member of → RLS returned
+      // 0 rows → pages showed the "needs a hive" gate and the Arc-W probe read cards 0
+      // (a false focal regression on asset-hub). The DB is the membership SSOT — read it;
+      // the passed constant is only the fallback if the lookup fails.
+      let realHive = hive, realWorker = worker, realName = hiveName, realUid = null;
+      try {
+        const uid = data?.session?.user?.id;
+        realUid = uid || null;
+        if (uid) {
+          const { data: mem } = await db.from('hive_members')
+            .select('hive_id, worker_name, status').eq('auth_uid', uid).eq('status', 'active')
+            .limit(1).maybeSingle();
+          if (mem && mem.hive_id) {
+            realHive = mem.hive_id;
+            realWorker = mem.worker_name || worker;
+            const { data: hv } = await db.from('hives').select('name').eq('id', mem.hive_id)
+              .limit(1).maybeSingle();
+            if (hv && hv.name) realName = hv.name;
+          }
+        }
+      } catch (_) { /* fall back to the passed constants */ }
       // seed the full home-authed identity so index.html's _showOpsHome path renders
       // the role launchpad (hive chip + supervisor/worker action branch) deterministically.
-      localStorage.setItem('wh_active_hive_id', hive);
-      localStorage.setItem('wh_last_worker', worker);
-      localStorage.setItem('wh_hive_name', hiveName);
+      localStorage.setItem('wh_active_hive_id', realHive);
+      localStorage.setItem('wh_last_worker', realWorker);
+      localStorage.setItem('wh_hive_name', realName);
       localStorage.setItem('wh_hive_role', role);
       if (role === 'supervisor') localStorage.setItem('wh_nav_mode', 'supervisor');
-      return { ok: !error && !!data?.session, err: error ? String(error.message || error) : null };
+      return { ok: !error && !!data?.session, hive: realHive, uid: realUid,
+               err: error ? String(error.message || error) : null };
     } catch (e) { return { ok: false, err: String(e) }; }
   }, { email: acct.email, password: acct.pw, hive: HIVE, worker: acct.worker, role, hiveName: 'Baguio Textile Mills', url: SUPABASE_URL });
   await page.close();
   return r;
 }
 
+// Per-role hive resolved at sign-in from the LIVE hive_members row (the .mjs mirror of
+// tools/lib/test_identity.py — "a hard-coded UUID is the bug"; reseed-proof).
+const RESOLVED_HIVES = {};
+const RESOLVED_UIDS = {};
+
 // ─── helpers handed to each journey's drive() — thin, observation-first ─────────
-function makeHelpers(page) {
+function makeHelpers(page, hive, uid) {
   return {
     page,
+    hive: hive || null,   // the signed-in role's REAL hive (DB membership SSOT); oracles use this
+    uid: uid || null,     // the signed-in role's REAL auth_uid (pinned uids rot across reseeds too)
     goto: async (pageFile, query = '') => {
       await page.goto(`${SEEDER}/workhive/${pageFile}${query}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.waitForTimeout(2500); // settle async render
@@ -266,7 +297,7 @@ function scoreJourney(v) {
 // ─── run one journey (context already signed-in for its role) ──────────────────
 async function runJourney(context, j, criticCache) {
   const page = await context.newPage();
-  const h = makeHelpers(page);
+  const h = makeHelpers(page, RESOLVED_HIVES[j.role] || HIVE, RESOLVED_UIDS[j.role] || null);
   let verdict = { R: null, J: null, T: null, C: null, X: null }, evidence = {}, jfindings = [], err = null;
   try {
     const out = await j.drive(page, h);
@@ -298,9 +329,44 @@ async function runJourney(context, j, criticCache) {
 // journey consumer — so the sign-in/helper/critic recipe has ONE source of truth (no drift).
 export { signIn, makeHelpers, runCritic, runJourney, scoreJourney, pageSlug, adminQuery, ACCOUNTS, SEEDER, SUPABASE_URL, HIVE, T_ATTRIBUTED, LENS_IDS };
 
+// ─── SERVICE PREFLIGHT (2026-07-21) — a dead service must never masquerade as journey
+// regressions. Runs #2/#3 read an identical 59/102 "regression" that was actually the edge
+// runtime container being DOWN (every fn 503 via Kong → every edge-touching J/T false-failed)
+// + the python-API socat forwarder exited (analytics "unavailable"). Check every backing
+// service BEFORE sign-in; a hard-down core service ABORTS (exit 3) so the run can't emit a
+// corrupted board. Override with --force-degraded to run anyway (recorded in the summary).
+async function preflight() {
+  const checks = {};
+  const httpCode = async (url, opts = {}) => {
+    try { const r = await fetch(url, { ...opts, signal: AbortSignal.timeout(6000) }); return r.status; }
+    catch (e) { return 0; }
+  };
+  checks.seeder = await httpCode(`${SEEDER}/workhive/index.html`);
+  checks.gotrue = await httpCode(`${SUPABASE_URL}/auth/v1/health`, { headers: { apikey: 'x' } });
+  // edge runtime: any fn responding NON-503 means Kong routes to a LIVE runtime (401/400 are fine)
+  checks.edge_fn = await httpCode(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  checks.python_api = await httpCode('http://127.0.0.1:8000/health');
+  const psql = adminQuery('SELECT 1;');
+  checks.db_psql = (psql === '1');
+  const bad = [];
+  if (!checks.seeder) bad.push('flask seeder :5000 unreachable');
+  if (!checks.gotrue) bad.push('supabase gotrue :54321 unreachable');
+  if (checks.edge_fn === 503 || checks.edge_fn === 0) bad.push(`edge runtime DOWN (fn probe ${checks.edge_fn}) — docker start supabase_edge_runtime_workhive`);
+  if (!checks.python_api) bad.push('python API :8000 down — docker start workhive_python_api_fwd (socat)');
+  if (!checks.db_psql) bad.push('docker psql failed — is supabase_db_workhive up?');
+  console.log(`[K] preflight: seeder ${checks.seeder} · gotrue ${checks.gotrue} · edge_fn ${checks.edge_fn} · python ${checks.python_api} · psql ${checks.db_psql}${bad.length ? '  ⚠ ' + bad.join(' | ') : '  ✓ all services live'}`);
+  return { checks, bad };
+}
+
 const __runArcK = async () => {
   let journeys = JOURNEYS.filter(j => (!PHASE_ONLY || j.phase === PHASE_ONLY) && (!PAGE_ONLY || j.page === PAGE_ONLY));
   if (!journeys.length) { console.error(`[K] no journeys match (phase=${PHASE_ONLY} page=${PAGE_ONLY}). Registered: ${JOURNEYS.length}`); process.exit(2); }
+
+  const pf = await preflight();
+  if (pf.bad.length && !args.includes('--force-degraded')) {
+    console.error(`[K] ABORT — ${pf.bad.length} backing service(s) down (a degraded run emits a FALSE board). Fix the services above or pass --force-degraded to run anyway.`);
+    process.exit(3);
+  }
 
   const browser = await chromium.launch({ headless: !HEADED });
   // one signed-in context per role used by the selected journeys
@@ -312,11 +378,14 @@ const __runArcK = async () => {
     // a day behind in the evening, breaking date-scoped journeys like the day planner).
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Manila' });
     const si = await signIn(ctx, role);
-    console.log(`[K] sign-in ${role.padEnd(11)}: ${si.ok ? (si.anon ? 'ANON (no session)' : 'OK') : 'FAIL ' + si.err}`);
+    if (si.hive) RESOLVED_HIVES[role] = si.hive;   // DB-truth hive for this role's oracles
+    if (si.uid) RESOLVED_UIDS[role] = si.uid;      // DB-truth auth_uid (probe-row inserts)
+    console.log(`[K] sign-in ${role.padEnd(11)}: ${si.ok ? (si.anon ? 'ANON (no session)' : 'OK') : 'FAIL ' + si.err}${si.hive ? ' hive ' + si.hive.slice(0, 8) : ''}`);
     contexts[role] = ctx;
   }
 
-  const out = { ran: new Date().toISOString(), seeder: SEEDER, hive: HIVE, journeys: [], findings: [] };
+  const out = { ran: new Date().toISOString(), seeder: SEEDER, hive: HIVE,
+                preflight: pf.checks, degraded: pf.bad, journeys: [], findings: [] };
   const criticCache = new Map();
   const allCritic = [];
   let nLive = 0, nApplicable = 0, nExternal = 0;
