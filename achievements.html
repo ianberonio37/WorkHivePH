@@ -965,7 +965,9 @@
     if (_acChip && typeof renderSourceChip === 'function') {
       _acChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: 'Live · refreshed on load',
-        source:    'worker_achievements + achievement_xp_log',
+        // 2026-07-22 MERGE (Ian: "merge to one chip"): folded the retired bottom #ach-source-chip's
+        // extra attribution (v_worker_truth) in here so provenance is stated ONCE.
+        source:    'worker_achievements + achievement_xp_log + v_worker_truth',
         notes:     [
           'XP this week: points earned in the last 7 days',
           'Total level: your levels added up across all domains (max 1,200 = 12 domains × level 100)',
@@ -1043,17 +1045,9 @@
 </script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
-<script>
-  // E3 provenance (FAMILY F3): sources = this page's verified reads.
-  window.addEventListener('load', function () {
-    var el = document.getElementById('ach-source-chip');
-    if (!el) { el = document.createElement('div'); el.id = 'ach-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
-    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-      freshness: 'Live · refreshed on load',
-      source: 'v_worker_achievements_truth + achievement_xp_log + v_worker_truth',
-    });
-  });
-</script>
+<!-- Bottom E3 provenance chip (#ach-source-chip) REMOVED 2026-07-22 (Ian: "merge to one chip"): it
+     duplicated the header #achievements-source-chip (both full-width "Live · … source" chips). Its
+     v_worker_truth attribution was folded into the header chip's source above. -->
 
 <script>window.WH_FIL_PAGE={ach_growth:'Paglago',ach_xpweek:'XP ngayong linggo',ach_activedom:'Aktibong domain',ach_totallvl:'Kabuuang level'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->

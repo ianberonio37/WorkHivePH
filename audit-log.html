@@ -440,15 +440,9 @@
   }
   await loadEntries();
   if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
-  // E3 provenance (FAMILY F3): sources verified from this page's own reads.
-  (function () {
-    var el = document.getElementById('al-source-chip');
-    if (!el) { el = document.createElement('div'); el.id = 'al-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f ? / f ||) */ (f ? f.parentElement : document.querySelector('.page')).insertBefore(el, f || null); }
-    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-      freshness: 'Live · refreshed on load + realtime',
-      source: 'hive_audit_log (every CRUD, approval and permission change)',
-    });
-  })();
+  // Bottom E3 provenance chip (#al-source-chip) REMOVED 2026-07-22 (Ian: "merge to one chip"): it
+  // duplicated the header #audit-source-chip — both full-width "Live · … · hive_audit_log" chips. The
+  // header chip already documents hive_audit_log (every CRUD, approval & permission change).
   subscribeRealtime();
 
   // ── Data load ──────────────────────────────────────────────────────────────
