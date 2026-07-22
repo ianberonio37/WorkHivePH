@@ -1,7 +1,7 @@
 {
- "generated": "2026-07-22T04:37:12+00:00",
- "coverage_pct": 96.6,
- "page_pct": 97.1,
+ "generated": "2026-07-22T05:08:41+00:00",
+ "coverage_pct": 96.7,
+ "page_pct": 97.2,
  "ai_surface_pct": 94.1,
  "surfaces": {
   "pages": 90,
@@ -23,7 +23,8 @@
   "D15",
   "D17",
   "D22",
-  "D23"
+  "D23",
+  "D21F"
  ],
  "ai_dims": [
   "D10",
@@ -35,12 +36,12 @@
   "D25",
   "D26"
  ],
- "cells_total": 1704,
+ "cells_total": 1794,
  "state_counts": {
-  "✅": 1111,
+  "✅": 1146,
   "🟡": 26,
   "⬜": 27,
-  "n/a": 540
+  "n/a": 595
  },
  "gate_floor": [
   "audit_displayed_values",
@@ -64,6 +65,7 @@
   "validate_dom_xss_fields",
   "validate_edge_observed_coverage",
   "validate_embedding_no_stale_duplicates",
+  "validate_error_capture",
   "validate_frontend_floor_cells",
   "validate_grounding_contract",
   "validate_indigenous_stack",
@@ -98,7 +100,7 @@
   "kind": "page",
   "dim": "D2",
   "dim_label": "data-integrity (the 11 DI write classes)",
-  "surface_pct": 93.8,
+  "surface_pct": 94.1,
   "open_dims": [
    "D2"
   ]
@@ -215,7 +217,6 @@
   "validate_engdesign_write_isolation",
   "validate_engdesign_xss",
   "validate_engines_live_value",
-  "validate_error_capture",
   "validate_export_value_contract",
   "validate_faithfulness_rail",
   "validate_family_rubric_ratchet",
@@ -301,7 +302,7 @@
  ],
  "newly_joined": [],
  "surface_set_hash": "9f26fa121503",
- "oracle_set_hash": "a37a355e1fa9",
+ "oracle_set_hash": "6c83a0bd71d8",
  "live_bonus": {
   "live_cells": 27,
   "live_cell_ids": [
@@ -418,6 +419,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "achievements|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "agentic-rag-observability|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -496,6 +502,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "agentic-rag-observability|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "ai-quality|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -572,6 +583,11 @@
   "ai-quality|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "ai-quality|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "alert-hub|D1": {
@@ -655,6 +671,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "alert-hub|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "analytics-report|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -731,6 +752,11 @@
   "analytics-report|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "analytics-report|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "analytics|D1": {
@@ -814,6 +840,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "analytics|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "architecture|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -891,6 +922,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "architecture|D21F": {
+   "state": "n/a"
   },
   "asset-hub|D1": {
    "state": "✅",
@@ -971,6 +1005,11 @@
   "asset-hub|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "asset-hub|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "assistant|D1": {
@@ -1054,6 +1093,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "assistant|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "audit-log|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1133,6 +1177,11 @@
   "audit-log|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "audit-log|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "community|D1": {
@@ -1216,6 +1265,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "community|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "dayplanner|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1297,6 +1351,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "dayplanner|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "design-system|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1373,6 +1432,11 @@
   "design-system|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "design-system|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "engineering-design|D1": {
@@ -1453,6 +1517,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "engineering-design|D21F": {
+   "state": "n/a"
+  },
   "founder-console|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1532,6 +1599,11 @@
   "founder-console|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "founder-console|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "hive|D1": {
@@ -1615,6 +1687,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "hive|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "index|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1694,6 +1771,11 @@
   "index|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "index|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "integrations|D1": {
@@ -1777,6 +1859,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "integrations|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "inventory|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1858,6 +1945,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "inventory|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "llm-observability|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -1935,6 +2027,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "llm-observability|D21F": {
+   "state": "n/a"
   },
   "logbook|D1": {
    "state": "✅",
@@ -2015,6 +2110,11 @@
   "logbook|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "logbook|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "marketplace-admin|D1": {
@@ -2098,6 +2198,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "marketplace-admin|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "marketplace-seller-profile|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2177,6 +2282,11 @@
   "marketplace-seller-profile|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "marketplace-seller-profile|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "marketplace-seller|D1": {
@@ -2260,6 +2370,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "marketplace-seller|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "marketplace|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2341,6 +2456,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "marketplace|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "offline-fallback|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2418,6 +2538,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "offline-fallback|D21F": {
+   "state": "n/a"
   },
   "ph-intelligence|D1": {
    "state": "✅",
@@ -2500,6 +2623,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "ph-intelligence|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "plant-connections|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2576,6 +2704,11 @@
   "plant-connections|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "plant-connections|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "platform-actions|D1": {
@@ -2659,6 +2792,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "platform-actions|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "pm-scheduler|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2738,6 +2876,11 @@
   "pm-scheduler|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "pm-scheduler|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "project-manager|D1": {
@@ -2821,6 +2964,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "project-manager|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "project-report|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2902,6 +3050,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "project-report|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "promo-poster|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2980,6 +3133,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "promo-poster|D21F": {
+   "state": "n/a"
+  },
   "public-feed|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -3057,6 +3213,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "public-feed|D21F": {
+   "state": "n/a"
   },
   "report-sender|D1": {
    "state": "✅",
@@ -3137,6 +3296,11 @@
   "report-sender|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "report-sender|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "resume|D1": {
@@ -3220,6 +3384,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "resume|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "shift-brain|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -3299,6 +3468,11 @@
   "shift-brain|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "shift-brain|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "skillmatrix|D1": {
@@ -3382,6 +3556,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "skillmatrix|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "status|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -3458,6 +3637,11 @@
   "status|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "status|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "symbol-gallery|D1": {
@@ -3538,6 +3722,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "symbol-gallery|D21F": {
+   "state": "n/a"
+  },
   "validator-catalog|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -3614,6 +3801,11 @@
   "validator-catalog|D23": {
    "state": "✅",
    "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "validator-catalog|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
    "locked": true
   },
   "voice-journal|D1": {
@@ -3697,6 +3889,11 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "voice-journal|D21F": {
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
+  },
   "about|D1": {
    "state": "n/a"
   },
@@ -3756,6 +3953,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "about|D21F": {
+   "state": "n/a"
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D1": {
    "state": "n/a"
@@ -3817,6 +4017,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/ai-companion-hezekiah-zaniah-personas|D21F": {
+   "state": "n/a"
+  },
   "learn/ai-quality-and-roi-stage-2-plants|D1": {
    "state": "n/a"
   },
@@ -3876,6 +4079,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/ai-quality-and-roi-stage-2-plants|D21F": {
+   "state": "n/a"
   },
   "learn/ai-work-assistant-maintenance-technicians|D1": {
    "state": "n/a"
@@ -3937,6 +4143,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/ai-work-assistant-maintenance-technicians|D21F": {
+   "state": "n/a"
+  },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D1": {
    "state": "n/a"
   },
@@ -3996,6 +4205,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/asset-brain-360-one-machine-history-philippine-plant|D21F": {
+   "state": "n/a"
   },
   "learn/autonomous-shift-planning-philippine-plants|D1": {
    "state": "n/a"
@@ -4057,6 +4269,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/autonomous-shift-planning-philippine-plants|D21F": {
+   "state": "n/a"
+  },
   "learn/bms-facilities-maintenance-peza-buildings|D1": {
    "state": "n/a"
   },
@@ -4116,6 +4331,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/bms-facilities-maintenance-peza-buildings|D21F": {
+   "state": "n/a"
   },
   "learn/building-asset-register-zero-budget|D1": {
    "state": "n/a"
@@ -4177,6 +4395,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/building-asset-register-zero-budget|D21F": {
+   "state": "n/a"
+  },
   "learn/connecting-workhive-to-sap-maximo-cmms|D1": {
    "state": "n/a"
   },
@@ -4236,6 +4457,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/connecting-workhive-to-sap-maximo-cmms|D21F": {
+   "state": "n/a"
   },
   "learn/dilo-wilo-day-planner-supervisors|D1": {
    "state": "n/a"
@@ -4297,6 +4521,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/dilo-wilo-day-planner-supervisors|D21F": {
+   "state": "n/a"
+  },
   "learn/dole-iso-audit-trail-from-logbook|D1": {
    "state": "n/a"
   },
@@ -4356,6 +4583,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/dole-iso-audit-trail-from-logbook|D21F": {
+   "state": "n/a"
   },
   "learn/fmea-worked-example-philippine-bottling-line|D1": {
    "state": "n/a"
@@ -4417,6 +4647,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/fmea-worked-example-philippine-bottling-line|D21F": {
+   "state": "n/a"
+  },
   "learn/food-beverage-plant-maintenance-philippines|D1": {
    "state": "n/a"
   },
@@ -4476,6 +4709,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/food-beverage-plant-maintenance-philippines|D21F": {
+   "state": "n/a"
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D1": {
    "state": "n/a"
@@ -4537,6 +4773,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/four-phases-maintenance-analytics-philippine-plants|D21F": {
+   "state": "n/a"
+  },
   "learn/free-engineering-calculators-philippine-plants|D1": {
    "state": "n/a"
   },
@@ -4596,6 +4835,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/free-engineering-calculators-philippine-plants|D21F": {
+   "state": "n/a"
   },
   "learn/free-pm-checklist-templates|D1": {
    "state": "n/a"
@@ -4657,6 +4899,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/free-pm-checklist-templates|D21F": {
+   "state": "n/a"
+  },
   "learn/gamifying-maintenance-for-engagement|D1": {
    "state": "n/a"
   },
@@ -4716,6 +4961,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/gamifying-maintenance-for-engagement|D21F": {
+   "state": "n/a"
   },
   "learn/industrial-community-of-practice-philippines|D1": {
    "state": "n/a"
@@ -4777,6 +5025,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/industrial-community-of-practice-philippines|D21F": {
+   "state": "n/a"
+  },
   "learn/industrial-marketplace-philippine-specialists|D1": {
    "state": "n/a"
   },
@@ -4836,6 +5087,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/industrial-marketplace-philippine-specialists|D21F": {
+   "state": "n/a"
   },
   "learn/joining-and-growing-your-hive|D1": {
    "state": "n/a"
@@ -4897,6 +5151,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/joining-and-growing-your-hive|D21F": {
+   "state": "n/a"
+  },
   "learn/loto-procedures-dole-oshs-template|D1": {
    "state": "n/a"
   },
@@ -4956,6 +5213,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/loto-procedures-dole-oshs-template|D21F": {
+   "state": "n/a"
   },
   "learn/maintenance-project-planning-template|D1": {
    "state": "n/a"
@@ -5017,6 +5277,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/maintenance-project-planning-template|D21F": {
+   "state": "n/a"
+  },
   "learn/maintenance-shift-handover-template|D1": {
    "state": "n/a"
   },
@@ -5076,6 +5339,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/maintenance-shift-handover-template|D21F": {
+   "state": "n/a"
   },
   "learn/mtbf-vs-mttr-for-supervisors|D1": {
    "state": "n/a"
@@ -5137,6 +5403,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/mtbf-vs-mttr-for-supervisors|D21F": {
+   "state": "n/a"
+  },
   "learn/ofw-engineer-portable-portfolio|D1": {
    "state": "n/a"
   },
@@ -5196,6 +5465,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/ofw-engineer-portable-portfolio|D21F": {
+   "state": "n/a"
   },
   "learn/ph-industrial-benchmarks-intelligence|D1": {
    "state": "n/a"
@@ -5257,6 +5529,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/ph-industrial-benchmarks-intelligence|D21F": {
+   "state": "n/a"
+  },
   "learn/plant-alert-inbox-amc-daily-brief|D1": {
    "state": "n/a"
   },
@@ -5316,6 +5591,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/plant-alert-inbox-amc-daily-brief|D21F": {
+   "state": "n/a"
   },
   "learn/power-plant-reliability-metrics-philippines|D1": {
    "state": "n/a"
@@ -5377,6 +5655,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/power-plant-reliability-metrics-philippines|D21F": {
+   "state": "n/a"
+  },
   "learn/predictive-alert-thresholds-plants|D1": {
    "state": "n/a"
   },
@@ -5436,6 +5717,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/predictive-alert-thresholds-plants|D21F": {
+   "state": "n/a"
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D1": {
    "state": "n/a"
@@ -5497,6 +5781,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/predictive-maintenance-on-a-budget-philippines|D21F": {
+   "state": "n/a"
+  },
   "learn/print-ready-maintenance-analytics-report|D1": {
    "state": "n/a"
   },
@@ -5556,6 +5843,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/print-ready-maintenance-analytics-report|D21F": {
+   "state": "n/a"
   },
   "learn/psme-iiee-piche-which-association-to-join|D1": {
    "state": "n/a"
@@ -5617,6 +5907,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/psme-iiee-piche-which-association-to-join|D21F": {
+   "state": "n/a"
+  },
   "learn/ra-11285-energy-efficiency-plant-checklist|D1": {
    "state": "n/a"
   },
@@ -5676,6 +5969,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/ra-11285-energy-efficiency-plant-checklist|D21F": {
+   "state": "n/a"
   },
   "learn/reliability-centered-maintenance-philippine-plants|D1": {
    "state": "n/a"
@@ -5737,6 +6033,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/reliability-centered-maintenance-philippine-plants|D21F": {
+   "state": "n/a"
+  },
   "learn/resume-builder-for-filipino-industrial-workers|D1": {
    "state": "n/a"
   },
@@ -5796,6 +6095,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/resume-builder-for-filipino-industrial-workers|D21F": {
+   "state": "n/a"
   },
   "learn/sensor-cmms-gateway-operations|D1": {
    "state": "n/a"
@@ -5857,6 +6159,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/sensor-cmms-gateway-operations|D21F": {
+   "state": "n/a"
+  },
   "learn/skill-matrix-for-maintenance-technicians|D1": {
    "state": "n/a"
   },
@@ -5916,6 +6221,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/skill-matrix-for-maintenance-technicians|D21F": {
+   "state": "n/a"
   },
   "learn/spare-parts-inventory-philippine-plants|D1": {
    "state": "n/a"
@@ -5977,6 +6285,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/spare-parts-inventory-philippine-plants|D21F": {
+   "state": "n/a"
+  },
   "learn/start-digital-logbook-philippine-factory|D1": {
    "state": "n/a"
   },
@@ -6036,6 +6347,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/start-digital-logbook-philippine-factory|D21F": {
+   "state": "n/a"
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D1": {
    "state": "n/a"
@@ -6097,6 +6411,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/tesda-nc-mapping-to-skill-matrix|D21F": {
+   "state": "n/a"
+  },
   "learn/thermography-for-pm-philippine-plants|D1": {
    "state": "n/a"
   },
@@ -6156,6 +6473,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/thermography-for-pm-philippine-plants|D21F": {
+   "state": "n/a"
   },
   "learn/vibration-analysis-on-a-phone-budget|D1": {
    "state": "n/a"
@@ -6217,6 +6537,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/vibration-analysis-on-a-phone-budget|D21F": {
+   "state": "n/a"
+  },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D1": {
    "state": "n/a"
   },
@@ -6276,6 +6599,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/voice-to-text-maintenance-philippine-plant-floor|D21F": {
+   "state": "n/a"
   },
   "learn/what-is-oee-how-to-calculate|D1": {
    "state": "n/a"
@@ -6337,6 +6663,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/what-is-oee-how-to-calculate|D21F": {
+   "state": "n/a"
+  },
   "learn/what-is-workhive-complete-platform-guide|D1": {
    "state": "n/a"
   },
@@ -6396,6 +6725,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "learn/what-is-workhive-complete-platform-guide|D21F": {
+   "state": "n/a"
   },
   "learn/workhive-ai-companion-complete-capabilities|D1": {
    "state": "n/a"
@@ -6457,6 +6789,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "learn/workhive-ai-companion-complete-capabilities|D21F": {
+   "state": "n/a"
+  },
   "privacy-policy|D1": {
    "state": "n/a"
   },
@@ -6517,6 +6852,9 @@
    "oracle": "validate_plain_language",
    "locked": true
   },
+  "privacy-policy|D21F": {
+   "state": "n/a"
+  },
   "terms-of-service|D1": {
    "state": "n/a"
   },
@@ -6576,6 +6914,9 @@
    "state": "✅",
    "oracle": "validate_plain_language",
    "locked": true
+  },
+  "terms-of-service|D21F": {
+   "state": "n/a"
   },
   "agent-memory-store|D10": {
    "state": "🟡",

@@ -82,12 +82,17 @@ PAGE_DIMS = {
     "D17": "smoke (loads clean, no console error)",
     "D22": "deep-interaction (every modal/tab/filter/wizard)",
     "D23": "plain-language (no jargon in rendered copy)",
+    # Architectural-layer per-page cells (PER_PAGE_ARCHITECTURAL_LAYER_DEEPWALK_ROADMAP.md §4): project an
+    # EXISTING central-component adoption gate into the grid so the layer is MEASURED per page (centralize-
+    # first — the fix is the central component, the cell scores adoption). Each carries its OWN applicability
+    # (n/a where the concern has no surface), so a `* <dim>` wildcard never false-⬜s a page it can't apply to.
+    "D21F": "L-frontend observability (whLogError error-capture backbone; no show-but-don't-log) [backend pages only]",
+    # RL/C/CA/A/CI per-page cells are QUEUED (PER_PAGE_ARCHITECTURAL_LAYER_DEEPWALK_ROADMAP.md §4). L landed
+    # cleanly because error-capture is a forward-RATCHET covering ALL backend pages (a regex "backend"
+    # applicability matches its scope exactly). RL/C need the gate's PER-PAGE invoke/exemption verdict, which
+    # a regex applicability over-matches (observability pages MENTION an AI fn without invoking it → false-
+    # credit). Correct next step: have those gates emit a per-page pass-list the flywheel reads, not a regex.
 }
-# NOTE (PER_PAGE_ARCHITECTURAL_LAYER_DEEPWALK_ROADMAP.md §4): projecting the blank architectural layers
-# (L-frontend D21f, CA, RL per-page, C per-page) into the grid needs per-dim APPLICABILITY scoping first
-# (n/a for content/no-backend pages, mirroring D2's write-path applicability) so a `* <dim>` wildcard
-# doesn't false-⬜ the 45 learn + non-backend surfaces and flap the stable ruler. Evidence-backed additive
-# delta, done deliberately per layer — NOT a bare wildcard tag (that dropped the ruler 100%→93.2%, reverted).
 # AI dims apply per AI edge fn. D21 observability is banked platform-wide (serveObserved 56/56).
 AI_DIMS = {
     "D10": "grounding/retrieval-quality (cites real hive data)",
@@ -121,16 +126,19 @@ RECALL_AI_FNS = {"ai-gateway", "agent-memory-store"}
 DIM_SEVERITY = {
     "D2": 9, "D8": 9, "D24": 9, "D11": 8, "D7": 8, "D9": 8, "D25": 8, "D18": 8, "D13": 7,
     "D10": 7, "D19": 7, "D20": 7, "D3": 6, "D1": 6, "D12": 6, "D26": 5, "D6": 5, "D4": 5,
-    "D5": 4, "D15": 4, "D22": 4, "D23": 3, "D17": 3, "D21": 2,
+    "D5": 4, "D15": 4, "D22": 4, "D23": 3, "D17": 3, "D21": 2, "D21F": 2,
 }
 
 # Root pages that are NOT walkable production surfaces (test harnesses + backups).
 _NA_PAGE_RE = re.compile(r"(-test|\.backup\d*|-hive-test|-native-test|-v3-test)\.html$")
 _WRITE_RE = re.compile(r"\.insert\(|\.upsert\(|\.rpc\(|functions\.invoke|\.update\(|\.delete\(")
+# has_backend: any backend op (read/write/rpc/invoke/fetch) that could error + surface to the user — the
+# scope of the L-frontend error-capture cell (D21F). A page with no backend op has no error to capture → n/a.
+_BACKEND_RE = re.compile(r"db\.from\(|\.rpc\(|functions\.invoke|\bfetch\(")
 # A tag optionally names a REPORT artifact (heavy/live oracles — a live-LLM battery, a chaos walk —
 # must NOT re-run every fast measure; instead the engine reads their fresh report for pass-status,
 # the roadmap's "drift==0 via baseline → ✅" path): `# DEEPWALK-CELL: ai:* D13 report=ai_live_invoke_results.json`
-TAG_RE = re.compile(r"#\s*DEEPWALK-CELL:\s*(\S+)\s+(D\d+)(?:\s+report=(\S+))?", re.I)
+TAG_RE = re.compile(r"#\s*DEEPWALK-CELL:\s*(\S+)\s+(D\d+\w*)(?:\s+report=(\S+))?", re.I)
 REPORT_FRESH_DAYS = 14  # a report older than this → the cell degrades ✅→🟡 (evidence went stale)
 
 
@@ -216,7 +224,8 @@ def list_app_pages():
         except OSError:
             continue
         stem = base[:-5]  # drop .html
-        pages[stem] = {"write": bool(_WRITE_RE.search(src)), "kind": "app"}
+        pages[stem] = {"write": bool(_WRITE_RE.search(src)),
+                       "backend": bool(_BACKEND_RE.search(src)), "kind": "app"}
     # NOTE: feedback/index.html is a user-facing APP page in a subdir — NOT folded in yet. The app
     # per-page-scan oracles (cwv, validate_clickable_keyboard_a11y, frontend_floor_cells) glob root
     # *.html only, so the `* Dxx` wildcards would FALSE-CREDIT it (verified: cwv never measured it,
@@ -230,7 +239,7 @@ def list_app_pages():
         _content_globs.append(os.path.join(ROOT, _d, "index.html"))
     for path in sorted({p for g in _content_globs for p in _glob.glob(g)}):
         rel = os.path.relpath(os.path.dirname(path), ROOT).replace("\\", "/")
-        pages[rel] = {"write": False, "kind": "content"}
+        pages[rel] = {"write": False, "backend": False, "kind": "content"}
     return pages
 
 
@@ -371,6 +380,9 @@ def derive_cells(pages, ai_fns, bindings, gate_status):
                 continue
             if dim == "D2" and not meta["write"]:
                 cells[f"{stem}|{dim}"] = {"state": "n/a"}
+                continue
+            if dim == "D21F" and not meta.get("backend"):
+                cells[f"{stem}|{dim}"] = {"state": "n/a"}  # no backend op → no error to capture → n/a
                 continue
             cells[f"{stem}|{dim}"] = classify(stem, dim, kind)
     for fn in ai_fns:

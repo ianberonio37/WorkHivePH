@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D21F
 """
 validate_error_capture.py - PER_PAGE SaaS-LAYER bug-hunt · Layer L (Error Tracking & Logs), 2026-07-22.
 ========================================================================================================
