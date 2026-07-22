@@ -1648,13 +1648,11 @@
   }
 
   async function loadSyncConfigs() {
-    if (!HIVE_ID) return;
+    // Header source chip FIRST (static label, no HIVE_ID needed) so it renders even if this races the guard below.
     const _intChip = document.getElementById('integrations-source-chip');
     if (_intChip && typeof renderSourceChip === 'function') {
       _intChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: 'Live · refreshed on load',
-        // 2026-07-22 MERGE (Ian: "merge to one chip"): folded the retired bottom #it-source-chip's
-        // extra attribution (logbook) in here so provenance is stated ONCE.
         source:    'integration_configs + external_sync + logbook',
         notes:     [
           'Active: turned on and synced within the last 7 days',
@@ -1663,6 +1661,7 @@
         ],
       });
     }
+    if (!HIVE_ID) return;
     const { data, error } = await db.from('integration_configs')
       .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(500);
     const list = document.getElementById('sync-active-list');
@@ -2037,25 +2036,8 @@
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 </main>
-<script>
-  // The header source chip (#integrations-source-chip) is normally filled by loadSyncConfigs(); this
-  // window-load fallback guarantees it renders even if that call raced ahead of HIVE_ID and bailed at
-  // its `if (!HIVE_ID) return;` (2026-07-22: the bottom #it-source-chip that unconditionally covered
-  // this case was merged away per Ian "merge to one chip" — so the ONE chip must self-heal). Fills
-  // only when still empty, so it never double-renders when loadSyncConfigs already populated it.
-  window.addEventListener('load', function () {
-    var el = document.getElementById('integrations-source-chip');
-    if (el && !el.innerHTML.trim() && typeof renderSourceChip === 'function') {
-      el.innerHTML = renderSourceChip({
-        freshness: 'Live · refreshed on load',
-        source: 'integration_configs + external_sync + logbook',
-        notes: ['Active: turned on and synced within the last 7 days',
-                'Stale: last synced over 7 days ago, or a sync error',
-                'Supported: SAP PM, IBM Maximo, generic CSV (Phase 2)'],
-      });
-    }
-  });
-</script>
+<!-- (The #integrations-source-chip populate was moved ABOVE the HIVE_ID guard in loadSyncConfigs so
+     the single header chip always renders — no window.load fallback needed. 2026-07-22.) -->
 
 <script>window.WH_FIL_PAGE={dismiss:'I-dismiss',starthere:'Simulan dito →',setupsync:'I-set up ang sync →',managekeys:'Pamahalaan ang keys →',pctitle:'Mga Koneksyon',whichcmms:'Aling CMMS ang ini-import mo?',nextupload:'Susunod: I-upload →'};</script>
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->

@@ -81,10 +81,18 @@ def check_owner_tag(pages, tables):
             if not m:
                 continue
             table = m.group(1)
-            window = "\n".join(lines[max(0, i - 20):min(len(lines), i + 10)])
+            # Look-back widened 20->45 (2026-07-22): a BATCH insert (`db.from(T).insert(rowsVar)`)
+            # is owner-tagged when its rows VARIABLE was built with worker_name upstream in the same
+            # function — often >20 lines above the insert (e.g. integrations.html CMMS import builds
+            # logRows with `worker_name: WORKER_NAME` ~31 lines before `db.from('logbook').insert(lBatch)`).
+            # The old 20-line window saw only inline-object inserts and false-failed correctly-tagged
+            # batch inserts. Widening only RELAXES the check (turns a FAIL into a PASS when worker_name
+            # is present), so it cannot create a false failure — a genuine orphan still has no
+            # worker_name anywhere in the enclosing builder scope.
+            window = "\n".join(lines[max(0, i - 45):min(len(lines), i + 10)])
             if "worker_name" not in window and "WORKER_NAME" not in window:
                 issues.append({"check": "owner_tag", "page": page, "table": table, "line": i + 1,
-                               "reason": f"{page}:{i+1} insert/upsert into '{table}' has no worker_name in surrounding 30 lines — orphaned data with no owner"})
+                               "reason": f"{page}:{i+1} insert/upsert into '{table}' has no worker_name in the enclosing ~55-line builder scope — orphaned data with no owner"})
     return issues
 
 

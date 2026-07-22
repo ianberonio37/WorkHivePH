@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v164';  // bump 2026-07-21: PLATFORM_CENTRALIZATION — storage/RBAC/head convergence touched shared-chrome JS
+const CACHE_NAME  = 'workhive-shell-v165';  // bump 2026-07-22: REDUNDANT-WIDGET consolidation touched shared-chrome JS (utils.js whFreshnessFooter retired; nav-hub.js "Online" pill silence-when-healthy). Without this bump PWA users keep the stale utils.js/nav-hub.js. Re-prime cache.
+// const CACHE_NAME  = 'workhive-shell-v164';  // bump 2026-07-21: PLATFORM_CENTRALIZATION — storage/RBAC/head convergence touched shared-chrome JS
                                             // (Axis-3 behavioural idioms) + Axis-2 chrome purity wave (nav-hub/companion/
                                             // feedback/connectivity/etc. brand literals → var(--wh-*); tokens.css component
                                             // tier). Without this bump PWA users keep the stale chrome JS. Re-prime cache.
