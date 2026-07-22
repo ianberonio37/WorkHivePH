@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# DEEPWALK-CELL: ai:* D10
+# DEEPWALK-CELL: ai:* D10 report=grounding_contract.json
 """validate_grounding_contract.py — §13.15 A6: artifact-agent grounding field-contract (static).
 ================================================================================
 The recurring value-drift class (§13.15): an LLM BOM/SOW agent reads `results.<field>`
@@ -259,6 +259,11 @@ def main() -> int:
         "read_groups_total": verifiable, "read_groups_resolved": resolved_groups,
         "resolved_pct": pct, "drift_cells": drift, "known_baseline": len(base_sigs),
         "new_drift": [sig(d) for d in new_drift], "fixed_since_baseline": fixed, "per_agent": per_agent,
+        # `violations` mirrors the FAIL condition (NEW drift only, not baselined) under a key the
+        # deepwalk flywheel's report_status() recognizes — so this report can back the `ai:* D10`
+        # cell HONESTLY (empty => PASS, non-empty => FAIL) instead of being re-run in the 90s floor
+        # (55 live /calculate calls via docker-exec fallback exceed it -> SKIP -> false 🟡). 2026-07-22.
+        "violations": [sig(d) for d in new_drift],
         "result": "PASS" if not new_drift else "FAIL",
     }, indent=2), encoding="utf-8")
 

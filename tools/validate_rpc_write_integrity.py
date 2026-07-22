@@ -54,9 +54,20 @@ def psql(sql):
 
 
 def load_schema():
-    """Return (required_cols_by_table, existing_tables) from the live DB, or (None, None) if down."""
+    """Return (required_cols_by_table, existing_tables) from the live DB, or (None, None) if down.
+
+    A "required" column is NOT NULL with NO way for the DB to fill it itself — so a function's
+    INSERT that omits it trips a not-null violation. Columns the DB AUTO-POPULATES are therefore
+    EXEMPT and must be excluded, or the gate false-positives:
+      - column_default IS NOT NULL  -> has a DEFAULT (now(), gen_random_uuid(), serial, ...)
+      - is_identity='YES'           -> GENERATED ALWAYS/BY DEFAULT AS IDENTITY (id bigint identity):
+                                        NOT NULL, column_default IS NULL, yet inserting into it ERRORS.
+      - is_generated='ALWAYS'       -> GENERATED ... STORED computed column: must not be inserted.
+    (This exclusion only removes auto-populated columns; a real app-supplied NOT-NULL column keeps
+    is_identity='NO' + is_generated='NEVER', so genuine omissions are still caught.)"""
     rows = psql("""SELECT table_name, column_name FROM information_schema.columns
-      WHERE table_schema='public' AND is_nullable='NO' AND column_default IS NULL;""")
+      WHERE table_schema='public' AND is_nullable='NO' AND column_default IS NULL
+        AND is_identity='NO' AND is_generated='NEVER';""")
     if rows is None:
         return None, None
     req = {}
@@ -118,10 +129,16 @@ def analyze(funcs, req, existing):
 
 
 def selftest():
-    req = {"agent_memory": {"worker_name", "agent_id", "kind"}, "hive_audit_log": {"hive_id", "actor", "action"}}
-    existing = {"agent_memory", "hive_audit_log", "asset_nodes"}
+    # NOTE: `req` is what load_schema() returns AFTER filtering — it already EXCLUDES DB-auto-populated
+    # columns (DEFAULT / identity / generated). So `ops_db_size_history` here lists only db_bytes as
+    # required, NOT its `id bigint GENERATED ALWAYS AS IDENTITY` — proving a fn that omits an identity
+    # id (snapshot_db_size, the 2026-07-22 false-positive) is correctly NOT flagged.
+    req = {"agent_memory": {"worker_name", "agent_id", "kind"}, "hive_audit_log": {"hive_id", "actor", "action"},
+           "ops_db_size_history": {"db_bytes"}}
+    existing = {"agent_memory", "hive_audit_log", "asset_nodes", "ops_db_size_history"}
     funcs = {
         "good_fn": "CREATE FUNCTION good_fn() AS $$ begin insert into agent_memory (worker_name, agent_id, kind, session_id) values (w,a,k,s); update public.asset_nodes set x=1; end $$;",
+        "good_identity_fn": "CREATE FUNCTION good_identity_fn() AS $$ begin insert into public.ops_db_size_history (captured_at, db_bytes) select now(), 1; end $$;",
         "bug_notnull": "CREATE FUNCTION bug_notnull() AS $$ begin insert into hive_audit_log (action, actor, target_name) values ('e','system',n); end $$;",
         "bug_stale": "CREATE FUNCTION bug_stale() AS $$ begin update public.assets set worker_name=a where worker_name=p; end $$;",
     }

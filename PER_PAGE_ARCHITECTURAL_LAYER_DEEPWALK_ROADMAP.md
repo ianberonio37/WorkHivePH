@@ -56,27 +56,31 @@ Re-projected from D1-D26. `[central]` = the canonical component that a per-page 
 ## §2 · MEASURED coverage — per-layer platform-wide % (from the grid, app pages)
 | Layer | F | A | D | AU | H | C | CI | S | RL | CA | LB | L | AV |
 |-------|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **grid %** | 100 | **·** | 100 | 100 | 100 | **·** | **·** | 100 | **·** | **·** | 100 | **·** | 100 |
+| **grid %** | 100 | 100 | 100 | 100 | 100 | 100 | meta | 100 | 100 | 100 | 100 | 100 | 100 |
 
-**7 layers are grid-measured at 100% per page** (F, D, AU, H, S, LB, AV). **6 layers are BLANK per-page (`·`)** — the
-real DEPTH the shallow D1-D10 missed:
-- **A (APIs/Edge)** — the edge-fn call path is auth-gated centrally (57-fn gate) but NOT walked per-PAGE (does *this*
-  page's `functions.invoke` go through a timeout/error-mapped wrapper + hit only entitled fns?).
-- **C (Cloud/LLM) per-PAGE** — D10-D26 are measured on the 36 AI edge-fn SURFACES, but the ~34 pages that carry an AI
-  touchpoint (companion-launcher / ai-gateway) have NO per-page AI cell (does *this* page's AI call ground + resist
-  injection + not fabricate + not leak PII?).
-- **CI** — the gate suite is central but "is this page registered + covered" isn't a walked cell.
-- **CA (Caching/SW)** — one `sw.js` shell, but per-page cache-freshness / shell-membership isn't walked (the PWA-
-  integrity gate exists; project it into the grid).
-- **RL per-PAGE** — 429 handling is central (`whAiError`) + gated, but not a per-page grid cell.
-- **L frontend** — `whLogError` backbone exists (utils.js), edge observability is 56/56; **frontend RUM/error-capture
-  per page is "dark"** (the roadmap's named Arc-T frontier).
+**★ ALL 13 layers now grid-measured (2026-07-22): 12 layers at 100% of applicable pages + CI = meta.** The 6
+formerly-blank layers were closed CENTRALLY (one adoption cell each, projecting an EXISTING central gate — no
+per-page chipping), then the two deepwalk fronts that remained (D2 data-integrity, D10 grounding) closed via two
+single-gate CENTRAL fixes → **grid 100% overall.** How each formerly-blank layer closed:
+- **A (APIs/Edge)** — `A` cell via `validate_edge_fn_auth_gate` (57 fns), scoped to pages with `functions.invoke`
+  (`has_edge`); 13 ✅ / 77 n-a.
+- **C (Cloud/LLM) per-PAGE** — `CP` cell via `validate_no_ai_gateway_bypass`, gate-emitted pass-list of the 12
+  AI-invoking pages; 12 ✅ / 78 n-a (observability pages that only MENTION an AI fn = n-a, not false-✅).
+- **CI** — META, no distinct cell: the grid ITSELF is the page's CI coverage (every green cell is a gate CI runs);
+  a separate CI dim would be circular.
+- **CA (Caching/SW)** — `CA` cell via NEW `validate_sw_shell_membership`, pass-list of the 8 SW-shell pages;
+  8 ✅ / 82 n-a.
+- **RL per-PAGE** — `D12P` cell via `validate_rate_limit_handling`, pass-list of the same 12 AI-invoking pages;
+  12 ✅ / 78 n-a.
+- **L frontend** — `D21F` cell via `validate_error_capture` (`whLogError` adoption), scoped to backend pages
+  (`has_backend`); 35 ✅ / 55 n-a. Arc-T frontier now measured.
 
 ## §3 · Per-page × per-layer matrix (measured)
 Full matrix: `PER_PAGE_ARCHITECTURAL_LAYER_MATRIX.md` (90 surfaces, re-generate via
-`python tools/derive_layer_deepwalk_matrix.py`). Shape is uniform across app pages:
-`F=100 D=100 AU=100 H=100 S=100 LB=100 AV=100 · A/C/CI/CA/RL/L = un-walked`. Learn/content pages carry only the
-presentation layers (F/S/LB). This uniformity is itself the finding: the 6 blank columns are a PLATFORM-WIDE gap, so
+`python tools/derive_layer_deepwalk_matrix.py`). Shape across app pages (2026-07-22, all layers closed):
+`F=D=AU=H=S=LB=AV=100` (all app pages) `· A/C/CA/RL/L = 100 of applicable pages (scoped, rest n-a) · CI=meta`.
+Learn/content pages carry only the presentation layers (F/S/LB). The former uniform-blank finding — the 6 blank
+columns were a PLATFORM-WIDE gap — is now RESOLVED: each was closed by ONE central adoption cell, so
 per §0.2 they are closed CENTRALLY, not page-by-page.
 
 ## §4 · WORK QUEUE — close the 6 blank layers CENTRALLY (one adoption cell per layer, not per-page chipping)
@@ -118,6 +122,39 @@ Each layer is a NEW per-page cell in `deepwalk_flywheel.py`, projecting an EXIST
 suffixes never matched → uppercase-consistent naming (D21F). All backward-compatible (D1/D6/content:*/ai:*/report=
 unchanged, unit-tested).
 
-`NEXT: verify the 5-layer flywheel run is clean (D21F/D12P/CP/CA/A all ✅ their scope + n/a rest, no ruler flap),
-rebuild substrate, commit. The pass-list mechanism (deepwalk_layer_pages.json) is reusable for any future scoped
-layer. All LOCAL; commit is Ian's gate.`
+**VERIFIED + COMMITTED (2026-07-22, commit `04960c8`):** all 5 layers land clean, no ruler flap —
+`D21F 35✅/55n-a · D12P 12✅/78n-a · CP 12✅/78n-a · CA 8✅/82n-a · A 13✅/77n-a`. The pass-list
+mechanism (`deepwalk_layer_pages.json`) correctly scopes each (`llm-observability|D12P = n/a`,
+`marketplace|CA = n/a` — no false ✅). The `validate_sw_shell_membership` CA gate was registered in
+`run_platform_checks` so the flywheel runs+locks it (🟡→✅).
+
+## §6 · DRIVE TO 100% overall — two CENTRAL gate-accuracy fixes closed the whole grid (2026-07-22)
+After the 6 layers, the grid had exactly two open fronts, BOTH closable by a single central fix each
+(centralize-first — no page-by-page chipping):
+- **D2 (data-integrity, 27 ⬜ pages) → ✅ via ONE gate-accuracy fix.** The 27 cells were ⬜ because their
+  bound `* D2` wildcard oracle `validate_rpc_write_integrity` was locked+**FAILING** (flywheel: locked-fail →
+  ⬜+regressed). The "failure" was a FALSE POSITIVE: its required-column query filtered only `column_default
+  IS NULL`, so a `GENERATED ALWAYS AS IDENTITY` column (NOT NULL, no default, yet DB-auto-populated —
+  `snapshot_db_size.id`) was wrongly flagged as an INSERT omission. Fix: also exempt `is_identity='YES'` +
+  `is_generated='ALWAYS'` (auto-populated cols the DB fills itself; a real app-supplied NOT-NULL col still
+  keeps `is_identity='NO'` so genuine omissions are still caught). Selftest extended with an identity-column
+  fixture. Result: 304/304 fns PASS → **27 D2 cells ⬜→✅, page 97.4%→100.0%, gate-floor 0 FAIL.**
+  ([[feedback_red_gate_may_be_inaccuracy_not_backlog]] — a RED gate can be gate INACCURACY, not a backlog.)
+- **D10 (grounding, 26 🟡 AI fns) → ✅ via report-backing.** The cells were 🟡 because `validate_grounding_contract`
+  makes 55 live `/calculate` calls (docker-exec fallback, ~110s) — over the flywheel's 90s `run_gate` timeout →
+  SKIP → 🟡. It is DETERMINISTIC (544/544 read-groups resolve, 0 drift — NOT the rate-limited live-LLM tier), so
+  the roadmap's report-backed-cell mechanism is the designed fix: emit a `violations` breach-key mirroring the
+  FAIL condition (honest), tag `ai:* D10 report=grounding_contract.json`; the floor reads the fresh report
+  (instant) instead of re-running. Result: report regenerated fresh (544/544=100%, 0 drift, `violations:[]`) →
+  **26 D10 cells 🟡→✅, AI 94.1%→100.0%.**
+
+**★ GRID 100% (2026-07-22, VERIFIED): coverage 100.0% · page 100.0% · AI 100.0% · 2154 cells → ✅1244 🟡0 ⬜0
+n/a910 · gate-floor 46 gates 0 FAIL · grid DRY (NEXT TARGET: none).** Both closes were CENTRAL single-gate
+fixes (Ian's centralize-first law), NOT per-page chipping: one query-accuracy fix flipped 27 D2 cells; one
+report-backing flipped 26 D10 cells. Every applicable cell across all 90 pages + 33 AI fns × the full
+dimension set is now measured-✅ or honest-n/a.
+
+`NEXT: rebuild substrate + commit the drive-to-100% milestone (Ian's gate → pivot, don't stop on it). The grid
+is DRY; forward hygiene = keep the floor green + the nightly --drive cron refreshing report-backed cells (the
+grounding report re-freshes on any full gate run within its 14-day window). Live-bonus tier (32 proven-ever,
+forward-only ratchet) accumulates via the cron, NOT a per-session target.`
