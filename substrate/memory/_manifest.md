@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:534-files
-source_sha: 5a64ec5e0bae0391
+source: memory-curated:538-files
+source_sha: 7b735806029bb02f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (534 durable topic files)
+## memory · curated auto-memory (538 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=159 · project=286 · reference=89
+**By type:** feedback=162 · project=287 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -114,10 +114,12 @@ Entries (name · type · sha):
 - `feedback_offer_to_continue_is_the_stop` · feedback · b9cad11d0f1225f5
 - `feedback_onconflict_needs_matching_unique_index` · feedback · a6de5121733f730a
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
+- `feedback_p6_disposition_gate_and_double_submit` · feedback · 7dfd86aae044c473
 - `feedback_pandas_iso8601_silent_99pct_data_loss` · feedback · e33cd3b6a8e29c62
 - `feedback_pasted_keys_in_docs_leak_scanner_blindspot` · feedback · f48a9c2ba719f44c
 - `feedback_pdda_page_deep_arc` · feedback · f5ff12390b2bea42
 - `feedback_performance` · feedback · e38f9cee6d8570cc
+- `feedback_permission_denied_table_is_grant_not_rls` · feedback · 888bae45b8876ec5
 - `feedback_plain_language_no_jargon` · feedback · a13ca72fba6fd10a
 - `feedback_platform_intentional_blank_states` · feedback · 8e03fac77efa8236
 - `feedback_playwright_live_every_phase` · feedback · c689bd379b113956
@@ -146,6 +148,7 @@ Entries (name · type · sha):
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
 - `feedback_seed_resolved_is_not_roadmap_done` · feedback · a967219b7ce19aec
+- `feedback_silence_is_golden_status_chrome` · feedback · 441030396b5859b8
 - `feedback_skill_first_rule` · feedback · 53c4483d1b391308
 - `feedback_skill_improvement` · feedback · dca320aa84326d9c
 - `feedback_soft_judge_do_it_yourself` · feedback · 44ccf0873e6c5b0d
@@ -223,6 +226,7 @@ Entries (name · type · sha):
 - `project_arc_h_100pct_live_2026_06_21` · project · f6202baf5ae182fe
 - `project_arc_h_live_push_embedding_structural_2026_06_21` · project · e22deb9a846a2670
 - `project_arc_k_live_page_journeys_plan_2026_06_22` · project · 62bbe59cc1e1fa90
+- `project_arc_k_reverification_stale_hive` · project · 9ce552075fdfceb0
 - `project_arc_l_performance_scale_2026_06_22` · project · 7eba7147f20e19d4
 - `project_arc_q_domain_correctness_2026_06_23` · project · 120a59d9d791bf25
 - `project_arc_r_security_adversarial_2026_06_24` · project · ce9ea32e0eee7d95
@@ -512,10 +516,6 @@ Entries (name · type · sha):
 - `reference_logbook_asset_linkage_undercount` · reference · 1105ffafff2a99fd
 - `reference_logbook_entry_kind_field_shaping` · reference · b40fe7714143f12c
 - `reference_marketplace_ai_listing_assist` · reference · 7227ec63e6fbd0ec
-- `reference_marketplace_listing_trust_forge` · reference · 8469baeb73e54486
-- `reference_marketplace_partsflow_and_trust` · reference · 52b6a06f9e8c3272
-- `reference_my_people_trade_discovery` · reference · ea8176868e78e989
-- `reference_nav_hub_community_unread_badge` · reference · f0afd7596ea9f2a5
-- … +34 more (all included in the fingerprint)
+- … +38 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

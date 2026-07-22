@@ -875,12 +875,18 @@
     const category = document.getElementById('edit-category')?.value || '';
     const condition = _editItem.section === 'parts' ? (document.getElementById('edit-condition')?.value || null) : null;
     const desc     = (document.getElementById('edit-desc')?.value || '').trim();
-    const price    = document.getElementById('edit-price')?.value ? parseFloat(document.getElementById('edit-price').value) : null;
+    // D5: validate price via central whParsePrice (form min="0" is unenforced; a raw negative/over-precision
+    // value otherwise surfaces a cryptic DB error). blank => negotiable(null), 0 => free, 2dp OK.
+    const _priceEl  = document.getElementById('edit-price');
+    const _priceRes = window.whParsePrice ? window.whParsePrice(_priceEl)
+                    : { ok: true, value: (_priceEl && _priceEl.value ? parseFloat(_priceEl.value) : null) };
+    const price     = _priceRes.value;
     const location = (document.getElementById('edit-location')?.value || '').trim();
     const contact  = (document.getElementById('edit-contact')?.value || '').trim();
     const imageUrl = (document.getElementById('edit-image-url')?.value || '').trim() || null;
 
     if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
+    if (!_priceRes.ok) { showToast(_priceRes.error, 'error'); document.getElementById('edit-price')?.focus(); return; }
 
     const btn = document.getElementById('btn-save-edit');
     if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
@@ -923,6 +929,7 @@
       showToast('Listing deleted.', 'success');
       await loadListings();
     } catch (_) {
+      console.error('marketplace-seller delete failed:', _);
       showToast('Delete failed. Try again.', 'error');
     }
   }
@@ -955,7 +962,7 @@
       if (error) throw error;
       showToast('Inquiry closed.', 'info');
       await loadInquiries();
-    } catch (_) { showToast('Failed. Try again.', 'error'); }
+    } catch (_) { console.error('marketplace-seller action failed:', _); showToast('Failed. Try again.', 'error'); }
   }
 
   /* Arc X A3 (list-state persistence): mirror the active tab + listing status filter

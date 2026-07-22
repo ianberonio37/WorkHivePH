@@ -1728,7 +1728,7 @@ async function runAIIntent() {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'intent', transcript },
     });
-    if (error) { showToast('AI failed: ' + error.message, 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
+    if (error) { showToast(whAiError(error, 'AI failed'), 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); $('ai-intent-go').disabled = false; $('ai-intent-go').textContent = 'Parse with AI'; return; }
     closeModal('modal-ai-intent');
     // Open wizard pre-filled from the AI payload
@@ -1759,6 +1759,7 @@ async function runAIIntent() {
       }
     }, 50);
   } catch (e) {
+    console.error('project-manager AI failed:', e);
     showToast('AI failed: ' + e.message, 'error');
     $('ai-intent-go').disabled = false;
     $('ai-intent-go').textContent = 'Parse with AI';
@@ -2702,7 +2703,7 @@ async function aiDraftLessons() {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'lessons_draft', project_id: _detailId, hive_id: HIVE_ID },
     });
-    if (error) { showToast('AI failed: ' + error.message, 'error'); return; }
+    if (error) { showToast(whAiError(error, 'AI failed'), 'error'); return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
     if (!data?.lessons_text) { showToast('AI returned no draft'); return; }
     $('lessons-text').value = data.lessons_text;
@@ -2714,6 +2715,7 @@ async function aiDraftLessons() {
     _detail.meta = meta;
     showToast('AI draft loaded: review and Save lessons to keep it.', 'success');
   } catch (e) {
+    console.error('project-manager AI failed:', e);
     showToast('AI failed: ' + e.message, 'error');
   }
 }

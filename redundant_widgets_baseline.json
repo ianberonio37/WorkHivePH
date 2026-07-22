@@ -1,0 +1,16 @@
+{
+  "footer_neutered": true,
+  "dup_sites": 4,
+  "dupes": [
+    {
+      "file": "community.html",
+      "fn": "openComposer",
+      "count": 2
+    },
+    {
+      "file": "project-manager.html",
+      "fn": "openNewScope",
+      "count": 2
+    }
+  ]
+}

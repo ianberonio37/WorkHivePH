@@ -538,7 +538,9 @@
       <!-- Board header -->
       <div class="flex items-start justify-between gap-3 mb-5 flex-wrap">
         <div>
-          <div class="flex items-center gap-2 mb-1" role="status" aria-live="polite" aria-atomic="true">
+          <!-- Silence-is-golden (2026-07-22, Ian: remove the redundant "Live" pill): start HIDDEN,
+               surface ONLY on realtime degrade (reconnecting/offline). The source chip states liveness. -->
+          <div id="conn-pill" class="flex items-center gap-2 mb-1" role="status" aria-live="polite" aria-atomic="true" style="display:none;">
             <span class="conn-dot reconnecting" id="conn-dot"></span>
             <span id="conn-label" class="text-xs text-white font-semibold">Connecting...</span>
           </div>
@@ -1576,7 +1578,7 @@ async function loadMyOpenWork() {
       head.textContent = `${n} open job${n === 1 ? '' : 's'} assigned to you`;
       sub.textContent  = 'Tap to review and update them in your logbook.';
     }
-  } catch (_e) { head.textContent = "Couldn't load your jobs"; sub.textContent = 'Tap to open your logbook.'; }
+  } catch (_e) { console.error('hive load-jobs failed:', _e); head.textContent = "Couldn't load your jobs"; sub.textContent = 'Tap to open your logbook.'; }
 }
 
 function genCode() {
@@ -3260,6 +3262,7 @@ function _openIntentModal(preset) {
       try {
         res = await db.from('hives').update({ intent: payload }).eq('id', HIVE_ID);
       } catch (e) {
+        console.error('hive save failed:', e);
         showToast('Could not save: ' + (e?.message || e));
         return;
       }
@@ -3396,6 +3399,7 @@ async function resetMemberPassword(workerName) {
     );
     loadAuditLog();  // the reset is audit-logged server-side; refresh the action log
   } catch (e) {
+    console.error('hive reset-password failed:', e);
     showToast('Could not reset password: ' + (e?.message || 'network error'));
   }
 }
@@ -3815,10 +3819,14 @@ function prependFeed(entry) {
 function setConn(state) {
   const dot   = document.getElementById('conn-dot');
   const label = document.getElementById('conn-label');
+  const pill  = document.getElementById('conn-pill');
   dot.className = 'conn-dot ' + state;
   if (state === 'live')         { label.textContent = 'Live';            label.style.color = '#4ade80'; }
   else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#facc15'; } /* D1 a11y: #f7a21b (~2.9:1) → #facc15 ≥4.5:1 */
   else                          { label.textContent = 'Offline';         label.style.color = '#f87171'; } /* D1 a11y: #f87171 → #f87171 ≥4.5:1 */
+  // Silence-is-golden (2026-07-22): hide the pill in the healthy "live" state (redundant with the
+  // source chip); surface it ONLY when the realtime link degrades.
+  if (pill) pill.style.display = (state === 'live') ? 'none' : 'flex';
 }
 
 // ── STOCK ALERT (current worker's own inventory) ──

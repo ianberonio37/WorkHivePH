@@ -1385,6 +1385,7 @@
                     snoozeUntil ? { snooze_until: snoozeUntil } : {});
       showToast(action === 'snoozed' ? `Snoozed for ${snoozeDays} day${snoozeDays === 1 ? '' : 's'}` : 'Alert marked handled');
     } catch (e) {
+      console.error('alert-hub dismiss failed:', e);
       delete _dismissals[key];
       _alerts = prev;                                   // roll back the optimistic removal
       renderFeed(); renderAlertSummary();
@@ -1418,6 +1419,7 @@
         showToast('Marked seen');
       }
     } catch (e) {
+      console.error('alert-hub mark-seen failed:', e);
       if (wasSeen) _seen[key] = true; else delete _seen[key];   // roll back the optimistic toggle
       renderFeed();
       showToast('Could not save, restored');

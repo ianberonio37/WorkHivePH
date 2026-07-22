@@ -1886,6 +1886,7 @@
           }
           renderMktModeration(await fetchMktModeration());  // refresh the queues
         } catch (err) {
+          console.error('founder-console action failed:', err);
           showToast('Action failed. Try again.', 'error');
           btn.disabled = false;
         }
@@ -2698,5 +2699,6 @@
   </script>
 </main>
   <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
+  <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
 </body>
 </html>

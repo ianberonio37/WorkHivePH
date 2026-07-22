@@ -2,7 +2,7 @@
 name: skill-designer
 type: skill
 source: skill:designer
-source_sha: 9953fc60d0759d1a
+source_sha: da91b124b679c532
 last_verified: 2026-07-13
 supersedes: null
 ---

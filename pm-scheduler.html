@@ -229,22 +229,8 @@
     .nav-tab.active { color: var(--wh-orange); }
     .nav-tab svg { transition: color 0.15s; }
 
-    /* FAB */
-    .fab {
-      /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: keep page FABs bottom-LEFT,
-         away from the global bottom-right widget stack [wh-conn-chip @ right/bottom:5.5rem
-         z9998] that occluded this FAB and tripped the axe target-size proximity flag.
-         Extended to ALL viewports 2026-07-01: the supervisor desktop walk caught the SAME
-         occlusion at 1280px because the chip is fixed bottom-right at every width — bottom-left
-         is clear of the chip AND the top-left wayfinding pill, and clears the 56px bottom-nav. */
-      position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 1.25rem; right: auto;
-      width: 52px; height: 52px; border-radius: 50%; background: var(--wh-orange);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(247,162,27,0.4); border: none; cursor: pointer;
-      transition: background 0.2s, transform 0.15s; z-index: 20;
-    }
-    .fab:hover { background: var(--wh-orange-dark); transform: scale(1.05); }
-    .fab:active { transform: scale(0.95); }
+    /* FAB .fab rules removed 2026-07-22 — the Add-asset FAB was a duplicate of the "Add Asset"
+       bottom-nav tab (see the removed button below). Add-asset lives in #tab-add. */
 
     /* Slide up animation for wizard */
     @keyframes slideUp {
@@ -440,10 +426,10 @@
     <div id="dash-loading" class="text-center py-12 text-white/60 text-sm">Loading assets...</div>
   </div>
 
-  <!-- FAB -->
-  <button class="fab" onclick="goAddAsset()" aria-label="Add asset">
-    <span class="ic ic-add" aria-hidden="true"></span>
-  </button>
+  <!-- FAB removed 2026-07-22 (Ian: "there is a + widget but there are already a function of that"):
+       the floating "+" Add-asset FAB DUPLICATED the labeled "Add Asset" bottom-nav tab (#tab-add,
+       same goAddAsset() handler), both visible simultaneously at every width. The nav-tab is the
+       labeled, discoverable, always-present entry — the FAB was the redundant, occlusion-prone one. -->
 </div>
 
 <!-- ══════════════════════════════════

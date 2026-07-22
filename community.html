@@ -379,7 +379,10 @@
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
     </a>
     <div style="display:flex; align-items:center; gap:12px;">
-      <div role="status" aria-live="polite" aria-atomic="true" style="display:flex; align-items:center; gap:6px;">
+      <!-- Silence-is-golden (2026-07-22, Ian: remove the redundant "Live" pill): start HIDDEN and
+           surface ONLY when the realtime link degrades (reconnecting/offline). The healthy "Live"
+           state was redundant noise — the source chip already says "Live · updates automatically". -->
+      <div id="conn-pill" role="status" aria-live="polite" aria-atomic="true" style="display:none; align-items:center; gap:6px;">
         <div class="conn-dot offline" id="conn-dot" aria-hidden="true"></div>
         <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.6);">Connecting…</span>
       </div>
@@ -788,8 +791,11 @@
     if (_commChip && typeof renderSourceChip === 'function') {
       _commChip.innerHTML = renderSourceChip({
         freshness: 'Live · updates automatically',
-        source:    'community_posts + community_replies + community_reactions',
-        notes:     ['Your hive’s posts · public posts are visible across hives', 'Updates live as posts change'],
+        // 2026-07-22 MERGE (Ian: "merge to one chip"): folded the RETIRED bottom #cm-source-chip's
+        // attribution (leaderboard + trade peers) in here so the page states its data provenance
+        // ONCE. The bottom chip duplicated this one ("Live · … · community posts…" shown twice).
+        source:    'community_posts + community_replies + community_reactions + leaderboard + trade peers',
+        notes:     ['Your hive’s posts · public posts are visible across hives'],
       });
     }
     // Arc X A3: restore the feed's category + search from the URL BEFORE the first
@@ -807,15 +813,11 @@
 
     await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers(), loadTradePeers()]);
     if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
-    // E3 provenance (FAMILY F3): sources = this page's verified truth-view reads.
-    (function () {
-      var el = document.getElementById('cm-source-chip');
-      if (!el) { el = document.createElement('div'); el.id = 'cm-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f && / f ||) */ var host = (f && f.parentElement) || document.querySelector('.page') || document.body; host.insertBefore(el, f || null); }
-      if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-        freshness: 'Live · refreshed on load + realtime',
-        source: 'v_community_posts_truth + leaderboard + trade peers',
-      });
-    })();
+    // E3 provenance bottom chip (#cm-source-chip) REMOVED 2026-07-22 (Ian: "merge to one chip"):
+    // it duplicated the header #community-source-chip (both rendered "Live · … · community posts…"
+    // as full-width source chips, one at the top and one at the page bottom). Its leaderboard +
+    // trade-peers attribution was folded into the header chip's `source` above, so provenance is
+    // stated once. The KPI-chip-coverage gate stays green (the header chip is still a renderSourceChip).
 
     // ── nav-hub activity badge — "seen" marker ─────────────────────────────────
     // Being on this page IS the consume event: stamp the per-hive last-seen time so
@@ -2353,8 +2355,12 @@
   function setConn(state) {
     const dot   = document.getElementById('conn-dot');
     const label = document.getElementById('conn-label');
+    const pill  = document.getElementById('conn-pill');
     dot.className   = 'conn-dot ' + state;
     label.textContent = state === 'live' ? 'Live' : state === 'reconnecting' ? 'Reconnecting…' : 'Offline';
+    // Silence-is-golden: the pill is REDUNDANT in the healthy "live" state — hide it, and show it
+    // ONLY when the realtime link degrades (the one moment the status is worth a pixel).
+    if (pill) pill.style.display = (state === 'live') ? 'none' : 'flex';
   }
 
   // ── Realtime: cross-hive Global feed ──────────────────────────────────────────

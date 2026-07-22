@@ -2,13 +2,13 @@
 name: page-hive
 type: page
 source: file:hive.html
-source_sha: 33c6e09c42e61a59
+source_sha: 60257f3d402fc33d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `hive.html` — Hive Live Board: WorkHive
 
-Size: 307KB · 90 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 308KB · 90 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (7): `hive_audit_log.insert`, `hive_members.delete`, `hive_members.update`, `hive_members.upsert`, `hives.insert`, `hives.update`, `logbook.update`
 **RPC calls**: `compute_adoption_risk`, `compute_hive_readiness`, `find_hive_by_code`, `get_adoption_risk_current`, `get_hive_board_dashboard`, `get_hive_readiness_current`, `join_hive_by_code`

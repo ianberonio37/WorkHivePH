@@ -837,7 +837,7 @@
             console.warn('shift-planner-orchestrator unreachable (likely local edge runtime not running):', msg);
             showToast('Shift planner is offline locally. Run "npx supabase functions serve" (the cron was retired 2026-06-10; plans generate on first open).');
           } else {
-            showToast('Re-run failed: ' + (msg || 'unknown'));
+            showToast(whAiError(error, 'Re-run failed: ' + (msg || 'unknown')));
           }
           return;
         }

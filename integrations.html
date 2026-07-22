@@ -1067,10 +1067,7 @@
     }
     // Default: work_order
     const rawStatus  = get(_mapping.status);
-    // external_sync.status CHECK allows only Open/Closed/Cancelled — an unmapped raw code
-    // passed through as-is 23514-rejects the WHOLE 500-row chunk (live-proven), so clamp:
-    // canonicalize case variants, everything else falls back to 'Open'. The raw code is
-    // preserved in status_raw -> sync_payload, so no source truth is lost.
+    // external_sync.status CHECK = Open/Closed/Cancelled only; an unmapped raw code 23514-kills the whole 500-row chunk, so clamp (raw kept in status_raw->sync_payload).
     const mappedStatus = STATUS_NORM[_systemType]?.[rawStatus] || rawStatus || 'Open';
     const normStatus = { open:'Open', closed:'Closed', cancelled:'Cancelled' }[String(mappedStatus).toLowerCase()] || 'Open';
     const rawType    = get(_mapping.maintenance_type);
@@ -1207,9 +1204,7 @@
       const logRows = validRows
         .filter(r => !alreadySynced.has(r.external_id))
         .map(r => ({
-          // logbook.id is text NOT NULL with NO default (the add-entry wizard generates it
-          // client-side) — the CMMS importer must do the same or every insert is rejected and
-          // imported work orders never reach logbook/analytics (Arc K K6/IN1 caught this).
+          // logbook.id is text NOT NULL no-default — the importer must mint it or every insert is rejected (Arc K).
           id:               crypto.randomUUID(),
           worker_name:      WORKER_NAME,
           auth_uid:         AUTH_UID,
@@ -1219,9 +1214,7 @@
           problem:          r.problem || 'Imported from CMMS',
           action:           r.action  || '',
           knowledge:        r.root_cause || '',
-          // logbook_status_check allows only Open/Closed/Resolved — a 'Cancelled' WO (valid
-          // for external_sync) 23514-kills the whole chunk's logbook insert (live-proven);
-          // record it as Closed here, the sync record keeps the true 'Cancelled'.
+          // logbook_status_check = Open/Closed/Resolved only; a 'Cancelled' WO 23514-kills the chunk's logbook insert, so record it Closed (sync keeps the true 'Cancelled').
           status:           r.status === 'Cancelled' ? 'Closed' : r.status,
           created_at:       r.created_at || now,
           maintenance_type: r.maintenance_type,
@@ -1232,11 +1225,7 @@
           parts_used:       [],
         }));
 
-      // fault_knowledge is NOT written here: it is client-INSERT-LOCKED (RLS CHECK false, mig
-      // 20260513000003). The embed-logbook AFTER-INSERT trigger already routes every imported
-      // logbook row through the embed-entry edge fn (service-role), which writes fault_knowledge
-      // WITH its embedding + logbook_id upsert key — a direct client insert silently failed AND
-      // would have added unembedded duplicate rows to the RAG index.
+      // fault_knowledge is client-INSERT-LOCKED (RLS CHECK false, mig 20260513000003); the embed-logbook trigger writes it (with embedding) via embed-entry. A direct client insert silently failed + poisoned the RAG index.
 
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);
@@ -1245,8 +1234,7 @@
         const sBatch = syncRows.slice(i, i + CHUNK);
         const lBatch = logRows.slice(i, i + CHUNK);
         try {
-          // supabase-js does NOT throw on API errors — without the .error checks the catch below
-          // is dead code and a failed chunk is silently counted as imported.
+          // supabase-js doesn't throw on API errors — the .error checks make the catch reachable (else a failed chunk counts as imported).
           const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
           if (sErr) throw sErr;
           if (lBatch.length) {
@@ -1943,6 +1931,7 @@
       showToast('Import rolled back successfully.');
       await loadImportHistory();
     } catch (e) {
+      console.error('integrations rollback failed:', e);
       showToast('Rollback failed: ' + e.message);
     }
   }
@@ -2030,6 +2019,7 @@
       }
       loadConflicts();
     } catch (e) {
+      console.error('integrations resolution failed:', e);
       showToast('Resolution failed: ' + e.message);
     }
   }

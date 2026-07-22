@@ -3338,8 +3338,17 @@ async function renderEntries(reload = true) {
 
   if (entries.length === 0) {
     list.innerHTML = '';
-    empty.classList.remove('hidden');
-    noResults.classList.add('hidden');
+    // D3 (deepwalk finding): a 0-row TEAM search is "nothing matched your filters"
+    // (no-results), NOT the first-run "No entries yet — log your first repair" empty-state.
+    // In team mode renderEntries only runs here post-search (_teamSearched), and
+    // filtered === entries, so the no-results branch below is unreachable — decide it here.
+    if (_viewMode === 'team') {
+      empty.classList.add('hidden');
+      noResults.classList.remove('hidden');
+    } else {
+      empty.classList.remove('hidden');
+      noResults.classList.add('hidden');
+    }
     return;
   }
 
@@ -4531,6 +4540,7 @@ async function startSmartVoice() {
       if (!e) throw new Error('No entry returned');
       applySmartVoiceFill(e, transcript);
     } catch (err) {
+      console.error('logbook AI-fill failed:', err);
       procDiv.style.display = 'none';
       showToast('AI fill failed: ' + err.message);
     }

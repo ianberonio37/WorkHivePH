@@ -2889,6 +2889,7 @@
       if (error) { btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)'; showToast('SSO error: ' + error.message + '\n\nEnsure your IT team has configured WorkHive as an SSO application in your identity provider.', 'error'); return; }
       if (data?.url) window.location.href = data.url;
     } catch (e) {
+      console.error('index enterprise-SSO failed:', e);
       btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
       showToast('SSO not available for this domain. Contact your IT administrator.', 'error');
     }
@@ -3002,6 +3003,7 @@
       }
       ({ data, error } = await db.auth.setSession({ access_token: _r.access_token, refresh_token: _r.refresh_token }));
     } catch (_e) {
+      console.error('index sign-in failed:', _e);
       btn.textContent = 'Sign In'; btn.disabled = false;
       errEl.textContent = 'Sign-in failed. Check your connection and try again.';
       errEl.classList.remove('hidden'); return;

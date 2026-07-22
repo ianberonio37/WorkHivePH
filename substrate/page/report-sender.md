@@ -2,7 +2,7 @@
 name: page-report-sender
 type: page
 source: file:report-sender.html
-source_sha: 356085fb702880e1
+source_sha: 09b5838ba23218b6
 last_verified: 2026-07-13
 supersedes: null
 ---

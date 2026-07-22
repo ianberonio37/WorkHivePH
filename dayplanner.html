@@ -456,7 +456,7 @@
 // SUPABASE
 // ─────────────────────────────────────────────
 // db initialized after supabase-js CDN loads (see script block below)
-// GUARDED (2026-07-21): this block runs BEFORE <script src="utils.js"> (bottom of the page),
+// GUARDED (2026-07-21): this block runs BEFORE utils.js (loaded at the bottom of the page),
 // so a bare whWorker() call threw ReferenceError -> WORKER_NAME never initialized -> the init
 // IIFE threw -> the WHOLE page stuck on "Loading day plan..." for EVERY user (found by the
 // Arc-K DAY1-4 cluster). The storage-SSOT sweep's accessor is re-read at init, after utils loads.

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 6a617f599b6606d1
+source_sha: f0e0a97dabc7e123
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (627) — the 'what's already gated' brain
+## gate · registered validators (638) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,9 +205,10 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (438)
+### Platform (449)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
+- `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
 - `achievements` ⚡ [fail] — Achievements Validator (Phase 1.9: badge_key + catalog-not-in-reset + worker_achievements realtime + ON CONFLICT shape)
 - `add-column-default` ⚡ [fail] — ADD COLUMN DEFAULT (every ADD COLUMN NOT NULL has a DEFAULT; backfill safety; forward-only ratchet)
 - `admin-gates` ⚡ [fail] — Admin Gate Enforcement (founder-console, marketplace-admin must verify admin)
@@ -301,6 +302,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `causal-cascade-coverage` [warn] — Causal Cascade Coverage (Phase A anti-rot: both legs — every DB-trigger AND every edge-fn cross-table data write is mapped in causal_cascades.json — surfaces a 
 - `clickable-keyboard-a11y` ⚡ [fail] — Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboar
 - `client-singleton` ⚡ [fail] — Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + time
+- `client-write-grants` [fail] — Client-write GRANT parity (2026-07-22) — the LOCK for the 42501 'permission denied for table' class. For every base table a client page WRITES via .from('T').in
 - `client_resilience` ⚡ [fail] — Deepwalk D20: client resilience (timeout-bounded fetch + offline/connectivity UX)
 - `clone-debt` ⚡ [fail] — Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)
 - `cmms-contracts` ⚡ [fail] — CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)
@@ -330,7 +332,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cron-health` [fail] — Cron health (LIVE: no active pg_cron job's latest run failed with a CODE error — locks the unattended-silent-failure class found live 2026-07-07, where the soft
 - `cron-schedule-integrity` ⚡ [fail] — Cron Schedule Integrity (4-layer: function existence + scheduled-agents routing + config drift + schedule sanity)
 - `cross-page` ⚡ [blocker] — Cross-Page Flow Validator
-- `crud-rollback` [fail] — Per-page P3 CRUD-at-DB gate for SIDE-EFFECT tables (LIVE, rolled-back psql) — `logbook` / `inventory_items` / `resume_documents` / `report_contacts` can't go th
+- `crud-rollback` [fail] — Per-page P3 CRUD-at-DB gate for SIDE-EFFECT tables (LIVE, rolled-back psql) — 9 tables (logbook / inventory_items / resume_documents / marketplace_listings / ai
 - `css-class-existence` ⚡ [fail] — CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)
 - `css-id-existence` ⚡ [fail] — CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)
 - `cumulative-quota-enforce` ⚡ [fail] — Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative trigge
@@ -344,6 +346,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `deeplink-param-contracts` ⚡ [blocker] — Deep-Link Param Contracts (forward-only: no NEW emitted ?param lacks a .get() reader in its destination — catches the dead-param class from the Phase-6b edge wa
 - `deepwalk-flywheel` [warn] — PLATFORM deep-walk FLYWHEEL v2 (Ian 2026-07-08): the WHOLE-platform quality ruler — GLOB-discovers the grid each cycle (40 pages × 13 oracle dims + 33 AI edge f
 - `definer-membership-gate` ⚡ [fail] — SECURITY DEFINER Hive-Membership Gate (every DEFINER hive-fn gated OR service_role-only)
+- `degraded-state-central` ⚡ [fail] — per-page SaaS-LAYER · Layer AV (Availability & Recovery) — METHOD-LAW central-component adoption gate. The device-offline / degraded warning is ONE shared idemp
 - `design-tokens` ⚡ [fail] — Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)
 - `destructive_safety` ⚡ [fail] — Deepwalk D18: destructive-safety (delete/reset confirm-gated via shared whConfirm)
 - `diagram_inputs` ⚡ [fail] — Diagram Inputs Contract Validator (inp.xxx vs collectInputs keys)
@@ -383,10 +386,12 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `embedding-no-stale-duplicates` [fail] — Embedding re-embed-on-edit (LIVE: each logbook source entry must carry exactly ONE fault_knowledge embedding — a logbook edit-in-place re-calls embed-entry, whi
 - `embedding-retention` ⚡ [fail] — Q5-b Embedding/Growth Retention (embedding_cache LRU auto-prune cron + prune fn; canonical big tables via the safe DRY-RUN-default, double-gated cold_archive_pr
 - `empty-catch` ⚡ [fail] — Empty Catch Block (try/catch{} that silently swallows errors; forward-only ratchet)
+- `empty-state-discrimination` ⚡ [fail] — DEEPWALK D3 gate (static teeth) — a list render that owns BOTH a first-run empty-state ('No entries yet — log your first X' CTA) AND a search no-results ('nothi
 - `enterprise-unlock` ⚡ [fail] — Enterprise Unlock Validator (Phase 5: retention + soft-delete cron + PDPA export + auth_session_events + MFA scaffold + SSO scaffold + Plant Connections Console
 - `env-secret-coverage` ⚡ [fail] — Env Secret Coverage (4-layer: declared coverage + required-vs-optional + orphan keys + hardcoded secret detection)
 - `env-variable-existence` ⚡ [fail] — Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
 - `episodic-memory-wiring` ⚡ [fail] — Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)
+- `error-capture` ⚡ [fail] — per-page SaaS-LAYER · Layer L (Error Tracking & Logs) — a catch around a BACKEND op (db.from/db.rpc/db.functions.invoke/fetch) that SURFACES the error to the us
 - `event-listener-cleanup` ⚡ [fail] — Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)
 - `external-link-rel` ⚡ [fail] — External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)
 - `fab-consolidation` ⚡ [blocker] — FAB Consolidation Contract (bottom-right corner stays consolidated into the nav-hub; companion/feedback/connectivity launch from inside the hub, no standalone c
@@ -499,6 +504,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `onconflict-index` [fail] — Per-page P3/P4 gate: every supabase-js `.upsert(rows,{onConflict:'a,b'})` in the page HTML must have a MATCHING unique index in the live DB (Postgres ON CONFLIC
 - `ops-snapshot-agents` [fail] — Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)
 - `optimistic-concurrency` ⚡ [fail] — Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)
+- `optimistic-input-restore` ⚡ [fail] — DEEPWALK D4 gate (static teeth) — a chat/message send that clears its input OPTIMISTICALLY (`input.value=''` BEFORE the async turn, to show the user bubble imme
 - `optimistic-reconciliation` ⚡ [fail] — Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)
 - `orphan-kpi-tiles` ⚡ [fail] — Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
@@ -532,6 +538,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `provider-bypass` ⚡ [fail] — Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)
 - `pwa` ⚡ [fail] — PWA Integrity Validator
 - `python-tool-pattern-mining` [fail] — Python Tool Pattern Miner (L-1 Convention Mining -- informational)
+- `qty-input-contract` ⚡ [fail] — DEEPWALK D5 gate (static teeth) — the 'number input's declared min/step/bounds are NOT enforced on the write path' class, across TWO central parsers. (a) QTY: a
 - `query-column-existence` ⚡ [fail] — Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)
 - `quota-board` ⚡ [fail] — Q5 Unified Quota Board (aggregates all quota dimensions into one measured board; FAILs if any bound is red)
 - `quota-coverage` ⚡ [fail] — Q2/Q5 Quota Coverage Ratchet (every high-write table has a per-day cap on a REAL timestamp column; FAILs if a new surface ships uncapped)
@@ -540,6 +547,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rag-flywheel` ⚡ [fail] — RAG Flywheel (processor + loop orchestrator + canonical tile tags + KPI seeds + walk template branches + lane D retriever)
 - `rag-flywheel-locks` ⚡ [fail] — RAG Flywheel Locks (inter-tile throttle + domain prefix + view-name self-check + positive-framing seeds + cold_archive demotion)
 - `rag-integrity` ⚡ [fail] — RAG Integrity (Phase 1.5: semantic search, KB chunks, embeddings)
+- `rate-limit-handling` ⚡ [fail] — per-page SaaS-LAYER · Layer RL (Rate Limiting) — METHOD-LAW central-adoption gate. When a page's AI/edge call is rate-limited (server checkAIRateLimit → structu
 - `reactivity-wiring` [fail] — Reactivity Wiring (Phase D anti-rot: every write surface with cross-page fan-out emits a cross-surface receipt [D1], and every high-blast surface has impact-pre
 - `read-battery` [fail] — Per-page P3 read-correctness + P7 empty-vs-error gate (LIVE headless Playwright, real Baguio supervisor). For 8 READ-heavy pages compares what the page RENDERS 
 - `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc
@@ -551,6 +559,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `realtime-payload-contract` ⚡ [fail] — Realtime Payload Consumer Contract (4-layer: subscribed table + payload columns + filter columns + channel name uniqueness)
 - `realtime-publication` ⚡ [fail] — Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)
 - `realtime-subscription` ⚡ [fail] — Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)
+- `redundant-widgets` ⚡ [fail] — Redundant status-chrome + duplicate-action widgets (2026-07-22) — the LOCK for the redundant-widget consolidation (Ian: 'redundant displays on every page … onli
 - `reliability-kpi-faithfulness` [fail] — Reliability-KPI faithfulness (LIVE: precomputed `asset_risk_scores.mtbf_days` must mirror the live canonical `get_mtbf_by_machine` engine — a divergence is allo
 - `reliability-workbench` ⚡ [fail] — Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)
 - `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)
@@ -561,11 +570,13 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rls-readiness` ⚡ [fail] — RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)
 - `rls-symmetry` ⚡ [fail] — RLS Policy Symmetry (4-layer: write-without-read + read-without-create + update gap + CRUD matrix)
 - `role-checks` ⚡ [blocker] — Client RBAC Ratchet (PLATFORM_CENTRALIZATION +RBAC: raw `role === 'supervisor'` comparisons may only FALL — new client role-gates must use window.WHRoles.isSupe
+- `role-gate-server-backstop` [fail] — P5 UI-role-gate server-backstop gate (LIVE) — the LAST P5 sub-property: several pages source HIVE_ROLE from localStorage (tamperable) and hide supervisor-only a
 - `role-string-consistency` ⚡ [fail] — Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)
 - `rpc-argument-consistency` ⚡ [fail] — RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)
 - `rpc-write-integrity` [fail] — RPC write-integrity (LIVE: every public plpgsql function's INSERT covers its target's NOT NULL columns + only writes tables that EXIST — locks two silent-100%-f
 - `rubric-coverage` [warn] — UFAI rubric coverage board (UR-P4, 2026-07-21) — aggregates the 61 single-page dims (family_rubric_scoreboard.json) + the 2 cross-page dims S2/S3 (component_con
 - `rubric-parity` ⚡ [fail] — UFAI rubric SSOT parity (UR-P0 lock, 2026-07-21) — the prose ruler (substrate/reference/ufai-ux-rubric.md) and the code lens (survey_ufai_rubric.js, which tags 
+- `saas-layer-scoreboard` [fail] — per-page SaaS-LAYER bughunt ANTI-DRIFT scoreboard (PER_PAGE_SAAS_LAYER_BUGHUNT_ROADMAP.md §0) — regenerates PER_PAGE_SAAS_LAYER_SCOREBOARD.md (every page × the 
 - `schema` ⚡ [fail] — Schema Consistency Validator
 - `schema-coverage` ⚡ [blocker] — Schema Coverage Validator (auto-derived from migrations, table+column existence)
 - `schema-drift` ⚡ [fail] — Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)

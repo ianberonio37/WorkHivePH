@@ -1005,7 +1005,7 @@
         <div id="wh-hub-panel-header">
           <span>WorkHive</span>
           <!-- FAB-CONSOLIDATION: live connectivity status pill (was the corner .wh-conn-chip) -->
-          <button type="button" id="wh-hub-conn-pill" data-state="online" aria-label="${_tt('Connection status', 'Katayuan ng koneksyon')}" title="${_tt('Connection status', 'Katayuan ng koneksyon')}">
+          <button type="button" id="wh-hub-conn-pill" data-state="online" style="display:none;" aria-label="${_tt('Connection status', 'Katayuan ng koneksyon')}" title="${_tt('Connection status', 'Katayuan ng koneksyon')}">
             <span id="wh-hub-conn-dot" aria-hidden="true"></span>
             <span id="wh-hub-conn-label">Online</span>
             <span id="wh-hub-conn-badge" style="display:none;" aria-hidden="true"></span>
@@ -1086,6 +1086,12 @@
     var pill = document.getElementById('wh-hub-conn-pill');
     if (!pill) return;
     function apply(s) {
+      // Silence-is-golden (2026-07-22, Ian: remove the redundant "Online" pill): the connectivity
+      // pill is pure noise in the healthy state — hide it, surface it ONLY when the link is degraded
+      // (offline / slow / backend down / pending writes queued). Symmetric with the realtime "Live"
+      // pill on the hive & community boards. The detail rows below still populate for when it shows.
+      var healthy = s.online && (s.backendOk !== false) && !s.slow && !((s.depth || 0) > 0);
+      pill.style.display = healthy ? 'none' : '';
       pill.setAttribute('data-state', s.stateKey || 'online');
       var lbl = document.getElementById('wh-hub-conn-label'); if (lbl) lbl.textContent = s.label || 'Online';
       var badge = document.getElementById('wh-hub-conn-badge');
@@ -1351,6 +1357,9 @@
     /* Keep the pill live if connectivity flips while the panel is open. */
     window.addEventListener('online',  paintConnPill);
     window.addEventListener('offline', paintConnPill);
+    /* Silence-is-golden: evaluate connectivity ONCE on load so a genuinely-degraded-on-load link
+       surfaces the pill even before the user opens the hub (healthy stays hidden via the markup default). */
+    paintConnPill();
 
     /* Mode switcher — Phase D. Click changes mode, persists, and rebuilds the
        grid + Recent row in place so the user sees the filtered view immediately. */

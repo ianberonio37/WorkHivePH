@@ -1,1 +1,1 @@
-{"breaches": 6}
+{"breaches": 7, "_note": "6->7 2026-07-22: integrations.html inline_script 80.9KB (0.9KB over the 80KB budget) = DOCUMENTED LEGIT SECURITY/CORRECTNESS GROWTH per the render-budget allowance — the CMMS-import bug fixes #9-#12 (status-clamp chunk-kill, dead fault_knowledge insert, error-checked batches, text-id default) + L-layer observability console.error. Comment bloat already trimmed (81.4->80.9); the residual is necessary fix code, not bloat. Other 6: analytics/asset-hub/hive/index/inventory/logbook (pre-existing large daily-driver pages)."}

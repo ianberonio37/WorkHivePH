@@ -1101,7 +1101,7 @@
         console.error('onStopRecording:', err);
         $('current-reply-loading').style.display = 'none';
         $('mic-state').textContent = 'Something went wrong. Tap to try again.';
-        showToast((err && err.message) || 'Voice processing failed.');
+        showToast(whAiError(err, 'Voice processing failed.'));
       } finally {
         _busy = false;
         $('mic-btn').disabled = false;

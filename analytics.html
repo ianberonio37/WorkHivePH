@@ -933,7 +933,7 @@
       renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
-      showToast('Analysis failed, check console');
+      showToast(whAiError(err, 'Analysis failed, check console'));
       if (_phase === phase) {
         document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div class="card"><div class="empty" style="color:var(--wh-red-text);">

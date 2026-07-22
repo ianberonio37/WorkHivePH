@@ -341,7 +341,7 @@ async function aiGenerateNarrative() {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'narrative', project_id: _projectCache.project.id, hive_id: _projectCache.project.hive_id },
     });
-    if (error) { showToast('AI failed: ' + error.message, 'error'); return; }
+    if (error) { showToast(whAiError(error, 'AI failed'), 'error'); return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
     // Replace the rule-based hero finding + exec summary with AI versions, tagged
     const insightCard = $('exec-summary').querySelector('.insight-card .text');

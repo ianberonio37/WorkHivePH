@@ -696,6 +696,7 @@
         if (!silent) toast('✓ Resume saved.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_saved', { page: 'resume' });
       } catch (err) {
+        console.error('resume saveCloud failed:', err);   // L-layer: keep the cloud-save failure greppable
         toast('Could not save to cloud: ' + (err.message || 'error') + '. Saved on device.');
         await saveLocal();
       } finally {
@@ -854,7 +855,7 @@
         await db.from('resume_versions').delete().eq('resume_id', id);  // best-effort (FK may already cascade)
         const { error } = await db.from('resume_documents').delete().eq('id', id);
         if (error) throw error;
-      } catch (err) { toast('Could not delete: ' + (err.message || 'error')); return; }
+      } catch (err) { console.error('resume delete failed:', err); toast('Could not delete: ' + (err.message || 'error')); return; }
       if (id === _resumeId) { resume = emptyResume(); resume.basics.name = WORKER_NAME; _resumeId = null; render(); await saveLocal(); }
       toast('Resume deleted.');
       await renderResumeList();
@@ -1132,7 +1133,7 @@
         body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid, dedupe_promotions: _promoteDedupe }),
       }, 60000);
       if (res === null) { toast('That took too long. Try a smaller or clearer file.'); return null; }
-      let raw; try { raw = await res.json(); } catch (_) { toast('Reader error. Please try again.'); return null; }
+      let raw; try { raw = await res.json(); } catch (_) { console.error('resume reader error:', _); toast('Reader error. Please try again.'); return null; }
       // Envelope-aware: errors carry { ok:false, error:{message} }; success carries { ok:true, data:{...} }. Legacy flat shape still supported.
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
         toast(raw && raw.error ? (raw.error.message || raw.error) : 'Reader failed. Try again.'); return null;
@@ -1331,9 +1332,9 @@
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
         }, 45000);
-      } catch (_) { toast('Could not reach the AI helper - check your connection and try again.'); return null; }
+      } catch (_) { console.error('resume AI-helper unreachable:', _); toast('Could not reach the AI helper - check your connection and try again.'); return null; }
       if (res === null) { toast('That took too long. Please try again.'); return null; }
-      let raw; try { raw = await res.json(); } catch (_) { toast('AI helper error. Please try again.'); return null; }
+      let raw; try { raw = await res.json(); } catch (_) { console.error('resume AI-helper error:', _); toast('AI helper error. Please try again.'); return null; }
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
         toast(raw && raw.error ? (raw.error.message || raw.error) : 'AI helper failed. Try again.'); return null;
       }
@@ -2083,5 +2084,6 @@
 
   <script src="companion-launcher.js"></script>
   <script src="nav-hub.js"></script>
+  <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
 </body>
 </html>

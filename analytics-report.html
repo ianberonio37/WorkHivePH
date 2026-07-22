@@ -684,7 +684,7 @@
         console.warn('[analytics-report] generate failed:', err && err.message);
         mount.innerHTML =
           '<div class="ar-error">' +
-            'Could not generate report: ' + escHtml(err && err.message ? err.message : String(err)) +
+            escHtml(whAiError(err, 'Could not generate report: ' + (err && err.message ? err.message : String(err)))) +
           '</div>';
       } finally {
         _loading = false;
@@ -1796,6 +1796,8 @@
        Loading both produces 2 floating buttons — only nav-hub here. -->
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js"></script>
+  <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
+
 
   <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
   <div id="toast" role="alert" aria-live="polite"></div>

@@ -5,6 +5,56 @@
 // Loaded before page scripts on every page.
 // ─────────────────────────────────────────────
 
+// ── SaaS-layer L (Error Tracking & Logs) — the ONE CENTRAL capture backbone ──────────────────
+// METHOD LAW (Ian, 2026-07-22): a defect on N surfaces is ONE unadopted central component, not N
+// fixes. Rather than chip an error-logger into every page, the L-layer capture lives HERE, once,
+// loaded before every page script:
+//   • window.whLogError(context, err)  — the single SINK every caught-error log routes through.
+//     To add real aggregation later (Sentry / a /ingest endpoint / logEvent) edit THIS ONE
+//     function — every surface upgrades at once, zero re-chipping.
+//   • global 'error' + 'unhandledrejection' listeners — capture the UNCAUGHT class platform-wide
+//     with ZERO per-page code (a bug that escapes a page's try/catch is still logged + greppable).
+// Caught errors still call whLogError/console.error at their site (inherent — a caught error is a
+// local decision), but the IMPLEMENTATION + the uncaught net are centralized. Gate: `error-capture`.
+(function whErrorCaptureBackbone() {
+  if (window.whLogError) return;                       // idempotent (defensive against double-load)
+  window.whLogError = function (context, err) {
+    try { console.error('[whLogError]', context, err); } catch (_) { /* empty-catch-allow: console unavailable, logging is best-effort */ }
+    // ↑ SINGLE upgrade point: forward to an aggregator here to light up every surface at once.
+  };
+  try {
+    window.addEventListener('error', function (e) {
+      window.whLogError('uncaught-error', (e && (e.error || e.message)) || e);
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      window.whLogError('unhandled-rejection', (e && e.reason) || e);
+    });
+  } catch (_) { /* empty-catch-allow: addEventListener unavailable (non-browser), the global net is best-effort */ }
+})();
+
+// ── SaaS-layer RL (Rate Limiting) + C (LLM) — the ONE CENTRAL AI-error → user-message mapper ─────
+// METHOD LAW (§0.4b): a page's AI/edge call that fails should show a SCOPE-CORRECT message (429 = "you
+// hit the rate limit, wait" · 503 = "AI busy" · network = "check connection"), not a raw error or a
+// generic "failed". Rather than a bespoke 429/503 check in every AI catch, that mapping lives HERE once.
+// Server rate-limits are already central (_shared/rate-limit.ts checkAIRateLimit → structured 429, gated
+// by perf_l5_llm_resilience); the ai-gateway is the LLM front door. This is the CLIENT side of both: a
+// page's AI catch calls `showToast(whAiError(err, 'AI failed'))` and the 429/503/offline UX is uniform +
+// tunable in one place. Gate: `rate-limit-handling`.
+(function whAiErrorMapper() {
+  if (window.whAiError) return;
+  window.whAiError = function (err, fallback) {
+    var m = '';
+    try { m = String((err && (err.message || err.error || err.status || err.code)) || err || ''); } catch (_) { /* empty-catch-allow: err stringify is best-effort, fall through to the generic message */ }
+    if (/\b429\b|rate.?limit|too many|quota|exhaust/i.test(m))
+      return 'You have hit the AI rate limit. Wait a moment and try again.';
+    if (/\b50[234]\b|unavailable|overloaded|timeout|timed out/i.test(m))
+      return 'The AI service is busy right now. Please try again shortly.';
+    if (/network|failed to fetch|offline|connection|name resolution/i.test(m))
+      return 'Network problem: check your connection and try again.';
+    return fallback || 'Something went wrong. Please try again.';
+  };
+})();
+
 // ── Native-app feel fallback (rubric class T · React-Native benchmark, 2026-07-18) ──────────
 // tokens.css carries the native-feel baseline (touch-action:manipulation + overscroll-behavior:
 // contain) for the ~35 pages that link it; this guard injects the SAME baseline ONLY where
@@ -869,23 +919,24 @@ function whFreshnessChip(target, tsMillis, opts) {
 }
 if (typeof window !== 'undefined') window.whFreshnessChip = whFreshnessChip;
 
-// whFreshnessFooter — the ONE-LINE adoption path for the family (roadmap F3).
-// Creates (once) a right-aligned footer meta line at the end of .page and stamps it via
-// whFreshnessChip. A page adopts G1 by calling this at the END of its real data-load —
-// never at DOMContentLoaded, which would claim "Updated just now" even when the fetch
-// FAILED (a lying chip is worse than no chip; same honesty bar as the tick).
-// Re-calling on a refresh cycle re-stamps. Uniform placement = family resemblance (class R).
-function whFreshnessFooter(opts) {
-  var host = document.querySelector('.page') || document.querySelector('main') || document.body;
-  if (!host) return;
+// whFreshnessFooter — DEPRECATED / RETIRED (2026-07-22, Ian: "there is a bottom like
+// updated x minute ago … we will just remove it"). The bottom-right "Updated X ago" meta
+// line DUPLICATED the page's own source chip (renderSourceChip → `.wh-source-chip`, e.g.
+// "Live · refreshed on load · Batay sa iyong logbook…"), which already states data freshness
+// at the TOP near the data — so every adopting page showed freshness TWICE (a G4 "single
+// freshness source" violation the family-wide adoption itself created). The source chip is
+// now the SINGLE freshness SSOT platform-wide.
+//
+// Kept as a no-op (not deleted) so the ~25 defensively-guarded call-sites
+// (`if (typeof whFreshnessFooter === 'function') whFreshnessFooter()`, many chained inside a
+// load `.then()`) stay harmless without touching 18 pages — the SSOT edit removes the display
+// everywhere in one place. It also REMOVES any footer a prior load already appended (defensive:
+// a page re-run after this deploy self-heals). Re-adoption is blocked by the `freshness-footer-
+// retired` gate. To restore per-page freshness, use the source chip, not this footer.
+function whFreshnessFooter(_opts) {
   var el = document.getElementById('wh-fresh-footer');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'wh-fresh-footer';
-    el.style.cssText = 'font-size:.62rem;text-align:right;margin-top:16px;';
-    host.appendChild(el);
-  }
-  whFreshnessChip(el, new Date().getTime(), opts || {});
+  if (el && el.parentNode) el.parentNode.removeChild(el);   // cleanup if a prior load appended it
+  return;                                                   // no-op: freshness lives in the source chip
 }
 if (typeof window !== 'undefined') window.whFreshnessFooter = whFreshnessFooter;
 
@@ -1042,6 +1093,51 @@ function whFmtNum(n, dp) {
   if (!isFinite(v)) return '0';
   return v.toLocaleString('en-PH', (dp != null) ? { minimumFractionDigits: dp, maximumFractionDigits: dp } : undefined);
 }
+// Central quantity parser (deepwalk D5, 2026-07-22). Modal write paths (inventory Use/Restock) submit
+// via a button handler, NOT a native <form>, so the qty <input type=number min step>'s DECLARED contract
+// is never enforced by the browser — a typed/pasted 2.5 or 1e-9 slips past a bare `parseFloat()>0` check
+// and deducts a fractional/absurd quantity that corrupts the integer stock count (feeds analytics/alerts/
+// forecast wrong). This HONORS the input's own min/step attributes (integer step => whole numbers only;
+// min => a floor), so it stays correct if a future measured part sets step="any". Returns {ok, qty, error}.
+// The on-hand CEILING stays with the caller (it owns the unit + item context).
+function whParseQty(inputEl, opts) {
+  opts = opts || {};
+  var label = opts.label || 'Quantity';
+  var raw = (inputEl && inputEl.value != null) ? String(inputEl.value).trim() : '';
+  var n = Number(raw);
+  if (raw === '' || !isFinite(n)) return { ok: false, error: label + ' must be a valid number.' };
+  if (n <= 0) return { ok: false, error: label + ' must be greater than 0.' };
+  var stepAttr = (inputEl && inputEl.getAttribute) ? inputEl.getAttribute('step') : null;
+  var step = (stepAttr && stepAttr !== 'any') ? parseFloat(stepAttr) : (opts.step != null ? opts.step : null);
+  if (step && Number.isInteger(step) && !Number.isInteger(n))
+    return { ok: false, error: 'Enter a whole number (no fractions).' };
+  var minAttr = (inputEl && inputEl.getAttribute) ? inputEl.getAttribute('min') : null;
+  var min = (minAttr != null && minAttr !== '') ? parseFloat(minAttr) : (opts.min != null ? opts.min : null);
+  if (min != null && isFinite(min) && n < min)
+    return { ok: false, error: label + ' must be at least ' + min + '.' };
+  return { ok: true, qty: n };
+}
+if (typeof window !== 'undefined') window.whParseQty = whParseQty;
+// Central price parser (deepwalk D5, 2026-07-22). Marketplace post/edit forms are `novalidate` and their
+// submit handlers validated only title/desc, so an unvalidated price reached the DB: a NEGATIVE value hit
+// the `price_nonneg` CHECK (raw 23514) and an over-precision value hit `numeric(14,2)` overflow — BOTH
+// surfacing a cryptic database error to the seller instead of a friendly message (the P4 validate-before-
+// write class, on 2 surfaces — METHOD LAW: one helper). Price differs from QTY: blank => negotiable (null),
+// 0 => free (allowed), fractional (2 dp) allowed. Returns {ok, value:(number|null), error}. Default sane
+// cap ₱10,000,000 (override via opts.max), well under numeric(14,2)'s ceiling.
+function whParsePrice(inputEl, opts) {
+  opts = opts || {};
+  var raw = (inputEl && inputEl.value != null) ? String(inputEl.value).trim() : '';
+  if (raw === '') return { ok: true, value: null };              // blank = negotiable
+  var n = Number(raw);
+  if (!isFinite(n)) return { ok: false, error: 'Enter a valid price, or leave blank for negotiable.' };
+  if (n < 0) return { ok: false, error: 'Price cannot be negative.' };
+  var max = (opts.max != null) ? opts.max : 10000000;            // ₱10M sane cap
+  if (n > max) return { ok: false, error: 'Price looks too high. Please double-check (max ₱' +
+    (typeof whFmtNum === 'function' ? whFmtNum(max) : max) + ').' };
+  return { ok: true, value: Math.round(n * 100) / 100 };         // clamp to 2 decimals (numeric scale=2)
+}
+if (typeof window !== 'undefined') window.whParsePrice = whParsePrice;
 function whFmtDate(d, opts) {
   var dt = (d instanceof Date) ? d : new Date(d);
   if (isNaN(dt.getTime())) return '-';

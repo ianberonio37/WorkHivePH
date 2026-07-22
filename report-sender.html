@@ -1499,7 +1499,8 @@
           setMicState('ready');
         }
       } catch (err) {
-        showToast('Transcription failed: ' + escHtml(String(err).slice(0, 50)));
+        console.error('report-sender transcription failed:', err);
+        showToast(whAiError(err, 'Transcription failed: ' + escHtml(String(err).slice(0, 50))));
         setMicState('ready');
       }
     }

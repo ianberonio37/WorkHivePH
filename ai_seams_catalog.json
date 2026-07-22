@@ -2,10 +2,10 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-07-20T21:22:33Z",
-    "seam_count": 173,
+    "generated_at": "2026-07-22T03:21:35Z",
+    "seam_count": 174,
     "by_kind": {
-      "saas\u2192ai": 39,
+      "saas\u2192ai": 40,
       "ai\u2192ai": 1,
       "ai\u2192tenant": 86,
       "ai\u2192quota": 47
@@ -13,7 +13,7 @@
     "ai_fn_count": 33,
     "contracts": {
       "covered": 0,
-      "uncovered": 173
+      "uncovered": 174
     }
   },
   "ai_fns": [
@@ -1688,7 +1688,7 @@
       "caller": "pm-scheduler.html",
       "callee": "embed-entry",
       "file": "pm-scheduler.html",
-      "line": 2134,
+      "line": 2120,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1698,7 +1698,7 @@
       "caller": "report-sender.html",
       "callee": "scheduled-agents",
       "file": "report-sender.html",
-      "line": 1637,
+      "line": 1638,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
       "contract_test": null
     },
@@ -1708,7 +1708,7 @@
       "caller": "report-sender.html",
       "callee": "voice-report-intent",
       "file": "report-sender.html",
-      "line": 1513,
+      "line": 1514,
       "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
       "contract_test": null
     },
@@ -1720,6 +1720,16 @@
       "file": "skillmatrix.html",
       "line": 582,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/tools/live_page_journeys.mjs\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "tools/live_page_journeys.mjs",
+      "callee": "analytics-orchestrator",
+      "file": "tools/live_page_journeys.mjs",
+      "line": 347,
+      "evidence": "checks.edge_fn = await httpCode(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, { method: 'POST', headers: { 'Content-Type': 'applica",
       "contract_test": null
     },
     {

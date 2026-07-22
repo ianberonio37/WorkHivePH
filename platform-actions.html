@@ -267,6 +267,7 @@
           }
           await refreshQueues();
         } catch (err) {
+          console.error('platform-actions action failed:', err);
           showToast('Action failed. Try again.', 'error');
           btn.disabled = false;
         }
@@ -289,5 +290,6 @@
       window.addEventListener('pagehide', () => clearInterval(_refreshTimer), { once: true }); // stop polling when the page is backgrounded/navigated (no leaked interval)
     })();
   </script>
+  <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
 </body>
 </html>

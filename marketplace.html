@@ -1276,6 +1276,7 @@
       if (_compareMode) toggleCompareMode();
       document.getElementById('form-rfq')?.reset();
     } catch (_err) {
+      console.error('marketplace send-quotes failed:', _err);
       showToast('Failed to send quote requests. Try again.', 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Send All Quote Requests'; }
@@ -1466,6 +1467,7 @@
       /* Reload the sheet content with the new entry */
       openSavedSearchesSheet();
     } catch (_err) {
+      console.error('marketplace saved-search save failed:', _err);
       showToast('Could not save. Try again.', 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Save Search'; }
@@ -1522,6 +1524,7 @@
       showToast('Saved search removed.', 'info');
       openSavedSearchesSheet(); /* reload */
     } catch (_) {
+      console.error('marketplace saved-search delete failed:', _);
       showToast('Could not delete. Try again.', 'error');
     }
   }
@@ -1842,6 +1845,24 @@
     }
 
     if (!_listings.length) {
+      // D3 (deepwalk): _listings is SERVER-filtered (loadListings .eq section/category + the _query
+      // search), so a filtered-0 means "nothing matched your search/filter", NOT the first-run
+      // "be the first to sell" CTA, which would tell a BUYER the marketplace is empty (it has listings)
+      // and prompt them to SELL. Show a no-match message when a search/category filter is active
+      // (mirrors community/asset-hub). The #no-results element was dead; this is the live message.
+      const _filterActive = (typeof _query === 'string' && _query.trim() !== '')
+                         || (typeof _cat === 'string' && _cat !== 'All');
+      if (_filterActive) {
+        if (info) info.innerHTML = '';
+        grid.removeAttribute('role');
+        grid/* xss-allow: static strings + escHtml(_section) */ .innerHTML = `
+        <div class="empty-state">
+          <span class="ic ic-search ic-xl" aria-hidden="true"></span>
+          <h3>No listings match those filters</h3>
+          <p style="max-width:420px;margin:0 auto;">Try a different search term or category, or clear the filters to see all ${escHtml(_section)} listings.</p>
+        </div>`;
+        return;
+      }
       const emptyConfig = {
         parts: {
           icon:  `<span class="ic ic-parts ic-xl" aria-hidden="true"></span>`,
@@ -2620,7 +2641,7 @@
       else if (data.description && descEl && descEl.value.trim()) showToast('Category suggested. Your description was kept as is.', 'info');
       else                                                 showToast('No suggestion this time. Please fill the listing manually.', 'info');
     } catch (_) {
-      showToast('AI assist could not run. Please fill the listing manually.', 'error');
+      showToast(whAiError(_, 'AI assist could not run. Please fill the listing manually.'), 'error');
     } finally {
       btn.disabled = false; btn.style.opacity = '1'; if (label) label.textContent = prev || 'AI assist';
     }
@@ -2705,8 +2726,13 @@
     const category = document.getElementById('post-category')?.value || '';
     const condition = document.getElementById('post-condition')?.value || null;
     const desc     = (document.getElementById('post-desc')?.value || '').trim();
-    const priceRaw = document.getElementById('post-price')?.value || '';
-    const price    = priceRaw !== '' ? parseFloat(priceRaw) : null;
+    // D5: validate price via central whParsePrice — the form is `novalidate`, so min="0" is unenforced;
+    // an unvalidated negative hit the DB price_nonneg CHECK (raw 23514) and an over-precision value hit
+    // numeric(14,2) overflow, both cryptic to the seller. blank => negotiable(null), 0 => free, 2dp OK.
+    const _priceEl  = document.getElementById('post-price');
+    const _priceRes = window.whParsePrice ? window.whParsePrice(_priceEl)
+                    : { ok: true, value: (_priceEl && _priceEl.value ? parseFloat(_priceEl.value) : null) };
+    const price     = _priceRes.value;
     const location = (document.getElementById('post-location')?.value || '').trim();
     const contact  = (document.getElementById('post-contact')?.value || '').trim();
     const imageUrl = (document.getElementById('post-image-url')?.value || '').trim() || null;
@@ -2714,6 +2740,7 @@
     const sourceItemId = (document.getElementById('post-source-item-id')?.value || '').trim() || null;
 
     if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
+    if (!_priceRes.ok) { showToast(_priceRes.error, 'error'); document.getElementById('post-price')?.focus(); return; }
 
     const btn = document.getElementById('btn-submit-post');
     if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }

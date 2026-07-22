@@ -2,7 +2,7 @@
 name: page-project-manager
 type: page
 source: file:project-manager.html
-source_sha: 64e954970119e205
+source_sha: 004fd03d5abf3a37
 last_verified: 2026-07-13
 supersedes: null
 ---

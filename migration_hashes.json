@@ -358,5 +358,7 @@
   "20260719000003_seller_rating_verified_only.sql": "c4039c10ad3adad77b731956cbe8e526c993355cf970d264ef3a412da4788a44",
   "20260719000004_numeric_nonnegative_bounds.sql": "d2cd26932ebfef8940a6f52cfdaf8046f3baca5d8e85b0bb7dede47ef2568486",
   "20260720000001_parts_reservation_idempotency.sql": "cf4af959b3d567b8b0384b633860c16fb33cd811ccaaba53d574fb3f8ac2e712",
-  "20260720000002_fix_fetch_active_alerts_type.sql": "f34303d3147c64bcee52bfdae837ea5bca3a31652f407358b467aeb118fd72d3"
+  "20260720000002_fix_fetch_active_alerts_type.sql": "f34303d3147c64bcee52bfdae837ea5bca3a31652f407358b467aeb118fd72d3",
+  "20260721000001_text_id_defaults.sql": "506fb66aef90796b6ac7b9c83ced8b78a1969c8c4f116867a10f5263c7139397",
+  "20260722000001_grant_select_marketplace_sellers.sql": "d52324b029580a5f38bc8e113e747019947237039fdec6c4dfd246eb42d08d64"
 }

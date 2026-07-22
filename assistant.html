@@ -1068,12 +1068,20 @@ happens to know maintenance, not a manual.`;
 
       } catch (err) {
         removeTypingIndicator();
+        // SaaS-layer L (observability): capture the AI-turn failure so it is greppable/aggregatable,
+        // not just shown to the user. Without this, an assistant that starts failing for users leaves
+        // NO log trace to debug (the L-layer "ungreppable logs" failure mode). Mirrors loadRecordsSummary.
+        console.error('assistant sendMessage failed:', err);
         const msg = err.message.includes('401')
           ? 'Invalid API key. Please go back to Setup and check your key.'
           : err.message.includes('429')
           ? 'Rate limit reached. Please wait a moment and try again.'
           : `Error: ${err.message}`;
         addAssistantBubble(msg);
+        // D4 recovery (deepwalk): the turn FAILED, so the optimistic input-clear at the top must be
+        // reverted — restore the question so "try again" is one tap, not a full retype. Guard against
+        // clobbering a new question the user may have started typing during the async wait.
+        if (!input.value.trim()) { input.value = text; autoResize(input); }
         showToast('Something went wrong');
       } finally {
         isLoading = false;

@@ -1464,11 +1464,18 @@ function openUseModal(id) {
 function closeUseModal() { document.getElementById('use-modal').style.display = 'none'; activeItemId = null; }
 
 async function submitUse() {
-  const qty   = parseFloat(document.getElementById('use-qty').value) || 0;
   const errEl = document.getElementById('use-modal-error');
   errEl.classList.add('hidden');
 
-  if (qty <= 0) { errEl.textContent = 'Quantity must be greater than 0.'; errEl.classList.remove('hidden'); return; }
+  // D5: honor the qty input's declared min/step (integer >= 1). The modal submits via a button, not a
+  // native HTML form element, so a typed/pasted 2.5 or 1e-9 would otherwise pass a bare parseFloat()>0
+  // check and deduct a fractional/absurd quantity (central whParseQty, utils.js).
+  const _qEl = document.getElementById('use-qty');
+  const _qr  = window.whParseQty ? window.whParseQty(_qEl, { label: 'Quantity used' })
+                                 : { ok: (parseFloat(_qEl.value) || 0) > 0, qty: parseFloat(_qEl.value) || 0,
+                                     error: 'Quantity must be greater than 0.' };
+  if (!_qr.ok) { errEl.textContent = _qr.error; errEl.classList.remove('hidden'); return; }
+  const qty = _qr.qty;
 
   const items = loadInventory().map(i => ({ ...i })); // copy to avoid mutating _items in place
   const idx   = items.findIndex(i => i.id === activeItemId);
@@ -1496,6 +1503,7 @@ async function submitUse() {
       if (deductErr) throw deductErr;
       newQty = Number(data);
     } catch (e) {
+      console.error('inventory use failed:', e);
       errEl.textContent = 'Use failed: ' + (e.message || e); errEl.classList.remove('hidden'); return;
     }
     items[idx].qty_on_hand = newQty;
@@ -1548,8 +1556,15 @@ function openRestockModal(id) {
 function closeRestockModal() { document.getElementById('restock-modal').style.display = 'none'; activeItemId = null; }
 
 async function submitRestock() {
-  const qty = parseFloat(document.getElementById('restock-qty').value) || 0;
-  if (qty <= 0) return;
+  // D5: honor the qty input's declared min/step (integer >= 1) — the modal submits via a button, not a
+  // native HTML form element (central whParseQty, utils.js). The old `if (qty<=0) return` also silently
+  // no-op'd on a bad value with zero feedback; surface it via showToast (restock's existing error channel).
+  const _qEl = document.getElementById('restock-qty');
+  const _qr  = window.whParseQty ? window.whParseQty(_qEl, { label: 'Restock quantity' })
+                                 : { ok: (parseFloat(_qEl.value) || 0) > 0, qty: parseFloat(_qEl.value) || 0,
+                                     error: 'Restock quantity must be greater than 0.' };
+  if (!_qr.ok) { showToast(_qr.error, 'warn'); return; }
+  const qty = _qr.qty;
 
   const items = loadInventory().map(i => ({ ...i })); // copy to avoid mutating _items in place
   const idx   = items.findIndex(i => i.id === activeItemId);
@@ -1566,7 +1581,7 @@ async function submitRestock() {
       const { data, error: rsErr } = await db.rpc('inventory_restock', { p_item_id: activeItemId, p_qty: qty, p_note: note || null });
       if (rsErr) throw rsErr;
       newQty = Number(data);
-    } catch (e) { showToast('Restock failed: ' + (e.message || e), 'warn'); return; }
+    } catch (e) { console.error('inventory restock failed:', e); showToast('Restock failed: ' + (e.message || e), 'warn'); return; }
     items[idx].qty_on_hand = newQty;
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                            // cache; RPC persisted qty+txn to DB
