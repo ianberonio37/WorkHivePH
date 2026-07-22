@@ -692,13 +692,13 @@
     },
     {
       "page": "hive.html",
-      "id": "roster-count",
+      "id": "hive-focus-label",
       "kind": "data_needs_bind",
       "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
     },
     {
       "page": "hive.html",
-      "id": "hive-focus-label",
+      "id": "roster-count",
       "kind": "data_needs_bind",
       "fix": "B.2: genuine data value \u2014 bind this element-id to the EXACT query/RPC that writes it (current resolution is nearest-.from() heuristic, verify + promote)."
     },

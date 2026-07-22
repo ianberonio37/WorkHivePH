@@ -1873,6 +1873,22 @@ async function addEntry(entry) {
     }
   }
 
+  // D2 (deepwalk, live-confirmed): a refresh-mid-submit then retry mints a fresh Date.now() id and
+  // creates a DUPLICATE entry (the client has no idempotency key). The first insert already landed
+  // server-side, so guard on an identical recent entry (central whRecentDuplicate, utils.js): same
+  // machine/status (and problem when present) by this worker within 30s is a refresh-retry, not a
+  // second repair. Skip + reassure.
+  if (window.whRecentDuplicate) {
+    const _dupId = await window.whRecentDuplicate(db, 'logbook',
+      { hive_id: HIVE_ID, worker_name: WORKER_NAME, machine: payload.machine,
+        status: payload.status, problem: payload.problem || null },
+      { windowMs: 30000, tsColumn: 'date' });
+    if (_dupId) {
+      showToast('That entry was just logged; no duplicate created.');
+      return { ok: true, deduped: true, id: _dupId };
+    }
+  }
+
   // payload.worker_name is set upstream from WORKER_NAME (governance: owner present)
   console.log('[logbook.insert] attempting', { id: payload.id, worker_name: payload.worker_name,
     hive_id: payload.hive_id, machine: payload.machine, status: payload.status });

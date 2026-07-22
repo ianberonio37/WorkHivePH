@@ -1,8 +1,8 @@
 {
- "generated": "2026-07-18T04:24:37+00:00",
- "coverage_pct": 100.0,
- "page_pct": 100.0,
- "ai_surface_pct": 100.0,
+ "generated": "2026-07-22T04:37:12+00:00",
+ "coverage_pct": 96.6,
+ "page_pct": 97.1,
+ "ai_surface_pct": 94.1,
  "surfaces": {
   "pages": 90,
   "ai_fns": 33
@@ -37,9 +37,9 @@
  ],
  "cells_total": 1704,
  "state_counts": {
-  "✅": 1164,
-  "🟡": 0,
-  "⬜": 0,
+  "✅": 1111,
+  "🟡": 26,
+  "⬜": 27,
   "n/a": 540
  },
  "gate_floor": [
@@ -87,10 +87,23 @@
   "validate_setcontext_pii_safe",
   "validate_supervisor_approval_backstop"
  ],
- "gates_failed": [],
- "regressed_cells": [],
- "next_target": null,
- "drive_plan": "grid DRY — nothing to drive",
+ "gates_failed": [
+  "validate_rpc_write_integrity"
+ ],
+ "regressed_cells": [
+  "validate_rpc_write_integrity"
+ ],
+ "next_target": {
+  "surface": "alert-hub",
+  "kind": "page",
+  "dim": "D2",
+  "dim_label": "data-integrity (the 11 DI write classes)",
+  "surface_pct": 93.8,
+  "open_dims": [
+   "D2"
+  ]
+ },
+ "drive_plan": "Playwright-walk `alert-hub.html` for D2 (data-integrity (the 11 DI write classes)): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: alert-hub D2`.",
  "orphan_oracles": [
   "ai_eval_gate",
   "audit_ai_prompt_standards",
@@ -144,7 +157,9 @@
   "orphan_depth_gate",
   "pre_deploy_gate",
   "seo_technical_gate",
+  "validate_accessor_load_order",
   "validate_account_deactivation",
+  "validate_ai_hive_context",
   "validate_ai_input_caps",
   "validate_ai_live_invoke",
   "validate_analytics_correctness",
@@ -153,6 +168,7 @@
   "validate_analytics_ufai_scoreboard",
   "validate_anomaly_status_forward",
   "validate_anon_key_retirement",
+  "validate_approval_lock",
   "validate_arc_u_focus_trap",
   "validate_arc_x_befamily",
   "validate_arc_x_cfamily",
@@ -169,20 +185,27 @@
   "validate_calc_live_value",
   "validate_causal_cascade_coverage",
   "validate_client_singleton",
+  "validate_client_write_grants",
+  "validate_cmms_import_rollback",
   "validate_cmms_webhook_security_live",
   "validate_committed_env_secret",
   "validate_companion_output_escaping",
   "validate_cron_batch_gate",
   "validate_cron_health",
+  "validate_crud_rollback",
   "validate_csp",
   "validate_data_completeness",
   "validate_debug_echo_prod_safe",
+  "validate_degraded_state_central",
   "validate_diagram_value_alignment",
   "validate_display_correctness_fixes",
+  "validate_double_submit_lock",
+  "validate_edge_fn_auth_gate",
   "validate_edge_symbol_imports",
   "validate_embed_auth",
   "validate_embedding_chain_consistency",
   "validate_embedding_retention",
+  "validate_empty_state_discrimination",
   "validate_engdesign_a11y",
   "validate_engdesign_ai",
   "validate_engdesign_ai_citations",
@@ -192,6 +215,7 @@
   "validate_engdesign_write_isolation",
   "validate_engdesign_xss",
   "validate_engines_live_value",
+  "validate_error_capture",
   "validate_export_value_contract",
   "validate_faithfulness_rail",
   "validate_family_rubric_ratchet",
@@ -206,6 +230,7 @@
   "validate_i18n_coverage",
   "validate_improvement_loop_integrity",
   "validate_inline_image_guard",
+  "validate_input_validation_guard",
   "validate_integration_configs_authz_live",
   "validate_intelligence_jsonb_shape",
   "validate_intelligence_write_isolation",
@@ -215,6 +240,7 @@
   "validate_lineage_status_drift",
   "validate_logbook_quota",
   "validate_login_proxy_lockout",
+  "validate_marketplace_trust_integrity",
   "validate_migration_grant_regression",
   "validate_ml_deps",
   "validate_narrative_grounding",
@@ -222,6 +248,9 @@
   "validate_no_client_counter_write",
   "validate_oc_updated_at_backed",
   "validate_oee_quality_derivation",
+  "validate_onconflict_index",
+  "validate_optimistic_input_restore",
+  "validate_p6_concurrency_class",
   "validate_page_battery",
   "validate_page_crud",
   "validate_password_recovery",
@@ -233,23 +262,31 @@
   "validate_projects_correctness",
   "validate_python_api_auth",
   "validate_python_api_deps",
+  "validate_qty_input_contract",
+  "validate_rate_limit_handling",
   "validate_read_battery",
   "validate_readonly_p6_no_edit",
   "validate_realtime_channel_cap",
   "validate_realtime_live",
   "validate_realtime_subscription_isolation",
+  "validate_redundant_widgets",
+  "validate_refresh_retry_dedup",
   "validate_reliability_correctness",
   "validate_report_email_escaping",
   "validate_response_format_validation",
   "validate_resume",
   "validate_rls_coverage",
   "validate_rls_no_permissive_bypass",
+  "validate_role_gate_server_backstop",
   "validate_rpc_return_shape",
+  "validate_rubric_parity",
   "validate_signup_bot_protection",
   "validate_signup_enumeration_safety",
   "validate_sri",
   "validate_ssrf_egress",
+  "validate_storage_keys",
   "validate_substrate_freshness",
+  "validate_test_hive_fixtures",
   "validate_text_cap_coverage",
   "validate_truth_view_read_isolation",
   "validate_truth_view_security_invoker",
@@ -266,26 +303,24 @@
  "surface_set_hash": "9f26fa121503",
  "oracle_set_hash": "a37a355e1fa9",
  "live_bonus": {
-  "live_cells": 28,
+  "live_cells": 27,
   "live_cell_ids": [
    "H1/F",
    "H1/I",
-   "H1/M",
    "H1/U",
    "H10/F",
    "H11/F",
    "H12/F",
    "H13/F",
    "H14/F",
-   "H15/F",
    "H2/A",
-   "H2/F",
    "H2/I",
    "H2/U",
    "H3/A",
    "H3/F",
    "H3/U",
    "H4/A",
+   "H4/F",
    "H4/U",
    "H5/A",
    "H5/F",
@@ -295,13 +330,14 @@
    "H7/F",
    "H7/U",
    "H8/A",
-   "H8/I"
+   "H8/I",
+   "H9/F"
   ],
   "breaches": 0,
   "fresh": true,
-  "age_days": 0.0,
+  "age_days": 4.0,
   "proven_ever": 32,
-  "this_run": 28
+  "this_run": 27
  },
  "cells": {
   "achievements|D1": {
@@ -544,9 +580,10 @@
    "locked": true
   },
   "alert-hub|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "alert-hub|D3": {
    "state": "✅",
@@ -702,9 +739,10 @@
    "locked": true
   },
   "analytics|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "analytics|D3": {
    "state": "✅",
@@ -860,9 +898,10 @@
    "locked": true
   },
   "asset-hub|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "asset-hub|D3": {
    "state": "✅",
@@ -940,9 +979,10 @@
    "locked": true
   },
   "assistant|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "assistant|D3": {
    "state": "✅",
@@ -1020,9 +1060,10 @@
    "locked": true
   },
   "audit-log|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "audit-log|D3": {
    "state": "✅",
@@ -1100,9 +1141,10 @@
    "locked": true
   },
   "community|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "community|D3": {
    "state": "✅",
@@ -1180,9 +1222,10 @@
    "locked": true
   },
   "dayplanner|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "dayplanner|D3": {
    "state": "✅",
@@ -1416,9 +1459,10 @@
    "locked": true
   },
   "founder-console|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "founder-console|D3": {
    "state": "✅",
@@ -1496,9 +1540,10 @@
    "locked": true
   },
   "hive|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "hive|D3": {
    "state": "✅",
@@ -1576,9 +1621,10 @@
    "locked": true
   },
   "index|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "index|D3": {
    "state": "✅",
@@ -1656,9 +1702,10 @@
    "locked": true
   },
   "integrations|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "integrations|D3": {
    "state": "✅",
@@ -1736,9 +1783,10 @@
    "locked": true
   },
   "inventory|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "inventory|D3": {
    "state": "✅",
@@ -1894,9 +1942,10 @@
    "locked": true
   },
   "logbook|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "logbook|D3": {
    "state": "✅",
@@ -1974,9 +2023,10 @@
    "locked": true
   },
   "marketplace-admin|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "marketplace-admin|D3": {
    "state": "✅",
@@ -2054,9 +2104,10 @@
    "locked": true
   },
   "marketplace-seller-profile|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "marketplace-seller-profile|D3": {
    "state": "✅",
@@ -2134,9 +2185,10 @@
    "locked": true
   },
   "marketplace-seller|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "marketplace-seller|D3": {
    "state": "✅",
@@ -2214,9 +2266,10 @@
    "locked": true
   },
   "marketplace|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "marketplace|D3": {
    "state": "✅",
@@ -2372,9 +2425,10 @@
    "locked": true
   },
   "ph-intelligence|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "ph-intelligence|D3": {
    "state": "✅",
@@ -2530,9 +2584,10 @@
    "locked": true
   },
   "platform-actions|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "platform-actions|D3": {
    "state": "✅",
@@ -2610,9 +2665,10 @@
    "locked": true
   },
   "pm-scheduler|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "pm-scheduler|D3": {
    "state": "✅",
@@ -2690,9 +2746,10 @@
    "locked": true
   },
   "project-manager|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "project-manager|D3": {
    "state": "✅",
@@ -2770,9 +2827,10 @@
    "locked": true
   },
   "project-report|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "project-report|D3": {
    "state": "✅",
@@ -3006,9 +3064,10 @@
    "locked": true
   },
   "report-sender|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "report-sender|D3": {
    "state": "✅",
@@ -3086,9 +3145,10 @@
    "locked": true
   },
   "resume|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "resume|D3": {
    "state": "✅",
@@ -3166,9 +3226,10 @@
    "locked": true
   },
   "shift-brain|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "shift-brain|D3": {
    "state": "✅",
@@ -3246,9 +3307,10 @@
    "locked": true
   },
   "skillmatrix|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "skillmatrix|D3": {
    "state": "✅",
@@ -3560,9 +3622,10 @@
    "locked": true
   },
   "voice-journal|D2": {
-   "state": "✅",
-   "oracle": "validate_attribution",
-   "locked": true
+   "state": "⬜",
+   "oracle": "validate_rpc_write_integrity",
+   "locked": true,
+   "regressed": true
   },
   "voice-journal|D3": {
    "state": "✅",
@@ -6515,9 +6578,9 @@
    "locked": true
   },
   "agent-memory-store|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "agent-memory-store|D11": {
    "state": "✅",
@@ -6555,9 +6618,9 @@
    "locked": true
   },
   "agentic-rag-loop|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "agentic-rag-loop|D11": {
    "state": "✅",
@@ -6593,9 +6656,9 @@
    "state": "n/a"
   },
   "ai-eval-runner|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-eval-runner|D11": {
    "state": "✅",
@@ -6631,9 +6694,9 @@
    "state": "n/a"
   },
   "ai-gateway|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-gateway|D11": {
    "state": "✅",
@@ -6671,9 +6734,9 @@
    "locked": true
   },
   "ai-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-orchestrator|D11": {
    "state": "✅",
@@ -6709,9 +6772,9 @@
    "state": "n/a"
   },
   "amc-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "amc-orchestrator|D11": {
    "state": "✅",
@@ -6747,9 +6810,9 @@
    "state": "n/a"
   },
   "analytics-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "analytics-orchestrator|D11": {
    "state": "✅",
@@ -6785,9 +6848,9 @@
    "state": "n/a"
   },
   "asset-brain-query|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "asset-brain-query|D11": {
    "state": "✅",
@@ -6959,9 +7022,9 @@
    "state": "n/a"
   },
   "engineering-bom-sow|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "engineering-bom-sow|D11": {
    "state": "✅",
@@ -6997,9 +7060,9 @@
    "state": "n/a"
   },
   "engineering-calc-agent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "engineering-calc-agent|D11": {
    "state": "✅",
@@ -7069,9 +7132,9 @@
    "state": "n/a"
   },
   "failure-signature-scan|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "failure-signature-scan|D11": {
    "state": "✅",
@@ -7107,9 +7170,9 @@
    "state": "n/a"
   },
   "fmea-populator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "fmea-populator|D11": {
    "state": "✅",
@@ -7145,9 +7208,9 @@
    "state": "n/a"
   },
   "hierarchical-summarizer|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "hierarchical-summarizer|D11": {
    "state": "✅",
@@ -7183,9 +7246,9 @@
    "state": "n/a"
   },
   "intelligence-report|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "intelligence-report|D11": {
    "state": "✅",
@@ -7255,9 +7318,9 @@
    "state": "n/a"
   },
   "project-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "project-orchestrator|D11": {
    "state": "✅",
@@ -7293,9 +7356,9 @@
    "state": "n/a"
   },
   "scheduled-agents|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "scheduled-agents|D11": {
    "state": "✅",
@@ -7331,9 +7394,9 @@
    "state": "n/a"
   },
   "semantic-fact-extractor|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "semantic-fact-extractor|D11": {
    "state": "✅",
@@ -7369,9 +7432,9 @@
    "state": "n/a"
   },
   "shift-planner-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "shift-planner-orchestrator|D11": {
    "state": "✅",
@@ -7407,9 +7470,9 @@
    "state": "n/a"
   },
   "temporal-rag-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "temporal-rag-orchestrator|D11": {
    "state": "✅",
@@ -7445,9 +7508,9 @@
    "state": "n/a"
   },
   "visual-defect-capture|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "visual-defect-capture|D11": {
    "state": "✅",
@@ -7483,9 +7546,9 @@
    "state": "n/a"
   },
   "voice-action-router|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-action-router|D11": {
    "state": "✅",
@@ -7555,9 +7618,9 @@
    "state": "n/a"
   },
   "voice-journal-agent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-journal-agent|D11": {
    "state": "✅",
@@ -7593,9 +7656,9 @@
    "state": "n/a"
   },
   "voice-logbook-entry|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-logbook-entry|D11": {
    "state": "✅",
@@ -7631,9 +7694,9 @@
    "state": "n/a"
   },
   "voice-report-intent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-report-intent|D11": {
    "state": "✅",
@@ -7669,9 +7732,9 @@
    "state": "n/a"
   },
   "voice-semantic-rag|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-semantic-rag|D11": {
    "state": "✅",
@@ -7707,9 +7770,9 @@
    "state": "n/a"
   },
   "walkthrough-analyzer|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "walkthrough-analyzer|D11": {
    "state": "✅",
@@ -7751,7 +7814,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 4.9,
+ "delta_vs_last": 0.0,
  "dry_streak": 0,
  "dry": false
 }

@@ -165,7 +165,7 @@
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 108799
+          "offset": 110674
         }
       ],
       "drift": []

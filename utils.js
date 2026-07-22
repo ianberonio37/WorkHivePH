@@ -1138,6 +1138,26 @@ function whParsePrice(inputEl, opts) {
   return { ok: true, value: Math.round(n * 100) / 100 };         // clamp to 2 decimals (numeric scale=2)
 }
 if (typeof window !== 'undefined') window.whParsePrice = whParsePrice;
+// Central refresh-retry dedup guard (deepwalk D2, 2026-07-22). A NON-idempotent client write (a fresh-id
+// insert or a decrement RPC) carries no idempotency key, so a refresh-mid-submit then retry creates a
+// DUPLICATE / double effect (live-confirmed: logbook dup entry; inventory double stock deduction). The
+// FIRST write already landed server-side, so a pre-write check catches the retry: query for an identical
+// row created within `windowMs`. Pass the table, an equality-match object (null values skipped), and opts
+// {windowMs (default 30000), tsColumn (default 'created_at')}. Returns the recent row's id, or null.
+// Best-effort: returns null on any query error (falls through to the write). Keep the match SPECIFIC +
+// the window TIGHT so a legitimate rapid second write is not false-blocked.
+async function whRecentDuplicate(db, table, match, opts) {
+  opts = opts || {};
+  try {
+    if (!db || !table || !match) return null;
+    var since = new Date(Date.now() - (opts.windowMs || 30000)).toISOString();
+    var q = db.from(table).select('id').gte(opts.tsColumn || 'created_at', since).limit(1);
+    for (var k in match) { if (Object.prototype.hasOwnProperty.call(match, k) && match[k] != null) q = q.eq(k, match[k]); }
+    var res = await q;
+    return (res && res.data && res.data.length) ? res.data[0].id : null;
+  } catch (_) { return null; /* best-effort: never block a write on a dedup query failure */ }
+}
+if (typeof window !== 'undefined') window.whRecentDuplicate = whRecentDuplicate;
 function whFmtDate(d, opts) {
   var dt = (d instanceof Date) ? d : new Date(d);
   if (isNaN(dt.getTime())) return '-';

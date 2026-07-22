@@ -455,6 +455,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "refresh-retry-dedup",
+        "script":  "tools/validate_refresh_retry_dedup.py",
+        "args":    [],
+        "label":   "DEEPWALK D2 gate (static teeth) — a NON-idempotent client write (a fresh-id INSERT or a decrement/increment RPC) has no idempotency key, so a refresh-mid-submit then retry creates a DUPLICATE / double effect (the button-lock only stops a same-page double-tap; a refresh spawns a fresh page that bypasses it). REAL, live-confirmed 2026-07-22: logbook addEntry (fresh Date.now() id => dup entry), inventory submitUse (inventory_deduct AGAIN => DOUBLE stock deduction), submitRestock (double restock), marketplace handlePostSubmit (dup listing). FIX (central, METHOD LAW): window.whRecentDuplicate(db, table, matchObj, {windowMs, tsColumn}) in utils.js queries for an identical recent row (tight window + specific match => no false-block; best-effort, never blocks a write on error); each handler calls it BEFORE the write and skips on a hit. Live-verified: retry dedups, different value not matched. Gate locks: the helper exists + window-exposed + every curated non-idempotent write calls it. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "optimistic-input-restore",
         "script":  "tools/validate_optimistic_input_restore.py",
         "args":    [],

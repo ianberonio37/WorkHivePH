@@ -83,6 +83,11 @@ PAGE_DIMS = {
     "D22": "deep-interaction (every modal/tab/filter/wizard)",
     "D23": "plain-language (no jargon in rendered copy)",
 }
+# NOTE (PER_PAGE_ARCHITECTURAL_LAYER_DEEPWALK_ROADMAP.md §4): projecting the blank architectural layers
+# (L-frontend D21f, CA, RL per-page, C per-page) into the grid needs per-dim APPLICABILITY scoping first
+# (n/a for content/no-backend pages, mirroring D2's write-path applicability) so a `* <dim>` wildcard
+# doesn't false-⬜ the 45 learn + non-backend surfaces and flap the stable ruler. Evidence-backed additive
+# delta, done deliberately per layer — NOT a bare wildcard tag (that dropped the ruler 100%→93.2%, reverted).
 # AI dims apply per AI edge fn. D21 observability is banked platform-wide (serveObserved 56/56).
 AI_DIMS = {
     "D10": "grounding/retrieval-quality (cites real hive data)",

@@ -77,7 +77,7 @@ _B.2: genuine data value — bind this element-id to the EXACT query/RPC that wr
 | Page | Element |
 |---|---|
 | hive.html | `audit-log-count` |
-| hive.html | `roster-count` |
 | hive.html | `hive-focus-label` |
+| hive.html | `roster-count` |
 | marketplace.html | `post-ai-assist-label` |
 

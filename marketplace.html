@@ -2746,6 +2746,20 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
 
     try {
+      // D2 (deepwalk): a refresh-mid-submit then retry creates a DUPLICATE listing (fresh insert, no
+      // idempotency key). The first insert already landed server-side, so guard on an identical recent
+      // draft (central whRecentDuplicate, utils.js): same seller + title + section within 30s is a
+      // refresh-retry, not a second listing. The finally re-enables the button.
+      if (window.whRecentDuplicate) {
+        const _dupId = await window.whRecentDuplicate(db, 'marketplace_listings',
+          { seller_name: WORKER_NAME || 'Anonymous', title: title, section: section, status: 'draft' },
+          { windowMs: 30000, tsColumn: 'created_at' });
+        if (_dupId) {
+          showToast('That listing was just posted; no duplicate created.', 'success');
+          closeSheet('post');
+          return;
+        }
+      }
       const { error } = await db.from('marketplace_listings').insert([{
         section,
         title,

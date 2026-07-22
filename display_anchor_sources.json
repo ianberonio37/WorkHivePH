@@ -81,6 +81,19 @@
     },
     {
       "page": "hive.html",
+      "id": "hive-focus-label",
+      "token": "hive-focus-label",
+      "bucket": "raw",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "v_inventory_items_truth",
+        "source_kind": "table/view",
+        "confidence": "high"
+      }
+    },
+    {
+      "page": "hive.html",
       "id": "presence-bar",
       "token": "presence-bar",
       "bucket": "raw",
@@ -114,6 +127,14 @@
         "source_kind": "table/view",
         "confidence": "high"
       }
+    },
+    {
+      "page": "hive.html",
+      "id": "ss-sticky-label",
+      "token": "ss-sticky-label",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "hive.html",
@@ -183,27 +204,6 @@
           }
         ]
       }
-    },
-    {
-      "page": "hive.html",
-      "id": "hive-focus-label",
-      "token": "hive-focus-label",
-      "bucket": "unknown",
-      "status": "RESOLVED_JS",
-      "source": {
-        "via": "js_parse_heuristic",
-        "source": "v_inventory_items_truth",
-        "source_kind": "table/view",
-        "confidence": "high"
-      }
-    },
-    {
-      "page": "hive.html",
-      "id": "ss-sticky-label",
-      "token": "ss-sticky-label",
-      "bucket": "unknown",
-      "status": "NEEDS_JS_PARSE",
-      "source": null
     },
     {
       "page": "logbook.html",
@@ -906,25 +906,25 @@
     },
     {
       "page": "marketplace.html",
-      "id": "rfq-count",
-      "token": "count",
-      "bucket": "raw",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
-      "page": "marketplace.html",
       "id": "post-ai-assist-label",
       "token": "post-ai-assist-label",
-      "bucket": "unknown",
+      "bucket": "raw",
       "status": "RESOLVED_JS",
       "source": {
         "via": "js_parse_heuristic",
         "source": "marketplace-listing-assist",
         "source_kind": "edge_fn",
         "confidence": "high"
+      }
+    },
+    {
+      "page": "marketplace.html",
+      "id": "rfq-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
       }
     },
     {
@@ -948,6 +948,16 @@
             "unit": null
           }
         ]
+      }
+    },
+    {
+      "page": "dayplanner.html",
+      "id": "period-label",
+      "token": "period-label",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
       }
     },
     {
@@ -997,20 +1007,10 @@
       }
     },
     {
-      "page": "dayplanner.html",
-      "id": "period-label",
-      "token": "period-label",
-      "bucket": "unknown",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
       "page": "engineering-design.html",
       "id": "step-label",
       "token": "step-label",
-      "bucket": "unknown",
+      "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"
@@ -1020,7 +1020,7 @@
       "page": "assistant.html",
       "id": "back-label",
       "token": "back-label",
-      "bucket": "unknown",
+      "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"
@@ -1038,8 +1038,8 @@
     },
     {
       "page": "report-sender.html",
-      "id": "rs-verdict-label",
-      "token": "-verdict-label",
+      "id": "mic-label",
+      "token": "mic-label",
       "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
@@ -1048,9 +1048,9 @@
     },
     {
       "page": "report-sender.html",
-      "id": "mic-label",
-      "token": "mic-label",
-      "bucket": "unknown",
+      "id": "rs-verdict-label",
+      "token": "-verdict-label",
+      "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"
@@ -1083,6 +1083,16 @@
       "page": "project-manager.html",
       "id": "wiz-item-count",
       "token": "count",
+      "bucket": "raw",
+      "status": "EXCLUDED_CHROME",
+      "source": {
+        "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "integrations.html",
+      "id": "drop-label",
+      "token": "drop-label",
       "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
@@ -1140,16 +1150,6 @@
       "id": "progress-label",
       "token": "progress-label",
       "bucket": "raw",
-      "status": "EXCLUDED_CHROME",
-      "source": {
-        "via": "ui_chrome"
-      }
-    },
-    {
-      "page": "integrations.html",
-      "id": "drop-label",
-      "token": "drop-label",
-      "bucket": "unknown",
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"
@@ -1675,15 +1675,15 @@
       "page": "voice-journal.html",
       "id": "sov-voice-label",
       "token": "sov-voice-label",
-      "bucket": "unknown",
-      "status": "NEEDS_JS_PARSE",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
       "source": null
     },
     {
       "page": "voice-journal.html",
       "id": "tts-toggle-label",
       "token": "tts-toggle-label",
-      "bucket": "unknown",
+      "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"
@@ -1779,7 +1779,7 @@
       "page": "index.html",
       "id": "popup-stage-label",
       "token": "popup-stage-label",
-      "bucket": "unknown",
+      "bucket": "raw",
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"

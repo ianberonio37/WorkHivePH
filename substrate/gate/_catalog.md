@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: f0e0a97dabc7e123
+source_sha: 64d2dd75cdc95fea
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (638) — the 'what's already gated' brain
+## gate · registered validators (639) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,7 +205,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (449)
+### Platform (450)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -560,6 +560,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `realtime-publication` ⚡ [fail] — Realtime Publication Coverage Validator (subscribed tables in supabase_realtime)
 - `realtime-subscription` ⚡ [fail] — Realtime Subscription Consistency (every postgres_changes table must be read by the page; forward-only ratchet)
 - `redundant-widgets` ⚡ [fail] — Redundant status-chrome + duplicate-action widgets (2026-07-22) — the LOCK for the redundant-widget consolidation (Ian: 'redundant displays on every page … onli
+- `refresh-retry-dedup` ⚡ [fail] — DEEPWALK D2 gate (static teeth) — a NON-idempotent client write (a fresh-id INSERT or a decrement/increment RPC) has no idempotency key, so a refresh-mid-submit
 - `reliability-kpi-faithfulness` [fail] — Reliability-KPI faithfulness (LIVE: precomputed `asset_risk_scores.mtbf_days` must mirror the live canonical `get_mtbf_by_machine` engine — a divergence is allo
 - `reliability-workbench` ⚡ [fail] — Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)
 - `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)

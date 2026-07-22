@@ -1489,6 +1489,22 @@ async function submitUse() {
   // The Use modal captures a Job Reference (for the audit trail), not a free note.
   const jobRef = document.getElementById('use-job-ref').value.trim();
   if (HIVE_ID && navigator.onLine) {
+    // D2 (deepwalk): a refresh-mid-submit then retry runs inventory_deduct AGAIN = a DOUBLE stock
+    // deduction (the RPC is atomic but has no idempotency key; the button-lock only stops a same-page
+    // double-tap). The first deduct already wrote its inventory_transactions row, so guard on an
+    // identical recent 'use' txn (central whRecentDuplicate): same item + exact qty (qty_change=-qty) +
+    // worker + job ref within 15s is a refresh-retry, not a second consumption. Exact-qty + tight window
+    // keeps a legitimate different-qty or different-job use from being false-blocked.
+    if (window.whRecentDuplicate) {
+      const _dupTxn = await window.whRecentDuplicate(db, 'inventory_transactions',
+        { item_id: activeItemId, type: 'use', worker_name: WORKER_NAME, qty_change: -qty, job_ref: jobRef || null },
+        { windowMs: 15000, tsColumn: 'created_at' });
+      if (_dupTxn) {
+        errEl.textContent = 'That part use was just recorded; no double deduction.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+    }
     // ATOMIC server-side deduct — inventory_deduct FOR UPDATE-locks the row, closing the concurrent
     // read-modify-write race (P6 lost-update: two Uses each client-computed then upserted their own
     // ABSOLUTE qty_on_hand, so one deduction was silently overwritten). The RPC decrements + writes
@@ -1572,6 +1588,19 @@ async function submitRestock() {
 
   const note = document.getElementById('restock-note').value.trim();
   if (HIVE_ID && navigator.onLine) {
+    // D2 (deepwalk): a refresh-mid-submit then retry runs inventory_restock AGAIN = a DOUBLE restock
+    // (over-counts stock). The first restock already wrote its inventory_transactions row, so guard on
+    // an identical recent 'restock' txn (central whRecentDuplicate): same item + exact qty (qty_change
+    // = +qty) + worker + note within 15s is a refresh-retry, not a second restock.
+    if (window.whRecentDuplicate) {
+      const _dupTxn = await window.whRecentDuplicate(db, 'inventory_transactions',
+        { item_id: activeItemId, type: 'restock', worker_name: WORKER_NAME, qty_change: qty, note: note || null },
+        { windowMs: 15000, tsColumn: 'created_at' });
+      if (_dupTxn) {
+        showToast('That restock was just recorded; no duplicate.', 'warn');
+        return;
+      }
+    }
     // ATOMIC server-side restock — inventory_restock FOR UPDATE-locks the row, closing the concurrent
     // read-modify-write race (the increment twin of the Use lost-update; mig 20260713000008). The RPC
     // increments + writes the inventory_transactions row server-side (qty_on_hand == newest

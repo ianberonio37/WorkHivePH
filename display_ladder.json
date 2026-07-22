@@ -37,6 +37,14 @@
     },
     {
       "page": "hive.html",
+      "id": "hive-focus-label",
+      "token": "hive-focus-label",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "hive.html",
       "id": "presence-bar",
       "token": "presence-bar",
       "rung": "descriptive",
@@ -50,6 +58,14 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "js_parse_heuristic"
+    },
+    {
+      "page": "hive.html",
+      "id": "ss-sticky-label",
+      "token": "ss-sticky-label",
+      "rung": "descriptive",
+      "grounded": false,
+      "source_via": null
     },
     {
       "page": "hive.html",
@@ -74,22 +90,6 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "verified_bind"
-    },
-    {
-      "page": "hive.html",
-      "id": "hive-focus-label",
-      "token": "hive-focus-label",
-      "rung": "descriptive",
-      "grounded": true,
-      "source_via": "js_parse_heuristic"
-    },
-    {
-      "page": "hive.html",
-      "id": "ss-sticky-label",
-      "token": "ss-sticky-label",
-      "rung": "descriptive",
-      "grounded": false,
-      "source_via": null
     },
     {
       "page": "logbook.html",
