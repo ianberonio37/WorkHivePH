@@ -97,9 +97,27 @@ central component exists (e.g. a `whInvoke()` edge wrapper, frontend RUM) BUILD 
 (4) drive the new column to 100% by ADOPTION, ratchet it. This adds ~6 columns x ~34 app pages ≈ 200 new measured
 cells WITHOUT per-page chipping — the fix is central, the grid just starts scoring it.
 
-`NEXT: (1) L-frontend — project validate_error_capture into deepwalk_flywheel.py as a per-page D21f cell (whLogError
-adoption); it is the highest-value dark layer (frontend observability). (2) RL + CA + C — project the existing
-adoption gates (rate-limit-handling, pwa-integrity, no-ai-gateway-bypass) into the grid as per-page cells. (3) A —
-audit whether a central whInvoke() wrapper exists; build it if not, then the adoption cell. (4) CI — the registration
-cell. Re-run derive_layer_deepwalk_matrix.py after each to watch the blank columns fill. Anti-drift §0; centralize-
-first §0.2. All LOCAL; commit is Ian's gate.`
+## §5 · EXECUTION RESULTS — 5 of 6 blank layers now MEASURED in the flywheel (Ian: "yes go ahead")
+Each layer is a NEW per-page cell in `deepwalk_flywheel.py`, projecting an EXISTING central component's gate
+(centralize-first: no per-page chipping — the grid just starts scoring adoption). Two clean mechanisms emerged:
+- **regex applicability** for a FORWARD-RATCHET gate (covers all pages of a kind): **L** (`D21F`, whLogError via
+  `validate_error_capture`, scoped by a `has_backend` page signal) + **A** (`A`, edge-fn-auth via
+  `validate_edge_fn_auth_gate`, scoped by a `has_edge` = `functions.invoke` signal). No over-match (the ratchet
+  genuinely covers every page of that kind).
+- **gate-emitted PASS-LIST** for a gate with precise invoke/exemption scope (a regex would false-credit): the gate
+  writes its EXACT covered pages to `deepwalk_layer_pages.json`, the flywheel reads it. **RL** (`D12P`,
+  rate-limit-handling → 12 AI-invoking pages) + **C** (`CP`, no-ai-gateway-bypass, same 12) + **CA** (`CA`, NEW
+  `validate_sw_shell_membership` → the 8 SW-shell pages). This CORRECTLY excludes the observability pages that
+  MENTION an AI fn without invoking it (llm-observability|D12P = n/a, not a false ✅).
+- **CI** needs NO distinct cell — it is META: the grid ITSELF is the page's CI coverage (every green cell is a
+  gate that CI runs on that page). A separate `CI` dim would be circular. Documented, not forced.
+
+**3 latent flywheel ENGINE bugs fixed while wiring these** (each would have broken any non-D#-numeric dim):
+`TAG_RE (D\d+)` truncated suffixed dims (D21f→D21) → `(D\d+\w*)`; then `(D\d+\w*)` still rejected layer dims
+(CA/CP/A start with a letter, not D+digit) → `([A-Z][A-Z0-9]*)`; and the tag dim is `.upper()`'d so lowercase
+suffixes never matched → uppercase-consistent naming (D21F). All backward-compatible (D1/D6/content:*/ai:*/report=
+unchanged, unit-tested).
+
+`NEXT: verify the 5-layer flywheel run is clean (D21F/D12P/CP/CA/A all ✅ their scope + n/a rest, no ruler flap),
+rebuild substrate, commit. The pass-list mechanism (deepwalk_layer_pages.json) is reusable for any future scoped
+layer. All LOCAL; commit is Ian's gate.`

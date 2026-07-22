@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:538-files
-source_sha: 7b735806029bb02f
+source_sha: 36d8f7e0d5be65fb
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -148,7 +148,7 @@ Entries (name · type · sha):
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
 - `feedback_seed_resolved_is_not_roadmap_done` · feedback · a967219b7ce19aec
-- `feedback_silence_is_golden_status_chrome` · feedback · 441030396b5859b8
+- `feedback_silence_is_golden_status_chrome` · feedback · 47bcb3e305aeff12
 - `feedback_skill_first_rule` · feedback · 53c4483d1b391308
 - `feedback_skill_improvement` · feedback · dca320aa84326d9c
 - `feedback_soft_judge_do_it_yourself` · feedback · 44ccf0873e6c5b0d

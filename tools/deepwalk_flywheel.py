@@ -87,12 +87,24 @@ PAGE_DIMS = {
     # first — the fix is the central component, the cell scores adoption). Each carries its OWN applicability
     # (n/a where the concern has no surface), so a `* <dim>` wildcard never false-⬜s a page it can't apply to.
     "D21F": "L-frontend observability (whLogError error-capture backbone; no show-but-don't-log) [backend pages only]",
-    # RL/C/CA/A/CI per-page cells are QUEUED (PER_PAGE_ARCHITECTURAL_LAYER_DEEPWALK_ROADMAP.md §4). L landed
-    # cleanly because error-capture is a forward-RATCHET covering ALL backend pages (a regex "backend"
-    # applicability matches its scope exactly). RL/C need the gate's PER-PAGE invoke/exemption verdict, which
-    # a regex applicability over-matches (observability pages MENTION an AI fn without invoking it → false-
-    # credit). Correct next step: have those gates emit a per-page pass-list the flywheel reads, not a regex.
+    "D12P": "RL-per-page (a page invoking a rate-limited AI fn handles 429 via whAiError/inline) [gate pass-list]",
+    "CP":   "C-per-page (an AI-invoking page routes to models ONLY through ai-gateway; no direct-model bypass) [gate pass-list]",
+    "CA":   "CA caching/PWA (page in the SW offline shell exists + is cache-versioned) [gate pass-list]",
+    "A":    "A APIs/edge (every edge fn the page can invoke is auth-gated — no anon cross-tenant call) [edge pages only]",
+    # RL/C/CA/A/CI project a central-adoption gate. L used a regex applicability (backend); RL+ use the
+    # gate's OWN emitted per-page pass-list (deepwalk_layer_pages.json) — the gate's exact invoke-detected
+    # scope, NOT a regex approximation that over-matches a name-mention (PER_PAGE_ARCHITECTURAL_LAYER §4).
 }
+# Per-page pass-lists emitted by layer gates (each writes its dim → {pages, pass}). Read fresh so a cell is
+# applicable ONLY on the pages the gate actually covers (no regex over-match / false-credit). Best-effort.
+def _load_layer_pages():
+    import json as _json
+    f = os.path.join(ROOT, "deepwalk_layer_pages.json")
+    try:
+        d = _json.load(open(f, encoding="utf-8"))
+        return {k: set(v.get("pages", [])) for k, v in d.items() if isinstance(v, dict)}
+    except Exception:
+        return {}
 # AI dims apply per AI edge fn. D21 observability is banked platform-wide (serveObserved 56/56).
 AI_DIMS = {
     "D10": "grounding/retrieval-quality (cites real hive data)",
@@ -126,7 +138,7 @@ RECALL_AI_FNS = {"ai-gateway", "agent-memory-store"}
 DIM_SEVERITY = {
     "D2": 9, "D8": 9, "D24": 9, "D11": 8, "D7": 8, "D9": 8, "D25": 8, "D18": 8, "D13": 7,
     "D10": 7, "D19": 7, "D20": 7, "D3": 6, "D1": 6, "D12": 6, "D26": 5, "D6": 5, "D4": 5,
-    "D5": 4, "D15": 4, "D22": 4, "D23": 3, "D17": 3, "D21": 2, "D21F": 2,
+    "D5": 4, "D15": 4, "D22": 4, "D23": 3, "D17": 3, "D21": 2, "D21F": 2, "D12P": 6, "CP": 8, "CA": 3, "A": 7,
 }
 
 # Root pages that are NOT walkable production surfaces (test harnesses + backups).
@@ -135,10 +147,14 @@ _WRITE_RE = re.compile(r"\.insert\(|\.upsert\(|\.rpc\(|functions\.invoke|\.updat
 # has_backend: any backend op (read/write/rpc/invoke/fetch) that could error + surface to the user — the
 # scope of the L-frontend error-capture cell (D21F). A page with no backend op has no error to capture → n/a.
 _BACKEND_RE = re.compile(r"db\.from\(|\.rpc\(|functions\.invoke|\bfetch\(")
+# has_edge: page calls a Supabase EDGE FUNCTION (functions.invoke) — the scope of the A-layer cell (every
+# edge fn it can reach is auth-gated). edge-fn-auth-gate is a forward-RATCHET over all 57 fns, so like the
+# L cell a regex applicability matches its scope (all edge-invoking pages) with no over-match.
+_EDGE_RE = re.compile(r"functions\.invoke")
 # A tag optionally names a REPORT artifact (heavy/live oracles — a live-LLM battery, a chaos walk —
 # must NOT re-run every fast measure; instead the engine reads their fresh report for pass-status,
 # the roadmap's "drift==0 via baseline → ✅" path): `# DEEPWALK-CELL: ai:* D13 report=ai_live_invoke_results.json`
-TAG_RE = re.compile(r"#\s*DEEPWALK-CELL:\s*(\S+)\s+(D\d+\w*)(?:\s+report=(\S+))?", re.I)
+TAG_RE = re.compile(r"#\s*DEEPWALK-CELL:\s*(\S+)\s+([A-Z][A-Z0-9]*)(?:\s+report=(\S+))?", re.I)
 REPORT_FRESH_DAYS = 14  # a report older than this → the cell degrades ✅→🟡 (evidence went stale)
 
 
@@ -225,7 +241,8 @@ def list_app_pages():
             continue
         stem = base[:-5]  # drop .html
         pages[stem] = {"write": bool(_WRITE_RE.search(src)),
-                       "backend": bool(_BACKEND_RE.search(src)), "kind": "app"}
+                       "backend": bool(_BACKEND_RE.search(src)),
+                       "edge": bool(_EDGE_RE.search(src)), "kind": "app"}
     # NOTE: feedback/index.html is a user-facing APP page in a subdir — NOT folded in yet. The app
     # per-page-scan oracles (cwv, validate_clickable_keyboard_a11y, frontend_floor_cells) glob root
     # *.html only, so the `* Dxx` wildcards would FALSE-CREDIT it (verified: cwv never measured it,
@@ -356,6 +373,7 @@ def derive_cells(pages, ai_fns, bindings, gate_status):
     ✅ = a LOCKED bound oracle PASSed · 🟡 = a bound oracle exists (unlocked/SKIP) ·
     ⬜ = applicable, no bound oracle · regressed (locked+FAIL) → ⬜ + flagged."""
     cells = {}
+    _layer_pages = _load_layer_pages()  # gate-emitted per-page pass-lists (D12P, …): exact scope, no regex
 
     def classify(surface, dim, kind="app"):
         oracles = _oracles_for(surface, dim, bindings, kind)
@@ -383,6 +401,12 @@ def derive_cells(pages, ai_fns, bindings, gate_status):
                 continue
             if dim == "D21F" and not meta.get("backend"):
                 cells[f"{stem}|{dim}"] = {"state": "n/a"}  # no backend op → no error to capture → n/a
+                continue
+            if dim == "A" and not meta.get("edge"):
+                cells[f"{stem}|{dim}"] = {"state": "n/a"}  # no functions.invoke → no edge-fn surface → n/a
+                continue
+            if dim in _layer_pages and stem not in _layer_pages[dim]:
+                cells[f"{stem}|{dim}"] = {"state": "n/a"}  # gate's pass-list says this cell doesn't apply here
                 continue
             cells[f"{stem}|{dim}"] = classify(stem, dim, kind)
     for fn in ai_fns:

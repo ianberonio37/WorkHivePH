@@ -329,6 +329,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "sw-shell-membership",
+        "script":  "tools/validate_sw_shell_membership.py",
+        "args":    [],
+        "label":   "CA (Caching/CDN) deep-walk cell — every page in the service-worker OFFLINE SHELL (sw.js SHELL_FILES) must (a) exist on disk (a stale entry 404s the SW precache install → the whole offline shell breaks for every PWA user) and (b) the shell must be cache-VERSIONED (CACHE_NAME), so a shell change re-primes rather than serving stale cached markup. Emits its exact per-page pass-list to deepwalk_layer_pages.json[CA] for the deepwalk flywheel's CA architectural-layer cell (the gate-emitted-pass-list mechanism: the gate publishes its EXACT scope, the flywheel never regex-approximates). 8 shell HTML pages. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "degraded-state-central",
         "script":  "tools/validate_degraded_state_central.py",
         "args":    [],

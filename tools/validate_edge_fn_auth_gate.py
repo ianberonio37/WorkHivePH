@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * A
 """validate_edge_fn_auth_gate.py — per-page bughunt v3, L6 column: every edge fn must gate its caller.
 
 THE FINDING (v3 matrix L6 sweep, 2026-07-20): a Supabase edge function runs with the SERVICE_ROLE key,

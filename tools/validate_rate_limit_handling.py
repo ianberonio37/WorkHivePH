@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEEPWALK-CELL: * D12P
 """
 validate_rate_limit_handling.py - PER_PAGE SaaS-LAYER · Layer RL (Rate Limiting), 2026-07-22.
 ==============================================================================================
@@ -71,11 +72,38 @@ def self_test() -> bool:
     return ok
 
 
+def _emit_deepwalk_pages(dim: str, page_stems, all_pass: bool):
+    """Emit this gate's EXACT per-page coverage for the deepwalk flywheel (PER_PAGE_ARCHITECTURAL_LAYER
+    §4). The flywheel reads deepwalk_layer_pages.json to score the <dim> cell ONLY on the pages this gate
+    actually covers (its dynamic invoke-detected scope) — never a regex approximation that over-matches a
+    name-mention. Shared file: each layer gate contributes its own dim key. Best-effort (never fails main)."""
+    import json
+    f = REPO / "deepwalk_layer_pages.json"
+    try:
+        data = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    data[dim] = {"pages": sorted(set(page_stems)), "pass": bool(all_pass)}
+    try:
+        f.write_text(json.dumps(data, indent=1, sort_keys=True), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def main() -> int:
     if "--selftest" in sys.argv or "--self-test" in sys.argv:
         return 0 if self_test() else 1
     pages = ai_pages()
     missing = [(n, ai) for n, (ai, handled) in pages.items() if not handled]
+    # Publish the exact AI-invoking page set for the deepwalk flywheel. Both the RL cell (D12P: does the
+    # page handle 429) and the C cell (CP: does the page route AI through the gateway) apply to the SAME
+    # AI-invoking pages — so this one authoritative invoke-detected set scopes both (each has its own
+    # oracle: rate-limit-handling for D12P, no-ai-gateway-bypass for CP).
+    _stems = [n[:-5] for n in pages]
+    _emit_deepwalk_pages("D12P", _stems, not missing)
+    _emit_deepwalk_pages("CP", _stems, not missing)
     print(f"{B}RL rate-limit handling — every AI-invoking page must handle 429 (whAiError or inline) ({len(pages)} AI pages){X}")
     for n, ai in missing:
         print(f"  {R}○{X} {n}: invokes {','.join(ai)[:44]} but has NO 429 handling — a rate-limited user gets a raw error. Use whAiError(err,'…').")

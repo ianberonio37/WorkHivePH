@@ -1,0 +1,49 @@
+{
+ "CA": {
+  "pages": [
+   "asset-hub",
+   "hive",
+   "inventory",
+   "logbook",
+   "offline-fallback",
+   "pm-scheduler",
+   "report-sender",
+   "shift-brain"
+  ],
+  "pass": true
+ },
+ "CP": {
+  "pages": [
+   "analytics",
+   "analytics-report",
+   "asset-hub",
+   "assistant",
+   "hive",
+   "logbook",
+   "marketplace",
+   "project-manager",
+   "project-report",
+   "report-sender",
+   "shift-brain",
+   "voice-journal"
+  ],
+  "pass": true
+ },
+ "D12P": {
+  "pages": [
+   "analytics",
+   "analytics-report",
+   "asset-hub",
+   "assistant",
+   "hive",
+   "logbook",
+   "marketplace",
+   "project-manager",
+   "project-report",
+   "report-sender",
+   "shift-brain",
+   "voice-journal"
+  ],
+  "pass": true
+ }
+}

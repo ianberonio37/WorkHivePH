@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # DEEPWALK-CELL: ai:* D26
+# DEEPWALK-CELL: * CP
 r"""
 validate_no_ai_gateway_bypass.py — regression guard: NO browser page may POST a
 chat/completions payload to an EXTERNAL model endpoint, bypassing the canonical
