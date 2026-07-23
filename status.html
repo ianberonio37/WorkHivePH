@@ -59,6 +59,9 @@
        renderSourceChip for E3 provenance, the locale floor, the freshness auto-stamp). This
        page had NO shared layer at all, which is why its chip could not render. -->
   <script src="utils.js"></script>
+  <!-- Y1 offline/connectivity resilience: an internal ops dashboard is still a backend page — an offline
+       viewer must know the observability data is stale. Shared silence-is-golden banner (renders only when offline). -->
+  <script src="offline-banner.js"></script>
 </head>
 <body>
   <header>

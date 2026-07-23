@@ -28,7 +28,11 @@
        system-ui anyway -- all 41 of its text elements measured as a NON-Poppins typeface
        (rubric S1 / NN/g #4 internal consistency). The font was downloaded and discarded.
        var(--wh-font) resolves from tokens.css, linked above. */
-    body { font-family: var(--wh-font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
+    body { font-family: var(--wh-font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px;
+      /* I1 CLS: static wayfinding back-pill band reserve — nav-hub.js sets body padding-top post-load
+         (fast in isolation, LATE under full-sweep contention → whole page shifts 0→64px = the ~0.14 CLS
+         flicker). Present at first paint → nav-hub's `if(band > cur)` skips, layout unchanged. As logbook. */
+      padding-top: calc(64px + env(safe-area-inset-top, 0px)); }
     .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
@@ -322,6 +326,10 @@
   let _activeActor = '';
   let _activeAction = '';
   let _activeTarget = '';
+  // G5a system-memory: remember the supervisor's last-used filter ACROSS SESSIONS (not just the URL, which
+  // a fresh visit loses) via the shared whRememberView helper — the centralize-first fix for the 17.6% G5 gap.
+  const _view = (window.whRememberView || function () { return { restore() {}, save() {}, clear() {} }; })(
+    'audit-filters', () => ({ actor: _activeActor, action: _activeAction, target: _activeTarget, q: _searchTerm, range: _activeRange }));
   let _searchTerm  = '';
   let _expanded    = new Set();
   let _realtimeSub = null;
@@ -383,6 +391,7 @@
       const pairs = { actor: _activeActor, action: _activeAction, target: _activeTarget, q: _searchTerm };
       for (const [k, v] of Object.entries(pairs)) { v ? url.searchParams.set(k, v) : url.searchParams.delete(k); }
       history.replaceState(null, '', url);
+      _view.save();   // G5a: also persist to localStorage so the filter survives a FRESH visit, not just back-nav
     } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
   }
 
@@ -428,6 +437,18 @@
     _setF('target-filter', 'target', v => { _activeTarget = v; });
     const _q = _aq.get('q');
     if (_q) { const el = document.getElementById('search-input'); if (el) el.value = _q; _searchTerm = _q.toLowerCase(); }
+    // G5a: if this is a FRESH visit (no URL filter passed), restore the supervisor's LAST-USED filter from
+    // localStorage so they don't re-apply it every session (recognition over recall, across sessions).
+    if (!_aq.get('actor') && !_aq.get('action') && !_aq.get('target') && !_q) {
+      _view.restore((s) => {
+        const set = (id, v, assign) => { if (v) { const el = document.getElementById(id); if (el) el.value = v; assign(v); } };
+        set('actor-filter', s.actor, (v) => { _activeActor = v; });
+        set('action-filter', s.action, (v) => { _activeAction = v; });
+        set('target-filter', s.target, (v) => { _activeTarget = v; });
+        set('search-input', s.q, (v) => { _searchTerm = String(v).toLowerCase(); });
+        if (s.range) _activeRange = s.range;
+      });
+    }
   } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 
   const _auditChip = document.getElementById('audit-source-chip');

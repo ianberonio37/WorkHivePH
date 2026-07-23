@@ -1,6 +1,6 @@
 {
-  "clones": 56,
-  "duplicatedLines": 3981,
-  "percentage": 20.91,
-  "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational"
+ "clones": 55,
+ "duplicatedLines": 3733,
+ "percentage": 19.49,
+ "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational | 2026-07-23: 3731->3733 (+2 lines) = the wayfinding-pill static CLS-reserve <style> added to 3 more pages (analytics-report/architecture/resume) makes their <head> boilerplate match peers. INHERENT shared per-page chrome (the reserve MUST be inline to beat wayfinding's post-paint padding), not logic copy-paste — not refactorable without breaking first-paint CLS."
 }

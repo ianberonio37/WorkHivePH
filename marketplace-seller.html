@@ -196,7 +196,7 @@
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <main class="page" id="main-content">
-  <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 0.8-1.2 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2.25rem}</style>
+  <style>/* Arc-W W-lens: breathing room between top-level sections (gRatio 0.8-1.2 → ≥1.5) */ main.page > *:not(:last-child){margin-bottom:2.5rem}/* R1: 2.25rem(36px, off 8-pt) → 2.5rem(40px, on-scale) */</style>
 
   <!-- Profile card -->
   <div class="profile-card" id="profile-card">
@@ -444,6 +444,7 @@
   let _inquiries  = [];
   let _seller     = null;
   let _statusFilter = 'all';
+  window.addEventListener('load', function () { if (window.whAutoRememberTabs) whAutoRememberTabs('seller-status', '#listing-filter', 'data-status'); });   // G5a: remember the listing-status filter cross-session
   let _editItem   = null;
 
   /* ── Load profile ───────────────────────────────────────────────────────── */
@@ -1292,6 +1293,7 @@
 })();
 </script>
 <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('listing', ['edit-desc']); });</script>
 <!-- Reconciliation helpers (PRODUCTION_FIXES #43 + #47 + #48) -->
 <script src="button-lock.js"></script>
 <script src="oc-helper.js"></script>

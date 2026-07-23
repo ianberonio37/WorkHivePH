@@ -1,5 +1,5 @@
 /* ============================================================================
- * survey_ufai_rubric.js — the A–W RUBRIC lens (61 dims encoded), as ONE injectable
+ * survey_ufai_rubric.js — the A–Z RUBRIC lens (67 dims encoded), as ONE injectable
  * ============================================================================
  * Ian, 2026-07-15: "retrieve our entire UFAI UI UX class dimensions by our
  * substrate, then use it as your lens to re-survey the entire analytics pages
@@ -9,7 +9,7 @@
  *   ufai_battery.js grades the FIVE PILLARS (U/F/A/I/C) — axe, CWV, tap, wiring,
  *   value-correctness. It is the kernel and this file does NOT duplicate it.
  *   This is the *other* ruler: `substrate/reference/ufai-ux-rubric.md`'s
- *   **21 classes A–W / 63 dims** (61 encoded here; S2/S3 are cross-page, owned by
+ *   **24 classes A–Z / 74 dims** (67 encoded here; S2/S3 + X1/Y2/G5/J3/S4 are cross-page/journey, owned by
  *   family_rubric_sweep.mjs), each a CITED rule (NN/g, Laws of UX, WCAG,
  *   GOV.UK, web.dev). Ad-hoc probing kept surveying whatever the last finding
  *   pointed at; this walks the ruler start-to-finish so nothing is dropped.
@@ -479,6 +479,12 @@
     let cPass = 0, cTotal = 0, worst = { r: 99, t: '' };
     const c2Off = [];   // every failing element, not just the worst — the fix list
     textEls.forEach(e => {
+      // EMOJI-ONLY glyphs (a 🔧/📋 ss-tile-cap icon) render in their OWN colour — the CSS `color`
+      // is never painted, so scoring text-contrast on them measures a colour the user never sees
+      // (a false C2 fail on hive's ss-tile-cap). Skip when stripping emoji/VS/ZWJ leaves no word
+      // char; "⌘K" keeps its "K" so real symbol+letter text is still graded. §16.1 the ruler, not the page.
+      const _c2t = ownText(e);
+      if (_c2t && !/[\p{L}\p{N}]/u.test(_c2t.replace(/[\p{Extended_Pictographic}️‍]/gu, ''))) return;
       const s = getComputedStyle(e);
       // Gradient-clipped text (background-clip:text + transparent fill): the GLYPHS are
       // the gradient; `color` is unused. Score the worst glyph stop against the surface
@@ -587,7 +593,12 @@
     // affordance repetition, and a repeated DATA value in a table cell is just the data.
     // E4 governs the ANALYSIS PROSE only -- flagging the other two would push a "fix" onto
     // things that are working (the class of error that deleted required CSS from 3 pages).
-    const isProse = (e) => !e.closest('button, a, [role="button"], [role="tab"], table, thead, tbody, th, td, select, label');
+    // E4 grades the PRODUCT's analysis prose, NOT user-authored content -- a voice-journal is a LOG of a
+    // worker's verbatim entries ("Hyd power pack PMP-105 - oil sample sent... sticky pa rin."), and the same
+    // entry recurring across the list + a detail view is the LOG working, not a repeated "verdict" to collapse.
+    // Collapsing a log would DESTROY it. Reuse B3's isUserAuthored exclusion (transcript/post containers) so
+    // E4 never demands a "fix" to a captured-speech surface -- the same category error B3 already guards. (§16.1)
+    const isProse = (e) => !e.closest('button, a, [role="button"], [role="tab"], table, thead, tbody, th, td, select, label') && !isUserAuthored(e);
     // E4's rule is "N rows with the identical VERDICT -> say it ONCE". A verdict is a
     // CLAIM, i.e. a sentence. A repeated NOUN PHRASE is usually legitimate data: the PM
     // task "Battery voltage and electrolyte level" recurring across 4 assets is the data,
@@ -657,8 +668,14 @@
       out.push(NA('S1', 'Token conformance (radius/height/font/surface)',
         'page resolves NO --wh-radius-* : it has no token source to conform TO (link tokens.css)'));
     } else {
-      const ctrlsS = $$('button, a.refresh-btn, [role="tab"]', R).filter(vis);
-      const cardsS = $$('.card, .simple-card, .board-card, .sc-hero', R).filter(vis);
+      // Exclude platform CHROME (nav-hub, companion, feedback/overlays) — its radii are the SHARED
+      // component's vocabulary, not THIS page's tokens. nav-hub's #wh-hub-* / companion's #wh-ai-*
+      // controls use a 10px radius that isn't in a page's declared --wh-radius-* scale, so S1 blamed
+      // the PAGE (hive: rogue 10px) for furniture it doesn't own. Same chrome-is-furniture rule the
+      // Z1/Z3 detectors already apply via _inChrome. §16.1 the ruler, not the page.
+      const _s1Chrome = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[id*=wh-hub],[id*=wh-ai],[class*=companion-launch],[id*=companion],#wh-ai-widget,#wh-ai-trigger')) || /\bwh-(hub|ai)-/.test((e.id || '') + ' ' + (typeof e.className === 'string' ? e.className : ''));
+      const ctrlsS = $$('button, a.refresh-btn, [role="tab"]', R).filter(vis).filter((e) => !_s1Chrome(e));
+      const cardsS = $$('.card, .simple-card, .board-card, .sc-hero', R).filter(vis).filter((e) => !_s1Chrome(e));
       const legalR = new Set(declRadii.concat([0]));   // 0 = a deliberate square edge
       const shapes = ctrlsS.concat(cardsS).map((e) => {
         const raw = getComputedStyle(e).borderTopLeftRadius;
@@ -705,8 +722,22 @@
     // container, not just absolute ones. Legit tap-targets (add/navigate) live OUTSIDE this container.
     const isDurationBlock = (e) => !!e.closest('.calendar-wrap, [class*="cal-grid"], [class*="timeline-grid"], [aria-label*="calendar timeline" i], [aria-label*="timeline" i]')
       || /(^|\s)(sched-block|cal-event|tl-block|event-block)/.test(typeof e.className === 'string' ? e.className : '');
+    // A tiny radio/checkbox whose LABEL is a >=44px clickable target is NOT an undersized tap
+    // target -- the label IS the target (WCAG 2.5.5/2.5.8 credit the clickable label, and the Z3
+    // detector at ~L1469 already gives this credit). Without it, every label-wrapped radio/checkbox
+    // (a 13x13 dot inside a 293x59 label row) falsely dragged F1 AND K2 on every form page --
+    // hive/index/inventory/logbook/marketplace-seller-profile all read K2 50% purely from this FP.
+    // Instrument calibration, not a page fix (§16.1). [external-wcag-target-size-minimum-24px-spacing]
+    const _labelTarget44 = (e) => {
+      if (!/^(radio|checkbox)$/.test(e.type || '')) return false;
+      const wl = e.closest && e.closest('label');
+      const fl = e.id ? document.querySelector('label[for="' + (window.CSS && CSS.escape ? CSS.escape(e.id) : e.id) + '"]') : null;
+      const lbl = wl || fl; if (!lbl) return false;
+      const lr = lbl.getBoundingClientRect();
+      return Math.min(lr.width, lr.height) >= TH.F1.minTapPx;
+    };
     const small = inter.map(e => ({ e, r: e.getBoundingClientRect() }))
-      .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < TH.F1.minTapPx || o.r.height < TH.F1.minTapPx) && !isDurationBlock(o.e))
+      .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < TH.F1.minTapPx || o.r.height < TH.F1.minTapPx) && !isDurationBlock(o.e) && !_labelTarget44(o.e))
       .map(o => ({ w: Math.round(o.r.width), h: Math.round(o.r.height), t: (o.e.innerText || o.e.getAttribute('aria-label') || '').slice(0, 18) }));
     out.push(inter.length
       ? M('F1', 'Mobile / touch >= 44px', inter.length - small.length, inter.length,
@@ -1401,6 +1432,153 @@
           `${_st.length}/${_sf.length} stateful controls expose their state`));
       }
     } catch (_) { /* empty-catch-allow: best-effort native-mobile lens */ }
+
+    // ── Z · MODALITY (PC + Phone as first-class, not shrink-to-fit) — static/DOM dims (2026-07-22) ──
+    // The experience-in-motion extension (PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md). Graded at BOTH 390 (phone)
+    // and 1280 (desktop) by family_rubric_sweep, worse-per-dim — so Z2 reflow catches a phone-only h-scroll.
+    try {
+      const _vz = (e) => { if (e.offsetParent === null) return false; const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden'; };
+      // exclude platform CHROME (feedback FAB, companion, nav-hub, voice/sign-in overlays) — furniture, not the page
+      const _inChrome = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[class*=companion-launch],[id*=companion],#wh-ai-widget,#wh-ai-trigger,#wh-modal-anim-style'));
+
+      // Z2 · Responsive reflow (WCAG 1.4.10): no PAGE horizontal scroll at this viewport.
+      const _cw = document.documentElement.clientWidth;
+      const _sw = document.documentElement.scrollWidth;
+      const _reflow = _sw > _cw + 2;
+      const _z2off = [];
+      if (_reflow) {
+        document.querySelectorAll('body *').forEach((e) => {
+          const cs = getComputedStyle(e); if (cs.position === 'fixed') return;   // off-screen fixed chrome doesn't scroll the page
+          const r = e.getBoundingClientRect(); if (r.width < 40 || r.height === 0) return;
+          if (r.right > _cw + 2) _z2off.push(e.tagName.toLowerCase() + (e.id ? '#' + e.id : '.' + String(e.className || '').trim().split(/\s+/)[0]));
+        });
+      }
+      out.push(M('Z2', 'Responsive reflow (no h-scroll, WCAG 1.4.10)', _reflow ? 0 : 1, 1,
+        _reflow ? ('page scrolls horizontally by ' + (_sw - _cw) + 'px @' + _cw + 'px — offenders: ' + _z2off.slice(0, 4).join(', ')) : ('reflows clean, no h-scroll @' + _cw + 'px')));
+      out._z2 = _z2off;
+
+      // Z1 · Input efficiency: numeric-expecting fields fire the right keyboard on phone (type/inputmode).
+      const _numRe = /qty|quantit|price|amount|\bhours?\b|\bcost\b|\bstock\b|\bcount\b|reading|\bmeter\b|\brpm\b|\btemp|pressure|\bhz\b|kwh|\bvolts?\b|\bamps?\b|torque|percent|\bpct\b|minute|\bdays?\b|weeks?|interval|budget|weight|\blength\b|\bwidth\b|\bheight\b|diameter/i;
+      // IDENTIFIER fields carry numeric-ish words but hold ALPHANUMERIC text (part 6205-2RS, serial, model,
+      // search-by-number) — a numeric keyboard would be WRONG for them. Same class as asset-code false-positives
+      // (feedback_asset_code_identifiers_break_readability_detectors). Exclude them so Z1 flags only true VALUE fields.
+      const _idRe = /part.?(num|no\b|#)|serial|\bmodel\b|\bsku\b|\bp\/?n\b|referen|\border\b|\bpo\b|invoice|\bphone\b|\bzip\b|postal|barcode|\bvin\b|search|\bname\b|\bcode\b|address|\bemail\b/i;
+      const _txtIn = Array.from(document.querySelectorAll('input')).filter((e) => _vz(e) && !_inChrome(e) && !['hidden', 'checkbox', 'radio', 'file', 'submit', 'button', 'range', 'color', 'date', 'time', 'datetime-local', 'month', 'week'].includes(e.type));
+      const _hasNumKbd = (e) => e.type === 'number' || e.type === 'tel' || /numeric|decimal|tel/.test(e.getAttribute('inputmode') || '');
+      const _numIn = _txtIn.filter((e) => { const lbl = e.id ? document.querySelector('label[for="' + (window.CSS && CSS.escape ? CSS.escape(e.id) : e.id) + '"]') : null; const ctx = [e.name, e.id, e.placeholder, e.getAttribute('aria-label'), lbl && lbl.textContent].join(' '); return _numRe.test(ctx) && !_idRe.test(ctx); });
+      const _numOk = _numIn.filter(_hasNumKbd);
+      const _z1bad = _numIn.filter((e) => !_hasNumKbd(e)).map((e) => (e.id || e.name || e.placeholder || 'input').slice(0, 20));
+      out.push(_numIn.length === 0
+        ? NA('Z1', 'Input efficiency (right mobile keyboard)', 'no numeric-expecting inputs visible on this page')
+        : M('Z1', 'Input efficiency (numeric fields fire numeric keyboard)', _numOk.length, _numIn.length,
+          _z1bad.length ? (_z1bad.length + '/' + _numIn.length + ' numeric field(s) show a TEXT keyboard on phone — add type=number/tel or inputmode: ' + _z1bad.slice(0, 4).join(', ')) : ('all ' + _numIn.length + ' numeric fields set the right keyboard')));
+      out._z1 = _z1bad;
+
+      // Z3 · Gesture ergonomics & accidental-touch (WCAG 2.5.8): >=24px OR 24px-circle spacing; destructive not crowded.
+      // A sub-6px element is not a PERCEIVABLE tap target (a sliver / decorative onclick wrapper / a rect
+      // mis-measured mid-layout) — excluding it stops artifact "2px target" findings (dayplanner asset cards),
+      // while a genuinely-too-small real control (13-23px) still counts. Calibrate the instrument, not the page.
+      const _tooTiny = (e) => { const r = e.getBoundingClientRect(); return Math.min(r.width, r.height) < 6; };
+      const _ia = Array.from(document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, [role=button], [role=link], [onclick]')).filter((e) => _vz(e) && !_inChrome(e) && !_tooTiny(e));
+      const _rects = _ia.map((e) => ({ e, r: e.getBoundingClientRect() }));
+      // ONLY genuinely IRREVERSIBLE actions get the destructive-adjacency danger flag — a conventional
+      // form Clear/Reset/Cancel next to Submit is a universal, low-consequence pattern (reversible by re-entry),
+      // not an accidental-touch hazard; flagging it would be ruler noise (per §16.1 instrument-artifact discipline).
+      // IRREVERSIBLE-loss actions only. Archive (unarchive), clear/reset/cancel (re-enter) are RECOVERABLE —
+      // a mis-tap costs seconds, not data — so they are NOT accidental-touch HAZARDS (excluded, like clear/reset).
+      const _destRe = /delete|remove|trash|discard|revoke|\bwipe\b|permanent/i;
+      // A FILTER CHIP / TAB / TOGGLE labelled "Removed"/"Deleted" (data-status="removed", aria-pressed,
+      // .filter-chip, role=tab) SELECTS a view — it does NOT delete anything. The destructive-word regex
+      // false-flagged marketplace-seller/admin's "Removed" status FILTER as a destructive mis-tap risk. A
+      // real destructive control is a command button (data-action=delete, .danger), never a filter — those
+      // are excluded, real delete buttons still flag. §16.1 the ruler, not the page.
+      const _isFilterish = (e) => e.hasAttribute('data-status') || e.hasAttribute('data-filter')
+        || e.getAttribute('role') === 'tab' || e.hasAttribute('aria-pressed')
+        || /\b(filter-chip|\btab\b|\bchip\b|toggle|segment)\b/.test(typeof e.className === 'string' ? e.className : '');
+      const _isDest = (e) => !_isFilterish(e) && _destRe.test((e.innerText || '') + ' ' + (e.getAttribute('aria-label') || '') + ' ' + (e.id || '') + ' ' + (e.className || ''));
+      // Small targets (<24px) use the WCAG 2.5.8 24px-circle (any-direction) spacing test.
+      const _circleCrowded = (a) => { for (const o of _rects) { if (o.e === a.e) continue; const dx = Math.max(0, Math.max(a.r.left, o.r.left) - Math.min(a.r.right, o.r.right)); const dy = Math.max(0, Math.max(a.r.top, o.r.top) - Math.min(a.r.bottom, o.r.bottom)); if (Math.hypot(dx, dy) < 24) return true; } return false; };
+      // A DESTRUCTIVE ≥24px target is an accidental-touch hazard only when a DIFFERENT tappable target sits
+      // HORIZONTALLY beside it (shares a row band + <24px horizontal gap) — a thumb mis-taps side-by-side, NOT
+      // vertically-stacked feed items (a delete above the post body is normal layout, not a mis-tap risk).
+      const _horizAdj = (a) => { for (const o of _rects) { if (o.e === a.e) continue; const vOverlap = Math.min(a.r.bottom, o.r.bottom) - Math.max(a.r.top, o.r.top); if (vOverlap <= 6) continue; const dx = Math.max(a.r.left, o.r.left) - Math.min(a.r.right, o.r.right); if (dx >= 0 && dx < 24) return true; } return false; };
+      // A radio/checkbox's REAL tap target is its clickable LABEL (clicking the label toggles the control),
+      // not the ~13px native box. A control wrapped-in / associated-with a label ≥24px is adequately sized —
+      // crediting it stops false "13px radio" findings (hive poll, report-reason radios). WCAG 2.5.8 the same.
+      const _labelBig = (e) => { if (!/^(radio|checkbox)$/.test(e.type || '')) return false; const wl = e.closest && e.closest('label'); const fl = e.id ? document.querySelector('label[for="' + (window.CSS && CSS.escape ? CSS.escape(e.id) : e.id) + '"]') : null; const lbl = wl || fl; if (!lbl) return false; const lr = lbl.getBoundingClientRect(); return Math.min(lr.width, lr.height) >= 24; };
+      const _z3fail = [];
+      _rects.forEach((x) => { const m = Math.min(x.r.width, x.r.height); const small = m > 0 && m < 24 && !_labelBig(x.e); const dest = _isDest(x.e); if ((small && _circleCrowded(x)) || (dest && _horizAdj(x))) _z3fail.push((x.e.innerText || x.e.getAttribute('aria-label') || x.e.tagName).trim().slice(0, 16) + (dest ? '(destructive)' : '(' + Math.round(m) + 'px)')); });
+      out.push(_ia.length === 0
+        ? NA('Z3', 'Gesture ergonomics & accidental-touch', 'no interactive targets on this page')
+        : M('Z3', 'Gesture ergonomics & accidental-touch (24px + spacing, WCAG 2.5.8)', _ia.length - _z3fail.length, _ia.length,
+          _z3fail.length ? (_z3fail.length + ' crowded/small target(s) risk mis-tap: ' + _z3fail.slice(0, 4).join(', ')) : ('all ' + _ia.length + ' targets clear the 24px + spacing floor')));
+      out._z3 = _z3fail;
+    } catch (_) { /* empty-catch-allow: best-effort modality lens */ }
+
+    // ── X3 · FINDABILITY (journey dim — static affordance slice) — 2026-07-22 ──────────────────────
+    // A browseable LIST needs a way to FIND a specific item (search or filter/sort). The full X3 (no-results
+    // recovery) is a live journey step; this static slice measures the necessary affordance-presence.
+    try {
+      const _vf = (e) => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden';
+      const _inChromeX = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[class*=companion-launch],[id*=companion],#wh-ai-widget,#wh-ai-trigger'));
+      const _hasSearch = !!document.querySelector('input[type=search], [role=search]')
+        || Array.from(document.querySelectorAll('input')).some((e) => _vf(e) && !_inChromeX(e) && /search|find\b|filter/i.test((e.id || '') + ' ' + (e.placeholder || '') + ' ' + (e.getAttribute('aria-label') || '')));
+      const _hasFilter = Array.from(document.querySelectorAll('select, [role=combobox], [data-filter], input[list], button')).some((e) => _vf(e) && !_inChromeX(e) && /\bfilter\b|\bsort\b|category|status|\ball\b.*(categor|status|type)/i.test((e.id || '') + ' ' + (e.className || '') + ' ' + (e.getAttribute('aria-label') || '') + ' ' + (e.textContent || '').slice(0, 24)));
+      // a browseable list = many repeated peer items (a real list the user scans, not a few hero cards)
+      const _items = Array.from(document.querySelectorAll('[role=listitem], .card, .board-card, tbody tr, .list-item, .feed-item, [class*=-row]')).filter((e) => _vf(e) && !_inChromeX(e));
+      // A browseable CATALOG is a list of NAVIGABLE entities (click to open / has an action) -- the user scans
+      // MANY to FIND one, so search/filter earns its keep. A static REFERENCE/definition table (status.html's
+      // SLO rows: "metric → threshold", plain <td> text, nothing to click) is READ top-to-bottom, never searched;
+      // demanding a filter on it is the A3 nothing-to-disclose error in a new dim. Require >=half the rows be
+      // navigable before grading; else it is a reference table -> N/A. §16.1 the ruler, not the page.
+      const _navigable = (e) => (e.matches && e.matches('a[href],button,[role=button],[role=link],[onclick]')) || !!(e.querySelector && e.querySelector('a[href],button,[role=button],[onclick],input:not([type=hidden]),select'));
+      const _navItems = _items.filter(_navigable);
+      const _hasList = _items.length >= 10 && _navItems.length >= _items.length / 2;
+      out.push(!_hasList
+        ? NA('X3', 'Findability & search (affordance on browseable lists)', 'no substantial list on this page (' + _items.length + ' items) — item-search not required')
+        : M('X3', 'Findability & search (a browseable list offers search/filter)', (_hasSearch || _hasFilter) ? 1 : 0, 1,
+          (_hasSearch || _hasFilter) ? ('list of ' + _items.length + ' + ' + (_hasSearch ? 'search' : '') + (_hasSearch && _hasFilter ? '+' : '') + (_hasFilter ? 'filter' : '') + ' affordance') : (_items.length + '-item list with NO search/filter — a user cannot FIND a specific item')));
+    } catch (_) { /* empty-catch-allow: best-effort findability lens */ }
+
+    // ── Y1 · OFFLINE & CONNECTIVITY RESILIENCE (journey dim — static affordance slice) — 2026-07-22 ──
+    // A backend/write page must SURFACE connectivity state so an offline field-worker (WorkHive's reality) isn't
+    // left guessing. The shared offline-banner (offline-banner.js / __whOfflineBannerLoaded guard) is that
+    // affordance; it renders only WHEN offline (silence-is-golden), so we detect the COMPONENT, not a live banner.
+    // The deeper Y1 (writes actually queue + sync-on-reconnect) is a live devtools-offline journey step (roadmap).
+    try {
+      const _isBackend = (typeof window.getDb === 'function') || (typeof window.__whOfflineBannerLoaded !== 'undefined')
+        || Array.from(document.scripts).some((s) => /utils\.js|supabase/i.test(s.src || ''));
+      const _hasOffline = (typeof window.__whOfflineBannerLoaded !== 'undefined')
+        || Array.from(document.scripts).some((s) => /offline-banner/i.test(s.src || ''))
+        || !!document.querySelector('#wh-offline-banner,[data-offline-banner]');
+      out.push(!_isBackend
+        ? NA('Y1', 'Offline & connectivity resilience', 'no backend writes on this page — offline-state UX N/A')
+        : M('Y1', 'Offline & connectivity resilience (connectivity-state affordance wired)', _hasOffline ? 1 : 0, 1,
+          _hasOffline ? 'offline-banner affordance wired (surfaces state; queues/reconnect is the live journey step)' : 'backend page with NO offline-state affordance — an offline write can fail silently to the user'));
+    } catch (_) { /* empty-catch-allow: best-effort offline-resilience lens */ }
+
+    // ── X2 · INTERRUPTION RESILIENCE & RESUMABILITY (journey dim — static affordance slice) — 2026-07-23 ──
+    // A substantial COMPOSE/ENTRY form (a <textarea> the user writes real content into) must survive a refresh /
+    // interruption (a field-tech's connectivity blip, an inbound call) — else in-progress work is lost. The platform's
+    // canonical mechanism is whAutoSaveDraft() (utils.js: debounced localStorage draft; save/restore verified live
+    // 2026-07-23); some pages ship their own (saveDraft/restoreDraft/draftKey). We detect the ADOPTION (the affordance
+    // is present); the deeper X2 (a real type->refresh->restored live journey) is a family-sweep step (roadmap).
+    try {
+      const _vf2 = (e) => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden';
+      const _inChromeX2 = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[class*=companion-launch],[id*=companion],#wh-ai-widget,#wh-ai-trigger'));
+      // a compose field = a visible, non-chrome, editable <textarea> (the clearest "in-progress work" signal),
+      // excluding search/filter boxes (transient — nothing worth persisting).
+      const _compose = Array.from(document.querySelectorAll('textarea')).filter((e) => _vf2(e) && !_inChromeX2(e)
+        && !e.readOnly && !e.disabled && !/search|find\b|filter/i.test((e.id || '') + ' ' + (e.placeholder || '') + ' ' + (e.getAttribute('aria-label') || '')));
+      // draft-persistence adopted? the canonical whAutoSaveDraft() call, a page's own localStorage draft routine,
+      // OR an IndexedDB-backed auto-save (resume.html: onInput -> debounce(saveLocal) -> idbPut the whole state —
+      // a RICHER persistence than a draft; recognize it so §16.1 doesn't false-flag an already-resilient page).
+      const _draftWired = Array.from(document.scripts).some((s) => /whAutoSaveDraft\s*\(|saveDraft\s*\(|restoreDraft\s*\(|\bdraftKey\b|indexedDB\.open\s*\(|\bidbPut\s*\(/.test(s.textContent || ''));
+      out.push(!_compose.length
+        ? NA('X2', 'Interruption resilience & draft-survival', 'no compose/entry form (textarea) on this page — draft-survival N/A')
+        : M('X2', 'Interruption resilience (a compose form auto-saves a draft that survives refresh)', _draftWired ? 1 : 0, 1,
+          _draftWired ? (_compose.length + ' compose field(s) + draft-persistence wired (whAutoSaveDraft/own autosave; type->refresh->restore is the live journey step)') : (_compose.length + ' compose field(s) with NO draft-persistence — a refresh/interruption silently loses in-progress work')));
+    } catch (_) { /* empty-catch-allow: best-effort interruption-resilience lens */ }
 
     // ── roll-up ─────────────────────────────────────────────────────────────
     const measured = out.filter(o => o && o.kind === 'MEASURED');

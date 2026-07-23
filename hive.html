@@ -795,7 +795,7 @@
              dimension value back to its canonical fuel. Populated by
              renderMaturityStairway(). -->
         <p id="stair-source-chip" style="margin:0 16px 8px;"></p>
-        <p style="font-size:10px; color:rgba(255,255,255,0.42); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p>
+        <p style="font-size:10px; color:rgba(255,255,255,0.56); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
         <!-- 5 dimension bars (compact, always visible) -->
         <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
           <!-- C1/K1: fills are ONE neutral accent, not a per-dimension rainbow. A fixed green
@@ -868,31 +868,31 @@
            ───────────────────────────────────────────────────────────────── -->
       <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your team?" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
         <div style="background:var(--wh-navy); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:var(--wh-cloud);">
-          <h2 style="margin:0 0 0.5rem; font-size:1.05rem; font-weight:800; letter-spacing:0.02em;">What should WorkHive focus on for your team?</h2>
+          <h2 style="margin:0 0 0.5rem; font-size:1.05rem; font-weight:800; letter-spacing:0.02em;" data-i="intent_q">What should WorkHive focus on for your team?</h2>
           <p style="margin:0 0 1rem; font-size:0.78rem; color:rgba(255,255,255,0.65); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
-              <input type="radio" name="intent-primary" value="predictive" style="accent-color:var(--wh-orange);"> Predictive maintenance: stop failures before they happen
+              <input type="radio" name="intent-primary" value="predictive" style="accent-color:var(--wh-orange);"> <span data-i="intent_pred">Predictive maintenance: stop failures before they happen</span>
             </label>
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
-              <input type="radio" name="intent-primary" value="downtime" style="accent-color:var(--wh-orange);"> Reduce downtime: get production running faster
+              <input type="radio" name="intent-primary" value="downtime" style="accent-color:var(--wh-orange);"> <span data-i="intent_down">Reduce downtime: get production running faster</span>
             </label>
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
-              <input type="radio" name="intent-primary" value="training" style="accent-color:var(--wh-orange);"> Train workers: skill matrix + knowledge capture
+              <input type="radio" name="intent-primary" value="training" style="accent-color:var(--wh-orange);"> <span data-i="intent_train">Train workers: skill matrix + knowledge capture</span>
             </label>
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
-              <input type="radio" name="intent-primary" value="compliance" style="accent-color:var(--wh-orange);"> Compliance: PSME, DOLE, ISO 14224 evidence
+              <input type="radio" name="intent-primary" value="compliance" style="accent-color:var(--wh-orange);"> <span data-i="intent_comp">Compliance: PSME, DOLE, ISO 14224 evidence</span>
             </label>
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
-              <input type="radio" name="intent-primary" value="cmms_replace" style="accent-color:var(--wh-orange);"> Replace our spreadsheets / CMMS
+              <input type="radio" name="intent-primary" value="cmms_replace" style="accent-color:var(--wh-orange);"> <span data-i="intent_repl">Replace our spreadsheets / CMMS</span>
             </label>
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
-              <input type="radio" name="intent-primary" value="other" style="accent-color:var(--wh-orange);"> Something else
+              <input type="radio" name="intent-primary" value="other" style="accent-color:var(--wh-orange);"> <span data-i="intent_other">Something else</span>
             </label>
           </div>
           <div style="display:flex; gap:0.5rem;">
-            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;">Save</button>
-            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.6rem; font-weight:700; font-size:0.82rem; color:rgba(255,255,255,0.55); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;">Later</button>
+            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.75rem; font-weight:700; font-size:0.82rem; color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;" data-i="intent_save">Save</button>
+            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.82rem; color:rgba(255,255,255,0.55); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
           </div>
         </div>
       </div>
@@ -928,7 +928,7 @@
                hive_adoption_score + compute_adoption_risk. Populated by
                loadAdoptionCard(). -->
           <p id="adoption-source-chip" style="margin:8px 0 0;"></p>
-          <p style="font-size:10px; color:rgba(255,255,255,0.42); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p>
+          <p style="font-size:10px; color:rgba(255,255,255,0.56); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
         </div>
         <!-- Reasons + dropping workers drawer -->
         <div id="adoption-detail" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
@@ -1026,7 +1026,7 @@
         .ss-tile:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,0.34); }
         .ss-tile:active { transform:translateY(0) scale(0.995); }
         .ss-tile .ss-tile-top { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:38px; }
-        .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-size:1.05rem; background:rgba(255,255,255,0.06); }
+        .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:1.05rem; background:rgba(255,255,255,0.06); }   /* S1: 10px→12px (declared radius scale 8/12/16) */
         .ss-tile .sc-hero { font-size:2rem; font-weight:800; line-height:1.05; margin:8px 0 0; font-variant-numeric:tabular-nums; color:var(--wh-cloud); }
         .ss-tile .ss-tile-label { font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.82); margin-top:2px; }
         .ss-tile .ss-tile-cta { font-size:0.74rem; font-weight:700; margin-top:auto; padding-top:10px; color:rgba(255,255,255,0.55); }
@@ -1144,7 +1144,7 @@
           <p id="coach-source-chip" style="margin:0 0 8px;"></p>
           <div class="flex gap-2">
             <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:16px;" />
-            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:var(--wh-violet); border:1px solid rgba(167,139,250,0.4); border-radius:10px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
+            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:var(--wh-violet); border:1px solid rgba(167,139,250,0.4); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
           </div>
           <div id="coach-result" style="display:none; margin-top:12px;"></div>
         </div>
@@ -1188,6 +1188,13 @@
            The dynamic greeting (name + count) stays in English by design (not a static string). -->
       <script>
       window.WH_FIL = {
+        intent_q:"Ano ang dapat unahing tulungan ng WorkHive para sa inyong team?",
+        intent_pred:"Predictive maintenance: pigilan ang sira bago mangyari",
+        intent_down:"Bawasan ang downtime: mas mabilis na balik-produksyon",
+        intent_train:"Sanayin ang mga manggagawa: skill matrix + pag-capture ng kaalaman",
+        intent_comp:"Compliance: PSME, DOLE, ISO 14224 na ebidensya",
+        intent_repl:"Palitan ang aming spreadsheets / CMMS",
+        intent_other:"Iba pa", intent_save:"I-save", intent_later:"Mamaya",
         since:"Mula noong huli kang bumisita", updates:"mga update", synclive:"live", agosync:"&middot; naka-sync",
         eyebrow:"Hive Board", needsnow:"Kailangan ka ngayon", dofirst:"Kaligtasan &middot; unahin",
         pmoverdue:"Lumipas na PM tasks", schedule:"I-iskedyul na &#8594;",

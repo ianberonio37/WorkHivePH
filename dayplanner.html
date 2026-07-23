@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-    body { background-color: var(--wh-navy); min-height: 100vh; color: white; margin: 0; }
+    body { background-color: var(--wh-navy); min-height: 100vh; color: white; margin: 0; padding-top: calc(64px + env(safe-area-inset-top, 0px)); }/* I1 CLS: statically reserve the wayfinding back-pill band at first paint so wayfinding.js skips its post-paint padding shift (was 0.18 CLS) */
 
     /* Aurora background */
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -312,7 +312,7 @@
         </button>
       </div>
 
-      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.75);min-width:180px;text-align:center"></div>
+      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.75);min-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
 
       <!-- Add schedule item -->
       <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap" data-i="addschedule">
@@ -322,10 +322,10 @@
 
     <!-- Source chip — anchors the day planner verdict + cards to the
          canonical views they read. Populated by loadBoard(). -->
-    <p id="dayplanner-source-chip" style="margin:0 0 8px;"></p>
+    <p id="dayplanner-source-chip" style="margin:0 0 8px; min-height:76px;"></p><!-- I1 CLS: reserve the source-chip height (grows 0→62-76px on load, shifting the KPI row = CLS 0.182) -->
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderDayplannerSummary() from scheduleItems. -->
-    <div id="dp-verdict" class="verdict empty">
+    <div id="dp-verdict" class="verdict empty" style="min-height:90px;box-sizing:border-box"><!-- I1 CLS: reserve the verdict height (placeholder→real swap) so the KPI row below doesn't shift -->
       <span id="dp-verdict-icon" class="verdict-icon">·</span>
       <div class="verdict-text"><span id="dp-verdict-label">Loading day plan...</span><small id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
     </div>
@@ -1802,6 +1802,7 @@ document.addEventListener('keydown', e => {
   })();
 </script>
 <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('daytask', ['m-notes']); });</script>
 <!-- button-lock helper: prevents double-tap on add-block / save flows.
      Wrap: withButtonLock(btn, async () => { await db.from(...).insert(...); }).
      btn.disabled = true around the await; release on completion. -->

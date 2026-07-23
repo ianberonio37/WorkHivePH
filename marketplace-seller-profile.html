@@ -264,8 +264,8 @@
 
   <!-- Stats grid -->
   <div class="stats-grid">
-    <div class="stat-cell"><div class="stat-num" id="stat-listings">-</div><div class="stat-lbl">Active Listings</div></div>
-    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">-</div><div class="stat-lbl">Inquiries Replied</div></div>
+    <div class="stat-cell"><div class="stat-num" id="stat-listings">0</div><div class="stat-lbl">Active Listings</div></div>
+    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">0</div><div class="stat-lbl">Inquiries Replied</div></div>
     <div class="stat-cell"><div class="stat-num green" id="stat-response">-</div><div class="stat-lbl">Avg Response</div></div>
     <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
   </div>
@@ -404,8 +404,8 @@
           <a href="${link}" style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-light);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;min-height:44px;">View in forum →</a>
         </div>
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-          <div><div style="font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.xp_total}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Community XP</div></div>
-          <div><div style="font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Public posts</div></div>
+          <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.xp_total}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Community XP</div></div>
+          <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Public posts</div></div>
           <div style="margin-left:auto;"><span style="font-size:0.75rem;font-weight:700;color:var(--wh-blue);">${escHtml(tierLabel)}</span></div>
         </div>
         <p style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin:0.6rem 0 0;line-height:1.45;">This seller earned trust by helping teammates in the community forum.</p>
@@ -721,6 +721,7 @@
     if (!WORKER_VIEW) return;
 
     /* Filter chips */
+    if (window.whAutoRememberTabs) whAutoRememberTabs('seller-profile-section', '#section-filter', 'data-section');   // G5a: remember the last-viewed profile section
     document.querySelectorAll('[data-section]').forEach(chip => {
       chip.addEventListener('click', () => {
         _section = chip.dataset.section;

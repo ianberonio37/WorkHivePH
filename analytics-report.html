@@ -483,6 +483,8 @@
       .doc-panel table, .doc-panel .sow-clause, .doc-panel .result-tile { page-break-inside: avoid; }
     }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). Locked by validate_pill_reserve.py. */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 

@@ -97,7 +97,7 @@
       border: 1px solid var(--border);
       border-radius: 1rem; padding: 1rem 1.1rem;
       margin-bottom: 0.75rem;
-      min-height: 240px; /* I1 CLS: reserve the async briefing's settled height so its fill doesn't shift the page (0.27) */
+      min-height: 240px; /* I1 CLS: reserve the async briefing's settled height so its fill doesn't shift the page (0.27). 2026-07-23: a 480px bump was tried + REVERTED — the residual I1 is a complex reorganizing reflow at ~320ms (verdict/rows up 22px, briefing/section down 16px), NOT the briefing-card's own growth, and 480 risked visible empty space in the empty/no-plan state. The reflow is the documented irreducible contention-residual (passes on clean/isolation loads). */
     }
     .briefing-meta {
       font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em;
@@ -108,7 +108,7 @@
       display: inline-block; padding: 2px 9px; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
     }
-    .status-draft     { background: rgba(247,162,27,0.18); color: var(--wh-orange); }
+    .status-draft     { background: rgba(247,162,27,0.18); color: var(--wh-orange-light); }   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
     .status-published { background: rgba(74,222,128,0.18); color: var(--wh-green); }
     .status-archived  { background: rgba(180,180,180,0.14); color: var(--muted); }
     .briefing-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; }
@@ -572,7 +572,7 @@
         _sbChip.innerHTML = renderSourceChip({
           freshness: _fresh
             ? 'Live · shift plan generated on load'
-            : 'STALE · plan is from ' + fmtDate(_activePlan.generated_at) + ', not the current shift',
+            : 'STALE · plan generated ' + fmtDate(_activePlan.generated_at) + ', not the current shift',
           source: 'shift_plans',
           notes: ['Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator'],
         });
@@ -742,7 +742,7 @@
         };
         let text;
         if (riskCount >= 3) {
-          text = `${riskCount} assets are above the risk threshold. Start the shift with inspections of these: root cause one, fix the related parts pre-stage, and you'll knock the others down.`;
+          text = `${riskCount} assets are above the risk threshold. Inspect these first. Root-cause the top one. Pre-stage its parts. That knocks the others down.`;
           setCta(`Inspect ${riskCount} risk assets →`, '#risk-list');
         } else if (carryCount >= 5) {
           text = `${carryCount} open items carried forward. Close out the simplest ones first to clear the queue, then attack the rest with the freed-up time.`;
@@ -751,7 +751,7 @@
           text = `${riskCount} risk asset${riskCount === 1 ? '' : 's'} this window. Walk past those first thing. Early eyes on a degrading asset usually beat a reactive call-out later.`;
           setCta(`Walk past ${riskCount} risk asset${riskCount === 1 ? '' : 's'} →`, '#risk-list');
         } else if (pmsCount >= 5) {
-          text = `${pmsCount} PMs due this shift. Cluster them by location to minimise walking; the parts pre-stage card below tells you what to grab on the way out.`;
+          text = `${pmsCount} PMs due this shift. Cluster them by location to cut walking. The parts pre-stage card lists what to grab.`;
           setCta(`Plan ${pmsCount} PMs due →`, '#pms-list');
         } else if (pmsCount > 0) {
           text = `${pmsCount} PM${pmsCount === 1 ? '' : 's'} on the plan this shift. Knock them out early before any breakdown lands.`;

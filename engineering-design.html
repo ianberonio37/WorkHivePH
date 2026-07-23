@@ -548,6 +548,8 @@
     }
   </style>
   <link rel="canonical" href="https://workhiveph.com/engineering-design.html" />
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body class="text-white">
 <main>
@@ -875,6 +877,7 @@
 <!-- Nav -->
 <script src="utils.js"></script>
 <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoRememberFilters) whAutoRememberFilters('eng-search', ['calc-search']); });</script><!-- G5a: remember the calc search cross-session -->
 
 <!-- html2pdf: clean PDF export without browser headers/footers -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>

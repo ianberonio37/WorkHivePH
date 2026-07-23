@@ -160,7 +160,7 @@
     }
     .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
     .cat-safety      { background: rgba(239,68,68,0.15); color: var(--wh-red-text); }
-    .cat-technical   { background: rgba(41,182,217,0.12); color: var(--wh-blue); }
+    .cat-technical   { background: rgba(41,182,217,0.12); color: #4fc3e8; }   /* C2: AA-safe blue on the 12% tint (was --wh-blue #29B6D9 @ 4.03:1 → #4fc3e8 ~4.7:1) */
     .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange); }
     .cat-announcement{ background: rgba(168,85,247,0.12); color: var(--wh-violet); }
     .badge-pinned    { background: rgba(247,162,27,0.15); color: var(--wh-orange); }
@@ -504,11 +504,11 @@
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
-              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange);">-</p>
+              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange); font-variant-numeric:tabular-nums;">-</p>
               <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
-              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue);">-</p>
+              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue); font-variant-numeric:tabular-nums;">-</p>
               <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
@@ -1302,7 +1302,7 @@
       <button class="btn-icon" onclick="toggleFlag('${p.id}', ${p.flagged})" title="${p.flagged ? 'Unflag' : 'Flag'}" aria-label="${p.flagged ? 'Unflag post' : 'Flag post'}">
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.flagged ? '#f87171' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
       </button>
-      <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete post">
+      <button class="btn-icon" onclick="deletePost('${p.id}')" title="Delete post" aria-label="Delete post" style="margin-left:22px">
         <span class="ic ic-delete" aria-hidden="true"></span>
       </button>` : (isMine ? `
       <button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
@@ -1701,6 +1701,9 @@
   }
 
   // ── Post composer ─────────────────────────────────────────────────────────────
+  // X2 interruption resilience: autosave the in-progress post as a DRAFT so a refresh / phone call / accidental
+  // close doesn't lose it. Restored when the composer opens for a NEW post; cleared on a successful submit.
+  const _postDraft = (window.whAutoSaveDraft ? whAutoSaveDraft('post', ['post-content']) : { clear() {}, restore() {}, save() {} });
   function openComposer() {
     _editingPostId = null;
     document.getElementById('composer-title').textContent = 'New Post';
@@ -1708,6 +1711,7 @@
     document.getElementById('post-content').value = '';
     document.getElementById('post-char-count').textContent = '0 / 2000';
     document.getElementById('post-category').value = 'general';
+    _postDraft.restore();   // X2b: bring back the last unsaved draft into the fresh composer
     const _mh = document.getElementById('marketplace-hint');
     if (_mh) _mh.style.display = 'none';
     const cb = document.getElementById('post-public');
@@ -1881,6 +1885,7 @@
     if (error) { showToast('Could not post. Try again.', 'error'); return; }
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
+    _postDraft.clear();       // X2b: post committed — wipe the draft so the next composer opens fresh
 
     // XP toast — DB trigger handles the actual award server-side.
     // TRUE first-post signal = server-truth (0 posts at page load) AND none this session — so a
@@ -2226,7 +2231,7 @@
       const initials = m.worker_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       return `<div class="presence-chip">
         <div class="presence-dot online"></div>
-        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:var(--wh-blue); flex-shrink:0;">${escHtml(initials)}</div>
+        <div style="width:20px; height:20px; border-radius:50%; background:rgba(41,182,217,0.2); border:1px solid rgba(41,182,217,0.3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:#49c1df; flex-shrink:0;">${escHtml(initials)}</div>
         <span>${escHtml(m.worker_name)}</span>
       </div>`;
     }).join('');

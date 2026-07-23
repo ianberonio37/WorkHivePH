@@ -73,10 +73,24 @@ def _to_jsonable(obj):
             return _to_jsonable(obj.tolist())
     return obj
 
+from fastapi.responses import JSONResponse as _BaseJSONResponse
+
+
+class SafeJSONResponse(_BaseJSONResponse):
+    """Sanitize NaN/Infinity at the response boundary. FastAPI runs jsonable_encoder BEFORE this
+    (so numpy floats/arrays are already native by now), then Starlette's json.dumps uses
+    allow_nan=False — a single div-by-zero KPI (MTBF on a 0-failure asset, OEE on 0 units) otherwise
+    500s the WHOLE analytics response and hangs analytics-orchestrator (no Action Brief renders).
+    Replacing NaN/Inf with null here means one edge-case asset never blocks the dashboard."""
+    def render(self, content) -> bytes:
+        return super().render(_json_safe(content))
+
+
 app = FastAPI(
     title="Engineering Calc Python API",
     description="Standards-grade engineering calculations for WorkHive Engineering Design",
     version="0.1.0",
+    default_response_class=SafeJSONResponse,
 )
 
 # CORS — locked to known production origins (B1: was allow_origins=["*"]).
@@ -507,6 +521,22 @@ ANALYTICS_PHASES = {
     "descriptive": None,  # lazy-loaded on first call
 }
 
+def _json_safe(obj):
+    """Recursively replace NaN / Infinity floats with None. Starlette's JSONResponse serializes
+    with allow_nan=False, so a single div-by-zero KPI (MTBF on a 0-failure asset, OEE on 0 units)
+    raised 'Out of range float values are not JSON compliant' — 500-ing the WHOLE analytics call and
+    hanging analytics-orchestrator (no Action Brief). Sanitize at the API boundary so one edge-case
+    asset never blocks the dashboard."""
+    import math
+    if isinstance(obj, float):
+        return None if (math.isnan(obj) or math.isinf(obj)) else obj
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_json_safe(v) for v in obj]
+    return obj
+
+
 @app.post("/analytics")
 def analytics(req: AnalyticsRequest, _auth: None = Depends(require_api_key)):
     """
@@ -524,7 +554,7 @@ def analytics(req: AnalyticsRequest, _auth: None = Depends(require_api_key)):
     if phase == "descriptive":
         from analytics.descriptive import calculate
         try:
-            return calculate(req.inputs)
+            return _json_safe(calculate(req.inputs))
         except Exception as e:
             logger.error(f"ANALYTICS ERROR [descriptive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
@@ -532,7 +562,7 @@ def analytics(req: AnalyticsRequest, _auth: None = Depends(require_api_key)):
     if phase == "diagnostic":
         from analytics.diagnostic import calculate
         try:
-            return calculate(req.inputs)
+            return _json_safe(calculate(req.inputs))
         except Exception as e:
             logger.error(f"ANALYTICS ERROR [diagnostic]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
@@ -540,7 +570,7 @@ def analytics(req: AnalyticsRequest, _auth: None = Depends(require_api_key)):
     if phase == "predictive":
         from analytics.predictive import calculate
         try:
-            return calculate(req.inputs)
+            return _json_safe(calculate(req.inputs))
         except Exception as e:
             logger.error(f"ANALYTICS ERROR [predictive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
@@ -548,7 +578,7 @@ def analytics(req: AnalyticsRequest, _auth: None = Depends(require_api_key)):
     if phase == "prescriptive":
         from analytics.prescriptive import calculate
         try:
-            return calculate(req.inputs)
+            return _json_safe(calculate(req.inputs))
         except Exception as e:
             logger.error(f"ANALYTICS ERROR [prescriptive]: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")

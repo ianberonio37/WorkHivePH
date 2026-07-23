@@ -254,10 +254,23 @@
       padding-top: 0;
     }
     .kpi-detail.open {
-      max-height: 800px;
+      /* Was 800px — clipped the full-asset detail tables (PM Compliance ran 1102px
+         for this hive), which cut off the bottom rows + the threshold legend AND
+         made the clipped legend's box overlap the next card's H2 (rubric V1 flag,
+         measured 2026-07-22 @1280). Sized to fit realistic detail content so nothing
+         clips. overflow stays hidden for the collapse transition. */
+      max-height: 2400px;
       opacity: 1;
       padding-top: 0.75rem;
     }
+    /* A COLLAPSED detail keeps max-height:0 + overflow:hidden, so its content is VISUALLY hidden —
+       but the content still LAYS OUT at full height and overflows downward, so a child's
+       getBoundingClientRect() reports a phantom rect ~1100px below (the threshold-legend <p> landed
+       over the next card's H2). The rubric V1 collision detector reads getBoundingClientRect (which
+       ignores overflow clipping) and flagged a phantom legend×"Parts Consumption"/"Show all" overlap
+       @1280 even though nothing is visible. display:none on the collapsed children removes the
+       phantom box entirely; on open (.open) they render again and the max-height still animates. */
+    .kpi-detail:not(.open) > * { display: none; }
     .kpi-toggle {
       display: flex; align-items: center; justify-content: space-between;
       cursor: pointer; user-select: none; width: 100%;
@@ -414,6 +427,8 @@
       .kpi-chevron                { transition: none; }
     }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <main>

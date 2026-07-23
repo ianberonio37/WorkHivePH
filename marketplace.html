@@ -209,9 +209,9 @@
       padding: 0.2rem 0.5rem; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
     }
-    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange); border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange-light); border: 1px solid rgba(205,127,50,0.3); }   /* C2: AA-safe orange (was --wh-orange @ 4.42:1) */
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
-    .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
+    .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange-light); border: 1px solid rgba(247,162,27,0.35); }
     .badge-verified {
       padding: 0.2rem 0.5rem; border-radius: 999px;
       font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif;
@@ -521,6 +521,8 @@
     #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
     #mk-summary-details.open { display:block; }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 
@@ -1824,7 +1826,7 @@
       } else if (mine === 0) {
         text = `Browse the ${total} listing${total === 1 ? '' : 's'} below, or click + Post to add your own ${section} listing. Sellers with clear photos get 3× more inquiries.`;
       } else {
-        text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries: the faster you respond, the higher your seller rank climbs.`;
+        text = `You have ${mine} live listing${mine === 1 ? '' : 's'} in the marketplace. Check your inbox for buyer inquiries. Faster replies lift your seller rank.`;
       }
       actBox.textContent = text;
     }
@@ -3116,6 +3118,7 @@
       }
       const _q = _mq.get('q');
       if (_q) { _query = _q; const _si = document.getElementById('search-input'); if (_si) _si.value = _q; }
+      if (window.whAutoRememberFilters) whAutoRememberFilters('mkt-filters', ['search-input']);   // G5a: remember the search cross-session
       const _mn = _mq.get('min');
       if (_mn != null && _mn !== '') { _priceMin = parseFloat(_mn); const _pn = document.getElementById('price-min'); if (_pn) _pn.value = _mn; }
       const _mx = _mq.get('max');
@@ -3171,6 +3174,7 @@
 })();
 </script>
 <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('listing', ['post-desc']); });</script>
 <!-- oc-helper.js: optimistic concurrency for listing/order edits (PRODUCTION_FIXES #43) -->
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>

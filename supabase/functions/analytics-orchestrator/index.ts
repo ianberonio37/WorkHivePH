@@ -419,6 +419,51 @@ function summariseRiskFactors(factors: unknown): string[] {
 
 // ── Groq synthesis for Prescriptive phase ─────────────────────────────────────
 
+// Readability guard (rubric B3): the Action Brief renders on an operator's phone
+// beside deterministic cards held to a grade-8 bar. The B3 detector grades every
+// sentence of >=12 words (a <12-word sentence is exempt — inherently low grade).
+// LLM output drifts to 13-14 word compound sentences even under a word-cap prompt
+// (measured 2026-07-22: two action items scored grade 9.3-9.4), so this DETERMINISTIC
+// pass splits any >=12-word sentence at its natural clause joint — guaranteeing the
+// bar regardless of model variance. Prompt asks for short sentences; this enforces it.
+function _b3wc(s: string): number { return (s.match(/[A-Za-z]+/g) || []).length; }
+function _b3SplitLong(sentence: string): string {
+  const s = sentence.trim();
+  if (!s || _b3wc(s) < 12) return s;
+  // Clause markers, best-first — the marker becomes a sentence boundary.
+  const markers = [" because ", " so that ", ", and ", " and then ", " while ",
+    " to avoid ", " to prevent ", " so ", ", ", "; ", " — "];
+  for (const m of markers) {
+    const i = s.indexOf(m);
+    if (i > 0) {
+      const left = s.slice(0, i).trim();
+      let right = s.slice(i + m.length).trim();
+      if (_b3wc(left) >= 3 && _b3wc(right) >= 2) {
+        right = right.charAt(0).toUpperCase() + right.slice(1);
+        const l = _b3SplitLong(left.replace(/[.,;:—-]\s*$/, ""));
+        const r = _b3SplitLong(right);
+        return (l.endsWith(".") ? l : l + ".") + " " + r;
+      }
+    }
+  }
+  return s; // no safe split point — leave as-is (rare)
+}
+function _b3Enforce(text: unknown): unknown {
+  if (typeof text !== "string" || !text) return text;
+  return text.split(/(?<=[.!?])\s+/).map((p) => _b3SplitLong(p.trim()))
+    .filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+}
+function enforceReadablePlan(plan: Record<string, unknown>): Record<string, unknown> {
+  if (!plan || typeof plan !== "object") return plan;
+  const out: Record<string, unknown> = { ...plan };
+  out.summary   = _b3Enforce(out.summary);
+  out.narration = _b3Enforce(out.narration);
+  for (const k of ["this_week", "watch_list"]) {
+    if (Array.isArray(out[k])) out[k] = (out[k] as unknown[]).map(_b3Enforce);
+  }
+  return out;
+}
+
 async function callGroqSynthesis(
   fullContext: Record<string, unknown>,
   hiveMembers: string[],
@@ -461,8 +506,15 @@ reading grade 17.5 ("Reassign David Velasco to GEN-003 instrumentation checks...
 every hand-written card on the page passed. The examples below previously ran to 24 words
 each and TAUGHT that style — few-shot examples outweigh instructions, so they now model the
 target instead of contradicting it.
-  • ONE idea per sentence. Hard cap 20 words. Split rather than use a semicolon. [GOV.UK]
-  • ACTIVE voice: "Order 2 seal kits", never "2 seal kits should be ordered". [NN/g]
+  • ONE idea per sentence. HARD CAP 11 WORDS per sentence — a 12+ word sentence FAILS the
+    readability bar (measured 2026-07-22: two 13-14 word action items scored grade 9.3-9.4,
+    while every <12-word sentence passed). If a thought needs more, SPLIT it into two
+    sentences of <=11 words. Never chain clauses with a semicolon or "because / so / and" —
+    split into a second short sentence instead. [GOV.UK]
+  • ACTIVE voice ALWAYS — the readability bar flags passive as a fail. "Order 2 seal kits",
+    never "2 seal kits should be ordered". Diagnostic sentences especially: write "Wear drives
+    the failures", NEVER "Failures are driven by wear"; write "Bearing wear caused it", never
+    "It was caused by bearing wear". Put the ACTOR first, then its verb, then the target. [NN/g]
   • Lead with the ACTION, then the evidence. The reader may stop after sentence one.
   • Plain words at ~grade 8. Standards vocabulary (MTBF, ISO 14224, SMRP) is expected and
     exempt; corporate filler is not. Never write "it is important to note", "in order to",
@@ -491,9 +543,9 @@ Use bullet points. Maximum 250 words.
 // contract: analytics_action_plan_v1 (canonical_agent_contracts; consumers: analytics.html, shift-brain.html, hive.html)
 Format as JSON:
 {
-  "summary": "one sentence overview tying together the most important phase signal",
-  "this_week": ["action 1 with phase-linked reasoning", "action 2", ...],
-  "watch_list": ["machine or part to monitor + WHY (which phase signal flagged it)"],
+  "summary": "2-4 SHORT sentences that INFER ACROSS ALL 4 PHASES — one short sentence per phase signal (what happened · why · what's coming · what to do), so the overview reasons from descriptive+diagnostic+predictive+prescriptive together, not one signal. HARD CAP each sentence at 11 words (a 12+ word sentence FAILS the readability bar), grade-8 plain words, active voice, lead with the action. Always split into more short sentences rather than packing ideas.",
+  "this_week": ["EACH item is ONE action, <=11 words, active voice, lead with the verb. Put any phase-linked reasoning in a SECOND <=11-word sentence — e.g. 'Increase AC-002 PM to daily.' then 'Its MTBF is below the weekly interval.' NEVER one long 'because/and' sentence.", "action 2", ...],
+  "watch_list": ["machine or part to monitor, then WHY in a separate <=11-word sentence"],
   "narration": "1-2 sentence spoken summary in your persona's voice; lead with the single most important signal and quote its KPI or asset code verbatim"
 }`;
 
@@ -584,14 +636,14 @@ Format as JSON:
           const retry = await callAI(fixPrompt, { systemPrompt: composedSystem, temperature: 0.1, maxTokens: 800, jsonMode: true });
           const retryParsed = JSON.parse(retry);
           const v2 = await validateContract(db, "analytics_action_plan_v1", retryParsed);
-          if (v2.ok) return JSON.stringify(retryParsed);
+          if (v2.ok) return JSON.stringify(enforceReadablePlan(retryParsed));
           // Second strike — log and return empty so the dashboard tile
           // shows "no action plan" instead of a malformed render.
           console.error("[analytics-orchestrator] action_plan_v1 retry also failed:", v2.errors);
           return "{}";
         } catch { return "{}"; }
       }
-      return JSON.stringify(parsed);
+      return JSON.stringify(enforceReadablePlan(parsed));
     }
   } catch { /* fall through */ }
   return "{}";
@@ -1010,15 +1062,39 @@ serveObserved("analytics-orchestrator", async (req) => {
         hiveMembers = [worker_name];
       }
 
-      const [descRes, diagRes, predRes] = await Promise.allSettled([
-        callPythonAnalytics("descriptive", data),
-        callPythonAnalytics("diagnostic",  data),
-        callPythonAnalytics("predictive",  data),
-      ]);
+      // The Groq synthesis needs all 4 phases as context. descriptive/diagnostic/
+      // predictive were already computed + cached by the page (analytics_snapshots)
+      // on THIS SAME open — so READ them instead of recomputing. Recomputing all 3
+      // here meant the prescriptive request fired 4 parallel Python calls; the long
+      // combined wait (single-worker Python serializes the CPU-bound numpy legs) let
+      // the edge isolate accrue >2s of CPU and get killed by the per_worker hard
+      // limit (HTTP 546/502, no brief). Reading cache cuts it to 1 Python call
+      // (prescriptive) + Groq. Cache-miss (cold day / stale) falls back to a live
+      // Python call per missing phase, so the synthesis context is never degraded.
+      const _ctxPhases = ["descriptive", "diagnostic", "predictive"] as const;
+      const _ctx: Record<string, Record<string, unknown> | null> =
+        { descriptive: null, diagnostic: null, predictive: null };
+      if (hive_id) {
+        const { data: _snaps } = await db.from("analytics_snapshots")
+          .select("phase, payload").eq("hive_id", hive_id)
+          .eq("period_days", periodDays).in("phase", _ctxPhases as unknown as string[]);
+        for (const _s of (_snaps || [])) {
+          const _p = (_s as Record<string, unknown>).payload as Record<string, unknown> | null;
+          if (_p && !_p.error) _ctx[(_s as Record<string, string>).phase] = _p;
+        }
+      }
+      const _missing = _ctxPhases.filter((p) => !_ctx[p]);
+      if (_missing.length) {
+        const _live = await Promise.allSettled(_missing.map((p) => callPythonAnalytics(p, data)));
+        _missing.forEach((p, i) => {
+          const r = _live[i];
+          _ctx[p] = r.status === "fulfilled" ? (r.value as Record<string, unknown>) : null;
+        });
+      }
       const fullContext = {
-        descriptive:  descRes.status === "fulfilled" ? descRes.value : null,
-        diagnostic:   diagRes.status === "fulfilled" ? diagRes.value : null,
-        predictive:   predRes.status === "fulfilled" ? predRes.value : null,
+        descriptive:  _ctx.descriptive,
+        diagnostic:   _ctx.diagnostic,
+        predictive:   _ctx.predictive,
         prescriptive: results,
       };
 

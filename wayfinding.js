@@ -173,6 +173,10 @@
     // position:fixed, so it floats ON TOP of the page's in-flow header. RESERVE a top band by pushing
     // the page's in-flow content down by the pill's height + a gap, so the header sits BELOW it instead
     // of behind it. Fixed elements ignore body padding, so the pill stays put while content shifts.
+    // Reserve the band so the fixed pill doesn't cover the page header. A page can PRE-reserve this
+    // statically (body padding-top / a scroll-margin band) to avoid the post-paint shift entirely — this
+    // check skips when the page already reserves >= the band (that is how the I1 CLS on dayplanner/
+    // alert-hub is fixed: they ship a static top reserve, so this never fires).
     requestAnimationFrame(function () {
       var band = Math.ceil(wrap.getBoundingClientRect().bottom) + 8;
       var cur = parseFloat(getComputedStyle(document.body).paddingTop) || 0;

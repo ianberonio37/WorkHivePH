@@ -2,7 +2,7 @@
 name: page-analytics-report
 type: page
 source: file:analytics-report.html
-source_sha: d2c27bf338de12ad
+source_sha: 1d8066e647ce0231
 last_verified: 2026-07-13
 supersedes: null
 ---

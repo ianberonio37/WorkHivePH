@@ -1274,6 +1274,7 @@ async function init() {
 
   // Category filter — datalist combobox: react to typed input AND option selection (input + change)
   ['input', 'change'].forEach(ev => document.getElementById('cat-filter').addEventListener(ev, () => { _pmDisplayCount = 10; renderDashboard(); _pmSyncUrl(); }));
+  if (window.whAutoRememberFilters) whAutoRememberFilters('pm-filters', ['cat-filter']);   // G5a: remember the category filter cross-session
 
   // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
   if (typeof wireDetailToggle === 'function') wireDetailToggle();
@@ -2756,6 +2757,7 @@ if (window.whModalA11y) {
   ═══════════════════════════════════════════════════
 -->
 <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('pmfindings', ['sheet-findings']); });</script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->

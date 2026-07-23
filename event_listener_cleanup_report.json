@@ -19,19 +19,19 @@
     },
     {
       "page": "logbook.html",
-      "add": 71,
+      "add": 72,
       "remove": 0,
       "risky": true
     },
     {
       "page": "inventory.html",
-      "add": 26,
+      "add": 27,
       "remove": 0,
       "risky": true
     },
     {
       "page": "pm-scheduler.html",
-      "add": 3,
+      "add": 4,
       "remove": 0,
       "risky": false
     },
@@ -79,13 +79,13 @@
     },
     {
       "page": "dayplanner.html",
-      "add": 3,
+      "add": 4,
       "remove": 0,
       "risky": false
     },
     {
       "page": "engineering-design.html",
-      "add": 0,
+      "add": 1,
       "remove": 0,
       "risky": false
     },
@@ -97,7 +97,7 @@
     },
     {
       "page": "assistant.html",
-      "add": 3,
+      "add": 4,
       "remove": 0,
       "risky": false
     },
@@ -109,13 +109,13 @@
     },
     {
       "page": "project-manager.html",
-      "add": 8,
+      "add": 9,
       "remove": 0,
       "risky": false
     },
     {
       "page": "integrations.html",
-      "add": 5,
+      "add": 4,
       "remove": 0,
       "risky": false
     },
@@ -145,7 +145,7 @@
     },
     {
       "page": "achievements.html",
-      "add": 2,
+      "add": 1,
       "remove": 0,
       "risky": false
     },

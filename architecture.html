@@ -315,6 +315,8 @@
        rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
        render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
   <link rel="stylesheet" href="tokens.css">
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). Locked by validate_pill_reserve.py. */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <main>

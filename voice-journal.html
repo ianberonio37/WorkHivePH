@@ -243,7 +243,7 @@
     .filter-chip:hover  { color: white; border-color: rgba(255,255,255,0.2); }
     .filter-chip:active { transform: scale(0.97); }
     .filter-chip.active {
-      background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: var(--wh-orange);
+      background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: var(--wh-orange-light);   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
     }
     @media (max-width: 480px) { .filter-chip { min-height: 44px; padding: 0.45rem 0.95rem; } }
 
@@ -288,6 +288,8 @@
     body.wh-embedded #wh-ai-widget { display: none !important; }
     body.wh-embedded .max-w-2xl { padding-top: 1rem !important; }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <main>
@@ -1162,6 +1164,7 @@
       $('sov-voice-toggle').addEventListener('click', toggleSovereignVoice);
       $('mic-btn').addEventListener('click', toggleRecord);
       $('search-input').addEventListener('input', () => { _voiceDisplayCount = 8; renderHistory(); _vjSyncUrl(); });
+      if (window.whAutoRememberFilters) whAutoRememberFilters('vj-filters', ['search-input']);   // G5a: remember the journal search cross-session
       window.loadMoreVoice = () => { _voiceDisplayCount += 10; renderHistory(); };
 
       // Arc X A3: restore the language filter + search from the URL before the history

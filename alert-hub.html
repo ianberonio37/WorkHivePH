@@ -32,8 +32,8 @@
        text elements measured as a NON-Poppins typeface, the strongest "different
        personality" on the platform (NN/g #4 internal consistency). The font was being
        downloaded and thrown away. var(--wh-font) resolves from tokens.css, linked below. */
-    body { font-family: var(--wh-font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
-    .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
+    body { font-family: var(--wh-font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; padding-top: calc(64px + env(safe-area-inset-top, 0px)); }/* I1 CLS: static reserve on BODY (what wayfinding.js reads) so it skips its post-paint padding shift; .page no longer double-reserves */
+    .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; }
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
@@ -218,10 +218,10 @@
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
     .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }
+    .action-card .ac-text { font-size:0.75rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1: 0.82rem→0.75rem, merge the lone 13px tier into 12px (11→10 distinct sizes) */
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:0.6rem 1.15rem; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.75rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
@@ -461,9 +461,16 @@
   let _activeKind = (() => {
     try {
       const k = new URLSearchParams(location.search).get('kind');
-      return KINDS.some(x => x.id === k) ? k : 'all';
+      if (KINDS.some(x => x.id === k)) return k;
+      // G5a: no URL filter → restore the supervisor's LAST-USED alert filter from localStorage (cross-session,
+      // via the shared whRememberView helper — the centralize-first fix for the G5 gap).
+      const saved = window.whRememberView && window.whRememberView('alert-filter').restore();
+      if (saved && saved.kind && KINDS.some(x => x.id === saved.kind)) return saved.kind;
+      return 'all';
     } catch (_) { return 'all'; }
   })();
+  const _ahView = (window.whRememberView || function () { return { restore() {}, save() {}, clear() {} }; })(
+    'alert-filter', () => ({ kind: _activeKind }));
   let _alertDisplayCount = 30;  // List View Contract: client-side slice pagination
   let _refreshTimer = null;
   // Anomaly Engine 2.0 state lets — declared HERE (not next to the panel
@@ -1355,6 +1362,7 @@
           if (_activeKind === 'all') u.searchParams.delete('kind');
           else u.searchParams.set('kind', _activeKind);
           history.replaceState(null, '', u);
+          _ahView.save();   // G5a: persist cross-session, not just to the URL
         } catch (_) { /* empty-catch-allow: URL persist is best-effort */ }
         renderFilters();
         renderFeed();

@@ -231,6 +231,8 @@
     @media (max-width: 540px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 360px) { .stats-row { grid-template-columns: 1fr 1fr; } }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <!-- ══ RETIRED (Operator-Console → Grafana arc P2, 2026-07-18) ══════════════════
@@ -247,8 +249,8 @@
       ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).
     </p>
     <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
-      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn">📊 Founder Ops dashboard →</a>
-      <a href="platform-actions.html" class="btn">⚡ Platform Actions →</a>
+      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">📊 Founder Ops dashboard →</a>
+      <a href="platform-actions.html" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">⚡ Platform Actions →</a>
     </div>
     <p style="color:var(--wh-cloud); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
   </div>
@@ -997,6 +999,7 @@
     });
 
     let _searchTimer;
+    window.addEventListener('load', () => { if (window.whAutoRememberFilters) whAutoRememberFilters('mktadmin-filters', ['search-input']); });   // G5a: remember the admin search cross-session
     document.getElementById('search-input')?.addEventListener('input', ev => {
       _query = ev.target.value.trim();
       _adminDisplayCount = 30;  // reset slice on search change

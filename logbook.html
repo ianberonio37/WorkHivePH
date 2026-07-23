@@ -45,6 +45,7 @@
     body {
       background-color: var(--wh-navy);
       min-height: 100vh;
+      padding-top: calc(64px + env(safe-area-inset-top, 0px));/* I1 CLS: static wayfinding back-pill band reserve so wayfinding.js skips its post-paint shift */
     }
 
     /* Aurora background */
@@ -948,7 +949,7 @@
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
               <span class="ic ic-search" aria-hidden="true"></span>
-              <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search machine, failure, keyword..." />
+              <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9 w-full" style="min-width:180px;" placeholder="Search machine, failure, keyword..." />
             </div>
             <select id="filter-category" aria-label="Filter by category" class="wh-input sm:w-44">
               <option value="">All categories</option>
@@ -4987,6 +4988,7 @@ document.getElementById('search-input').addEventListener('input', () => {
   _viewMode === 'team' ? _teamSearchDebounce() : renderEntries(false);
   _logSyncUrl();
 });
+window.addEventListener('load', () => { if (window.whAutoRememberFilters) whAutoRememberFilters('logbook-filters', ['filter-category', 'filter-status']); });   // G5a: remember the logbook filters cross-session
 document.getElementById('filter-category').addEventListener('change', () => {
   _logbookDisplayCount = 20;
   if (_viewMode === 'team' && _teamSearched) { searchTeam(); } else { renderEntries(false); }

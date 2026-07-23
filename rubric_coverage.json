@@ -1,8 +1,8 @@
 {
   "summary": {
-    "dims_total": 63,
-    "dims_accounted": 63,
-    "dims_with_pct": 54,
+    "dims_total": 74,
+    "dims_accounted": 73,
+    "dims_with_pct": 63,
     "board_pages": 32,
     "board_mean": 100,
     "s2_shared_chrome": 100,
@@ -261,7 +261,7 @@
       "verdict": "judged",
       "owner": "battery",
       "source": "family_rubric_scoreboard.json",
-      "pct": 98
+      "pct": 100
     },
     "I2": {
       "class": "I",
@@ -477,7 +477,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": null
+      "pct": 100
     },
     "T7": {
       "class": "T",
@@ -501,7 +501,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 97
+      "pct": 100
     },
     "W1": {
       "class": "W",
@@ -518,6 +518,94 @@
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
       "pct": 100
+    },
+    "Z1": {
+      "class": "Z",
+      "title": "Input efficiency per modality (right mobile keyboard, PC keyboard-operable)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Z2": {
+      "class": "Z",
+      "title": "Responsive reflow & content parity (no h-scroll @320, WCAG 1.4.10)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Z3": {
+      "class": "Z",
+      "title": "Gesture ergonomics & accidental-touch (24px + spacing, WCAG 2.5.8)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "X1": {
+      "class": "X",
+      "title": "Task-flow coherence (multi-step task, no dead-end/re-entry/lost-context)",
+      "verdict": "planned",
+      "owner": "family-sweep",
+      "source": "PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md (planned \u2014 detector pending)",
+      "pct": null
+    },
+    "X2": {
+      "class": "X",
+      "title": "Interruption resilience & resumability (draft survives refresh/interruption)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": null,
+      "pct": null
+    },
+    "X3": {
+      "class": "X",
+      "title": "Findability & search (find a thing; no-results recovers)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Y1": {
+      "class": "Y",
+      "title": "Offline & connectivity resilience (state clear, writes queue, sync feedback)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Y2": {
+      "class": "Y",
+      "title": "Stress-case / real-life resilience (tired/gloved/rushed; no safety-task countdown)",
+      "verdict": "planned",
+      "owner": "family-sweep",
+      "source": "PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md (planned \u2014 detector pending)",
+      "pct": null
+    },
+    "G5": {
+      "class": "G",
+      "title": "System memory & personalization (restore last filter/view, recents, role defaults)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": 100.0
+    },
+    "J3": {
+      "class": "J",
+      "title": "Consequence transparency & action confidence (preview, proportional confirm, receipt)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": 100.0
+    },
+    "S4": {
+      "class": "S",
+      "title": "Behavioral consistency (same action behaves identically across pages)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": 100.0
     }
   }
 }

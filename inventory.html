@@ -19,14 +19,24 @@
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; }
-    body { background-color: var(--wh-navy); min-height: 100vh; }
+    body { background-color: var(--wh-navy); min-height: 100vh;
+      /* I1 CLS: static wayfinding back-pill band reserve so wayfinding.js's post-paint
+         requestAnimationFrame padding-top no longer shifts the whole nav+main down ~62px
+         (measured CLS 0.104 @742ms, src NAV+MAIN). Present at first paint → wayfinding's
+         `if(band > cur)` skips. Same fix as logbook/alert-hub/dayplanner. */
+      padding-top: calc(64px + env(safe-area-inset-top, 0px)); }
     /* I1 CLS (measured): the header wraps 63px→125px at ~1.3s when the stat-pills + Add-Part button
        finish loading, pushing every card below it down 62px (was the 0.15 shift). Reserve the loaded
        2-row height so the reflow never moves the content; pre-paint the row so late Tailwind changes nothing. */
     @media (min-width: 640px) {
-      #wh-inv-header { min-height: 120px; }
+      /* 120px was ~25px short of the real 2-row header (145px with the stat-pills + Add-Part button),
+         so it still grew 120→145 on load and shifted main. Reserve the actual loaded height. */
+      #wh-inv-header { min-height: 148px; }
       #wh-inv-header > div { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 1rem; }
     }
+    /* I1 CLS: the stock-health verdict banner renders from a "Computing…" placeholder to its final
+       state; reserve its settled height so the swap never shifts the parts list below it. */
+    #inv-verdict { min-height: 72px; }
 
     /* Aurora */
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -129,7 +139,7 @@
 
     /* Marketplace bridge (Inventory <-> Marketplace parts-flow fabric) */
     .mkt-bridge-btn {
-      background: rgba(41,182,217,0.12); color: var(--wh-blue);
+      background: rgba(41,182,217,0.12); color: var(--wh-blue-light);   /* C2: AA-safe blue (was --wh-blue @ 4.43:1) */
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
       cursor: pointer; border: 1px solid rgba(41,182,217,0.3); min-height: 44px;
@@ -323,7 +333,7 @@
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <span class="ic ic-search" aria-hidden="true"></span>
-          <input aria-label="Search part name, number, or linked asset..." id="search-input" type="text" class="wh-input pl-9" placeholder="Search part name, number, or linked asset..." />
+          <input aria-label="Search part name, number, or linked asset..." id="search-input" type="text" class="wh-input pl-9 w-full" style="min-width:180px;" placeholder="Search part name, number, or linked asset..." />
         </div>
         <!-- Arc V L-lens: 8 part categories in a flat <select> (>7 = Miller). A datalist combobox is
              strictly >= a select (shows all 8 on focus AND lets the user type to narrow) → clears the
@@ -741,7 +751,7 @@ const STATUS_COLORS = {
   surplus:  { bg:'rgba(56,189,248,0.15)',  text:'rgb(56,189,248)', border:'rgba(56,189,248,0.25)' },
   ok:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80', border:'rgba(34,197,94,0.25)' },
   low: { bg:'rgba(247,162,27,0.15)', text:'#FDB94A', border:'rgba(247,162,27,0.25)' },
-  critical: { bg:'rgba(251,113,133,0.18)', text:'#f87171', border:'rgba(251,113,133,0.30)' },
+  critical: { bg:'rgba(251,113,133,0.18)', text:'#FCA5A5', border:'rgba(251,113,133,0.30)' },   /* C2: AA-safe red (was #f87171 @ 3.66:1, matches 'out' below) */
   out: { bg:'rgba(239,68,68,0.15)',  text:'#FCA5A5', border:'rgba(239,68,68,0.25)' },
 };
 const CAT_COLORS = {
@@ -835,7 +845,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
   let tone, label, sub;
   if (outCount > 0) {
     tone = 'attn'; label = `${outCount} part${outCount === 1 ? '' : 's'} out of stock`;
-    sub  = 'Restock these before the next job: Use is locked at qty 0.';
+    sub  = 'Restock these before the next job. Qty 0 locks all use.';
   } else if (criticalCount > 0) {
     tone = 'attn'; label = `${criticalCount} part${criticalCount === 1 ? '' : 's'} critically low`;
     sub  = 'Below half the minimum: reorder now before they hit zero.';
@@ -875,7 +885,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
       text = 'No parts registered. Click "Add Part" to start your spare-parts inventory. Even rough quantities are better than nothing for kicking off the reorder loop.';
       setCta('Review the parts list →', { scroll: '#parts-list' });
     } else if (outCount > 0) {
-      text = `Filter to "Out of stock" using the chip below and restock these ${outCount} part${outCount === 1 ? '' : 's'} first. Every job that needs them is blocked.`;
+      text = `Filter to "Out of stock" using the chip below and restock these ${outCount} part${outCount === 1 ? '' : 's'} first. This blocks every job that needs them.`;
       setCta(`Restock ${outCount} out-of-stock →`, { scroll: '#parts-list' });
     } else if (pendingCount > 5) {
       text = `${pendingCount} parts are awaiting your approval. Filter to "Pending approval" and clear the backlog: Use and Restock are locked until you sign off.`;
@@ -1909,9 +1919,22 @@ function _invSyncUrlQ() {
     history.replaceState(null, '', url);
   } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
 }
-document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 8; renderParts(); _invSyncUrlQ(); }, 300));
-['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 8; renderParts(); }));
-document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 8; renderParts(); });
+// G5a system-memory: remember the field-tech's category/status/search filter ACROSS SESSIONS via the shared
+// whRememberView helper (the centralize-first fix for the 17.6% G5 gap) — not just the URL (?q=), which a
+// fresh visit loses, and which never carried category/status.
+const _invView = (window.whRememberView || function () { return { restore() {}, save() {}, clear() {} }; })(
+  'inv-filters', () => ({ q: document.getElementById('search-input').value, cat: document.getElementById('filter-category').value, status: document.getElementById('filter-status').value }));
+document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 8; renderParts(); _invSyncUrlQ(); _invView.save(); }, 300));
+['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 8; renderParts(); _invView.save(); }));
+document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 8; renderParts(); _invView.save(); });
+// on a FRESH visit (no ?q= set an active search), restore the last-used filter so the choice persists cross-session.
+if (!document.getElementById('search-input').value) {
+  _invView.restore((s) => {
+    if (s.q)      document.getElementById('search-input').value    = s.q;
+    if (s.cat)    document.getElementById('filter-category').value = s.cat;
+    if (s.status) document.getElementById('filter-status').value   = s.status;
+  });
+}
 
 // ────────────────────────────────────────────
 // DATA INIT: migrate from localStorage then load from Supabase
@@ -2225,6 +2248,7 @@ async function validateHiveMembership() {
 })();
 </script>
   <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('invpart', ['f-notes']); });</script>
   <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->

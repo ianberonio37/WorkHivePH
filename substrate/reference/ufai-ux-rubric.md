@@ -7,7 +7,7 @@ last_verified: 2026-07-14
 supersedes: null
 ---
 
-## reference · UFAI UI/UX rubric (21 classes A–W · 63 dimensions) — the page-redesign ruler
+## reference · UFAI UI/UX rubric (24 classes A–Z · ~74 dimensions) — the page-redesign + journey-painpoint ruler
 
 Synthesis of the Night-Crawler UX harvest (`substrate/external/external-ux-*` — retrieve the named
 chunk for the full cited rules). Grade any page's BEFORE against these; design the AFTER toward them.
@@ -168,3 +168,40 @@ See [[reference-rag-chunking]] [[project_night_crawler]]. Full cited rules: the 
 - **T8 · Interactive-state semantics** — toggles / tabs / expanders expose their STATE (`aria-pressed` / `aria-expanded` / `aria-selected` / `disabled`) the way RN's `accessibilityState` (selected/checked/disabled/busy/expanded) does — so assistive tech and the visual both read the state. [external-react-native-accessibility-standards]
 
 Built as measured detectors in `survey_ufai_rubric.js` (class T, run at 390px in `family_rubric_sweep.mjs`'s mobile pass); T1/T2 are also live U-class defects in `ufai_battery.js` v1.5.0 (`content-trapped`, `text-overflows-box`). Full cited rules: the 7 fresh `substrate/external/external-react-native-*` + `external-css-*` chunks.
+
+---
+
+### ★★EXTENSION (2026-07-22) — the EXPERIENCE-IN-MOTION classes: 3 new classes X/Y/Z + 3 extensions G5/J3/S4 (Ian: *"a PDDA deepwalk journeys to determine the painpoints of users using the production platforms... the expanded and extended dimensions of UI/UX still not covered... my platform is for PC and Phone users"*)
+
+**The blind spot.** Classes A–W + T + V all grade the **artifact at rest** — a page, even through the cross-page (S) or native-feel (T) lens. None can see the painpoint that only exists when a REAL person is **in motion**: mid-task across pages, interrupted, offline, searching, hitting a consequential button, on a specific device under real field conditions. Same frontier-widening that birthed **S** ("different personalities") and **T** (phone text-overflow). Full arc + method: `PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md`. Each dim MEASURED at **PC 1280 + Phone 390** and freshly cited.
+
+**X · JOURNEY — a task across pages/steps (no single-page class can see a multi-step task)**
+- **X1 Task-flow coherence** — a canonical task (log a job · create a PM · check out a part · build a calc report) completes end-to-end with **no dead-end/restart, no re-entry of data an earlier step captured, no unclear next-step, no lost context between steps**; measure steps + backtracks. [external-nng-task-flow-journey-friction-dropoff]
+- **X2 Interruption resilience & resumability** — a half-entered form **survives a call / refresh / tab-switch / background**; the user resumes where they left off (CRITICAL for a field-tech interrupted mid-entry on spotty signal). **EXPANDED 2026-07-22 (Ian: "expand the low-% dims into more sub-dims, night-crawl"; measured 11.1% — the biggest experience-in-motion gap after G5) into 5 sub-dims** [external-form-autosave-draft-interruption-resilience, external-coga-cognitive-accessibility-design-objectives]:
+  - **X2a Draft autosave** — a substantial compose/entry form autosaves to localStorage on a debounced input (0.5-2s) so a refresh/interruption doesn't lose work (the current 11.1% floor).
+  - **X2b Restore on return** — the draft is restored into empty fields on return, and CLEARED on a successful submit (a stale draft re-showing submitted content is a bug).
+  - **X2c Save-status feedback** — a "Saving…" → "Saved just now" indicator so the user trusts progress is kept.
+  - **X2d Unsaved-changes guard** — a `beforeunload` warning OR a `sendBeacon` last-save on unload, so an accidental close/back-nav doesn't lose work.
+  - **X2e Multi-step progress** — a multi-step flow saves per-step to resume at the right step (pairs G5d). **CENTRAL fix: ONE shared `whAutoSaveDraft(key, ids)` helper (debounced save + restore-into-empty + clear-on-submit).**
+- **X3 Findability & search** — the user can FIND an asset/job/part: a search affordance, useful filter/sort, recents, and a no-results state that RECOVERS (offers a next step, ≠ the first-run CTA — pairs deepwalk D3). [external-ux-information-scent-wayfinding-foraging]
+
+**Y · CONTEXT — real field conditions, not the ideal case (WorkHive = spotty-signal, gloved, rushed Filipino field workers)**
+- **Y1 Offline & connectivity resilience** — offline state is CLEAR (persistent indicator), writes QUEUE with a pending label (never silent-fail / false-success), reconnect gives sync feedback, features map to online/offline. Distinct from deepwalk **CA** (caching *integrity*); Y1 = offline *UX*. [external-offline-ux-state-queue-sync-guidelines]
+- **Y2 Stress-case / real-life resilience** — holds up for a tired / rushed / gloved / low-light / low-literacy worker; **no countdown/auto-dismiss on a SAFETY task**; primary task ≤3 steps; undo present; orientation survives a 2-min interruption. [external-coga-cognitive-accessibility-design-objectives]
+
+**Z · MODALITY — PC and Phone as first-class, not shrink-to-fit (Ian's explicit emphasis)**
+- **Z1 Input efficiency per modality** — Phone: numeric/email/tel/url fields fire the RIGHT keyboard (`type`/`inputmode`), autofill via `autocomplete`, native pickers, minimal typing. PC: keyboard-operable (Tab/Enter/focus), shortcuts + bulk for frequent work. [external-mobile-inputmode-keyboard-efficiency]
+- **Z2 Responsive reflow & content parity** — **no horizontal page scroll at a 320px layout viewport** (WCAG 1.4.10; wide tables 2D-scroll only INSIDE their own `overflow-x:auto` box), a wide table reflows to cards on phone, and **no critical ACTION is dropped/hidden at 390 vs 1280** (content parity). [external-css-reflow-320px-no-two-dimensional-scroll]
+- **Z3 Gesture ergonomics & accidental-touch** — targets ≥24×24 CSS px (WorkHive field goal 44-48), **a destructive control is not <24px-adjacent to a common one** (24px-circle spacing = accidental-activation guard), gesture-only actions (swipe/long-press) expose a visible equivalent, primary in thumb zone. [external-wcag-target-size-minimum-24px-spacing]
+
+**System painpoints — EXTENSIONS of existing classes (natural homes, not a new class)**
+- **G5 System memory & personalization** (extends G recognition-over-recall to the SYSTEM level) — the app remembers ME across sessions so I don't re-set-up each visit. **EXPANDED 2026-07-22 (Ian: "dig into the lowest-% dim + expand it"; measured 17.6% — the platform's biggest experience-in-motion gap) into 5 sub-dims** [external-nng-personalization-system-memory-remember-user, external-ux-recognition-over-recall-recall, external-coga-cognitive-accessibility-design-objectives]:
+  - **G5a Last filter/view/sort** — a filterable/sortable/tabbed surface RESTORES the user's last choice next visit (the current 17.6% floor).
+  - **G5b Recent items / searches** — surfaces recently-viewed/edited entities + recent search terms for quick re-access.
+  - **G5c Sensible defaults / autofill** — pre-fills known values (hive/role, last asset, last job-ref, `autocomplete`), always editable.
+  - **G5d Resume where left off** — saves progress in longer flows to pick up across a session (the cross-SESSION half of X2).
+  - **G5e Transparent + controllable** — personalization is user-overridable; recognition over recall applied across sessions. **CENTRAL fix: ONE shared `whRememberView(key,get,set)` helper pages adopt, not 14 hand-rolled persistences that drift.**
+- **J3 Consequence transparency & action confidence** (extends J) — a consequential action shows a consequence PREVIEW (what/how-many/who), a confirm proportional to risk, a post-action RECEIPT with undo where reversible; optimistic UI is HONEST (never "Saved" before commit). [external-nng-confirmation-dialog-consequence-proportional]
+- **S4 Behavioral consistency** (extends S from VISUAL family to BEHAVIORAL family) — the same ACTION behaves identically everywhere: "save" confirms the same way, swipe-to-delete works on every list, an entity opens the same way from every surface. [external-consistency-and-standards-heuristic-internal-ext]
+
+To be built as measured detectors in `survey_ufai_rubric.js` (static/DOM dims, run at 320/390/1280) + `ufai_battery.js` (live U-class defects), hunted via the §2 journeys in `PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md`, each gated as a forward-only ratchet. **★DETECT *AND* REDESIGN (Ian, 2026-07-22):** these dims don't just GRADE — every confirmed painpoint gets a UI redesign that measurably REDUCES it (lower interaction cost), proposal-first + whole-page, per roadmap §3 step 5. [external-nng-interaction-cost-reduce-effort-redesign] Full cited rules: the 8 fresh `substrate/external/external-*` chunks (2026-07-22) + 3 reused (information-scent, recognition-over-recall, consistency-standards).

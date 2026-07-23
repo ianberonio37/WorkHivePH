@@ -354,6 +354,8 @@
 #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
 #pm-summary-details.open { display:block; }
 </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 
@@ -1153,7 +1155,7 @@ function renderProjectsSummary() {
     } else if (blocked > active) {
       text = `${blocked} project${blocked === 1 ? '' : 's'} in planning or on-hold, only ${active} active. Either kick off the planning ones or close out the on-hold ones, because a backlog of waiting work is a portfolio smell.`;
     } else {
-      text = 'Portfolio is healthy. Use the recent strip below to jump back into the project you opened last, or filter the tabs to plan the next phase.';
+      text = 'Portfolio is healthy. Use the recent strip below to reopen your last project. Or filter the tabs to plan the next phase.';
     }
     actBox.textContent = text;
   }
@@ -1284,6 +1286,7 @@ function bindFilters() {
   $('filter-type').addEventListener('change', ev => { _activeFilter.type = ev.target.value; _pmDisplayCount = 30; renderList(); });
   $('filter-owner').addEventListener('change', ev => { _activeFilter.owner = ev.target.value; _pmDisplayCount = 30; renderList(); });
   $('filter-search').addEventListener('input', ev => { _activeFilter.search = ev.target.value.trim(); _pmDisplayCount = 30; renderList(); });
+  if (window.whAutoRememberFilters) whAutoRememberFilters('proj-filters', ['filter-search']);   // G5a: remember the search filter cross-session
 }
 
 window.loadMorePm = () => { _pmDisplayCount += 30; renderList(); };
@@ -2897,6 +2900,7 @@ document.addEventListener('keydown', ev => {
 });
 </script>
 <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('projdesc', ['f-desc']); });</script>
 <script src="companion-launcher.js"></script>
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 

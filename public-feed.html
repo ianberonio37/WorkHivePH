@@ -92,7 +92,7 @@
     }
     .cat-general      { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
     .cat-safety       { background: rgba(239,68,68,0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
-    .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue); } /* D1 U5: --wh-blue<4.5:1 small badge → WCAG 1.4.3 */
+    .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
     .cat-announcement { background: rgba(168,85,247,0.12); color: #d8b4fe; } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
     .post-time { font-size: 0.7rem; color: rgba(255,255,255,0.66); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
@@ -119,6 +119,8 @@
     .load-more-btn:hover { background: rgba(255,255,255,0.1); }
     .load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <div class="aurora"></div>

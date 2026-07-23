@@ -626,6 +626,15 @@ VALIDATORS = [
         "severity": "warn",
     },
     {
+        "id":      "journey-ux-dims",
+        "script":  "tools/validate_journey_ux_dims.py",
+        "args":    [],
+        "label":   "UFAI experience-in-motion source-grep dims (2026-07-22, PDDA_UX_PAINPOINT_JOURNEY_ROADMAP) — the 3 journey dims the runtime __RUBRIC lens can't cleanly see, measured from page SOURCE + forward-ratcheted: J3 consequence (every destructive handler routes through the shared whConfirm OR is soft-delete-undoable — NN/g 'undo > confirmation'), G5 system-memory (a filterable page persists the user's filter/view/sort choice to localStorage), S4 behavioral-consistency (destructive actions use the ONE shared whConfirm, no raw window.confirm). Emits journey_ux_dims_report.json (the coverage-gate source for J3/G5/S4). Baselines in journey_ux_dims_baseline.json ratchet forward. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
         "id":      "file-upload-safety",
         "script":  "tools/validate_file_upload_safety.py",
         "args":    [],
@@ -1602,6 +1611,21 @@ VALIDATORS = [
         "label":   "Empty Catch Block (try/catch{} that silently swallows errors; forward-only ratchet)",
         "group":   "Platform",
         "report":  "empty_catch_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # Locks the 2026-07-23 wayfinding-pill CLS flicker: wayfinding.js sets body.paddingTop
+        # POST-PAINT on bare pages (via nav-hub), so under contention a DIFFERENT bare page shifts
+        # ~64px = ~0.1 CLS each sweep (the intermittent rotating I1 the dynamic sweep can't reliably
+        # catch). Every page that WILL get the pill (not-home + loads nav-hub + no in-layout back
+        # affordance + has <main>/<h1>) must ship the static `body{padding-top:calc(64px+env(...))}`
+        # reserve so the pill band is present at first paint (wayfinding's `if(band>cur)` then skips).
+        "id":      "pill-reserve",
+        "script":  "validate_pill_reserve.py",
+        "args":    [],
+        "label":   "Wayfinding Pill CLS-Reserve (every pill-page ships the static back-pill band reserve; absolute, baseline 0)",
+        "group":   "Platform",
+        "report":  "pill_reserve_report.json",
         "skip_if_fast": False,
     },
     {

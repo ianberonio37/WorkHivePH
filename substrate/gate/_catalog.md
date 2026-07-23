@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: d8b4fbdc90fffd46
+source_sha: a5874338b0d97646
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (640) — the 'what's already gated' brain
+## gate · registered validators (642) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -205,7 +205,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (451)
+### Platform (453)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -452,6 +452,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `inventory-txn-isolation` [fail] — Inventory ledger-write hive isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a hive-A member CANNOT insert an inventor
 - `iot-protocols` ⚡ [fail] — IoT and MQTT Protocol Safety Validator
 - `javascript-href` ⚡ [fail] — <a href='javascript:'> Anti-Pattern (use <button> for actions; reserve <a href> for navigation; forward-only ratchet)
+- `journey-ux-dims` [warn] — UFAI experience-in-motion source-grep dims (2026-07-22, PDDA_UX_PAINPOINT_JOURNEY_ROADMAP) — the 3 journey dims the runtime __RUBRIC lens can't cleanly see, mea
 - `js-module-pattern-mining` [fail] — JS Shared Module Pattern Miner (L-1 Convention Mining -- informational)
 - `js-syntax-sanity` ⚡ [fail] — JS Syntax Sanity (no `await` inside non-async function/IIFE in inline scripts)
 - `json-parse-safety` ⚡ [fail] — JSON.parse Safety (every JSON.parse() is inside try/catch; forward-only ratchet)
@@ -522,6 +523,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `phantom-captures` ⚡ [fail] — Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)
 - `phantom-columns` ⚡ [fail] — Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)
 - `pii-egress` ⚡ [fail] — PII Egress to Third Parties (4-layer: direct-fetch+PII + AI-prompt+PII + host distribution + PII reach)
+- `pill-reserve` ⚡ [fail] — Wayfinding Pill CLS-Reserve (every pill-page ships the static back-pill band reserve; absolute, baseline 0)
 - `plain-language` ⚡ [fail] — Plain language (no consumer-tech jargon [KYB/IDOR/RLS], internal terms, or removed-payment vestige [escrow/2307/GMV] in user-facing static copy — audience is EV
 - `playwright-coverage` ⚡ [fail] — Playwright Coverage (every LIVE_TOOL_PAGE has tests/<page>.spec.ts with a real goto)
 - `playwright-selector-existence` ⚡ [fail] — Playwright Selector Existence (every locator('#X') id must exist on target page; forward-only ratchet)

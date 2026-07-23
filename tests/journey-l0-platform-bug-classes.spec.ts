@@ -262,6 +262,13 @@ test.describe('L0 platform bug-class validators', () => {
   test('viewport_user_scalable: validator at or under forward-only baseline', () => {
     assertPass('validate_viewport_user_scalable.py');
   });
+  // 2026-07-23: wayfinding post-paint pill sets body.paddingTop in a rAF -> lands
+  // LATE under full-sweep contention -> ~64px shift = ~0.1 CLS on a DIFFERENT bare
+  // page each sweep. Static <head> reserve at first paint makes wayfinding's
+  // `if (band > cur)` a no-op. Absolute check (baseline 0): every pill-page ships it.
+  test('pill_reserve: every wayfinding-pill page ships the static CLS-reserve', () => {
+    assertPass('validate_pill_reserve.py');
+  });
 });
 
 // ---------------------------------------------------------------------------

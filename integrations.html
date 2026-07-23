@@ -168,6 +168,8 @@
     #it-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
     #it-summary-details.open { display:block; }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <main>
@@ -295,7 +297,7 @@
       <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
     </div>
     <p style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
-    <p id="integrations-source-chip" style="margin-top:3px;"></p>
+    <p id="integrations-source-chip" role="status" style="margin-top:3px;"></p>
   </div>
 
   <!-- Supervisor gate message (shown if no HIVE_ID) -->
@@ -2024,6 +2026,29 @@
       showToast('Resolution failed: ' + e.message);
     }
   }
+
+  // E3 provenance + G1 status: the source chip is a STATIC label (no hive data needed) but its
+  // only caller was loadSyncConfigs(), which fires only when the 'sync' tab opens — so on the
+  // default 'import' tab the chip never rendered and E3 read 0 (the .wh-source-chip the E3 lens
+  // queries never entered the DOM). Render it unconditionally on load; loadSyncConfigs still
+  // re-renders it harmlessly when the sync tab opens. The container carries role="status" so the
+  // freshness line ("Live · refreshed on load") is a valid G1 system-status region too.
+  (function _renderIntegrationsSourceChipOnLoad() {
+    try {
+      const _c = document.getElementById('integrations-source-chip');
+      if (_c && typeof renderSourceChip === 'function' && !(_c.textContent || '').trim()) {
+        _c/* xss-allow: static label, no interpolation */ .innerHTML = renderSourceChip({
+          freshness: 'Live · refreshed on load',
+          source:    'integration_configs + external_sync + logbook',
+          notes:     [
+            'Active: turned on and synced within the last 7 days',
+            'Stale: last synced over 7 days ago, or a sync error',
+            'Supported: SAP PM, IBM Maximo, generic CSV (Phase 2)',
+          ],
+        });
+      }
+    } catch (_) { /* empty-catch-allow: best-effort provenance chip, never block init on a chip-render failure */ }
+  })();
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   function showToast(msg, dur = 3000) {

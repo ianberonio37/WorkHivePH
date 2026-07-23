@@ -2,7 +2,7 @@
 name: edge-fn-analytics-orchestrator
 type: edge-fn
 source: file:supabase/functions/analytics-orchestrator/index.ts
-source_sha: 3394200e2a6092d0
+source_sha: fab81bfb3f6b1a4e
 last_verified: 2026-07-13
 supersedes: null
 ---

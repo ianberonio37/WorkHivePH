@@ -2664,6 +2664,7 @@
       document.getElementById('fb-filter-search')?.addEventListener('input', e => {
         _fb.searchTerm = e.target.value.trim(); applyFeedbackView();
       });
+      if (window.whAutoRememberFilters) whAutoRememberFilters('fb-filters', ['fb-filter-search']);   // G5a: remember the feedback search cross-session
       // Drawer close handlers
       document.getElementById('fb-drawer-close')?.addEventListener('click', closeFeedbackDrawer);
       document.getElementById('fb-drawer-backdrop')?.addEventListener('click', closeFeedbackDrawer);

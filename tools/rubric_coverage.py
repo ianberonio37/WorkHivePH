@@ -63,6 +63,10 @@ def build(spec: dict, board: dict, corpus: dict) -> dict:
     per = (board or {}).get("perDim") or {}
     cross = cross_page_s3(corpus or {})
     w2 = (per.get("W2") or {}).get("mean")   # shared-chrome parity, already measured per page
+    try:   # journey-ux source-grep dims (J3/G5/S4) — validate_journey_ux_dims.py
+        journey = json.loads((REPO / "journey_ux_dims_report.json").read_text(encoding="utf-8"))
+    except Exception:
+        journey = {}
     out_dims = {}
     for dim, entry in dims.items():
         owner = entry.get("owner", "rubric-lens")
@@ -77,6 +81,15 @@ def build(spec: dict, board: dict, corpus: dict) -> dict:
         elif dim == "S2":                    # cross-page shared-chrome parity (proxy: the W2 dim)
             row["source"] = "family board W2 (shared-chrome) + codebase-integrity nav-registry"
             row["pct"] = w2
+        elif owner == "journey-validator":   # J3/G5/S4 — source-grep gate (validate_journey_ux_dims.py)
+            row["source"] = "journey_ux_dims_report.json (validate_journey_ux_dims.py)"
+            row["pct"] = (journey.get(dim) or {}).get("pct")
+        elif (entry.get("verdict") or "").lower() == "planned":
+            # DECLARED in the SSOT (prose + spec) but its detector is roadmap-pending — the experience-in-motion
+            # journey dims (X/Y/G5/J3/S4, 2026-07-22). Accounted to the roadmap (not "no source"), pct stays
+            # honestly null until the journey-PDDA builds its detector, then verdict flips measured + gets a board pct.
+            row["source"] = "PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md (planned — detector pending)"
+            row["pct"] = None
         out_dims[dim] = row
     measured = [d for d in out_dims.values() if d["pct"] is not None]
     accounted = [d for d in out_dims.values() if d["source"] is not None]

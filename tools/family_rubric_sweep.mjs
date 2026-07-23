@@ -46,7 +46,14 @@ const PAGE_REVEAL = { 'project-report.html': /generate/i };
 // H2 (V1). That is a LOAD transient (I1/CLS's domain), not a defect in the SETTLED layout V1 grades,
 // so wait for the charts to finish before grading. (N1 stays the _t()-vs-data-i lens under-count — a
 // settle bump doesn't move it; §6 locale-flip diff is the real fix — but V1 IS a fixed-wait race here.)
-const PAGE_SETTLE = { 'analytics.html': 5500 };  // 3000 cleared V1 in isolation but the FULL-run charts reflow slower under contention → 5500
+// analytics V1 was NOT actually a reflow transient — a COLLAPSED .kpi-detail (max-height:0, overflow
+// hidden) still lays its content out at full height, so a child legend's getBoundingClientRect()
+// reported a phantom rect ~1100px below (over the next card's H2). Fixed at the page (analytics.html:
+// `.kpi-detail:not(.open) > * { display:none }`), not by waiting. 5500 stays only as general chart-
+// settle insurance for the other dims. (marketplace-seller-profile K2 was likewise a real page issue —
+// community-rep KPI numbers rendered at 1.15rem/18px < the 20px glanceable bar — fixed in that page,
+// not by a settle.)
+const PAGE_SETTLE = { 'analytics.html': 5500 };
 
 const PAGES = [
   'analytics.html', 'pm-scheduler.html', 'asset-hub.html', 'skillmatrix.html',
@@ -282,7 +289,7 @@ async function surveyPage(context, file) {
       // colour / i18n labels exist at 390 and 1280, so a @390 difference there is a measurement
       // artifact (async _t() labels not re-settled after the resize), NOT a phone issue — §16.1's
       // "the residual failures were the RULER, not the pages". So keep those at the settled desktop grade.
-      const VIEWPORT_SENSITIVE = /^(C1|C3|R\d|V\d|F1|K2|M1|W1|T\d)$/;
+      const VIEWPORT_SENSITIVE = /^(C1|C3|R\d|V\d|F1|K2|M1|W1|T\d|Z2|Z3)$/;   // +Z2 reflow, Z3 tap (2026-07-22 modality dims); Z1 input-type is viewport-independent
       for (let i = 0; i < res.dims.length; i++) {
         const d = res.dims[i];
         if (!VIEWPORT_SENSITIVE.test(d.dim)) continue;

@@ -40,11 +40,15 @@ LENS = REPO / "survey_ufai_rubric.js"
 BATTERY = REPO / "ufai_battery.js"
 SPEC = REPO / "ufai-rubric-spec.json"
 
-# Dims declared in the prose + spec but MEASURED by the cross-page family sweep, not the
-# single-page __RUBRIC lens. A declared ownership split, not a gap (see the roadmap §2).
-EXEMPT_CROSS_PAGE = {"S2", "S3"}
+# Dims declared in the prose + spec but MEASURED by the cross-page family sweep OR the live
+# journey-PDDA, not the single-page __RUBRIC lens. A declared ownership split, not a gap (roadmap §2).
+# 2026-07-22: the experience-in-motion extension (PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md) adds journey/
+# context dims hunted live (X/Y) + the behavioral-family cross-page dim (S4) + system dims measured
+# across sessions (G5/J3) — none single-page-static, so exempt from the lens like S2/S3. Z1/Z2/Z3 ARE
+# single-page-static → encoded in the lens (survey_ufai_rubric.js), NOT exempt.
+EXEMPT_CROSS_PAGE = {"S2", "S3", "X1", "Y2", "G5", "J3", "S4"}   # X3, Y1 (2026-07-22 findability/offline) + X2 (2026-07-23 interruption-resilience/draft-survival, IndexedDB-aware) built as single-page lens dims → no longer exempt
 
-_VALID_CLASS = set("ABCDEFGHIJKLMNOPQRSTVW")
+_VALID_CLASS = set("ABCDEFGHIJKLMNOPQRSTVWXYZ")
 
 
 def parse_doc_dims(text: str) -> set[str]:
@@ -125,7 +129,9 @@ def check(doc_text: str, code_text: str, spec_obj: dict | None,
     if spec_obj is not None:
         spec_dims = parse_spec(spec_obj)
         spec = set(spec_dims)
-        spec_family = {d for d, v in spec_dims.items() if v.get("owner") == "family-sweep"}
+        # dims NOT measured by the single-page lens: cross-page family-sweep dims (S2/S3) + the journey-ux
+        # source-grep validator dims (J3/G5/S4, 2026-07-22 — measured by validate_journey_ux_dims.py).
+        spec_family = {d for d, v in spec_dims.items() if v.get("owner") in ("family-sweep", "journey-validator")}
 
         # (3a) SET parity SPEC<->DOC (the spec is the third source; it must match the prose)
         if spec - doc:

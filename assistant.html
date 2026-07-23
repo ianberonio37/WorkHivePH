@@ -211,6 +211,8 @@
     .error-text { color: var(--wh-red); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
     .error-text.show { display: block; }
   </style>
+<style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body class="text-white">
 <main>
@@ -1152,6 +1154,7 @@ happens to know maintenance, not a manual.`;
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="nav-hub.js"></script>
+<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('context', ['today-context']); });</script>
   <!-- L2 anchor for floating_ai_disclaimer scenario: must be visible DOM,
        not just script. Plain-language disclaimer matches the qa-tester rule:
        any AI-generated narrative carries a "may be inaccurate / verify" line. -->

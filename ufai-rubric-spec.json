@@ -5,92 +5,732 @@
     "description": "Canonical machine-readable UFAI UI/UX rubric — the rubric-as-DATA SSOT (UR-P1). One source the prose doc (substrate/reference/ufai-ux-rubric.md), the code lens (survey_ufai_rubric.js / __RUBRIC), and the battery (ufai_battery.js / __UFAI) all derive from. Threshold datum shape follows the Stylelint/ESLint rules-as-data model surfaced by the Night-Crawler: each numeric floor is {value, unit, op, severity, cite}. The validate_rubric_parity gate locks prose<->spec<->code so no dim or threshold can drift.",
     "classes": 21,
     "dims": 63,
-    "verdicts": { "measured": "a real denominator (passing/total) from the DOM", "judged": "cited criterion, no honest denominator -> reports null, never an invented number", "na-capable": "the dim's subject may not exist in a given state -> excluded from the total, stated explicitly" },
-    "owners": { "rubric-lens": "survey_ufai_rubric.js (__RUBRIC), single-page A-W ruler", "battery": "ufai_battery.js (__UFAI), 5-pillar U/F/A/I/C kernel (axe/CWV/tap/wiring/correctness)", "family-sweep": "tools/family_rubric_sweep.mjs, cross-page (S2/S3)" },
-    "severity": { "fail": "a real defect the agent fixes inline", "warn": "a taste/critic signal routed for disposition", "info": "reported, not gated" }
+    "verdicts": {
+      "measured": "a real denominator (passing/total) from the DOM",
+      "judged": "cited criterion, no honest denominator -> reports null, never an invented number",
+      "na-capable": "the dim's subject may not exist in a given state -> excluded from the total, stated explicitly"
+    },
+    "owners": {
+      "rubric-lens": "survey_ufai_rubric.js (__RUBRIC), single-page A-W ruler",
+      "battery": "ufai_battery.js (__UFAI), 5-pillar U/F/A/I/C kernel (axe/CWV/tap/wiring/correctness)",
+      "family-sweep": "tools/family_rubric_sweep.mjs, cross-page (S2/S3)"
+    },
+    "severity": {
+      "fail": "a real defect the agent fixes inline",
+      "warn": "a taste/critic signal routed for disposition",
+      "info": "reported, not gated"
+    }
   },
-
-  "A1": { "class": "A", "title": "5-second test", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-scanning, ux-f-pattern", "thresholds": { "maxDisplaySizes": { "value": 3, "op": "<=", "severity": "fail", "cite": "ux-visual-hierarchy" } } },
-  "A2": { "class": "A", "title": "Scannability", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-f-pattern, ux-scanning" },
-  "A3": { "class": "A", "title": "Cognitive load / progressive disclosure", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-hicks-law, ux-millers-law, ux-progressive-disclosure", "thresholds": { "maxPrimaryCta": { "value": 2, "op": "<=", "severity": "fail", "cite": "ux-hicks-law" } } },
-
-  "B1": { "class": "B", "title": "Microcopy / concision", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-concise-scannable, ux-microcopy-headlines" },
-  "B2": { "class": "B", "title": "Plain voice & tone", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-microcopy-headlines, ux-govuk" },
-  "B3": { "class": "B", "title": "Readability (<=20 words, grade <=8, active)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-plain-english-sentence-length-reading-age-measur, external-ux-legibility-readability-comprehension-measurab", "thresholds": { "maxSentenceWords": { "value": 20, "op": "<=", "unit": "words", "severity": "fail", "cite": "GOV.UK sentence-length reading-age" }, "maxFkGrade": { "value": 8, "op": "<=", "unit": "grade", "severity": "fail", "cite": "NN/g 8th-grade broad-audience" }, "minGradedWords": { "value": 12, "op": ">=", "unit": "words", "severity": "info", "note": "grade only real sentences; short labels are FK-invalid" } } },
-  "B4": { "class": "B", "title": "Explanation microcopy plain", "verdict": "measured", "owner": "rubric-lens", "cite": "concise-scannable-writing, match-real-world" },
-  "B5": { "class": "B", "title": "No raw internals in user copy", "verdict": "measured", "owner": "rubric-lens", "cite": "match-real-world, feedback_provenance_user_voice_not_internals" },
-
-  "C1": { "class": "C", "title": "Visual hierarchy", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-visual-hierarchy", "thresholds": { "maxDisplaySizes": { "value": 3, "op": "<=", "severity": "fail", "cite": "ux-visual-hierarchy: <=3 sizes, biggest=most important" }, "maxSizeTiers": { "value": 10, "op": "<=", "severity": "warn", "note": "total distinct font sizes on the page" } } },
-  "C2": { "class": "C", "title": "Colour & contrast (WCAG)", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-wcag-contrast, ux-wcag-principles", "thresholds": { "contrastNormal": { "value": 4.5, "op": ">=", "unit": "ratio", "severity": "fail", "cite": "WCAG 1.4.3 normal text" }, "contrastLarge": { "value": 3, "op": ">=", "unit": "ratio", "severity": "fail", "cite": "WCAG 1.4.3 large text / UI / graphics" }, "largePx": { "value": 24, "op": ">=", "unit": "px", "note": "large-text threshold (regular weight)" }, "largeBoldPx": { "value": 18.66, "op": ">=", "unit": "px", "note": "large-text threshold when bold (>=700)" } } },
-  "C3": { "class": "C", "title": "Whitespace / gestalt", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-gestalt-proximity" },
-  "C4": { "class": "C", "title": "Typography (tabular KPIs)", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-data-tables" },
-
-  "D1": { "class": "D", "title": "Affordances & signifiers", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-icon-usability" },
-  "D2": { "class": "D", "title": "Feedback < 400ms (Doherty)", "verdict": "judged", "owner": "battery", "cite": "ux-doherty-threshold", "thresholds": { "feedbackMs": { "value": 400, "op": "<=", "unit": "ms", "severity": "info", "cite": "Doherty threshold; measured via a real trusted click->paint timer (MCP-driven), not a static literal" } } },
-  "D3": { "class": "D", "title": "Consistency / one vocabulary", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-laws-principles", "thresholds": { "maxButtonShapes": { "value": 6, "op": "<=", "severity": "fail", "cite": "one component vocabulary; ~3 control roles not 8 shapes" } } },
-
-  "E1": { "class": "E", "title": "Data-viz / KPI", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-dashboard-preattentive, ux-von-restorff, ux-data-tables" },
-  "E2": { "class": "E", "title": "Empty / loading / error", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-skeleton-screens, ux-indicators-validations-notifications" },
-  "E3": { "class": "E", "title": "Trust / transparency", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-tooltip, ux-indicators-validations-notifications" },
-  "E4": { "class": "E", "title": "Digest, don't dump (answer not working)", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-millers-law, ux-progressive-disclosure, external-dashboard-design-aggregate-summarise-answer-not-", "thresholds": { "maxIdsPerBlock": { "value": 7, "op": "<=", "severity": "fail", "cite": "Miller 5+-2; >7 code-ids in one block = a dump" } } },
-
-  "F1": { "class": "F", "title": "Mobile / touch >= 44px", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-laws-principles, ux-fitts-law", "thresholds": { "minTapPx": { "value": 44, "op": ">=", "unit": "px", "severity": "fail", "cite": "Fitts / WCAG 2.5.5 target-size (44-48px)" } } },
-  "F2": { "class": "F", "title": "Accessibility (WCAG/POUR)", "verdict": "judged", "owner": "battery", "cite": "ux-wcag-principles, ux-wcag-contrast", "note": "measured live via axe-core in ufai_battery.js" },
-  "F3": { "class": "F", "title": "Emotional design / peak-end", "verdict": "judged", "owner": "rubric-lens", "cite": "ux-peak-end-rule, ux-aesthetic-usability-effect" },
-
-  "G1": { "class": "G", "title": "Visibility of system status", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-visibility-of-system-status, ux-nielsen-ten" },
-  "G2": { "class": "G", "title": "Match the real world", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-match-system-real-world, ux-recognition-over-recall" },
-  "G3": { "class": "G", "title": "Aesthetic-minimalist", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-aesthetic-minimalist" },
-  "G4": { "class": "G", "title": "Single freshness source", "verdict": "measured", "owner": "rubric-lens", "cite": "external-ux-signal-to-noise-redundant-status-indicators-s, ux-aesthetic-minimalist" },
-
-  "H1": { "class": "H", "title": "Goal-gradient", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-goal-gradient" },
-  "H2": { "class": "H", "title": "Zeigarnik / open loops", "verdict": "judged", "owner": "rubric-lens", "cite": "ux-zeigarnik" },
-  "H3": { "class": "H", "title": "Serial position", "verdict": "judged", "owner": "rubric-lens", "cite": "ux-serial-position" },
-  "H4": { "class": "H", "title": "Selective attention (no ad-like content)", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-selective-attention" },
-
-  "I1": { "class": "I", "title": "Core Web Vitals", "verdict": "judged", "owner": "battery", "cite": "ux-core-web-vitals-lcp-inp-cls, ux-core-web-vitals-thresholds", "thresholds": { "lcpMs": { "value": 2500, "op": "<=", "unit": "ms", "severity": "fail", "cite": "LCP <=2.5s (75th pct)" }, "inpMs": { "value": 200, "op": "<=", "unit": "ms", "severity": "fail", "cite": "INP <=200ms" }, "cls": { "value": 0.1, "op": "<=", "unit": "score", "severity": "fail", "cite": "CLS <=0.1" } } },
-  "I2": { "class": "I", "title": "Perceived performance", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-skeleton-screens" },
-
-  "J1": { "class": "J", "title": "Prevent slips", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-error-prevention, ux-postels-law, ux-nielsen-ten" },
-  "J2": { "class": "J", "title": "Forgiveness / undo", "verdict": "judged", "owner": "rubric-lens", "cite": "ux-user-control-freedom" },
-
-  "K1": { "class": "K", "title": "Safety-first signalling (never colour-alone)", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-visual-hierarchy, ux-wcag-contrast" },
-  "K2": { "class": "K", "title": "Field legibility & reach", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-fitts-law, ux-wcag-contrast", "thresholds": { "minTapPx": { "value": 44, "op": ">=", "unit": "px", "severity": "fail", "cite": "gloved/one-handed reach (Fitts)" } } },
-
-  "L1": { "class": "L", "title": "Honest design (no deceptive patterns)", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-deceptive-dark-patterns" },
-  "L2": { "class": "L", "title": "Information scent", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-information-scent" },
-
-  "M1": { "class": "M", "title": "Labels & structure", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-web-form-design, ux-placeholder-text" },
-  "M2": { "class": "M", "title": "Validation & recovery", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-form-error-messages" },
-
-  "N1": { "class": "N", "title": "i18n mechanism + expansion resilience (NOT % translated)", "verdict": "measured", "owner": "rubric-lens", "cite": "W3C qa-i18n (domain-applied), EN/FIL toggle", "thresholds": { "expansionPct": { "value": 35, "op": "<=", "unit": "percent", "severity": "info", "note": "Tagalog/Cebuano run ~25-35% longer; layout must not break" } } },
-
-  "O1": { "class": "O", "title": "Value-first, not a tour", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-mobile-onboarding, ux-onboarding-tutorials" },
-  "O2": { "class": "O", "title": "Pull > push help", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-onboarding-tutorials" },
-
-  "Q1": { "class": "Q", "title": "prefers-reduced-motion", "verdict": "measured", "owner": "rubric-lens", "cite": "ux-prefers-reduced-motion, ux-wcag-animation-motion", "thresholds": { "maxAnimationSec": { "value": 3, "op": "<=", "unit": "s", "severity": "warn", "cite": "WCAG 2.2.2: interaction-triggered animation <=3s, pausable if >5s" } } },
-
-  "R1": { "class": "R", "title": "Spacing scale (declared tokens / 8-pt)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-layout-spacing-8dp-grid-keylines", "thresholds": { "gridBaseUnit": { "value": 8, "op": "multiple-of", "unit": "px", "severity": "fail", "cite": "8-pt / 8dp grid; gaps/padding are multiples of the base unit" } } },
-  "R2": { "class": "R", "title": "Alignment & grid (no overflow)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-layout-spacing-8dp-grid-keylines" },
-  "R3": { "class": "R", "title": "Treatment uniformity (cards AND controls)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-gestalt-similarity-uniform-treatment" },
-  "R4": { "class": "R", "title": "Regions & whitespace (no orphan voids)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-gestalt-common-region-grouping-containers, external-layout-regions-hierarchy-whitespace" },
-  "R5": { "class": "R", "title": "Vertical flow & section cohesion", "verdict": "judged", "owner": "rubric-lens", "cite": "external-layout-regions-hierarchy-whitespace, ux-f-pattern" },
-
-  "S1": { "class": "S", "title": "Token conformance (radius + typeface)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-consistency-and-standards-heuristic-internal-ext" },
-  "S2": { "class": "S", "title": "Shared chrome parity", "verdict": "measured", "owner": "family-sweep", "cite": "NN/g #4 internal consistency", "note": "CROSS-PAGE: owned by family_rubric_sweep.mjs, not the single-page lens" },
-  "S3": { "class": "S", "title": "Card-primitive parity", "verdict": "measured", "owner": "family-sweep", "cite": "NN/g #4 internal consistency", "note": "CROSS-PAGE: owned by family_rubric_sweep.mjs, not the single-page lens" },
-
-  "T1": { "class": "T", "title": "Content reachability (no fixed-height scroll-trap)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-css-overscroll-behavior-native-scroll-containmen" },
-  "T2": { "class": "T", "title": "Text fits its box (no clip/overlap)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-gestalt-similarity-uniform-treatment" },
-  "T3": { "class": "T", "title": "Tap responsiveness (touch-action: manipulation)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-css-touch-action-gesture-handling" },
-  "T4": { "class": "T", "title": "Native scroll containment (overscroll-behavior)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-css-overscroll-behavior-native-scroll-containmen" },
-  "T5": { "class": "T", "title": "Safe-area (viewport-fit=cover)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-css-env-safe-area-inset-notch-home-indicator" },
-  "T6": { "class": "T", "title": "Long-list virtualization", "verdict": "measured", "owner": "rubric-lens", "cite": "external-react-native-list-virtualization-long-lists", "thresholds": { "maxPeerRows": { "value": 150, "op": "<=", "severity": "fail", "cite": "RN FlatList windowing; >150 mounted peers = virtualize/paginate" } } },
-  "T7": { "class": "T", "title": "Clean JS thread (no console noise on load)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-react-native-performance-jank-60fps" },
-  "T8": { "class": "T", "title": "Interactive-state semantics (aria-pressed/expanded/selected)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-react-native-accessibility-standards" },
-
-  "V1": { "class": "V", "title": "No collision / overlap (content + floating chrome)", "verdict": "measured", "owner": "rubric-lens", "cite": "external-ux-fixed-height-overflow-overlapping-content-col", "thresholds": { "maxOverlapPct": { "value": 30, "op": "<=", "unit": "percent", "severity": "fail", "cite": ">30% of the smaller box overlapped = collision" } } },
-
-  "W1": { "class": "W", "title": "Back / escape affordance", "verdict": "measured", "owner": "rubric-lens", "cite": "Nielsen #3 user-control-freedom" },
-  "W2": { "class": "W", "title": "Shared-chrome consistency (companion+avatar+hub)", "verdict": "measured", "owner": "rubric-lens", "cite": "Nielsen #4 consistency-standards" }
+  "A1": {
+    "class": "A",
+    "title": "5-second test",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-scanning, ux-f-pattern",
+    "thresholds": {
+      "maxDisplaySizes": {
+        "value": 3,
+        "op": "<=",
+        "severity": "fail",
+        "cite": "ux-visual-hierarchy"
+      }
+    }
+  },
+  "A2": {
+    "class": "A",
+    "title": "Scannability",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-f-pattern, ux-scanning"
+  },
+  "A3": {
+    "class": "A",
+    "title": "Cognitive load / progressive disclosure",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-hicks-law, ux-millers-law, ux-progressive-disclosure",
+    "thresholds": {
+      "maxPrimaryCta": {
+        "value": 2,
+        "op": "<=",
+        "severity": "fail",
+        "cite": "ux-hicks-law"
+      }
+    }
+  },
+  "B1": {
+    "class": "B",
+    "title": "Microcopy / concision",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-concise-scannable, ux-microcopy-headlines"
+  },
+  "B2": {
+    "class": "B",
+    "title": "Plain voice & tone",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-microcopy-headlines, ux-govuk"
+  },
+  "B3": {
+    "class": "B",
+    "title": "Readability (<=20 words, grade <=8, active)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-plain-english-sentence-length-reading-age-measur, external-ux-legibility-readability-comprehension-measurab",
+    "thresholds": {
+      "maxSentenceWords": {
+        "value": 20,
+        "op": "<=",
+        "unit": "words",
+        "severity": "fail",
+        "cite": "GOV.UK sentence-length reading-age"
+      },
+      "maxFkGrade": {
+        "value": 8,
+        "op": "<=",
+        "unit": "grade",
+        "severity": "fail",
+        "cite": "NN/g 8th-grade broad-audience"
+      },
+      "minGradedWords": {
+        "value": 12,
+        "op": ">=",
+        "unit": "words",
+        "severity": "info",
+        "note": "grade only real sentences; short labels are FK-invalid"
+      }
+    }
+  },
+  "B4": {
+    "class": "B",
+    "title": "Explanation microcopy plain",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "concise-scannable-writing, match-real-world"
+  },
+  "B5": {
+    "class": "B",
+    "title": "No raw internals in user copy",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "match-real-world, feedback_provenance_user_voice_not_internals"
+  },
+  "C1": {
+    "class": "C",
+    "title": "Visual hierarchy",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-visual-hierarchy",
+    "thresholds": {
+      "maxDisplaySizes": {
+        "value": 3,
+        "op": "<=",
+        "severity": "fail",
+        "cite": "ux-visual-hierarchy: <=3 sizes, biggest=most important"
+      },
+      "maxSizeTiers": {
+        "value": 10,
+        "op": "<=",
+        "severity": "warn",
+        "note": "total distinct font sizes on the page"
+      }
+    }
+  },
+  "C2": {
+    "class": "C",
+    "title": "Colour & contrast (WCAG)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-wcag-contrast, ux-wcag-principles",
+    "thresholds": {
+      "contrastNormal": {
+        "value": 4.5,
+        "op": ">=",
+        "unit": "ratio",
+        "severity": "fail",
+        "cite": "WCAG 1.4.3 normal text"
+      },
+      "contrastLarge": {
+        "value": 3,
+        "op": ">=",
+        "unit": "ratio",
+        "severity": "fail",
+        "cite": "WCAG 1.4.3 large text / UI / graphics"
+      },
+      "largePx": {
+        "value": 24,
+        "op": ">=",
+        "unit": "px",
+        "note": "large-text threshold (regular weight)"
+      },
+      "largeBoldPx": {
+        "value": 18.66,
+        "op": ">=",
+        "unit": "px",
+        "note": "large-text threshold when bold (>=700)"
+      }
+    }
+  },
+  "C3": {
+    "class": "C",
+    "title": "Whitespace / gestalt",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-gestalt-proximity"
+  },
+  "C4": {
+    "class": "C",
+    "title": "Typography (tabular KPIs)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-data-tables"
+  },
+  "D1": {
+    "class": "D",
+    "title": "Affordances & signifiers",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-icon-usability"
+  },
+  "D2": {
+    "class": "D",
+    "title": "Feedback < 400ms (Doherty)",
+    "verdict": "judged",
+    "owner": "battery",
+    "cite": "ux-doherty-threshold",
+    "thresholds": {
+      "feedbackMs": {
+        "value": 400,
+        "op": "<=",
+        "unit": "ms",
+        "severity": "info",
+        "cite": "Doherty threshold; measured via a real trusted click->paint timer (MCP-driven), not a static literal"
+      }
+    }
+  },
+  "D3": {
+    "class": "D",
+    "title": "Consistency / one vocabulary",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-laws-principles",
+    "thresholds": {
+      "maxButtonShapes": {
+        "value": 6,
+        "op": "<=",
+        "severity": "fail",
+        "cite": "one component vocabulary; ~3 control roles not 8 shapes"
+      }
+    }
+  },
+  "E1": {
+    "class": "E",
+    "title": "Data-viz / KPI",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-dashboard-preattentive, ux-von-restorff, ux-data-tables"
+  },
+  "E2": {
+    "class": "E",
+    "title": "Empty / loading / error",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-skeleton-screens, ux-indicators-validations-notifications"
+  },
+  "E3": {
+    "class": "E",
+    "title": "Trust / transparency",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-tooltip, ux-indicators-validations-notifications"
+  },
+  "E4": {
+    "class": "E",
+    "title": "Digest, don't dump (answer not working)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-millers-law, ux-progressive-disclosure, external-dashboard-design-aggregate-summarise-answer-not-",
+    "thresholds": {
+      "maxIdsPerBlock": {
+        "value": 7,
+        "op": "<=",
+        "severity": "fail",
+        "cite": "Miller 5+-2; >7 code-ids in one block = a dump"
+      }
+    }
+  },
+  "F1": {
+    "class": "F",
+    "title": "Mobile / touch >= 44px",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-laws-principles, ux-fitts-law",
+    "thresholds": {
+      "minTapPx": {
+        "value": 44,
+        "op": ">=",
+        "unit": "px",
+        "severity": "fail",
+        "cite": "Fitts / WCAG 2.5.5 target-size (44-48px)"
+      }
+    }
+  },
+  "F2": {
+    "class": "F",
+    "title": "Accessibility (WCAG/POUR)",
+    "verdict": "judged",
+    "owner": "battery",
+    "cite": "ux-wcag-principles, ux-wcag-contrast",
+    "note": "measured live via axe-core in ufai_battery.js"
+  },
+  "F3": {
+    "class": "F",
+    "title": "Emotional design / peak-end",
+    "verdict": "judged",
+    "owner": "rubric-lens",
+    "cite": "ux-peak-end-rule, ux-aesthetic-usability-effect"
+  },
+  "G1": {
+    "class": "G",
+    "title": "Visibility of system status",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-visibility-of-system-status, ux-nielsen-ten"
+  },
+  "G2": {
+    "class": "G",
+    "title": "Match the real world",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-match-system-real-world, ux-recognition-over-recall"
+  },
+  "G3": {
+    "class": "G",
+    "title": "Aesthetic-minimalist",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-aesthetic-minimalist"
+  },
+  "G4": {
+    "class": "G",
+    "title": "Single freshness source",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-ux-signal-to-noise-redundant-status-indicators-s, ux-aesthetic-minimalist"
+  },
+  "H1": {
+    "class": "H",
+    "title": "Goal-gradient",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-goal-gradient"
+  },
+  "H2": {
+    "class": "H",
+    "title": "Zeigarnik / open loops",
+    "verdict": "judged",
+    "owner": "rubric-lens",
+    "cite": "ux-zeigarnik"
+  },
+  "H3": {
+    "class": "H",
+    "title": "Serial position",
+    "verdict": "judged",
+    "owner": "rubric-lens",
+    "cite": "ux-serial-position"
+  },
+  "H4": {
+    "class": "H",
+    "title": "Selective attention (no ad-like content)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-selective-attention"
+  },
+  "I1": {
+    "class": "I",
+    "title": "Core Web Vitals",
+    "verdict": "judged",
+    "owner": "battery",
+    "cite": "ux-core-web-vitals-lcp-inp-cls, ux-core-web-vitals-thresholds",
+    "thresholds": {
+      "lcpMs": {
+        "value": 2500,
+        "op": "<=",
+        "unit": "ms",
+        "severity": "fail",
+        "cite": "LCP <=2.5s (75th pct)"
+      },
+      "inpMs": {
+        "value": 200,
+        "op": "<=",
+        "unit": "ms",
+        "severity": "fail",
+        "cite": "INP <=200ms"
+      },
+      "cls": {
+        "value": 0.1,
+        "op": "<=",
+        "unit": "score",
+        "severity": "fail",
+        "cite": "CLS <=0.1"
+      }
+    }
+  },
+  "I2": {
+    "class": "I",
+    "title": "Perceived performance",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-skeleton-screens"
+  },
+  "J1": {
+    "class": "J",
+    "title": "Prevent slips",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-error-prevention, ux-postels-law, ux-nielsen-ten"
+  },
+  "J2": {
+    "class": "J",
+    "title": "Forgiveness / undo",
+    "verdict": "judged",
+    "owner": "rubric-lens",
+    "cite": "ux-user-control-freedom"
+  },
+  "K1": {
+    "class": "K",
+    "title": "Safety-first signalling (never colour-alone)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-visual-hierarchy, ux-wcag-contrast"
+  },
+  "K2": {
+    "class": "K",
+    "title": "Field legibility & reach",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-fitts-law, ux-wcag-contrast",
+    "thresholds": {
+      "minTapPx": {
+        "value": 44,
+        "op": ">=",
+        "unit": "px",
+        "severity": "fail",
+        "cite": "gloved/one-handed reach (Fitts)"
+      }
+    }
+  },
+  "L1": {
+    "class": "L",
+    "title": "Honest design (no deceptive patterns)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-deceptive-dark-patterns"
+  },
+  "L2": {
+    "class": "L",
+    "title": "Information scent",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-information-scent"
+  },
+  "M1": {
+    "class": "M",
+    "title": "Labels & structure",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-web-form-design, ux-placeholder-text"
+  },
+  "M2": {
+    "class": "M",
+    "title": "Validation & recovery",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-form-error-messages"
+  },
+  "N1": {
+    "class": "N",
+    "title": "i18n mechanism + expansion resilience (NOT % translated)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "W3C qa-i18n (domain-applied), EN/FIL toggle",
+    "thresholds": {
+      "expansionPct": {
+        "value": 35,
+        "op": "<=",
+        "unit": "percent",
+        "severity": "info",
+        "note": "Tagalog/Cebuano run ~25-35% longer; layout must not break"
+      }
+    }
+  },
+  "O1": {
+    "class": "O",
+    "title": "Value-first, not a tour",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-mobile-onboarding, ux-onboarding-tutorials"
+  },
+  "O2": {
+    "class": "O",
+    "title": "Pull > push help",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-onboarding-tutorials"
+  },
+  "Q1": {
+    "class": "Q",
+    "title": "prefers-reduced-motion",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "ux-prefers-reduced-motion, ux-wcag-animation-motion",
+    "thresholds": {
+      "maxAnimationSec": {
+        "value": 3,
+        "op": "<=",
+        "unit": "s",
+        "severity": "warn",
+        "cite": "WCAG 2.2.2: interaction-triggered animation <=3s, pausable if >5s"
+      }
+    }
+  },
+  "R1": {
+    "class": "R",
+    "title": "Spacing scale (declared tokens / 8-pt)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-layout-spacing-8dp-grid-keylines",
+    "thresholds": {
+      "gridBaseUnit": {
+        "value": 8,
+        "op": "multiple-of",
+        "unit": "px",
+        "severity": "fail",
+        "cite": "8-pt / 8dp grid; gaps/padding are multiples of the base unit"
+      }
+    }
+  },
+  "R2": {
+    "class": "R",
+    "title": "Alignment & grid (no overflow)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-layout-spacing-8dp-grid-keylines"
+  },
+  "R3": {
+    "class": "R",
+    "title": "Treatment uniformity (cards AND controls)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-gestalt-similarity-uniform-treatment"
+  },
+  "R4": {
+    "class": "R",
+    "title": "Regions & whitespace (no orphan voids)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-gestalt-common-region-grouping-containers, external-layout-regions-hierarchy-whitespace"
+  },
+  "R5": {
+    "class": "R",
+    "title": "Vertical flow & section cohesion",
+    "verdict": "judged",
+    "owner": "rubric-lens",
+    "cite": "external-layout-regions-hierarchy-whitespace, ux-f-pattern"
+  },
+  "S1": {
+    "class": "S",
+    "title": "Token conformance (radius + typeface)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-consistency-and-standards-heuristic-internal-ext"
+  },
+  "S2": {
+    "class": "S",
+    "title": "Shared chrome parity",
+    "verdict": "measured",
+    "owner": "family-sweep",
+    "cite": "NN/g #4 internal consistency",
+    "note": "CROSS-PAGE: owned by family_rubric_sweep.mjs, not the single-page lens"
+  },
+  "S3": {
+    "class": "S",
+    "title": "Card-primitive parity",
+    "verdict": "measured",
+    "owner": "family-sweep",
+    "cite": "NN/g #4 internal consistency",
+    "note": "CROSS-PAGE: owned by family_rubric_sweep.mjs, not the single-page lens"
+  },
+  "T1": {
+    "class": "T",
+    "title": "Content reachability (no fixed-height scroll-trap)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-css-overscroll-behavior-native-scroll-containmen"
+  },
+  "T2": {
+    "class": "T",
+    "title": "Text fits its box (no clip/overlap)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-gestalt-similarity-uniform-treatment"
+  },
+  "T3": {
+    "class": "T",
+    "title": "Tap responsiveness (touch-action: manipulation)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-css-touch-action-gesture-handling"
+  },
+  "T4": {
+    "class": "T",
+    "title": "Native scroll containment (overscroll-behavior)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-css-overscroll-behavior-native-scroll-containmen"
+  },
+  "T5": {
+    "class": "T",
+    "title": "Safe-area (viewport-fit=cover)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-css-env-safe-area-inset-notch-home-indicator"
+  },
+  "T6": {
+    "class": "T",
+    "title": "Long-list virtualization",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-react-native-list-virtualization-long-lists",
+    "thresholds": {
+      "maxPeerRows": {
+        "value": 150,
+        "op": "<=",
+        "severity": "fail",
+        "cite": "RN FlatList windowing; >150 mounted peers = virtualize/paginate"
+      }
+    }
+  },
+  "T7": {
+    "class": "T",
+    "title": "Clean JS thread (no console noise on load)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-react-native-performance-jank-60fps"
+  },
+  "T8": {
+    "class": "T",
+    "title": "Interactive-state semantics (aria-pressed/expanded/selected)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-react-native-accessibility-standards"
+  },
+  "V1": {
+    "class": "V",
+    "title": "No collision / overlap (content + floating chrome)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-ux-fixed-height-overflow-overlapping-content-col",
+    "thresholds": {
+      "maxOverlapPct": {
+        "value": 30,
+        "op": "<=",
+        "unit": "percent",
+        "severity": "fail",
+        "cite": ">30% of the smaller box overlapped = collision"
+      }
+    }
+  },
+  "W1": {
+    "class": "W",
+    "title": "Back / escape affordance",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "Nielsen #3 user-control-freedom"
+  },
+  "W2": {
+    "class": "W",
+    "title": "Shared-chrome consistency (companion+avatar+hub)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "Nielsen #4 consistency-standards"
+  },
+  "Z1": {
+    "class": "Z",
+    "title": "Input efficiency per modality (right mobile keyboard, PC keyboard-operable)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-mobile-inputmode-keyboard-efficiency"
+  },
+  "Z2": {
+    "class": "Z",
+    "title": "Responsive reflow & content parity (no h-scroll @320, WCAG 1.4.10)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-css-reflow-320px-no-two-dimensional-scroll"
+  },
+  "Z3": {
+    "class": "Z",
+    "title": "Gesture ergonomics & accidental-touch (24px + spacing, WCAG 2.5.8)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-wcag-target-size-minimum-24px-spacing"
+  },
+  "X1": {
+    "class": "X",
+    "title": "Task-flow coherence (multi-step task, no dead-end/re-entry/lost-context)",
+    "verdict": "planned",
+    "owner": "family-sweep",
+    "cite": "external-nng-task-flow-journey-friction-dropoff"
+  },
+  "X2": {
+    "class": "X",
+    "title": "Interruption resilience & resumability (draft survives refresh/interruption)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-coga-cognitive-accessibility-design-objectives"
+  },
+  "X3": {
+    "class": "X",
+    "title": "Findability & search (find a thing; no-results recovers)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-ux-information-scent-wayfinding-foraging"
+  },
+  "Y1": {
+    "class": "Y",
+    "title": "Offline & connectivity resilience (state clear, writes queue, sync feedback)",
+    "verdict": "measured",
+    "owner": "rubric-lens",
+    "cite": "external-offline-ux-state-queue-sync-guidelines"
+  },
+  "Y2": {
+    "class": "Y",
+    "title": "Stress-case / real-life resilience (tired/gloved/rushed; no safety-task countdown)",
+    "verdict": "planned",
+    "owner": "family-sweep",
+    "cite": "external-coga-cognitive-accessibility-design-objectives"
+  },
+  "G5": {
+    "class": "G",
+    "title": "System memory & personalization (restore last filter/view, recents, role defaults)",
+    "verdict": "measured",
+    "owner": "journey-validator",
+    "cite": "external-ux-recognition-over-recall-recall"
+  },
+  "J3": {
+    "class": "J",
+    "title": "Consequence transparency & action confidence (preview, proportional confirm, receipt)",
+    "verdict": "measured",
+    "owner": "journey-validator",
+    "cite": "external-nng-confirmation-dialog-consequence-proportional"
+  },
+  "S4": {
+    "class": "S",
+    "title": "Behavioral consistency (same action behaves identically across pages)",
+    "verdict": "measured",
+    "owner": "journey-validator",
+    "cite": "external-consistency-and-standards-heuristic-internal-ext"
+  }
 }

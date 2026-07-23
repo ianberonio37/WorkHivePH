@@ -1158,6 +1158,103 @@ async function whRecentDuplicate(db, table, match, opts) {
   } catch (_) { return null; /* best-effort: never block a write on a dedup query failure */ }
 }
 if (typeof window !== 'undefined') window.whRecentDuplicate = whRecentDuplicate;
+// whRememberView — the SHARED system-memory (rubric G5) helper. Persists + restores a per-page VIEW state
+// (filter / sort / tab / active-view) to localStorage so a user's choice survives across sessions, instead of
+// 14 pages hand-rolling it (they drift → the measured 17.6% G5a floor). CENTRALIZE-FIRST. Adopt after the
+// list first renders:
+//   var view = whRememberView('filters', function () { return { cat: catEl.value, sort: sortEl.value }; });
+//   view.restore(function (s) { catEl.value = s.cat; sortEl.value = s.sort; applyFilters(); });  // apply saved
+//   [catEl, sortEl].forEach(function (el) { el.addEventListener('change', view.save); });          // persist
+function whRememberView(key, capture) {
+  var K = 'wh_view_' + (typeof location !== 'undefined' ? (location.pathname.split('/').pop() || 'root') : 'root') + '_' + key;
+  return {
+    key: K,
+    restore: function (apply) { try { var s = JSON.parse(localStorage.getItem(K) || 'null'); if (s != null && typeof apply === 'function') apply(s); return s; } catch (_) { return null; } },
+    save: function () { try { localStorage.setItem(K, JSON.stringify(capture())); } catch (_) { /* empty-catch-allow: best-effort persist, never block the UI on a localStorage failure (quota/private-mode) */ } },
+    clear: function () { try { localStorage.removeItem(K); } catch (_) { /* empty-catch-allow: best-effort clear, localStorage may be unavailable (quota/private-mode) */ } }
+  };
+}
+if (typeof window !== 'undefined') window.whRememberView = whRememberView;
+// whAutoRememberFilters — ONE-LINE G5a adoption for pages whose filters are standard <input>/<select> elements.
+// Restores each element's last value from localStorage (dispatching a change so the page's OWN filter→render
+// re-applies it — no need to know the page's render fn), and persists on change. Call it once after the filter
+// inputs + their listeners exist:  whAutoRememberFilters('filters', ['search-input','cat-filter','filter-status']);
+// (chip/tab filters that aren't form elements still wire whRememberView by hand.)
+function whAutoRememberFilters(key, ids) {
+  try {
+    if (typeof document === 'undefined') return null;
+    var view = whRememberView(key, function () { var o = {}; ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; }); return o; });
+    view.restore(function (s) { ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; el.dispatchEvent(new Event('change', { bubbles: true })); } }); });
+    ids.forEach(function (id) { var el = document.getElementById(id); if (el) ['change', 'input'].forEach(function (ev) { el.addEventListener(ev, view.save); }); });
+    return view;
+  } catch (_) { return null; }
+}
+if (typeof window !== 'undefined') window.whAutoRememberFilters = whAutoRememberFilters;
+// whAutoRememberTabs — the CHIP/TAB variant of the G5a auto-adopter for filters that are buttons (not inputs):
+// a container of `[data-<attr>]` chips (data-status / data-tab / data-kind) where the active one has .active or
+// aria-pressed/selected. Restores the last-active chip by CLICKING it (reusing the page's own switch handler),
+// and persists on chip click. Call once after the chips + their listeners exist:
+//   whAutoRememberTabs('seller-status', '#listing-filter', 'data-status');
+function whAutoRememberTabs(key, containerSel, dataAttr) {
+  try {
+    if (typeof document === 'undefined') return null;
+    dataAttr = dataAttr || 'data-status';
+    var cont = document.querySelector(containerSel);
+    if (!cont) return null;
+    var activeVal = function () { var a = cont.querySelector('.active,[aria-pressed="true"],[aria-selected="true"]'); return a ? a.getAttribute(dataAttr) : null; };
+    var view = whRememberView(key, function () { return { v: activeVal() }; });
+    cont.addEventListener('click', function (e) { if (e.target && e.target.closest && e.target.closest('[' + dataAttr + ']')) setTimeout(view.save, 0); });
+    view.restore(function (s) {
+      if (!s || !s.v) return;
+      var first = cont.querySelector('[' + dataAttr + ']');
+      var cur = cont.querySelector('.active,[aria-pressed="true"],[aria-selected="true"]');
+      if (cur && first && cur !== first) return;   // an explicit non-default (e.g. URL) selection WINS — don't override
+      var b = cont.querySelector('[' + dataAttr + '="' + (window.CSS && CSS.escape ? CSS.escape(s.v) : s.v) + '"]');
+      if (b && b !== cur) b.click();
+    });
+    return view;
+  } catch (_) { return null; }
+}
+if (typeof window !== 'undefined') window.whAutoRememberTabs = whAutoRememberTabs;
+// whAutoSaveDraft — X2 interruption resilience: autosave an ENTRY FORM's fields as a DRAFT to localStorage so a
+// refresh / interruption (a field-tech's connectivity blip, a phone call) doesn't lose in-progress work. Restores
+// the draft into EMPTY fields on load, debounced-saves on input, and `.clear()` wipes it — call clear() after a
+// SUCCESSFUL submit so the next entry starts fresh. Usage:
+//   var draft = whAutoSaveDraft('logentry', ['log-notes','log-hours']);  ... onSaved: draft.clear();
+function whAutoSaveDraft(key, ids, opts) {
+  try {
+    if (typeof document === 'undefined') return { save: function () {}, clear: function () {} };
+    opts = opts || {};
+    var t = null;
+    var view, applyDraft;
+    // Debounced single-timer save + one-shot clear, HOISTED into named fns so the setTimeout calls sit OUTSIDE
+    // any forEach — they fire on user events, not per-iteration (keeps the timeout_in_loop 4-line-lookback gate green).
+    function scheduleSave() { clearTimeout(t); t = setTimeout(view.save, opts.debounce || 500); }
+    function scheduleClear(ms) { setTimeout(view.clear, ms); }
+    view = whRememberView('draft_' + key, function () { var o = {}; ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; }); return o; });
+    applyDraft = function (s) { ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; el.dispatchEvent(new Event('input', { bubbles: true })); } }); };
+    view.restore(applyDraft);
+    ids.forEach(function (id) { var el = document.getElementById(id); if (el) ['input', 'change'].forEach(function (ev) { el.addEventListener(ev, scheduleSave); }); });
+    // GENERIC lifecycle (no per-page selectors needed): restore the draft when the user FOCUSES the compose
+    // (handles a modal whose open() blanks the field — the draft comes back as they enter it), and CLEAR it
+    // when a submit-like button in the field's dialog/form/sheet is clicked (the entry committed → next is fresh).
+    if (opts.auto !== false) {
+      ids.forEach(function (id) {
+        var el = document.getElementById(id); if (!el) return;
+        el.addEventListener('focus', function () { view.restore(applyDraft); });
+        var box = (el.closest && el.closest('[role="dialog"],.modal,.sheet,form')) || document.body;
+        box.addEventListener('click', function (e) { var b = e.target && e.target.closest && e.target.closest('button,[type="submit"]'); if (b && /\b(post|save|submit|send|publish|update|create|\blog\b|\badd\b|done|confirm)\b/i.test((b.textContent || '') + ' ' + (b.id || ''))) scheduleClear(220); });
+      });
+    }
+    // opts.clearOn = a selector for the SUBMIT/SAVE control; clicking it wipes the draft (the entry committed).
+    // opts.restoreOn = a selector for the OPEN/compose trigger; clicking it re-restores the draft into the
+    // (freshly-opened, now-empty) form — the one-call answer for MODAL composers whose open() blanks the field.
+    if (opts.clearOn) { document.addEventListener('click', function (e) { if (e.target && e.target.closest && e.target.closest(opts.clearOn)) scheduleClear(120); }, true); }
+    if (opts.restoreOn) { document.addEventListener('click', function (e) { if (e.target && e.target.closest && e.target.closest(opts.restoreOn)) setTimeout(function () { view.restore(applyDraft); }, 60); }); }
+    return { save: view.save, clear: view.clear, restore: function () { view.restore(applyDraft); }, key: view.key };
+  } catch (_) { return { save: function () {}, clear: function () {} }; }
+}
+if (typeof window !== 'undefined') window.whAutoSaveDraft = whAutoSaveDraft;
 function whFmtDate(d, opts) {
   var dt = (d instanceof Date) ? d : new Date(d);
   if (isNaN(dt.getTime())) return '-';

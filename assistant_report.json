@@ -1,8 +1,8 @@
 {
   "validator": "assistant",
   "total_checks": 14,
-  "passed": 14,
-  "skipped": 0,
+  "passed": 13,
+  "skipped": 1,
   "failed": 0,
   "issues": []
 }
