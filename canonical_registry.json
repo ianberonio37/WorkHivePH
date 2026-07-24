@@ -420,7 +420,10 @@
         "embedding",
         "created_at",
         "embedding_model",
-        "maintenance_type"
+        "maintenance_type",
+        "source",
+        "ai_model",
+        "ai_confidence"
       ],
       "rls_enabled": true,
       "grants": {
@@ -1930,7 +1933,8 @@
         "acknowledged_by",
         "acknowledged_at",
         "detected_at",
-        "expires_at"
+        "expires_at",
+        "detail_source"
       ],
       "rls_enabled": false,
       "grants": {},
@@ -7945,7 +7949,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 174.8
+      "size_kb": 174.9
     },
     "architecture.html": {
       "tables_read": [],
@@ -7997,7 +8001,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 208.9
+      "size_kb": 209.2
     },
     "assistant.html": {
       "tables_read": [
@@ -8051,7 +8055,7 @@
         "set_community_best_answer"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 148.8
+      "size_kb": 149.0
     },
     "dayplanner.html": {
       "tables_read": [
@@ -8149,7 +8153,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 311.1
+      "size_kb": 311.3
     },
     "index.html": {
       "tables_read": [],
@@ -8214,7 +8218,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 132.0
+      "size_kb": 132.1
     },
     "llm-observability.html": {
       "tables_read": [
@@ -8261,7 +8265,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 301.1
+      "size_kb": 301.5
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -8317,7 +8321,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 75.1
+      "size_kb": 75.3
     },
     "marketplace.html": {
       "tables_read": [
@@ -8350,7 +8354,7 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 168.3
+      "size_kb": 168.4
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -8430,7 +8434,7 @@
         "get_pm_compliance_smrp"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 144.1
+      "size_kb": 144.9
     },
     "project-manager.html": {
       "tables_read": [
@@ -8468,7 +8472,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 168.6
+      "size_kb": 168.5
     },
     "project-report.html": {
       "tables_read": [
@@ -8510,7 +8514,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 87.1
+      "size_kb": 87.8
     },
     "resume.html": {
       "tables_read": [
@@ -8543,7 +8547,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 55.9
+      "size_kb": 56.2
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -9291,7 +9295,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 387
+      "loc": 391
     },
     "cmms-webhook-receiver": {
       "tables_read": [
@@ -9389,7 +9393,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 332
+      "loc": 336
     },
     "fmea-populator": {
       "tables_read": [
@@ -9714,7 +9718,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 428
+      "loc": 437
     },
     "voice-action-router": {
       "tables_read": [

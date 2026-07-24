@@ -5,7 +5,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 - Rules evaluated: **57**
 - Critical / high-severity violations: **7**
-- Promotion candidates (drift band): **17**
+- Promotion candidates (drift band): **16**
 - Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=50
 
 ## Per-skill roll-up
@@ -13,20 +13,14 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | Skill | Rules | Avg conformance | Total violators |
 |---|---:|---:|---:|
 | architect | 2 | 100% | 0 |
-| data-engineer | 1 | 93% | 2 |
-| designer | 7 | 85% | 22 |
+| data-engineer | 1 | 100% | 0 |
+| designer | 7 | 78% | 35 |
 | frontend | 20 | 91% | 53 |
-| mobile-maestro | 7 | 82% | 7 |
+| mobile-maestro | 7 | 83% | 6 |
 | qa-tester | 6 | 96% | 9 |
-| security | 14 | 95% | 6 |
+| security | 14 | 95% | 7 |
 
 ## Critical / high-severity violations -- act immediately
-
-### `mobile_viewport_fit_cover` (high)  -- mobile-maestro :: viewport-fit=cover is required before safe areas work
-- **Rule:** Every HTML page's viewport meta must include viewport-fit=cover
-- **Conformance:** 92%  (39 / 42)
-- **Violators (3):** llm-observability.html, promo-poster.html, validator-catalog.html
-- **Why it matters:** env(safe-area-inset-*) returns 0 unless viewport-fit=cover is set -- iPhone notch + home indicator overlap content.
 
 ### `qa_utils_js_loads_before_inline_script` (high)  -- qa-tester :: utils.js must load BEFORE the main script block
 - **Rule:** Pages that call escHtml/getDb must load utils.js before the main inline <script> block
@@ -34,17 +28,17 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 - **Violators (3):** architecture.html, symbol-gallery.html, validator-catalog.html
 - **Why it matters:** If utils.js loads AFTER the inline script that calls escHtml/getDb, the call throws ReferenceError and silently kills the entire <script> block.
 
+### `mobile_viewport_fit_cover` (high)  -- mobile-maestro :: viewport-fit=cover is required before safe areas work
+- **Rule:** Every HTML page's viewport meta must include viewport-fit=cover
+- **Conformance:** 95%  (40 / 42)
+- **Violators (2):** promo-poster.html, validator-catalog.html
+- **Why it matters:** env(safe-area-inset-*) returns 0 unless viewport-fit=cover is set -- iPhone notch + home indicator overlap content.
+
 ### `frontend_eschtml_imported_not_inline` (high)  -- frontend :: escHtml from utils.js
 - **Rule:** Pages must use escHtml() (from utils.js) -- either direct call `escHtml(` or canonical alias `const e = escHtml` + e( calls
 - **Conformance:** 94%  (35 / 37)
 - **Violators (2):** platform-actions.html, status.html
 - **Why it matters:** Any page that uses innerHTML to render user data must escape it. Two canonical idioms are accepted: direct escHtml() calls, or the `const e = escHtml` alias (memory rule -- shortens template literals in renderer functions).
-
-### `data_engineer_restore_identity_from_session` (high)  -- data-engineer :: Auth identity restoration
-- **Rule:** Pages reading localStorage worker_name must also call restoreIdentityFromSession(db) to sync with Supabase Auth
-- **Conformance:** 93%  (28 / 30)
-- **Violators (2):** agentic-rag-observability.html, platform-actions.html
-- **Why it matters:** Identity migration (C1-C4) replaced string localStorage with Supabase Auth sessions. Any page still reading the localStorage worker_name must call restoreIdentityFromSession(db) on load or it diverges from the canonical auth.uid() identity. Surfaced by AI extraction 2026-05-18, manually reviewed.
 
 ### `mobile_decorative_anim_has_mobile_kill` (high)  -- mobile-maestro :: Auto-Mineable Rules
 - **Rule:** Pages with DECORATIVE infinite CSS animations include a @media (max-width: 767px) animation:none kill
@@ -64,19 +58,25 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 - **Violators (1):** platform-actions.html
 - **Why it matters:** VoiceOver/TalkBack rely on aria-live for toast announcements. Without it, save confirmations are completely silent on mobile.
 
+### `edge_fn_handles_options_preflight` (high)  -- security :: Edge Function CORS
+- **Rule:** Every edge fn responds to OPTIONS preflight
+- **Conformance:** 98%  (56 / 57)
+- **Violators (1):** visual-defect-capture
+- **Why it matters:** Without OPTIONS handling, browsers block the actual request on CORS preflight failure.
+
 ## Promotion candidates (documented rules with measurable drift)
 
 | Rule | Skill | Severity | Conformance | Violators |
 |---|---|---|---:|---|
 | `qa_no_alert_call` | qa-tester | medium | 98% | index.html |
+| `edge_fn_handles_options_preflight` | security | high | 98% | visual-defect-capture |
 | `qa_no_innerhtml_plus_equals` | qa-tester | medium | 97% | design-system.html |
+| `designer_poppins_font` | designer | info | 97% | validator-catalog.html |
 | `mobile_toast_has_aria_live` | mobile-maestro | high | 96% | platform-actions.html |
 | `frontend_list_view_has_error_state` | frontend | medium | 96% | status.html |
-| `designer_poppins_font` | designer | info | 95% | llm-observability.html, validator-catalog.html |
+| `mobile_viewport_fit_cover` | mobile-maestro | high | 95% | promo-poster.html, validator-catalog.html |
 | `frontend_no_em_dash_in_prompt_template` | frontend | medium | 94% | ai-gateway, analytics-orchestrator, voice-journal-agent |
 | `frontend_eschtml_imported_not_inline` | frontend | high | 94% | platform-actions.html, status.html |
-| `data_engineer_restore_identity_from_session` | data-engineer | high | 93% | agentic-rag-observability.html, platform-actions.html |
-| `mobile_viewport_fit_cover` | mobile-maestro | high | 92% | llm-observability.html, promo-poster.html, validator-catalog.html |
 | `frontend_calm_dashboard_declares_source_chip` | frontend | medium | 92% | ph-intelligence.html |
 | `frontend_list_view_has_loading_state` | frontend | medium | 92% | platform-actions.html, status.html |
 | `migration_grant_when_rls_enabled` | security | medium | 92% | 20260620000007_rls_enable_project_family.sql, 20260620000008_rls_enable_remaining_hive_tables.sql, 20260707000001_marketplace_watchlist_savedsearch_rls.sql, 20260707000004_achievement_xp_log_rls.sql, 20260718000001_ops_artifact_metrics.sql |
@@ -84,59 +84,58 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `a11y_main_landmark_present` | qa-tester | medium | 90% | design-system.html, platform-actions.html, promo-poster.html, status.html |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | high | 88% | voice-journal.html |
 | `frontend_list_view_has_empty_state` | frontend | medium | 83% | design-system.html, platform-actions.html, resume.html, status.html, validator-catalog.html |
-| `designer_uses_canonical_orange` | designer | info | 77% | agentic-rag-observability.html, ai-quality.html, design-system.html, llm-observability.html, offline-fallback.html ... |
 
 ## All rules (full conformance ranking)
 
 | Rule | Skill | Conformance | Scope | Polarity |
 |---|---|---:|---|---|
+| `designer_btn_primary_canonical_gradient` | designer | 0% (0/15) | html_and_js | convention |
 | `mobile_pdf_pagebreak_covers_p` | mobile-maestro | 0% (0/2) | html_pages | convention |
-| `designer_btn_primary_canonical_gradient` | designer | 26% (4/15) | html_and_js | convention |
 | `security_voice_transcript_length_cap` | security | 50% (1/2) | edge_fns | convention |
 | `frontend_classlist_over_classname` | frontend | 52% (22/42) | html_pages | anti_pattern |
+| `designer_uses_canonical_orange` | designer | 52% (21/40) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 59% (25/42) | html_pages | anti_pattern |
 | `frontend_currency_uses_shared_formatter` | frontend | 66% (4/6) | html_pages | convention |
-| `designer_uses_canonical_orange` | designer | 77% (31/40) | html_pages | convention |
 | `frontend_list_view_has_empty_state` | frontend | 83% (25/30) | html_pages | convention |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 88% (8/9) | html_pages | convention |
 | `a11y_main_landmark_present` | qa-tester | 90% (38/42) | html_pages | convention |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 91% (34/37) | html_pages | convention |
-| `migration_grant_when_rls_enabled` | security | 92% (58/63) | migrations | convention |
+| `migration_grant_when_rls_enabled` | security | 92% (60/65) | migrations | convention |
 | `frontend_list_view_has_loading_state` | frontend | 92% (24/26) | html_pages | convention |
 | `frontend_calm_dashboard_declares_source_chip` | frontend | 92% (12/13) | html_pages | convention |
-| `mobile_viewport_fit_cover` | mobile-maestro | 92% (39/42) | html_pages | convention |
-| `data_engineer_restore_identity_from_session` | data-engineer | 93% (28/30) | html_pages | convention |
 | `frontend_eschtml_imported_not_inline` | frontend | 94% (35/37) | html_pages | convention |
 | `frontend_no_em_dash_in_prompt_template` | frontend | 94% (54/57) | edge_fns | anti_pattern |
-| `designer_poppins_font` | designer | 95% (38/40) | html_pages | convention |
+| `mobile_viewport_fit_cover` | mobile-maestro | 95% (40/42) | html_pages | convention |
 | `frontend_list_view_has_error_state` | frontend | 96% (27/28) | html_pages | convention |
 | `mobile_toast_has_aria_live` | mobile-maestro | 96% (29/30) | html_pages | convention |
+| `designer_poppins_font` | designer | 97% (39/40) | html_pages | convention |
 | `qa_no_innerhtml_plus_equals` | qa-tester | 97% (41/42) | html_pages | anti_pattern |
-| `qa_no_alert_call` | qa-tester | 98% (78/79) | html_and_js | anti_pattern |
+| `edge_fn_handles_options_preflight` | security | 98% (56/57) | edge_fns | convention |
+| `qa_no_alert_call` | qa-tester | 98% (80/81) | html_and_js | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 100% (8/8) | html_pages | convention |
 | `security_inventory_status_approved_scope` | security | 100% (1/1) | html_pages | convention |
 | `security_inline_onclick_role_check_inside_fn` | security | 100% (3/3) | html_pages | convention |
 | `security_no_inline_eschtml` | security | 100% (42/42) | html_pages | anti_pattern |
-| `security_no_service_role_key_frontend` | security | 100% (79/79) | html_and_js | anti_pattern |
-| `security_no_eval_user_input` | security | 100% (79/79) | html_and_js | anti_pattern |
-| `security_no_stripe_secret_in_frontend` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `security_no_service_role_key_frontend` | security | 100% (81/81) | html_and_js | anti_pattern |
+| `security_no_eval_user_input` | security | 100% (81/81) | html_and_js | anti_pattern |
+| `security_no_stripe_secret_in_frontend` | security | 100% (81/81) | html_and_js | anti_pattern |
 | `security_no_static_cors_origin_edge_fn` | security | 100% (57/57) | edge_fns | anti_pattern |
 | `mobile_no_text_sm_on_wh_input` | mobile-maestro | 100% (42/42) | html_pages | anti_pattern |
 | `mobile_no_avoid_all_in_pdf_pagebreak` | mobile-maestro | 100% (42/42) | html_pages | anti_pattern |
 | `mobile_sw_cache_name_present` | mobile-maestro | 100% (0/0) | js_modules | convention |
-| `designer_no_off_brand_orange_e8920a` | designer | 100% (79/79) | html_and_js | anti_pattern |
+| `designer_no_off_brand_orange_e8920a` | designer | 100% (81/81) | html_and_js | anti_pattern |
 | `designer_no_wrong_input_bg_rgba_black` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `qa_supabase_cdn_when_createclient_used` | qa-tester | 100% (0/0) | html_pages | convention |
 | `frontend_writeAuditLog_called` | frontend | 100% (2/2) | html_pages | convention |
 | `edge_fn_uses_get_cors_headers` | security | 100% (57/57) | edge_fns | convention |
-| `edge_fn_handles_options_preflight` | security | 100% (57/57) | edge_fns | convention |
-| `migration_function_sets_search_path` | security | 100% (103/103) | migrations | convention |
-| `security_no_function_constructor` | security | 100% (79/79) | html_and_js | anti_pattern |
-| `security_no_token_in_localstorage` | security | 100% (79/79) | html_and_js | anti_pattern |
+| `data_engineer_restore_identity_from_session` | data-engineer | 100% (1/1) | html_pages | convention |
+| `migration_function_sets_search_path` | security | 100% (107/107) | migrations | convention |
+| `security_no_function_constructor` | security | 100% (81/81) | html_and_js | anti_pattern |
+| `security_no_token_in_localstorage` | security | 100% (81/81) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (351/351) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (366/366) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |

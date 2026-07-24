@@ -3,7 +3,7 @@
 - Functions scanned: **57**
 - Features extracted: **35**
 - Promotion threshold: >= 80% conformance, <= 6 outliers
-- Promotion candidates: **0**
+- Promotion candidates: **2**
 
 ## Promotion candidates (sweet spot)
 
@@ -12,6 +12,8 @@ Review each: write a real validator from the outlier list, or allowlist them.
 
 | Feature | Type | Conformance | Outliers (divergent fns) |
 |---|---|---:|---|
+| `handles_options` | convention (stays TRUE) | 98% | visual-defect-capture |
+| `uses_get_cors_headers` | convention (stays TRUE) | 98% | visual-defect-capture |
 
 ## Full conformance ranking
 
@@ -19,20 +21,20 @@ Review each: write a real validator from the outlier list, or allowlist them.
 |---|---:|---|
 | `imports_cors_shared` | 100% | 57 / 57 |
 | `imports_supabase_esm` | 100% | 57 / 57 |
-| `handles_options` | 100% | 57 / 57 |
-| `uses_get_cors_headers` | 100% | 57 / 57 |
 | `uses_error_envelope` | 100% | 57 / 57 |
 | `sets_content_type_json` | 100% | 57 / 57 |
 | `has_try_catch` | 100% | 57 / 57 |
 | `reads_supabase_url_env` | 100% | 57 / 57 |
 | `reads_service_role_env` | 100% | 57 / 57 |
+| `handles_options` | 98% | 56 / 57 |
+| `uses_get_cors_headers` | 98% | 56 / 57 |
 | `ends_with_serve_close` | 80% | 46 / 57 |
+| `imports_rate_limit` | 77% | 44 / 57 |
 | `responses_spread_cors_headers` | 77% | 44 / 57 |
-| `imports_rate_limit` | 71% | 41 / 57 |
 | `memoizes_supabase_client` | 71% | 41 / 57 |
 | `has_jsdoc_header` | 64% | 37 / 57 |
 | `uses_wh_env_prefix` | 63% | 36 / 57 |
-| `returns_400_on_bad_input` | 61% | 35 / 57 |
+| `returns_400_on_bad_input` | 59% | 34 / 57 |
 | `imports_ai_chain` | 47% | 27 / 57 |
 | `calls_callai` | 45% | 26 / 57 |
 | `has_skills_consulted` | 45% | 26 / 57 |

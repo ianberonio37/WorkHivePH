@@ -28,7 +28,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `hive_members` | 7 | yes | no | asset-hub.html, hive.html, inventory.html, logbook.html ... | hive.html | — |
 | `marketplace_sellers` | 19 | yes | no | founder-console.html, marketplace-admin.html, marketplace-seller.html, platform-actions.html | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
 | `external_sync` | 11 | no | no | integrations.html | integrations.html | cmms-push-completion, cmms-sync, cmms-webhook-receiver |
-| `fault_knowledge` | 14 | yes | no | logbook.html | — | cmms-sync, visual-defect-capture |
+| `fault_knowledge` | 17 | yes | no | logbook.html | — | cmms-sync, visual-defect-capture |
 | `inventory_items` | 21 | yes | no | integrations.html, inventory.html, logbook.html | integrations.html, inventory.html | cmms-webhook-receiver |
 | `integration_configs` | 17 | no | no | integrations.html, plant-connections.html | integrations.html | cmms-sync |
 | `marketplace_disputes` | 16 | yes | no | founder-console.html, marketplace-admin.html, platform-actions.html | founder-console.html, marketplace-admin.html, platform-actions.html | — |
@@ -76,7 +76,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `report_contacts` | 6 | yes | no | report-sender.html | report-sender.html | — |
 | `project_items` | 19 | no | yes | project-manager.html | project-manager.html | — |
 | `project_progress_logs` | 12 | no | yes | project-manager.html | project-manager.html | — |
-| `failure_signature_alerts` | 15 | no | no | — | — | failure-signature-scan |
+| `failure_signature_alerts` | 16 | no | no | — | — | failure-signature-scan |
 | `asset_risk_scores` | 12 | no | no | — | — | batch-risk-scoring |
 | `rcm_strategies` | 16 | yes | yes | asset-hub.html | asset-hub.html | — |
 | `weibull_fits` | 13 | yes | yes | — | — | weibull-fitter |

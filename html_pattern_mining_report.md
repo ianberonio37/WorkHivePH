@@ -29,20 +29,18 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `has_main_landmark` | 90% | 38 / 42 |
 | `has_meta_description` | 83% | 35 / 42 |
 | `has_manifest_link` | 83% | 35 / 42 |
+| `loads_offline_banner_js` | 83% | 35 / 42 |
 | `loads_supabase_cdn` | 83% | 35 / 42 |
 | `calls_eschtml` | 76% | 32 / 42 |
 | `loads_nav_hub_js` | 73% | 31 / 42 |
 | `has_og_title` | 71% | 30 / 42 |
 | `has_og_image` | 71% | 30 / 42 |
-| `loads_offline_banner_js` | 69% | 29 / 42 |
 | `has_canonical_link` | 66% | 28 / 42 |
 | `has_details_toggle` | 64% | 27 / 42 |
 | `has_meta_robots` | 57% | 24 / 42 |
 | `has_empty_state_anchor` | 57% | 24 / 42 |
-| `has_theme_color` | 50% | 21 / 42 |
 | `has_verdict_card` | 45% | 19 / 42 |
 | `uses_eschtml_binding` | 33% | 14 / 42 |
-| `uses_tailwind_cdn` | 21% | 9 / 42 |
 | `loads_wh_capture_validate` | 14% | 6 / 42 |
 | `validates_hive_membership` | 14% | 6 / 42 |
 | `has_source_chip` | 9% | 4 / 42 |
@@ -51,6 +49,7 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `has_jsonld_schema` | 7% | 3 / 42 |
 | `loads_maturity_gate_js` | 7% | 3 / 42 |
 | `loads_wh_persona_js` | 4% | 2 / 42 |
+| `has_theme_color` | 2% | 1 / 42 |
 | `loads_wh_ga4_js` | 2% | 1 / 42 |
 | `loads_wh_help_js` | 2% | 1 / 42 |
 | `loads_wh_tts_js` | 2% | 1 / 42 |
@@ -59,6 +58,7 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `loads_search_overlay_js` | 0% | 0 / 42 |
 | `uses_createclient` | 0% | 0 / 42 |
 | `handles_signin_redirect` | 0% | 0 / 42 |
+| `uses_tailwind_cdn` | 0% | 0 / 42 |
 
 ## How to act on this report
 
