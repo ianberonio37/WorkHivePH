@@ -1029,6 +1029,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _lastCreatedAt = null;
   let _hasMore       = false;
   let _loadingMore   = false;
+  let _loadError     = false;  // P7: a FAILED listings fetch must render an error state, not the first-run "be the first to sell" CTA
   let _watchlist     = new Set(); /* listing IDs the current buyer has saved */
   let _sellerTiers   = {};        /* { sellerName: topLevel } for tier frames */
   const _communityTrustedSellers = new Set();  /* X-axis: sellers with the Voice-of-the-Hive community badge */
@@ -1045,8 +1046,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
     // first; session identity overrides asynchronously.
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
-      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+      // deepwalk 2026-07-24: WORKER_NAME is seeded SYNC from the wh_last_worker cache, which is
+      // stale on a shared device / after a user switch. A role gate must never trust that cache —
+      // re-verify the admin link once the AUTHORITATIVE session identity resolves.
+      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; updateAdminLink(); });
     }
+  // Founder-Console admin-link role gate — FAIL-CLOSED, keyed on the current WORKER_NAME.
+  // Always hide first, reveal only on a positive marketplace_platform_admins match, so a stale
+  // sync-cache identity can never leave the link wrongly shown (deepwalk 2026-07-24).
+  async function updateAdminLink() {
+    const adminLink = document.getElementById('btn-admin-link');
+    if (!adminLink) return;
+    adminLink.style.display = 'none';
+    if (!WORKER_NAME || typeof db === 'undefined') return;
+    try {
+      const { data } = await db.from('marketplace_platform_admins')
+        .select('worker_name').eq('worker_name', WORKER_NAME).maybeSingle();
+      adminLink.style.display = data ? 'inline-flex' : 'none';
+    } catch (_) { adminLink.style.display = 'none'; }  /* empty-catch-allow: fail-closed on error */
+  }
   const HIVE_ID     = whHiveId();
 
   /* ============================================================
@@ -1850,6 +1868,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     if (!_listings.length) {
+      // P7 (deepwalk 2026-07-24): a FAILED fetch must NOT fall through to the first-run
+      // "be the first to sell" CTA (that tells a buyer a full marketplace is empty + prompts them
+      // to sell). Paint a distinct, persistent error state with a Retry — the toast alone fades.
+      if (_loadError) {
+        if (info) info.innerHTML = '';
+        grid.removeAttribute('role');
+        grid/* xss-allow: fully static markup */ .innerHTML = `
+        <div class="empty-state">
+          <span class="ic ic-warning ic-xl" aria-hidden="true"></span>
+          <h3>Couldn't load listings</h3>
+          <p style="max-width:420px;margin:0 auto 0.9rem;">Something went wrong reaching the marketplace. Check your connection and try again.</p>
+          <button class="btn-primary" id="btn-retry-load" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;"><span class="ic ic-refresh" aria-hidden="true"></span>Retry</button>
+        </div>`;
+        document.getElementById('btn-retry-load')?.addEventListener('click', () => {
+          showSkeletons();
+          Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); });
+        });
+        return;
+      }
       // D3 (deepwalk): _listings is SERVER-filtered (loadListings .eq section/category + the _query
       // search), so a filtered-0 means "nothing matched your search/filter", NOT the first-run
       // "be the first to sell" CTA, which would tell a BUYER the marketplace is empty (it has listings)
@@ -2006,13 +2043,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const rows = data || [];
       _listings = append ? [..._listings, ...rows] : rows;
       _hasMore  = rows.length === PAGE_SIZE;
+      _loadError = false;   // P7: a clean fetch clears any prior error state
       if (rows.length) _lastCreatedAt = rows[rows.length - 1].created_at;
     } catch (_err) {
       if (!append) _listings = [];
       _hasMore = false;
       // dim-10 (deep-walk 2026-07-06): surface load failure instead of disguising it as the
       // "no listings yet" empty-state (a failed fetch/RLS looked identical to a genuinely empty feed).
-      if (typeof showToast === 'function') showToast("Couldn't load listings . Check your connection and try again.", 'error');
+      // P7 (deepwalk 2026-07-24): the toast alone was insufficient — it fades, leaving the GRID showing
+      // the first-run "be the first to sell" CTA on a full marketplace. Flag the error so renderListings
+      // paints a distinct, persistent "couldn't load" grid state instead of the empty-state CTA.
+      _loadError = true;
+      if (typeof showToast === 'function') showToast("Couldn't load listings. Check your connection and try again.", 'error');
     }
 
     const sellerNames = [...new Set(_listings.map(l => l.seller_name).filter(Boolean))];
@@ -2964,19 +3006,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     /* FAB */
     document.getElementById('fab-post')?.addEventListener('click', openPostSheet);
 
-    /* Show admin link only for platform admins (async DB check via marketplace_platform_admins) */
-    if (WORKER_NAME) {
-      db.from('marketplace_platform_admins')
-        .select('worker_name')
-        .eq('worker_name', WORKER_NAME)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) {
-            const adminLink = document.getElementById('btn-admin-link');
-            if (adminLink) adminLink.style.display = 'inline-flex';
-          }
-        });
-    }
+    /* Admin link gate — fail-closed, re-verified when the session identity resolves (see updateAdminLink). */
+    updateAdminLink();
 
     /* Watchlist button */
     document.getElementById('btn-my-watchlist')?.addEventListener('click', openWatchlistSheet);

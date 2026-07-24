@@ -2,7 +2,7 @@
 name: table-rls-marketplace_listings
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_listings
-source_sha: 6bb32b06f5bc9a49
+source_sha: f4a3fabab02f67e5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,8 +20,8 @@ Policies:
 - `mkt_listings_read` [SELECT · roles=public] USING=`((status = 'published'::text) OR (seller_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR is_marketplace_a` CHECK=`∅`
 - `mkt_listings_update` [UPDATE · roles=public] USING=`((seller_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR is_marketplace_admin())` CHECK=`((seller_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR is_marketplace_admin())`
 
-Guard triggers: `trg_text_caps_mkt_listings`
+Guard triggers: `trg_guard_listing_status`, `trg_text_caps_mkt_listings`
 
-**Verdict:** FLAGS: client-writable TRUST/VALUE column(s) ['seller_verified', 'completed_sales', 'rating_avg'] + no guard trigger — VALUE-INTEGRITY suspect (self-forgeable unless a BEFORE-trigger guards it or the display sources from a canonical table).
+**Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

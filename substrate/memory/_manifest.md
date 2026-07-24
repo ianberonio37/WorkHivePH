@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:557-files
-source_sha: 1a258548b58173d2
+source: memory-curated:560-files
+source_sha: 5ce05ff14da95dfe
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (557 durable topic files)
+## memory · curated auto-memory (560 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=180 · project=288 · reference=89
+**By type:** feedback=183 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -56,6 +56,7 @@ Entries (name · type · sha):
 - `feedback_deep_mcp_walk_every_page` · feedback · d2f6f603bb1c4b73
 - `feedback_deploy_subst` · feedback · 179166fa7331121e
 - `feedback_dialog_affirmation_bypass` · feedback · 1e94159d8d25950a
+- `feedback_digest_at_render_not_trust_the_llm` · feedback · 47456e8ee5d92ebb
 - `feedback_dont_ask_about_standard_motions` · feedback · a72daaf0583c2084
 - `feedback_dont_get_stuck_in_postgres_files_are_truth` · feedback · 3bfbf46a7610fbbb
 - `feedback_dont_kill_inflight_tracked_job` · feedback · 05f55a0800ebbecd
@@ -99,12 +100,14 @@ Entries (name · type · sha):
 - `feedback_live_journey_catches_backend_down_false_alarm` · feedback · 6f5db33e5a6fa220
 - `feedback_live_mcp_writes_pollute_test_db` · feedback · 870446bd512076b8
 - `feedback_live_verify_rls_before_fixing` · feedback · 8f77861fd206dbd2
+- `feedback_llm_parrots_fewshot_example_codes` · feedback · 2f7f3fe956746c6a
 - `feedback_local_first_never_push_prod` · feedback · bbe0eaac3afecff2
 - `feedback_local_only_tester` · feedback · 89db0250b1703035
 - `feedback_local_runtime_verify_no_deploy` · feedback · 5c13ccf3a3b6b9c5
 - `feedback_local_supabase_rewrite` · feedback · a970d46ace63fba7
 - `feedback_lower_cards_rubric_applied_and_verified` · feedback · 071ce814e4717d4c
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
+- `feedback_marketplace_moderation_and_identity_deepwalk` · feedback · f41ed251831fe47e
 - `feedback_marketplace_trust_forge_verified_only` · feedback · ce22a69bb392017c
 - `feedback_measure_the_worked_state_not_the_generator` · feedback · 5242b6458d5c3110
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
@@ -513,9 +516,6 @@ Entries (name · type · sha):
 - `reference_delete_worker_data_three_bugs` · reference · 8e67ec1bd854faa8
 - `reference_edge_error_capture_keystone` · reference · aa92f78c5edf35f1
 - `reference_embed_entry_jwt_drop_class` · reference · c8f9d4442dd06325
-- `reference_escjsattr_inline_handler_xss` · reference · bfeb0bb8a89bbedb
-- `reference_family_ufai_roadmap` · reference · 859b24d1d0510e93
-- `reference_founder_console_single_hub_fusion` · reference · 64c17496214da0dc
-- … +57 more (all included in the fingerprint)
+- … +60 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

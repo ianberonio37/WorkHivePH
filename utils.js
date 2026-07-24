@@ -2575,18 +2575,24 @@ async function restoreIdentityFromSession(db) {
   const cached = localStorage.getItem('wh_last_worker')
                || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                || localStorage.getItem('workerName') || '';
-  if (cached) return cached;
+  // deepwalk 2026-07-24: DO NOT blindly `return cached`. The old fast-path trusted the cache without
+  // checking the session, so a name left by a PRIOR user (shared device / user switch) stood in for the
+  // current one — a stale identity that role-gates (e.g. the marketplace admin link) then read as the
+  // wrong user. The SESSION is authoritative: reconcile the cache against it every load.
   try {
     const { data: { session } } = await db.auth.getSession();
-    if (!session) return '';
+    // Signed OUT: any lingering cache belongs to a prior user — clear it so nothing reads a stale identity.
+    if (!session) { if (cached) { try { localStorage.removeItem('wh_last_worker'); } catch (_) {} } return ''; }
+    // Signed IN: resolve THIS session's worker and reconcile the cache so a foreign cache can't persist.
     const { data: profile } = await db.from('v_worker_truth')
       .select('worker_name').eq('auth_uid', session.user.id).maybeSingle();
     if (profile?.worker_name) {
-      localStorage.setItem('wh_last_worker', profile.worker_name);
+      if (cached !== profile.worker_name) localStorage.setItem('wh_last_worker', profile.worker_name);
       return profile.worker_name;
     }
-  } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-  return '';
+    return cached;  // authed but no worker-profile row (edge) — keep the cache as a best-effort label
+  } catch (_) { /* empty-catch-allow: best-effort — fall back to whatever was cached */ }
+  return cached;
 }
 
 // ─────────────────────────────────────────────
