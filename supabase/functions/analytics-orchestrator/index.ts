@@ -502,7 +502,7 @@ The analytics data covers all 4 ISO/SMRP phases:
 WRITING RULES — the platform's readability standard (rubric B3). This plan renders on an
 operator's phone RIGHT BESIDE deterministic cards held to the same bar, so it must not read
 like a different product. Measured 2026-07-15: the synthesis emitted a 32-word sentence at
-reading grade 17.5 ("Reassign David Velasco to GEN-003 instrumentation checks...") while
+reading grade 17.5 ("Reassign the senior tech to the top-risk asset for instrumentation checks...") while
 every hand-written card on the page passed. The examples below previously ran to 24 words
 each and TAUGHT that style — few-shot examples outweigh instructions, so they now model the
 target instead of contradicting it.
@@ -523,9 +523,12 @@ target instead of contradicting it.
     the status quo.
 
 Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recommendations.
-Examples of phase-linked reasoning (note the length — match it):
-  • "Pump P-103 fails most often (descriptive). Bearing wear is the cause (diagnostic). Tighten its bearing inspection to monthly (prescriptive)."
-  • "AC-002 is forecast to fail by Tuesday (predictive). Only 1 spare seal kit is in stock. Order 2 more this week."
+Examples of phase-linked reasoning — the <asset> / <part> tokens below are PLACEHOLDERS that show
+STRUCTURE ONLY. Replace each with THIS hive's actual asset code from canonical_risk[] / the phase
+data; NEVER emit "<asset>" literally and NEVER copy an example's wording as a real code (note the
+length — match it):
+  • "<asset> fails most often (descriptive). Bearing wear is the cause (diagnostic). Tighten its bearing inspection to monthly (prescriptive)."
+  • "<asset> is forecast to fail by Tuesday (predictive). Only 1 spare <part> is in stock. Order 2 more this week."
   • "Mechanical MTTR runs 3.2h above the team average (diagnostic). Ask the L4 tech to mentor L1-L2 on bearing replacement."
 
 CANONICAL RISK RULE (Phase 2.2): When the input has a non-empty canonical_risk
@@ -537,14 +540,14 @@ priority_ranking when canonical_risk disagrees. Cite canonical_risk first;
 descriptive / diagnostic / prescriptive top-Ns are corroborating context.
 
 ${memberList}
-Only reference machines, parts, and workers that appear in the data. Never invent names or equipment not mentioned. Be specific: cite the machine codes (e.g. PMP-001, AC-002), KPI numbers, dates.
+Only reference machines, parts, and workers that ACTUALLY APPEAR IN THE DATA (canonical_risk[], the phase top-Ns, and the member list above). NEVER invent an asset, part, or worker, and NEVER copy a name or code that appears only in THESE INSTRUCTIONS (the example tokens like "P-103", "GEN-003", "<asset>" are illustrative — a value must appear in the payload to be cited). Cite the REAL codes, KPI numbers, and dates from the payload. If a phase returned no data, say that plainly (e.g. "No failures logged this period.") instead of naming any asset.
 
 Use bullet points. Maximum 250 words.
 // contract: analytics_action_plan_v1 (canonical_agent_contracts; consumers: analytics.html, shift-brain.html, hive.html)
 Format as JSON:
 {
   "summary": "2-4 SHORT sentences that INFER ACROSS ALL 4 PHASES — one short sentence per phase signal (what happened · why · what's coming · what to do), so the overview reasons from descriptive+diagnostic+predictive+prescriptive together, not one signal. HARD CAP each sentence at 11 words (a 12+ word sentence FAILS the readability bar), grade-8 plain words, active voice, lead with the action. Always split into more short sentences rather than packing ideas.",
-  "this_week": ["EACH item is ONE action, <=11 words, active voice, lead with the verb. Put any phase-linked reasoning in a SECOND <=11-word sentence — e.g. 'Increase AC-002 PM to daily.' then 'Its MTBF is below the weekly interval.' NEVER one long 'because/and' sentence.", "action 2", ...],
+  "this_week": ["EACH item is ONE action, <=11 words, active voice, lead with the verb. Put any phase-linked reasoning in a SECOND <=11-word sentence — e.g. 'Increase <asset> PM to daily.' then 'Its MTBF is below the weekly interval.' (replace <asset> with a REAL code from the data). NEVER one long 'because/and' sentence.", "action 2", ...],
   "watch_list": ["machine or part to monitor, then WHY in a separate <=11-word sentence"],
   "narration": "1-2 sentence spoken summary in your persona's voice; lead with the single most important signal and quote its KPI or asset code verbatim"
 }`;
