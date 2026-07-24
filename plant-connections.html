@@ -20,7 +20,7 @@
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -51,7 +51,7 @@
 
     .denied { padding: 1.25rem; border: 1px solid rgba(247,162,27,0.3); border-radius: 12px; background: rgba(247,162,27,0.06); text-align: center; }
     .denied h2 { font-size: 1.05rem; margin-bottom: 0.4rem; }
-    .denied p { font-size: 0.78rem; color: rgba(255,255,255,0.7); }
+    .denied p { font-size: 0.78rem; color:rgba(255,255,255,0.83); }
 
     /* ── Simple supervisor view (2026-05-13 streamline) ──────────────
        4 plain-language cards above the engineering details. Same
@@ -63,7 +63,7 @@
     }
     .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
     .verdict-text { font-size: 0.85rem; font-weight: 700; line-height: 1.35; }
-    .verdict-text small { display: block; font-size: 0.7rem; font-weight: 500; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .verdict-text small { display: block; font-size: 0.7rem; font-weight: 500; color:rgba(255,255,255,0.83); margin-top: 3px; }
     .verdict.healthy { background: rgba(74,222,128,0.07);  border-color: rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color: var(--green); }
     .verdict.watch   { background: rgba(247,162,27,0.07);  border-color: rgba(247,162,27,0.3); }
@@ -71,7 +71,7 @@
     .verdict.attn    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color: var(--red); }
     .verdict.empty   { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color: rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
@@ -80,12 +80,12 @@
    link components.css, so the rule must live here -- but it must MATCH the canonical
    or the same KPI renders a different size than every other page. (Drift healed 2026-07-15.) */
     .simple-card .sc-hero  { font-size: 1.5rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
-    .simple-card .sc-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.55); line-height: 1.4; }
+    .simple-card .sc-sub   { font-size: 0.7rem; color:rgba(255,255,255,0.80); line-height: 1.4; }
     .simple-card .sc-tag   { display: inline-block; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; margin-top: 7px; }
     .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
     .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
-    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
+    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
 
     .action-card {
       background: rgba(41,182,217,0.06);
@@ -103,7 +103,7 @@
     .details-toggle {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; border: 1px solid var(--border);
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       padding: 8px 14px; border-radius: 8px;
       font-family: inherit; font-size: 0.7rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
@@ -129,7 +129,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:10px 0 2px; flex-wrap:wrap;">
-          <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
+          <a role="tab" aria-selected="false" href="integrations.html" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.78rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
           <span role="tab" aria-selected="true" style="padding:7px 14px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.78rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
         </div>
       </div>
@@ -697,8 +697,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

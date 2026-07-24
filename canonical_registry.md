@@ -5,13 +5,13 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 ## Summary
 
-- Tables:        **154**
-- Views:         **51**
-- RPCs:          **183**
-- HTML surfaces: **51**
+- Tables:        **156**
+- Views:         **53**
+- RPCs:          **185**
+- HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **71**
+- Duplicate signals: **73**
 
 ## Tables (sorted by usage)
 
@@ -20,21 +20,21 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `hive_audit_log` | 9 | no | yes | alert-hub.html, asset-hub.html, audit-log.html, community.html ... | alert-hub.html, asset-hub.html, community.html ... | export-hive-data, supervisor-reset-password |
 | `automation_log` | 6 | yes | no | alert-hub.html | — | batch-risk-scoring, benchmark-compute, cmms-push-completion ... |
 | `logbook` | 32 | yes | no | dayplanner.html, hive.html, integrations.html, logbook.html ... | dayplanner.html, hive.html, integrations.html ... | cmms-sync, cmms-webhook-receiver |
-| `asset_nodes` | 26 | yes | yes | asset-hub.html, hive.html, integrations.html, inventory.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
-| `ai_rate_limits` | 5 | yes | no | — | — | _shared/rate-limit.ts, agentic-rag-loop, fmea-populator ... |
+| `asset_nodes` | 27 | yes | yes | asset-hub.html, hive.html, integrations.html, inventory.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
 | `pm_completions` | 9 | yes | no | asset-hub.html, hive.html, logbook.html, pm-scheduler.html ... | logbook.html, pm-scheduler.html | — |
 | `project_links` | 8 | no | no | inventory.html, logbook.html, pm-scheduler.html, project-manager.html ... | inventory.html, logbook.html, pm-scheduler.html ... | — |
 | `marketplace_listings` | 22 | yes | yes | founder-console.html, marketplace-admin.html, marketplace-seller.html, marketplace.html ... | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
 | `pm_assets` | 12 | yes | no | asset-hub.html, integrations.html, logbook.html, pm-scheduler.html | asset-hub.html, integrations.html, logbook.html ... | — |
-| `fault_knowledge` | 14 | yes | no | integrations.html, logbook.html | integrations.html | cmms-sync, visual-defect-capture |
 | `hive_members` | 7 | yes | no | asset-hub.html, hive.html, inventory.html, logbook.html ... | hive.html | — |
 | `marketplace_sellers` | 19 | yes | no | founder-console.html, marketplace-admin.html, marketplace-seller.html, platform-actions.html | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
 | `external_sync` | 11 | no | no | integrations.html | integrations.html | cmms-push-completion, cmms-sync, cmms-webhook-receiver |
+| `fault_knowledge` | 14 | yes | no | logbook.html | — | cmms-sync, visual-defect-capture |
 | `inventory_items` | 21 | yes | no | integrations.html, inventory.html, logbook.html | integrations.html, inventory.html | cmms-webhook-receiver |
 | `integration_configs` | 17 | no | no | integrations.html, plant-connections.html | integrations.html | cmms-sync |
 | `marketplace_disputes` | 16 | yes | no | founder-console.html, marketplace-admin.html, platform-actions.html | founder-console.html, marketplace-admin.html, platform-actions.html | — |
 | `pm_scope_items` | 8 | yes | no | asset-hub.html, integrations.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
 | `worker_profiles` | 8 | yes | no | resume.html, voice-journal.html | voice-journal.html | — |
+| `ai_rate_limits` | 5 | yes | no | — | — | _shared/rate-limit.ts, agentic-rag-loop, temporal-rag-orchestrator |
 | `parts_staging_recommendations` | 14 | no | yes | alert-hub.html, asset-hub.html | asset-hub.html | parts-staging-recommender |
 | `voice_journal_entries` | 10 | yes | no | assistant.html, voice-journal.html | — | _shared/journal-recall.ts |
 | `projects` | 19 | no | yes | inventory.html, logbook.html, pm-scheduler.html, project-manager.html | project-manager.html | — |
@@ -171,6 +171,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ai_global_budget` | 11 | no | no | — | — | — |
 | `skill_exam_keys` | 3 | yes | no | — | — | — |
 | `ops_artifact_metrics` | 6 | yes | no | — | — | — |
+| `ops_db_size_history` | 5 | yes | no | — | — | — |
+| `client_errors` | 10 | yes | no | — | — | — |
 
 ## RPCs / Functions
 
@@ -288,6 +290,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `get_seller_community_reputation` | p_worker_name text, p_hive_id uuid | yes | marketplace-seller-profile.html | — |
 | `grade_skill_exam` | p_discipline text, p_level int, p_answers int[] | yes | skillmatrix.html | — |
 | `guard_community_announcement` |  | yes | — | — |
+| `guard_marketplace_order_status` |  | yes | — | — |
 | `guard_marketplace_seller_trust_columns` |  | yes | — | — |
 | `handle_community_post_xp` |  | yes | — | — |
 | `handle_community_reaction_xp` |  | yes | — | — |
@@ -332,6 +335,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `set_projects_updated_at` |  | no | — | — |
 | `shift_plans_forward_only_status` |  | no | — | — |
 | `slo_error_budget` | p_route             text default null,   p_window_min        | no | — | — |
+| `snapshot_db_size` |  | yes | — | — |
 | `store_memory_turn` | p_hive_id uuid,   p_session_id text,   p_turn_num int,   p_u | yes | — | — |
 | `suppress_alert` | p_alert_id bigint, p_hours int default 24 | yes | — | — |
 | `sync_auth_uid_on_signup` |  | yes | — | — |
@@ -364,10 +368,13 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 | Page | Primary tables (read) | Tables written | RPCs called | Edge fns invoked |
 |---|---|---|---|---|
+| `_beetest.html` | — | — | — | — |
+| `_contact.html` | — | — | — | — |
 | `achievements.html` | achievement_xp_log, v_worker_achievements_truth, v_worker_truth | — | — | — |
 | `agentic-rag-observability.html` | agentic_rag_traces | — | — | — |
 | `ai-quality.html` | ai_cost_log, ai_reply_feedback | — | — | — |
 | `alert-hub.html` | alert_dismissals, amc_briefings, anomaly_signals, automation_log ... | alert_dismissals, amc_briefings, anomaly_signals ... | compute_anomaly_signals | analytics-orchestrator |
+| `all_figures.html` | — | — | — | — |
 | `analytics-report.html` | v_hives_truth | — | — | — |
 | `analytics.html` | analytics_snapshots | — | — | batch-risk-scoring |
 | `architecture.html` | — | — | — | — |
@@ -384,6 +391,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `index.html` | — | — | — | — |
 | `integrations.html` | api_keys, asset_nodes, cmms_audit_log, external_sync ... | api_keys, asset_nodes, cmms_audit_log ... | — | cmms-sync |
 | `inventory.html` | asset_nodes, hive_audit_log, hive_members, inventory_items ... | asset_nodes, hive_audit_log, inventory_items ... | inventory_deduct, inventory_restock | — |
+| `ipython_inline_figure.html` | — | — | — | — |
 | `lineage.html` | — | — | — | — |
 | `llm-observability.html` | ai_cost_log | — | — | — |
 | `logbook.html` | asset_nodes, equipment_reading_templates, fault_knowledge, hive_audit_log ... | asset_nodes, hive_audit_log, logbook ... | inventory_deduct | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
@@ -396,6 +404,11 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `plant-connections.html` | gateway_audit_log, hive_retention_config, integration_configs, sensor_topic_map ... | — | — | — |
 | `platform-actions.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_sellers ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
 | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook ... | hive_audit_log, logbook, pm_assets ... | get_pm_compliance_smrp | — |
+| `poster-v1.html` | — | — | — | — |
+| `poster-v2.html` | — | — | — | — |
+| `poster-v3.html` | — | — | — | — |
+| `poster-v4.html` | — | — | — | — |
+| `poster-v5.html` | — | — | — | — |
 | `project-manager.html` | asset_nodes, engineering_calcs, hive_members, pm_completions ... | project_change_orders, project_items, project_links ... | generate_change_order_number, generate_project_code | embed-entry, project-orchestrator, project-progress |
 | `project-report.html` | project_links, v_project_items_truth, v_project_progress_truth, v_project_truth | — | — | project-orchestrator |
 | `promo-poster.html` | — | — | — | — |
@@ -404,6 +417,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `report-sender.html` | report_contacts, v_ai_reports_truth | report_contacts | — | — |
 | `resume.html` | resume_documents, resume_versions, skill_badges, skill_profiles ... | resume_documents, resume_versions | — | — |
 | `shift-brain.html` | shift_plans, v_worker_truth | shift_plans | — | analytics-orchestrator, shift-planner-orchestrator |
+| `single_figure.html` | — | — | — | — |
 | `skillmatrix.html` | skill_exam_attempts, skill_profiles, v_skill_badges_truth | skill_profiles | grade_skill_exam | — |
 | `snapshot.html` | — | — | — | — |
 | `status.html` | — | — | — | — |
@@ -499,3 +513,5 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `ai_global_budget` (defined but unreferenced)
 - `skill_exam_keys` (defined but unreferenced)
 - `ops_artifact_metrics` (defined but unreferenced)
+- `ops_db_size_history` (defined but unreferenced)
+- `client_errors` (defined but unreferenced)

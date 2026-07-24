@@ -2,7 +2,7 @@
 name: edge-fn-amc-orchestrator
 type: edge-fn
 source: file:supabase/functions/amc-orchestrator/index.ts
-source_sha: 393579c592334fcb
+source_sha: 669541e33946c6d6
 last_verified: 2026-07-13
 supersedes: null
 ---

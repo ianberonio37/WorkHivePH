@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:543-files
-source_sha: e186236b47c24b29
+source: memory-curated:557-files
+source_sha: 1a258548b58173d2
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (543 durable topic files)
+## memory · curated auto-memory (557 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=166 · project=288 · reference=89
+**By type:** feedback=180 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -18,11 +18,15 @@ First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed 
 Entries (name · type · sha):
 - `drawing_standards_skill` · reference · 16ac90968a9af898
 - `feedback_accessor_before_utils_load_order` · feedback · 33cdfb92667cf8e6
+- `feedback_ai_pp_dl_deeper_dimension_classes` · feedback · f5e83cc5d81e10e5
 - `feedback_ai_provider` · feedback · b197e3dd063d1acc
+- `feedback_ai_write_accountability_ai6` · feedback · 0e9f455eea85a173
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_analytics_orchestrator_local_edge_cpu_and_b3_guard` · feedback · 82a690177f3b49f5
 - `feedback_anti_seesaw_lineage_discipline` · feedback · 8cd491bab51b8c5e
+- `feedback_apca_perceptual_contrast_c5` · feedback · 2be4ab32722dca5b
 - `feedback_approval_lock_class_optimistic_guard` · feedback · 5cc0452b5cd0769f
+- `feedback_aria_label_only_is_invisible_to_sighted_users` · feedback · 0dd4778040193918
 - `feedback_articles_tool_aligned` · feedback · d4568b32de74c462
 - `feedback_asset_code_identifiers_break_readability_detectors` · feedback · 8d10e79e2afaafa3
 - `feedback_audit_scanner_scope` · feedback · eb6536bc9f5f80d9
@@ -39,12 +43,14 @@ Entries (name · type · sha):
 - `feedback_centralized_icon_library_emoji_first` · feedback · c09e4df4b4f280a0
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
+- `feedback_coarse_lens_100_is_not_deep_100` · feedback · e49b39cdc46bdbd7
 - `feedback_commit_workflow` · feedback · 0569ad290e0e5fd3
 - `feedback_community_complete_redesign_authorized` · feedback · 19b6e6375689d9d8
 - `feedback_confirm_file_absence_before_rebuild` · feedback · 21e4a9778e754fee
 - `feedback_console_encoding` · feedback · 9b3fc49bfcd3e649
 - `feedback_context_saturation_stop_disguise` · feedback · 4a17cb41b6c0a5c9
 - `feedback_cross_page_sibling_sweep_and_registration` · feedback · 597de043f8d242a4
+- `feedback_curated_memory_ranked_below_derived_corpora` · feedback · 482fd969b038374d
 - `feedback_curl_resume_quirk` · feedback · 819de47118f3bfdc
 - `feedback_dead_oc_guard_missing_updated_at_column` · feedback · 1ca7844512948d65
 - `feedback_deep_mcp_walk_every_page` · feedback · d2f6f603bb1c4b73
@@ -56,7 +62,9 @@ Entries (name · type · sha):
 - `feedback_dont_stop_hold_trajectory_in_memento` · feedback · 207e84b2ef5bf546
 - `feedback_edge_fn_service_role_hive_id_injection` · feedback · f8a77c2b29d58491
 - `feedback_eng_design_ux` · feedback · 504dc284569e5eec
+- `feedback_engine_a_drives_engine_b_journey_seeds_harvest` · feedback · 5f49337e62b0d128
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
+- `feedback_expand_dimensions_not_reverify` · feedback · cb9386cdf70a09d6
 - `feedback_external_reference_is_a_research_task_not_a_ceiling` · feedback · b4ce91f9b25b3cd2
 - `feedback_f5_silent_zero_fanout_method` · feedback · 08f76478b043de50
 - `feedback_fab_consolidation_into_nav_hub` · feedback · 7f15d40a03931cdd
@@ -64,6 +72,7 @@ Entries (name · type · sha):
 - `feedback_false_ceiling_start_the_container` · feedback · 35cbf496f20a0f84
 - `feedback_family_resemblance_cross_page_lens` · feedback · 07a404794b0d4dc1
 - `feedback_flywheel_is_full_loop_not_shallow` · feedback · 86b75303ba39dfb5
+- `feedback_follow_framework_antidrift_before_building` · feedback · 014de31a1ef7f2bc
 - `feedback_free_tier_only_models` · feedback · a7149c3cbb49a7fc
 - `feedback_fuel_engine_brain_metaphor` · feedback · 156389609ba95129
 - `feedback_full_audience_spectrum` · feedback · 8033eab32bc196cd
@@ -117,6 +126,7 @@ Entries (name · type · sha):
 - `feedback_offer_to_continue_is_the_stop` · feedback · b9cad11d0f1225f5
 - `feedback_onconflict_needs_matching_unique_index` · feedback · a6de5121733f730a
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
+- `feedback_overloaded_word_draft_nearly_mislabelled_user_work` · feedback · c2bec0a1dc682c83
 - `feedback_p6_disposition_gate_and_double_submit` · feedback · 7dfd86aae044c473
 - `feedback_pandas_iso8601_silent_99pct_data_loss` · feedback · e33cd3b6a8e29c62
 - `feedback_pasted_keys_in_docs_leak_scanner_blindspot` · feedback · f48a9c2ba719f44c
@@ -151,6 +161,7 @@ Entries (name · type · sha):
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
 - `feedback_seed_resolved_is_not_roadmap_done` · feedback · a967219b7ce19aec
+- `feedback_shallow_journey_carry_the_full_lens` · feedback · 322f7e0007a19d17
 - `feedback_silence_is_golden_status_chrome` · feedback · 47bcb3e305aeff12
 - `feedback_skill_first_rule` · feedback · 53c4483d1b391308
 - `feedback_skill_improvement` · feedback · dca320aa84326d9c
@@ -161,6 +172,7 @@ Entries (name · type · sha):
 - `feedback_stale_html_debugging` · feedback · 5495b355c28d38a4
 - `feedback_stay_local_dont_suggest_prod_push` · feedback · 6fae9116a369ca5a
 - `feedback_storage_ssot_bigbang_sweep` · feedback · cb6a14d1f5a3847a
+- `feedback_string_is_not_an_announcement_until_it_reaches_a_user` · feedback · d3945b6de1b5c9fe
 - `feedback_structure_is_a_means_re_architect_when_justified` · feedback · bbb04b0d98963182
 - `feedback_subprocess_timeout` · feedback · bf6c9a4a50de1dc6
 - `feedback_subprocess_unbuffered` · feedback · e984b66edf54e81e
@@ -184,6 +196,8 @@ Entries (name · type · sha):
 - `feedback_worker_name_pin_gap_beyond_session3` · feedback · 94b4fd9742fba262
 - `feedback_workhive_tester_battlefield` · feedback · 27c259124a283dc0
 - `feedback_workhive_url_prefix` · feedback · ab7e507277340c1f
+- `feedback_x1_y2_hidden_states_statically_gradable` · feedback · d0fc88858eeff4a7
+- `feedback_y1b_offline_queue_adoption_and_load_order` · feedback · f138da542f3e0bcd
 - `project_admin_email_setup` · project · 261593f7892bd94e
 - `project_agent_memory_schema_collision_2026_05_20` · project · 97572047cf5a7310
 - `project_agentic_rag_all_phases_complete_2026_05_21` · project · 55545cc41e79f205
@@ -502,20 +516,6 @@ Entries (name · type · sha):
 - `reference_escjsattr_inline_handler_xss` · reference · bfeb0bb8a89bbedb
 - `reference_family_ufai_roadmap` · reference · 859b24d1d0510e93
 - `reference_founder_console_single_hub_fusion` · reference · 64c17496214da0dc
-- `reference_framework_operating_system` · reference · 50a109886c114221
-- `reference_gate_regression_fanout_recovery` · reference · 07cc2250947242a2
-- `reference_gateway_multiturn_pii_leak` · reference · 649913ef0e4094a8
-- `reference_glitchtip_sentry_mcp_compat` · reference · e832d5d11ff71c38
-- `reference_grokking_companion_dev` · reference · 24e2d233d24f8ed4
-- `reference_grounded_battery_v2` · reference · 295f160c748f1a16
-- `reference_gutted_reply_honest_pointer` · reference · 544d271c910f41e6
-- `reference_hive_board_bottomwalk_audit_uuid` · reference · 9ec415ffe98d9f77
-- `reference_hive_membership_holes_2026_07_13` · reference · 9e95e9f405edbfde
-- `reference_holistic_critic_tooling` · reference · 88e211b1710524ae
-- `reference_ia_streamlining_survey` · reference · 19caa8e80aff8cda
-- `reference_inventory_ledger_seesaw` · reference · daaa5ca94e1a4b7c
-- `reference_inventory_p6_lost_update` · reference · fe8e65b9b0500504
-- `reference_inventory_txn_crosshive_tamper` · reference · 4ea52f461b750d30
-- … +43 more (all included in the fingerprint)
+- … +57 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

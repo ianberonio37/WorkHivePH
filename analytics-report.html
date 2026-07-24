@@ -27,7 +27,7 @@
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
     /* renderSourceChip() is authored for the DARK app shell: it inlines
-       color:rgba(255,255,255,0.6) on its <p> and .wh-method. Dropped onto this WHITE print
+       color:rgba(255,255,255,0.80) on its <p> and .wh-method. Dropped onto this WHITE print
        document that is white-on-white — measured 1:1, i.e. INVISIBLE (the lens caught it the
        run after I added the chip; the same trap as .doc-logo's brand lilac at 2.6:1).
        Re-ink the shared component for THIS surface instead of forking it: #555 is the shade
@@ -77,14 +77,14 @@
     }
     .toolbar-label {
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
-      text-transform: uppercase; color: rgba(255,255,255,0.6);
+      text-transform: uppercase; color:rgba(255,255,255,0.80);
       margin-right: 0.4rem;
     }
     .pill-btn {
       font-family: inherit; font-size: 0.72rem; font-weight: 600;
       padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.7); min-height: 44px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
+      color:rgba(255,255,255,0.83); min-height: 44px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
     }
     .pill-btn.active {
       background: rgba(167,139,250,0.15);
@@ -113,7 +113,7 @@
 
     /* ── Empty / loading ── */
     .ar-status {
-      padding: 2.5rem 1rem; text-align: center; color: rgba(255,255,255,0.5);
+      padding: 2.5rem 1rem; text-align: center; color:rgba(255,255,255,0.80);
       background: rgba(255,255,255,0.02);
       border: 1px dashed rgba(255,255,255,0.08);
       border-radius: 0.75rem; font-size: 0.85rem;
@@ -507,7 +507,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              different job; fusing it would land users on an empty report. -->
         <div class="wh-reports-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
           <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);"><span data-i="artab1">Analytics report</span></span>
-          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);"><span data-i="artab2">Send / schedule &rarr;</span></a>
+          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);"><span data-i="artab2">Send / schedule &rarr;</span></a>
         </div>
       </div>
       <span class="ar-badge">BETA</span>

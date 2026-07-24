@@ -47,7 +47,7 @@
       transition: border-color 0.2s;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
+    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -68,7 +68,7 @@
     .btn-ghost {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.72);
+      color:rgba(255,255,255,0.86);
       min-height: 44px; /* WCAG 2.5.8 / F1 */
       font-weight: 500;
       border-radius: 0.75rem;
@@ -143,7 +143,7 @@
 
     .lang-pill {
       display: inline-flex; align-items: center; gap: 0.35rem;
-      background: rgba(41,182,217,0.14); color: var(--wh-blue);
+      background: rgba(41,182,217,0.14); color:var(--wh-blue-text);
       border: 1px solid rgba(41,182,217,0.25);
       font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.18rem 0.55rem; border-radius: 999px;
@@ -160,7 +160,7 @@
       color: rgba(255,255,255,0.92);
       word-break: break-word;
     }
-    .transcript-box.empty { color: rgba(255,255,255,0.62); font-style: italic; }
+    .transcript-box.empty { color:rgba(255,255,255,0.80); font-style: italic; }
 
     .reply-bubble {
       background: linear-gradient(145deg, rgba(247,162,27,0.14), rgba(247,162,27,0.06));
@@ -181,18 +181,18 @@
     .history-entry + .history-entry { margin-top: 0.6rem; }
     .history-day {
       font-size: 0.62rem; letter-spacing: 0.10em; text-transform: uppercase;
-      color: rgba(255,255,255,0.62); margin: 1.1rem 0 0.5rem;
+      color:rgba(255,255,255,0.80); margin: 1.1rem 0 0.5rem;
       font-weight: 700;
     }
     .history-day:first-child { margin-top: 0.25rem; }
-    .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.62); display: flex; gap: 0.5rem; align-items: center; }
+    .history-meta { font-size: 0.7rem; color:rgba(255,255,255,0.80); display: flex; gap: 0.5rem; align-items: center; }
     .history-text { font-size: 0.85rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.35rem; word-break: break-word; }
-    .history-reply { font-size: 0.82rem; line-height: 1.5; color: rgba(255,255,255,0.6); margin-top: 0.4rem; padding-left: 0.7rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
+    .history-reply { font-size: 0.82rem; line-height: 1.5; color:rgba(255,255,255,0.80); margin-top: 0.4rem; padding-left: 0.7rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
 
     .speak-btn {
       background: rgba(247,162,27,0.18);
       border: 1px solid rgba(247,162,27,0.3);
-      color: var(--wh-orange);
+      color:var(--wh-orange-text);
       border-radius: var(--wh-radius-sm); /* R3: PRESS action → rect, not the pill worn by the select toggles/chips */
       font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.3rem 0.7rem; cursor: pointer;
@@ -202,7 +202,7 @@
     .persona-chip {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.10);
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       border-radius: 999px;
       font-family: inherit;
       font-size: 0.78rem; font-weight: 600;
@@ -232,7 +232,7 @@
     .filter-chip {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.10);
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       border-radius: 999px;
       padding: 0.3rem 0.75rem;
       font-size: 0.7rem; font-weight: 600;
@@ -308,12 +308,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- Header -->
     <header class="flex items-center justify-between mb-5">
-      <button onclick="history.back()" class="flex items-center gap-2 text-white/60 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
+      <button onclick="history.back()" class="flex items-center gap-2 text-white/80 hover:text-white/70 text-sm font-medium" style="min-height:44px;">
         <span class="ic ic-back" aria-hidden="true"></span>
         <span>Back</span>
       </button>
       <div class="text-center">
-        <div class="text-[10px] uppercase tracking-widest text-white/60 font-semibold">WorkHive</div>
+        <div class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">WorkHive</div>
         <h1 class="text-base font-bold" style="margin:0;" data-i="vj_title">Voice Journal</h1>
       </div>
       <button id="tts-toggle" class="btn-ghost" aria-pressed="true" title="Toggle voice replies">
@@ -334,20 +334,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- Sign-in gate -->
     <div id="signin-gate" class="card p-5 mb-5 fade-up">
       <div class="text-sm font-semibold text-white mb-1">Sign in to journal</div>
-      <p class="text-xs text-white/60 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
+      <p class="text-xs text-white/80 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
       <a href="index.html?signin=1" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
     </div>
 
     <!-- Live capture panel -->
     <section id="capture-panel" class="card p-5 mb-5">
-      <div class="text-xs uppercase tracking-widest text-white/60 font-semibold mb-3 text-center">Today, your turn</div>
+      <div class="text-xs uppercase tracking-widest text-white/80 font-semibold mb-3 text-center">Today, your turn</div>
 
       <!-- Persona picker: who is journaling with you today.
            Choice persists in localStorage and travels to the agent as
            ctx.persona. 2026-05-19 Step D: Zaniah = default (Strategist),
            Hezekiah = Technical. Labels signal the LENS, not just the name. -->
       <div id="persona-row" class="flex items-center justify-center gap-2 mb-4" role="radiogroup" aria-label="Choose your companion lens">
-        <span class="text-[10px] uppercase tracking-widest text-white/60 font-semibold mr-1">Talking with</span>
+        <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold mr-1">Talking with</span>
         <button id="persona-zaniah" type="button" role="radio" aria-checked="true"
                 class="persona-chip persona-chip-active" data-persona="zaniah" translate="no"
                 title="Strategist: patterns, priorities, this-week thinking">
@@ -364,22 +364,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <span class="ic ic-voice" aria-hidden="true"></span>
       </button>
 
-      <div id="mic-state" class="text-center text-sm text-white/60 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
-      <div id="mic-timer" class="text-center text-xs text-white/60 mt-1" style="min-height:1rem;"></div>
+      <div id="mic-state" class="text-center text-sm text-white/80 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
+      <div id="mic-timer" class="text-center text-xs text-white/80 mt-1" style="min-height:1rem;"></div>
 
       <div class="mt-4 space-y-3" id="current-turn" style="display:none;">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-[10px] uppercase tracking-widest text-white/60 font-semibold">You said</span>
+          <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">You said</span>
           <span id="current-lang" class="lang-pill" style="display:none;"></span>
         </div>
         <div id="current-transcript" class="transcript-box empty">Waiting for voice...</div>
 
         <div class="flex items-center justify-between gap-2 mt-3">
-          <span class="text-[10px] uppercase tracking-widest text-white/60 font-semibold">Journal reply</span>
+          <span class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">Journal reply</span>
           <button id="current-replay" class="speak-btn" style="display:none;" type="button" data-i="speakagain">Speak again</button>
         </div>
         <div id="current-reply" class="reply-bubble" style="display:none;"></div>
-        <div id="current-reply-loading" class="text-xs text-white/60" style="display:none;">Composing reply...</div>
+        <div id="current-reply-loading" class="text-xs text-white/80" style="display:none;">Composing reply...</div>
       </div>
     </section>
 
@@ -387,7 +387,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <section class="card p-5">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-bold text-white/90" data-i="vj_journal">Your journal</h2>
-        <span id="entry-count" class="text-[11px] text-white/60"></span>
+        <span id="entry-count" class="text-[11px] text-white/80"></span>
       </div>
 
       <input aria-label="Search your entries..." id="search-input" class="wh-input mb-3" type="search" placeholder="Search your entries..." />
@@ -399,10 +399,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="skeleton-row mb-2"></div>
         <div class="skeleton-row"></div>
       </div>
-      <div id="history-empty"      class="empty-state text-center text-xs text-white/60 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
-      <div id="history-no-results" class="empty-state text-center text-xs text-white/60 py-6" style="display:none;">No entries match those filters.</div>
+      <div id="history-empty"      class="empty-state text-center text-xs text-white/80 py-6" style="display:none;">No entries yet. Tap the mic above and say something.</div>
+      <div id="history-no-results" class="empty-state text-center text-xs text-white/80 py-6" style="display:none;">No entries match those filters.</div>
       <div id="voice-load-more-wrap" class="hidden mt-1 pb-4">
-        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-lg text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+        <button onclick="loadMoreVoice()" class="w-full py-3 rounded-lg text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </section>
 

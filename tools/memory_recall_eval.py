@@ -53,10 +53,16 @@ ROOT = Path(__file__).resolve().parent.parent
 BASELINE = ROOT / "memory_recall_baseline.json"
 G = "\033[92m"; R = "\033[91m"; Y = "\033[93m"; B = "\033[1m"; X = "\033[0m"
 
-# Fixed health floors — "retrieval is working." Current config clears these with margin
-# (R@5~1.00, R@3~0.80, MRR~0.5); a broken knob (e.g. honesty gate dropping everything)
-# collapses well below them. Floors, not a ratchet, so the gate is deterministic.
-FLOORS = {"recall@3": 0.60, "recall@5": 0.80, "mrr": 0.40}
+# Fixed health floors — "retrieval is working." A broken knob (e.g. the honesty gate dropping
+# everything) collapses well below them. Floors, not a ratchet, so the gate is deterministic.
+#
+# 2026-07-24 (P19): RAISED after the curated-prior fix. The OLD floors (0.60/0.80/0.40) were set
+# when curated memory sat BELOW derived corpora in IMPORTANCE, so they were calibrated to a broken
+# retriever and passed it for months at recall@3 0.48 — a floor low enough to admit the bug it was
+# meant to catch. Post-fix the live config measures R@1 0.92 / R@3 0.96 / R@5 0.96 / MRR 0.93, and a
+# held-out set (8 queries never used for tuning) went 0/8 -> 7/8, so the gain is real, not test-fit.
+# Floors set ~10pts under measured to lock the gain in while leaving room for corpus growth.
+FLOORS = {"recall@3": 0.85, "recall@5": 0.88, "mrr": 0.80}
 
 # ── C5.1 (Companion → Memento port): ABSTENTION / anti-fabrication ───────────────────
 # The Companion's memory eval has an abstention dimension (the MEM-NEG units + is_memory_abstain):

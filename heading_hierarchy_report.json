@@ -167,6 +167,7 @@
       "levels": [
         1,
         2,
+        2,
         3,
         3,
         3
@@ -199,6 +200,7 @@
       "page": "marketplace.html",
       "levels": [
         1,
+        2,
         2,
         3,
         3,
@@ -418,6 +420,7 @@
       "page": "alert-hub.html",
       "levels": [
         1,
+        2,
         2,
         3
       ],

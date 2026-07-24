@@ -31,7 +31,14 @@ logPageView(db);
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
 let HIVE_ID     = whHiveId();
-let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
+// The legacy role global was removed 2026-07-23 (§12 flywheel loop 3, role-switch render walk):
+// it was a DEAD read - declared here, referenced nowhere - and one of the scattered raw
+// `localStorage.getItem('wh_hive_role')` reads that wh-roles.js (the canonical client RBAC
+// reader, window.WHRoles.role()/.isSupervisor()/.can()) exists to replace. If this page ever
+// needs a role hint again, use WHRoles - never a raw storage read.
+// (Deliberately NOT naming the old identifier here: validate_dom_refs.py scans for the bare
+//  token and cannot tell a comment from code, so spelling it out re-trips "uses but never
+//  declares" - the match-the-comment trap.)
 
 // C4: redirect deferred to async init — checks auth session first
 

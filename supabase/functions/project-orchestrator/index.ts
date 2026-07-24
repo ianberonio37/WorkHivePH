@@ -42,7 +42,7 @@ import { callAI } from '../_shared/ai-chain.ts';
 import { clampPersona, buildPersonaBlock } from '../_shared/persona.ts';
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
-import { checkAIRateLimit, rateLimitedResponse } from '../_shared/rate-limit.ts';
+import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from '../_shared/rate-limit.ts';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -355,6 +355,19 @@ serveObserved("project-orchestrator", async (req: Request) => {
   // (narrative / intent / brief) is paid; without the gate a button-mash
   // burns budget. body.hive_id is optional for the intent phase, so we
   // pass "" → solo-worker mode (gate is no-op for that case).
+  // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+  // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+  // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+  // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+  // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+  // fail a real request.
+  try {
+    const _rq = await checkRouteRateLimit(db, body.hive_id || "" || "", "project-orchestrator");
+    // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+    // a no-op until an admin sets a cap - while always counting for attribution.
+    // This fn builds CORS inline per response, so call the shared helper the same way.
+    if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(getCorsHeaders(req), "project-orchestrator", _rq.cap);
+  } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
   const rl = await checkAIRateLimit(db, body.hive_id || "");
   if (!rl.allowed) return rateLimitedResponse(getCorsHeaders(req));
 

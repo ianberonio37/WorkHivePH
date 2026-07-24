@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-07-23T16:10:15.827883",
+  "timestamp": "2026-07-24T14:07:50.413085",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 11.7,
+      "duration": 14.7,
       "stderr": ""
     },
     {
@@ -30,13 +30,13 @@
     {
       "id": "depth",
       "status": "PASS",
-      "duration": 0.1,
+      "duration": 0.2,
       "stderr": ""
     },
     {
       "id": "freshness",
       "status": "PASS",
-      "duration": 0.1,
+      "duration": 0.2,
       "stderr": ""
     }
   ]

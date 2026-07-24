@@ -137,6 +137,7 @@
         }
         #wh-search-overlay input {
           flex: 1; min-width: 0;
+          min-height: 44px;   /* UFAI U2 (§11 deepwalk): the field tap goal is 44px, not the 24px WCAG floor */
           background: transparent; border: none; outline: none;
           color: var(--wh-cloud, #F4F6FA); font-family: inherit; font-size: 16px; font-weight: 500;
         }

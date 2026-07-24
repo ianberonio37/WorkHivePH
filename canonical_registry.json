@@ -434,12 +434,9 @@
       "realtime_published": false,
       "comment": "RAG knowledge base for fault history. Schema v2: worker_name, embedding_model, maintenance_type added 2026-04-29.",
       "read_by_surfaces": [
-        "integrations.html",
         "logbook.html"
       ],
-      "written_by_surfaces": [
-        "integrations.html"
-      ],
+      "written_by_surfaces": [],
       "read_by_edge_fns": [
         "cmms-sync",
         "intelligence-api",
@@ -2243,18 +2240,12 @@
       "read_by_edge_fns": [
         "_shared/rate-limit.ts",
         "agentic-rag-loop",
-        "fmea-populator",
-        "temporal-rag-orchestrator",
-        "visual-defect-capture",
-        "voice-action-router"
+        "temporal-rag-orchestrator"
       ],
       "written_by_edge_fns": [
         "_shared/rate-limit.ts",
         "agentic-rag-loop",
-        "fmea-populator",
-        "temporal-rag-orchestrator",
-        "visual-defect-capture",
-        "voice-action-router"
+        "temporal-rag-orchestrator"
       ]
     },
     "asset_nodes": {
@@ -2285,7 +2276,8 @@
         "created_at",
         "updated_at",
         "lifecycle",
-        "ideal_cycle_time_seconds"
+        "ideal_cycle_time_seconds",
+        "rejection_reason"
       ],
       "rls_enabled": true,
       "grants": {
@@ -3572,7 +3564,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track A — per-hive retention windows for soft-deleted rows, audit trail rows, and AI telemetry. PDPA evidence. Defaults applied when row missing.",
+      "comment": "Phase 5 Track A \u2014 per-hive retention windows for soft-deleted rows, audit trail rows, and AI telemetry. PDPA evidence. Defaults applied when row missing.",
       "read_by_surfaces": [
         "plant-connections.html"
       ],
@@ -3603,7 +3595,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B — auth-side telemetry. Every login/logout/mfa event captured for session audit + anomalous-login triage. Written by auth-event-recorder edge fn (service role). Supervisor reads via hive-scope; workers read their own.",
+      "comment": "Phase 5 Track B \u2014 auth-side telemetry. Every login/logout/mfa event captured for session audit + anomalous-login triage. Written by auth-event-recorder edge fn (service role). Supervisor reads via hive-scope; workers read their own.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3634,7 +3626,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B — MFA enrollment ledger. Recovery codes stored as SHA-256 hashes (server can verify; nobody can read them back). factor_id references Supabase Auth's factor; the TOTP secret itself never lives in this table. required_for_role tracks the Phase 5.B policy that supervisors must MFA.",
+      "comment": "Phase 5 Track B \u2014 MFA enrollment ledger. Recovery codes stored as SHA-256 hashes (server can verify; nobody can read them back). factor_id references Supabase Auth's factor; the TOTP secret itself never lives in this table. required_for_role tracks the Phase 5.B policy that supervisors must MFA.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3667,7 +3659,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B — per-hive SSO/SAML readiness config. One row per hive. Service-role writes only (operator workflow during onboarding). enforced=true means SSO is the only login path for the hive.",
+      "comment": "Phase 5 Track B \u2014 per-hive SSO/SAML readiness config. One row per hive. Service-role writes only (operator workflow during onboarding). enforced=true means SSO is the only login path for the hive.",
       "read_by_surfaces": [
         "plant-connections.html"
       ],
@@ -3707,7 +3699,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Phase 6A — typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
+      "comment": "Phase 6A \u2014 typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
@@ -3749,7 +3741,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Phase 6E — drone inspection job record. Photo paths point to Supabase Storage; AI inference happens through the existing visual-defect-capture pipeline (one defect per photo). This table holds the job-level metadata: who flew, when, what they inspected, lifecycle state.",
+      "comment": "Phase 6E \u2014 drone inspection job record. Photo paths point to Supabase Storage; AI inference happens through the existing visual-defect-capture pipeline (one defect per photo). This table holds the job-level metadata: who flew, when, what they inspected, lifecycle state.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3782,7 +3774,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 6F — registry of standards the platform aligns to. The Standards Auto-Update Agent reads planned_review_at and surfaces drift. Hive-agnostic (standards are global / regulatory, not per-hive).",
+      "comment": "Phase 6F \u2014 registry of standards the platform aligns to. The Standards Auto-Update Agent reads planned_review_at and surfaces drift. Hive-agnostic (standards are global / regulatory, not per-hive).",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3817,7 +3809,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Maturity-as-a-Service tracker (Phase 6 reframe addition). Records the consulting engagements we run on hives to lift them up the stack. Productisation surface that turns the methodology behind WorkHive's readiness layer into a paid offering — \"we will get you to Stair 3 in 90 days.\"",
+      "comment": "Maturity-as-a-Service tracker (Phase 6 reframe addition). Records the consulting engagements we run on hives to lift them up the stack. Productisation surface that turns the methodology behind WorkHive's readiness layer into a paid offering \u2014 \"we will get you to Stair 3 in 90 days.\"",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4267,7 +4259,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Day 4 — full-text chunks of industry standards, embedded for semantic search. Platform-scoped (hive-agnostic). Populated by tools/day4_chunk_standards_pdfs.py.",
+      "comment": "Day 4 \u2014 full-text chunks of industry standards, embedded for semantic search. Platform-scoped (hive-agnostic). Populated by tools/day4_chunk_standards_pdfs.py.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4304,7 +4296,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Day 8 — PLATFORM-scoped subject/predicate/object triples derived from regulatory canon + best-practice standards. Sibling to knowledge_graph_facts (HIVE-scoped). Replaces the broadcast-to-all-hives pattern. Single source of truth for cross-hive facts.",
+      "comment": "Day 8 \u2014 PLATFORM-scoped subject/predicate/object triples derived from regulatory canon + best-practice standards. Sibling to knowledge_graph_facts (HIVE-scoped). Replaces the broadcast-to-all-hives pattern. Single source of truth for cross-hive facts.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4351,7 +4343,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table — `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
+      "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table \u2014 `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
       "read_by_surfaces": [
         "founder-console.html"
       ],
@@ -4382,7 +4374,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Tracks who voted on which public roadmap item. PK enforces one vote\n   per (feedback_id, voter_token) — voter_token is auth.uid()::text for\n   signed-in or a localStorage-generated random token for anon. Cascade\n   deletes when the parent feedback row is deleted.",
+      "comment": "Tracks who voted on which public roadmap item. PK enforces one vote\n   per (feedback_id, voter_token) \u2014 voter_token is auth.uid()::text for\n   signed-in or a localStorage-generated random token for anon. Cascade\n   deletes when the parent feedback row is deleted.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5337,7 +5329,7 @@
       "rls_enabled": false,
       "grants": {},
       "realtime_published": false,
-      "comment": "Q6 2026-07-05: singleton platform-wide LLM budget counter (org-shared pool). The layer above per-hive/per-user/per-solo gates — those key on a tenant and cannot protect the ONE shared provider budget. minute_count=burst wall, day_count=daily circuit-breaker, shed/deny_today=ceiling-hit telemetry, depth_*_today=chain-depth (quality-decay) telemetry.",
+      "comment": "Q6 2026-07-05: singleton platform-wide LLM budget counter (org-shared pool). The layer above per-hive/per-user/per-solo gates \u2014 those key on a tenant and cannot protect the ONE shared provider budget. minute_count=burst wall, day_count=daily circuit-breaker, shed/deny_today=ceiling-hit telemetry, depth_*_today=chain-depth (quality-decay) telemetry.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5373,6 +5365,56 @@
       "grants": {},
       "realtime_published": false,
       "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "ops_db_size_history": {
+      "defined_in": "20260718000005_db_size_history.sql",
+      "columns": [
+        "id",
+        "captured_at",
+        "db_bytes",
+        "storage_bytes",
+        "table_count"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "grafana_reader": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "client_errors": {
+      "defined_in": "20260723000001_client_errors_frontend_observability.sql",
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "auth_uid",
+        "context",
+        "message",
+        "stack",
+        "page",
+        "user_agent",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "INSERT",
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "D21 frontend observability: client-side JS errors captured by utils.js whLogError. Diagnostics only - never form values, payloads or tokens. Hive-scoped insert; supervisor-scoped read.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -6220,6 +6262,33 @@
       "read_by_surfaces": [],
       "read_by_edge_fns": [],
       "columns": []
+    },
+    "v_cron_health": {
+      "defined_in": "20260718000002_cron_health_view.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": [
+        "jobid",
+        "jobname",
+        "schedule",
+        "active",
+        "runid",
+        "status",
+        "start_time",
+        "end_time",
+        "return_message"
+      ]
+    },
+    "v_storage_health": {
+      "defined_in": "20260718000003_storage_health_view.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": [
+        "bucket_id",
+        "objects",
+        "bytes",
+        "newest_at"
+      ]
     }
   },
   "rpcs": {
@@ -6661,7 +6730,7 @@
       "defined_in": "20260513000004_phase3_adoption_observability.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 3.1 — Adoption Risk Score compute. Pure PL/pgSQL math: 5 components averaged, ranged 0..100 (higher = more risk), tiered healthy/at_risk/critical. Idempotent per (hive_id, snapshot_date). Drives Supervisor Engagement Card.",
+      "comment": "Phase 3.1 \u2014 Adoption Risk Score compute. Pure PL/pgSQL math: 5 components averaged, ranged 0..100 (higher = more risk), tiered healthy/at_risk/critical. Idempotent per (hive_id, snapshot_date). Drives Supervisor Engagement Card.",
       "called_by_surfaces": [
         "hive.html"
       ],
@@ -6681,7 +6750,7 @@
       "defined_in": "20260513000005_phase4_revenue_surfaces.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 4.2 — Anomaly Engine 2.0 fusion ranker. Reads 5 sources, writes fused rows per (hive, machine, snapshot_date). Idempotent. Designed to run daily via pg_cron at 06:00 PHT alongside compute_hive_readiness and compute_adoption_risk.",
+      "comment": "Phase 4.2 \u2014 Anomaly Engine 2.0 fusion ranker. Reads 5 sources, writes fused rows per (hive, machine, snapshot_date). Idempotent. Designed to run daily via pg_cron at 06:00 PHT alongside compute_hive_readiness and compute_adoption_risk.",
       "called_by_surfaces": [
         "alert-hub.html"
       ],
@@ -6691,7 +6760,7 @@
       "defined_in": "20260513000006_phase5_enterprise_unlock.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Phase 5 Track A — daily cron purge of soft-deleted rows past retention window. Hive-scoped via hive_retention_config; defaults to 30 days when row missing. PDPA Article 16.",
+      "comment": "Phase 5 Track A \u2014 daily cron purge of soft-deleted rows past retention window. Hive-scoped via hive_retention_config; defaults to 30 days when row missing. PDPA Article 16.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6699,7 +6768,7 @@
       "defined_in": "20260513000006_phase5_enterprise_unlock.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 5 Track A — PDPA right-to-access bulk export. Returns one JSONB blob with every hive-scoped row across canonical surfaces. Wrapped by export-hive-data edge fn for supervisor-only access.",
+      "comment": "Phase 5 Track A \u2014 PDPA right-to-access bulk export. Returns one JSONB blob with every hive-scoped row across canonical surfaces. Wrapped by export-hive-data edge fn for supervisor-only access.",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
         "export-hive-data"
@@ -6781,7 +6850,7 @@
       "defined_in": "20260518000001_industry_standards_chunks.sql",
       "args": "p_query_embedding       vector,\n  p_similarity_threshold  real    DEFAULT 0.6,\n  p_limit                 int     DEFAULT 5,\n  p_family                text    DEFAULT NULL",
       "security_definer": false,
-      "comment": "Day 4 — platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
+      "comment": "Day 4 \u2014 platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6789,7 +6858,7 @@
       "defined_in": "20260518000003_semantic_search_kg_facts.sql",
       "args": "p_hive_id               uuid,\n  p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
       "security_definer": true,
-      "comment": "Day 5 — hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
+      "comment": "Day 5 \u2014 hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6797,7 +6866,7 @@
       "defined_in": "20260519000001_platform_knowledge_graph_facts.sql",
       "args": "p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
       "security_definer": false,
-      "comment": "Day 8 — platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
+      "comment": "Day 8 \u2014 platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6829,7 +6898,7 @@
       "defined_in": "20260520000002_get_oee_by_machine.sql",
       "args": "p_hive_id     uuid,\n  p_period_days int DEFAULT 90",
       "security_definer": true,
-      "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A × P × Q when ideal cycle time and units_produced are both present; otherwise returns partial (A × Q) with is_partial=true.",
+      "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A \u00d7 P \u00d7 Q when ideal cycle time and units_produced are both present; otherwise returns partial (A \u00d7 Q) with is_partial=true.",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
         "analytics-orchestrator"
@@ -7355,7 +7424,7 @@
       "defined_in": "20260705000009_q5a_inline_image_guard.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Q5-a 2026-07-05: server-side size backstop for inline base64 photo columns (logbook/inventory_items). Blocks >1.5MB base64 — a client-bypass guard, not the honest-photo path. Full Storage-offload stays deferred until photo_attach_stats() shows attach-rate climbing.",
+      "comment": "Q5-a 2026-07-05: server-side size backstop for inline base64 photo columns (logbook/inventory_items). Blocks >1.5MB base64 \u2014 a client-bypass guard, not the honest-photo path. Full Storage-offload stays deferred until photo_attach_stats() shows attach-rate climbing.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7782,12 +7851,21 @@
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
+    "snapshot_db_size": {
+      "defined_in": "20260718000005_db_size_history.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
     "guard_marketplace_order_status": {
       "defined_in": "20260719000002_guard_marketplace_order_status.sql",
       "args": "",
       "security_definer": true,
-      "comment": "BEFORE INSERT/UPDATE trigger on marketplace_orders — blocks a JWT client from creating an order past pending_payment or setting released/refunded (fake-sales guard).",
-      "called_by_surfaces": []
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -7800,7 +7878,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 52.8
+      "size_kb": 52.4
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -7809,7 +7887,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 25.2
+      "size_kb": 27.5
     },
     "ai-quality.html": {
       "tables_read": [
@@ -7819,7 +7897,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 34.7
+      "size_kb": 35.6
     },
     "alert-hub.html": {
       "tables_read": [
@@ -7847,7 +7925,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 90.8
+      "size_kb": 94.4
     },
     "analytics-report.html": {
       "tables_read": [
@@ -7856,7 +7934,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 92.7
+      "size_kb": 93.4
     },
     "analytics.html": {
       "tables_read": [
@@ -7867,14 +7945,14 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 172.2
+      "size_kb": 174.8
     },
     "architecture.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 31.5
+      "size_kb": 31.9
     },
     "asset-hub.html": {
       "tables_read": [
@@ -7919,7 +7997,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 202.5
+      "size_kb": 208.9
     },
     "assistant.html": {
       "tables_read": [
@@ -7938,7 +8016,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 67.1
+      "size_kb": 68.1
     },
     "audit-log.html": {
       "tables_read": [
@@ -7947,7 +8025,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 35.1
+      "size_kb": 36.3
     },
     "community.html": {
       "tables_read": [
@@ -7973,7 +8051,7 @@
         "set_community_best_answer"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 147.9
+      "size_kb": 148.8
     },
     "dayplanner.html": {
       "tables_read": [
@@ -7988,21 +8066,21 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 99.1
+      "size_kb": 101.7
     },
     "design-system.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 18.4
+      "size_kb": 23.0
     },
     "engineering-design.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 44.9
+      "size_kb": 45.5
     },
     "founder-console.html": {
       "tables_read": [
@@ -8026,7 +8104,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 132.3
+      "size_kb": 132.9
     },
     "hive.html": {
       "tables_read": [
@@ -8071,7 +8149,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 309.5
+      "size_kb": 311.1
     },
     "index.html": {
       "tables_read": [],
@@ -8086,7 +8164,6 @@
         "asset_nodes",
         "cmms_audit_log",
         "external_sync",
-        "fault_knowledge",
         "integration_configs",
         "inventory_items",
         "logbook",
@@ -8100,7 +8177,6 @@
         "asset_nodes",
         "cmms_audit_log",
         "external_sync",
-        "fault_knowledge",
         "integration_configs",
         "inventory_items",
         "logbook",
@@ -8111,7 +8187,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 123.1
+      "size_kb": 125.4
     },
     "inventory.html": {
       "tables_read": [
@@ -8138,7 +8214,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 128.0
+      "size_kb": 132.0
     },
     "llm-observability.html": {
       "tables_read": [
@@ -8147,7 +8223,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 16.1
+      "size_kb": 17.9
     },
     "logbook.html": {
       "tables_read": [
@@ -8185,7 +8261,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 308.3
+      "size_kb": 301.1
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -8207,7 +8283,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 53.4
+      "size_kb": 52.4
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -8221,7 +8297,7 @@
         "get_seller_community_reputation"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 40.7
+      "size_kb": 40.3
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -8241,7 +8317,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 76.2
+      "size_kb": 75.1
     },
     "marketplace.html": {
       "tables_read": [
@@ -8274,14 +8350,14 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 170.7
+      "size_kb": 168.3
     },
     "offline-fallback.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 4.2
+      "size_kb": 4.3
     },
     "ph-intelligence.html": {
       "tables_read": [
@@ -8293,7 +8369,7 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 33.3
+      "size_kb": 33.6
     },
     "plant-connections.html": {
       "tables_read": [
@@ -8307,7 +8383,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 39.5
+      "size_kb": 40.1
     },
     "platform-actions.html": {
       "tables_read": [
@@ -8326,7 +8402,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 17.6
+      "size_kb": 17.7
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -8354,7 +8430,7 @@
         "get_pm_compliance_smrp"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 146.6
+      "size_kb": 144.1
     },
     "project-manager.html": {
       "tables_read": [
@@ -8392,7 +8468,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 166.8
+      "size_kb": 168.6
     },
     "project-report.html": {
       "tables_read": [
@@ -8406,14 +8482,14 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 33.0
+      "size_kb": 33.8
     },
     "promo-poster.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 17.1
+      "size_kb": 17.2
     },
     "public-feed.html": {
       "tables_read": [
@@ -8422,7 +8498,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 14.0
+      "size_kb": 15.4
     },
     "report-sender.html": {
       "tables_read": [
@@ -8434,7 +8510,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 88.0
+      "size_kb": 87.1
     },
     "resume.html": {
       "tables_read": [
@@ -8452,7 +8528,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 135.3
+      "size_kb": 136.1
     },
     "shift-brain.html": {
       "tables_read": [
@@ -8467,7 +8543,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 54.6
+      "size_kb": 55.9
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -8482,14 +8558,14 @@
         "grade_skill_exam"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 68.0
+      "size_kb": 71.8
     },
     "status.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 11.6
+      "size_kb": 11.9
     },
     "symbol-gallery.html": {
       "tables_read": [],
@@ -8519,6 +8595,55 @@
         "ai-gateway"
       ],
       "size_kb": 55.6
+    },
+    "_beetest.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 1.4
+    },
+    "_contact.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 3.9
+    },
+    "poster-v1.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 3.7
+    },
+    "poster-v2.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 4.7
+    },
+    "poster-v3.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 5.1
+    },
+    "poster-v4.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 6.5
+    },
+    "poster-v5.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 4.8
     },
     "props.html": {
       "tables_read": [],
@@ -8568,6 +8693,27 @@
       "rpcs_called": [],
       "edge_fns_invoked": [],
       "size_kb": 3.0
+    },
+    "all_figures.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 1.7
+    },
+    "ipython_inline_figure.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 1.3
+    },
+    "single_figure.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 1.3
     },
     "snapshot.html": {
       "tables_read": [],
@@ -8705,7 +8851,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 77
+      "loc": 129
     },
     "_shared/factsheet_render.ts": {
       "tables_read": [],
@@ -9000,7 +9146,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 629
+      "loc": 641
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -9017,7 +9163,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 700
+      "loc": 712
     },
     "analytics-orchestrator": {
       "tables_read": [
@@ -9048,7 +9194,7 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 1008
+      "loc": 1095
     },
     "asset-brain-query": {
       "tables_read": [
@@ -9065,7 +9211,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 541
+      "loc": 553
     },
     "batch-risk-scoring": {
       "tables_read": [
@@ -9091,7 +9237,7 @@
         "get_mtbf_by_machine"
       ],
       "edge_fns_invoked": [],
-      "loc": 669
+      "loc": 681
     },
     "benchmark-compute": {
       "tables_read": [
@@ -9243,22 +9389,20 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 320
+      "loc": 332
     },
     "fmea-populator": {
       "tables_read": [
-        "ai_rate_limits",
         "rcm_fmea_modes",
         "v_asset_truth",
         "v_logbook_truth"
       ],
       "tables_written": [
-        "ai_rate_limits",
         "rcm_fmea_modes"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 365
+      "loc": 368
     },
     "hierarchical-summarizer": {
       "tables_read": [
@@ -9271,7 +9415,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 385
+      "loc": 397
     },
     "intelligence-api": {
       "tables_read": [
@@ -9320,7 +9464,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 179
+      "loc": 191
     },
     "parts-staging-recommender": {
       "tables_read": [
@@ -9396,7 +9540,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 341
+      "loc": 354
     },
     "project-progress": {
       "tables_read": [
@@ -9448,7 +9592,7 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 475
+      "loc": 487
     },
     "semantic-fact-extractor": {
       "tables_read": [
@@ -9460,7 +9604,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 275
+      "loc": 287
     },
     "semantic-search": {
       "tables_read": [],
@@ -9511,7 +9655,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 370
+      "loc": 382
     },
     "supervisor-reset-password": {
       "tables_read": [
@@ -9562,29 +9706,24 @@
     },
     "visual-defect-capture": {
       "tables_read": [
-        "ai_rate_limits",
         "fault_knowledge",
         "v_asset_truth"
       ],
       "tables_written": [
-        "ai_rate_limits",
         "fault_knowledge"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 426
+      "loc": 428
     },
     "voice-action-router": {
       "tables_read": [
-        "ai_rate_limits",
         "v_asset_truth"
       ],
-      "tables_written": [
-        "ai_rate_limits"
-      ],
+      "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 409
+      "loc": 404
     },
     "voice-embeddings": {
       "tables_read": [],
@@ -9607,7 +9746,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 171
+      "loc": 183
     },
     "voice-model-call": {
       "tables_read": [],
@@ -9621,7 +9760,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 191
+      "loc": 203
     },
     "voice-semantic-rag": {
       "tables_read": [
@@ -10074,6 +10213,16 @@
     {
       "kind": "dead_table",
       "table": "ops_artifact_metrics",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "ops_db_size_history",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "client_errors",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]

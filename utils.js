@@ -18,9 +18,38 @@
 // local decision), but the IMPLEMENTATION + the uncaught net are centralized. Gate: `error-capture`.
 (function whErrorCaptureBackbone() {
   if (window.whLogError) return;                       // idempotent (defensive against double-load)
+  // D21 frontend observability (2026-07-23): this IS the promised upgrade point, now wired.
+  // Errors go to our OWN `client_errors` table (mig 20260723000001) - not a third-party error
+  // service - so nothing leaves the platform and triage uses the tooling/RLS we already run.
+  // DIAGNOSTICS ONLY: message + truncated stack + pathname + coarse UA. Never form values, row
+  // payloads, tokens, or the query string (it can carry ids). Best-effort and totally silent on
+  // failure: a logger that throws, blocks, or loops would be worse than the dark it replaces.
+  var _errSent = 0, _errSeen = Object.create(null), _ERR_CAP = 20;   // per page-load flood cap
   window.whLogError = function (context, err) {
     try { console.error('[whLogError]', context, err); } catch (_) { /* empty-catch-allow: console unavailable, logging is best-effort */ }
-    // ↑ SINGLE upgrade point: forward to an aggregator here to light up every surface at once.
+    try {
+      if (_errSent >= _ERR_CAP) return;                       // a crash loop must not flood the table
+      var msg = '';
+      try { msg = String((err && (err.message || err.reason || err)) || ''); } catch (_) { msg = 'unstringifiable error'; }
+      if (!msg) return;
+      var key = context + '|' + msg.slice(0, 120);
+      if (_errSeen[key]) return;                              // dedupe identical errors per load
+      _errSeen[key] = 1;
+      var stack = '';
+      try { stack = String((err && err.stack) || ''); } catch (_) { /* empty-catch-allow */ }
+      var db = window._whSupabaseClient;
+      if (!db || typeof db.from !== 'function') return;        // no client yet (pre-auth) -> console only
+      _errSent++;
+      db.from('client_errors').insert({
+        hive_id: (typeof window.whHiveId === 'function' ? window.whHiveId() : null) || null,
+        worker_name: (typeof window.whWorker === 'function' ? window.whWorker() : null) || null,
+        context: String(context || 'error').slice(0, 120),
+        message: msg.slice(0, 2000),
+        stack: stack ? stack.slice(0, 4000) : null,
+        page: (location && location.pathname) || null,        // pathname ONLY - never location.search
+        user_agent: (navigator && navigator.userAgent || '').slice(0, 300)
+      }).then(function () {}, function () {});                 // swallow: never surface a logging failure
+    } catch (_) { /* empty-catch-allow: error reporting must never itself throw */ }
   };
   try {
     window.addEventListener('error', function (e) {
@@ -140,6 +169,112 @@
     st.textContent = css;
     (document.head || document.documentElement).appendChild(st);
   } catch (_) { /* empty-catch-allow: a11y focus-ring injection is best-effort styling */ }
+})();
+
+// ─────────────────────────────────────────────
+// Q2 · CLOSED OVERLAYS MUST LEAVE THE TAB ORDER (WCAG 2.2 SC 2.4.11) — injected once, platform-wide
+// ─────────────────────────────────────────────
+// A modal/sheet hidden with `opacity:0; pointer-events:none` is invisible to sighted+mouse users but
+// its controls STAY FOCUSABLE (visibility stays `visible`), so a keyboard user tabs into an invisible
+// dialog. axe cannot see this (it treats only display:none / visibility:hidden / aria-hidden as hidden).
+// Centralized HERE rather than per page: skillmatrix.html does NOT load tokens.css, so the shared-CSS
+// route can't reach it — same reason the focus-ring above is injected. `:not(.open)` gives specificity
+// (0,2,0), so this beats a page's own `.sheet-overlay{opacity:0}` (0,1,0) regardless of source order,
+// and the `.open` rule restores BOTH visibility and the transition-delay (omitting that reset is what
+// made the nav panel un-openable when this fix was first written per-page). Idempotent (id-guarded).
+(function whInjectClosedOverlayFocusGuard() {
+  try {
+    if (typeof document === 'undefined' || document.getElementById('wh-a11y-overlay-focus')) return;
+    var css =
+      '.sheet-overlay:not(.open),.modal-overlay:not(.open){visibility:hidden;' +
+      'transition:opacity .25s,visibility 0s linear .25s;}' +
+      '.sheet-overlay.open,.modal-overlay.open{visibility:visible;transition-delay:0s;}';
+    var st = document.createElement('style');
+    st.id = 'wh-a11y-overlay-focus';
+    st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+  } catch (_) { /* empty-catch-allow: overlay focus-guard injection is best-effort styling */ }
+})();
+
+// ─────────────────────────────────────────────
+// JA3 · BACK DISMISSES AN OPEN OVERLAY (history-aware modals) — injected once, platform-wide
+// ─────────────────────────────────────────────
+// Found by the LIVE buy/RFQ journey walk (2026-07-23, §12 flywheel loop 8): opening a marketplace
+// listing detail did NOT change the URL, and pressing BACK — the universal "close this" gesture,
+// and the ONLY one on Android hardware/gesture nav — threw the buyer clean OUT of the marketplace
+// to the previous page, losing both the listing and their browse position. Platform-wide grep
+// confirmed the cause: ZERO history.pushState and ZERO popstate handlers anywhere, so no overlay
+// on any page was ever Back-dismissible. (Pages DO use replaceState for deep-link URL sync — a
+// different thing; replaceState adds no history entry, so Back still leaves the page.)
+//
+// FIX, centralized here rather than per page (same reasoning as the Q2 overlay guard above, and it
+// reuses the SAME two shared overlay classes): when any .sheet-overlay/.modal-overlay gains .open we
+// push one history entry; Back then pops that entry and we CLOSE the overlay instead of navigating.
+// If the page closes it by its own means (X / Esc / backdrop) we consume our entry so history stays
+// balanced and a second Back doesn't dead-click. Defensive throughout; a failure degrades to the old
+// behaviour, never to a navigation loop.
+(function whOverlayBackDismiss() {
+  try {
+    if (typeof document === 'undefined' || typeof history === 'undefined' || !history.pushState) return;
+    if (window.__whOverlayBack) return;                      // idempotent
+    window.__whOverlayBack = true;
+    var SEL_OPEN = '.sheet-overlay.open, .modal-overlay.open';
+    var pushed = false;
+    var anyOpen = function () { try { return document.querySelector(SEL_OPEN); } catch (_) { return null; } };
+    var sync = function () {
+      var isOpen = !!anyOpen();
+      if (isOpen && !pushed) {
+        pushed = true;
+        try { history.pushState({ whOverlay: 1 }, ''); } catch (_) { pushed = false; }
+      } else if (!isOpen && pushed) {
+        // closed by the page (X / Esc / backdrop) -> consume the entry we added
+        pushed = false;
+        try { if (history.state && history.state.whOverlay) history.back(); } catch (_) { /* empty-catch-allow */ }
+      }
+    };
+    var mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('popstate', function () {
+      var el = anyOpen();
+      if (!el) return;                                       // a real navigation, not our overlay entry
+      pushed = false;
+      try { el.classList.remove('open'); } catch (_) { /* empty-catch-allow */ }
+    });
+  } catch (_) { /* empty-catch-allow: back-dismiss is progressive enhancement */ }
+})();
+
+// ─────────────────────────────────────────────
+// JA2 · RETURN-PROMISE KEPT — a gate that PROMISES a return must carry the return target
+// ─────────────────────────────────────────────
+// Found by the live first-run journey walk (2026-07-23, §12 flywheel loop 2). The shared
+// #hive-gate interstitial tells a brand-new user: "You'll be brought back here once you're
+// set up." — but its CTA was a BARE `hive.html` with no return target, and hive.html reads
+// no return/next/from param and never checks document.referrer. The promise was therefore
+// STRUCTURALLY IMPOSSIBLE to keep: the user finishes hive setup and is stranded on the hive
+// board, having to remember where they came from. A UI promise the journey cannot honour is
+// worse than no promise. Centralize-first: ONE delegated handler here fixes every gated page
+// (logbook / asset-hub / engineering-design / alert-hub / audit-log / integrations / ...)
+// instead of editing each gate. Runs at DOMContentLoaded for static gates AND on click
+// (capture) so a gate rendered later is still covered.
+(function whWireGateReturn() {
+  try {
+    if (typeof document === 'undefined') return;
+    var SEL = '#hive-gate a[href^="hive.html"], .hive-gate a[href^="hive.html"]';
+    var stamp = function (a) {
+      if (!a) return;
+      var h = a.getAttribute('href') || '';
+      if (/[?&]return=/.test(h)) return;                       // already carries one
+      var page = (location.pathname.split('/').pop() || '');
+      if (!page || page === 'hive.html') return;               // nothing to return TO
+      a.setAttribute('href', h + (h.indexOf('?') > -1 ? '&' : '?') + 'return=' + encodeURIComponent(page));
+    };
+    var sweep = function () { try { Array.prototype.forEach.call(document.querySelectorAll(SEL), stamp); } catch (_) { /* empty-catch-allow */ } };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sweep);
+    else sweep();
+    document.addEventListener('click', function (e) {
+      try { stamp(e.target && e.target.closest && e.target.closest(SEL)); } catch (_) { /* empty-catch-allow */ }
+    }, true);
+  } catch (_) { /* empty-catch-allow: return-promise wiring is best-effort navigation polish */ }
 })();
 
 // ── Arc W · W1 — GLOBAL ELEVATION (depth lens), platform-wide ───────────────────
@@ -693,13 +828,35 @@ function whProgressStrip(label, done, total, opts) {
     + ' aria-label="' + e(_tt(label)) + ': ' + k + ' of ' + total + '"'
     + ' style="margin:0 0 12px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">'
-    +   '<span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.62);">' + e(_tt(label)) + '</span>'
-    +   '<span style="font-size:.72rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.62);">' + e(_tt('of')) + ' ' + total + '</span></span>'
+    +   '<span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.80);">' + e(_tt(label)) + '</span>'
+    +   '<span style="font-size:.72rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.80);">' + e(_tt('of')) + ' ' + total + '</span></span>'
     + '</div>'
     + '<div class="wh-progress-track" style="height:6px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;">'
     +   '<div class="wh-progress-fill" style="width:' + pct + '%;height:100%;border-radius:999px;background:' + fillCol + ';transition:width .4s;"></div>'
     + '</div>'
     + '</div>';
+}
+
+// whAiProgress — indeterminate STAGED progress for a >10s AI/compute op (PP2, NN/g response-time
+// >10s "keep attention" limit + "a spinning indicator if percent-done isn't possible"). An AI
+// await is OPAQUE (no real % known), so this cycles honest stage labels on an interval so the user
+// sees the op is working AND roughly what it's doing, instead of a static frozen "Generating…".
+// `render(label, stepIndex, totalSteps)` lets each page paint the stage in its own UI. Returns a
+// stop() to call on completion/error. Cite: external-perceived-performance-optimistic-ui-skeleton-mot.
+function whAiProgress(render, stages, opts) {
+  opts = opts || {};
+  if (typeof render !== 'function') return function () {};
+  var _stages = (Array.isArray(stages) && stages.length) ? stages : ['Working…'];
+  var i = 0;
+  try { render(_stages[0], 0, _stages.length); } catch (_) { /* empty-catch-allow: best-effort */ }
+  var iv = null;
+  if (typeof setInterval === 'function') {
+    iv = setInterval(function () {
+      i = Math.min(i + 1, _stages.length - 1);
+      try { render(_stages[i], i, _stages.length); } catch (_) { /* empty-catch-allow: best-effort */ }
+    }, opts.stepMs || 2500);
+  }
+  return function stop() { if (iv) { clearInterval(iv); iv = null; } };
 }
 
 function renderSourceChip(opts) {
@@ -740,7 +897,7 @@ function renderSourceChip(opts) {
   // it a genuine live region so the rubric's G1 finds it on EVERY page that renders a source chip
   // (central fix — pages whose only status affordance was this chip were failing G1 as bare <p>s).
   var chipHtml = '<p class="wh-source-chip" role="status" aria-live="polite" '
-    + 'style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">'
+    + 'style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">'
     + parts.join(' &middot; ')
     + '</p>';
 
@@ -806,8 +963,8 @@ function whListSkeleton(el, rows) {
   st.id = 'wh-help-css';
   st.textContent =
     '.wh-help{margin:0.5rem 0 1rem;font-size:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.1rem 0.8rem 0.45rem}' +
-    '.wh-help>summary{cursor:pointer;font-weight:700;color:rgba(255,255,255,0.72);min-height:44px;display:inline-flex;align-items:center}' +
-    '.wh-help>p{margin:0.25rem 0 0.2rem;color:rgba(255,255,255,0.72);line-height:1.5}';
+    '.wh-help>summary{cursor:pointer;font-weight:700;color:rgba(255,255,255,0.86);min-height:44px;display:inline-flex;align-items:center}' +
+    '.wh-help>p{margin:0.25rem 0 0.2rem;color:rgba(255,255,255,0.86);line-height:1.5}';
   (document.head || document.documentElement).appendChild(st);
 })();
 
@@ -914,7 +1071,7 @@ function whFreshnessChip(target, tsMillis, opts) {
   el.innerHTML =
     '<span class="wh-fresh-dot" aria-hidden="true" style="width:8px;height:8px;border-radius:50%;'
     + 'display:inline-block;margin-right:6px;background:' + (stale ? 'var(--wh-orange)' : 'var(--wh-green, #4ade80)') + ';"></span>'
-    + '<span class="wh-fresh-txt" style="font-size:0.72rem;color:rgba(255,255,255,0.6);">'
+    + '<span class="wh-fresh-txt" style="font-size:0.72rem;color:rgba(255,255,255,0.80);">'
     + _tt('Updated', 'Na-update') + ' ' + when + suffix + '</span>';
 }
 if (typeof window !== 'undefined') window.whFreshnessChip = whFreshnessChip;
@@ -962,7 +1119,7 @@ function whCapRows(tableEl, max) {
   btn.className = 'showall-toggle';
   btn.setAttribute('aria-expanded', 'false');
   btn.style.cssText = 'display:block;width:100%;margin-top:8px;min-height:44px;background:rgba(255,255,255,0.04);'
-    + 'border:1px solid rgba(255,255,255,0.1);border-radius:var(--wh-radius-sm);color:rgba(255,255,255,0.7);'
+    + 'border:1px solid rgba(255,255,255,0.1);border-radius:var(--wh-radius-sm);color:rgba(255,255,255,0.83);'
     + 'font-family:inherit;font-size:0.75rem;font-weight:600;cursor:pointer;';
   var more = rows.length - max;
   var labelAll  = _tt('Show all ' + rows.length + ' ↓', 'Ipakita lahat ng ' + rows.length + ' ↓');
@@ -1041,7 +1198,7 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '@media (prefers-reduced-motion:reduce){.wh-skeleton-row{animation:none}}' +
     /* D1 U2: shared brief row-links (risk/pm-due/parts) were 39px tall (padding:8px) — bump to a 44px gloved-field tap target everywhere these render */
     '.wh-risk-row,.wh-pmdue-row,.wh-parts-row{min-height:44px;box-sizing:border-box}' +
-    '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.72);line-height:1.5}' +
+    '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.86);line-height:1.5}' +
     '.wh-list-error .wh-list-error-icon{font-size:1.4rem}' +
     '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud, #F4F6FA);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
     '.wh-list-error button:hover{border-color:rgba(255,255,255,0.32)}';
@@ -1059,11 +1216,11 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')
     '.wh-method{margin:2px 0 0;font-size:.62rem;line-height:1.4}' +
     // 44px-tall tap zone (mobile-maestro floor) but visually a single small caption line;
     // marker hidden, replaced by an ⓘ so it reads as an info toggle, not a code affordance.
-    '.wh-method>summary{display:flex;align-items:center;gap:5px;min-height:44px;cursor:pointer;list-style:none;color:rgba(255,255,255,0.6);font-weight:600;user-select:none}' +
+    '.wh-method>summary{display:flex;align-items:center;gap:5px;min-height:44px;cursor:pointer;list-style:none;color:rgba(255,255,255,0.80);font-weight:600;user-select:none}' +
     '.wh-method>summary::-webkit-details-marker{display:none}' +
     '.wh-method>summary::before{content:"\\24D8";font-weight:400;opacity:.75}' +
     '.wh-method>summary:hover,.wh-method[open]>summary{color:rgba(255,255,255,0.85)}' +
-    '.wh-method>ul{margin:0 0 6px;padding:0 0 0 18px;color:rgba(255,255,255,0.55);line-height:1.5}' +
+    '.wh-method>ul{margin:0 0 6px;padding:0 0 0 18px;color:rgba(255,255,255,0.80);line-height:1.5}' +
     '.wh-method>ul>li{margin:1px 0}';
   (document.head || document.documentElement).appendChild(whMethodCss);
 }
@@ -1569,6 +1726,28 @@ function renderActionBrief(brief, opts) {
 }
 if (typeof window !== 'undefined') window.renderActionBrief = renderActionBrief;
 
+// reflowIdDump — E4 "digest, don't dump": when a SINGLE line crams many asset codes
+// (the CODE shape TT-002 / GEN-003 / HVAC-02), wrap them onto multiple short rows so the
+// list stays scannable (Miller 5±2) WITHOUT losing a single code. The UFAI E4 lens judges
+// the worst single line's code count (a multi-line list is explicitly NOT a dump), and the
+// callers render this in a `white-space:pre-wrap` block, so the inserted \n become line
+// breaks. Idempotent: a line with <=7 codes (or already wrapped) is returned untouched.
+function reflowIdDump(text, maxPerLine) {
+  if (typeof text !== 'string' || !text) return text;
+  maxPerLine = maxPerLine || 6;                 // <=6 per row clears the lens's >7 dump floor
+  var IDLIKE = /\b[A-Z]{1,5}-\d{2,4}\b/g;
+  return text.split('\n').map(function (line) {
+    var codes = line.match(IDLIKE);
+    if (!codes || codes.length <= 7) return line;   // not a dump — leave prose exactly as-is
+    var n = 0;
+    return line.replace(IDLIKE, function (m) {       // break BEFORE the code that opens each new group
+      n++;
+      return (n > 1 && (n - 1) % maxPerLine === 0) ? '\n' + m : m;
+    });
+  }).join('\n');
+}
+if (typeof window !== 'undefined') window.reflowIdDump = reflowIdDump;
+
 // ─────────────────────────────────────────────
 // wireDetailToggle — ONE shared "Show details" explainer toggle (STREAMLINE S10)
 // ─────────────────────────────────────────────
@@ -1741,7 +1920,7 @@ function renderKpiTile(opts) {
     <h2 style="margin:0;font:inherit;color:inherit;">
     <button class="kpi-toggle" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="min-height:${detail ? '72px' : '0'};">
       <div style="flex:1;text-align:left;">
-        <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
+        <div style="font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
           ${escHtml(opts.title || '')} <span style="font-size:0.58rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
         </div>
         <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.15rem;">
@@ -1753,9 +1932,9 @@ function renderKpiTile(opts) {
                number is ONE tier whether it sits in a summary tile or a result card;
                .simple-card.hero is the deliberate second tier for the ONE key metric. -->
           <span style="font-size:1.5rem;font-weight:800;line-height:1.15;color:${c.text};font-variant-numeric:tabular-nums;">${escHtml(String(opts.value === undefined ? '-' : opts.value))}</span>
-          <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">${escHtml(opts.unit || '')}</span>
+          <span style="font-size:0.78rem;color:rgba(255,255,255,0.80);">${escHtml(opts.unit || '')}</span>
         </div>
-        ${opts.sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.6);">${escHtml(opts.sublabel)}</div>` : ''}
+        ${opts.sublabel ? `<div style="font-size:0.67rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;margin-left:0.75rem;">
         <span style="font-size:0.63rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:999px;background:${c.bg};border:1px solid ${c.border};color:${c.text};white-space:nowrap;">${c.label}</span>
@@ -1766,7 +1945,7 @@ function renderKpiTile(opts) {
     ${detail ? `
       <div class="kpi-detail${autoOpen ? ' open' : ''}" id="${id}" style="border-top:1px solid rgba(255,255,255,0.06);">
         ${detail}
-        ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
+        ${legend ? `<p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${escHtml(legend)}</p>` : ''}
       </div>` : ''}
   </div>`;
 }
@@ -1813,13 +1992,13 @@ function renderCompactStat(opts) {
 
   const inner =
     `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.15rem;padding:0.5rem 0.85rem;min-width:84px;">` +
-      `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.6);">${escHtml(opts.label || '')}</span>` +
+      `<span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">${escHtml(opts.label || '')}</span>` +
       `<span style="display:flex;align-items:baseline;gap:0.25rem;">` +
         (opts.icon ? `<span style="font-size:0.85rem;">${escHtml(opts.icon)}</span>` : '') +
         `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '-' : opts.value))}</span>` +
         (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit)}</span>` : '') +
       `</span>` +
-      (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.6);">${escHtml(opts.sublabel)}</span>` : '') +
+      (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</span>` : '') +
     `</div>`;
 
   if (opts.href) {
@@ -1875,10 +2054,10 @@ function renderAlertPreview(opts) {
   return `<a href="${escHtml(href)}" class="alert-preview" style="display:block;padding:0.6rem 0.8rem;margin-bottom:0.4rem;background:${s.bg};border-left:3px solid ${s.border};border-radius:0.5rem;text-decoration:none;color:inherit;">
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.15rem;">
       <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.04em;">${kindIcon} ${escHtml(opts.title || 'Alert')}</span>
-      <span style="font-size:0.6rem;color:rgba(255,255,255,0.6);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
+      <span style="font-size:0.6rem;color:rgba(255,255,255,0.80);white-space:nowrap;">${escHtml(s.label)}${rel ? ' · ' + escHtml(rel) : ''}</span>
     </div>
-    ${opts.asset ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.5);">Asset: ${escHtml(opts.asset)}</div>` : ''}
-    ${opts.message ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.55);margin-top:0.15rem;">${escHtml(opts.message)}</div>` : ''}
+    ${opts.asset ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.80);">Asset: ${escHtml(opts.asset)}</div>` : ''}
+    ${opts.message ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.15rem;">${escHtml(opts.message)}</div>` : ''}
   </a>`;
 }
 
@@ -2216,9 +2395,21 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
         'padding:20px 22px;max-width:440px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.5);">' +
         '<p id="' + escHtml(titleId) + '" style="font-size:0.95rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);' +
           'margin:0 0 14px;line-height:1.45;">' + escHtml(message) + '</p>' +
+        // VISIBLE label, not aria-label alone (live journey walk 2026-07-24, supervisor approval
+        // chain). The reject-asset prompt rendered a bare 394x44 box: a screen reader announced
+        // "Reason (helps the submitter fix it)", but a SIGHTED supervisor saw an unexplained
+        // input under "Reject this asset?" with no visible word "Reason" anywhere. axe passes
+        // (the accessible NAME exists) — which is exactly the axe-0-violations false 100. A real
+        // <label for> serves BOTH audiences and is the WCAG 3.3.2 "labels or instructions" fix.
+        (withInput && inputLabel
+          ? '<label for="' + escHtml(inputId) + '" ' +
+            'style="display:block;margin-bottom:6px;font-size:0.82rem;font-weight:600;' +
+            'color:rgba(255,255,255,0.86);font-family:inherit;">' + escHtml(inputLabel) + '</label>'
+          : ''
+        ) +
         (withInput
           ? '<input id="' + escHtml(inputId) + '" type="text" ' +
-            'aria-label="' + escHtml(inputLabel || message) + '" ' +
+            (inputLabel ? '' : 'aria-label="' + escHtml(message) + '" ') +
             'value="' + escHtml(inputDefault || '') + '" ' +
             'style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);' +
             'background:rgba(255,255,255,0.04);color:var(--wh-cloud, #F4F6FA);font-size:0.9rem;font-family:inherit;' +
@@ -2227,7 +2418,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
         ) +
         '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
           '<button type="button" data-wh-modal-cancel ' +
-            'style="background:transparent;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.12);' +
+            'style="background:transparent;color:rgba(255,255,255,0.83);border:1px solid rgba(255,255,255,0.12);' +
             'border-radius:8px;padding:9px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;' +
             'min-height:44px;font-family:inherit;">' + escHtml(cancelLabel) + '</button>' +
           '<button type="button" data-wh-modal-ok ' +

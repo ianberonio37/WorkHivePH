@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-23T04:03:01.251086+00:00",
-  "surfaces": 160,
+  "generated": "2026-07-24T07:23:00.584532+00:00",
+  "surfaces": 161,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 101,
-      "need_n": 101,
+      "adopters_n": 102,
+      "need_n": 102,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -42,6 +42,7 @@
         "bom_knowledge",
         "calc_knowledge",
         "canonical_period_summaries",
+        "client_errors",
         "cmms_audit_log",
         "community_posts",
         "community_reactions",
@@ -123,8 +124,8 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 97,
-      "need_n": 97,
+      "adopters_n": 98,
+      "need_n": 98,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -155,6 +156,7 @@
         "bom_knowledge",
         "calc_knowledge",
         "canonical_period_summaries",
+        "client_errors",
         "cmms_audit_log",
         "community_posts",
         "community_reactions",
@@ -233,8 +235,8 @@
       "name": "auth_uid ownership policy",
       "satisfies": "write attribution",
       "mode": "measured",
-      "adopters_n": 26,
-      "need_n": 26,
+      "adopters_n": 27,
+      "need_n": 27,
       "pct": 100,
       "adopters": [
         "agent_memory",
@@ -242,6 +244,7 @@
         "analytics_events",
         "asset_edges",
         "asset_nodes",
+        "client_errors",
         "community_posts",
         "community_replies",
         "engineering_calcs",
@@ -357,9 +360,9 @@
     }
   ],
   "floors": {
-    "D1": 101,
-    "D2": 97,
-    "D3": 26,
+    "D1": 102,
+    "D2": 98,
+    "D3": 27,
     "D4": 49
   }
 }

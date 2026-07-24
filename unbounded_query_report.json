@@ -1,7 +1,7 @@
 {
   "summary": {
     "files_scanned": 127,
-    "total_calls": 729,
+    "total_calls": 720,
     "total_unbounded": 1,
     "baseline": 1
   },
@@ -67,7 +67,7 @@
       "issues": [
         {
           "table": "engineering_calcs",
-          "offset": 1822705
+          "offset": 1823312
         }
       ]
     },

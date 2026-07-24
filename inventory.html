@@ -96,7 +96,7 @@
       outline: none;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.1); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
+    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
     textarea.wh-input { resize: vertical; min-height: 80px; }
 
     /* Buttons */
@@ -111,7 +111,7 @@
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83);
       font-weight: 600; border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.875rem;
       cursor: pointer; border: 1px solid rgba(255,255,255,0.1); min-height: 44px;
@@ -151,7 +151,7 @@
     .wh-label {
       display: block; font-size: 0.7rem; font-weight: 600;
       text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.62); margin-bottom: 0.4rem;
+      color:rgba(255,255,255,0.80); margin-bottom: 0.4rem;
     }
 
     /* Stat pill */
@@ -178,7 +178,7 @@
       font-size: 0.7rem; font-weight: 600; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.62);
+      color:rgba(255,255,255,0.80);
       transition: all 0.15s; user-select: none; min-height: 36px;
     }
     .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: var(--wh-blue); }
@@ -193,7 +193,7 @@
 
     /* Empty */
     /* No container opacity — a <1 opacity multiplies into descendant text alpha and
-       breaks AA contrast (text-white/60 → effective 0.24). Muting lives in text colors. */
+       breaks AA contrast (text-white/80 → effective 0.24). Muting lives in text colors. */
     .empty-state { opacity: 1; }
 
     /* Search highlight */
@@ -208,7 +208,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -216,9 +216,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #inv-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
+    #inv-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #inv-summary-details.open { display:block; }
   </style>
 </head>
@@ -241,7 +241,7 @@
           <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-8 w-auto" />
         </a>
         <div class="w-px h-4 bg-white/15"></div>
-        <span class="text-xs font-semibold text-white/60 uppercase tracking-widest">Inventory Monitor</span>
+        <span class="text-xs font-semibold text-white/80 uppercase tracking-widest">Inventory Monitor</span>
       </div>
       <a href="index.html#evolution" class="btn-secondary text-xs py-2 px-4">← Back to Basic Worker</a>
     </div>
@@ -256,13 +256,13 @@
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <h1 class="text-2xl sm:text-3xl font-black tracking-tight" data-i="pagetitle">Spare-Parts Inventory</h1>
-          <p class="text-sm text-white/60 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
+          <p class="text-sm text-white/80 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
           <p id="inventory-source-chip" style="margin-top:3px;"></p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">0</span> <span class="text-white/60">parts</span></span>
-          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:var(--wh-orange)">0</span> <span class="text-white/60">low</span></span>
-          <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">0</span> <span class="text-white/60">out</span></span>
+          <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">0</span> <span class="text-white/80">parts</span></span>
+          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:var(--wh-orange)">0</span> <span class="text-white/80">low</span></span>
+          <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">0</span> <span class="text-white/80">out</span></span>
           <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
             <span class="ic ic-add" aria-hidden="true"></span>
             <span data-i="addpart">Add Part</span>
@@ -318,14 +318,14 @@
         <li><strong>Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
         <li><strong>Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Use the search and category filter below for the part-by-part drill-down.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the search and category filter below for the part-by-part drill-down.</p>
     </div>
 
     <!-- Low stock alert banner -->
     <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3.5 mb-6 flex items-center gap-3"
          style="background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.2);">
       <span class="ic ic-back" aria-hidden="true"></span>
-      <span id="low-stock-banner-text" class="text-sm font-semibold" style="color:var(--wh-orange)"></span>
+      <span id="low-stock-banner-text" class="text-sm font-semibold" style="color:var(--wh-orange-text)"></span>
     </div>
 
     <!-- Search + filter -->
@@ -365,22 +365,22 @@
 
     <!-- Load More -->
     <div id="inv-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
-      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
+      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.80);"></p>
     </div>
 
     <!-- Empty state -->
     <div id="empty-state" class="text-center py-20 empty-state">
       <span class="ic ic-parts" aria-hidden="true"></span>
-      <p class="text-sm text-white/60 font-medium">No parts in inventory yet.</p>
-      <p class="text-xs text-white/60 mt-1">Add your first spare part to start monitoring stock levels.</p>
+      <p class="text-sm text-white/80 font-medium">No parts in inventory yet.</p>
+      <p class="text-xs text-white/80 mt-1">Add your first spare part to start monitoring stock levels.</p>
       <button id="empty-add-btn" class="btn-primary text-sm mt-5 px-6" data-i="addfirstpart">Add Your First Part</button>
     </div>
 
     <!-- No results -->
     <div id="no-results" class="text-center py-16 empty-state hidden">
       <span class="ic ic-search" aria-hidden="true"></span>
-      <p class="text-sm text-white/60">No parts match your search.</p>
+      <p class="text-sm text-white/80">No parts match your search.</p>
     </div>
 
   </main>
@@ -399,7 +399,7 @@
   <!-- ADD / EDIT PART MODAL -->
   <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative">
-      <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 id="part-modal-title" class="font-black text-xl text-white mb-6" data-i="addpart">Add Part</h2>
@@ -445,7 +445,7 @@
             <input id="f-qty" type="number" min="0" step="1" class="wh-input" placeholder="0" />
           </div>
           <div>
-            <label for="f-min-qty" class="wh-label"><span data-i="minqty">Min Qty</span> <span class="text-white/60 text-[9px] normal-case font-normal" data-i="reorderhint">(reorder)</span></label>
+            <label for="f-min-qty" class="wh-label"><span data-i="minqty">Min Qty</span> <span class="text-white/80 text-[9px] normal-case font-normal" data-i="reorderhint">(reorder)</span></label>
             <input id="f-min-qty" type="number" min="0" step="1" class="wh-input" placeholder="2" />
           </div>
           <div>
@@ -462,33 +462,33 @@
           </div>
         </div>
         <div>
-          <label for="f-location" class="wh-label"><span data-i="binlocation">Bin / Storage Location</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+          <label for="f-location" class="wh-label"><span data-i="binlocation">Bin / Storage Location</span> <span class="text-white/80 font-normal normal-case" data-i="optional">(optional)</span></label>
           <input id="f-location" type="text" class="wh-input" placeholder="e.g. Bin A3, Shelf 2, Cabinet B" autocomplete="off" maxlength="200">
         </div>
         <div>
-          <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/60 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
+          <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/80 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
                style="background:rgba(22,32,50,0.4); border:1px solid rgba(255,255,255,0.08);">
-            <p id="asset-linker-empty" class="text-xs text-white/60 self-center">No assets registered. Register assets in the Logbook first.</p>
+            <p id="asset-linker-empty" class="text-xs text-white/80 self-center">No assets registered. Register assets in the Logbook first.</p>
           </div>
         </div>
         <div>
-          <label class="wh-label"><span data-i="notes">Notes</span> <span class="text-white/60 font-normal normal-case" data-i="notehint">(install tips, specs, gotchas)</span></label>
+          <label for="f-notes" class="wh-label"><span data-i="notes">Notes</span> <span class="text-white/80 font-normal normal-case" data-i="notehint">(install tips, specs, gotchas)</span></label>
           <textarea aria-label="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together." id="f-notes" maxlength="2000" class="wh-input" placeholder="e.g. Torque seal bolts to 25 Nm. Always replace bearing pairs together."></textarea>
         </div>
         <div>
-          <label for="f-photo-input" class="wh-label"><span data-i="photo">Photo</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+          <label for="f-photo-input" class="wh-label"><span data-i="photo">Photo</span> <span class="text-white/80 font-normal normal-case" data-i="optional">(optional)</span></label>
           <input id="f-photo-input" type="file" accept="image/*" capture="environment" class="hidden" />
           <label id="f-photo-dropzone" for="f-photo-input"
             class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
             style="background:rgba(255,255,255,0.03);">
             <span class="ic ic-image" aria-hidden="true"></span>
-            <span class="text-xs text-white/60" data-i="tapattach">Tap to attach photo</span>
+            <span class="text-xs text-white/80" data-i="tapattach">Tap to attach photo</span>
           </label>
           <div id="f-photo-preview" class="mt-2" style="position:relative; display:none;">
             <img id="f-photo-thumb" class="photo-thumb cursor-pointer" title="Tap to replace" alt="" />
             <button id="f-photo-remove"
-              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;color:rgba(255,255,255,0.75);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
+              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;color:rgba(255,255,255,0.86);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
               &#x2715;
             </button>
           </div>
@@ -506,19 +506,19 @@
   <!-- USE STOCK MODAL -->
   <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
-      <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 class="font-black text-lg text-white mb-1" data-i="usestock">Use Stock</h2>
-      <p id="use-modal-part-name" class="text-xs text-white/60 mb-5"></p>
+      <p id="use-modal-part-name" class="text-xs text-white/80 mb-5"></p>
       <div class="space-y-4">
         <div>
           <label for="use-qty" class="wh-label" data-i="qtyused">Quantity Used</label>
           <input id="use-qty" type="number" min="1" step="1" class="wh-input text-center text-xl font-bold" value="1" />
-          <p id="use-qty-available" class="text-[11px] text-white/60 mt-1.5 text-center"></p>
+          <p id="use-qty-available" class="text-[11px] text-white/80 mt-1.5 text-center"></p>
         </div>
         <div>
-          <label for="use-job-ref" class="wh-label"><span data-i="jobref">Job Reference</span> <span class="text-white/60 font-normal normal-case" data-i="jobrefhint">(optional: for audit trail)</span></label>
+          <label for="use-job-ref" class="wh-label"><span data-i="jobref">Job Reference</span> <span class="text-white/80 font-normal normal-case" data-i="jobrefhint">(optional: for audit trail)</span></label>
           <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" maxlength="200">
         </div>
         <div role="alert" aria-live="assertive" id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
@@ -534,18 +534,18 @@
   <!-- RESTOCK MODAL -->
   <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
-      <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 class="font-black text-lg text-white mb-1" data-i="restock">Restock</h2>
-      <p id="restock-modal-part-name" class="text-xs text-white/60 mb-5"></p>
+      <p id="restock-modal-part-name" class="text-xs text-white/80 mb-5"></p>
       <div class="space-y-4">
         <div>
           <label for="restock-qty" class="wh-label" data-i="qtyadded">Quantity Added</label>
           <input id="restock-qty" type="number" min="1" step="1" class="wh-input text-center text-xl font-bold" value="1" />
         </div>
         <div>
-          <label for="restock-note" class="wh-label"><span data-i="note">Note</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+          <label for="restock-note" class="wh-label"><span data-i="note">Note</span> <span class="text-white/80 font-normal normal-case" data-i="optional">(optional)</span></label>
           <input id="restock-note" type="text" class="wh-input" placeholder="e.g. From supplier, Emergency purchase" autocomplete="off" maxlength="2000">
         </div>
         <div class="flex gap-2">
@@ -559,7 +559,7 @@
   <!-- DETAIL MODAL -->
   <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[88vh] overflow-y-auto p-7 relative">
-      <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/60 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <div id="detail-content"></div>
@@ -790,7 +790,7 @@ function assetBadge(id) {
 function txnIcon(type) {
   if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(34,197,94,0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
   if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
-  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:var(--wh-blue);flex-shrink:0;">~</span>`;
+  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);flex-shrink:0;">~</span>`;
   return '';
 }
 
@@ -1033,25 +1033,25 @@ function renderParts() {
               ${statusBadge(st)}
               ${approvalBadge(item)}
             </div>
-            <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/60 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
+            <button onclick="openDetailModal('${item.id}')" aria-label="Open item details" class="text-white/80 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
               <span class="ic ic-next" aria-hidden="true"></span>
             </button>
           </div>
-          <p class="text-sm text-white/70 font-medium mb-2">${nm}</p>
+          <p class="text-sm text-white/85 font-medium mb-2">${nm}</p>
           <div class="flex items-center gap-2 flex-wrap mb-3">
-            ${item.bin_location ? `<span class="text-[11px] text-white/60 flex items-center gap-1">
+            ${item.bin_location ? `<span class="text-[11px] text-white/80 flex items-center gap-1">
               <span class="ic ic-location" aria-hidden="true"></span>
               ${escHtml(item.bin_location)}
             </span>` : ''}
             ${linked.map(a => assetBadge(a)).join('')}
-            ${moreAss > 0 ? `<span class="text-[10px] text-white/60">+${moreAss} more</span>` : ''}
+            ${moreAss > 0 ? `<span class="text-[10px] text-white/80">+${moreAss} more</span>` : ''}
           </div>
           <div class="flex items-end justify-between gap-3 flex-wrap">
             <div class="flex items-baseline gap-2 flex-wrap">
               <span class="text-3xl font-black leading-none" style="color:${sc.text}">${item.qty_on_hand}</span>
-              <span class="text-xs text-white/60">${escHtml(item.unit || 'pcs')}</span>
-              ${item.min_qty > 0 ? `<span class="text-[11px] text-white/60">Min: ${item.min_qty}</span>` : ''}
-              ${getReservedQty(item.id) > 0 ? `<span class="text-[11px] font-semibold" style="color:var(--wh-orange); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
+              <span class="text-xs text-white/80">${escHtml(item.unit || 'pcs')}</span>
+              ${item.min_qty > 0 ? `<span class="text-[11px] text-white/80">Min: ${item.min_qty}</span>` : ''}
+              ${getReservedQty(item.id) > 0 ? `<span class="text-[11px] font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
             </div>
             <div class="flex gap-2">
               <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
@@ -1733,14 +1733,14 @@ function openDetailModal(id) {
           ${statusBadge(st)}
           ${approvalBadge(item)}
         </div>
-        <p class="text-base text-white/70 font-medium mb-4">${escHtml(item.part_name)}</p>
+        <p class="text-base text-white/85 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
       ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0" />` : ''}
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
       <span class="ic ic-back" aria-hidden="true"></span>
-      <p class="text-xs font-semibold" style="color:var(--wh-orange);">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
+      <p class="text-xs font-semibold" style="color:var(--wh-orange-text);">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
     </div>` : ''}
     ${item.status === 'rejected' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.22);">
@@ -1751,28 +1751,28 @@ function openDetailModal(id) {
     <div class="grid grid-cols-3 gap-3 mb-5">
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
         <div class="text-2xl font-black" style="color:${sc.text}">${item.qty_on_hand}</div>
-        <div class="text-[10px] text-white/60 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} on hand</div>
+        <div class="text-[10px] text-white/80 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} on hand</div>
       </div>
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-        <div class="text-2xl font-black text-white/60">${item.min_qty || '-'}</div>
-        <div class="text-[10px] text-white/60 uppercase tracking-wider mt-0.5">Min / Reorder</div>
+        <div class="text-2xl font-black text-white/80">${item.min_qty || '-'}</div>
+        <div class="text-[10px] text-white/80 uppercase tracking-wider mt-0.5">Min / Reorder</div>
       </div>
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-        <div class="text-xs font-bold text-white/60 mt-1 break-words">${escHtml(item.bin_location || '-')}</div>
-        <div class="text-[10px] text-white/60 uppercase tracking-wider mt-0.5">Location</div>
+        <div class="text-xs font-bold text-white/80 mt-1 break-words">${escHtml(item.bin_location || '-')}</div>
+        <div class="text-[10px] text-white/80 uppercase tracking-wider mt-0.5">Location</div>
       </div>
     </div>
 
     ${(item.linked_asset_node_ids || []).length > 0 ? `
     <div class="mb-4">
-      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-2">Linked Assets</p>
+      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-2">Linked Assets</p>
       <div class="flex flex-wrap gap-1.5">${(item.linked_asset_node_ids || []).map(uuid => assetBadge(_nodeIdToAssetId[uuid] || (uuid ? uuid.slice(0, 8) : ''))).join('')}</div>
     </div>` : ''}
 
     ${item.notes ? `
     <div class="rounded-xl px-4 py-3 mb-5" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.12);">
       <p class="text-[10px] text-orange-wh uppercase tracking-widest font-semibold mb-1.5">Notes</p>
-      <p class="text-sm text-white/65 leading-relaxed">${escHtml(item.notes)}</p>
+      <p class="text-sm text-white/85 leading-relaxed">${escHtml(item.notes)}</p>
     </div>` : ''}
 
     <div class="flex gap-2 mb-4">
@@ -1783,19 +1783,19 @@ function openDetailModal(id) {
     ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && item.worker_name === WORKER_NAME)) ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-[11px] text-red-400/40 hover:text-red-400/70 transition-colors py-1">Remove from inventory</button>` : ''}
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
-      <p class="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
+      <p class="text-[10px] text-white/80 uppercase tracking-widest font-semibold mb-3">Transaction History (last 20)</p>
       ${txns.length === 0
-        ? '<p class="text-xs text-white/60 text-center py-4">No transactions yet.</p>'
+        ? '<p class="text-xs text-white/80 text-center py-4">No transactions yet.</p>'
         : txns.map(t => `
           <div class="txn-row flex items-start gap-3">
             <div class="mt-0.5 flex-shrink-0">${txnIcon(t.type)}</div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-xs font-bold text-white/75">${t.qty_change > 0 ? '+' : ''}${t.qty_change} ${escHtml(item.unit || 'pcs')}</span>
-                <span class="text-[11px] text-white/60 flex-shrink-0">${formatDate(t.created_at)}</span>
+                <span class="text-xs font-bold text-white/85">${t.qty_change > 0 ? '+' : ''}${t.qty_change} ${escHtml(item.unit || 'pcs')}</span>
+                <span class="text-[11px] text-white/80 flex-shrink-0">${formatDate(t.created_at)}</span>
               </div>
-              ${t.note ? `<p class="text-[11px] text-white/60 mt-0.5">${escHtml(t.note)}</p>` : ''}
-              <p class="text-[10px] text-white/60 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}</p>
+              ${t.note ? `<p class="text-[11px] text-white/80 mt-0.5">${escHtml(t.note)}</p>` : ''}
+              <p class="text-[10px] text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}</p>
             </div>
           </div>`).join('')
       }

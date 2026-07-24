@@ -1,0 +1,4 @@
+{
+ "adoption_pct": 100.0,
+ "note": "D12 per-surface AI quota adoption. Forward-only: a NEW rate-limited surface wired to the global cap alone drops this and FAILs. Raise it by adopting checkRouteRateLimit (onboard with enforce=false first)."
+}

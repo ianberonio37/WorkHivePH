@@ -59,10 +59,10 @@
     }
     #levelup-eyebrow {
       font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--wh-orange); margin-bottom: 0.3rem;
+      text-transform: uppercase; color:var(--wh-orange-text); margin-bottom: 0.3rem;
     }
     #levelup-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
-    #levelup-meta { font-size: 0.8rem; color: rgba(255,255,255,0.62); margin-bottom: 1.5rem; }
+    #levelup-meta { font-size: 0.8rem; color:rgba(255,255,255,0.80); margin-bottom: 1.5rem; }
     #levelup-close {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; font-family: 'Poppins', sans-serif;
@@ -90,7 +90,7 @@
       width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0; /* tap-target floor */
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: rgba(255,255,255,0.6); text-decoration: none;
+      cursor: pointer; color:rgba(255,255,255,0.80); text-decoration: none;
       transition: background 0.15s;
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); }
@@ -117,13 +117,13 @@
       display: inline-block; font-size: 0.65rem; font-weight: 700;
       letter-spacing: 0.1em; text-transform: uppercase;
       padding: 2px 10px; border-radius: 999px;
-      background: rgba(247,162,27,0.15); color: var(--wh-orange);
+      background: rgba(247,162,27,0.15); color:var(--wh-orange-text);
       border: 1px solid rgba(247,162,27,0.3); margin-bottom: 0.75rem;
     }
     .hero-stats { display: flex; gap: 1.25rem; flex-wrap: wrap; }
     .hero-stat { text-align: center; }
     .hero-stat-val { font-size: 1.15rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; } /* C1: 18px tier; C4: tabular KPI digits */
-    .hero-stat-lbl { font-size: 0.6rem; color: rgba(255,255,255,0.62);
+    .hero-stat-lbl { font-size: 0.6rem; color:rgba(255,255,255,0.80);
       text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
 
     /* ── Pillar section headers ── */
@@ -133,7 +133,7 @@
     }
     .pillar-title {
       font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em;
-      text-transform: uppercase; color: rgba(255,255,255,0.6);
+      text-transform: uppercase; color:rgba(255,255,255,0.80);
     }
     .pillar-line {
       flex: 1; height: 1px;
@@ -167,7 +167,7 @@
       color: rgba(255,255,255,0.9);
     }
     .domain-tier-label {
-      font-size: 0.58rem; font-weight: 600; color: rgba(255,255,255,0.62);
+      font-size: 0.58rem; font-weight: 600; color:rgba(255,255,255,0.80);
     }
 
     /* XP bar */
@@ -182,7 +182,7 @@
       transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
     }
     .xp-text {
-      font-size: 0.55rem; color: rgba(255,255,255,0.62);
+      font-size: 0.55rem; color:rgba(255,255,255,0.80);
       white-space: nowrap;
     }
 
@@ -194,10 +194,10 @@
       font-size: 0.6rem; padding: 0.25rem 0;
       border-top: 1px solid rgba(255,255,255,0.05);
     }
-    .event-label { flex: 1; color: rgba(255,255,255,0.62); min-width: 0;
+    .event-label { flex: 1; color:rgba(255,255,255,0.80); min-width: 0;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-xp { font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
-    .event-time { color: rgba(255,255,255,0.62); flex-shrink: 0; }
+    .event-time { color:rgba(255,255,255,0.80); flex-shrink: 0; }
 
     /* Iron Worker card (full-width legendary) */
     .domain-card.legendary {
@@ -212,7 +212,7 @@
     .domain-card.legendary .domain-tier-label { font-size: 0.65rem; }
     .legendary-info { flex: 1; min-width: 0; }
     .legendary-desc {
-      font-size: 0.65rem; color: rgba(255,255,255,0.62);
+      font-size: 0.65rem; color:rgba(255,255,255,0.80);
       margin-top: 0.2rem; line-height: 1.4;
     }
 
@@ -225,7 +225,7 @@
     }
     .section-heading {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: rgba(255,255,255,0.62);
+      text-transform: uppercase; color:rgba(255,255,255,0.80);
       margin-bottom: 0.75rem;
     }
     .activity-row {
@@ -243,7 +243,7 @@
     .activity-body { flex: 1; min-width: 0; }
     .activity-name { font-size: 0.72rem; font-weight: 600;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .activity-sub { font-size: 0.62rem; color: rgba(255,255,255,0.62); }
+    .activity-sub { font-size: 0.62rem; color:rgba(255,255,255,0.80); }
     .activity-xp { font-size: 0.72rem; font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
 
     /* ── Hive standings ── */
@@ -256,7 +256,7 @@
     .standing-rank {
       width: 24px; font-size: 0.7rem; font-weight: 800;
       text-align: center; flex-shrink: 0;
-      color: rgba(255,255,255,0.62);
+      color:rgba(255,255,255,0.80);
     }
     .standing-rank.gold   { color: var(--wh-orange); }
     .standing-rank.silver { color: #94A3B8; }
@@ -264,12 +264,12 @@
     .standing-name { flex: 1; font-size: 0.8rem; font-weight: 600;
       min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .standing-score { font-size: 0.72rem; font-weight: 700;
-      color: var(--wh-blue); flex-shrink: 0; }
+      color:var(--wh-blue-text); flex-shrink: 0; }
     .standing-avatar-wrap { flex-shrink: 0; padding-bottom: 8px; }
 
     /* ── Empty state ── */
     .empty-note {
-      font-size: 0.75rem; color: rgba(255,255,255,0.62);
+      font-size: 0.75rem; color:rgba(255,255,255,0.80);
       text-align: center; padding: 1rem 0;
     }
 
@@ -305,14 +305,14 @@
     }
     .tier-sample-range {
       font-size: 0.55rem; font-weight: 600;
-      color: rgba(255,255,255,0.62);
+      color:rgba(255,255,255,0.80);
       white-space: nowrap;
     }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -320,9 +320,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ac-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ac-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #ac-summary-details.open { display:block; }
   </style>
 </head>
@@ -362,7 +362,7 @@
        audience, same job "how am I progressing?"). One nav entry; this tab bar switches
        Skills ↔ Achievements. Both pages kept on disk (reachable via tabs). -->
   <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 1rem 6px; flex-wrap:wrap;">
-    <a role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
+    <a role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; Skills</a>
     <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
   </div>
   <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>
@@ -404,14 +404,14 @@
     data-rag-tile="achievements:detail_panel"
     data-rag-label="Achievements detail">
     <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How XP and tiers work</strong>
-    <div style="font-size:11px;color:rgba(255,255,255,0.62);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
     <ul style="margin:0;padding-left:20px;">
       <li><strong>XP this week</strong>: XP entries from the past 7 days, summed.</li>
       <li><strong>Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
       <li><strong>Total level</strong>: sum of your level across all 12 domains. Drives your worker tier.</li>
       <li><strong>Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
   </div>
 
   <!-- Hero -->
@@ -451,7 +451,7 @@
   <div class="section-card" id="tier-guide-card" style="min-height:150px;">
     <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
       <span>Tier Guide</span>
-      <span style="font-size:0.55rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.62);">Visual key: what each rank looks like</span>
+      <span style="font-size:0.55rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.80);">Visual key: what each rank looks like</span>
     </div>
     <div id="tier-showcase"></div>
   </div>
@@ -874,7 +874,7 @@
       <div class="standing-row">
         <div class="standing-rank ${rankClass(i)}">${rankIcon(i)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
-        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.55rem;color:rgba(255,255,255,0.62);">(you)</span>' : ''}</div>
+        <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.55rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
         <div class="standing-score">${w.total} pts</div>
       </div>`).join('');
 
@@ -1033,8 +1033,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

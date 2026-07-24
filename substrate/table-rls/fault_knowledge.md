@@ -2,7 +2,7 @@
 name: table-rls-fault_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:fault_knowledge
-source_sha: 5654184a24e0847f
+source_sha: 6621053ee050c837
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, hive_id, logbook_id, machine, category, problem, root_cause, action, knowledge, worker_name, embedding, created_at, embedding_model, maintenance_type
+Columns (*=NOT NULL): id*, hive_id, logbook_id, machine, category, problem, root_cause, action, knowledge, worker_name, embedding, created_at, embedding_model, maintenance_type, source*, ai_model, ai_confidence
 
 Policies:
 - `fault_knowledge_delete_locked` [DELETE · roles=public] USING=`false` CHECK=`∅`

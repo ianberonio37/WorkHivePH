@@ -635,6 +635,24 @@ VALIDATORS = [
         "severity": "warn",
     },
     {
+        "id":      "ai-surface-quota",
+        "script":  "tools/validate_ai_surface_quota.py",
+        "args":    ["--check"],
+        "label":   "D12 per-SURFACE AI cost/quota adoption (2026-07-23, the D-ledger's 'per-surface oracle unbuilt' cell, now built). `ai_rate_limits` is keyed by hive_id ALONE - one hourly+daily budget shared by EVERY AI surface - so a single runaway surface (looping companion, batch brief, retry storm) can drain the hive's whole AI allowance and starve assistant/voice/RAG/report-gen. This is a fairness+DoS bound, not just cost. The per-surface limiter ALREADY EXISTS (`_shared/rate-limit.ts` checkRouteRateLimit -> hive_route_quotas.hourly_cap + hive_route_calls counter keyed by (hive,route,hour), with an `enforce` flag so a surface can onboard in LOG-ONLY mode first) - so this is an ADOPTION gap, the METHOD-LAW shape (one unadopted central component, not N bespoke fixes). Currently 2/19 = 10.5% (ai-gateway, platform-gateway). Forward-only ratchet: a NEW rate-limited AI surface wired to the global cap alone drops the % and FAILs. Measurement only - changes no enforcement. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        "id":      "ufai-deep-u",
+        "script":  "tools/validate_ufai_deep_u.py",
+        "args":    [],
+        "label":   "UFAI U-pillar deep-verification lock (2026-07-23, PDDA §11 comprehensive deepwalk) — the live per-page deep-probe found the coarse A-Z lens (Z3 = 24px WCAG floor) was blind to the deeper UFAI U2 field standard (44px gloved-hand tap goal) + the Z2d responsive-image floor. The fix is a set of SHARED rules in tokens.css (the ONE file every page loads): input.wh-input/select.wh-select 44px, .btn-secondary/.btn-ghost 44px, img{max-width:100%}. This static gate asserts those shared rules STAY — remove one and every form control / secondary button / image on every page silently regresses below the field standard. Forward-only. Self-test: --selftest.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
         "id":      "file-upload-safety",
         "script":  "tools/validate_file_upload_safety.py",
         "args":    [],
@@ -5013,6 +5031,21 @@ VALIDATORS = [
         "group":   "Memory System",
         "report":  None,
         "skip_if_fast": True,
+    },
+    {
+        # AI6 - agentic write accountability (dimension-expansion loop 21). AI1-AI5 grade the AI's
+        # ANSWER; this grades its ACT. 14 AI edge fns WRITE, and 6 write into tables a human later
+        # reads as fact. Found live: visual-defect-capture stamped model-generated diagnosis into
+        # fault_knowledge under the signed-in WORKER'S NAME, and that table feeds RAG + intelligence
+        # reports - so AI output re-entered the knowledge base as human field experience. Denominator
+        # is curated by evidence (telemetry tables excluded; self-declaring ai_* tables excluded).
+        # Forward-only ratchet on ai_write_provenance_baseline.json. Static grep -> runs in --fast.
+        "id":      "ai_write_provenance",
+        "script":  "tools/validate_ai_write_provenance.py",
+        "args":    [],
+        "label":   "AI6: agentic write accountability (AI writes into human-read domain tables declare machine authorship)",
+        "group":   "AI Validation",
+        "report":  "ai_write_provenance_report.json",
     },
     {
         # Memory-System M2.1 — retrieval recall@k gate. Retriever tuning knobs (IMPORTANCE,

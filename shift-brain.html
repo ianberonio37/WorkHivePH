@@ -24,7 +24,7 @@
       --orange-wh: var(--wh-orange);
       --blue-wh:   var(--wh-blue);
       --navy-wh:   var(--wh-navy);
-      --muted:     rgba(255,255,255,0.55);
+      --muted:     rgba(255,255,255,0.80);
       --border:    rgba(255,255,255,0.10);
       --card-bg:   linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
     }
@@ -161,7 +161,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -169,9 +169,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sb-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #sb-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #sb-summary-details.open { display:block; }
   </style>
 </head>
@@ -332,14 +332,17 @@
       if (_pw) _pw.style.display = 'block';
       const _sbChip = document.getElementById('shift-source-chip');
       if (_sbChip && typeof renderSourceChip === 'function') {
+        // I1 CLS fix (2026-07-23): render the SAME 1-line `notes` shape the settled call below
+        // (~line 572) uses, so the chip's height is STABLE (~43px) from first paint. The prior
+        // provisional render used a 3-line `method` (76px) that the settled call then collapsed to
+        // 43px at ~400ms — a −33px shrink that pulled the toolbar/verdict/cards UP (the mid-page
+        // reorganizing reflow, root-caused via .tmp/probe_shiftbrain_cls_sources.mjs). The 3 method
+        // lines were transient anyway (always overwritten by the settled summary), so nothing durable
+        // is lost. Same content + same line-count on both renders = no height change = no shift.
         _sbChip.innerHTML = renderSourceChip({
           freshness: 'Live · shift plan generated on load',
-          source:    'shift_plans + v_risk_truth + v_pm_scope_items_truth',
-          method:    [
-            'Risk threshold: assets above the hive\'s risk score cutoff',
-            'PMs: overdue, counted once per asset, not a flat 30-day estimate',
-            'Carry-forward: open items from prior shift that weren\'t closed',
-          ],
+          source:    'shift_plans',
+          notes:     ['Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator'],
         });
       }
     })();
@@ -471,12 +474,20 @@
       const fresh = _planIsFresh(_activePlan, _activeWindow);
       if (fresh) return;
       _autoGenTried = true;
-      _setShiftVerdict('Generating this shift’s handover…',
-        'First open of the shift builds the briefing from logbook + risk + PM data.');
+      // PP2: the shift-planner-orchestrator is a >10s AI compose (logbook + risk + PM). A static
+      // "Generating…" looks frozen — cycle honest staged progress so the user sees it working +
+      // roughly what it's doing (shared whAiProgress; stopped on every exit path).
+      const _stopProg = (typeof whAiProgress === 'function')
+        ? whAiProgress(
+            (label, i, n) => _setShiftVerdict(label, 'Building your briefing: step ' + (i + 1) + ' of ' + n + '. This takes a few seconds.'),
+            ['Reading logbook, risk + PM data…', 'Scoring today’s top risks…', 'Composing your shift briefing…'],
+            { stepMs: 2500 })
+        : (_setShiftVerdict('Generating this shift’s handover…', 'First open of the shift builds the briefing from logbook + risk + PM data.'), function () {});
       try {
         const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {
           body: { shift_window: _activeWindow, hive_id: HIVE_ID },
         });
+        _stopProg();
         if (error || (data && data.error)) {
           console.warn('shift auto-generate skipped:', (error && error.message) || (data && data.error));
           renderPlan(); // restore the honest empty-state verdict
@@ -485,6 +496,7 @@
         await loadPlan(); // _autoGenTried blocks recursion
         showToast('Shift handover generated for this window.');
       } catch (err) {
+        _stopProg();
         console.warn('shift auto-generate error:', err && err.message);
         renderPlan();
       }
@@ -542,7 +554,10 @@
       const statusEl = document.getElementById('brief-status');
       statusEl.textContent = _activePlan.status;
       statusEl.className   = 'status-pill status-' + e(_activePlan.status);
-      document.getElementById('brief-text').textContent = _activePlan.briefing || '(no briefing)';
+      // E4 digest-don't-dump: reflow any crammed asset-code run onto short scannable rows
+      // (pre-wrap renders the \n) so a 19-code isolation line stays readable instead of a wall.
+      document.getElementById('brief-text').textContent =
+        _activePlan.briefing ? (typeof reflowIdDump === 'function' ? reflowIdDump(_activePlan.briefing) : _activePlan.briefing) : '(no briefing)';
 
       // F15: freshness honesty. If this plan is NOT for the current shift (stale — e.g. a
       // non-live window, or a live window whose auto-generate failed and an old plan showed),
@@ -784,7 +799,7 @@
       const restId = elId + '-rest';
       el.innerHTML = rows.slice(0, cap).map(rowFn).join('')
         + `<div id="${restId}" style="display:none;">${rows.slice(cap).map(rowFn).join('')}</div>`
-        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.7); font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
+        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.83); font-family:inherit; font-size:0.78rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
       const btn = el.querySelector('.sb-showall');
       if (btn) btn.addEventListener('click', () => { const r = document.getElementById(restId); if (r) { r.style.display = 'block'; btn.style.display = 'none'; } });
     }
@@ -980,8 +995,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

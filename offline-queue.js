@@ -87,6 +87,7 @@
       table:        null,
       identityKey:  null,
       identityFn:   null,
+      onConflict:   null,   // Y1b: upsert conflict target for a NON-PK unique column (e.g. 'worker_name')
       onSyncedRow:  null,
       postSync:     null,
     }, opts || {});
@@ -157,6 +158,19 @@
           try {
             if (op === 'insert') {
               const r = await supabase.from(cfg.table).insert(item.payload);
+              error = r.error;
+            } else if (op === 'upsert') {
+              // Y1b (2026-07-23): client-keyed rows (dayplanner schedule_items) enqueue as
+              // upsert so an offline CREATE followed by an offline EDIT (same keyPath id →
+              // IndexedDB put replaces the pending item) drains idempotently — an 'insert'
+              // would 409 a re-edited row, an 'update' would 0-row-no-op a never-synced one.
+              // A table that conflicts on a NON-PK unique column (skill_profiles.worker_name)
+              // MUST pass onConflict, else supabase-js defaults to the PK and a plain upsert
+              // 23505-duplicates the unique row. Resolve item-level first, then cfg-level.
+              const _oc = item.onConflict || cfg.onConflict;
+              const r = _oc
+                ? await supabase.from(cfg.table).upsert(item.payload, { onConflict: _oc })
+                : await supabase.from(cfg.table).upsert(item.payload);
               error = r.error;
             } else if (op === 'update') {
               let q = supabase.from(cfg.table).update(item.payload);

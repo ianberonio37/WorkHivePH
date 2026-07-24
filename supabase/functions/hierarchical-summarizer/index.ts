@@ -50,7 +50,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
-import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
+import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -405,6 +405,18 @@ serveObserved("hierarchical-summarizer", async (req) => {
       // Arc L free-tier B-hardening: per-hive AI cap so a member cannot spam this
       // generative summarizer and drain the hive's free-tier LLM budget (cron uses
       // the service key -> isServiceRole -> exempt, so backfill is unaffected).
+      // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+      // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+      // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+      // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+      // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+      // fail a real request.
+      try {
+        const _rq = await checkRouteRateLimit(db, body.hive_id || "", "hierarchical-summarizer");
+        // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+        // a no-op until an admin sets a cap - while always counting for attribution.
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "hierarchical-summarizer", _rq.cap);
+      } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, body.hive_id);
       if (!_rl.allowed) return rateLimitedResponse(corsHeaders);
     }

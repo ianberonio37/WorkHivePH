@@ -21,7 +21,7 @@
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
       --border: rgba(255,255,255,0.07);
     }
     /* Same defect as alert-hub: this page <link>s Poppins above and then rendered
@@ -52,7 +52,7 @@
       padding: 6px 12px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 999px;
       font-family: inherit; font-size: .72rem; font-weight: 600;
-      color: rgba(255,255,255,0.6); cursor: pointer;
+      color:rgba(255,255,255,0.80); cursor: pointer;
       transition: all .15s; min-height: 44px;
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
@@ -121,7 +121,7 @@
       font-size: .82rem; font-weight: 700; color: var(--text);
     }
     .entry-target {
-      font-size: .82rem; color: rgba(255,255,255,0.7);
+      font-size: .82rem; color:rgba(255,255,255,0.83);
       /* R2: a long target (path/id/JSON) must WRAP, not push the row past the viewport
          (measured span was 1769px wide -> horizontal page scroll). */
       overflow-wrap: anywhere; word-break: break-word; min-width: 0;
@@ -142,7 +142,7 @@
       margin-top: 6px; padding: 8px 10px;
       background: rgba(15,25,35,0.7); border: 1px solid var(--border);
       border-radius: 6px; font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: .68rem; color: rgba(255,255,255,0.7);
+      font-size: .68rem; color:rgba(255,255,255,0.83);
       white-space: pre-wrap; word-break: break-word;
       max-height: 240px; overflow: auto;
     }
@@ -259,7 +259,7 @@
       <div class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>

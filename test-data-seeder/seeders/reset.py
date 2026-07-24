@@ -12,6 +12,7 @@ The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 RESET_TABLES = [
     # 2026-05-21 paydown: new platform tables added in migrations, register
     # in reset.py so reset-coverage validator passes.
+    "client_errors",               # 20260723000001 — D21 frontend error capture (transient diagnostics, no seeder; safe to wipe)
     "resume_versions",             # 20260603000000 - child (FK resume_id), wipe before parent
     "resume_documents",            # 20260603000000 - owner-scoped personal resume doc
     "agentic_rag_traces",          # 20260521120000 — append-only RAG trace log

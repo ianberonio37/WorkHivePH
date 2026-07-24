@@ -2,7 +2,7 @@
 name: edge-fn-batch-risk-scoring
 type: edge-fn
 source: file:supabase/functions/batch-risk-scoring/index.ts
-source_sha: 309f18268347cf57
+source_sha: 8780b39091b98c4d
 last_verified: 2026-07-13
 supersedes: null
 ---

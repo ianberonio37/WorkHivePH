@@ -359,6 +359,8 @@
   "20260719000004_numeric_nonnegative_bounds.sql": "d2cd26932ebfef8940a6f52cfdaf8046f3baca5d8e85b0bb7dede47ef2568486",
   "20260720000001_parts_reservation_idempotency.sql": "cf4af959b3d567b8b0384b633860c16fb33cd811ccaaba53d574fb3f8ac2e712",
   "20260720000002_fix_fetch_active_alerts_type.sql": "f34303d3147c64bcee52bfdae837ea5bca3a31652f407358b467aeb118fd72d3",
-  "20260721000001_text_id_defaults.sql": "506fb66aef90796b6ac7b9c83ced8b78a1969c8c4f116867a10f5263c7139397",
-  "20260722000001_grant_select_marketplace_sellers.sql": "d52324b029580a5f38bc8e113e747019947237039fdec6c4dfd246eb42d08d64"
+  "20260721000001_text_id_defaults.sql": "a2de8290cc541e80df0f9363c72d5d4d646aad77868601003e72bc5181df9c8e",
+  "20260722000001_grant_select_marketplace_sellers.sql": "b73cd80dbcb347bb8b7f0d1a2485c34e112a2a43d971d15dafc04ef2a6df2d4f",
+  "20260723000001_client_errors_frontend_observability.sql": "1e3d83c0d48d3f25dade256ec3ce5e76cbf7dab64a241ad240212534131e05c5",
+  "20260723000002_asset_node_rejection_reason.sql": "c63623462214eb26f3935ddbfbb2c4e9561c1f5e9ebcbfe86d1438744c7be606"
 }

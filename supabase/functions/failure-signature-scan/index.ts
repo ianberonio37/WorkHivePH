@@ -28,7 +28,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Pillar I (Gateway Spine): verify hive membership on the manual single-hive path.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
-import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
+import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt)
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -155,7 +155,10 @@ Given a pre-failure pattern detected on industrial equipment, write a 2-3 senten
 2. What the supervisor should do NOW (one specific action)
 Keep it practical. No jargon. No bullet points. Plain text only.`;
 
-async function generateAlertDetail(alert: ScanAlert): Promise<string> {
+// AI6 · agentic write accountability: returns WHO wrote the text, not just the text. The supervisor
+// reads alert_detail as "what to do NOW"; they deserve to know whether a model reasoned about their
+// equipment or a canned template fired. Callers persist this as failure_signature_alerts.detail_source.
+async function generateAlertDetail(alert: ScanAlert): Promise<{ detail: string; source: "ai" | "rule" }> {
   const prompt =
     `Equipment: ${alert.machine} (${alert.category})
 Pattern detected: ${alert.rule_id}
@@ -177,10 +180,10 @@ Severity: ${alert.severity}`;
       .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<think>[\s\S]*$/i, "")
       .trim();
-    if (!cleaned) return fallback;
-    return cleaned.slice(0, 500);
+    if (!cleaned) return { detail: fallback, source: "rule" };
+    return { detail: cleaned.slice(0, 500), source: "ai" };
   } catch {
-    return fallback;
+    return { detail: fallback, source: "rule" };
   }
 }
 
@@ -240,7 +243,7 @@ async function scanHive(
     if (r3) alerts.push(r3);
 
     for (const alert of alerts) {
-      const detail   = await generateAlertDetail(alert);
+      const { detail, source: detailSource } = await generateAlertDetail(alert);
       const expiresAt = new Date(now.getTime() + 14 * 86400000).toISOString();
 
       const row = {
@@ -250,6 +253,7 @@ async function scanHive(
         rule_id:         alert.rule_id,
         alert_title:     alert.alert_title,
         alert_detail:    detail,
+        detail_source:   detailSource,
         evidence:        alert.evidence,
         days_to_failure: alert.days_to_failure,
         severity:        alert.severity,
@@ -313,6 +317,18 @@ serveObserved("failure-signature-scan", async (req) => {
       }
       // Arc L free-tier B-hardening: per-hive AI cap so a member cannot spam this
       // generative scan and drain the hive's free-tier LLM budget.
+      // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+      // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+      // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+      // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+      // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+      // fail a real request.
+      try {
+        const _rq = await checkRouteRateLimit(db, String(body.hive_id || ""), "failure-signature-scan");
+        // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+        // a no-op until an admin sets a cap - while always counting for attribution.
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "failure-signature-scan", _rq.cap);
+      } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, String(body.hive_id));
       if (!_rl.allowed) return rateLimitedResponse(cors);
     }

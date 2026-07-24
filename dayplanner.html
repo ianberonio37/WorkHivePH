@@ -67,8 +67,8 @@
 
     /* View tabs */
     .view-tabs { display: flex; gap: 0.25rem; background: rgba(22,32,50,0.6); border-radius: 0.75rem; padding: 0.25rem; }
-    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.62); border: none; background: none; }
-    .view-tab:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.05); }
+    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color:rgba(255,255,255,0.80); border: none; background: none; }
+    .view-tab:hover { color:rgba(255,255,255,0.86); background: rgba(255,255,255,0.05); }
     .view-tab.active { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
 
     /* Mobile: stack tabs on second row */
@@ -114,7 +114,7 @@
 
     /* DILO: day timeline */
     .dilo-grid { display: grid; grid-template-columns: 56px 1fr; gap: 0; }
-    .time-label { font-size: 0.7rem; color: rgba(255,255,255,0.62); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
+    .time-label { font-size: 0.7rem; color:rgba(255,255,255,0.80); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
     .time-slot { border-top: 1px solid rgba(255,255,255,0.04); min-height: 56px; position: relative; cursor: pointer; transition: background 0.15s; }
     .time-slot:hover { background: rgba(247,162,27,0.04); }
     .time-slot.droptarget { background: rgba(247,162,27,0.08); border-color: rgba(247,162,27,0.2); }
@@ -133,22 +133,22 @@
 
     /* MILO: month grid */
     .milo-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.62); }
+    .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80); }
     .milo-cell { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: all 0.15s; position: relative; }
     .milo-cell:hover { border-color: rgba(247,162,27,0.2); background: linear-gradient(145deg, rgba(52,74,108,0.4) 0%, rgba(42,61,88,0.5) 100%); }
     .milo-cell.today { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 1px rgba(247,162,27,0.15); }
     .milo-cell.other-month { opacity: 0.35; }
     .milo-date { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
     .milo-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-    .milo-more { font-size: 0.6rem; color: rgba(255,255,255,0.62); margin-top: 2px; }
+    .milo-more { font-size: 0.6rem; color:rgba(255,255,255,0.80); margin-top: 2px; }
 
     /* YILO: year grid */
     .yilo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
     .yilo-month { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 0.75rem; }
-    .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color: rgba(255,255,255,0.7); }
+    .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color:rgba(255,255,255,0.83); }
     .yilo-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .yilo-mini-day-name { text-align: center; font-size: 0.55rem; color: rgba(255,255,255,0.62); padding: 1px 0; }
-    .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: rgba(255,255,255,0.62); cursor: pointer; transition: all 0.15s; position: relative; }
+    .yilo-mini-day-name { text-align: center; font-size: 0.55rem; color:rgba(255,255,255,0.80); padding: 1px 0; }
+    .yilo-mini-cell { aspect-ratio: 1; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color:rgba(255,255,255,0.80); cursor: pointer; transition: all 0.15s; position: relative; }
     .yilo-mini-cell:hover { background: rgba(247,162,27,0.15); color: white; }
     .yilo-mini-cell.today { background: var(--wh-orange); color: var(--wh-navy); font-weight: 700; border-radius: 50%; }
     .yilo-mini-cell.has-items { background: rgba(41,182,217,0.2); color: rgba(255,255,255,0.8); border-radius: 50%; }
@@ -159,10 +159,10 @@
     .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: var(--wh-radius-sm); padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
-    .btn-ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-ghost { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.4rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-ghost:hover { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:active { background: rgba(255,255,255,0.15); transform: scale(0.97); }
-    .btn-icon { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border-radius: 0.5rem; padding: 0.4rem; min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-icon { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); border-radius: 0.5rem; padding: 0.4rem; min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
     .btn-icon:hover { background: rgba(255,255,255,0.12); color: white; }
     .btn-icon:active { background: rgba(255,255,255,0.18); transform: scale(0.93); }
 
@@ -172,7 +172,7 @@
     .modal-box { background: linear-gradient(145deg, rgba(42,61,88,0.97) 0%, rgba(22,32,50,0.99) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
     .wh-input { background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius-sm); color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
+    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
     select.wh-input option { background: var(--wh-navy-mid); }
 
     /* Badge */
@@ -211,7 +211,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -219,9 +219,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #dp-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #dp-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #dp-summary-details.open { display:block; }
   </style>
 </head>
@@ -254,14 +254,14 @@
           <span class="ic ic-back" aria-hidden="true"></span>
         </button>
       </div>
-      <p id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:0.25rem">Click item then click a time slot to schedule</p>
+      <p id="sidebar-hint" style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.25rem">Click item then click a time slot to schedule</p>
       <div class="cap-bar-wrap" style="margin-top:6px">
         <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));width:0%"></div>
       </div>
-      <p id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.62);margin-top:2px">Loading...</p>
+      <p id="sidebar-count-label" style="font-size:0.6rem;color:rgba(255,255,255,0.80);margin-top:2px">Loading...</p>
     </div>
     <div class="sidebar-items" id="sidebar-items">
-      <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.62);font-size:0.75rem">
+      <div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.80);font-size:0.75rem">
         <span class="ic ic-refresh" aria-hidden="true"></span>
         Loading logbook...
       </div>
@@ -312,7 +312,7 @@
         </button>
       </div>
 
-      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.75);min-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
+      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.86);min-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
 
       <!-- Add schedule item -->
       <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap" data-i="addschedule">
@@ -368,7 +368,7 @@
         <li><strong>Overdue</strong>: items with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
         <li><strong>Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
     </div>
 
     <!-- Calendar content -->
@@ -384,34 +384,34 @@
   <div class="modal-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
       <h2 style="font-size:1rem;font-weight:700" id="modal-title" data-i="scheduleitem">Schedule Item</h2>
-      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.62);padding:0.25rem" aria-label="Close">
+      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:0.25rem" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
-        <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
+        <label for="m-title" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
         <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
         <div role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label for="m-date" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mdate">Date *</label>
+          <label for="m-date" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mdate">Date *</label>
           <input class="wh-input" id="m-date" type="date" oninput="document.getElementById('m-required-error').style.display='none'" />
         </div>
         <div>
-          <label for="m-start" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mstart">Start Time</label>
+          <label for="m-start" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mstart">Start Time</label>
           <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.min=s;if(e.value&&e.value<=s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
+          <label for="m-end" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
           <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
           <div role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.7rem;margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
-          <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="category">Category</label>
+          <label for="m-category" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="category">Category</label>
           <select class="wh-input" id="m-category" data-select-placeholder-allow="default 'PM' is the most common maintenance type">
             <option value="PM">Preventive Maintenance</option>
             <option value="CM">Corrective Maintenance</option>
@@ -424,14 +424,14 @@
         </div>
       </div>
       <div>
-        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:0.375rem" data-i="notes">Notes</label>
+        <label for="m-notes" style="font-size:0.75rem;color:rgba(255,255,255,0.80);display:block;margin-bottom:0.375rem" data-i="notes">Notes</label>
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->
       <div id="m-status-row" style="display:none;background:rgba(22,32,50,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;padding:0.75rem">
-        <div style="font-size:0.72rem;color:rgba(255,255,255,0.62);margin-bottom:0.5rem;font-weight:600">Item Status</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
-          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.7rem;font-weight:600;cursor:pointer">
+          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);font-size:0.7rem;font-weight:600;cursor:pointer">
             Upcoming
           </button>
           <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.7rem;font-weight:600;cursor:pointer">
@@ -669,6 +669,15 @@ async function syncItemToSupabase(item) {
   _dpLastLocalWrite = Date.now();
   try {
     const row = toDBRow(item);
+    // Y1b offline-capture: a brownout schedule save queues (upsert, keyPath = row.id so an
+    // offline re-edit replaces the pending item) and drains on reconnect — honest label,
+    // never a false success. The capture-contract check runs on the online path only (it
+    // needs the DB); the queued row is the same toDBRow shape the contract governs.
+    if (!navigator.onLine && window._whDpQueue && row.id) {
+      await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
+      showToast('Saved offline. Will sync when you reconnect.');
+      return;
+    }
     // Tier F capture contract — schedule_item_v1 runtime validation.
     if (window.whValidateCapture) {
       const vr = await window.whValidateCapture(db, 'schedule_item_v1', row);
@@ -679,15 +688,41 @@ async function syncItemToSupabase(item) {
       }
     }
     const { error } = await db.from('schedule_items').upsert(row);
-    if (error) { console.warn('Schedule sync failed:', error.message); showToast('Save failed: check your connection', 'error'); }
+    if (error) {
+      // network hiccup while nominally "online": queue it, don't lose the capture
+      if (window._whDpQueue && row.id && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
+        await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
+        showToast('Network issue: saved offline, will retry automatically.');
+        return;
+      }
+      console.warn('Schedule sync failed:', error.message); showToast('Save failed: check your connection', 'error');
+    }
   } catch(e) {
     console.warn('Schedule sync error:', e);
+    if (window._whDpQueue && item && item.id) {
+      try {
+        await window._whDpQueue.enqueue({ id: item.id, op: 'upsert', payload: toDBRow(item) });
+        showToast('Network issue: saved offline, will retry automatically.');
+        return;
+      } catch (_) { /* empty-catch-allow: fall through to the honest failure toast */ }
+    }
     showToast('Save failed: check your connection', 'error');
   }
 }
 
 async function deleteItemFromSupabase(id) {
   _dpLastLocalWrite = Date.now();
+  // Y1b offline-capture: an offline delete queues (op:'delete', match by id; the queue's
+  // identityKey adds the worker_name guard at drain) — same keyPath id as the item's own
+  // pending upsert, so deleting a never-synced offline item REPLACES its pending create
+  // with a delete (the drain's .eq(id) then no-ops harmlessly on the absent row).
+  if (!navigator.onLine && window._whDpQueue && id) {
+    try {
+      await window._whDpQueue.enqueue({ id, op: 'delete', match: { id } });
+      showToast('Deleted offline. Will sync when you reconnect.');
+      return;
+    } catch (_) { /* empty-catch-allow: fall through to the online attempt */ }
+  }
   try {
     const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
     if (error) { console.warn('Schedule delete failed:', error.message); showToast('Delete failed: check your connection', 'error'); }
@@ -767,7 +802,7 @@ function renderPlantWorkSection() {
         <div class="lb-dot" style="background:var(--wh-blue)"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(pm.item_text || 'PM task')}</div>
-          <div style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:1px">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:1px">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
         </div>
         ${badge}
       </div>
@@ -782,7 +817,7 @@ function renderPlantWorkSection() {
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
         <span class="ic ic-clock" aria-hidden="true"></span>
         <span style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.8)">Due from your plant</span>
-        <span style="font-size:0.6rem;color:rgba(255,255,255,0.62)">${plantWork.length} PM${plantWork.length!==1?'s':''}</span>
+        <span style="font-size:0.6rem;color:rgba(255,255,255,0.80)">${plantWork.length} PM${plantWork.length!==1?'s':''}</span>
       </div>
       ${cards}
     </div>`;
@@ -810,7 +845,7 @@ function renderSidebar() {
   bar.style.width = Math.min(100, total * 10) + '%';
 
   if (total === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.62);font-size:0.75rem">
+    container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.80);font-size:0.75rem">
       <span class="ic ic-check" aria-hidden="true"></span>
       No open items</div>` + renderPlantWorkSection();
     return;
@@ -835,7 +870,7 @@ function renderSidebar() {
       schedBadge = `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">
         <span class="ic ic-back" aria-hidden="true"></span>Missed</span>`;
     } else if (hasLinked) {
-      schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.3)">
+      schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.3)">
         <span class="ic ic-back" aria-hidden="true"></span>Scheduled</span>`;
     }
 
@@ -848,7 +883,7 @@ function renderSidebar() {
         <div class="lb-dot" style="background:${c.text}"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
-          <div style="font-size:0.65rem;color:rgba(255,255,255,0.62);margin-top:1px">${escHtml(item.date) || ''} &bull; ${escHtml(item.category) || ''}</div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:1px">${escHtml(item.date) || ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
           ${schedBadge}
@@ -856,12 +891,12 @@ function renderSidebar() {
         </div>
       </div>
       <div class="lb-card-body" id="lbc-body-${item.id}">
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.55);margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.5rem">
           <span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${escHtml(item.category)}</span>
-          <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.62)">${escHtml(item.status) || 'Open'}</span>
+          <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.80)">${escHtml(item.status) || 'Open'}</span>
         </div>
-        ${linked.length ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.62);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
+        ${linked.length ? `<div style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
         <button class="btn-ghost" style="width:100%;font-size:0.72rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')">
           + Place on Schedule
         </button>
@@ -1137,11 +1172,11 @@ function renderDILO() {
   const capColor = capPct > 85 ? '#f87171' : capPct > 60 ? '#F7A21B' : '#4ade80';
 
   let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">DILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Day In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">DILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Day In the Life Of</span>
     <span style="flex:1"></span>
     <div style="display:flex;align-items:center;gap:0.5rem">
-      <span style="font-size:0.7rem;color:rgba(255,255,255,0.62)">Capacity</span>
+      <span style="font-size:0.7rem;color:rgba(255,255,255,0.80)">Capacity</span>
       <div style="width:80px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
         <div style="width:${capPct}%;height:100%;background:${capColor};border-radius:3px"></div>
       </div>
@@ -1177,7 +1212,7 @@ function renderDILO() {
   html += `<div style="position:relative;height:${totalH}px">`;
   for (let h = 0; h < 24; h++) {
     const label = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
-    html += `<div style="position:absolute;top:${h * SLOT_H - 8}px;right:8px;font-size:0.68rem;color:rgba(255,255,255,0.62);line-height:1;white-space:nowrap">${label}</div>`;
+    html += `<div style="position:absolute;top:${h * SLOT_H - 8}px;right:8px;font-size:0.68rem;color:rgba(255,255,255,0.80);line-height:1;white-space:nowrap">${label}</div>`;
   }
   html += `</div>`;
 
@@ -1286,12 +1321,12 @@ function renderWILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">WILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Week In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">WILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Week In the Life Of</span>
   </div>`;
 
   html += `<div class="wilo-grid" style="position:sticky;top:0;z-index:3">
-    <div class="wilo-day-header" style="font-size:0.65rem;color:rgba(255,255,255,0.62)">Time</div>`;
+    <div class="wilo-day-header" style="font-size:0.65rem;color:rgba(255,255,255,0.80)">Time</div>`;
   days.forEach(day => {
     const isToday = toYMD(day) === todayStr;
     const ymd = toYMD(day);
@@ -1312,7 +1347,7 @@ function renderWILO() {
   html += `<div style="position:relative;height:${totalH}px;border-right:1px solid rgba(255,255,255,0.05)">`;
   for (let h = 0; h < 24; h++) {
     const label = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
-    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.62rem;color:rgba(255,255,255,0.62);white-space:nowrap;line-height:1">${label}</div>`;
+    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.62rem;color:rgba(255,255,255,0.80);white-space:nowrap;line-height:1">${label}</div>`;
   }
   html += `</div>`;
 
@@ -1396,8 +1431,8 @@ function renderMILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">MILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Month In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">MILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Month In the Life Of</span>
   </div>`;
 
   html += `<div class="milo-grid">`;
@@ -1409,7 +1444,7 @@ function renderMILO() {
     const ymd = toYMD(prevDate);
     const dayItems = itemsOnDate(ymd);
     html += `<div class="milo-cell other-month" onclick="onMiloClick('${ymd}')">
-      <div class="milo-date" style="color:rgba(255,255,255,0.62)">${prevDate.getDate()}</div>
+      <div class="milo-date" style="color:rgba(255,255,255,0.80)">${prevDate.getDate()}</div>
     </div>`;
   }
 
@@ -1438,7 +1473,7 @@ function renderMILO() {
   for (let i = 1; i <= remainder; i++) {
     const date = new Date(y, m+1, i);
     html += `<div class="milo-cell other-month" onclick="onMiloClick('${toYMD(date)}')">
-      <div class="milo-date" style="color:rgba(255,255,255,0.62)">${i}</div>
+      <div class="milo-date" style="color:rgba(255,255,255,0.80)">${i}</div>
     </div>`;
   }
 
@@ -1464,8 +1499,8 @@ function renderYILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.62);letter-spacing:0.1em">YILO</span>
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">Year In the Life Of</span>
+    <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">YILO</span>
+    <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Year In the Life Of</span>
   </div>`;
 
   const now = new Date();
@@ -1713,6 +1748,11 @@ document.addEventListener('keydown', e => {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
 <script src="utils.js"></script>
 <script src="wh-capture-validate.js"></script>
+<!-- Y1b (2026-07-23): offline-queue.js MUST load BEFORE the init IIFE below, not deferred at
+     page-end — dayplanner inits via an immediate async IIFE (unlike asset-hub's DOMContentLoaded
+     handler), so a deferred queue script loses the race and the wiring's `if (window.whCreateQueue)`
+     reads undefined. Loading it here (sync, pre-init) makes whCreateQueue available at wire time. -->
+<script src="offline-queue.js"></script>
 <script>
   // supabase-js is now loaded: safe to init
   var db = getDb(
@@ -1740,6 +1780,19 @@ document.addEventListener('keydown', e => {
           'Logbook context: recent job history cross-referenced with schedule',
         ],
       });
+    }
+    // Y1b adoption (2026-07-23, Arc S D-001 sibling): wire the SHARED offline write queue
+    // for schedule captures — an offline add/edit/delete queues (upsert = idempotent via the
+    // client-stable item.id keyPath) and drains on reconnect. Before this, an offline save
+    // survived only in memory and was LOST on refresh (loadSchedule reads DB-only).
+    if (window.whCreateQueue) {
+      window._whDpQueue = window.whCreateQueue({
+        db: 'wh_dayplanner_offline', table: 'schedule_items',
+        identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+        postSync: () => { try { loadSchedule(); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
+      });
+      window.whRegisterQueue('dayplanner', window._whDpQueue);
+      window._whDpQueue.startAutoSync(db);
     }
     // E2 consistent states: skeleton in the logbook sidebar while it fetches so
     // #sidebar-items never flashes blank before open items render (shared whListSkeleton).
@@ -1819,7 +1872,8 @@ document.addEventListener('keydown', e => {
   .dp-slot:focus-visible { outline:2px solid var(--wh-orange); outline-offset:-2px; background:rgba(247,162,27,0.06); }
 </style>
   <script src="offline-banner.js"></script>
-  <script defer src="offline-queue.js"></script>
+  <!-- offline-queue.js moved above the init IIFE (Y1b load-order fix) — guarded IIFE, no double-run -->
+
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
@@ -1827,8 +1881,8 @@ document.addEventListener('keydown', e => {
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

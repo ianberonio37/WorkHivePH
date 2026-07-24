@@ -2,11 +2,11 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: a0c371737eb5341d
+source_sha: d36ea007dbccb28c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (145 foreign keys)
+## fk · relational-integrity graph (146 foreign keys)
 
 **UNINDEXED FK columns (21)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
@@ -31,7 +31,7 @@ supersedes: null
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (95)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (96)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`
@@ -55,6 +55,7 @@ supersedes: null
 - `bom_knowledge`.`hive_id` -> `hives`
 - `calc_knowledge`.`hive_id` -> `hives`
 - `canonical_period_summaries`.`hive_id` -> `hives`
+- `client_errors`.`hive_id` -> `hives`
 - `cmms_audit_log`.`hive_id` -> `hives`
 - `community_posts`.`hive_id` -> `hives`
 - `community_reactions`.`post_id` -> `community_posts`
@@ -71,6 +72,5 @@ supersedes: null
 - `hive_benchmarks`.`hive_id` -> `hives`
 - `hive_members`.`hive_id` -> `hives`
 - `hive_quotas`.`hive_id` -> `hives`
-- `hive_readiness`.`hive_id` -> `hives`
 
 Links: [[reference_pm_knowledge_fk_100pct_broken]] [[reference_logbook_asset_linkage_undercount]]

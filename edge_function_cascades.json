@@ -1,12 +1,12 @@
 {
   "_doc": "Deterministic edge-function cross-table WRITE map (Phase A residual-closer of INTERACTIVE_LINEAGE_ROADMAP). Parsed from each function's index.ts `.from(T).insert/upsert/update/delete`. disposition: data_mapped/data_unmapped (displayed table -> must be in causal_cascades.json) | operational (job/audit log) | self_config | infra (no display page).",
   "totals": {
-    "edge_fns_with_writes": 31,
+    "edge_fns_with_writes": 30,
     "data_cascades_mapped": 21,
     "data_cascades_UNMAPPED": 1,
     "operational_log_writes": 14,
     "self_config_writes": 2,
-    "infra_writes": 11
+    "infra_writes": 8
   },
   "data_cascades_unmapped": [
     {
@@ -103,8 +103,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1091,
-          "evidence": "functions/analytics-orchestrator/index.ts:1091",
+          "line": 1179,
+          "evidence": "functions/analytics-orchestrator/index.ts:1179",
           "downstream_pages": [
             "analytics"
           ],
@@ -112,6 +112,7 @@
         }
       ],
       "reads": [
+        "analytics_snapshots",
         "engineering_calcs",
         "pm_assets",
         "pm_completions",
@@ -135,8 +136,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "asset_risk_scores",
-          "line": 417,
-          "evidence": "functions/batch-risk-scoring/index.ts:417",
+          "line": 429,
+          "evidence": "functions/batch-risk-scoring/index.ts:429",
           "downstream_pages": [
             "alert-hub",
             "asset-hub"
@@ -146,8 +147,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "automation_log",
-          "line": 104,
-          "evidence": "functions/batch-risk-scoring/index.ts:104",
+          "line": 116,
+          "evidence": "functions/batch-risk-scoring/index.ts:116",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -254,8 +255,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "automation_log",
-          "line": 403,
-          "evidence": "functions/cmms-sync/index.ts:403",
+          "line": 407,
+          "evidence": "functions/cmms-sync/index.ts:407",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -264,8 +265,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "cmms_audit_log",
-          "line": 411,
-          "evidence": "functions/cmms-sync/index.ts:411",
+          "line": 415,
+          "evidence": "functions/cmms-sync/index.ts:415",
           "downstream_pages": [
             "integrations"
           ],
@@ -287,10 +288,9 @@
         {
           "fn": "cmms-sync",
           "to_table": "fault_knowledge",
-          "line": 271,
-          "evidence": "functions/cmms-sync/index.ts:271",
+          "line": 275,
+          "evidence": "functions/cmms-sync/index.ts:275",
           "downstream_pages": [
-            "integrations",
             "logbook"
           ],
           "disposition": "data_mapped"
@@ -298,8 +298,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "integration_configs",
-          "line": 394,
-          "evidence": "functions/cmms-sync/index.ts:394",
+          "line": 398,
+          "evidence": "functions/cmms-sync/index.ts:398",
           "downstream_pages": [
             "integrations",
             "plant-connections"
@@ -443,8 +443,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 349,
-          "evidence": "functions/failure-signature-scan/index.ts:349",
+          "line": 365,
+          "evidence": "functions/failure-signature-scan/index.ts:365",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -453,8 +453,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "failure_signature_alerts",
-          "line": 263,
-          "evidence": "functions/failure-signature-scan/index.ts:263",
+          "line": 267,
+          "evidence": "functions/failure-signature-scan/index.ts:267",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -469,17 +469,9 @@
       "writes": [
         {
           "fn": "fmea-populator",
-          "to_table": "ai_rate_limits",
-          "line": 106,
-          "evidence": "functions/fmea-populator/index.ts:106",
-          "downstream_pages": [],
-          "disposition": "infra"
-        },
-        {
-          "fn": "fmea-populator",
           "to_table": "rcm_fmea_modes",
-          "line": 382,
-          "evidence": "functions/fmea-populator/index.ts:382",
+          "line": 385,
+          "evidence": "functions/fmea-populator/index.ts:385",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -487,7 +479,6 @@
         }
       ],
       "reads": [
-        "ai_rate_limits",
         "rcm_fmea_modes",
         "v_asset_truth",
         "v_logbook_truth"
@@ -691,8 +682,8 @@
         {
           "fn": "semantic-fact-extractor",
           "to_table": "knowledge_graph_facts",
-          "line": 283,
-          "evidence": "functions/semantic-fact-extractor/index.ts:283",
+          "line": 295,
+          "evidence": "functions/semantic-fact-extractor/index.ts:295",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -839,48 +830,21 @@
       "writes": [
         {
           "fn": "visual-defect-capture",
-          "to_table": "ai_rate_limits",
-          "line": 150,
-          "evidence": "functions/visual-defect-capture/index.ts:150",
-          "downstream_pages": [],
-          "disposition": "infra"
-        },
-        {
-          "fn": "visual-defect-capture",
           "to_table": "fault_knowledge",
-          "line": 426,
-          "evidence": "functions/visual-defect-capture/index.ts:426",
+          "line": 428,
+          "evidence": "functions/visual-defect-capture/index.ts:428",
           "downstream_pages": [
-            "integrations",
             "logbook"
           ],
           "disposition": "data_mapped"
         }
       ],
       "reads": [
-        "ai_rate_limits",
         "v_asset_truth"
       ],
       "invoked_by_pages": [
         "logbook"
       ]
-    },
-    "voice-action-router": {
-      "writes": [
-        {
-          "fn": "voice-action-router",
-          "to_table": "ai_rate_limits",
-          "line": 176,
-          "evidence": "functions/voice-action-router/index.ts:176",
-          "downstream_pages": [],
-          "disposition": "infra"
-        }
-      ],
-      "reads": [
-        "ai_rate_limits",
-        "v_asset_truth"
-      ],
-      "invoked_by_pages": []
     },
     "weibull-fitter": {
       "writes": [

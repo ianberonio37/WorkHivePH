@@ -268,6 +268,10 @@ async function syncConfig(
       if (error) log.warn(null, "logbook insert error:", { detail: error.message });
     }
     if (newFkRows.length) {
+      // AI6: fault_knowledge.source defaults to 'manual' (a human wrote it). These rows came from
+      // an EXTERNAL CMMS, not from a WorkHive human, so stamp them explicitly - otherwise the
+      // default would launder imported records as first-party field experience in RAG + reports.
+      for (const r of newFkRows) r.source = "cmms_import";
       const { error } = await db.from("fault_knowledge").insert(newFkRows);
       if (error) log.warn(null, "fault_knowledge insert error:", { detail: error.message });
     }

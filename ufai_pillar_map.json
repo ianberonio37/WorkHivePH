@@ -1,0 +1,5229 @@
+{
+ "summary": {
+  "pillars": {
+   "U": 100,
+   "F": 100,
+   "A": 100,
+   "I": 100
+  },
+  "shallow_cells": 0,
+  "pages": 32,
+  "gate_owned_sublayers": [
+   "A5_extensibility",
+   "F2_correctness",
+   "F5_round_trip",
+   "I1_auth_gating",
+   "I2_role_permission",
+   "I3_tenancy_isolation",
+   "I5_auditability"
+  ]
+ },
+ "shallow": [],
+ "pages": {
+  "analytics.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "pm-scheduler.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "asset-hub.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "skillmatrix.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "hive.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "project-manager.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "index.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "marketplace.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 95,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z1",
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1",
+     "X3"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 67,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": 100,
+    "dims": [
+     "Z1"
+    ]
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "shift-brain.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1",
+     "X3"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "inventory.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "dayplanner.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "report-sender.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "alert-hub.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "logbook.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "T6",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "community.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1",
+     "RE1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "assistant.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "engineering-design.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "achievements.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "voice-journal.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "integrations.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": 100,
+    "dims": [
+     "D1"
+    ]
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "plant-connections.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "ai-quality.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "project-report.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2",
+     "PP2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": 100,
+    "dims": [
+     "AI4"
+    ]
+   }
+  },
+  "marketplace-seller.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z1",
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": 100,
+    "dims": [
+     "Z1"
+    ]
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "marketplace-admin.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": 100,
+    "dims": [
+     "Y2"
+    ]
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "agentic-rag-observability.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "audit-log.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "marketplace-seller-profile.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "C4",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "public-feed.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1",
+     "RE1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "status.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "PP1",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "ph-intelligence.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3",
+     "T3",
+     "T8"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "D2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "N1",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R1",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "T1",
+     "T2",
+     "T4",
+     "T5",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "X1",
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": 100,
+    "dims": [
+     "W1"
+    ]
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2",
+     "Y1",
+     "X1"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": 100,
+    "dims": [
+     "Y1"
+    ]
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  },
+  "promo-poster.html": {
+   "U1_recognizability": {
+    "pct": 100,
+    "dims": [
+     "A1",
+     "A2"
+    ]
+   },
+   "U2_operability": {
+    "pct": 100,
+    "dims": [
+     "Z3"
+    ]
+   },
+   "U3_status_feedback": {
+    "pct": 100,
+    "dims": [
+     "E2"
+    ]
+   },
+   "U4_error_protection": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "U5_inclusivity_a11y": {
+    "pct": 100,
+    "dims": [
+     "C2",
+     "B5"
+    ]
+   },
+   "U6_consistency": {
+    "pct": 100,
+    "dims": [
+     "S1",
+     "D3",
+     "G4",
+     "R3",
+     "C1",
+     "V1"
+    ]
+   },
+   "U7_mobile_field": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "F1",
+     "K2"
+    ]
+   },
+   "F1_completeness": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F2_correctness": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F3_appropriateness": {
+    "pct": 100,
+    "dims": [
+     "E4"
+    ]
+   },
+   "F4_nav_flow": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "F5_round_trip": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "F6_degraded_states": {
+    "pct": 100,
+    "dims": [
+     "E2"
+    ]
+   },
+   "A1_responsive": {
+    "pct": 100,
+    "dims": [
+     "Z2",
+     "I1"
+    ]
+   },
+   "A2_component_ds": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A3_configurability": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A4_state_mgmt": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "A5_extensibility": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "A6_offline_pwa": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I1_auth_gating": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I2_role_permission": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I3_tenancy_isolation": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I4_client_validation": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   },
+   "I5_auditability": {
+    "pct": null,
+    "dims": [],
+    "owner": "gate"
+   },
+   "I6_safe_by_default": {
+    "pct": null,
+    "dims": [],
+    "owner": "na-on-page"
+   }
+  }
+ }
+}

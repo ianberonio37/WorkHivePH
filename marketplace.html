@@ -121,7 +121,7 @@
     }
     .trust-item {
       display: flex; align-items: center; gap: 0.35rem;
-      font-size: 0.72rem; color: var(--wh-blue);
+      font-size: 0.72rem; color:var(--wh-blue-text);
     }
     .trust-item.right { margin-left: auto; }
 
@@ -224,7 +224,7 @@
       position: absolute; bottom: 0.5rem; right: 0.5rem;
       background: rgba(15,25,35,0.9); border: 1px solid rgba(247,162,27,0.3);
       border-radius: 999px; padding: 0.25rem 0.6rem;
-      font-size: 0.75rem; font-weight: 700; color: var(--wh-orange);
+      font-size: 0.75rem; font-weight: 700; color:var(--wh-orange-text);
     }
 
     /* Compare-mode selection visual */
@@ -280,15 +280,15 @@
       width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
       background: rgba(247,162,27,0.2); border: 1px solid rgba(247,162,27,0.3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.6rem; font-weight: 700; color: var(--wh-orange);
+      font-size: 0.6rem; font-weight: 700; color:var(--wh-orange-text);
     }
     .seller-name { font-size: 0.7rem; color: #9aa6b3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
-    .stars { color: var(--wh-orange); font-size: 0.7rem; letter-spacing: -1px; }
+    .stars { color:var(--wh-orange-text); font-size: 0.7rem; letter-spacing: -1px; }
     .rating-val { font-size: 0.7rem; color: #9aa6b3; }
     .btn-view {
       padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; min-height: 44px; /* D1 U2: gloved-field tap target */
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
-      color: var(--wh-orange); font-size: 0.72rem; font-weight: 600;
+      color:var(--wh-orange-text); font-size: 0.72rem; font-weight: 600;
       font-family: 'Poppins', sans-serif; white-space: nowrap;
       transition: background 0.15s;
     }
@@ -466,7 +466,7 @@
     .info-notice {
       background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.15);
       border-radius: 0.625rem; padding: 0.625rem 0.875rem;
-      font-size: 0.75rem; color: var(--wh-blue); margin-bottom: 1rem;
+      font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom: 1rem;
       display: flex; align-items: flex-start; gap: 0.5rem;
     }
     .info-notice svg { flex-shrink: 0; margin-top: 1px; }
@@ -489,7 +489,7 @@
     .btn-load-more {
       padding: 0.65rem 2rem; border-radius: 0.625rem; cursor: pointer;
       background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.25);
-      color: var(--wh-orange); font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
+      color:var(--wh-orange-text); font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
       display: inline-flex; align-items: center; gap: 0.5rem; transition: background 0.15s;
     }
     .btn-load-more:hover:not(:disabled) { background: rgba(247,162,27,0.16); }
@@ -508,7 +508,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -516,9 +516,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
+    #mk-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #mk-summary-details.open { display:block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -585,7 +585,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <li><strong>Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
       <li><strong>Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
     </ul>
-    <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
+    <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
   </div>
 
   <!-- Section tabs -->
@@ -634,7 +634,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span data-i="searches">Searches</span>
       <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:var(--wh-orange);color:#1a1a1a;font-size:0.6rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
     </button>
-    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
+    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <span class="ic ic-list" aria-hidden="true"></span>
       My Listings
     </a>
@@ -677,12 +677,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        part number matches what this hive stocks (the marketplace analog of Community "my people"). -->
   <section id="parts-for-assets" style="display:none;margin:0.25rem 0 0.85rem;" aria-label="Parts for your assets">
     <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:0.45rem;flex-wrap:wrap;">
-      <span style="font-size:0.82rem;font-weight:700;color:var(--wh-blue);">Parts for your assets</span>
+      <span style="font-size:0.82rem;font-weight:700;color:var(--wh-blue-text);">Parts for your assets</span>
       <span style="font-size:0.68rem;color:#9aa6b3;">listed by other plants, matched to what you stock</span>
     </div>
     <div id="parts-for-assets-rail" role="list" style="display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.35rem;"></div>
   </section>
 
+  <!-- U5 heading-order (§11 deepwalk): the H3 listing-card titles sat under H1 with no H2 (a WCAG
+       heading-level skip). A screen-reader H2 section heading restores H1→H2→H3 without a visual change. -->
+  <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Marketplace listings</h2>
   <!-- Listings count -->
   <div class="listings-info" id="listings-info"></div>
 
@@ -773,7 +776,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
         <label class="form-label" for="post-desc" style="margin:0;" data-i="description">Description</label>
         <button type="button" id="post-ai-assist" aria-label="Suggest a category and description with AI"
-          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
+          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
           <span aria-hidden="true">✨</span><span id="post-ai-assist-label" data-i="aiassist">AI assist</span>
         </button>
       </div>
@@ -784,7 +787,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="form-group">
         <label class="form-label" for="post-price" data-i="priceph">Price (PHP)</label>
         <input class="wh-input" type="number" id="post-price" placeholder="Leave blank if negotiable" min="0" step="0.01" />
-        <div id="post-price-hint" style="font-size:0.7rem;color:var(--wh-blue);margin-top:0.3rem;display:none;"></div>
+        <div id="post-price-hint" style="font-size:0.7rem;color:var(--wh-blue-text);margin-top:0.3rem;display:none;"></div>
       </div>
       <div class="form-group">
         <label class="form-label" for="post-location" data-i="location">Location</label>
@@ -793,7 +796,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="form-group">
       <label class="form-label" for="post-contact" data-i="contact">Contact (phone or email)</label>
-      <input class="wh-input" type="text" id="post-contact" placeholder="09XX-XXX-XXXX or email@domain.com" maxlength="200">
+      <input class="wh-input" type="text" id="post-contact" autocomplete="tel" placeholder="09XX-XXX-XXXX or email@domain.com" maxlength="200">
     </div>
 
     <!-- Image picker — single photo, compressed client-side before upload -->
@@ -871,11 +874,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="form-group">
       <label class="form-label" for="inq-name" data-i="yourname">Your Name</label>
-      <input class="wh-input" type="text" id="inq-name" placeholder="Full name" required maxlength="120">
+      <input class="wh-input" type="text" id="inq-name" autocomplete="name" placeholder="Full name" required maxlength="120">
     </div>
     <div class="form-group">
       <label class="form-label" for="inq-contact" data-i="yourcontact">Your Contact (phone or email)</label>
-      <input class="wh-input" type="text" id="inq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required maxlength="200">
+      <input class="wh-input" type="text" id="inq-contact" autocomplete="tel" placeholder="09XX-XXX-XXXX or email@domain.com" required maxlength="200">
     </div>
     <div class="form-group">
       <label class="form-label" for="inq-message" data-i="message">Message</label>
@@ -904,13 +907,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Save current panel — only shown when at least one filter is active -->
   <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
-    <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue);">Save current search</div>
+    <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue-text);">Save current search</div>
     <div id="save-current-summary" style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
     </div>
     <div class="form-group" style="margin-bottom:0.625rem;">
-      <input aria-label="Email for future alerts (optional)" class="wh-input" type="email" id="save-search-email" placeholder="Email for future alerts (optional)" style="font-size:1rem;" />
+      <input aria-label="Email for future alerts (optional)" class="wh-input" type="email" id="save-search-email" autocomplete="email" placeholder="Email for future alerts (optional)" style="font-size:1rem;" />
     </div>
     <button id="btn-save-current-search" class="btn-primary" style="font-size:0.85rem;" data-i="savesearch">Save Search</button>
   </div>
@@ -942,11 +945,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="form-group">
       <label class="form-label" for="rfq-name" data-i="yourname">Your Name</label>
-      <input class="wh-input" type="text" id="rfq-name" placeholder="Full name" required style="font-size:1rem;" maxlength="120">
+      <input class="wh-input" type="text" id="rfq-name" autocomplete="name" placeholder="Full name" required style="font-size:1rem;" maxlength="120">
     </div>
     <div class="form-group">
       <label class="form-label" for="rfq-contact" data-i="yourcontact">Your Contact (phone or email)</label>
-      <input class="wh-input" type="text" id="rfq-contact" placeholder="09XX-XXX-XXXX or email@domain.com" required style="font-size:1rem;" maxlength="200">
+      <input class="wh-input" type="text" id="rfq-contact" autocomplete="tel" placeholder="09XX-XXX-XXXX or email@domain.com" required style="font-size:1rem;" maxlength="200">
     </div>
     <div class="form-group">
       <label class="form-label" for="rfq-message" data-i="quoterequest">Quote Request</label>
@@ -1420,7 +1423,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
               <button class="btn-delete-search" data-id="${e(s.id)}"
                 style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Delete</button>
             </div>
@@ -1666,7 +1669,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 ${removed ? `<br><span style="color:var(--wh-red);">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
                 <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;">Remove</button>
               </div>
             </div>
@@ -2166,7 +2169,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="detail-section">
         <div class="detail-section-label" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Seller</span>
-          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue);text-decoration:none;font-weight:600;">View profile →</a>
+          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;">View profile →</a>
         </div>
         <div class="seller-card">
           <div style="flex-shrink:0;padding-bottom:${(_sellerTiers[item.seller_name]||0)>0?'10px':'0'}">${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 42)}</div>
@@ -2203,11 +2206,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                   out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
                 }
                 if (isTopRated) {
-                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+                  out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
                 }
                 // X-axis: community authority vouches for a seller (esp. one with few ratings — cold-start trust)
                 if (sellerRep && (sellerRep.is_voice_of_hive || sellerRep.trust_tier === 'top_contributor')) {
-                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
+                  out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
                 }
                 if (!out.length) {
                   out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#9aa6b3;">Unverified</span>`);
@@ -2236,7 +2239,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           Received this? Add to your inventory
         </button>` : ''}
       ${sellerProfile?.messenger_username
-        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
+        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
             <span class="ic ic-message" aria-hidden="true"></span>
             Message on Messenger
           </a>`
@@ -2385,7 +2388,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       rail.innerHTML = rows.map(r => `
         <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
           style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:0.6rem;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
-          <div style="font-size:0.62rem;font-weight:700;color:var(--wh-blue);font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
+          <div style="font-size:0.62rem;font-weight:700;color:var(--wh-blue-text);font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
           <div style="font-size:0.68rem;color:#9aa6b3;">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
         </button>`).join('');

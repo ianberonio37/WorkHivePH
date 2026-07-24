@@ -3,11 +3,120 @@
     "format_version": "1.0",
     "description": "C4 Phase 2a — sidecar mapping from seam_id -> contract_test path. Read by tools/mine_ai_seams.py to attach a `contract_test:` field to each seam. Validator validate_ai_seam_coverage.py ratchets forward-only on the count of seams without a contract test. Empty today (every contract is unwritten); each new entry pays the gap down by 1.",
     "schema": {
-      "seam_id":      "string (matches the catalog's id field exactly: 'saas→ai/<caller>→<callee>' etc.)",
-      "contract_test":"string (path to the Playwright spec or unit test exercising this seam's wire format)",
-      "note":         "string|null (why this test covers this seam)"
+      "seam_id": "string (matches the catalog's id field exactly: 'saas→ai/<caller>→<callee>' etc.)",
+      "contract_test": "string (path to the Playwright spec or unit test exercising this seam's wire format)",
+      "note": "string|null (why this test covers this seam)"
     },
     "policy": "A 'contract test' here means a test that pins the WIRE FORMAT between caller and callee (request body shape, response envelope, error codes, hive_id propagation, rate-limit fields). Journey tests that incidentally invoke the seam don't qualify — contract tests must FAIL if the format changes silently."
   },
-  "contracts": {}
+  "contracts": {
+    "ai→quota/fmea-populator→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the wire format of _shared/rate-limit.ts for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, and that the caller reads no field the callee does not return + has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/visual-defect-capture→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the wire format of _shared/rate-limit.ts for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, and that the caller reads no field the callee does not return + has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/voice-action-router→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the wire format of _shared/rate-limit.ts for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, and that the caller reads no field the callee does not return + has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/ai-eval-runner→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/ai-gateway→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/ai-orchestrator→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/amc-orchestrator→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/analytics-orchestrator→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/asset-brain-query→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/batch-risk-scoring→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/embed-entry→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/engineering-bom-sow→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/engineering-calc-agent→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/equipment-label-ocr→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/failure-signature-scan→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/hierarchical-summarizer→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/intelligence-report→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/project-orchestrator→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/scheduled-agents→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/semantic-fact-extractor→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/shift-planner-orchestrator→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/voice-embeddings→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/voice-journal-agent→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/voice-logbook-entry→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/voice-report-intent→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/voice-semantic-rag→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    "ai→quota/walkthrough-analyzer→rate-limit": {
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    }
+  }
 }

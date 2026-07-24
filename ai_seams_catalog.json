@@ -2,18 +2,18 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-07-23T04:05:47Z",
-    "seam_count": 174,
+    "generated_at": "2026-07-24T02:02:25Z",
+    "seam_count": 177,
     "by_kind": {
       "saas\u2192ai": 40,
       "ai\u2192ai": 1,
       "ai\u2192tenant": 86,
-      "ai\u2192quota": 47
+      "ai\u2192quota": 50
     },
     "ai_fn_count": 33,
     "contracts": {
-      "covered": 0,
-      "uncovered": 174
+      "covered": 27,
+      "uncovered": 150
     }
   },
   "ai_fns": [
@@ -90,7 +90,8 @@
       "file": "supabase/functions/ai-eval-runner/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/ai-gateway\u2192cost-log",
@@ -110,7 +111,8 @@
       "file": "supabase/functions/ai-gateway/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/ai-orchestrator\u2192cost-log",
@@ -130,7 +132,8 @@
       "file": "supabase/functions/ai-orchestrator/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/amc-orchestrator\u2192cost-log",
@@ -150,7 +153,8 @@
       "file": "supabase/functions/amc-orchestrator/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/analytics-orchestrator\u2192cost-log",
@@ -170,7 +174,8 @@
       "file": "supabase/functions/analytics-orchestrator/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/asset-brain-query\u2192cost-log",
@@ -190,7 +195,8 @@
       "file": "supabase/functions/asset-brain-query/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/batch-risk-scoring\u2192rate-limit",
@@ -200,7 +206,8 @@
       "file": "supabase/functions/batch-risk-scoring/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/embed-entry\u2192rate-limit",
@@ -210,7 +217,8 @@
       "file": "supabase/functions/embed-entry/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/engineering-bom-sow\u2192cost-log",
@@ -230,7 +238,8 @@
       "file": "supabase/functions/engineering-bom-sow/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/engineering-calc-agent\u2192cost-log",
@@ -250,7 +259,8 @@
       "file": "supabase/functions/engineering-calc-agent/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/equipment-label-ocr\u2192rate-limit",
@@ -260,7 +270,8 @@
       "file": "supabase/functions/equipment-label-ocr/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/failure-signature-scan\u2192cost-log",
@@ -280,7 +291,8 @@
       "file": "supabase/functions/failure-signature-scan/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/fmea-populator\u2192cost-log",
@@ -291,6 +303,17 @@
       "line": 0,
       "evidence": "imports cost-log helper",
       "contract_test": null
+    },
+    {
+      "id": "ai\u2192quota/fmea-populator\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "fmea-populator",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/fmea-populator/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the wire format of _shared/rate-limit.ts for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, and that the caller reads no field the callee does not return + has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/hierarchical-summarizer\u2192cost-log",
@@ -310,7 +333,8 @@
       "file": "supabase/functions/hierarchical-summarizer/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/intelligence-report\u2192cost-log",
@@ -330,7 +354,8 @@
       "file": "supabase/functions/intelligence-report/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/project-orchestrator\u2192cost-log",
@@ -350,7 +375,8 @@
       "file": "supabase/functions/project-orchestrator/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/scheduled-agents\u2192cost-log",
@@ -370,7 +396,8 @@
       "file": "supabase/functions/scheduled-agents/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/semantic-fact-extractor\u2192cost-log",
@@ -390,7 +417,8 @@
       "file": "supabase/functions/semantic-fact-extractor/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/shift-planner-orchestrator\u2192cost-log",
@@ -410,7 +438,8 @@
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/temporal-rag-orchestrator\u2192cost-log",
@@ -433,6 +462,17 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/visual-defect-capture\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "visual-defect-capture",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/visual-defect-capture/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the wire format of _shared/rate-limit.ts for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, and that the caller reads no field the callee does not return + has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    {
       "id": "ai\u2192quota/voice-action-router\u2192cost-log",
       "kind": "ai\u2192quota",
       "caller": "voice-action-router",
@@ -443,6 +483,17 @@
       "contract_test": null
     },
     {
+      "id": "ai\u2192quota/voice-action-router\u2192rate-limit",
+      "kind": "ai\u2192quota",
+      "caller": "voice-action-router",
+      "callee": "_shared/rate-limit.ts",
+      "file": "supabase/functions/voice-action-router/index.ts",
+      "line": 0,
+      "evidence": "imports rate-limit helper",
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the wire format of _shared/rate-limit.ts for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, and that the caller reads no field the callee does not return + has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
+    },
+    {
       "id": "ai\u2192quota/voice-embeddings\u2192rate-limit",
       "kind": "ai\u2192quota",
       "caller": "voice-embeddings",
@@ -450,7 +501,8 @@
       "file": "supabase/functions/voice-embeddings/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/voice-journal-agent\u2192cost-log",
@@ -470,7 +522,8 @@
       "file": "supabase/functions/voice-journal-agent/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/voice-logbook-entry\u2192cost-log",
@@ -490,7 +543,8 @@
       "file": "supabase/functions/voice-logbook-entry/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/voice-report-intent\u2192cost-log",
@@ -510,7 +564,8 @@
       "file": "supabase/functions/voice-report-intent/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/voice-semantic-rag\u2192rate-limit",
@@ -520,7 +575,8 @@
       "file": "supabase/functions/voice-semantic-rag/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192quota/walkthrough-analyzer\u2192rate-limit",
@@ -530,7 +586,8 @@
       "file": "supabase/functions/walkthrough-analyzer/index.ts",
       "line": 0,
       "evidence": "imports rate-limit helper",
-      "contract_test": null
+      "contract_test": "tools/contract_test_rate_limit_seam.py",
+      "contract_note": "Pins the _shared/rate-limit.ts wire format for this caller: the exported fns, the RateLimitResult/RouteRateLimitResult shapes (allowed/remaining/cap/per_route/enforce), the DAILY ceiling, that the caller reads no field the contract does not return (rl.* and _rq.*), and that it has not re-inlined a local hand-rolled limiter (the daily-ceiling bypass fixed 2026-07-23)."
     },
     {
       "id": "ai\u2192tenant/agentic-rag-loop\u2192agentic_rag_traces",
@@ -788,7 +845,7 @@
       "caller": "amc-orchestrator",
       "callee": "v_hives_truth",
       "file": "supabase/functions/amc-orchestrator/index.ts",
-      "line": 694,
+      "line": 706,
       "evidence": "const { data: one, error: oneErr } = await db.from(\"v_hives_truth\")",
       "contract_test": null
     },
@@ -988,7 +1045,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_asset_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 201,
+      "line": 213,
       "evidence": "db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -998,7 +1055,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_fmea_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 213,
+      "line": 225,
       "evidence": "db.from(\"v_fmea_truth\")",
       "contract_test": null
     },
@@ -1008,7 +1065,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_hives_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 96,
+      "line": 108,
       "evidence": ".from(\"v_hives_truth\").select(\"id, name\").eq(\"id\", reqHiveId).maybeSingle();",
       "contract_test": null
     },
@@ -1018,7 +1075,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 196,
+      "line": 208,
       "evidence": "db.from(\"v_inventory_items_truth\")     // canonical",
       "contract_test": null
     },
@@ -1028,7 +1085,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_inventory_transactions_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 190,
+      "line": 202,
       "evidence": "db.from(\"v_inventory_transactions_truth\")",
       "contract_test": null
     },
@@ -1038,7 +1095,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 177,
+      "line": 189,
       "evidence": "db.from(\"v_logbook_truth\")     // canonical: logbook_truth",
       "contract_test": null
     },
@@ -1048,7 +1105,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_pm_compliance_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 183,
+      "line": 195,
       "evidence": "db.from(\"v_pm_compliance_truth\")",
       "contract_test": null
     },
@@ -1058,7 +1115,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 241,
+      "line": 253,
       "evidence": "? db.from(\"v_pm_scope_items_truth\")     // canonical",
       "contract_test": null
     },
@@ -1068,7 +1125,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_weibull_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 207,
+      "line": 219,
       "evidence": "db.from(\"v_weibull_truth\")",
       "contract_test": null
     },
@@ -1118,7 +1175,7 @@
       "caller": "failure-signature-scan",
       "callee": "v_hives_truth",
       "file": "supabase/functions/failure-signature-scan/index.ts",
-      "line": 329,
+      "line": 341,
       "evidence": ".from(\"v_hives_truth\")",
       "contract_test": null
     },
@@ -1138,7 +1195,7 @@
       "caller": "fmea-populator",
       "callee": "v_asset_truth",
       "file": "supabase/functions/fmea-populator/index.ts",
-      "line": 120,
+      "line": 111,
       "evidence": "const { data } = await db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -1148,7 +1205,7 @@
       "caller": "fmea-populator",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/fmea-populator/index.ts",
-      "line": 293,
+      "line": 296,
       "evidence": "const { data: rows, error: logErr } = await db.from(\"v_logbook_truth\")  // canonical",
       "contract_test": null
     },
@@ -1238,7 +1295,7 @@
       "caller": "scheduled-agents",
       "callee": "v_hives_truth",
       "file": "supabase/functions/scheduled-agents/index.ts",
-      "line": 475,
+      "line": 487,
       "evidence": ".from(\"v_hives_truth\").select(\"id, name\").eq(\"id\", hive_id).single();",
       "contract_test": null
     },
@@ -1288,7 +1345,7 @@
       "caller": "semantic-fact-extractor",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/semantic-fact-extractor/index.ts",
-      "line": 179,
+      "line": 191,
       "evidence": "let q = db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
@@ -1358,7 +1415,7 @@
       "caller": "visual-defect-capture",
       "callee": "v_asset_truth",
       "file": "supabase/functions/visual-defect-capture/index.ts",
-      "line": 197,
+      "line": 187,
       "evidence": "const { data } = await db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -1368,7 +1425,7 @@
       "caller": "voice-action-router",
       "callee": "v_asset_truth",
       "file": "supabase/functions/voice-action-router/index.ts",
-      "line": 219,
+      "line": 200,
       "evidence": "const { data } = await db.from(\"v_asset_truth\")",
       "contract_test": null
     },
@@ -1668,7 +1725,7 @@
       "caller": "companion-launcher.js",
       "callee": "ai-gateway",
       "file": "companion-launcher.js",
-      "line": 963,
+      "line": 976,
       "evidence": "const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {",
       "contract_test": null
     },
@@ -1688,7 +1745,7 @@
       "caller": "pm-scheduler.html",
       "callee": "embed-entry",
       "file": "pm-scheduler.html",
-      "line": 2121,
+      "line": 2131,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1718,7 +1775,7 @@
       "caller": "skillmatrix.html",
       "callee": "embed-entry",
       "file": "skillmatrix.html",
-      "line": 584,
+      "line": 593,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },

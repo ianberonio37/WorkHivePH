@@ -252,7 +252,11 @@ def load_contracts() -> dict[str, dict]:
         if isinstance(val, str):
             out[sid] = {"test": val, "note": None}
         elif isinstance(val, dict):
-            t = val.get("test")
+            # Accept BOTH keys. ai_seam_contracts.json's own `_meta.schema` documents the field as
+            # `contract_test`, but this loader only ever read `test` - so an entry written to the
+            # DOCUMENTED schema was silently ignored and the seam stayed "uncovered" with no error
+            # (found 2026-07-23 wiring the first real contract). Honour the documented name.
+            t = val.get("test") or val.get("contract_test")
             if isinstance(t, str) and t:
                 out[sid] = {"test": t, "note": val.get("note")}
     return out

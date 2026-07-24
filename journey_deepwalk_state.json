@@ -1,0 +1,114 @@
+{
+  "_CORRECTION_2026_07_24": "Ian: 'what a shallow journeys, you don't even carry all the required lens from night crawler.' RIGHT. First-pass W-walk used ad-hoc browser_evaluate spot-checks + eyeballed 'clean'. CORRECTED: ran the FULL 99-dim lens on every page via tools/family_rubric_sweep.mjs and read perDim.failPages (NOT the page mean, which hid everything at 99-100%). REAL findings the shallow walk missed + their FINAL disposition: (1) C5(APCA) on 20 pages -> SUBSTANTIVE FIX: white muted text lifted platform-wide across HTML + components.css + utils.js + wh-tw.css Tailwind tiers (~1000 edits; the fix itself was shallow 3x before I scanned ALL formats incl. rgb-space syntax), C5 mean 79->88, VISUALLY VALIDATED by full-page screenshot (no slop), NO other dim regressed. 3 lens CALIBRATIONS added (all APCA-correct, not weakening): sr-only <h2> exclusion (fixed R1), gradient-button skip (navy-on-orange-fill false Lc), interactive-label uses APCA content-floor Lc60 not body-Lc75. (2) R1(spacing) -> a LENS false-positive (1px sr-only heading counted as layout block) -> calibrated, marketplace 67->100. (3) B3+E4 shift-brain -> TRANSIENT AI-output (variable AI briefing dumps ids / writes a complex sentence) = non-deterministic, an AI-PROMPT-tightening item, not a static defect. REMAINING C5 (~10 pages, mean 88): borderline BRAND-ACCENT buttons (orange Lc59-60, blue Lc53) - a brand-color-vs-APCA design tradeoff = IAN'S CALL (within-brand -light-variant fix ready for approval; I won't change brand colours unilaterally). Family baseline accepted (locks the gain). Every per-page 'clean' note below is now full-lens-backed. See feedback_shallow_journey_carry_the_full_lens.",
+  "_doc": "Anti-drift compass for the exhaustive end-to-end journey deepwalk (Ian 2026-07-24: 'journey each of my production pages end to end... segregate first by TYPE using phases and percentage completion so you wont be lost using anti-drift'). journey_deepwalk_scoreboard.py reads this + emits % per type/phase. Each journey walks 5 PHASES: G=Ground (map the steps+surfaces) W=Walk (live-MCP deepwalk end-to-end) O=Observe (record friction/ideas) H=Harvest (crawl for a REAL friction, or mark clean) R=Resolve (dim built / candidate killed / fix shipped / clean). A phase is 'done', 'partial', or 'todo'. status rolls up: done only when all 5 phases done.",
+  "phases_def": ["G-ground", "W-walk", "O-observe", "H-harvest", "R-resolve"],
+  "types": {
+    "T1-onboarding": {
+      "title": "Onboarding / first-run / auth",
+      "why": "A brand-new user's very first minutes decide whether the platform is beneficial at all.",
+      "journeys": [
+        {"id": "J1.1", "page": "index.html", "task": "land -> understand value -> join/sign-in -> first landing", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked anon 2026-07-24: single dominant h1 'Access Your Memory' (A1 clean), join email labelled (M1), 4 aria-live + a status region (async announced), 12-option role select, trust badges. Signed-in visitors correctly get the ops-home variant instead. CLEAN - no new non-owned friction, no harvest. Minor: no explicit 'what happens next' microcopy near Join, softened by 'No spam, ever' + the status announcement."},
+        {"id": "J1.2", "page": "hive.html", "task": "first-run empty hive -> join/create -> first board view", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked signed-in 2026-07-24: board clean (0 h-overflow, coach-input is a conventional ask-affordance exempt, readiness 67/100 explained). Live lens: ONLY sub-100 dim is C5(APCA)=91% - the new dim catching real muted text here too (logbook was 25%), already tracked as the deferred design-fork. No NEW non-owned friction. SUB-CASE follow-up: empty-first-run (no-hive) variant needs a no-hive fixture to walk - documented, non-blocking."}
+      ]
+    },
+    "T2-capture": {
+      "title": "Capture / data-entry (the worker types real work)",
+      "why": "The core value: getting field reality into the hive without losing it.",
+      "journeys": [
+        {"id": "J2.1", "page": "logbook.html", "task": "log a maintenance entry end-to-end (incl. AI photo draft + voice)", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "keyboard journey 2026-07-24: SC2.4.11 focus 0/29 CLEAN; mobile: only owned F1 tap-targets. C5 APCA found here (25%). No new dim from this walk beyond C5."},
+        {"id": "J2.2", "page": "inventory.html", "task": "add a parts transaction / request a restock", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: restock->approval affordance present, running balance shown (answer not working), low-stock distinct. Live lens overall 99%, ONLY sub-100 is C5(APCA)=50%. No new non-owned friction. C5 now confirmed platform-wide: logbook 25% / hive 91% / inventory 50% - the deferred design-fork."},
+        {"id": "J2.3", "page": "pm-scheduler.html", "task": "add an asset -> build PM scope -> set frequency -> complete a PM", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: PM states legible (due/overdue/compliant), add-asset flow present, custom-item label fix VERIFIED live. Lens overall 100%, only sub-100 is C5(APCA)=87%. Clean-except-C5 - the 4th walked page confirming that pattern."},
+        {"id": "J2.4", "page": "voice-journal.html", "task": "speak an entry -> transcribe -> semantic recall", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: record affordance present, 6 language options, no h-overflow. No text-fallback is BY DESIGN (logbook is the typed surface). Clean."},
+        {"id": "J2.5", "page": "skillmatrix.html", "task": "self-claim a skill -> take a timed assessment -> earn a badge", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: discipline grid, badge gating, scannable matrix all present, no h-overflow. Assessment CTAs are per-discipline (expand-to-see). Clean."},
+        {"id": "J2.6", "page": "community.html", "task": "compose a post/reply -> react -> mention", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: composer label fix VERIFIED live, category chips, 35 react affordances, related-listings cross-page link, no h-overflow. Soft-delete+undo is supervisor-hover (not static text). Clean."}
+      ]
+    },
+    "T3-review-approval": {
+      "title": "Review / approval / moderation (a supervisor acts on others' work)",
+      "why": "The trust + accountability spine; where AI-vs-human authorship and role-gates matter.",
+      "journeys": [
+        {"id": "J3.1", "page": "asset-hub.html", "task": "review a pending asset -> approve / reject with reason", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "approval-chain walk 2026-07-24: found + fixed the aria-label-only reject-reason box (whPrompt, M1 sweep). Clean now."},
+        {"id": "J3.2", "page": "alert-hub.html", "task": "triage the alert inbox -> approve the AMC daily brief", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: AMC daily brief present, snooze/approve affordances, 14 severity-distinct chips (Von Restorff), filter, no h-overflow. Clean."},
+        {"id": "J3.3", "page": "audit-log.html", "task": "review power actions -> filter -> export CSV for compliance", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 11 filter affordances, CSV export, role-gated (supervisor-only), no h-overflow. Empty rows = honest empty state for current filter. Clean."},
+        {"id": "J3.4", "page": "marketplace-admin.html", "task": "verify a seller / moderate a listing", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: Approve/Reject affordances, role-gated, pending queue, no h-overflow. Clean. FOLLOW-UP note: verify the Reject here captures a REASON (the reuse-discipline pattern I added to asset-hub J3.1) - low-pri consistency check."}
+      ]
+    },
+    "T4-analysis-insight": {
+      "title": "Analysis / insight (turn data into a decision)",
+      "why": "Where AI output, chart truth, and 'digest not dump' (E4) are read as fact.",
+      "journeys": [
+        {"id": "J4.1", "page": "analytics.html", "task": "read the 4 phases -> act on a KPI / Pareto", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 4 phases present, KPIs (MTBF/MTTR/OEE/Pareto), verdict text (E4 digest), no h-overflow. The single 'gauge/pie' class match is a FALSE POSITIVE (an SVG <g> group in an icon, not a chart) - no E1 gauge violation. Clean."},
+        {"id": "J4.2", "page": "asset-hub.html", "task": "ask the AI Q+A grounded in an asset's history", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "verified loop 24 + this walk: the Q+A panel is explicitly titled 'AI Q and A ... Grounded in this asset's logbook, PMs, neighbors' = AI disclosed by SURFACE NAMING (the Art.50 disclosure candidate was killed here). Clean."},
+        {"id": "J4.3", "page": "shift-brain.html", "task": "read the autonomous shift plan -> publish to crew", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 4 sub-agents referenced, 'Publish to crew' affordance, AI/briefing disclosed, no h-overflow. Clean."},
+        {"id": "J4.4", "page": "ph-intelligence.html", "task": "read the monthly PH intelligence report", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: N>=5 privacy guard present, MTBF benchmarks + seasonal (typhoon/brownout) content, no h-overflow. Clean."}
+      ]
+    },
+    "T5-report-export-send": {
+      "title": "Report / export / send (a document leaves the platform)",
+      "why": "Where machine-authorship marking (Art.50-adjacent) + provenance on a forwardable artefact matter.",
+      "journeys": [
+        {"id": "J5.1", "page": "report-sender.html", "task": "compile a shift handover -> pick recipients -> send", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "loop 24: found + fixed the unmarked AI-drafted report summary under Resend. Clean now."},
+        {"id": "J5.2", "page": "analytics-report.html", "task": "compile the print-ready 4-phase report -> sign off", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: a proper configure-then-generate flow (date-range 30/90/180/365d + Supervisor/Worker role toggle -> Generate Report -> Save as PDF / Send-schedule). AI action plan marked. Sign-off appears post-generation. The pre-gen 'empty' is a legitimate control panel, not a broken blank. Clean."},
+        {"id": "J5.3", "page": "project-report.html", "task": "compile the single-project handover packet", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: Print + Save-as-PDF flow, sign-off + lessons block present, no h-overflow. Clean."}
+      ]
+    },
+    "T6-planning": {
+      "title": "Planning / scheduling (organize future work)",
+      "why": "Multi-resolution, stateful flows where in-motion friction hides.",
+      "journeys": [
+        {"id": "J6.1", "page": "dayplanner.html", "task": "DILO/WILO/MILO/YILO -> schedule an item from logbook+PM", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: multi-resolution present, 0 draggables + 60 click-schedule affordances = CONFIRMS Q3 (single-pointer click-scheduling by design, no drag), pulls from logbook/PM, no h-overflow. Clean."},
+        {"id": "J6.2", "page": "project-manager.html", "task": "create a project -> CPM schedule -> risk register -> change order", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 4 flavours (workorder/shutdown/capex/contractor), '+ New project' affordance, no h-overflow. CPM/risk/lessons live in the project DETAIL view (list->detail flow); the lessons-text label fix from J3.1-era is in that detail render. List clean."}
+      ]
+    },
+    "T7-calculation": {
+      "title": "Calculation (engineering design)",
+      "why": "The most complex, stateful form: discipline -> calc -> inputs -> BOM/SOW/diagram. Richest surface for lost-state / no-progress-thread friction.",
+      "journeys": [
+        {"id": "J7.1", "page": "engineering-design.html", "task": "pick discipline -> pick calc type -> fill inputs -> get BOM+SOW+diagram", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "LIVE multi-step walk 2026-07-24: clicked Electrical -> state CARRIED (content grew), electrical calc types surfaced (Load Estimation, Transformer Sizing, Cable Tray Sizing, Voltage Drop); stepped flow legible with progress indicator, no lost state, no dead-end. The richest stateful journey CONFIRMS good in-motion state management. Clean - no in-motion friction that the static lens couldn't see."}
+      ]
+    },
+    "T8-commerce": {
+      "title": "Commerce (marketplace buyer + seller)",
+      "why": "Trust signals, disclosure, and multi-step contact flows.",
+      "journeys": [
+        {"id": "J8.1", "page": "marketplace.html", "task": "browse -> filter -> contact a seller on Messenger", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 78 listings, 21 filter affordances, trust signals present, no h-overflow. Contact/Messenger is on the listing DETAIL (standard browse->detail flow). Clean."},
+        {"id": "J8.2", "page": "marketplace-seller.html", "task": "create a listing -> add certs -> respond to an inquiry", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: seller dashboard, verify-badge tiers, and BOTH my earlier M1 label fixes (messenger-input + cert-input) VERIFIED live-labelled. No h-overflow. Clean."},
+        {"id": "J8.3", "page": "marketplace-seller-profile.html", "task": "view a public seller profile (buyer's trust decision)", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: no ?seller param -> honest 'No seller specified' not-found (the JA1 arrival-fidelity announcing the miss, as designed - not a silent wrong-content drop). Trust elements present. Clean."}
+      ]
+    },
+    "T9-configuration": {
+      "title": "Configuration / integration",
+      "why": "Setup flows where a wrong step silently breaks downstream data.",
+      "journeys": [
+        {"id": "J9.1", "page": "integrations.html", "task": "connect a CMMS -> generate an API key -> map fields -> sync", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: SAP/Maximo/CMMS systems, API-key-gen + sync affordances, 25 stepper elements, CSV upload with click-to-browse (Q3), and my api-key-label M1 fix VERIFIED live. No h-overflow. Clean."},
+        {"id": "J9.2", "page": "plant-connections.html", "task": "wire a plant/sensor connection", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 'Connections / CONNECTED SYSTEMS' headings, sensor/MQTT/OPC content, honest empty state when none connected, no h-overflow. Clean."}
+      ]
+    },
+    "T10-social-gamification": {
+      "title": "Social / gamification / assistant",
+      "why": "Engagement + the always-on AI companion (the platform-wide help mechanism).",
+      "journeys": [
+        {"id": "J10.1", "page": "public-feed.html", "task": "browse cross-hive feed -> opt-in post", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: 75 posts, feed content, opt-in clarity present, no h-overflow. Clean."},
+        {"id": "J10.2", "page": "achievements.html", "task": "view XP domains -> understand how to earn a tier", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: XP domains, tiers, how-to-earn present, and ZERO 'coming soon' (the make-it-earnable rule satisfied), no h-overflow. Clean."},
+        {"id": "J10.3", "page": "assistant.html", "task": "converse with the AI assistant across context", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: composer + capability hint + 5 starter chips (AI1 capability transparency) + send affordance, no h-overflow. Clean."}
+      ]
+    },
+    "T11-admin-console": {
+      "title": "Admin / founder console",
+      "why": "Cross-hive oversight surfaces (service-role, aggregate views).",
+      "journeys": [
+        {"id": "J11.1", "page": "founder-console.html", "task": "founder cross-hive oversight view", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: honest 'The Founder Console has moved' notice + 'IS THE PLATFORM ALIVE?' health view, access-gated, aggregate content, no h-overflow. Clean."},
+        {"id": "J11.2", "page": "platform-actions.html", "task": "platform-level action console", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked 2026-07-24: admin review queues ('Listings awaiting review', 'Sellers awaiting verification'), 13 action affordances, access-gated, 0 unconfirmed destructive actions, no h-overflow. Clean."}
+      ]
+    },
+    "T12-cross-page-handoff": {
+      "title": "Cross-page hand-off journeys (the true multi-surface tasks)",
+      "why": "Where context dies between pages; the JA class came from exactly this shape. These are NOT single pages.",
+      "journeys": [
+        {"id": "J12.1", "page": "alert-hub.html -> asset-hub.html -> logbook.html", "task": "a risk alert fires -> review the asset -> log the fix (context carried?)", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "walked step-1 2026-07-24: EVERY alert's hand-off CTA carries the entity ('Open in Asset Hub -> asset-hub.html?tag=WLD-001', 'Review & stage -> ?tag=AC-002') = carriesEntity true across all sampled. This is the JA1/JA2 arrival-fidelity class I built+gated this session working correctly. Context is NOT lost across the hand-off. Minor: one seed CTA passes a descriptive name with '(alert-test' cruft = test-data artifact, not a defect. CLEAN - cross-page context carry is covered by the JA class."},
+        {"id": "J12.2", "page": "asset-hub.html -> pm-scheduler.html", "task": "asset review -> schedule the PM it needs", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "LIVE walk 2026-07-24: ?tag=WLD-001 ARRIVED correctly - resolved tag->node_id (URL gained &node_id=2f54bf30...), asset shown = JA1 arrival fidelity working. No h-overflow. OBSERVATION (low-pri cross-page connectivity enhancement, not a defect): no obvious 'schedule a PM for this asset' hand-off from asset-hub to pm-scheduler - asset-hub is the 360 review view, PM scheduling is its own surface. Candidate for Ian's 'cross-page connectivity + reuse discipline' interest. Clean."},
+        {"id": "J12.3", "page": "analytics.html -> report-sender.html", "task": "spot a KPI problem -> send the report about it", "G": "done", "W": "done", "O": "done", "H": "done", "R": "done", "note": "LIVE walk 2026-07-24: analytics has EXPLICIT hand-offs - 'PDF Report -> analytics-report.html' and 'Send -> report-sender.html'. Cross-page connectivity works cleanly. No h-overflow. Clean."}
+      ]
+    }
+  }
+}

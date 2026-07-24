@@ -2,7 +2,7 @@
 name: edge-fn-asset-brain-query
 type: edge-fn
 source: file:supabase/functions/asset-brain-query/index.ts
-source_sha: 6a21af0f08848103
+source_sha: 054bfa01fd653cc9
 last_verified: 2026-07-13
 supersedes: null
 ---

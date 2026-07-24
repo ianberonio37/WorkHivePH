@@ -47,7 +47,7 @@
       transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
     }
     .wh-input:focus { border-color: var(--wh-orange); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
+    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
     select.wh-input option { background: #1e2d45; color: white; }
     select option { background: #1e2d45; color: white; }
 
@@ -64,7 +64,7 @@
     .btn-primary:disabled { background: rgba(247,162,27,0.35); cursor: not-allowed; }
 
     .btn-ghost {
-      min-height: 44px; background: transparent; color: rgba(255,255,255,0.7);
+      min-height: 44px; background: transparent; color:rgba(255,255,255,0.83);
       font-weight: 600; border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
       font-size: 0.875rem; border: 1px solid rgba(255,255,255,0.15);
       transition: border-color 0.2s, color 0.2s; cursor: pointer;
@@ -146,7 +146,7 @@
     .freq-Q  { background: rgba(167,139,250,0.15); color: var(--wh-violet-text); }
     .freq-SA { background: rgba(251,191,36,0.15);  color: var(--wh-orange); }
     .freq-Y  { background: rgba(247,162,27,0.15);  color: var(--wh-orange); }
-    .freq-Other { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
+    .freq-Other { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
 
     /* Detail scope row */
     .detail-scope-row {
@@ -181,7 +181,7 @@
     .filter-chip {
       padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.62);
+      border: 1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.80);
       background: transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .filter-chip.active { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
@@ -222,7 +222,7 @@
     }
     .nav-tab {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 3px; flex: 1; min-height: 56px; color: rgba(255,255,255,0.6);
+      gap: 3px; flex: 1; min-height: 56px; color:rgba(255,255,255,0.80);
       font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
       cursor: pointer; border: none; background: transparent; transition: color 0.15s;
     }
@@ -266,7 +266,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -274,19 +274,19 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:14px; }
     .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.62); line-height:1.4; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62); }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
@@ -294,9 +294,9 @@
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #pm-summary-details.open { display:block; }
   </style>
 </head>
@@ -310,16 +310,16 @@
 <!-- ── TOP NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92);border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
+    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
     <div class="flex items-center gap-3">
-      <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange);">
+      <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
         <span class="ic ic-community" aria-hidden="true"></span>
         <span id="hive-chip-name" class="font-semibold truncate max-w-[80px]"></span>
       </div>
-      <span id="nav-worker" class="text-xs text-white/60 truncate max-w-[100px]"></span>
+      <span id="nav-worker" class="text-xs text-white/80 truncate max-w-[100px]"></span>
     </div>
   </div>
 </nav>
@@ -333,7 +333,7 @@
     <!-- Header -->
     <div class="mb-5">
       <h1 class="text-xl font-bold" data-i="pagetitle">PM Scheduler</h1>
-      <p id="dash-subtitle" class="text-sm text-white/60 mt-0.5">Track all your equipment PM tasks in one place.</p>
+      <p id="dash-subtitle" class="text-sm text-white/80 mt-0.5">Track all your equipment PM tasks in one place.</p>
       <p id="pm-source-chip" style="margin-top:3px;"></p>
     </div>
 
@@ -389,7 +389,7 @@
         <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
         <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical the SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct from the "on track now" snapshot count.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
 
     <!-- Filter chips -->
@@ -411,19 +411,19 @@
 
     <!-- Load More -->
     <div id="pm-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
-      <p id="pm-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);"></p>
+      <button onclick="loadMorePM()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+      <p id="pm-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.80);"></p>
     </div>
 
     <!-- Empty state -->
     <div id="dash-empty" class="hidden wh-card p-10 text-center mt-4">
       <div class="text-4xl mb-3">🏭</div>
-      <p class="font-semibold text-white/70">No assets yet</p>
-      <p class="text-sm text-white/60 mt-1">Tap the + button to add your first asset and set up its PM schedule.</p>
+      <p class="font-semibold text-white/85">No assets yet</p>
+      <p class="text-sm text-white/80 mt-1">Tap the + button to add your first asset and set up its PM schedule.</p>
     </div>
 
     <!-- Loading state -->
-    <div id="dash-loading" class="text-center py-12 text-white/60 text-sm">Loading assets...</div>
+    <div id="dash-loading" class="text-center py-12 text-white/80 text-sm">Loading assets...</div>
   </div>
 
   <!-- FAB removed 2026-07-22 (Ian: "there is a + widget but there are already a function of that"):
@@ -440,7 +440,7 @@
 
     <!-- Wizard header -->
     <div class="mb-6">
-      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/60 hover:text-white/70 text-sm mb-4 transition-colors">
+      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/80 hover:text-white/70 text-sm mb-4 transition-colors">
         <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
@@ -458,32 +458,32 @@
 
       <!-- Pick from registered assets -->
       <div class="wh-card p-4 mb-5">
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Pick from Registered Assets</p>
+        <p class="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">Pick from Registered Assets</p>
         <input aria-label="Search your registered assets..." id="asset-search" type="text" class="wh-input mb-2" placeholder="Search your registered assets..." oninput="filterRegisteredAssets()" />
         <div id="registered-asset-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
-        <p id="reg-assets-empty" class="hidden text-xs text-white/60 text-center py-3">No registered assets found. Fill in the form below manually.</p>
-        <p id="reg-assets-loading" class="text-xs text-white/60 text-center py-3">Loading assets...</p>
+        <p id="reg-assets-empty" class="hidden text-xs text-white/80 text-center py-3">No registered assets found. Fill in the form below manually.</p>
+        <p id="reg-assets-loading" class="text-xs text-white/80 text-center py-3">Loading assets...</p>
       </div>
 
-      <p class="text-xs text-white/60 mb-4 text-center">— or fill in manually —</p>
+      <p class="text-xs text-white/80 mb-4 text-center">— or fill in manually —</p>
 
       <div class="space-y-4">
         <div>
-          <label for="w-name" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="assetname">Asset / Equipment Name *</label>
+          <label for="w-name" class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="assetname">Asset / Equipment Name *</label>
           <input id="w-name" type="text" class="wh-input" placeholder="e.g. Cooling Water Pump No. 1" maxlength="120">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label for="w-tag" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="tagid">Tag / ID</label>
+            <label for="w-tag" class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="tagid">Tag / ID</label>
             <input id="w-tag" type="text" class="wh-input" placeholder="e.g. CWP-001" maxlength="120">
           </div>
           <div>
-            <label for="w-location" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="location">Location</label>
+            <label for="w-location" class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="location">Location</label>
             <input id="w-location" type="text" class="wh-input" placeholder="e.g. Pump Room A" maxlength="120">
           </div>
         </div>
         <div>
-          <label for="w-category" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="category">Category *</label>
+          <label for="w-category" class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="category">Category *</label>
           <select id="w-category" class="wh-input" onchange="onCategoryChange()">
             <option value="">Select equipment category...</option>
             <option>Rotating Equipment</option>
@@ -497,10 +497,10 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="criticality">Criticality</label>
+          <label class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="criticality">Criticality</label>
           <div class="grid grid-cols-3 gap-2" id="crit-group">
             <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)">Critical</button>
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:var(--wh-orange);background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:var(--wh-orange-text);background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
             <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:var(--wh-green);background:transparent;" onclick="setCrit(this)">Minor</button>
           </div>
         </div>
@@ -513,16 +513,17 @@
 
     <!-- STEP 2: Scope Selection -->
     <div id="step-2" class="wizard-step hidden">
-      <p class="text-sm text-white/60 mb-2">Select which PM tasks apply to this asset and set each frequency.</p>
-      <p class="text-xs text-white/60 mb-4">Pre-loaded based on your category. Uncheck items you don't need, adjust frequencies, or add custom tasks.</p>
+      <p class="text-sm text-white/80 mb-2">Select which PM tasks apply to this asset and set each frequency.</p>
+      <p class="text-xs text-white/80 mb-4">Pre-loaded based on your category. Uncheck items you don't need, adjust frequencies, or add custom tasks.</p>
 
       <div id="scope-list" class="space-y-2 mb-4"></div>
 
       <!-- Add custom item -->
       <div class="wh-card p-4 mt-3">
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Add Custom Task</p>
+        <p class="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">Add Custom Task</p>
+        <label for="custom-item-text" class="text-xs text-white/85" style="display:block;margin-bottom:4px;">Task description</label>
         <div class="flex gap-2">
-          <input aria-label="e.g. Inspect coupling guard" id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" maxlength="250">
+          <input id="custom-item-text" type="text" class="wh-input" placeholder="e.g. Inspect coupling guard" maxlength="250">
           <select id="custom-item-freq" aria-label="Custom task frequency" class="wh-input" style="width:auto;min-width:130px;">
             <option value="Monthly">Monthly</option>
             <option value="Quarterly" selected>Quarterly</option>
@@ -541,33 +542,33 @@
 
     <!-- STEP 3: Anchor Date -->
     <div id="step-3" class="wizard-step hidden">
-      <p class="text-sm text-white/60 mb-5">When was this equipment last serviced? This is the starting point for all due date calculations.</p>
+      <p class="text-sm text-white/80 mb-5">When was this equipment last serviced? This is the starting point for all due date calculations.</p>
 
       <div class="wh-card p-5 mb-4">
-        <label for="w-anchor" class="block text-xs font-semibold text-white/60 mb-1.5 uppercase tracking-wide" data-i="lastpmdate">Last PM Date</label>
+        <label for="w-anchor" class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="lastpmdate">Last PM Date</label>
         <input id="w-anchor" type="date" class="wh-input" />
-        <p class="text-xs text-white/60 mt-2">If never serviced before, leave blank: all tasks will show as overdue immediately to prompt action.</p>
+        <p class="text-xs text-white/80 mt-2">If never serviced before, leave blank: all tasks will show as overdue immediately to prompt action.</p>
       </div>
 
       <!-- Frequency info guide -->
       <div class="wh-card p-4">
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-3">What each frequency means</p>
+        <p class="text-xs font-semibold text-white/80 uppercase tracking-wide mb-3">What each frequency means</p>
         <div class="space-y-2">
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-M">M</span>
-            <span class="text-sm text-white/60">Monthly: every 30 days</span>
+            <span class="text-sm text-white/80">Monthly: every 30 days</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-Q">Q</span>
-            <span class="text-sm text-white/60">Quarterly: every 90 days</span>
+            <span class="text-sm text-white/80">Quarterly: every 90 days</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-SA">SA</span>
-            <span class="text-sm text-white/60">Semi-Annual: every 180 days</span>
+            <span class="text-sm text-white/80">Semi-Annual: every 180 days</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span class="freq-badge freq-Y">Y</span>
-            <span class="text-sm text-white/60">Yearly: every 365 days</span>
+            <span class="text-sm text-white/80">Yearly: every 365 days</span>
           </div>
         </div>
       </div>
@@ -580,25 +581,25 @@
 
     <!-- STEP 4: Review & Save -->
     <div id="step-4" class="wizard-step hidden">
-      <p class="text-sm text-white/60 mb-5">Review your asset setup before saving.</p>
+      <p class="text-sm text-white/80 mb-5">Review your asset setup before saving.</p>
 
       <div class="wh-card p-5 mb-4 space-y-3">
         <div class="flex items-start justify-between gap-3">
           <div>
             <p id="rev-name" class="font-bold text-lg leading-tight"></p>
-            <p id="rev-tag-loc" class="text-xs text-white/60 mt-0.5"></p>
+            <p id="rev-tag-loc" class="text-xs text-white/80 mt-0.5"></p>
           </div>
           <span id="rev-crit" class="status-badge flex-shrink-0 mt-1"></span>
         </div>
         <div class="h-px bg-white/5"></div>
         <div class="flex items-center gap-2">
           <span id="rev-cat-pill" class="cat-pill"></span>
-          <span id="rev-anchor" class="text-xs text-white/60"></span>
+          <span id="rev-anchor" class="text-xs text-white/80"></span>
         </div>
       </div>
 
       <div class="wh-card p-4 mb-4">
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-wide mb-3">PM Scope (<span id="rev-count">0</span> tasks)</p>
+        <p class="text-xs font-semibold text-white/80 uppercase tracking-wide mb-3">PM Scope (<span id="rev-count">0</span> tasks)</p>
         <div id="rev-scope" class="space-y-2"></div>
       </div>
 
@@ -619,12 +620,12 @@
 
     <!-- Back + actions -->
     <div class="flex items-center justify-between mb-5">
-      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/60 hover:text-white/70 text-sm transition-colors">
+      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/80 hover:text-white/70 text-sm transition-colors">
         <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
       <div class="flex gap-2">
-        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
+        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
         <button id="btn-delete-asset" class="btn-danger hidden" onclick="confirmDeleteAsset()" data-i="deleteasset">Delete Asset</button>
       </div>
     </div>
@@ -634,14 +635,14 @@
       <div class="flex items-start justify-between gap-3 mb-3">
         <div>
           <h2 id="det-name" class="font-bold text-xl leading-tight"></h2>
-          <p id="det-tag-loc" class="text-sm text-white/60 mt-0.5"></p>
+          <p id="det-tag-loc" class="text-sm text-white/80 mt-0.5"></p>
         </div>
         <span id="det-overall-status" class="status-badge flex-shrink-0 mt-1"></span>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <span id="det-cat" class="cat-pill"></span>
         <span id="det-crit" class="status-badge text-[0.6rem]"></span>
-        <span id="det-anchor" class="text-xs text-white/60"></span>
+        <span id="det-anchor" class="text-xs text-white/80"></span>
       </div>
     </div>
 
@@ -655,7 +656,7 @@
     <div class="mb-4">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-sm" data-i="pmtasks">PM Tasks</h3>
-        <span id="det-progress-text" class="text-xs text-white/60"></span>
+        <span id="det-progress-text" class="text-xs text-white/80"></span>
       </div>
       <div id="det-tasks" class="space-y-2.5"></div>
     </div>
@@ -664,9 +665,9 @@
     <div class="wh-card p-4">
       <h3 class="font-semibold text-sm mb-3" data-i="completionhistory">Completion History</h3>
       <div id="det-history" class="divide-y divide-white/5"></div>
-      <div id="det-history-empty" class="hidden text-center py-6 text-white/60 text-xs">No completions recorded yet.</div>
+      <div id="det-history-empty" class="hidden text-center py-6 text-white/80 text-xs">No completions recorded yet. Completions land here once a PM task is done.</div>
       <div id="det-history-more" class="hidden mt-3">
-        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </div>
 
@@ -690,24 +691,24 @@
 <!-- ── EDIT PM ASSET MODAL (supervisor only in hive mode) ── -->
 <div id="pm-edit-modal" role="dialog" aria-modal="true" aria-label="Edit PM asset" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
   <div class="wh-card w-full p-6 relative" style="max-width:420px;">
-    <button onclick="closeEditPMAsset()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.62);cursor:pointer;font-size:1.1rem;">✕</button>
+    <button onclick="closeEditPMAsset()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.80);cursor:pointer;font-size:1.1rem;">✕</button>
 
     <h3 class="font-bold text-base text-white mb-4 pr-8" data-i="editasset">Edit Asset</h3>
 
     <div class="mb-3">
-      <label for="pm-edit-name" class="block text-xs text-white/60 mb-1" data-i="assetnameshort">Asset Name</label>
+      <label for="pm-edit-name" class="block text-xs text-white/80 mb-1" data-i="assetnameshort">Asset Name</label>
       <input id="pm-edit-name" type="text" class="wh-input" placeholder="e.g. Batten Staple Machine 2" maxlength="120">
     </div>
     <div class="mb-3">
-      <label for="pm-edit-tag" class="block text-xs text-white/60 mb-1" data-i="tagid">Tag / ID</label>
+      <label for="pm-edit-tag" class="block text-xs text-white/80 mb-1" data-i="tagid">Tag / ID</label>
       <input id="pm-edit-tag" type="text" class="wh-input" placeholder="e.g. Machine 2" maxlength="120">
     </div>
     <div class="mb-3">
-      <label for="pm-edit-location" class="block text-xs text-white/60 mb-1" data-i="location">Location</label>
+      <label for="pm-edit-location" class="block text-xs text-white/80 mb-1" data-i="location">Location</label>
       <input id="pm-edit-location" type="text" class="wh-input" placeholder="e.g. Building A, Line 3" maxlength="120">
     </div>
     <div class="mb-3">
-      <label for="pm-edit-criticality" class="block text-xs text-white/60 mb-1" data-i="criticality">Criticality</label>
+      <label for="pm-edit-criticality" class="block text-xs text-white/80 mb-1" data-i="criticality">Criticality</label>
       <select id="pm-edit-criticality" class="wh-input">
         <option value="">-- Select --</option>
         <option value="Critical">Critical</option>
@@ -734,7 +735,7 @@
     <div class="flex items-start justify-between gap-3 mb-4">
       <div>
         <h3 class="font-bold text-base" data-i="taskcompleted">Task Completed</h3>
-        <p id="sheet-item-text" class="text-sm text-white/60 mt-0.5 leading-snug"></p>
+        <p id="sheet-item-text" class="text-sm text-white/80 mt-0.5 leading-snug"></p>
       </div>
       <span id="sheet-freq-badge" class="freq-badge flex-shrink-0 mt-1"></span>
     </div>
@@ -744,19 +745,19 @@
       <span class="ic ic-back" aria-hidden="true"></span>
       <div class="min-w-0">
         <p id="sheet-asset-name" class="text-sm font-semibold text-white truncate"></p>
-        <p class="text-xs text-white/60">Completed: <span id="sheet-date" class="text-white/60"></span></p>
+        <p class="text-xs text-white/80">Completed: <span id="sheet-date" class="text-white/80"></span></p>
       </div>
     </div>
 
     <!-- Findings textarea -->
     <div class="mb-3">
-      <label for="sheet-findings" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5"><span data-i="findings">Findings / Observations</span> <span class="text-white/60 font-normal normal-case" data-i="optional">(optional)</span></label>
+      <label for="sheet-findings" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5"><span data-i="findings">Findings / Observations</span> <span class="text-white/80 font-normal normal-case" data-i="optional">(optional)</span></label>
       <textarea aria-label="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." id="sheet-findings" rows="3" maxlength="2000" class="wh-input" placeholder="e.g. Bearing temperature normal, no leaks observed, greased per schedule..." style="resize:none;"></textarea>
     </div>
 
     <!-- Action taken -->
     <div class="mb-4">
-      <label for="sheet-action" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5" data-i="actiontaken">Action Taken</label>
+      <label for="sheet-action" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5" data-i="actiontaken">Action Taken</label>
       <input id="sheet-action" type="text" class="wh-input" placeholder="e.g. PM completed per schedule" maxlength="250">
     </div>
 
@@ -770,7 +771,7 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-white" data-i="alsosavelogbook">Also save to Logbook</p>
-          <p class="text-xs text-white/60">Creates a Preventive Maintenance entry with these findings.</p>
+          <p class="text-xs text-white/80">Creates a Preventive Maintenance entry with these findings.</p>
         </div>
       </label>
     </div>
@@ -1242,6 +1243,16 @@ async function init() {
             if (_act) _act.focus({ preventScroll: true });
           } catch (_) { /* empty-catch-allow: best-effort focus */ }
         }, 60);
+      } else {
+        // JA1 arrival fidelity (§12): an inbound deep-link that NAMES an asset we cannot resolve must
+        // not silently drop the user on the generic PM dashboard - they followed "schedule the PM for
+        // X" and would never know X was missed (and could act on the wrong asset). Say it plainly.
+        // Same silent-drop class fixed in asset-hub + alert-hub; found here by the PROXIMITY-scoped
+        // JA1 detector after the loose version had hidden it.
+        const _asked = _byTag || _byName || _byId;
+        if (typeof showToast === 'function') {
+          showToast('Could not find "' + _asked + '": showing all PM assets');
+        }
       }
     }
   } catch (_) { /* empty-catch-allow: best-effort deep-link; dashboard still renders */ }
@@ -1633,7 +1644,7 @@ function renderDashboard() {
         <div class="flex items-start justify-between gap-3 mb-2">
           <div class="flex-1 min-w-0">
             <p class="font-bold text-base leading-tight truncate">${escHtml(asset.asset_name)}</p>
-            <p class="text-xs text-white/60 mt-0.5 truncate">
+            <p class="text-xs text-white/80 mt-0.5 truncate">
               ${asset.tag_id ? `<span class="font-mono">${escHtml(asset.tag_id)}</span>` : ''}
               ${asset.tag_id && asset.location ? ' · ' : ''}
               ${asset.location ? escHtml(asset.location) : ''}
@@ -1648,7 +1659,7 @@ function renderDashboard() {
           ${overdueItems > 0 ? `<span class="text-xs font-semibold text-red-400">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
         </div>
 
-        <p class="text-xs text-white/60 mb-2 truncate">${escHtml(nextDueLabel)}</p>
+        <p class="text-xs text-white/80 mb-2 truncate">${escHtml(nextDueLabel)}</p>
 
         <div class="progress-bar">
           <div class="progress-fill" style="
@@ -1656,7 +1667,7 @@ function renderDashboard() {
             background:${asset.overall === 'overdue' ? 'var(--wh-red)' : asset.overall === 'duesoon' ? 'var(--wh-orange)' : 'var(--wh-green)'};
           "></div>
         </div>
-        <p class="text-xs text-white/60 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
+        <p class="text-xs text-white/80 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
       </div>
     `;
   }).join('');
@@ -1714,7 +1725,7 @@ function renderDetail(asset) {
       <div class="mb-4">
         <div class="flex items-center gap-2 mb-2">
           ${freqBadge(freq)}
-          <span class="text-xs text-white/60 font-semibold">${freq === 'Other' ? 'Other frequencies' : freq}</span>
+          <span class="text-xs text-white/80 font-semibold">${freq === 'Other' ? 'Other frequencies' : freq}</span>
         </div>
         <div class="space-y-2">
           ${grouped[freq].map(item => {
@@ -1728,9 +1739,9 @@ function renderDetail(asset) {
                   ${statusBadge(item.itemStatus)}
                 </div>
                 <div class="flex items-center justify-between">
-                  <div class="text-xs text-white/60 space-y-0.5">
-                    <div>Last done: <span class="text-white/60">${lastStr}</span></div>
-                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/60'}">${nextStr} (${daysStr})</span></div>
+                  <div class="text-xs text-white/80 space-y-0.5">
+                    <div>Last done: <span class="text-white/80">${lastStr}</span></div>
+                    <div>Next due: <span class="${item.itemStatus === 'overdue' ? 'text-red-400' : item.itemStatus === 'duesoon' ? 'text-yellow-400' : 'text-white/80'}">${nextStr} (${daysStr})</span></div>
                   </div>
                   <button class="complete-btn ${item.itemStatus === 'ontrack' ? 'done' : ''}"
                     onclick="markDone('${item.id}', this)"
@@ -1771,10 +1782,10 @@ function renderDetail(asset) {
           <div class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${c.status === 'done' ? 'bg-green-400' : 'bg-yellow-400'}"></div>
           <div class="flex-1 min-w-0">
             <p class="text-sm leading-snug truncate">${escHtml(itemTxt)}</p>
-            <p class="text-xs text-white/60 mt-0.5">
+            <p class="text-xs text-white/80 mt-0.5">
               <span class="${statusCls} font-semibold">${c.status === 'done' ? 'Completed' : 'Deferred'}</span>
               · ${escHtml(c.worker_name)} · ${formatDate(c.completed_at)}
-              ${c.notes ? `<br><span class="italic text-white/60">"${escHtml(c.notes)}"</span>` : ''}
+              ${c.notes ? `<br><span class="italic text-white/80">"${escHtml(c.notes)}"</span>` : ''}
             </p>
           </div>
         </div>
@@ -2191,13 +2202,13 @@ function renderRegisteredAssets(list) {
       <div class="flex items-center justify-between gap-2">
         <div class="min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(a.name)}</p>
-          <p class="text-xs text-white/60 truncate">
+          <p class="text-xs text-white/80 truncate">
             ${a.asset_id ? `<span class="font-mono">${escHtml(a.asset_id)}</span>` : ''}
             ${a.asset_id && a.location ? ' · ' : ''}
             ${a.location ? escHtml(a.location) : ''}
           </p>
         </div>
-        <span class="text-xs text-white/60 flex-shrink-0">${escHtml(a.type || '')}</span>
+        <span class="text-xs text-white/80 flex-shrink-0">${escHtml(a.type || '')}</span>
       </div>
     </button>
   `).join('');
@@ -2311,7 +2322,7 @@ function addCustomItem() {
 function renderScopeList() {
   const container = document.getElementById('scope-list');
   if (!wizardItems.length) {
-    container/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-sm text-white/60 text-center py-6">Select a category to load PM scope templates.</p>';
+    container/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-sm text-white/80 text-center py-6">Select a category to load PM scope templates.</p>';
     return;
   }
 
@@ -2323,17 +2334,17 @@ function renderScopeList() {
       <div class="scope-row ${included ? 'included' : ''}" id="scope-row-${idx}">
         <div class="scope-check" onclick="toggleScopeItem(${idx})"></div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/60'}">${escHtml(item.text)}</p>
+          <p class="text-sm leading-snug ${included ? 'text-white' : 'text-white/80'}">${escHtml(item.text)}</p>
           <div class="flex items-center gap-2 mt-1.5">
             ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
             <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
-              style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);font-size:16px;"
+              style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);font-size:16px;"
               onchange="updateItemFreq(${idx}, this.value)">
               ${freqOpts}
             </select>
           </div>
         </div>
-        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/60 hover:text-red-400 transition-colors p-1" aria-label="Remove">
+        ${item.isCustom ? `<button onclick="removeCustomItem(${idx})" class="text-white/80 hover:text-red-400 transition-colors p-1" aria-label="Remove">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>` : ''}
       </div>
@@ -2429,7 +2440,7 @@ function renderReview() {
   document.getElementById('rev-scope')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = included.map(item => `
     <div class="flex items-center gap-2">
       ${freqBadge(item.freq)}
-      <span class="text-sm text-white/70 leading-snug">${escHtml(item.text)}</span>
+      <span class="text-sm text-white/85 leading-snug">${escHtml(item.text)}</span>
     </div>
   `).join('');
 }
@@ -2530,7 +2541,7 @@ function renderCatTabs() {
     const isActive = cat === _tmplActiveCat;
     const style = isActive
       ? 'background:rgba(247,162,27,0.18);color:#F7A21B;border-color:rgba(247,162,27,0.5);'
-      : 'background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.62);border-color:rgba(255,255,255,0.1);';
+      : 'background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.80);border-color:rgba(255,255,255,0.1);';
     return `<button type="button" onclick="selectTmplCat('${escJsAttr(cat)}')"
       class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors"
       style="${style}">${escHtml(cat)}</button>`;
@@ -2554,7 +2565,7 @@ function renderTaskChips() {
   const chipsEl = document.getElementById('tmpl-chips');
 
   if (!templates.length) {
-    chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-xs text-white/60 py-2">All standard tasks for this category already added.</p>';
+    chipsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p class="text-xs text-white/80 py-2">All standard tasks for this category already added.</p>';
     return;
   }
 
@@ -2769,32 +2780,32 @@ if (window.whModalA11y) {
 
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-bold text-base" data-i="addpmtask">Add PM Task</h3>
-      <button onclick="closeAddTaskSheet()" class="text-white/60 hover:text-white/70 p-1 -mr-1" aria-label="Close">
+      <button onclick="closeAddTaskSheet()" class="text-white/80 hover:text-white/70 p-1 -mr-1" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
 
     <!-- Category tabs -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.62);" data-i="catlabel">CATEGORY</label>
+      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.80);" data-i="catlabel">CATEGORY</label>
       <div id="tmpl-cat-tabs" class="flex flex-wrap gap-1.5"></div>
     </div>
 
     <!-- Task chips -->
     <div class="mb-3">
-      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.62);" data-i="standardtasks">STANDARD TASKS: tap one to fill below</label>
+      <label class="block text-xs font-semibold mb-2" style="color:rgba(255,255,255,0.80);" data-i="standardtasks">STANDARD TASKS: tap one to fill below</label>
       <div id="tmpl-chips" class="flex flex-col gap-1.5 max-h-44 overflow-y-auto pr-1"></div>
     </div>
 
     <!-- Description -->
     <div class="mb-3">
-      <label for="add-task-text" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.62);" data-i="taskdesc">TASK DESCRIPTION</label>
+      <label for="add-task-text" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.80);" data-i="taskdesc">TASK DESCRIPTION</label>
       <input id="add-task-text" type="text" class="wh-input" placeholder="Describe the PM task..." style="font-size:16px;" maxlength="250">
     </div>
 
     <!-- Frequency -->
     <div class="mb-4">
-      <label for="add-task-freq" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.62);" data-i="frequency">FREQUENCY</label>
+      <label for="add-task-freq" class="block text-xs font-semibold mb-1.5" style="color:rgba(255,255,255,0.80);" data-i="frequency">FREQUENCY</label>
       <select id="add-task-freq" class="wh-input" data-select-placeholder-allow="default Monthly is the most common PM frequency">
         <option value="Monthly">Monthly</option>
         <option value="Quarterly">Quarterly</option>

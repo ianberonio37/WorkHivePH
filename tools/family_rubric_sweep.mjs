@@ -387,7 +387,11 @@ async function surveyPage(context, file) {
 }
 
 const browser = await chromium.launch({ headless: !HEADED });
-const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+// serviceWorkers:'block' — WITHOUT this the app's SW registers on page 1 and serves CACHED shell
+// files (utils.js/components.css/wh-tw.css/tokens.css) for every later page, so the sweep UNDER-
+// measures any just-shipped shell change (2026-07-24: a C5 fix showed marketplace-admin/audit-log
+// at 50% in the sweep while they were really 100% cache-cleared). Blocking the SW loads fresh files.
+const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
 // Sign-in RETRY: the local Supabase auth intermittently returns WH_DB_TIMEOUT under load. A single
 // failed attempt used to abort the whole sweep (exit 1) OR — worse, in --page mode — leave every page
 // rendering its SIGNED-OUT/empty state, which read as a phantom board of failures (inventory E3/H1/R4

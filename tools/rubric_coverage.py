@@ -33,7 +33,7 @@ CANONICAL_CARD = "simple-card"   # the exemplar primitive (Hive/Home design syst
 
 def spec_dims(spec: dict) -> dict:
     import re
-    return {k: v for k, v in spec.items() if k != "_meta" and re.fullmatch(r"[A-Z][0-9]", k)}
+    return {k: v for k, v in spec.items() if k != "_meta" and re.fullmatch(r"[A-Z]{1,2}[0-9]", k)}
 
 
 def cross_page_s3(corpus: dict) -> dict:
@@ -67,6 +67,10 @@ def build(spec: dict, board: dict, corpus: dict) -> dict:
         journey = json.loads((REPO / "journey_ux_dims_report.json").read_text(encoding="utf-8"))
     except Exception:
         journey = {}
+    try:   # AI6 — agentic write accountability (validate_ai_write_provenance.py)
+        provenance = json.loads((REPO / "ai_write_provenance_report.json").read_text(encoding="utf-8"))
+    except Exception:
+        provenance = {}
     out_dims = {}
     for dim, entry in dims.items():
         owner = entry.get("owner", "rubric-lens")
@@ -84,6 +88,9 @@ def build(spec: dict, board: dict, corpus: dict) -> dict:
         elif owner == "journey-validator":   # J3/G5/S4 — source-grep gate (validate_journey_ux_dims.py)
             row["source"] = "journey_ux_dims_report.json (validate_journey_ux_dims.py)"
             row["pct"] = (journey.get(dim) or {}).get("pct")
+        elif owner == "ai-write-provenance-validator":   # AI6 — the AI's ACT, not its answer
+            row["source"] = "ai_write_provenance_report.json (validate_ai_write_provenance.py)"
+            row["pct"] = provenance.get("pct")
         elif (entry.get("verdict") or "").lower() == "planned":
             # DECLARED in the SSOT (prose + spec) but its detector is roadmap-pending — the experience-in-motion
             # journey dims (X/Y/G5/J3/S4, 2026-07-22). Accounted to the roadmap (not "no source"), pct stays

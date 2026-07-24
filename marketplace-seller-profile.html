@@ -41,7 +41,7 @@
     /* Back link */
     .back-link {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      color: rgba(255,255,255,0.72); font-size: 0.78rem; text-decoration: none; /* D1 a11y: was --wh-steel (<4.5:1) → WCAG 1.4.3 */
+      color:rgba(255,255,255,0.86); font-size: 0.78rem; text-decoration: none; /* D1 a11y: was --wh-steel (<4.5:1) → WCAG 1.4.3 */
       margin-bottom: 1rem; padding: 0.4rem 0; transition: color 0.15s; min-height: 44px; /* D1 U2 */
     }
     .back-link:hover { color: var(--wh-orange); }
@@ -132,7 +132,7 @@
     .review-item:last-child  { padding-bottom: 0; border-bottom: none; }
     .review-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; gap: 0.5rem; }
     .review-author { font-size: 0.78rem; font-weight: 600; }
-    .stars { color: var(--wh-orange); font-size: 0.78rem; letter-spacing: -1px; }
+    .stars { color:var(--wh-orange-text); font-size: 0.78rem; letter-spacing: -1px; }
     .review-date { font-size: 0.7rem; color: var(--wh-steel-bright); }
     .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
     .empty-reviews { text-align: center; color: var(--wh-steel-bright); font-size: 0.8rem; padding: 1rem 0; }
@@ -174,7 +174,7 @@
       position: absolute; bottom: 0.5rem; right: 0.5rem;
       background: rgba(15,25,35,0.9); border: 1px solid rgba(247,162,27,0.3);
       border-radius: 999px; padding: 0.25rem 0.6rem;
-      font-size: 0.72rem; font-weight: 700; color: var(--wh-orange);
+      font-size: 0.72rem; font-weight: 700; color:var(--wh-orange-text);
     }
     .card-body { padding: 0.75rem 0.875rem; }
     .card-title {
@@ -190,7 +190,7 @@
     }
 
     /* Empty state */
-    .empty-state { text-align: center; padding: 2.5rem 1rem; color: rgba(255,255,255,0.72); } /* D1 U5: --wh-steel<4.5:1 → WCAG 1.4.3 */
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color:rgba(255,255,255,0.86); } /* D1 U5: --wh-steel<4.5:1 → WCAG 1.4.3 */
     .empty-state svg { opacity: 0.25; margin-bottom: 0.75rem; }
     .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.4rem; }
     .empty-state p { font-size: 0.78rem; }
@@ -255,7 +255,7 @@
         <span class="ic ic-list" aria-hidden="true"></span>
         View Listings
       </a>
-      <a id="hero-messenger" href="#" target="_blank" rel="noopener noreferrer" style="display:none;align-items:center;gap:0.4rem;padding:0.65rem 1.25rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue);font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;">
+      <a id="hero-messenger" href="#" target="_blank" rel="noopener noreferrer" style="display:none;align-items:center;gap:0.4rem;padding:0.65rem 1.25rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;">
         <span class="ic ic-message" aria-hidden="true"></span>
         Message on Messenger
       </a>
@@ -270,7 +270,7 @@
     <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
   </div>
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal seller-quality composite). -->
-  <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin:-0.5rem 0 1rem;text-align:center;">Stats per WorkHive Marketplace Seller Score · platform-internal composite</div><!-- D1 a11y: text was rgba(255,255,255,0.4)=3.81:1 on #0f1923 (<4.5:1, WCAG 1.4.3); 0.5=5.23:1 -->
+  <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin:-0.5rem 0 1rem;text-align:center;">Stats per WorkHive Marketplace Seller Score · platform-internal composite</div><!-- D1 a11y: text was rgba(255,255,255,0.4)=3.81:1 on #0f1923 (<4.5:1, WCAG 1.4.3); 0.5=5.23:1 -->
 
   <!-- X-axis bridge (Community PDDA 7th): Marketplace -> Community reverse cross-link. Shows the seller's
        community standing (trust built by helping) and links back to the forum where they earned it. -->
@@ -404,11 +404,11 @@
           <a href="${link}" style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-light);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;min-height:44px;">View in forum →</a>
         </div>
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-          <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.xp_total}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Community XP</div></div>
-          <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.62);">Public posts</div></div>
-          <div style="margin-left:auto;"><span style="font-size:0.75rem;font-weight:700;color:var(--wh-blue);">${escHtml(tierLabel)}</span></div>
+          <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.xp_total}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">Community XP</div></div>
+          <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">Public posts</div></div>
+          <div style="margin-left:auto;"><span style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-text);">${escHtml(tierLabel)}</span></div>
         </div>
-        <p style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin:0.6rem 0 0;line-height:1.45;">This seller earned trust by helping teammates in the community forum.</p>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin:0.6rem 0 0;line-height:1.45;">This seller earned trust by helping teammates in the community forum.</p>
       </div>`;
   }
 
@@ -437,6 +437,27 @@
         const { data: rep } = await db.rpc('get_seller_community_reputation', { p_worker_name: _seller.worker_name, p_hive_id: _seller.hive_id });
         _communityRep = (rep && rep[0]) || null;
       } catch (_) { _communityRep = null; }
+    }
+
+    // JA1 arrival fidelity (§12, live-MCP-found 2026-07-23): a ?worker= that resolves to NO seller row
+    // must SAY so. Falling through to renderHero() paints the raw URL string as the seller name with
+    // default "New seller"/bronze tier, i.e. it FABRICATES a plausible profile for a person who is not
+    // a seller - a trust/identity failure, not just a silent drop. Same class as asset-hub's ?tag= miss.
+    if (!_seller) {
+      const pageEl = document.querySelector('.page');
+      if (pageEl) {
+        pageEl.innerHTML = `
+      <a href="marketplace.html" class="back-link">
+        <span class="ic ic-back" aria-hidden="true"></span>
+        Back to Marketplace
+      </a>
+      <div class="empty-state">
+        <span class="ic ic-back" aria-hidden="true"></span>
+        <h3>Seller not found</h3>
+        <p>We could not find a seller named "${escHtml(WORKER_VIEW)}" on the marketplace.</p>
+      </div>`;
+      }
+      return;
     }
     renderHero();
   }
@@ -469,7 +490,7 @@
         parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(74,222,128,0.15);color:var(--wh-green);border:1px solid rgba(74,222,128,0.3);">⚡ Quick Reply</span>`);
       }
       if (isTopRated) {
-        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
+        parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);">★ Top Rated</span>`);
       }
       // X-axis: community authority becomes a marketplace trust signal (solves cold-start trust).
       // Shown only for genuine community authority — Voice of the Hive or a top contributor.

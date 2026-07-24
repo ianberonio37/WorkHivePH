@@ -217,9 +217,20 @@
           transform: scale(0.4) translateY(24px);
           opacity: 0;
           pointer-events: none;
+          /* A11Y — WCAG 2.2 SC 2.4.11 Focus Not Obscured (live-MCP found 2026-07-23, §12).
+             opacity:0 + pointer-events:none hides this from SIGHTED and MOUSE users but NOT from the
+             KEYBOARD: the computed visibility stayed "visible", so the child trigger button
+             (aria-label "Open companion") remained in the tab order. A keyboard user tabbed onto an
+             invisible, un-activatable control sitting UNDER the fixed nav-hub FAB (z 9998) - a phantom
+             stop with the focus ring on nothing. axe cannot catch this: it treats only display:none /
+             visibility:hidden / aria-hidden as hidden, so an opacity:0 container passes it clean.
+             visibility:hidden DOES remove the subtree from the tab order AND the a11y tree, and is
+             delayed until the fade-out finishes so the spring animation is unchanged. */
+          visibility: hidden;
           transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
                       opacity 0.18s ease,
-                      bottom 0.22s ease;
+                      bottom 0.22s ease,
+                      visibility 0s linear 0.25s;
           font-family: var(--wh-font, 'Poppins', sans-serif);
         }
 
@@ -230,6 +241,8 @@
           transform: scale(1) translateY(0);
           opacity: 1;
           pointer-events: all;
+          visibility: visible;
+          transition-delay: 0s;   /* become focusable immediately on open */
         }
 
         /* ── Trigger Button (persona avatar) ── */

@@ -32,6 +32,7 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAI } from "../_shared/ai-chain.ts";
+import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P2 Pillar C (Compute & Resilience): cache the deterministic Router LLM call.
@@ -161,33 +162,13 @@ interface RouterResponse {
 
 // ─── Rate limit gate ──────────────────────────────────────────────────────────
 
-async function checkAIRateLimit(
-  db: SupabaseClient, hiveId: string, limitPerHour: number,
-): Promise<{ allowed: boolean; remaining: number }> {
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
-
-  const { data } = await db
-    .from("ai_rate_limits")
-    .select("call_count, window_start")
-    .eq("hive_id", hiveId)
-    .maybeSingle();
-
-  if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
-      hive_id:      hiveId,
-      call_count:   1,
-      window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
-  }
-  if (data.call_count >= limitPerHour) {
-    return { allowed: false, remaining: 0 };
-  }
-  await db.from("ai_rate_limits")
-    .update({ call_count: data.call_count + 1 })
-    .eq("hive_id", hiveId);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
-}
+// Rate limiting uses the SHARED limiter (see the _shared/rate-limit.ts import above), not a local copy.
+// WHY (2026-07-23, §12 flywheel D12 walk): the local copy tracked ONLY the hourly window and never
+// incremented `day_count`, so this surface silently BYPASSED the hive's DAILY AI ceiling - a real
+// free-tier cost bound, not style drift. The shared limiter enforces hour AND day in one place and is
+// a drop-in swap (same .allowed/.remaining used below). This REPLACES an existing limit rather than
+// adding one, so it introduces NO double-limiting on this gateway-routed specialist (the A-P3
+// "don't double-limit a gateway-routed fn" rule is respected). Do not re-inline a local copy.
 
 // ─── Asset resolution via v_asset_truth (canonical) ───────────────────────────
 
@@ -311,6 +292,18 @@ serveObserved("voice-action-router", async (req) => {
     // rate-limit for free"). Direct callers still get gated here.
     let remaining = -1;
     if (!viaGateway) {
+      // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+      // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+      // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+      // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+      // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+      // fail a real request.
+      try {
+        const _rq = await checkRouteRateLimit(db, hive_id || "", "voice-action-router");
+        // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+        // a no-op until an admin sets a cap - while always counting for attribution.
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "voice-action-router", _rq.cap);
+      } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
       if (!rl.allowed) {
         return new Response(

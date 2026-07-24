@@ -27,7 +27,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -144,6 +144,18 @@ serveObserved("voice-logbook-entry", async (req) => {
         }
       }
     }
+    // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+    // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+    // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+    // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+    // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+    // fail a real request.
+    try {
+      const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "voice-logbook-entry");
+      // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+      // a no-op until an admin sets a cap - while always counting for attribution.
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "voice-logbook-entry", _rq.cap);
+    } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id || "");
     if (!rl.allowed) return rateLimitedResponse(cors);
 

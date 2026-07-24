@@ -1,5 +1,5 @@
 /* ============================================================================
- * survey_ufai_rubric.js — the A–Z RUBRIC lens (67 dims encoded), as ONE injectable
+ * survey_ufai_rubric.js — the A–Z RUBRIC lens (90 dims encoded), as ONE injectable
  * ============================================================================
  * Ian, 2026-07-15: "retrieve our entire UFAI UI UX class dimensions by our
  * substrate, then use it as your lens to re-survey the entire analytics pages
@@ -50,6 +50,9 @@
     B3: { maxSentenceWords: 20, maxFkGrade: 8, minGradedWords: 12 },
     C1: { maxDisplaySizes: 3, maxSizeTiers: 10 },
     C2: { contrastNormal: 4.5, contrastLarge: 3, largePx: 24, largeBoldPx: 18.66 },
+    // C5 — APCA (WCAG 3 successor) perceptual Lc minimums, from the harvested APCA table.
+    // minPx is APCA's supported floor: below it the answer is "text too small", not a contrast score.
+    C5: { minPx: 14, lcBody: 75, lcContent: 60, lcLarge: 45 },
     D3: { maxButtonShapes: 6 },
     E4: { maxIdsPerBlock: 7 },
     F1: { minTapPx: 44 },
@@ -477,7 +480,25 @@
     ].filter(Boolean).length, 3, `bigSizes=[${big.join(',')}] distinct=${sizes.length}`));
 
     let cPass = 0, cTotal = 0, worst = { r: 99, t: '' };
+    let bPass = 0, bTotal = 0, tinySentences = 0;   // C5 (APCA) + C4 tiny-prose evidence
     const c2Off = [];   // every failing element, not just the worst — the fix list
+    const c2bOff = [];
+    // APCA-W3 0.1.9 (Myndex). Validated against the published anchors: black-on-white 106.04,
+    // white-on-black -107.88, #888-on-#fff 63.06 — all reproduced to 2dp before this shipped.
+    const apcaLc = (txt, bgc) => {
+      const T = 2.4, bT = 0.022, bC = 1.414, S = 1.14, off = 0.027;
+      const sY = (c) => 0.2126729 * Math.pow(c.r / 255, T)
+                      + 0.7151522 * Math.pow(c.g / 255, T)
+                      + 0.0721750 * Math.pow(c.b / 255, T);
+      let t = sY(txt), g = sY(bgc);
+      t = t > bT ? t : t + Math.pow(bT - t, bC);
+      g = g > bT ? g : g + Math.pow(bT - g, bC);
+      if (Math.abs(g - t) < 0.0005) return 0;
+      let o;
+      if (g > t) { const s2 = (Math.pow(g, 0.56) - Math.pow(t, 0.57)) * S; o = s2 < 0.1 ? 0 : s2 - off; }
+      else       { const s2 = (Math.pow(g, 0.65) - Math.pow(t, 0.62)) * S; o = s2 > -0.1 ? 0 : s2 + off; }
+      return o * 100;
+    };
     textEls.forEach(e => {
       // EMOJI-ONLY glyphs (a 🔧/📋 ss-tile-cap icon) render in their OWN colour — the CSS `color`
       // is never painted, so scoring text-contrast on them measures a colour the user never sees
@@ -505,6 +526,63 @@
         : ratioVs(comp, bg);
       const fs = parseFloat(s.fontSize), fw = parseInt(s.fontWeight) || 400;
       const need = (fs >= TH.C2.largePx || (fs >= TH.C2.largeBoldPx && fw >= 700)) ? TH.C2.contrastLarge : TH.C2.contrastNormal;
+      // ── C5 · APCA perceptual contrast (harvested 2026-07-24 from git.apcacontrast.com) ──
+      // WCAG 2.x ratio is a simple luminance quotient and is KNOWN to overestimate legibility on
+      // DARK backgrounds — which is this entire platform. Measured live: rgba(255,255,255,~0.7)
+      // text at 14px on the navy surface scores WCAG 8.6:1 (passes comfortably) but APCA Lc 62-64
+      // against a 75 minimum. C2 structurally cannot see this, so C5 is not redundant with it.
+      // Sub-14px text is EXCLUDED (outside APCA's size table) and counted for C4 instead — the
+      // answer there is "the type is too small", not "the colour is wrong".
+      // effBg may return a GRADIENT descriptor (has .stops) whose r/g/b are undefined — that would
+      // silently produce NaN and score every gradient-backed element as a fail. Require a flat colour.
+      const bgFlat = bg && Number.isFinite(bg.r) && Number.isFinite(bg.g) && Number.isFinite(bg.b);
+      // ★CALIBRATION (2026-07-24 live sweep): SKIP an element sitting on a background-IMAGE GRADIENT
+      // (a filled button like .btn-next: navy text on a linear-gradient(orange) fill). effBg reads
+      // only `backgroundColor` (transparent on such a button) and walks UP to the navy shell, so C5
+      // scored navy-on-navy = a false Lc61 — while the real contrast (navy on bright orange) is high.
+      // Same blindspot C2 handles via gradient stops; here we simply exclude the element (APCA has no
+      // single bg to score against a multi-stop fill, and a filled-button's dark text is deliberate).
+      const _onGradient = (el) => {
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+          const cs = getComputedStyle(n);
+          if ((cs.backgroundImage || '').includes('gradient')) return true;
+          const bc = rgb(cs.backgroundColor);
+          if (bc && bc.a >= 0.85) return false;   // hit an opaque flat bg first -> not on a gradient
+        }
+        return false;
+      };
+      if (fs >= TH.C5.minPx && !clipText && bgFlat && Number.isFinite(comp.r) && !_onGradient(e)) {
+        // ★CALIBRATION (2026-07-24): APCA's Lc 75 floor is for BODY / COLUMN PROSE; discrete content
+        // text that is NOT fluent body (a button/link label, a chip, a short standalone caption) has a
+        // Lc 60 minimum per the harvested APCA table. The lens was applying lcBody(75) to a "Load More"
+        // button, flagging the BRAND orange (#F7A21B, Lc 60) as a fail. A control label is not body
+        // prose -> content floor. Interactive OR short-single-line (<= ~24ch, no sentence) => lcContent.
+        // DISCRETE (non-prose) UI text gets APCA's content floor (Lc 60), not the body/column-prose
+        // floor (Lc 75): interactive control labels (button/link/summary) AND status content — an
+        // alert/status BANNER, a badge, a chip, a pill. These are single-line UI messages, never
+        // "columns of fluent body text", so Lc 60 is the correct APCA minimum (e.g. the orange
+        // low-stock warning banner at --wh-orange-light Lc 70). Safe: every muted-text fix lands at
+        // Lc 77+, so lowering these to 60 masks no real failure - only brand-accent status text.
+        // Also HEADINGS: APCA's Lc 75 is for "columns of fluent BODY text"; a heading/title is
+        // discrete content (Lc 60), not a column of prose. A small brand-accent H1/H2 (e.g. the
+        // orange-light "Engineering Design" title at Lc 70) is a title, not body copy. Only real
+        // paragraphs (p / li with a sentence) keep the Lc 75 body floor.
+        const _isUiLabel = (el) => (el.tagName || '').match(/^H[1-6]$/) ? true : !!el.closest(
+          'button, a[href], [role="button"], summary,'
+          + ' [role="alert"], [role="status"], .badge, .chip, .pill,'
+          + ' .verdict, [class*="banner"], [id*="banner"], [class*="tab"], [class*="pill"]');
+        const _bodyFloor = _isUiLabel(e) ? TH.C5.lcContent : TH.C5.lcBody;
+        const lcNeed = (fs >= 36 || (fs >= 24 && fw >= 700)) ? TH.C5.lcLarge
+                     : (fs >= 24 || (fs >= 16 && fw >= 700)) ? TH.C5.lcContent
+                     : _bodyFloor;
+        const lc = Math.abs(apcaLc(comp, bg));
+        bTotal++;
+        if (lc >= lcNeed) bPass++;
+        else c2bOff.push({ t: ownText(e).slice(0, 24), px: Math.round(fs), w: fw,
+                           lc: Math.round(lc), need: lcNeed, wcag: +cr.toFixed(2) });
+      } else if (fs < TH.C5.minPx && ownText(e).trim().split(/\s+/).length >= 6) {
+        tinySentences++;   // long-form prose below APCA's size floor -> C4 legible-size evidence
+      }
       cTotal++;
       if (cr >= need) cPass++;
       else {
@@ -514,6 +592,14 @@
       }
     });
     out._c2 = c2Off;
+    out._c2b = c2bOff;
+    out._tinySentences = tinySentences;
+    out.push(bTotal
+      ? M('C5', 'Perceptual contrast (APCA Lc)', bPass, bTotal,
+          c2bOff.length
+            ? `${c2bOff.length} pass WCAG but miss APCA Lc (worst: "${c2bOff[0].t}" Lc ${c2bOff[0].lc}/${c2bOff[0].need} at ${c2bOff[0].px}px)`
+            : 'all text meets its APCA Lc minimum for its size/weight')
+      : NA('C5', 'Perceptual contrast (APCA Lc)', 'no text at or above APCA’s 14px size floor in this state'));
     out.push(cTotal
       ? M('C2', 'Colour & contrast (WCAG)', cPass, cTotal,
           cPass === cTotal ? 'all text >= its WCAG floor' : `worst ${worst.r}:1 "${worst.t}"`)
@@ -881,7 +967,7 @@
     // (the card carries the tone class), whose direct text-nodes are empty -> 3 real chips
     // read as "colour-only" when they are labelled. Judge the chip's rendered text.
     // A NO-DATA placeholder tag (content is only "-"/"—") is not a colour-coded status SIGNAL --
-    // it honestly says "no value yet", it does not rely on colour. analytics/achievements render
+    // it plainly says "no value yet", it does not rely on colour. analytics/achievements render
     // .sc-tag as "-" until the metric has data; flagging those as "colour-only" is a false
     // positive (they show real labels once populated). Drop dash-only slots; a genuinely EMPTY
     // coloured dot (no dash) still counts + is flagged, which is the real never-colour-alone risk.
@@ -920,8 +1006,29 @@
     // ── M · Forms ───────────────────────────────────────────────────────────
     const fields = $$('input, select, textarea', R).filter(vis);
     if (fields.length) {
-      const named = fields.filter(f => f.labels?.length || f.getAttribute('aria-label') || f.getAttribute('aria-labelledby'));
-      const phOnly = fields.filter(f => f.placeholder && !(f.labels?.length || f.getAttribute('aria-label')));
+      // M1 demands a label the USER CAN SEE ("label ABOVE/left, NEVER placeholder-as-label"), but v1
+      // counted a bare `aria-label` as satisfying it — so a field that is only announced to screen
+      // readers scored PASS while a sighted user saw an unexplained box (found live 2026-07-24 on the
+      // reject-reason prompt; axe reports 0 violations, the axe-0-violations false 100). A label only
+      // counts if it is RENDERED text bound to the control.
+      const visLabel = (f) => {
+        if (f.labels && [...f.labels].some(l => vis(l) && l.textContent.trim())) return true;
+        const lb = f.getAttribute('aria-labelledby');
+        if (lb) { const t = document.getElementById(lb); return !!(t && vis(t) && t.textContent.trim()); }
+        return false;
+      };
+      // CONVENTIONAL exemptions — where a visible label would be noise, not clarity, and aria-label is
+      // the correct pattern: search/filter boxes, compose/ask/reply affordances beside a send button,
+      // and cells inside a REPEATING row editor (the row already shows what the value belongs to).
+      // Without these the rule manufactures false fails — the SC 2.4.11 `position:static` over-reach.
+      const convOK = (f) => {
+        const hay = ((f.getAttribute('aria-label') || '') + ' ' + (f.id || '') + ' ' + (f.name || '')).toLowerCase();
+        return f.type === 'search'
+          || /search|filter|query|\bask\b|reply|coach|message|compose|question/.test(hay)
+          || !!f.closest('[data-idx], tr, .item-row, .parts-row');
+      };
+      const named = fields.filter(f => visLabel(f) || (convOK(f) && f.getAttribute('aria-label')));
+      const phOnly = fields.filter(f => f.placeholder && !visLabel(f) && !convOK(f));
       out.push(M('M1', 'Labels & structure', named.length - phOnly.length, fields.length,
         `${named.length}/${fields.length} labelled, ${phOnly.length} placeholder-as-label`));
       const validated = fields.filter(f => f.required || f.pattern || f.getAttribute('aria-invalid') !== null);
@@ -1016,8 +1123,91 @@
       : M('Q1', 'prefers-reduced-motion', rmBlocks > 0 ? 1 : 0, 1,
           `${rmBlocks} reduced-motion block(s), ${animated.length} animated el(s)`));
 
+    // Q2 · NO PHANTOM FOCUS STOP (WCAG 2.2 SC 2.4.11 Focus Not Obscured) — NEW 2026-07-23 (§12,
+    // found by the live-MCP keyboard walk). A control hidden with opacity:0 (or an opacity:0
+    // ANCESTOR) but WITHOUT visibility:hidden / display:none / inert / aria-hidden is invisible to
+    // sighted+mouse users yet STILL IN THE TAB ORDER: a keyboard user lands on an unusable control
+    // with the focus ring on nothing. REAL bug found+fixed: the companion widget (#wh-ai-widget) was
+    // opacity:0 + pointer-events:none with visibility:visible, so its "Open companion" trigger stayed
+    // focusable UNDER the fixed nav-hub FAB, on ~30 pages via shared chrome (fixed centrally with
+    // visibility:hidden + a delayed transition). ★AXE CANNOT SEE THIS: axe treats only display:none /
+    // visibility:hidden / aria-hidden as hidden, so an opacity:0 container scores CLEAN — which is why
+    // the arc-wide "0 axe violations" was true and this bug still shipped. The fix for a hidden-but-
+    // animated container is visibility:hidden (+ `transition: visibility 0s linear <fade>`), or inert.
+    try {
+      // ★CALIBRATION 2: start at the PARENT, not the element. A control that makes ITSELF opacity:0
+      // is the well-known accessible "custom file upload" pattern - an <input type=file> laid over a
+      // styled button, which MUST stay focusable and carries its own aria-label. The phantom bug is
+      // strictly a focusable trapped inside a hidden CONTAINER (a closed modal/panel/toast), so only
+      // ANCESTOR opacity counts. Without this, marketplace + marketplace-seller false-failed on their
+      // legitimate upload inputs.
+      const _opacityHidden = (e) => {
+        for (let n = e.parentElement; n && n !== document.body; n = n.parentElement) {
+          const cs = getComputedStyle(n);
+          if (parseFloat(cs.opacity) === 0) return n;
+        }
+        return null;
+      };
+      const _focusables = $$('a[href],button,input:not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])')
+        .filter((e) => !e.disabled && !e.closest('[inert]') && !e.closest('[aria-hidden="true"]'))
+        .filter((e) => { const cs = getComputedStyle(e); return cs.visibility !== 'hidden' && cs.display !== 'none'; })
+        // ★CALIBRATION (2026-07-23): the element must actually be RENDERED. Checking only its OWN
+        // computed display misses the common case of a closed modal/sheet/wizard-step whose ANCESTOR
+        // is display:none - the child still reports display:block, and a `from{opacity:0}` animation
+        // keyframe on that subtree makes it look opacity-hidden too. Those controls are NOT in the tab
+        // order (verified live: .focus() does nothing), so flagging them is a FALSE POSITIVE - it
+        // wrongly failed 6 pages (pm-scheduler alone reported 20 phantoms, all unrendered).
+        // opacity:0 does NOT remove an element from layout, so the REAL phantoms still have a box.
+        .filter((e) => e.offsetParent !== null || e.getClientRects().length > 0);
+      const _phantoms = _focusables.filter(_opacityHidden);
+      out.push(_focusables.length === 0
+        ? NA('Q2', 'No phantom focus stop (WCAG 2.2 focus-not-obscured)', 'no focusable control in this state')
+        : M('Q2', 'No phantom focus stop (WCAG 2.2 focus-not-obscured)', _phantoms.length ? 0 : 1, 1,
+            _phantoms.length
+              ? `${_phantoms.length} focusable control(s) are opacity:0 yet still in the tab order (keyboard lands on an invisible control) [SC 2.4.11]`
+              : `${_focusables.length} focusable control(s), none hidden-but-focusable`));
+    } catch (_) { /* empty-catch-allow: best-effort focus-hygiene lens */ }
+
+    // Q3 · DRAGGING ALTERNATIVE (WCAG 2.2 SC 2.5.7) — NEW 2026-07-23 (§12). Any function operated by
+    // a DRAG must also be operable by a single pointer (click/tap), because dragging needs sustained
+    // fine motor control that a tremor / one-handed / gloved / switch user may not have. VERIFIED
+    // CLEAN at authoring time, so this is a forward-RATCHET, not a backlog: the only drag surface on
+    // the platform is integrations.html's CSV drop-zone, which pairs it with a click-to-browse
+    // <input type=file> (the correct alternative); dayplanner — which I assumed was drag-scheduled —
+    // is actually "click item then click a time slot", i.e. single-pointer BY DESIGN. This dim exists
+    // so that the day someone adds a drag-to-reorder or drag-to-reschedule with no click path, it FAILs.
+    try {
+      const _dragSrc = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+      const _dragEls = $$('[draggable="true"]');
+      const _hasDrag = _dragEls.length > 0 || /addEventListener\(\s*['"](dragstart|drop)['"]/.test(_dragSrc) || /ondragstart|ondrop=/.test(_dragSrc);
+      if (!_hasDrag) {
+        out.push(NA('Q3', 'Dragging has a single-pointer alternative (WCAG 2.2)', 'no drag-operated function on this page'));
+      } else {
+        // an acceptable alternative: a click-to-browse file input (for a drop-zone), or explicit
+        // move/reorder/reschedule controls (for a drag-to-order list).
+        const _fileAlt = !!document.querySelector('input[type=file]');
+        const _moveAlt = $$('button,a[href],[role=button],select').some((e) => {
+          const t = ((e.textContent || '') + ' ' + (e.getAttribute('aria-label') || '') + ' ' + (e.id || ''));
+          return /(move (up|down|to)|reorder|reschedul|change (time|slot)|earlier|later|browse|choose file|select file)/i.test(t);
+        });
+        const _ok = _fileAlt || _moveAlt;
+        out.push(M('Q3', 'Dragging has a single-pointer alternative (WCAG 2.2)', _ok ? 1 : 0, 1,
+          _ok ? 'drag surface present AND operable by a single pointer (' + (_fileAlt ? 'click-to-browse file input' : 'move/reorder controls') + ')'
+              : 'a drag-operated function has NO single-pointer alternative - unusable with a tremor, one hand, gloves, or a switch [SC 2.5.7]'));
+      }
+    } catch (_) { /* empty-catch-allow: best-effort dragging-alternative lens */ }
+
     // ── R · Layout rhythm ───────────────────────────────────────────────────
-    const kids = [...R.children].filter(vis);
+    // ★CALIBRATION (2026-07-24, live full-lens sweep): EXCLUDE sr-only / visually-clipped
+    // headings from the gap analysis. A page's accessible structure often includes a
+    // 1px-clipped `<h2 class="sr-only">` (position:absolute; width:1px; height:1px;
+    // clip:rect(0 0 0 0); margin:-1px) - the standard screen-reader-only heading pattern.
+    // vis() counts it (offsetParent set, not display:none) so R1 measured the gap ABOVE it
+    // as 31px (32 filter-margin + the -1px sr-only margin) = a FALSE off-scale hit on
+    // marketplace + agentic-rag-observability. An sr-only heading is NOT a visual layout
+    // block; a root-level child is never legitimately <=1px. Skip them.
+    const _notSrOnly = (e) => { const r = e.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
+    const kids = [...R.children].filter((e) => vis(e) && _notSrOnly(e));
     const gaps = [];
     for (let i = 1; i < kids.length; i++) {
       const p = kids[i - 1].getBoundingClientRect(), c = kids[i].getBoundingClientRect();
@@ -1323,9 +1513,26 @@
     // not visible on some pages." Founder-console-only surfaces are exempt (no companion by design).
     {
       const companion = document.querySelector('#wh-ai-trigger, #wh-ai-launcher, [data-companion-launcher], [class*="companion"][class*="launch"], .wh-ai-fab');
-      const compVis = !!(companion && vis(companion));
+      // ★W2 RECALIBRATION (2026-07-23, forced by the Q2 fix — and it exposed a FALSE PASS).
+      // W2 was written PRE-FAB-CONSOLIDATION, when the companion was its own floating corner FAB, so it
+      // demanded the launcher be VISIBLE. Since the 2026-07-20 consolidation the idle corner is ONE hub
+      // FAB and the companion is launched FROM the nav-hub's Companion row — the closed widget is
+      // invisible BY DESIGN. W2 kept passing only because the closed widget used `opacity:0`, which
+      // slipped past this visibility check: it was scoring a control the user CANNOT SEE as "visible" =
+      // a false pass. Making the closed widget `visibility:hidden` (the Q2 focus fix) surfaced it.
+      // W2's REAL job (per its origin bug: personaAvatarHTML lived only in wh-persona.js, which ~30 pages
+      // never loaded, so the trigger avatar rendered BLANK) is "the companion module is LOADED and its
+      // avatar RENDERS" — not "a closed panel is on-screen". So credit PRESENCE + a rendered avatar, and
+      // require the hub (the thing that actually launches it) to be visible. A page that never loads
+      // companion-launcher.js / wh-persona.js still FAILs, which is the regression W2 exists to catch.
+      const compLaunchable = !!(companion && (vis(companion) || document.querySelector('#wh-hub-fab, #wh-hub')));
+      const compVis = compLaunchable;
       const avatar = companion && companion.querySelector('img, svg, canvas, .wh-avatar, [class*="avatar"]');
-      const avatarVis = !!(avatar && vis(avatar));
+      // Same recalibration: the avatar lives INSIDE the (deliberately hidden-while-closed) widget, so
+      // grade whether it RENDERED (the element exists and has real content/box), not whether it is
+      // currently on-screen. This still catches the origin bug — a BLANK avatar on a page that never
+      // loaded wh-persona.js leaves no img/svg/avatar node at all, so avatarVis stays false.
+      const avatarVis = !!(avatar && (vis(avatar) || avatar.getClientRects().length > 0 || (avatar.innerHTML || '').trim().length > 0));
       const navHub = document.querySelector('#wh-hub-fab, #wh-hub-launcher, .wh-hub-fab, [data-nav-hub]');
       const hubVis = !!(navHub && vis(navHub));
       const anyCompanion = !!companion || !!navHub;   // if a page ships NO shell at all it's likely exempt (print/poster)
@@ -1579,6 +1786,334 @@
         : M('X2', 'Interruption resilience (a compose form auto-saves a draft that survives refresh)', _draftWired ? 1 : 0, 1,
           _draftWired ? (_compose.length + ' compose field(s) + draft-persistence wired (whAutoSaveDraft/own autosave; type->refresh->restore is the live journey step)') : (_compose.length + ' compose field(s) with NO draft-persistence — a refresh/interruption silently loses in-progress work')));
     } catch (_) { /* empty-catch-allow: best-effort interruption-resilience lens */ }
+
+    // ── X1 · TASK-FLOW COHERENCE (journey dim — static affordance slice) — 2026-07-23 ──────────────
+    // A task must never DEAD-END: the conditional EMPTY/NO-RESULTS states (in the DOM even while hidden —
+    // gradable WITHOUT triggering them) must each offer a NEXT STEP — a CTA control inside the panel, or
+    // guidance text naming the recovery path (what to add, which filter to adjust, where data surfaces).
+    // NN/g: journey friction/drop-off concentrates at dead-ends. The deeper X1 (steps/backtracks/context-
+    // carry across a real multi-step task) is the live-journey step (roadmap).
+    try {
+      const _inChromeX1 = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[class*=companion-launch],[id*=companion],#wh-ai-widget,#wh-ai-trigger'));
+      // conditional-state panels: empty/no-results/blank-state shaped, with real message text (≥10 chars
+      // filters styling-only `class="empty"` cells and short "—" pills, which are not journey states);
+      // outermost-only so a guided parent panel isn't double-graded through a text-only child.
+      const _allX1 = Array.from(document.querySelectorAll('[class*=empty-state],[class*=empty-row],[class*=no-data],[class*=blank-state],[id*=no-results],[id*=empty]'))
+        .filter((e) => !_inChromeX1(e) && (e.textContent || '').trim().length >= 10);
+      const _setX1 = new Set(_allX1);
+      const _panels = _allX1.filter((e) => { let a = e.parentElement; while (a) { if (_setX1.has(a)) return false; a = a.parentElement; } return true; });
+      const _cta = (p) => !!p.querySelector('a[href],button,[role=button],[onclick],input:not([type=hidden]),select');
+      // guidance = an ACTION VERB naming the recovery (calibrated 2026-07-23 against the live board: the
+      // platform's real guidance vocabulary includes fill/register/open/run/wire — "Fill in the form below",
+      // "Register assets in the Logbook first", "Open Integrations to wire one", "Run an AI question").
+      const _guide = (p) => /\badd\b|\bcreate\b|\bnew\b|\bstart\b|\btap\b|\bclick\b|\bgenerate\b|\bupload\b|\bimport\b|\binvite\b|\bbrowse\b|\blog\b|\bpost\b|\btry\b|\badjust\b|\bfilter|\bmatch|\bclear\b|\breset\b|\brefresh\b|\bsearch\b|\bfill\b|\bregister\b|\bopen\b|\brun\b|\bwire\b|\bwiden\b|\bconnect\b|\bselect\b|\benable\b|\bgo to\b|check back|lands? here|surface[sd]? here|appears? here|will (appear|show|surface)|use the\b|\bvia\b/i.test(p.textContent || '');
+      // a POSITIVE/healthy zero-state is a SUCCESS, not a dead-end: "All caught up" (inbox-zero) and a
+      // monitoring page's "no anomalies" (silence-is-golden) celebrate absence — no next step owed.
+      const _positive = (p) => /all caught up|all done|all set|up to date|all clear|no (fused )?anomal|nothing (pending|due|overdue)/i.test(p.textContent || '');
+      const _dead = _panels.filter((p) => !_positive(p) && !_cta(p) && !_guide(p));
+      out.push(!_panels.length
+        ? NA('X1', 'Task-flow coherence (no dead-end conditional state)', 'no conditional empty/no-results panels in the DOM — dead-end slice N/A (dynamic states are the live-journey step)')
+        : M('X1', 'Task-flow coherence (every empty/no-results state offers a next step)', _panels.length - _dead.length, _panels.length,
+          _dead.length ? (_dead.length + ' dead-end state(s) — a user landing there has NO next step: "' + _dead.slice(0, 3).map((p) => (p.textContent || '').trim().slice(0, 40)).join('" · "') + '"') : ('all ' + _panels.length + ' conditional state(s) offer a CTA or recovery guidance')));
+    } catch (_) { /* empty-catch-allow: best-effort task-flow lens */ }
+
+    // ── Y2 · STRESS-CASE / REAL-LIFE RESILIENCE (journey dim — static timing slice) — 2026-07-23 ───
+    // A tired/rushed/gloved field worker must never be RACED by the UI on a consequential action (COGA:
+    // give time, no surprise timeouts): an UNDO recovery window must be ≥8s, and a task RESULT (which can
+    // carry failure receipts) must never auto-wipe on a short countdown. whConfirm (persistent modal, no
+    // timer) passes by construction. Only inline page scripts are scanned (document.scripts textContent is
+    // empty for src= scripts — same contract as X2's _draftWired). The deeper Y2 (persona walk: ≤3 steps,
+    // 2-min interruption survival) is the live-journey step (roadmap).
+    try {
+      const _srcY2 = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+      const _consequential = /whConfirm\s*\(|showUndoToast\s*\(|soft-?delete/i.test(_srcY2)
+        || Array.from(document.querySelectorAll('button,[role=button]')).some((e) => /\b(delete|remove|archive|reject|revoke|release|refund)\b/i.test(e.textContent || ''));
+      const _hazards = [];
+      const _undoM = _srcY2.match(/ttlMs\s*=\s*(\d{3,6})/) || _srcY2.match(/showUndoToast\s*\([^(]*,[^,()]+,\s*(\d{3,6})\s*\)/);
+      if (_undoM && +_undoM[1] < 8000) _hazards.push('undo window ' + _undoM[1] + 'ms < 8s — a rushed/gloved worker loses the recovery path');
+      const _resetM = _srcY2.match(/(?:startAutoReset|autoReset)\s*\(\s*(\d{1,3})\s*\)/i);
+      if (_resetM && +_resetM[1] < 10) _hazards.push('results auto-wipe on a ' + _resetM[1] + 's countdown — a failure receipt vanishes before a stressed user reads it');
+      out.push(!_consequential
+        ? NA('Y2', 'Stress-case resilience (no time-pressure on consequential actions)', 'no consequential/destructive actions on this page — stress-timing N/A')
+        : M('Y2', 'Stress-case resilience (undo ≥8s; results never auto-wipe on a short countdown)', _hazards.length ? 0 : 1, 1,
+          _hazards.length ? _hazards.join(' · ') : 'consequential actions are time-unlimited (whConfirm modal / adequate undo window; the persona walk is the live journey step)'));
+    } catch (_) { /* empty-catch-allow: best-effort stress-resilience lens */ }
+
+    // ══ CLASS AI · AI-NATIVE EXPERIENCE (Microsoft HAX 18 guidelines) — 2026-07-23 ══════════════════
+    // WorkHive is AI-heavy (assistant/companion/shift-brain brief/analytics insight/asset-brain/voice).
+    // The A–Z rubric grades the artifact-at-rest; these grade the AI INTERACTION per page.
+    // Cite: external-human-ai-interaction-18-guidelines-confidence-co.
+    try {
+      const _vfa = (e) => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden';
+      const _srcAI = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+      const _bodyTxt = (document.body.innerText || '').slice(0, 5000);
+      // page-OWN AI surfaces (the companion #wh-ai-* is a shared component graded separately; its panel
+      // isn't open at survey time). Input = a chat/ask/query box; output = assistant bubbles / AI-brief cards.
+      const _aiInput = Array.from(document.querySelectorAll('textarea,input[type=text],input:not([type])')).filter((e) =>
+        _vfa(e) && /\b(chat|ask|assistant|companion|ai-?input|ai-?query|prompt)\b/i.test((e.id || '') + ' ' + (e.className || '') + ' ' + (e.getAttribute('aria-label') || '')));
+      const _aiInvoke = /functions\.invoke\(\s*['"](ai-gateway|[a-z-]*orchestrator|asset-brain[a-z-]*|semantic[a-z-]*|ai-[a-z-]+|shift-planner[a-z-]*|voice-[a-z-]*intent)/i.test(_srcAI) || /\bwhAiError\b|\bcallAI\b/i.test(_srcAI);
+      // UNAMBIGUOUS AI output (chat bubbles / ai-* / replies) always counts; AMBIGUOUS shared classes
+      // (.verdict-text / .briefing-text — also used for NON-AI status verdicts, e.g. project-manager's
+      // project verdict) count as AI output ONLY when the page actually invokes an AI engine (§16.1: the
+      // ruler must not read a non-AI verdict as an AI answer).
+      const _aiOutHard = Array.from(document.querySelectorAll('.bubble-assistant,[class*=ai-insight],[class*=ai-answer],[class*=ai-response],[class*=reply-bubble],[class*=history-reply],[id*=current-reply],[id*=ai-brief],[class*=ai-brief]')).filter(_vfa);
+      // the shared .verdict-text/.briefing-text counts as AI OUTPUT only when a BRIEF orchestrator
+      // (shift-planner/analytics) renders its answer INTO it. An INTENT-parse AI (project-orchestrator
+      // phase:intent → pre-fills an editable wizard; voice-intent) produces no displayed answer here —
+      // its correction path IS the editable wizard, and the page's verdict is a non-AI project status.
+      const _aiBrief = /functions\.invoke\(\s*['"](shift-planner[a-z-]*|analytics-orchestrator)/i.test(_srcAI);
+      const _aiOutSoft = _aiBrief ? Array.from(document.querySelectorAll('#briefing-text,.briefing-text,.verdict-text')).filter(_vfa) : [];
+      const _aiOut = _aiOutHard.concat(_aiOutSoft);
+
+      // AI1 capability transparency [HAX G1: make clear what the system can do]
+      if (_aiInput.length) {
+        const _hint = _aiInput.some((e) => /ask|try|e\.g|example|search|type\b|what|how|question/i.test(e.placeholder || ''))
+          || /example|starter|try asking|suggest|e\.g\.|for example/i.test(_bodyTxt)
+          || !!document.querySelector('[class*=starter],[class*=example-prompt],[class*=prompt-chip],[class*=quick-ask],[class*=suggest]');
+        out.push(M('AI1', 'AI capability transparency (the input hints what it can do)', _hint ? 1 : 0, 1,
+          _hint ? 'AI input carries a capability hint (example/starter/rich placeholder)' : 'AI input is a BLANK box — the user must guess what to ask [HAX G1]'));
+      } else out.push(NA('AI1', 'AI capability transparency', 'no AI input surface on this page'));
+
+      // AI2 confidence & grounding [HAX G2 how-well + G11 why]
+      if (_aiOut.length) {
+        const _grounded = !!document.querySelector('.wh-source-chip,[class*=source-chip],[class*=provenance],[class*=how-computed],[class*=grounded],[class*=citation]')
+          || /based on|sourced from|computed from|according to|from your|per your|grounded in/i.test(_aiOut.map((e) => e.innerText || '').join(' ').slice(0, 3000))
+          || /renderSourceChip|facts_used|provenance|grounding|citation/i.test(_srcAI);
+        out.push(M('AI2', 'AI confidence & grounding (output shows its basis)', _grounded ? 1 : 0, 1,
+          _grounded ? 'AI output carries grounding/provenance (source chip / "based on" / how-computed)' : 'AI output is a BARE claim — no grounding/source shown [HAX G2/G11]'));
+      } else out.push(NA('AI2', 'AI confidence & grounding', 'no AI output surface on this page'));
+
+      // AI3 correction & feedback [HAX G9 correction + G15 granular feedback]
+      if (_aiOut.length) {
+        const _fb = /👍|👎|thumbs|data-feedback|rate.?(this|answer|reply)|\bhelpful\b|feedbackAi|\bretry\b|regenerate|try again/i.test(_srcAI + ' ' + document.body.innerHTML.slice(0, 12000));
+        out.push(M('AI3', 'AI correction & feedback (retry + per-response feedback)', _fb ? 1 : 0, 1,
+          _fb ? 'AI output has a feedback/retry affordance (👍/👎 / retry / regenerate)' : 'AI output has NO correction/feedback path — a wrong answer is a dead-end [HAX G9/G15]'));
+      } else out.push(NA('AI3', 'AI correction & feedback', 'no AI output surface on this page'));
+
+      // AI4 graceful failure & scoping [HAX G10: scope when in doubt]
+      if (_aiInvoke) {
+        const _graceful = /\bwhAiError\b/i.test(_srcAI) || /catch\s*\([^)]*\)\s*\{[^}]*(showToast|addBubble|showError|\bretry\b|try again|couldn|could not|unavailable|offline|not sure)/i.test(_srcAI);
+        out.push(M('AI4', 'AI graceful failure (honest error + retry, no fabrication)', _graceful ? 1 : 0, 1,
+          _graceful ? 'AI failures degrade gracefully (whAiError / honest catch + retry)' : 'an AI call lacks a visible honest-failure path (a 429/500 could dead-end or fake success) [HAX G10]'));
+      } else out.push(NA('AI4', 'AI graceful failure', 'no AI invoke on this page'));
+
+      // AI5 global controls & dismissal [HAX G8 dismissal + G17 global controls]
+      const _aiOverlay = document.querySelector('#chat-screen,#ask-card,[class*=companion-panel],[class*=ai-overlay]');
+      if (_aiOverlay || _aiOut.length) {
+        const _scope = _aiOverlay || document.body;
+        const _control = !!_scope.querySelector('[aria-label*=close i],[class*=close],[data-close],[class*=dismiss],[class*=clear],[class*=reset]')
+          || /stop.?generat|clearChat|clearContext|new chat|resetPage|close.?(chat|panel|companion)/i.test(_srcAI);
+        out.push(M('AI5', 'AI global controls (close/stop/clear)', _control ? 1 : 0, 1,
+          _control ? 'AI surface is dismissable/controllable (close / stop / clear / reset)' : 'AI surface has no visible close/stop/clear control [HAX G8/G17]'));
+      } else out.push(NA('AI5', 'AI global controls', 'no AI overlay/output on this page'));
+    } catch (_) { /* empty-catch-allow: best-effort AI-native lens */ }
+
+    // ══ CLASS PP · PERCEIVED PERFORMANCE (NN/g response-time limits) — 2026-07-23 ═══════════════════
+    // 0.1s instant · 1s flow · 10s attention. An async op OWES a working indicator at >1s and
+    // progress+cancel at >10s. Cite: external-perceived-performance-optimistic-ui-skeleton-mot.
+    try {
+      const _srcPP = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+      const _asyncOp = /functions\.invoke\(|db\.from\(|\.rpc\(|fetch\(|await\s+db\b/i.test(_srcPP);
+      // PP1 working indicator on >1s ops
+      if (_asyncOp) {
+        const _indicator = /whListSkeleton|whSkeleton|skeleton|spinner|\.loading\b|isLoading|showLoading|aria-busy|busy.?(true|indicator)|\bLoading\b|disabled\s*=\s*true/i.test(_srcPP)
+          || !!document.querySelector('[class*=skeleton],[class*=spinner],[class*=loading],[aria-busy]');
+        out.push(M('PP1', 'Working indicator on async ops (>1s feedback)', _indicator ? 1 : 0, 1,
+          _indicator ? 'async ops show a working state (skeleton / spinner / disabled-button / aria-busy)' : 'async ops give NO working indicator — a >1s wait looks frozen [NN/g 1s limit]'));
+      } else out.push(NA('PP1', 'Working indicator on async ops', 'no async operations on this page'));
+
+      // PP2 progress + cancel on >10s ops (AI report-gen / analytics compute / batch). Require an
+      // actual INVOKE/CALL in a user flow — not a bare string mention (status.html lists
+      // 'analytics-orchestrator' in a /health-ping FUNCTIONS array; that is a monitor, not a >10s
+      // user-facing generate → must not trip PP2. §16.1 the ruler, not the page.)
+      const _longOp = /generateReport\s*\(|functions\.invoke\(\s*['"](shift-planner[a-z-]*|analytics-orchestrator|[a-z-]*orchestrator|report-[a-z-]*|fmea-populator|weibull[a-z-]*)|generate.?(report|brief|plan)\s*\(|_populatePf\s*\(/i.test(_srcPP);
+      if (_longOp) {
+        const _progress = /progress|percent|streaming|stream\(|EventSource|startAutoReset|processing|step \d|of \d+|countdown|estimat|whAiProgress|refresh(ing)?|updating|live data/i.test(_srcPP)
+          || !!document.querySelector('[class*=progress],progress,[role=progressbar],[class*=refreshing]');
+        out.push(M('PP2', 'Progress + cancel on long (>10s) ops', _progress ? 1 : 0, 1,
+          _progress ? 'a long op surfaces progress/staged feedback' : 'a >10s op (AI/report/analytics) shows no progress or cancel — the user cannot tell it is working [NN/g 10s limit]'));
+      } else out.push(NA('PP2', 'Progress + cancel on long ops', 'no long (>10s) operation on this page'));
+
+      // PP3 optimistic acknowledgment — a submit disables/acknowledges INSTANTLY before the await.
+      // Only graded on a page that WRITES (a submit to acknowledge); a read-only page has no submit
+      // to optimistically ack (achievements/plant-connections/audit-log are read dashboards) → NA.
+      // a genuine WRITE submit — NOT a read rpc (get_*/list_* rpcs are reads, e.g. seller-profile's
+      // get_seller_community_reputation is a lookup, not a submit to acknowledge).
+      const _writeOp = /\.insert\(|\.upsert\(|\.update\(|\.delete\(\s*\)|functions\.invoke\(/i.test(_srcPP)
+        || /\.rpc\(\s*['"](?!get_|list_|fetch_|v_)/i.test(_srcPP);
+      // (a supabase delete is `.delete()` then `.eq()`; `searchParams.delete(k)` / `Map.delete(k)`
+      //  take an ARG and are NOT DB writes — audit-log is a read-only viewer, PP3 N/A there.)
+      const _btns = Array.from(document.querySelectorAll('button[type=submit],button[class*=primary],button[class*=submit],#btn-submit-post,[class*=save-btn]'));
+      if (_btns.length && _writeOp) {
+        // optimistic = instant local acknowledgment before the await: a button state change, an
+        // optimistic list render (unshift/push + render), or an instant "Added/Saved" toast.
+        const _optimistic = /\.disabled\s*=\s*true|btn\.textContent\s*=|Saving|Posting|Sending|Generating|classList\.add\(['"](loading|busy)|_prependPostCard|optimistic|unshift\(|\.push\([^)]*\)[\s;]*render|render\(\)[\s;]*.{0,40}(sync|invoke|insert|upsert)|showToast\(['"`](Added|Saved|Posted|Done|Created)/i.test(_srcPP);
+        out.push(M('PP3', 'Optimistic acknowledgment (<0.1s feel)', _optimistic ? 1 : 0, 1,
+          _optimistic ? 'a submit acknowledges instantly (button state / optimistic render before the server responds)' : 'a submit gives no instant acknowledgment — the tap feels unregistered until the server replies'));
+      } else out.push(NA('PP3', 'Optimistic acknowledgment', 'no submit action with an async op on this page'));
+    } catch (_) { /* empty-catch-allow: best-effort perceived-performance lens */ }
+
+    // ══ CLASS DL · DELIGHT & POLISH (NN/g user-delight; usability-GATED) — 2026-07-23 ═══════════════
+    // "Delightful only if usable" — credited only where the page's functional dims already pass.
+    // Cite: external-emotional-design-delight-desirability-microinter.
+    try {
+      const _srcDL = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+      // DL1 surface-delight microcopy — empty/first-run states have HUMAN, encouraging copy (not sterile)
+      const _emptyPanels = Array.from(document.querySelectorAll('[class*=empty-state],[class*=empty-row],[id*=empty],[class*=no-data]'))
+        .filter((e) => (e.textContent || '').trim().length >= 10);
+      if (_emptyPanels.length) {
+        const _txt = _emptyPanels.map((e) => (e.textContent || '')).join(' ');
+        const _human = /let'?s|welcome|great|nice|ready|get started|first|your|you'?ll|jump in|kick off|no worries|all set|all caught up|🎉|👋|🐝|✨|💡|🚀|start your/i.test(_txt);
+        const _sterile = _emptyPanels.every((e) => /^(no data|no results|empty|none|n\/a|nothing|error|\-)\.?$/i.test((e.textContent || '').trim()));
+        out.push(M('DL1', 'Surface-delight microcopy (human empty/first-run copy)', (_human && !_sterile) ? 1 : (_sterile ? 0 : 1), 1,
+          _sterile ? 'empty states are sterile ("No data") — a chance for encouraging, human microcopy [surface delight]' : 'empty/first-run copy is human + encouraging'));
+      } else out.push(NA('DL1', 'Surface-delight microcopy', 'no empty/first-run states on this page'));
+
+      // DL2 success microinteraction — a completion gives a satisfying confirmation, not a silent DOM swap
+      const _hasSuccess = /showToast|whToast|showUndoToast|XP|🎉|confetti|celebrate|animate|transition|classList\.add\(['"](done|success|complete)/i.test(_srcDL);
+      const _writes = /functions\.invoke\(|\.insert\(|\.upsert\(|\.update\(/i.test(_srcDL);
+      if (_writes) {
+        out.push(M('DL2', 'Success microinteraction (satisfying confirmation)', _hasSuccess ? 1 : 0, 1,
+          _hasSuccess ? 'a completion gives a satisfying confirmation (toast / XP / transition)' : 'a write completes with no confirming microinteraction — the action feels unacknowledged'));
+      } else out.push(NA('DL2', 'Success microinteraction', 'no write/completion action on this page'));
+    } catch (_) { /* empty-catch-allow: best-effort delight lens */ }
+
+    // ══ CLASS DD · DASHBOARD DATA-DENSITY & GLANCEABILITY (NN/g preattentive) — 2026-07-23 ═════════
+    // WorkHive is dashboard-heavy. A FOCUSED 2-dim class on the genuinely-NEW dimensions the rubric
+    // never graded (DD3 density / DD4 drill-down are covered by A3/E1/K2 — not re-graded here, anti-
+    // drift no-redundancy). Cite: external-dashboard-data-density-glanceability-preattentiv.
+    try {
+      const _inChromeDD = (e) => !!(e.closest && e.closest('#wh-feedback-panel,[class*=wh-fb-],#wh-voice-overlay,#signin-modal,[id*=nav-hub],.nav-hub,[class*=companion],#wh-ai-widget,#wh-ai-trigger'));
+      const _vfd = (e) => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden';
+      // a DASHBOARD = a page with several KPI tiles (a real at-a-glance surface), not a form/feed
+      const _kpiTiles = Array.from(document.querySelectorAll('[class*=kpi],[class*=stat-card],[class*=stat-tile],[class*=metric],[class*=board-card],.simple-card')).filter((e) => _vfd(e) && !_inChromeDD(e));
+      // a PLANNER/CALENDAR/schedule idiom (dayplanner wilo-grid, a calendar) is NOT a KPI dashboard —
+      // its cards carry times/titles, not glanceable metrics → DD N/A (§16.1 ruler calibration).
+      const _isPlanner = !!document.querySelector('[class*=calendar-wrap],[class*=wilo-grid],[class*=dilo-grid],[class*=schedule-grid],[class*=time-grid],[class*=planner-grid]');
+      const _isDashboard = _kpiTiles.length >= 3 && !_isPlanner;
+
+      // DD1 at-a-glance primary KPI — the biggest KPI number sits in the TOP portion (F-pattern first
+      // glance, preattentive 2D-position), so the most-important number is seen first.
+      if (_isDashboard) {
+        const _nums = Array.from(document.querySelectorAll('*')).filter((e) => _vfd(e) && !_inChromeDD(e)
+          && /^[\d,.]+[%kKmM]?$/.test((e.childElementCount === 0 ? (e.textContent || '') : '').trim())
+          && parseFloat(getComputedStyle(e).fontSize) >= 20);
+        if (_nums.length) {
+          const _sized = _nums.map((e) => ({ e, fs: parseFloat(getComputedStyle(e).fontSize), top: e.getBoundingClientRect().top }));
+          const _maxFs = Math.max(..._sized.map((x) => x.fs));
+          const _primary = _sized.filter((x) => x.fs >= _maxFs - 1).sort((a, b) => a.top - b.top)[0];
+          const _docH = Math.max(document.documentElement.scrollHeight, 1);
+          const _inTop = _primary && _primary.top < _docH * 0.45;
+          out.push(M('DD1', 'At-a-glance primary KPI (biggest number, seen first)', _inTop ? 1 : 0, 1,
+            _inTop ? 'the largest KPI is in the top glance zone (preattentive 2D-position)' : 'the largest KPI sits below the first-glance zone — the most-important number isn\'t seen first [NN/g preattentive]'));
+        } else out.push(NA('DD1', 'At-a-glance primary KPI', 'no glanceable KPI numbers on this dashboard'));
+      } else out.push(NA('DD1', 'At-a-glance primary KPI', 'not a KPI dashboard (fewer than 3 stat tiles)'));
+
+      // DD2 chart-type fitness — quantitative magnitude uses LENGTH/2D-position (bar/line/bullet), NOT
+      // area/angle (pie/doughnut/polar/gauge) which read slowly + inaccurately. A RADAR used for a
+      // multi-axis PROFILE (skillmatrix competency) is a legit shape comparison, not quantitative
+      // magnitude → credited (calibrated, §16.1).
+      const _srcDD = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+      const _hasChart = /new Chart\(|Chart\.js|type:\s*['"](bar|line|scatter|pie|doughnut|radar|polarArea)/i.test(_srcDD) || !!document.querySelector('canvas,[class*=chart],[class*=gauge]');
+      if (_hasChart) {
+        const _badType = /type:\s*['"](pie|doughnut|polarArea)['"]/i.test(_srcDD)
+          || !!document.querySelector('[class*=gauge]:not([class*=language]),[class*=donut],[class*=radial-progress]');
+        out.push(M('DD2', 'Chart-type fitness (length/position, not area/angle)', _badType ? 0 : 1, 1,
+          _badType ? 'a pie/doughnut/gauge encodes quantitative magnitude — slow + inaccurate to read; use a bar/line/bullet [NN/g preattentive]' : 'quantitative charts use preattentive length/position (bar/line/scatter/bullet); radar-for-profile is a legit shape comparison'));
+      } else out.push(NA('DD2', 'Chart-type fitness', 'no data-viz charts on this page'));
+    } catch (_) { /* empty-catch-allow: best-effort dashboard-glanceability lens */ }
+
+    // ══ CLASS TR · TRUST & CREDIBILITY (NN/g trustworthy design) — 2026-07-23 ══════════════════════
+    // A user makes a trust decision on a TRANSACTIONAL surface (marketplace listing / seller). Grades
+    // the UX PRESENCE of trust signals (forgery is separately gated by the trust-forge security gate —
+    // anti-drift no-redundancy). Cite: external-trustworthy-design-credibility-signals-ecommerce.
+    try {
+      const _vft = (e) => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden';
+      // BUYER-facing transactional surface = a priced listing card a buyer evaluates (marketplace
+      // browse / a seller's public profile). A seller's OWN management dashboard, a moderation console,
+      // and community (incidental review/seller markup) are NOT buyer-trust surfaces → require a
+      // buyer-facing PRICE-on-a-card signal, not just any review/seller class (§16.1 ruler calibration).
+      const _txnal = !!document.querySelector('[class*=card-price],[class*=price-pill],[class*=listing-card],[class*=listing-price]')
+        || (!!document.querySelector('[class*=seller-hero],[class*=seller-badges],[class*=member-since]') && !!document.querySelector('[class*=reviews-card],[class*=stars]'));
+      if (_txnal) {
+        // TR1 upfront disclosure — the PRICE + the SELLER identity are shown up front (not gated/hidden)
+        const _price = !!document.querySelector('[class*=price],[class*=price-pill]') || /₱|\bfree\b|negotiable/i.test(document.body.innerText.slice(0, 6000));
+        const _seller = !!document.querySelector('[class*=seller],[class*=author],[class*=badge-tier],[class*=member-since]');
+        out.push(M('TR1', 'Upfront disclosure (price + seller shown, not gated)', (_price && _seller) ? 1 : 0, 1,
+          (_price && _seller) ? 'price + seller identity disclosed up front (trust via transparency)' : 'a transactional surface hides ' + (!_price ? 'price' : 'seller') + ' up front — trust erodes when key info is gated [NN/g disclosure]'));
+        // TR2 credibility signals — verification / rating / reviews / seller history present
+        const _cred = !!document.querySelector('[class*=verified],[class*=badge-tier],[class*=stars],[class*=rating],[class*=review],[class*=trust-item],[class*=trust-bar],[class*=reputation],[class*=member-since]');
+        out.push(M('TR2', 'Credibility signals (verified / rating / reviews / history)', _cred ? 1 : 0, 1,
+          _cred ? 'credibility signals present (verified badge / rating / reviews / seller history)' : 'no credibility signals — a buyer has nothing to trust the seller by [NN/g credibility]'));
+      } else {
+        out.push(NA('TR1', 'Upfront disclosure', 'no transactional surface on this page'));
+        out.push(NA('TR2', 'Credibility signals', 'no transactional surface on this page'));
+      }
+    } catch (_) { /* empty-catch-allow: best-effort trust lens */ }
+
+    // ══ CLASS RE · RE-ENGAGEMENT & CONTENT FRESHNESS (NN/g) — 2026-07-23 ═══════════════════════════
+    // A feed/social surface must help a RETURNING user find what's NEW: per-item freshness + a new-
+    // content signal (realtime/unread/badge). Distinct from G4 (page-level single freshness source) +
+    // the cross-page nav-hub badge (RE1 is ON the feed). ON (onboarding depth) = covered by X1 (first-
+    // run guidance) — not re-graded (anti-drift no-redundancy). Cite: external-ux-indicators-validations-notifications-status.
+    try {
+      const _vfr = (e) => e.offsetParent !== null;
+      // a FEED = many repeated peer content items (posts/entries the user scans over time)
+      const _feedItems = Array.from(document.querySelectorAll('[class*=post-card],[class*=feed-item],[class*=post-item],[class*=reply-item],[class*=activity-item],[class*=entry-card]')).filter(_vfr);
+      const _isFeed = _feedItems.length >= 3 || !!document.querySelector('[id*=feed-list],[class*=feed-list],[class*=post-list]');
+      if (_isFeed) {
+        const _srcRE = Array.from(document.scripts).map((s) => s.textContent || '').join('\n');
+        // per-item freshness (relative time) + a NEW-content return hook (realtime new-post / unread / seen-marker / activity badge)
+        const _freshness = /relativeTime|timeAgo|formatTimeAgo|fmtRelative|ago\b|just now|minutes? ago|hours? ago/i.test(_srcRE + ' ' + document.body.innerText.slice(0, 4000));
+        // a NEW-content signal: a logged-in return hook (realtime/seen-marker/unread/badge) OR — for a
+        // PUBLIC/anonymous showcase feed that has no per-user "last seen" state — newest-first ordering,
+        // which surfaces new content first (the appropriate re-engagement signal without a session).
+        const _newHook = /markCommunitySeen|_lastSeen|new since|unread|new post|posted in|activity.?badge|realtime|postgres_changes|\.on\(\s*['"]INSERT|nav.?hub.*badge/i.test(_srcRE)
+          || /order\(\s*['"]created_at['"]\s*,\s*\{\s*ascending:\s*false|order by created_at desc/i.test(_srcRE);
+        out.push(M('RE1', 'Re-engagement (per-item freshness + a new-content signal)', (_freshness && _newHook) ? 1 : 0, 1,
+          (_freshness && _newHook) ? 'feed shows per-item freshness + a new-content signal (return hook / newest-first)' : 'a feed missing ' + (!_freshness ? 'per-item freshness' : 'a new-content signal') + ' — a returning user cannot tell what is new [NN/g re-engagement]'));
+      } else out.push(NA('RE1', 'Re-engagement & content freshness', 'not a feed/social surface on this page'));
+    } catch (_) { /* empty-catch-allow: best-effort re-engagement lens */ }
+
+    // ══ CLASS DP · DECEPTIVE-DESIGN ABSENCE (dark patterns) — NEW 2026-07-23 ══════════════════════
+    // Harvested from the deceptive.design taxonomy (18 named patterns, each with real regulatory
+    // enforcement) -> substrate/external/external-deceptive-design-dark-pattern-taxonomy.md. This is
+    // dimension space the rubric could NOT express: TR measures whether trust signals are PRESENT
+    // (disclosure, credibility); DP measures whether MANIPULATION is ABSENT. A page can score full
+    // marks on TR while still using fake urgency or a pre-checked opt-in. Scoped to the 3 patterns
+    // that are provable from the DOM without guessing intent; the rest of the taxonomy is judged.
+    try {
+      const _vis = (e) => e && e.offsetParent !== null && e.getClientRects().length > 0;
+      const _txt = (document.body.innerText || '').slice(0, 20000);
+      // DP1 · fake urgency / scarcity: manufactured pressure ("only 2 left!", "hurry", "selling fast",
+      // "12 people viewing"). A REAL, dated deadline (an RFQ closing date, a PM due date) is factual and
+      // is NOT this - so the detector matches only the manipulative phrasings, never a rendered date.
+      const _fakeUrgency = /only\s+\d+\s+(left|remaining|spots?|seats?)|hurry\b|act\s+now|selling\s+fast|going\s+fast|limited\s+time\s+(only|offer)|\d+\s+(people|others|users)\s+(are\s+)?(viewing|watching|looking)|almost\s+gone|don'?t\s+miss\s+out/i.test(_txt);
+      out.push(M('DP1', 'No fake urgency or scarcity (manufactured pressure)', _fakeUrgency ? 0 : 1, 1,
+        _fakeUrgency ? 'manufactured urgency/scarcity copy pressures the decision (a named deceptive pattern with regulatory enforcement)' : 'no manufactured urgency/scarcity pressure; any deadline shown is a real date'));
+      // DP2 · confirmshaming: the DECLINE path is worded to shame the user out of declining
+      // ("No thanks, I don't want to save money"). The decline must be plainly worded.
+      const _declines = Array.from(document.querySelectorAll('button,a[href],[role=button],label')).filter(_vis)
+        .map((e) => (e.textContent || '').trim()).filter((t) => t && t.length < 90 && /^(no\b|not now|cancel|decline|dismiss|skip|maybe later)/i.test(t));
+      const _shamed = _declines.filter((t) => /i\s+do\s?n'?t\s+(want|need|care)|i'?ll\s+pass|i\s+hate\b|miss\s+out|without\s+my|i\s+prefer\s+to\s+pay|stay\s+(behind|unsafe|uninformed)/i.test(t));
+      out.push(M('DP2', 'No confirmshaming on the decline path', _shamed.length ? 0 : 1, 1,
+        _shamed.length ? 'a decline control uses guilt copy ("' + _shamed[0].slice(0, 42) + '") instead of a plain "No thanks"' : 'decline/cancel controls are plainly worded (no guilt copy)'));
+      // DP3 · preselection: an opt-IN checkbox (marketing/sharing/auto-renew/subscribe) must not ship
+      // pre-checked - consent has to be an act. A functional default (remember-me, a filter toggle,
+      // "notify me when MY task changes") is NOT an opt-in to something the user did not ask for.
+      const _boxes = Array.from(document.querySelectorAll('input[type=checkbox]')).filter(_vis);
+      const _optInWord = /subscribe|newsletter|marketing|promo|share\s+my|third.?party|auto.?renew|opt.?in|receive\s+(emails|offers)|sell\s+my/i;
+      const _labelOf = (b) => {
+        const wrap = b.closest('label');
+        const fl = b.id ? document.querySelector('label[for="' + (window.CSS && CSS.escape ? CSS.escape(b.id) : b.id) + '"]') : null;
+        return ((wrap || fl || b.parentElement || {}).textContent || '') + ' ' + (b.name || '') + ' ' + (b.id || '');
+      };
+      const _preChecked = _boxes.filter((b) => b.checked && _optInWord.test(_labelOf(b)));
+      if (_boxes.length) {
+        out.push(M('DP3', 'No pre-selected opt-in (consent is an act)', _preChecked.length ? 0 : 1, 1,
+          _preChecked.length ? _preChecked.length + ' opt-in checkbox(es) ship PRE-CHECKED - consent must be given, not assumed [Preselection]' : 'no opt-in checkbox is pre-checked; any default is functional, not a consent grab'));
+      } else out.push(NA('DP3', 'No pre-selected opt-in', 'no checkbox surface on this page'));
+    } catch (_) { /* empty-catch-allow: best-effort deceptive-design lens */ }
 
     // ── roll-up ─────────────────────────────────────────────────────────────
     const measured = out.filter(o => o && o.kind === 'MEASURED');

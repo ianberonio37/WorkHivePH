@@ -27,7 +27,7 @@
       --orange-wh: var(--wh-orange);
       --blue-wh:   var(--wh-blue);
       --navy-wh:   var(--wh-navy);
-      --muted:     rgba(255,255,255,0.55);
+      --muted:     rgba(255,255,255,0.80);
       --border:    rgba(255,255,255,0.10);
       --card-bg:   linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
     }
@@ -211,7 +211,7 @@
     .mk-section-pill {
       display: inline-block; padding: 1px 7px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      background: rgba(41,182,217,0.18); color: var(--wh-blue); margin-right: 6px;
+      background: rgba(41,182,217,0.18); color:var(--wh-blue-text); margin-right: 6px;
     }
 
     /* External IDs */
@@ -274,7 +274,7 @@
     .fmea-rpn-high     { background: rgba(251,146,60,0.20);  color: var(--wh-orange); }
     .fmea-rpn-critical { background: rgba(239,87,87,0.22);   color: var(--wh-red); }
     .fmea-sod {
-      display: inline-flex; gap: 4px; font-size: 0.62rem; color: rgba(255,255,255,0.62);
+      display: inline-flex; gap: 4px; font-size: 0.62rem; color:rgba(255,255,255,0.80);
     }
     .fmea-sod span {
       background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 3px;
@@ -336,7 +336,7 @@
        Always-visible (not a hover tooltip — field phones have no hover); lives inside
        the engineer-gated Reliability Workbench so it costs zero first-paint overwhelm. */
     .rel-worked-example {
-      font-size: 0.7rem; line-height: 1.5; color: rgba(255,255,255,0.66);
+      font-size: 0.7rem; line-height: 1.5; color:rgba(255,255,255,0.83);
       background: rgba(255,255,255,0.03); border: 1px solid var(--border);
       border-left: 2px solid rgba(167,139,250,0.5); border-radius: 0.5rem;
       padding: 0.55rem 0.7rem; margin: 0 0 0.7rem;
@@ -386,7 +386,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -394,9 +394,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #ah-summary-details.open { display:block; }
 
     /* L2 anchor for asset_hub_reliability_report_print_css — the
@@ -445,7 +445,7 @@
 
     <!-- LIST VIEW -->
     <div id="list-view">
-      <h2 data-i="allassets" style="margin:0 0 8px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:rgba(255,255,255,0.6);">All assets</h2>
+      <h2 data-i="allassets" style="margin:0 0 8px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:rgba(255,255,255,0.80);">All assets</h2>
 
       <!-- Plain-Read summary (Layer D — UX Contract).
            Populated by renderAssetSummary() from _allNodes + _pendingNodes. -->
@@ -492,14 +492,14 @@
           <li><strong>Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off (pending or rejected).</li>
           <li><strong>Verdict</strong>: red if 5+ pending; amber if any pending OR no critical assets registered; green when registry is complete.</li>
         </ul>
-        <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
+        <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Search and tap any asset card below for the 360° view.</p>
       </div>
 
       <div class="search-row" style="display:flex; gap:8px; align-items:center;">
         <input aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1;" />
         <!-- Phase E.3a: scan a physical tag to jump straight to its 360 view -->
         <button id="scan-btn" type="button" aria-label="Scan equipment tag with camera"
-                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
+                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;">
           <span class="ic ic-scan" aria-hidden="true"></span>
           <span class="scan-btn-label" data-i="scan">Scan</span>
         </button>
@@ -509,11 +509,11 @@
         No approved assets in this hive yet. Add equipment and it surfaces here once approved.
         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
           <a href="pm-scheduler.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>
-          <a href="inventory.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);font-weight:600;text-decoration:none;">+ Add via Inventory</a>
+          <a href="inventory.html" style="min-height:44px;display:inline-flex;align-items:center;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);font-weight:600;text-decoration:none;">+ Add via Inventory</a>
         </div>
       </div>
       <div id="asset-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-        <button onclick="loadMoreAssets()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+        <button onclick="loadMoreAssets()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
       </div>
 
       <!-- Supervisor-only: pending asset_nodes approval queue. Hidden when there are
@@ -546,11 +546,11 @@
           <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
           <!-- Generate the scannable tag (the other half of the scan loop) -->
           <button type="button" id="detail-qr-btn" aria-label="Print a scannable QR tag for this asset"
-            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
+            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
           <!-- Cross-page connectivity (ASSET_ALERT_SHIFT): complete the asset<->alert loop —
                emit alert-hub.html?asset=<tag>, which alert-hub reads (F4) to focus this asset. -->
           <a id="detail-alerts-link" href="#" aria-label="View this asset's alerts in Alert Hub"
-            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
+            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
         </div>
       </div>
 
@@ -585,20 +585,20 @@
         <!-- Arc Y Y4 — ONE risk hierarchy: name this as THE single headline answer so a
              novice doesn't try to reconcile it against the FMEA / Weibull / P-F numbers
              in the Reliability Workbench (those are the engineering detail BEHIND this one). -->
-        <p style="font-size:.7rem; color:rgba(255,255,255,0.62); margin:2px 0 8px; line-height:1.45;">This is the asset's <b style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
+        <p style="font-size:.7rem; color:rgba(255,255,255,0.80); margin:2px 0 8px; line-height:1.45;">This is the asset's <b style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
         <p id="risk-source-chip" style="margin:4px 0 10px;"></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
             <div id="risk-score-num" style="font-size:2.2rem; font-weight:800; line-height:1;">-</div>
-            <div id="risk-level-badge" style="font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:6px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.62);">-</div>
+            <div id="risk-level-badge" style="font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:6px; margin-top:8px; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80);">-</div>
           </div>
           <!-- detail strip -->
           <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap;">
               <div title="ISO 14224:2016 §9.3 partial: calendar time, not operating time"><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">MTBF<small style="font-size:.5rem; font-weight:500; opacity:.55; text-transform:none; letter-spacing:0;"> (partial · cal-time)</small></span><span id="risk-mtbf" style="font-size:.85rem; font-weight:700;">-</span></div>
               <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Days to Failure</span><span id="risk-days" style="font-size:.85rem; font-weight:700;">-</span></div>
-              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.65);">-</span></div>
+              <div><span style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:block; margin-bottom:2px;">Generated</span><span id="risk-generated" style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.83);">-</span></div>
             </div>
             <div id="risk-factors" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:4px;"></div>
           </div>
@@ -758,7 +758,7 @@
           <div style="flex:1; min-width:0;">
             <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-red); margin:0 0 2px;">Sensor Anomaly Detected</p>
             <p id="sensor-anomaly-headline" style="font-size:.88rem; font-weight:700; color:var(--text); margin:0;"></p>
-            <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.62); margin:3px 0 0;"></p>
+            <p id="sensor-anomaly-detail" style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:3px 0 0;"></p>
           </div>
         </div>
       </div>
@@ -772,6 +772,7 @@
         <div id="telemetry-list" style="display:flex; flex-direction:column; gap:6px;"></div>
         <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
           No readings in the last 30 days. The plant MQTT bridge has not connected yet, or this asset is not mapped to a sensor.
+          <a href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Connect a bridge in Integrations &rarr;</a>
         </div>
         <div id="telemetry-meta" style="font-size:.66rem; color:var(--muted); margin-top:0.5rem;"></div>
       </div>
@@ -893,7 +894,10 @@
         <option value="365">Yearly (365 d)</option>
         <option value="custom">Custom days</option>
       </select>
-      <input aria-label="Custom interval days" id="rcm-interval-custom" type="number" min="1" max="3650" step="1" placeholder="Custom interval days" style="display:none;" />
+      <div id="rcm-interval-custom-wrap" style="display:none;">
+        <label for="rcm-interval-custom">Custom interval (days)</label>
+        <input id="rcm-interval-custom" type="number" min="1" max="3650" step="1" placeholder="e.g. 45" />
+      </div>
 
       <label for="rcm-rationale" data-i="rcmrationale">Rationale (why this decision?)</label>
       <input id="rcm-rationale" type="text" placeholder="e.g. P-F = 14 d from vibration trend, half = 7 d safe interval" />
@@ -1091,7 +1095,7 @@
       const card = document.getElementById('pending-assets-card');
       if (!card) return;
       const { data, error } = await db.from('asset_nodes')
-        .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at')
+        .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at, rejection_reason')
         .eq('hive_id', HIVE_ID)
         .in('status', ['pending', 'rejected'])
         .order('created_at', { ascending: false })
@@ -1226,6 +1230,16 @@
             ${submittedBy}
           </div>
           ${n.location ? '<div style="font-size:.7rem; color:var(--muted);">' + e(n.location) + '</div>' : ''}
+          ${n.status === 'rejected'
+            // A rejection must SAY WHY (§12 loop 12): show the supervisor's reason so the submitter can
+            // fix + resubmit instead of guessing. Rows rejected before the column existed have none, and
+            // say so plainly rather than rendering an empty box.
+            ? '<div style="font-size:.68rem; color:var(--muted); border-left:2px solid var(--wh-red); padding-left:7px; margin-top:2px;">'
+              + (n.rejection_reason
+                  ? '<strong style="color:var(--wh-red);">Why:</strong> ' + e(n.rejection_reason)
+                  : '<em>No reason recorded.</em>')
+              + '</div>'
+            : ''}
           <div style="display:flex; gap:6px; margin-top:2px;">
             ${n.status === 'pending' ? `
               <button class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(74,222,128,0.16); color:var(--wh-green); border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit;">Approve</button>
@@ -1265,11 +1279,20 @@
 
     async function rejectAssetNode(nodeId) {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      if (!(await window.whConfirm('Reject this asset? It stays in the queue but will not appear in the approved list.', { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
+      // A REJECTION MUST SAY WHY (§12 loop 12): whPrompt is the shared confirm-WITH-INPUT sibling of
+      // whConfirm, so capturing the reason costs no new UI. Without it the worker saw their asset flip
+      // to "rejected" with no explanation and could not fix + resubmit - a dead-end (class X1) in the
+      // middle of an async multi-actor journey. Cancel still aborts; an EMPTY reason is allowed (the
+      // supervisor may have none) and renders as "no reason recorded" rather than blocking the reject.
+      const _reason = await window.whPrompt(
+        'Reject this asset? It stays in the queue but will not appear in the approved list.',
+        { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason (helps the submitter fix it)' });
+      if (_reason === null || _reason === false) return;   // cancelled
       const node = _allNodes.find(n => n.id === nodeId);
       // P6-C1 optimistic lock (sibling of hive.html): only reject a STILL-pending row (no re-flip race).
       const { data: updated, error } = await db.from('asset_nodes')
-        .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
+        .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(),
+                  rejection_reason: (String(_reason || '').trim().slice(0, 500)) || null })
         .eq('id', nodeId).eq('hive_id', HIVE_ID).eq('status', 'pending').select('id');
       if (error) { showToast('Reject failed: ' + error.message); return; }
       if (!updated || !updated.length) { showToast('That asset was already handled by another supervisor.'); await loadPendingAssets(); return; }
@@ -1333,7 +1356,7 @@
           empty.innerHTML = 'No approved assets in this hive yet. Add equipment and it surfaces here once approved.'
             + '<div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">'
             + '<a href="pm-scheduler.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">+ Add via PM Scheduler</a>'
-            + '<a href="inventory.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);font-weight:600;text-decoration:none;">+ Add via Inventory</a>'
+            + '<a href="inventory.html" style="padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);font-weight:600;text-decoration:none;">+ Add via Inventory</a>'
             + '</div>';
         }
         if (lmWrap) lmWrap.classList.add('hidden');
@@ -1704,7 +1727,7 @@
               +     '</div>'
               +     '<span style="font-size:.65rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
               +   '</div>'
-              + (explain ? '<div style="font-size:.66rem; color:rgba(255,255,255,0.62); line-height:1.35;">' + e(explain) + '</div>' : '')
+              + (explain ? '<div style="font-size:.66rem; color:rgba(255,255,255,0.80); line-height:1.35;">' + e(explain) + '</div>' : '')
               + '</div>';
           }).join('');
         } else {
@@ -1712,7 +1735,7 @@
           facEl.style.flexDirection = 'row';
           facEl.style.gap           = '5px';
           facEl.innerHTML = factors.slice(0, 5).map(f =>
-            '<span style="font-size:.6rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:rgba(255,255,255,0.65);">'
+            '<span style="font-size:.6rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:rgba(255,255,255,0.83);">'
             + e(String(f).replace(/_/g, ' ')) + '</span>'
           ).join('');
         }
@@ -2227,14 +2250,14 @@
           +   '<span>D ' + e(String(m.detection ?? '?')) + '</span>'
           + '</span>';
         const aiBadge = (m.source && m.source.startsWith('ai_') && m.ai_confidence != null)
-          ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.62);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
+          ? ' <span style="font-size:.6rem; color:rgba(255,255,255,0.80);">' + Math.round(Number(m.ai_confidence) * 100) + '% conf</span>'
           : '';
         const fmeaActions = isSupervisor && !m.approved_at
           ? '<button class="approve" data-action="approve" data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '">Approve</button>'
           +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '">Delete</button>'
           : '';
         const cause  = m.cause_text  ? '<div style="font-size:.7rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
-        const effect = m.effect_text ? '<div style="font-size:.72rem; color:rgba(255,255,255,0.7);">effect: ' + e(m.effect_text) + '</div>' : '';
+        const effect = m.effect_text ? '<div style="font-size:.72rem; color:rgba(255,255,255,0.83);">effect: ' + e(m.effect_text) + '</div>' : '';
 
         // Phase R.4: strategy strip
         const strat = _strategiesByMode[m.id];
@@ -2371,9 +2394,27 @@
         approved_at:        autoApproved ? new Date().toISOString() : null,
       };
 
+      // Y1b offline-capture (Arc S D-001 pattern): a brownout FMEA add queues to the shared
+      // IndexedDB queue and drains on reconnect — labelled honestly (Y1e: never false-success;
+      // the toast says it will appear AFTER sync). Hard non-network failures still surface.
+      const _qid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (String(Date.now()) + '-' + Math.random().toString(36).slice(2));
+      if (!navigator.onLine && window._whAhFmeaQueue) {
+        await window._whAhFmeaQueue.enqueue({ id: _qid(), op: 'insert', payload });
+        if (saveBtn) saveBtn.disabled = false;
+        showToast('Saved offline. This FMEA mode will sync and appear when you reconnect.', 6000);
+        document.getElementById('fmea-modal')?.classList.remove('open');
+        return;
+      }
       const { error } = await db.from('rcm_fmea_modes').insert(payload);
       if (saveBtn) saveBtn.disabled = false;
       if (error) {
+        // network hiccup while nominally "online": queue it, don't lose the field capture
+        if (window._whAhFmeaQueue && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
+          await window._whAhFmeaQueue.enqueue({ id: _qid(), op: 'insert', payload });
+          showToast('Network issue: FMEA mode saved offline, will retry automatically.', 6000);
+          document.getElementById('fmea-modal')?.classList.remove('open');
+          return;
+        }
         showToast('Could not save FMEA: ' + error.message);
         return;
       }
@@ -2465,6 +2506,8 @@
       const taskEl   = document.getElementById('rcm-task');
       const intEl    = document.getElementById('rcm-interval');
       const intCustom= document.getElementById('rcm-interval-custom');
+      // toggle the WRAPPER so the visible caption hides/shows with its input (M1)
+      const intCustomWrap = document.getElementById('rcm-interval-custom-wrap');
       const ratEl    = document.getElementById('rcm-rationale');
 
       if (decEl)  decEl.value  = existing ? (existing.decision || '') : '';
@@ -2475,21 +2518,21 @@
           const std = String(existing.interval_days);
           if (RCM_INTERVAL_TO_FREQ[Number(std)]) {
             intEl.value = std;
-            if (intCustom) { intCustom.style.display = 'none'; intCustom.value = ''; }
+            if (intCustom) { if (intCustomWrap) intCustomWrap.style.display = 'none'; intCustom.value = ''; }
           } else {
             intEl.value = 'custom';
-            if (intCustom) { intCustom.style.display = 'block'; intCustom.value = String(existing.interval_days); }
+            if (intCustom) { if (intCustomWrap) intCustomWrap.style.display = 'block'; intCustom.value = String(existing.interval_days); }
           }
         } else {
           intEl.value = '';
-          if (intCustom) { intCustom.style.display = 'none'; intCustom.value = ''; }
+          if (intCustom) { if (intCustomWrap) intCustomWrap.style.display = 'none'; intCustom.value = ''; }
         }
       }
 
       // Toggle the custom-days input when user picks "custom"
       if (intEl && intCustom) {
         intEl.onchange = () => {
-          intCustom.style.display = (intEl.value === 'custom') ? 'block' : 'none';
+          if (intCustomWrap) intCustomWrap.style.display = (intEl.value === 'custom') ? 'block' : 'none';
         };
       }
 
@@ -3738,6 +3781,20 @@
       // utils.js also auto-wires on load; this explicit call is a no-op second bind (guarded).
       if (typeof wireDetailToggle === 'function') wireDetailToggle();
 
+      // Y1b adoption (Arc S D-001 sibling, 2026-07-23): wire the SHARED offline write queue
+      // for FIELD-CAPTURE writes — FMEA adds are the offline-queue.js header's own named
+      // surface. Approvals/locked updates stay ONLINE-ONLY by design (Y1d): the queue's
+      // generic drain has no .is('approved_at', null) guard, so a queued approval could
+      // forge attribution over a concurrent approve (the P6-C1 lock class).
+      if (window.whCreateQueue) {
+        window._whAhFmeaQueue = window.whCreateQueue({
+          db: 'wh_assethub_offline', table: 'rcm_fmea_modes',
+          postSync: () => { try { if (_selectedNodeId) loadDetailFmea(_selectedNodeId); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
+        });
+        window.whRegisterQueue('asset-hub-fmea', window._whAhFmeaQueue);
+        window._whAhFmeaQueue.startAutoSync(db);
+      }
+
       await loadAssetNodes();
 
       // Deep-link via ?node_id= or ?tag= (index QR-scan sends a tag like "M-001";
@@ -3748,12 +3805,24 @@
         if (initialNode && _allNodes.some(n => n.id === initialNode)) {
           openDetail(initialNode);
         } else {
-          const initialTag = (params.get('tag') || '').trim().toLowerCase();
+          const rawTag = (params.get('tag') || '').trim();
+          const initialTag = rawTag.toLowerCase();
           if (initialTag) {
             const hit = _allNodes.find(n =>
               String(n.tag || '').toLowerCase() === initialTag ||
               String(n.name || '').toLowerCase() === initialTag);
             if (hit) openDetail(hit.id);
+            else {
+              // JOURNEY ARRIVAL FIDELITY (§12 JA1/JA2, live-MCP-found 2026-07-23): an inbound
+              // deep-link that NAMES an asset we cannot resolve must never silently drop the user
+              // into the full unfiltered list - they clicked "Review & stage" for ONE asset and
+              // would not know their target was missed (and could act on the wrong row). Reflect
+              // the request in the search box so the list is SCOPED (and its empty state truthful),
+              // and say plainly that we could not find it. Mirrors inventory.html's ?q= behaviour.
+              const box = document.getElementById('asset-search');
+              if (box) { box.value = rawTag; renderList(false); }
+              if (typeof showToast === 'function') showToast('Could not find "' + rawTag + '": showing the closest matches');
+            }
           }
         }
       } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
@@ -3908,8 +3977,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

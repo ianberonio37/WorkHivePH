@@ -46,17 +46,30 @@ SPEC = REPO / "ufai-rubric-spec.json"
 # context dims hunted live (X/Y) + the behavioral-family cross-page dim (S4) + system dims measured
 # across sessions (G5/J3) — none single-page-static, so exempt from the lens like S2/S3. Z1/Z2/Z3 ARE
 # single-page-static → encoded in the lens (survey_ufai_rubric.js), NOT exempt.
-EXEMPT_CROSS_PAGE = {"S2", "S3", "X1", "Y2", "G5", "J3", "S4"}   # X3, Y1 (2026-07-22 findability/offline) + X2 (2026-07-23 interruption-resilience/draft-survival, IndexedDB-aware) built as single-page lens dims → no longer exempt
+EXEMPT_CROSS_PAGE = {"S2", "S3", "G5", "J3", "S4", "JA1", "JA2", "JA3", "AI6"}
+# AI6 (2026-07-24 agentic write accountability) is a BACKEND dim: it grades what an AI edge fn WRITES
+# to the database, which no DOM scan can observe - measured from edge-fn source by
+# validate_ai_write_provenance.py. Exempt from the lens for the same reason as J3/G5/S4/JA*.   # JA1 (2026-07-23 deep-link ARRIVAL fidelity) is
+# an IN-MOTION, cross-page dim: it only exists on a hand-off between two pages (does the destination honour
+# the entity the source named, or say it could not be found?), so a single-page DOM scan cannot see it -
+# measured from page SOURCE by validate_journey_ux_dims.py, exempt from the lens exactly like G5/J3/S4.   # X3, Y1 (2026-07-22 findability/offline) + X2 (2026-07-23 interruption/draft-survival) + X1, Y2 (2026-07-23 dead-end-states/stress-timing static slices) built as single-page lens dims → no longer exempt
 
-_VALID_CLASS = set("ABCDEFGHIJKLMNOPQRSTVWXYZ")
+# single-letter A–Z classes + the 2-letter deeper-extension classes (AI/PP/DL/DD, added 2026-07-23).
+_VALID_CLASS = set("ABCDEFGHIJKLMNOPQRSTVWXYZ") | {"AI", "PP", "DL", "DD", "TR", "RE", "JA", "DP"}
+
+
+def _class_of(dim: str) -> str:
+    """The alpha class prefix of a dim id ('AI1' -> 'AI', 'B3' -> 'B')."""
+    m = re.match(r"[A-Z]+", dim)
+    return m.group() if m else ""
 
 
 def parse_doc_dims(text: str) -> set[str]:
     """Dim ids declared as definition list-items / bold paragraphs in the prose."""
     dims: set[str] = set()
     for line in text.splitlines():
-        m = re.match(r"^[\s\-*★]*\*?([A-Z][0-9])(?=[\s·)]|$)", line)
-        if m and m.group(1)[0] in _VALID_CLASS:
+        m = re.match(r"^[\s\-*★]*\*?([A-Z]{1,2}[0-9])(?=[\s·)]|$)", line)
+        if m and _class_of(m.group(1)) in _VALID_CLASS:
             dims.add(m.group(1))
     return dims
 
@@ -64,7 +77,7 @@ def parse_doc_dims(text: str) -> set[str]:
 def parse_code_dims(text: str) -> dict[str, str]:
     """Dim ids encoded in the lens, tagged by verdict helper: M=MEASURED, J=JUDGED, NA=N/A."""
     out: dict[str, str] = {}
-    for verb, dim in re.findall(r"(?<![A-Za-z])(M|J|NA)\(\s*'([A-Z][0-9])'", text):
+    for verb, dim in re.findall(r"(?<![A-Za-z])(M|J|NA)\(\s*'([A-Z]{1,2}[0-9])'", text):
         if dim not in out or (out[dim] == "NA" and verb != "NA"):
             out[dim] = {"M": "MEASURED", "J": "JUDGED", "NA": "N/A"}[verb]
     return out
@@ -72,7 +85,7 @@ def parse_code_dims(text: str) -> dict[str, str]:
 
 def parse_spec(spec_obj: dict) -> dict[str, dict]:
     """Dim entries in the JSON spec (top-level keys except _meta)."""
-    return {k: v for k, v in spec_obj.items() if k != "_meta" and re.fullmatch(r"[A-Z][0-9]", k)}
+    return {k: v for k, v in spec_obj.items() if k != "_meta" and re.fullmatch(r"[A-Z]{1,2}[0-9]", k)}
 
 
 def header_count_claim(text: str, patterns: list[str]) -> int | None:
@@ -129,9 +142,13 @@ def check(doc_text: str, code_text: str, spec_obj: dict | None,
     if spec_obj is not None:
         spec_dims = parse_spec(spec_obj)
         spec = set(spec_dims)
-        # dims NOT measured by the single-page lens: cross-page family-sweep dims (S2/S3) + the journey-ux
-        # source-grep validator dims (J3/G5/S4, 2026-07-22 — measured by validate_journey_ux_dims.py).
-        spec_family = {d for d, v in spec_dims.items() if v.get("owner") in ("family-sweep", "journey-validator")}
+        # dims NOT measured by the single-page lens: cross-page family-sweep dims (S2/S3), the journey-ux
+        # source-grep validator dims (J3/G5/S4/JA*, 2026-07-22 — validate_journey_ux_dims.py), and the
+        # BACKEND write-provenance dim (AI6, 2026-07-24 — validate_ai_write_provenance.py grades what an
+        # AI edge fn WRITES to the DB, which no DOM lens can observe).
+        spec_family = {d for d, v in spec_dims.items()
+                       if v.get("owner") in ("family-sweep", "journey-validator",
+                                             "ai-write-provenance-validator")}
 
         # (3a) SET parity SPEC<->DOC (the spec is the third source; it must match the prose)
         if spec - doc:

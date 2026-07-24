@@ -193,7 +193,7 @@
     .btn-ghost {
       min-height: 44px;
       background: transparent;
-      color: rgba(255,255,255,0.7);
+      color:rgba(255,255,255,0.83);
       font-weight: 600;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
@@ -225,7 +225,7 @@
       min-height: 44px;
       background: none;
       border: none;
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       font-size: 0.75rem;
       cursor: pointer;
       display: inline-flex;
@@ -340,7 +340,7 @@
       width: 32px; height: 32px; border-radius: 50%;
       background: rgba(41,182,217,0.2); border: 1px solid rgba(41,182,217,0.3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; font-weight: 700; color: var(--wh-blue);
+      font-size: 0.7rem; font-weight: 700; color:var(--wh-blue-text);
       flex-shrink: 0;
     }
 
@@ -348,7 +348,7 @@
       display: inline-flex; align-items: center; gap: 4px;
       background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.2);
       border-radius: 999px; padding: 2px 8px;
-      font-size: 0.6rem; font-weight: 700; color: var(--wh-orange);
+      font-size: 0.6rem; font-weight: 700; color:var(--wh-orange-text);
       text-transform: uppercase; letter-spacing: 0.05em;
     }
 
@@ -359,7 +359,7 @@
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem;
       background: linear-gradient(135deg, rgba(41,182,217,0.15), rgba(41,182,217,0.08));
-      border: 1px solid rgba(41,182,217,0.3); color: var(--wh-blue);
+      border: 1px solid rgba(41,182,217,0.3); color:var(--wh-blue-text);
       font-size: 0.85rem; font-weight: 700; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; min-height: 44px;
     }
@@ -374,7 +374,7 @@
     .ho-section { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 1rem 1.25rem; }
     .ho-section:last-child { border-bottom: none; }
     .ho-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
-    .ho-item { font-size: 0.78rem; color: rgba(255,255,255,0.65); padding: 3px 0; display: flex; align-items: baseline; gap: 6px; }
+    .ho-item { font-size: 0.78rem; color:rgba(255,255,255,0.83); padding: 3px 0; display: flex; align-items: baseline; gap: 6px; }
     .ho-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.8rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.6rem; }
     .ho-input::placeholder { color: rgba(255,255,255,0.25); }
     .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
@@ -408,23 +408,23 @@
 <!-- ── NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
-    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm min-h-[44px]">
+    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
     <div class="flex items-center gap-3">
-      <span id="nav-worker" class="text-xs text-white/60 truncate max-w-[120px]"></span>
+      <span id="nav-worker" class="text-xs text-white/80 truncate max-w-[120px]"></span>
       <!-- Notification bell -->
       <div class="relative" id="notif-wrapper" style="display:none;">
-        <button id="notif-bell" title="Notifications" aria-label="Notifications" style="position:relative; background:none; border:none; cursor:pointer; padding:6px; color:rgba(255,255,255,0.6); min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center;">
+        <button id="notif-bell" title="Notifications" aria-label="Notifications" style="position:relative; background:none; border:none; cursor:pointer; padding:6px; color:rgba(255,255,255,0.80); min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center;">
           <span class="ic ic-bell" aria-hidden="true"></span>
           <span id="notif-badge" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--wh-red); border:2px solid rgba(22,32,50,1);"></span>
         </button>
         <!-- Dropdown panel -->
         <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(22,32,50,0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
           <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
-            <p class="text-xs font-bold text-white/70">Notifications</p>
-            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.6);">Mark all read</button>
+            <p class="text-xs font-bold text-white/85">Notifications</p>
+            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.80);">Mark all read</button>
           </div>
           <div id="notif-list" class="py-2" style="max-height:320px; overflow-y:auto;"></div>
         </div>
@@ -437,6 +437,37 @@
 <main class="relative z-10 pt-14" style="padding-bottom: calc(3rem + env(safe-area-inset-bottom));">
   <div class="max-w-2xl mx-auto px-4 py-8" id="view-shell">
 
+    <!-- JA2 · RETURN-PROMISE KEPT (live first-run walk, 2026-07-23). The shared #hive-gate on
+         logbook/asset-hub/engineering-design/... promises "You'll be brought back here once you're
+         set up", but sent the user to a BARE hive.html - no return target, and nothing here read
+         one, so the promise could never be kept. utils.js now stamps ?return=<page> on those gate
+         CTAs; this banner is the other half that HONOURS it. -->
+    <div id="wh-return-banner" hidden style="margin-bottom:1rem;"></div>
+    <script>
+      (function () {
+        try {
+          var raw = new URLSearchParams(location.search).get('return') || '';
+          // SECURITY: ?return= is user-controllable, so accept ONLY a bare same-origin page
+          // filename (no scheme, no "//", no path traversal) - never navigate to an arbitrary URL.
+          if (!/^[a-z0-9][a-z0-9_-]{0,48}\.html$/i.test(raw)) return;
+          var label = raw.replace(/\.html$/i, '').replace(/[-_]+/g, ' ')
+            .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+          var el = document.getElementById('wh-return-banner');
+          if (!el) return;
+          var a = document.createElement('a');
+          a.setAttribute('href', raw);
+          a.className = 'btn-primary';
+          a.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;text-decoration:none;';
+          a.textContent = 'Continue to ' + label;   // textContent: no HTML injection from the param
+          var p = document.createElement('p');
+          p.style.cssText = 'font-size:0.72rem;color:rgba(255,255,255,0.80);margin:6px 0 0;text-align:center;';
+          p.textContent = 'You were sent here from ' + label + '. Head back any time.';
+          el.appendChild(a); el.appendChild(p);
+          el.hidden = false;
+        } catch (_) { /* empty-catch-allow: return banner is best-effort navigation polish */ }
+      })();
+    </script>
+
     <!-- ── VIEW: ONBOARD ── -->
     <div id="view-onboard" class="hidden">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
@@ -444,7 +475,7 @@
           <span class="ic ic-community" aria-hidden="true"></span>
         </div>
         <h2 class="text-2xl font-black text-white mb-2">Your Hive</h2>
-        <p class="text-sm text-white/60 mb-8 leading-relaxed">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
+        <p class="text-sm text-white/80 mb-8 leading-relaxed">Join or create a team to share work, see who's active, and track your hive's jobs in real time.</p>
         <div class="flex flex-col gap-3">
           <button id="btn-go-create" class="btn-primary">Create a Hive</button>
           <button id="btn-go-join" class="btn-ghost">Join with Code</button>
@@ -460,8 +491,8 @@
           Back
         </button>
         <h2 class="text-xl font-black text-white mb-1">Create Your Hive</h2>
-        <p class="text-xs text-white/60 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
-        <label for="hive-name-input" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Hive Name</label>
+        <p class="text-xs text-white/80 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
+        <label for="hive-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Hive Name</label>
         <input id="hive-name-input" type="text" placeholder="e.g. Electrical Team A" maxlength="40" class="wh-input mb-2" autocomplete="off" />
         <p role="alert" aria-live="assertive" id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
         <button id="btn-submit-create" class="btn-primary mt-2">Create Hive</button>
@@ -474,11 +505,11 @@
         <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
           <span class="ic ic-check" aria-hidden="true"></span>
         </div>
-        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">Hive Created</p>
+        <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-1">Hive Created</p>
         <h2 id="code-hive-name" class="text-xl font-black text-white mb-6"></h2>
-        <p class="text-xs text-white/60 mb-3">Share this code with your team:</p>
+        <p class="text-xs text-white/80 mb-3">Share this code with your team:</p>
         <div class="code-display mb-4" id="code-value"></div>
-        <p class="text-[11px] text-white/60 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
+        <p class="text-[11px] text-white/80 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
         <button id="btn-enter-board" class="btn-primary">Go to Live Board →</button>
       </div>
     </div>
@@ -491,8 +522,8 @@
           Back
         </button>
         <h2 class="text-xl font-black text-white mb-1">Join a Hive</h2>
-        <p class="text-xs text-white/60 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
-        <label for="join-code-input" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Invite Code</label>
+        <p class="text-xs text-white/80 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
+        <label for="join-code-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Invite Code</label>
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
           style="font-size:1.5rem; letter-spacing:0.35em;" />
@@ -507,23 +538,23 @@
         <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
           <span class="ic ic-check" aria-hidden="true"></span>
         </div>
-        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1">You're In</p>
+        <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-1">You're In</p>
         <h2 id="welcome-hive-name" class="text-xl font-black text-white mb-2"></h2>
-        <p class="text-xs text-white/60 mb-6 leading-relaxed">Your records are now visible to your team:</p>
+        <p class="text-xs text-white/80 mb-6 leading-relaxed">Your records are now visible to your team:</p>
 
         <div class="flex gap-3 mb-6">
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-log-count">-</p>
-            <p class="text-[11px] text-white/60 mt-1">Logbook Entries</p>
+            <p class="text-[11px] text-white/80 mt-1">Logbook Entries</p>
           </div>
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-parts-count">-</p>
-            <p class="text-[11px] text-white/60 mt-1">Jobs Closed</p>
+            <p class="text-[11px] text-white/80 mt-1">Jobs Closed</p>
           </div>
         </div>
 
         <div class="rounded-xl p-3 mb-6 text-left" style="background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.15);">
-          <p class="text-[11px] text-white/60 leading-relaxed">
+          <p class="text-[11px] text-white/80 leading-relaxed">
             Your registered assets and inventory items stay on this device for now. They'll sync to the hive in Stage 2.
           </p>
         </div>
@@ -585,9 +616,9 @@
 
       <!-- Invite code strip (supervisor only, toggleable) -->
       <div id="code-strip" class="hidden wh-card p-4 mb-5 text-center">
-        <p class="text-[11px] text-white/60 mb-2">Share this code with your team:</p>
+        <p class="text-[11px] text-white/80 mb-2">Share this code with your team:</p>
         <div class="code-display" id="code-strip-value" style="font-size:1.5rem; padding:0.75rem 1rem;"></div>
-        <p class="text-[11px] text-white/60 mt-2">Anyone with this code can join your hive.</p>
+        <p class="text-[11px] text-white/80 mt-2">Anyone with this code can join your hive.</p>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -699,7 +730,7 @@
             <li><strong>Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
             <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
           </ul>
-          <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
+          <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
         </div>
         <!-- v4 foot reassurance (rubric F3 Peak-End) — the warm "you're on top of it" end-moment,
              shown ONLY when all-clear (needCount=0). Toggled in loadSupervisorSummary. -->
@@ -709,11 +740,11 @@
       <!-- Presence bar (Arc P · Wave 1: demoted BELOW the verdict — "who's online"
            is context, not the primary "should I worry?" answer). -->
       <div class="mb-4 board-card">
-        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-1" data-i="onshift">On Shift Now</p>
+        <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-1" data-i="onshift">On Shift Now</p>
         <!-- Y6 silent-loop: a green dot was an unexplained status. State the basis inline (not a hover tooltip — field phones have no hover). -->
-        <p class="text-[10.5px] text-white/60 mb-2" data-i="presence-legend">Green dot = a teammate is in WorkHive right now.</p>
+        <p class="text-[10.5px] text-white/80 mb-2" data-i="presence-legend">Green dot = a teammate is in WorkHive right now.</p>
         <div id="presence-bar" class="flex gap-2 overflow-x-auto pb-1">
-          <span class="presence-chip" style="color:rgba(255,255,255,0.6); font-style:italic;">Connecting...</span>
+          <span class="presence-chip" style="color:rgba(255,255,255,0.80); font-style:italic;">Connecting...</span>
         </div>
       </div>
 
@@ -724,11 +755,11 @@
            canonical v_logbook_truth. Populated by loadMyOpenWork(). -->
       <a id="my-work-card" href="logbook.html" class="wh-card" style="align-items:center; gap:14px; padding:14px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
-          <p style="font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.65); margin-bottom:2px;">Your open work</p>
+          <p style="font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.83); margin-bottom:2px;">Your open work</p>
           <p id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
-          <p id="my-work-sub" style="font-size:0.72rem; color:rgba(255,255,255,0.6); margin-top:2px;"></p>
+          <p id="my-work-sub" style="font-size:0.72rem; color:rgba(255,255,255,0.80); margin-top:2px;"></p>
         </div>
-        <span aria-hidden="true" style="font-size:0.72rem; font-weight:700; color:var(--wh-orange); white-space:nowrap;">Open Logbook &#8250;</span>
+        <span aria-hidden="true" style="font-size:0.72rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;">Open Logbook &#8250;</span>
       </a>
 
       <!-- Arc Y Y2/Y6 — conditional disclosure + close the capture->use loop:
@@ -741,10 +772,10 @@
         style="width:100%; text-align:left; align-items:center; gap:10px; padding:10px 14px; margin-bottom:16px; background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.22); border-radius:12px; color:inherit; font-family:inherit; cursor:pointer; min-height:44px;">
         <span aria-hidden="true" style="font-size:1.05rem; line-height:1;">&#127919;</span>
         <span style="flex:1; min-width:0;">
-          <span style="display:block; font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.6);" data-i="hivefocus">Your hive's focus</span>
+          <span style="display:block; font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.80);" data-i="hivefocus">Your hive's focus</span>
           <span id="hive-focus-label" style="display:block; font-size:0.84rem; font-weight:700; color:rgba(255,255,255,0.9); line-height:1.35;">&#8212;</span>
         </span>
-        <span aria-hidden="true" style="font-size:0.66rem; font-weight:700; color:var(--wh-orange); white-space:nowrap;" data-i="change">Change &#8250;</span>
+        <span aria-hidden="true" style="font-size:0.66rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;" data-i="change">Change &#8250;</span>
       </button>
 
       <!-- Stats row (v4: reparented into the two-column dashboard's RIGHT rail for supervisors
@@ -753,11 +784,11 @@
       <div id="board-stats" class="grid grid-cols-2 gap-3 mb-4">
         <div class="wh-card p-4 text-center">
           <p class="text-2xl font-black text-white" id="stat-open" style="font-variant-numeric:tabular-nums;">&#8211;</p>
-          <p class="text-[11px] text-white/60 mt-1" data-i="wo">Open Work Orders</p>
+          <p class="text-[11px] text-white/80 mt-1" data-i="wo">Open Work Orders</p>
         </div>
         <div class="wh-card p-4 text-center">
           <p class="text-2xl font-black" style="color:var(--wh-blue); font-variant-numeric:tabular-nums;" id="stat-members">&#8211;</p>
-          <p class="text-[11px] text-white/60 mt-1" data-i="members">Team Members</p>
+          <p class="text-[11px] text-white/80 mt-1" data-i="members">Team Members</p>
         </div>
       </div>
 
@@ -782,20 +813,20 @@
         <div style="padding:14px 16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:var(--wh-blue);">Stair 0 · Paper</span>
+              <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:var(--wh-blue-text);">Stair 0 · Paper</span>
               <span id="stair-composite" style="font-size:1.5rem; font-weight:900; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
-              <span style="font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.80); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
             </div>
-            <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
+            <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
-          <p id="stair-blocker" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
+          <p id="stair-blocker" style="font-size:11.5px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
         </div>
         <!-- Source chip — anchors the readiness composite + dimension
              scores to v_maturity_truth so supervisors can trace each
              dimension value back to its canonical fuel. Populated by
              renderMaturityStairway(). -->
         <p id="stair-source-chip" style="margin:0 16px 8px;"></p>
-        <p style="font-size:10px; color:rgba(255,255,255,0.56); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
+        <p style="font-size:10px; color:rgba(255,255,255,0.80); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
         <!-- 5 dimension bars (compact, always visible) -->
         <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
           <!-- C1/K1: fills are ONE neutral accent, not a per-dimension rainbow. A fixed green
@@ -828,7 +859,7 @@
           </div>
         </div>
         <!-- Evidence drawer (hidden by default) -->
-        <div id="stair-evidence" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
+        <div id="stair-evidence" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -839,8 +870,8 @@
       <div id="kpipe-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(40,50,80,0.45), rgba(22,32,50,0.85)); border:1px solid rgba(41,182,217,0.18);">
         <div style="padding:12px 16px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(41,182,217,0.18); color:var(--wh-blue);" data-i="knowfresh">Knowledge freshness</span>
-            <span id="kpipe-overall" style="font-size:0.7rem; color:rgba(255,255,255,0.55);">--</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(41,182,217,0.18); color:var(--wh-blue-text);" data-i="knowfresh">Knowledge freshness</span>
+            <span id="kpipe-overall" style="font-size:0.7rem; color:rgba(255,255,255,0.80);">--</span>
           </div>
           <div id="kpipe-rows" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top:10px;"></div>
           <!-- Source chip — anchors freshness ratios to
@@ -869,7 +900,7 @@
       <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your team?" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
         <div style="background:var(--wh-navy); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:var(--wh-cloud);">
           <h2 style="margin:0 0 0.5rem; font-size:1.05rem; font-weight:800; letter-spacing:0.02em;" data-i="intent_q">What should WorkHive focus on for your team?</h2>
-          <p style="margin:0 0 1rem; font-size:0.78rem; color:rgba(255,255,255,0.65); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
+          <p style="margin:0 0 1rem; font-size:0.78rem; color:rgba(255,255,255,0.83); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.78rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="predictive" style="accent-color:var(--wh-orange);"> <span data-i="intent_pred">Predictive maintenance: stop failures before they happen</span>
@@ -892,7 +923,7 @@
           </div>
           <div style="display:flex; gap:0.5rem;">
             <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.75rem; font-weight:700; font-size:0.82rem; color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;" data-i="intent_save">Save</button>
-            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.82rem; color:rgba(255,255,255,0.55); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
+            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.82rem; color:rgba(255,255,255,0.80); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
           </div>
         </div>
       </div>
@@ -916,30 +947,30 @@
             <div style="display:flex; align-items:center; gap:10px;">
               <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:var(--wh-green);">Healthy</span>
               <span id="adoption-risk-score" style="font-size:1.5rem; font-weight:900; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
-              <span style="font-size:11px; color:rgba(255,255,255,0.6); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
+              <span style="font-size:11px; color:rgba(255,255,255,0.80); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
             </div>
             <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); border:1px solid rgba(255,255,255,0.16); border-radius:8px; padding:10px 16px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
           <!-- E1: risk as length (0-100), colored by tier, so severity is preattentive, not a bare number.
                The bar grows + reddens as risk rises (short green = low risk / good). -->
           <div class="stair-dim-track" style="margin-top:8px; height:6px;"><div id="adoption-risk-fill" class="stair-dim-fill" style="width:0%; background:var(--wh-green);"></div></div>
-          <p id="adoption-summary" style="font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
+          <p id="adoption-summary" style="font-size:11.5px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
           <!-- Source chip — anchors risk score + champion + reasons to
                hive_adoption_score + compute_adoption_risk. Populated by
                loadAdoptionCard(). -->
           <p id="adoption-source-chip" style="margin:8px 0 0;"></p>
-          <p style="font-size:10px; color:rgba(255,255,255,0.56); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
+          <p style="font-size:10px; color:rgba(255,255,255,0.80); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
         </div>
         <!-- Reasons + dropping workers drawer -->
-        <div id="adoption-detail" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.7); line-height:1.55;"></div>
+        <div id="adoption-detail" style="display:none; padding:10px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size:11px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
       </div>
 
       <style>
         .stair-dim-bar { text-align:center; }
-        .stair-dim-label { font-size:11px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:rgba(255,255,255,0.72); margin:0 0 4px; }
+        .stair-dim-label { font-size:11px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:rgba(255,255,255,0.86); margin:0 0 4px; }
         .stair-dim-track { width:100%; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
         .stair-dim-fill { width:0%; height:100%; border-radius:3px; transition:width 0.45s cubic-bezier(0.4,0,0.2,1); }
-        .stair-dim-value { font-size:12px; font-weight:800; color:rgba(255,255,255,0.72); margin:3px 0 0; line-height:1; font-variant-numeric:tabular-nums; }
+        .stair-dim-value { font-size:12px; font-weight:800; color:rgba(255,255,255,0.86); margin:3px 0 0; line-height:1; font-variant-numeric:tabular-nums; }
         @media (max-width: 480px) {
           #stair-dims { grid-template-columns: repeat(5, minmax(0,1fr)); gap:4px; }
           .stair-dim-label { font-size:10px; letter-spacing:0.01em; }
@@ -949,7 +980,7 @@
         .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
         .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
         .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-        .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+        .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
         .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
         .verdict.healthy .verdict-icon { color:var(--wh-green); }
         .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -957,23 +988,23 @@
         .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
         .verdict.attn    .verdict-icon { color:var(--wh-red); }
         .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-        .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+        .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
         .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px; }
         .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; }
-        .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
+        .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
         .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-        .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+        .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
         .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
         .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
         .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
         .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
-        .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+        .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
         .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
-        .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
+        .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
         .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
         /* v4 (2026-07-15): the action CTA was 22px tall (mobile-maestro 44px floor) — lift it. */
         .action-card .ac-cta { min-height:44px; display:inline-flex; align-items:center; margin-top:8px; }
-        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; }
+        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; }
         .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
 
         /* ── v4 UFAI hero (2026-07-14, Ian-approved) — greeting headline + 3 action tiles.
@@ -983,35 +1014,35 @@
         .verdict.ss-hero { background:transparent; border:0; padding:2px 0; margin-bottom:14px; align-items:flex-start; gap:11px; }
         .verdict.ss-hero .verdict-icon { font-size:1.3rem; margin-top:3px; }
         .verdict.ss-hero #ss-verdict-label { font-size:1.4rem; font-weight:800; letter-spacing:-0.01em; color:var(--wh-cloud); display:block; line-height:1.2; }
-        .verdict.ss-hero .verdict-text small { font-size:0.76rem; margin-top:5px; color:rgba(255,255,255,0.6); }
+        .verdict.ss-hero .verdict-text small { font-size:0.76rem; margin-top:5px; color:rgba(255,255,255,0.80); }
         @media (max-width:480px){ .verdict.ss-hero #ss-verdict-label { font-size:1.18rem; } }
 
         /* v4 since-your-last-visit ribbon (G1 status + H2 Zeigarnik) + eyebrow — mockup blue-tint
            mapped to --wh-blue tokens. */
         .ss-ribbon { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 14px; padding:10px 14px; border-radius:12px; background:linear-gradient(90deg, rgba(41,182,217,0.09), rgba(41,182,217,0.02)); border:1px solid rgba(41,182,217,0.2); font-size:0.8rem; font-weight:600; }
-        .ss-rb-h { color:rgba(255,255,255,0.5); font-weight:700; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; }
-        .ss-rb-it { display:flex; align-items:center; gap:5px; color:rgba(255,255,255,0.75); }
+        .ss-rb-h { color:rgba(255,255,255,0.80); font-weight:700; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; }
+        .ss-rb-it { display:flex; align-items:center; gap:5px; color:rgba(255,255,255,0.86); }
         .ss-rb-it b { color:#fff; font-weight:800; }
         .ss-rb-it.g, .ss-rb-it.g b { color:var(--wh-green); }
         .ss-rb-it.r, .ss-rb-it.r b { color:var(--wh-red); }
-        .ss-eyebrow { font-size:0.62rem; letter-spacing:0.14em; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:5px; }
+        .ss-eyebrow { font-size:0.62rem; letter-spacing:0.14em; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; margin-bottom:5px; }
         .ss-lang { display:inline-flex; margin-left:auto; align-self:flex-start; border:1px solid rgba(255,255,255,0.16); border-radius:999px; overflow:hidden; font-size:0.62rem; font-weight:800; }
-        .ss-lang button { background:transparent; border:0; color:rgba(255,255,255,0.5); padding:0 11px; cursor:pointer; font-family:inherit; font-weight:800; min-height:44px; min-width:44px; }
+        .ss-lang button { background:transparent; border:0; color:rgba(255,255,255,0.80); padding:0 11px; cursor:pointer; font-family:inherit; font-weight:800; min-height:44px; min-width:44px; }
         /* Active locale = the TINTED tab treatment (R3 vocabulary), not a solid fill —
            a solid-orange toggle read as a third primary CTA (G3/A3). */
         .ss-lang button.on { background:rgba(247,162,27,0.18); color:var(--wh-orange-light); }
         .ss-lang button:focus-visible { outline:2px solid var(--wh-orange); outline-offset:2px; }
-        .ss-foot { text-align:center; color:rgba(255,255,255,0.6); font-size:0.8rem; font-weight:600; margin-top:16px; padding:10px 8px; }
+        .ss-foot { text-align:center; color:rgba(255,255,255,0.80); font-size:0.8rem; font-weight:600; margin-top:16px; padding:10px 8px; }
         .ss-foot span[aria-hidden] { color:var(--wh-green); font-weight:800; }
         /* v4 first-run value-first view (O1/O2) */
         .ss-firstrun { padding:18px 16px; border-radius:14px; background:linear-gradient(180deg, rgba(249,178,58,0.08), transparent), var(--wh-navy); border:1px solid rgba(249,178,58,0.28); margin-bottom:14px; }
         .ss-fr-steps { display:flex; align-items:center; gap:0; margin-bottom:14px; }
-        .ss-fr-step { font-size:0.72rem; font-weight:700; color:rgba(255,255,255,0.5); white-space:nowrap; }
+        .ss-fr-step { font-size:0.72rem; font-weight:700; color:rgba(255,255,255,0.80); white-space:nowrap; }
         .ss-fr-step.done { color:var(--wh-green); } .ss-fr-step.now { color:var(--wh-orange); }
         .ss-fr-bar { flex:1; height:2px; background:rgba(255,255,255,0.14); margin:0 8px; } .ss-fr-bar.done { background:var(--wh-green); }
         .ss-fr-cta { display:flex; align-items:center; justify-content:center; gap:8px; min-height:52px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.95rem; border-radius:12px; text-decoration:none; }
         .ss-fr-cta:hover { background:var(--wh-orange-dark); }
-        .ss-fr-note { font-size:0.76rem; color:rgba(255,255,255,0.6); text-align:center; margin-top:10px; }
+        .ss-fr-note { font-size:0.76rem; color:rgba(255,255,255,0.80); text-align:center; margin-top:10px; }
         /* v4 mobile sticky primary action (rubric F1 thumb-zone) — mobile-only fixed bar that clears
            the bottom-right FAB stack (right:88px per mobile-maestro) + safe-area; shown only once the
            hero has scrolled off (IntersectionObserver). Desktop never sees it. */
@@ -1020,7 +1051,7 @@
           #ss-sticky.on { display:flex; position:fixed; left:12px; right:88px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:45; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:12px 14px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.92rem; border-radius:14px; text-decoration:none; box-shadow:0 8px 24px rgba(0,0,0,0.42); }
         }
 
-        .ss-tiles-head { font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.55); margin:0 0 9px; display:flex; align-items:center; gap:6px; }
+        .ss-tiles-head { font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin:0 0 9px; display:flex; align-items:center; gap:6px; }
         .ss-tiles { align-items:start; }  /* tiles keep content height, don't stretch to the CLS reserve */
         .ss-tile { display:flex; flex-direction:column; text-decoration:none; color:inherit; min-height:118px; cursor:pointer; transition:transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease; }
         .ss-tile:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,0.34); }
@@ -1029,7 +1060,7 @@
         .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:1.05rem; background:rgba(255,255,255,0.06); }   /* S1: 10px→12px (declared radius scale 8/12/16) */
         .ss-tile .sc-hero { font-size:2rem; font-weight:800; line-height:1.05; margin:8px 0 0; font-variant-numeric:tabular-nums; color:var(--wh-cloud); }
         .ss-tile .ss-tile-label { font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.82); margin-top:2px; }
-        .ss-tile .ss-tile-cta { font-size:0.74rem; font-weight:700; margin-top:auto; padding-top:10px; color:rgba(255,255,255,0.55); }
+        .ss-tile .ss-tile-cta { font-size:0.74rem; font-weight:700; margin-top:auto; padding-top:10px; color:rgba(255,255,255,0.80); }
         .ss-tile .ss-tile-peak { font-size:0.625rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#241606; background:var(--wh-red); padding:3px 9px; border-radius:999px; box-shadow:0 0 0 4px rgba(248,113,113,0.14); }
         .ss-snooze { margin:-6px -6px -6px auto; color:rgba(255,255,255,0.42); font-size:1.05rem; font-weight:800; letter-spacing:1px; line-height:0.4; border-radius:8px; cursor:pointer; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
         .ss-snooze:hover { color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); }
@@ -1044,21 +1075,21 @@
         .ss-tile.is-accent .ss-tile-cap { background:rgba(41,182,217,0.16); color:var(--wh-blue); }
         .ss-tile.is-accent .sc-hero, .ss-tile.is-accent .ss-tile-cta { color:var(--wh-blue); }
         .ss-tile.is-clear .sc-hero { color:var(--wh-green); }
-        .ss-tile.is-clear .ss-tile-cta { color:rgba(255,255,255,0.5); }
+        .ss-tile.is-clear .ss-tile-cta { color:rgba(255,255,255,0.80); }
         @media (prefers-reduced-motion: reduce){ .ss-tile{ transition:none; } .ss-tile:hover{ transform:none; } }
 
         /* v4 readiness goal-gradient glance — length bar (NOT a gauge, E1), links to full detail. */
         .ss-readiness { display:block; margin-top:12px; padding:12px 14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; cursor:pointer; }
         .ss-readiness:hover { border-color:rgba(255,255,255,0.16); }
         .ss-rd-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-        .ss-rd-title { font-size:0.65rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.6); }
-        .ss-rd-score { font-size:0.85rem; color:rgba(255,255,255,0.5); font-weight:600; }
+        .ss-rd-title { font-size:0.65rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.80); }
+        .ss-rd-score { font-size:0.85rem; color:rgba(255,255,255,0.80); font-weight:600; }
         .ss-rd-score b { font-size:1.35rem; font-weight:800; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-        .ss-rd-stair { font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.62); }
-        .ss-rd-cta { margin-left:auto; font-size:0.72rem; font-weight:700; color:var(--wh-orange); }
+        .ss-rd-stair { font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.80); }
+        .ss-rd-cta { margin-left:auto; font-size:0.72rem; font-weight:700; color:var(--wh-orange-text); }
         .ss-rd-track { height:7px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; margin:9px 0 7px; }
         .ss-rd-track > i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--wh-orange), var(--wh-green)); transition:width 0.5s cubic-bezier(0.4,0,0.2,1); }
-        .ss-rd-weak { font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.65); }
+        .ss-rd-weak { font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.83); }
         @media (prefers-reduced-motion: reduce){ .ss-rd-track > i { transition:none; } }
 
         /* v4 (2026-07-15) two-column dashboard — LEFT (brief + coach) | RIGHT (mini-stats),
@@ -1068,7 +1099,7 @@
         .ss-dash > div { min-width:0; }
         .ss-dash .ss-dash-r > * { margin-bottom:14px; }
         @media (max-width:640px){ .ss-dash { grid-template-columns:1fr; gap:0; } }
-        #supervisor-summary-details { display:none; margin-top:10px; margin-bottom:14px; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); }
+        #supervisor-summary-details { display:none; margin-top:10px; margin-bottom:14px; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); }
         #supervisor-summary-details.open { display:block; }
       </style>
 
@@ -1078,7 +1109,7 @@
           <span class="ic ic-back" aria-hidden="true"></span>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
-            <p class="text-xs text-white/60" id="pm-overdue-text"></p>
+            <p class="text-xs text-white/80" id="pm-overdue-text"></p>
             <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-red);min-height:44px;display:inline-flex;align-items:center;">Open PM Scheduler &#8594;</a>
           </div>
         </div>
@@ -1089,8 +1120,8 @@
           <span class="ic ic-warning" aria-hidden="true"></span>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
-            <p class="text-xs text-white/60" id="stock-alert-text"></p>
-            <a href="inventory.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-orange); display:inline-flex; align-items:center; min-height:44px;" data-i="viewinv">View Inventory &#8594;</a>
+            <p class="text-xs text-white/80" id="stock-alert-text"></p>
+            <a href="inventory.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-orange-text); display:inline-flex; align-items:center; min-height:44px;" data-i="viewinv">View Inventory &#8594;</a>
           </div>
         </div>
       </div>
@@ -1109,13 +1140,13 @@
            types that produce them. Populated by loadTodaysBrief(). -->
       <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest" data-i="brief">Today's Brief</p>
+          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest" data-i="brief">Today's Brief</p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:var(--wh-red);">AI</span>
         </div>
         <div class="wh-card p-4">
           <p id="todays-brief-source-chip" style="margin:0 0 8px;"></p>
           <div id="todays-brief-content">
-            <p class="text-xs text-white/60">Loading...</p>
+            <p class="text-xs text-white/80">Loading...</p>
           </div>
         </div>
       </div>
@@ -1133,10 +1164,10 @@
           <span id="coach-toggle-icon" style="font-size:0.7rem; opacity:0.7;">&#9656;</span>
         </button>
         <div id="coach-body" class="wh-card p-4 mt-2" style="display:none;">
-          <p class="text-[11px] text-white/60 mb-3" data-i="coachintro">Ask about your maintenance priorities. Get a few actions, ranked by urgency.</p>
+          <p class="text-[11px] text-white/80 mb-3" data-i="coachintro">Ask about your maintenance priorities. Get a few actions, ranked by urgency.</p>
           <!-- Y6 silent-loop: a blank input left "what can I even ask?" invisible.
                Surface 3 tap-to-fill examples so the user sees what the coach answers. -->
-          <p class="text-[10px] text-white/45 mb-1.5 uppercase tracking-wider font-semibold" data-i="tryasking">Try asking</p>
+          <p class="text-[10px] text-white/80 mb-1.5 uppercase tracking-wider font-semibold" data-i="tryasking">Try asking</p>
           <div id="coach-examples" class="flex flex-wrap gap-1.5 mb-3"></div>
           <!-- Source chip — anchors the coach's actions to the edge fn
                + data slices it reads, so the supervisor can audit the
@@ -1256,14 +1287,14 @@
       <details id="benchmark-panel" class="hidden wh-disclose">
         <summary>
           <span class="wh-disclose-title">How your hive compares
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue); text-transform:none; letter-spacing:0;">WorkHive network</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-text); text-transform:none; letter-spacing:0;">WorkHive network</span>
           </span>
         </summary>
         <div class="wh-disclose-body">
-          <p class="text-[11px] text-white/60 mb-3" data-i="benchmark_intro">Anonymized: no individual hive is identified.</p>
+          <p class="text-[11px] text-white/80 mb-3" data-i="benchmark_intro">Anonymized: no individual hive is identified.</p>
           <p id="benchmark-source-chip" style="margin:0 0 8px;"></p>
           <div id="benchmark-content">
-            <p class="text-xs text-white/60">Loading benchmarks...</p>
+            <p class="text-xs text-white/80">Loading benchmarks...</p>
           </div>
         </div>
       </details>
@@ -1292,17 +1323,17 @@
            one primary action; the feed is one tap away. -->
       <details class="wh-disclose">
         <summary>
-          <span class="wh-disclose-title"><span data-i="activity">Hive Activity</span> <span class="text-[10px] text-white/50" style="text-transform:none; letter-spacing:0; font-weight:600;">Live</span></span>
+          <span class="wh-disclose-title"><span data-i="activity">Hive Activity</span> <span class="text-[10px] text-white/80" style="text-transform:none; letter-spacing:0; font-weight:600;">Live</span></span>
         </summary>
         <div class="wh-disclose-body">
           <div id="feed-empty" class="hidden wh-card p-8 text-center">
             <span class="ic ic-minus" aria-hidden="true"></span>
-            <p class="text-sm text-white/60">No activity yet in this hive.</p>
-            <p class="text-xs text-white/60 mt-1">Logbook entries from team members will appear here.</p>
+            <p class="text-sm text-white/80">No activity yet in this hive.</p>
+            <p class="text-xs text-white/80 mt-1">Logbook entries from team members will appear here.</p>
           </div>
           <div id="feed" class="flex flex-col gap-3"></div>
           <div id="feed-more" class="hidden mt-3">
-            <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.25);">Load More</button>
+            <button onclick="loadMoreFeed()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.08);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.25);">Load More</button>
           </div>
         </div>
       </details>
@@ -1313,9 +1344,9 @@
            handover covered. Populated by generateHandover(). -->
       <div id="handover-panel" class="hidden mt-5 mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Shift Handover</p>
+          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
-        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.6);">Auto-generates a summary of this shift (completed jobs, open items, LOTO alerts, and watch list), ready to share with the next team.</p>
+        <p class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a summary of this shift (completed jobs, open items, LOTO alerts, and watch list), ready to share with the next team.</p>
         <p id="handover-source-chip" style="margin:0 0 8px;"></p>
         <button class="handover-btn" onclick="generateHandover()">
           <span class="ic ic-doc" aria-hidden="true"></span>
@@ -1329,16 +1360,17 @@
           <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
             <div>
               <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
-              <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);" id="ho-meta"></p>
+              <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);" id="ho-meta"></p>
             </div>
-            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.5);">&#x2715;</button>
+            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.80);">&#x2715;</button>
           </div>
           <div id="handover-body"></div>
           <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
-            <input aria-label="Handover to&#8230; (incoming technician name)" id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
+            <label class="ho-label" for="ho-handover-to">Handover to (incoming technician)</label>
+            <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
-              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">&#128203; Copy</button>
-              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue);">&#128424; Print</button>
+              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);">&#128203; Copy</button>
+              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);">&#128424; Print</button>
             </div>
           </div>
         </div>
@@ -1354,7 +1386,7 @@
            "Jobs Today" stat is shown. The pm-overdue + stock cells are kept as HIDDEN canonical
            data cells so the signal-parity + kpi-parity specs still verify the number. -->
       <div id="team-pulse-panel" class="hidden mb-5 board-card">
-        <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2" data-i="teampulse">Team Pulse</p>
+        <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest mb-2" data-i="teampulse">Team Pulse</p>
         <!-- D1/F1: the KPI is a link to the logbook (predictable destination) with a chevron
              affordance + 44px hit area, not a dead-end stat. R3: flattened (no inner border/bg) so
              it's a row INSIDE the section card, not a card-in-card. -->
@@ -1362,7 +1394,7 @@
           <p class="text-2xl font-black text-white flex-shrink-0" id="pulse-jobs-today" style="font-variant-numeric:tabular-nums;">&#8211;</p>
           <div class="min-w-0" style="flex:1;">
             <p class="text-xs font-semibold text-white/80 leading-tight" data-i="jobstoday">Jobs logged today</p>
-            <p class="text-[10px] text-white/55 leading-tight mt-0.5" data-i="jobstoday_sub">Entries added across your hive since midnight.</p>
+            <p class="text-[10px] text-white/80 leading-tight mt-0.5" data-i="jobstoday_sub">Entries added across your hive since midnight.</p>
           </div>
           <span aria-hidden="true" style="color:rgba(255,255,255,0.4);font-size:1.1rem;">&#8250;</span>
         </a>
@@ -1381,13 +1413,13 @@
       <!-- Approval Queue (supervisor only, always open) -->
       <div id="approval-queue" class="hidden mb-5 board-card">
         <div class="flex items-center gap-2 mb-2">
-          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Approval Queue</p>
+          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Approval Queue</p>
           <span id="approval-badge" class="hidden text-[10px] font-black px-1.5 py-0.5 rounded-full" style="background:var(--wh-orange);color:var(--wh-navy);min-width:18px;text-align:center;"></span>
         </div>
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
           <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/60">All caught up: no pending items.</p>
+            <p class="text-xs text-white/80">All caught up: no pending items.</p>
           </div>
         </div>
       </div>
@@ -1395,8 +1427,8 @@
       <!-- Roster -->
       <div class="mb-5 board-card">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.78);"></span></p>
-          <button id="btn-toggle-members" class="wh-toggle" style="color:var(--wh-blue); background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.78);"></span></p>
+          <button id="btn-toggle-members" class="wh-toggle" style="color:var(--wh-blue-text); background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
@@ -1404,15 +1436,15 @@
       <!-- Audit Log (supervisor only) -->
       <div id="audit-log-section" class="hidden mb-5 board-card">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[11px] font-semibold text-white/60 uppercase tracking-widest"><span data-i="supactionlog">Supervisor Action Log</span><span id="audit-log-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.6); text-transform:none; letter-spacing:0;"></span></p>
+          <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest"><span data-i="supactionlog">Supervisor Action Log</span><span id="audit-log-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.80); text-transform:none; letter-spacing:0;"></span></p>
           <!-- Arc P · Wave 1 (P2): default COLLAPSED (was "Hide"/open) so the audit
                trail no longer stretches the board; toggle JS reads display so this is safe. -->
-          <button id="btn-toggle-audit" class="wh-toggle" style="color:var(--wh-blue);background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-audit" class="wh-toggle" style="color:var(--wh-blue-text);background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="audit-log-body" style="display:none;">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
           <div id="audit-log-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/60">No supervisor actions recorded yet.</p>
+            <p class="text-xs text-white/80">No supervisor actions recorded yet. Approvals and role changes land here.</p>
           </div>
         </div>
       </div>
@@ -1430,7 +1462,7 @@
 <div id="modal-hive-switch" role="dialog" aria-modal="true" aria-label="Switch hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">Your Hives</h3>
-    <p class="text-xs text-white/60 mb-4">Switch between hives or join a new one.</p>
+    <p class="text-xs text-white/80 mb-4">Switch between hives or join a new one.</p>
     <div id="hive-switch-list" class="flex flex-col gap-2 mb-4"></div>
     <button id="btn-hive-switch-join" class="btn-ghost mb-2">Join Another Hive</button>
     <button id="btn-hive-switch-cancel" class="btn-text" style="display:block;text-align:center;width:100%;">Cancel</button>
@@ -1441,8 +1473,8 @@
 <div id="modal-sup-leave" role="dialog" aria-modal="true" aria-label="Leave hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 class="text-lg font-black text-white mb-1">Hand over supervisor before you leave</h3>
-    <p class="text-xs text-white/60 mb-5 leading-relaxed">You run this hive. Pick someone to take over first: without a supervisor, no one can manage the hive or remove members.</p>
-    <label for="sup-transfer-select" class="block text-xs font-semibold text-white/60 uppercase tracking-widest mb-2">Transfer role to</label>
+    <p class="text-xs text-white/80 mb-5 leading-relaxed">You run this hive. Pick someone to take over first: without a supervisor, no one can manage the hive or remove members.</p>
+    <label for="sup-transfer-select" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Transfer role to</label>
     <select id="sup-transfer-select" class="wh-input mb-4"></select>
     <button id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
     <button id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
@@ -1641,10 +1673,10 @@ function buildFeedCard(entry, isNew) {
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge ${statusCls}">${escHtml(status)}</span>
           ${cat ? `<span class="cat-badge" style="${catStyle(entry.category)}">${cat}</span>` : ''}
-          <span class="text-[11px] text-white/60 ml-auto">${time}</span>
+          <span class="text-[11px] text-white/80 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white">${machine}</p>
-        ${problem ? `<p class="text-xs text-white/60 mt-0.5 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${problem}</p>` : ''}
+        ${problem ? `<p class="text-xs text-white/80 mt-0.5 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${problem}</p>` : ''}
       </div>
     </div>
   </div>`;
@@ -1669,12 +1701,12 @@ function buildPartsCard(record, isNew) {
         <div class="flex items-center gap-2 flex-wrap mb-1">
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);">Parts Used</span>
-          ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:var(--wh-blue);">${jobType}</span>` : ''}
-          <span class="text-[11px] text-white/60 ml-auto">${time}</span>
+          ${jobType ? `<span class="cat-badge" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-text);">${jobType}</span>` : ''}
+          <span class="text-[11px] text-white/80 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white">${jobRef}</p>
-        ${partSummary ? `<p class="text-xs text-white/60 mt-0.5">${partSummary}</p>` : ''}
-        <p class="text-[11px] text-white/60 mt-0.5">${parts.length} part${parts.length !== 1 ? 's' : ''} used</p>
+        ${partSummary ? `<p class="text-xs text-white/80 mt-0.5">${partSummary}</p>` : ''}
+        <p class="text-[11px] text-white/80 mt-0.5">${parts.length} part${parts.length !== 1 ? 's' : ''} used</p>
       </div>
     </div>
   </div>`;
@@ -1705,12 +1737,12 @@ function buildPMCard(record, isNew) {
         <div class="flex items-center gap-2 flex-wrap mb-1">
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(247,162,27,0.12);color:var(--wh-orange);">PM Done</span>
-          ${freq ? `<span class="cat-badge" style="background:${freqCls[_cf(freq)] || 'rgba(255,255,255,0.06);color:rgba(255,255,255,0.6)'};">${freqMap[_cf(freq)] || freq}</span>` : ''}
-          <span class="text-[11px] text-white/60 ml-auto">${time}</span>
+          ${freq ? `<span class="cat-badge" style="background:${freqCls[_cf(freq)] || 'rgba(255,255,255,0.06);color:rgba(255,255,255,0.80)'};">${freqMap[_cf(freq)] || freq}</span>` : ''}
+          <span class="text-[11px] text-white/80 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white/90 truncate">${assetName}</p>
-        <p class="text-xs text-white/60 truncate mt-0.5">${itemText}</p>
-        <a href="pm-scheduler.html?asset=${encodeURIComponent(record.asset_name || '')}" class="text-[11px] font-semibold mt-1" style="color:var(--wh-orange);min-height:44px;display:inline-flex;align-items:center;">View in PM Scheduler →</a>
+        <p class="text-xs text-white/80 truncate mt-0.5">${itemText}</p>
+        <a href="pm-scheduler.html?asset=${encodeURIComponent(record.asset_name || '')}" class="text-[11px] font-semibold mt-1" style="color:var(--wh-orange-text);min-height:44px;display:inline-flex;align-items:center;">View in PM Scheduler →</a>
       </div>
     </div>
   </div>`;
@@ -2561,7 +2593,7 @@ function renderAdoptionCard(row) {
         blocks.push('<strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">Top risk signals:</strong>'
           + reasons.slice(0, 5).map(r => `<div>· ${e(r.label || r.signal)} <span style="color:rgba(255,255,255,0.45);">(${e(String(r.score))}/100)</span></div>`).join(''));
       } else {
-        blocks.push('<div style="color:rgba(255,255,255,0.55);">No risk signals above threshold this week.</div>');
+        blocks.push('<div style="color:rgba(255,255,255,0.80);">No risk signals above threshold this week.</div>');
       }
       if (dropping.length) {
         blocks.push('<strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">Workers slowing down:</strong>'
@@ -3119,16 +3151,16 @@ async function loadKnowledgePipeline() {
     if (tot === 0) {
       return `
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:8px;">
-        <div style="font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
-        <div style="font-size:0.62rem; color:rgba(255,255,255,0.5); margin-top:2px;">${_t('Nothing logged yet', 'Wala pang naka-log')}</div>
+        <div style="font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
+        <div style="font-size:0.62rem; color:rgba(255,255,255,0.80); margin-top:2px;">${_t('Nothing logged yet', 'Wala pang naka-log')}</div>
       </div>`;
     }
     return `
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:8px;">
-        <div style="font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
+        <div style="font-size:0.58rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
         <div style="display:flex; align-items:baseline; gap:4px;">
           <span style="font-size:1.1rem; font-weight:800; color:${color}; font-variant-numeric:tabular-nums;">${pct}%</span>
-          <span style="font-size:0.6rem; color:rgba(255,255,255,0.6);" data-i="kpipe_searchable">searchable</span>
+          <span style="font-size:0.6rem; color:rgba(255,255,255,0.80);" data-i="kpipe_searchable">searchable</span>
         </div>
         <!-- E1: coverage as a length bar (preattentive), not a bare colored number. -->
         <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-top:5px; overflow:hidden;"><div style="height:100%; width:${Math.max(0, Math.min(100, pct))}%; background:${color}; border-radius:2px;"></div></div>
@@ -3136,7 +3168,7 @@ async function loadKnowledgePipeline() {
           ${e(String(r.embedded_rows || 0))} / ${e(String(r.total_rows || 0))} ${_t('rows', 'rows')}
         </div>
         ${r.pending_rows > 0
-          ? `<div style="font-size:0.58rem; color:var(--wh-orange); margin-top:2px;">${e(String(r.pending_rows))} ${_t('pending', 'nakabinbin')}</div>`
+          ? `<div style="font-size:0.58rem; color:var(--wh-orange-text); margin-top:2px;">${e(String(r.pending_rows))} ${_t('pending', 'nakabinbin')}</div>`
           : ''}
         ${stale
           ? `<div style="font-size:0.58rem; color:var(--wh-red); margin-top:2px;">${_t('last updated', 'huling na-update')} ${e(String(r.days_since_last_embed))} ${_t('days ago', 'araw na nakalipas')}</div>`
@@ -3358,7 +3390,7 @@ async function loadMembers() {
     return;
   }
   if (!membersData.length) {
-    list.innerHTML = `<p class="text-[11px] text-white/55" style="padding:8px 2px;">${_t('No teammates yet. Share your hive code to invite them.', 'Wala pang katrabaho. Ibahagi ang hive code para mag-imbita.')}</p>`;
+    list.innerHTML = `<p class="text-[11px] text-white/80" style="padding:8px 2px;">${_t('No teammates yet. Share your hive code to invite them.', 'Wala pang katrabaho. Ibahagi ang hive code para mag-imbita.')}</p>`;
     return;
   }
   list.innerHTML = membersData.map(m => {
@@ -3372,15 +3404,15 @@ async function loadMembers() {
     const workloadWord = openJobs >= 5 ? _t(' · heavy', ' · mabigat') : openJobs >= 3 ? _t(' · busy', ' · abala') : '';
     const workloadBadge = openJobs > 0
       ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(0,0,0,0.28);color:${workloadColor};">${openJobs} ${_t('open','bukas')}${workloadWord}</span>`
-      : `<span class="text-[10px] text-white/60 flex-shrink-0">${_t('no open jobs','walang bukas na trabaho')}</span>`;
+      : `<span class="text-[10px] text-white/80 flex-shrink-0">${_t('no open jobs','walang bukas na trabaho')}</span>`;
     return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
       <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ` <span style="color:rgba(255,255,255,0.6);font-size:0.65rem;">${_t('(you)','(ikaw)')}</span>` : ''}</p>
+        <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ` <span style="color:rgba(255,255,255,0.80);font-size:0.65rem;">${_t('(you)','(ikaw)')}</span>` : ''}</p>
         ${isSup ? `<span class="supervisor-tag" style="font-size:0.55rem; padding:1px 6px; margin-top:2px; display:inline-flex;">${_t('Supervisor','Superbisor')}</span>` : ''}
       </div>
       ${workloadBadge}
-      ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(247,162,27,0.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}
+      ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}
       ${canKick ? `<button onclick="kickMember('${escJsAttr(m.worker_name)}')" class="btn-danger" style="font-size:0.7rem; padding:0.3rem 0.75rem; min-height:44px;">${_t('Remove','Alisin')}</button>` : ''}
     </div>`;
   }).join('');
@@ -3505,8 +3537,8 @@ async function loadFeed() {
     if (feedReadErr) {
       emptyEl.classList.add('hidden');
       feed.innerHTML = '<div class="wh-card p-6 text-center">'
-        + '<p class="text-sm text-white/70">Couldn\'t load the activity feed.</p>'
-        + '<p class="text-xs text-white/50 mt-1">This is a loading problem, not an empty hive. Check your connection and refresh.</p>'
+        + '<p class="text-sm text-white/85">Couldn\'t load the activity feed.</p>'
+        + '<p class="text-xs text-white/80 mt-1">This is a loading problem, not an empty hive. Check your connection and refresh.</p>'
         + '</div>';
       return;
     }
@@ -3610,7 +3642,7 @@ function _openWorkerProfileDrawer(workerName) {
     '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">' +
       '<p style="font-size:.92rem; font-weight:800; color:var(--wh-cloud); margin:0;">' + escHtml(workerName) + '</p>' +
       '<button type="button" onclick="document.getElementById(\'wh-worker-profile-drawer\').style.display=\'none\'" ' +
-              'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.55); border-radius:8px; min-height:44px; min-width:44px; cursor:pointer;">' +
+              'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.80); border-radius:8px; min-height:44px; min-width:44px; cursor:pointer;">' +
         '&times;' +
       '</button>' +
     '</div>' +
@@ -3645,25 +3677,25 @@ function _openWorkerProfileDrawer(workerName) {
           '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + xp + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
-          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:0 0 2px;">Role</p>' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.80); margin:0 0 2px;">Role</p>' +
           '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
         '</div>' +
         '<div style="padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
-          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:0 0 2px;">Joined</p>' +
+          '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.80); margin:0 0 2px;">Joined</p>' +
           '<p style="font-size:.82rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + escHtml(joined) + '</p>' +
         '</div>' +
       '</div>' +
       '<div>' +
-        '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.6); margin:14px 0 6px;">Recent activity</p>' +
+        '<p style="font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.80); margin:14px 0 6px;">Recent activity</p>' +
         (recent.length
           ? recent.map(r =>
               '<div style="padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:8px; margin-bottom:6px;">' +
                 '<p style="font-size:.78rem; font-weight:600; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
-                '<p style="font-size:.66rem; color:rgba(255,255,255,0.5); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
-                '<p style="font-size:.6rem; color:rgba(255,255,255,0.6); margin:2px 0 0;">' + (r.created_at ? whFmtDate(r.created_at) : '-') /* FD1a: was bare toLocaleDateString = ambiguous US M/D/Y for PH readers */ + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
+                '<p style="font-size:.66rem; color:rgba(255,255,255,0.80); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
+                '<p style="font-size:.6rem; color:rgba(255,255,255,0.80); margin:2px 0 0;">' + (r.created_at ? whFmtDate(r.created_at) : '-') /* FD1a: was bare toLocaleDateString = ambiguous US M/D/Y for PH readers */ + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
               '</div>'
             ).join('')
-          : '<p style="font-size:.72rem; color:rgba(255,255,255,0.6); margin:0;">No recent logbook entries.</p>') +
+          : '<p style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:0;">No recent logbook entries.</p>') +
       '</div>';
     const sub = panel.querySelector('p:nth-of-type(1) + p');
     if (sub) sub.style.display = 'none';
@@ -3673,14 +3705,14 @@ function _openWorkerProfileDrawer(workerName) {
 function renderPresenceFallback() {
   const bar = document.getElementById('presence-bar');
   if (!memberNames.length) {
-    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.6);font-style:italic;">' + _t('Members offline', 'Offline ang mga miyembro') + '</span>';
+    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.80);font-style:italic;">' + _t('Members offline', 'Offline ang mga miyembro') + '</span>';
     return;
   }
   bar.innerHTML = memberNames.map(name => {
     const isMe = name === WORKER_NAME;
     return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escJsAttr(name)}')">
       <span class="presence-dot offline"></span>
-      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.6);font-size:0.6rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
+      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.80);font-size:0.6rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
   }).join('');
 }
@@ -3691,7 +3723,7 @@ function renderPresence() {
   const bar       = document.getElementById('presence-bar');
 
   if (!onlineKeys.length) {
-    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.6);font-style:italic;">' + _t('No one online yet', 'Wala pang naka-online') + '</span>';
+    bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.80);font-style:italic;">' + _t('No one online yet', 'Wala pang naka-online') + '</span>';
     return;
   }
 
@@ -3700,7 +3732,7 @@ function renderPresence() {
     const isMe = key === WORKER_NAME;
     return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escJsAttr(key)}')">
       <span class="presence-dot online"></span>
-      ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.6);font-size:0.6rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
+      ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.80);font-size:0.6rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
   }).join('');
 }
@@ -3884,7 +3916,7 @@ function renderNotifs() {
 
   const list = document.getElementById('notif-list');
   if (!_notifs.length) {
-    list.innerHTML = '<p class="text-xs text-white/60 text-center py-6">No notifications yet.</p>';
+    list.innerHTML = '<p class="text-xs text-white/80 text-center py-6">No notifications yet.</p>';
     return;
   }
 
@@ -3903,8 +3935,8 @@ function renderNotifs() {
       ${iconFor(n.type)}
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(n.title)}</p>
-        <p class="text-[11px] text-white/45 leading-snug mt-0.5">${escHtml(n.body)}</p>
-        ${n.link ? `<a href="${escHtml(n.link)}" class="text-[11px] font-semibold mt-1 inline-block" style="color:var(--wh-blue);">${escHtml(n.link.replace('.html','').replace('-',' '))} →</a>` : ''}
+        <p class="text-[11px] text-white/80 leading-snug mt-0.5">${escHtml(n.body)}</p>
+        ${n.link ? `<a href="${escHtml(n.link)}" class="text-[11px] font-semibold mt-1 inline-block" style="color:var(--wh-blue-text);">${escHtml(n.link.replace('.html','').replace('-',' '))} →</a>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -4143,11 +4175,11 @@ async function checkTeamStockAlert() {
     return `<div class="flex items-center gap-2">
       <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;"></span>
       <span class="text-xs text-white font-semibold flex-1" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(it.part_name)}</span>
-      <span class="text-[10px] text-white/60">${escHtml(it.worker_name)}</span>
+      <span class="text-[10px] text-white/80">${escHtml(it.worker_name)}</span>
       <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${tagBg};color:${tagFg};">${tagText}</span>
     </div>`;
   }).join('') + (hidden > 0
-    ? `<div class="text-[10px] text-white/60 mt-1">+${hidden} more</div>`
+    ? `<div class="text-[10px] text-white/80 mt-1">+${hidden} more</div>`
     : '');
 
   // C1/L1: the frame's urgency must match reality — red ONLY when a part is genuinely OUT.
@@ -4214,10 +4246,10 @@ function renderApprovalQueue() {
   const assetCards = _pendingAssets.map(a => `
     <div class="rounded-xl p-3" id="appr-asset-${escHtml(a.id)}" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.18);">
       <div class="flex items-start gap-2 mb-2">
-        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:var(--wh-blue);border:1px solid rgba(41,182,217,0.2);">ASSET</span>
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.2);">ASSET</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(a.asset_id)}${a.name ? ': ' + escHtml(a.name) : ''}</p>
-          <p class="text-[11px] text-white/60">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
+          <p class="text-[11px] text-white/80">by ${escHtml(a.submitted_by || a.worker_name)} · ${a.criticality ? escHtml(a.criticality) : 'No criticality set'}${a.location ? ' · ' + escHtml(a.location) : ''}</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -4232,7 +4264,7 @@ function renderApprovalQueue() {
         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:var(--wh-violet);border:1px solid rgba(139,92,246,0.2);">PART</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(p.part_number)}: ${escHtml(p.part_name)}</p>
-          <p class="text-[11px] text-white/60">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
+          <p class="text-[11px] text-white/80">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -4442,7 +4474,7 @@ async function loadAuditLog() {
   if (!data || data.length === 0) {
     list.innerHTML = '';
     const msg = emptyEl.querySelector('p');
-    if (msg) msg.textContent = _t('No supervisor actions recorded yet.', 'Wala pang naitalang aksyon ng supervisor.');  // reset if a prior error changed it
+    if (msg) msg.textContent = _t('No supervisor actions recorded yet. Approvals and role changes land here.', 'Wala pang naitalang aksyon ng supervisor. Dito lalabas ang mga approval at pagbabago ng role.');  // reset if a prior error changed it
     emptyEl.classList.remove('hidden');
     return;
   }
@@ -4567,7 +4599,7 @@ async function loadAuditLog() {
       <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_auditColor(row.action)};width:16px;text-align:center;">${cfg.icon}</span>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(_t(cfg.label, FIL_ACTION[row.action]))}${targetHtml}${sub}</p>
-        <p class="text-[10px] text-white/60 mt-0.5">${escHtml(row.actor)} · ${when}</p>
+        <p class="text-[10px] text-white/80 mt-0.5">${escHtml(row.actor)} · ${when}</p>
       </div>
     </div>`;
   }).join('');
@@ -4667,10 +4699,10 @@ async function loadTodaysBrief() {
   let html = bullets.slice(0, 3).map(b =>
     `<div class="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
       <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style="background:${b.color};"></div>
-      <p class="text-xs text-white/70 leading-relaxed">${b.text}</p>
+      <p class="text-xs text-white/85 leading-relaxed">${b.text}</p>
     </div>`
   ).join('');
-  if (ageText) html += `<p class="text-[10px] text-white/60 mt-2">Updated ${escHtml(ageText)}</p>`;
+  if (ageText) html += `<p class="text-[10px] text-white/80 mt-2">Updated ${escHtml(ageText)}</p>`;
 
   el.innerHTML = html;
   try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
@@ -4742,12 +4774,12 @@ async function loadPatternAlerts() {
           <div style="flex:1;">
             <div class="flex items-center gap-2 mb-1">
               <span class="text-[10px] font-black px-2 py-0.5 rounded-full" style="background:${color}22;color:${color};">${escHtml(sev)}</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.75);">${escHtml(label)}</span>
-              <span class="text-[11px] text-white/70">${escHtml(a.machine)}</span>
-              <span class="text-[11px] text-white/70">${dt}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.86);">${escHtml(label)}</span>
+              <span class="text-[11px] text-white/85">${escHtml(a.machine)}</span>
+              <span class="text-[11px] text-white/85">${dt}</span>
             </div>
             <p class="text-[12px] font-semibold text-white/90 mb-1">${escHtml(a.title)}</p>
-            ${a.detail ? `<p class="text-[12px] text-white/70 leading-snug">${escHtml(a.detail)}</p>` : ''}
+            ${a.detail ? `<p class="text-[12px] text-white/85 leading-snug">${escHtml(a.detail)}</p>` : ''}
           </div>
         </div>
       </div>`;
@@ -4867,7 +4899,7 @@ async function loadBenchmarks() {
         +   '<div style="position:absolute; left:0; top:0; height:100%; width:' + myPct.toFixed(1) + '%; background:' + color + '; border-radius:3px;"></div>'
         +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(255,255,255,0.85); border-radius:1px;"></div>'
         + '</div>'
-        + '<p style="font-size:.62rem; color:rgba(255,255,255,0.6); margin-top:4px; font-variant-numeric:tabular-nums;">' + _t('Network avg: ', 'Avg ng network: ') + escHtml(netAvg) + (netTop ? ' · ' + _t('Top 25%: ', 'Nangungunang 25%: ') + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' ' + _t('hives', 'hives') : '') + '</p>'
+        + '<p style="font-size:.62rem; color:rgba(255,255,255,0.80); margin-top:4px; font-variant-numeric:tabular-nums;">' + _t('Network avg: ', 'Avg ng network: ') + escHtml(netAvg) + (netTop ? ' · ' + _t('Top 25%: ', 'Nangungunang 25%: ') + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' ' + _t('hives', 'hives') : '') + '</p>'
         + '</div>';
     });
 
@@ -4916,7 +4948,7 @@ async function askCoach() {
   btn.disabled    = true;
   btn.textContent = '...';
   result.style.display = 'block';
-  result.innerHTML = '<p style="color:rgba(255,255,255,0.6); font-size:0.78rem;">' + _t('Analyzing your plant data...', 'Sinusuri ang datos ng iyong planta...') + '</p>';
+  result.innerHTML = '<p style="color:rgba(255,255,255,0.80); font-size:0.78rem;">' + _t('Analyzing your plant data...', 'Sinusuri ang datos ng iyong planta...') + '</p>';
 
   try {
     // D5 fold (2026-06-14): route the Reliability Coach THROUGH the unified
@@ -4946,7 +4978,7 @@ async function askCoach() {
     }
 
     if (!actions || !actions.length) {
-      result.innerHTML = '<p style="color:rgba(255,255,255,0.6); font-size:0.78rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
+      result.innerHTML = '<p style="color:rgba(255,255,255,0.80); font-size:0.78rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
       return;
     }
 
@@ -4955,9 +4987,9 @@ async function askCoach() {
       const uc = urgencyColor[a.urgency] || '#a78bfa';
       return `<div style="border-left:2px solid ${uc}; padding:8px 12px; margin-bottom:8px; background:rgba(0,0,0,0.2); border-radius:0 8px 8px 0;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size:0.7rem; font-weight:800; color:rgba(255,255,255,0.6);">#${a.priority}</span>
+          <span style="font-size:0.7rem; font-weight:800; color:rgba(255,255,255,0.80);">#${a.priority}</span>
           <span style="font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:999px; background:${uc}22; color:${uc};">${escHtml(a.urgency || '')}</span>
-          ${a.machine ? `<span style="font-size:0.68rem; color:rgba(255,255,255,0.6);">${escHtml(a.machine)}</span>` : ''}
+          ${a.machine ? `<span style="font-size:0.68rem; color:rgba(255,255,255,0.80);">${escHtml(a.machine)}</span>` : ''}
         </div>
         <p style="font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:3px;">${escHtml(a.action || '')}</p>
         ${a.why ? `<p style="font-size:0.72rem; color:rgba(255,255,255,0.45);">${escHtml(a.why)}</p>` : ''}
@@ -5078,9 +5110,9 @@ document.getElementById('btn-switch-hive').addEventListener('click', () => {
       <div class="avatar-initial">${escHtml(h.name[0]?.toUpperCase() || '?')}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-bold text-white truncate">${escHtml(h.name)}</p>
-        <p class="text-[11px] text-white/60 capitalize">${escHtml(h.role)}</p>
+        <p class="text-[11px] text-white/80 capitalize">${escHtml(h.role)}</p>
       </div>
-      ${isActive ? '<span class="text-[10px] font-bold" style="color:var(--wh-blue);">Active</span>' : ''}
+      ${isActive ? '<span class="text-[10px] font-bold" style="color:var(--wh-blue-text);">Active</span>' : ''}
     </button>`;
   }).join('');
   modal.classList.remove('hidden');
@@ -5193,8 +5225,8 @@ function generateHandover() {
   let html = '';
 
   html += `<div class="ho-section">
-    <p class="ho-label" style="color:rgba(255,255,255,0.6);">📊 Shift Snapshot</p>
-    <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0;">${escHtml(_hoKpi)}</p>
+    <p class="ho-label" style="color:rgba(255,255,255,0.80);">📊 Shift Snapshot</p>
+    <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;">${escHtml(_hoKpi)}</p>
   </div>`;
 
   if (lotoJobs.length) {
@@ -5209,15 +5241,15 @@ function generateHandover() {
   html += `<div class="ho-section">
     <p class="ho-label" style="color:var(--wh-green);">✅ Completed This Shift (${completed.length})</p>
     ${completed.length ? completed.slice(0, 8).map(e =>
-      `<div class="ho-item"><span style="color:var(--wh-green);flex-shrink:0;">✓</span><span>${escHtml(e.machine || '-')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
-    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.6);">Nothing closed this shift.</p>'}
+      `<div class="ho-item"><span style="color:var(--wh-green);flex-shrink:0;">✓</span><span>${escHtml(e.machine || '-')}${e.worker_name ? ' · <em style="color:rgba(255,255,255,0.80)">' + escHtml(e.worker_name) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.80);">Nothing closed this shift.</p>'}
   </div>`;
 
   html += `<div class="ho-section">
     <p class="ho-label" style="color:var(--wh-red);">🔴 Opened This Shift (${openThisShift.length})</p>
     ${openThisShift.length ? openThisShift.slice(0, 6).map(e =>
-      `<div class="ho-item"><span style="color:var(--wh-orange);flex-shrink:0;">•</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
-    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.6);">No new jobs this shift.</p>'}
+      `<div class="ho-item"><span style="color:var(--wh-orange);flex-shrink:0;">•</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.80)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`
+    ).join('') : '<p class="text-xs" style="color:rgba(255,255,255,0.80);">No new jobs this shift.</p>'}
   </div>`;
 
   if (carryForward.length) {
@@ -5225,7 +5257,7 @@ function generateHandover() {
       <p class="ho-label" style="color:var(--wh-red);">🔁 Carry-Forward: Previous Shifts (${carryForward.length})${overdue.length ? ' · ' + overdue.length + ' overdue' : ''}</p>
       ${carryForward.slice(0, 8).map(e => {
         const isOD = (now - new Date(e.created_at || e.date)) > 3 * 86400000; // time-window-allow: 3d = OPEN logbook entry triage SLA (same as line 3840)
-        return `<div class="ho-item"><span style="color:${isOD ? 'var(--wh-red)' : 'var(--wh-orange)'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.6)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
+        return `<div class="ho-item"><span style="color:${isOD ? 'var(--wh-red)' : 'var(--wh-orange)'};flex-shrink:0;">${isOD ? '⚠️' : '•'}</span><span>${escHtml(e.machine || '-')}${e.problem ? ': <em style="color:rgba(255,255,255,0.80)">' + escHtml(e.problem.slice(0, 50)) + '</em>' : ''}</span></div>`;
       }).join('')}
     </div>`;
   }
@@ -5326,8 +5358,8 @@ window.addEventListener('beforeunload', () => {
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:0 auto 1rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

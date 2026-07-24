@@ -52,7 +52,7 @@
     .period-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.4rem 0.875rem; border-radius: 999px; cursor: pointer; transition: all 0.15s;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.80);
       min-height: 44px;
     }
     .period-btn.active { background: rgba(167,139,250,0.15); border-color: var(--wh-violet-text); color: var(--wh-violet-text); }
@@ -98,7 +98,7 @@
     .filter-group { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
     .filter-label {
       font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em;
-      text-transform: uppercase; color: rgba(255,255,255,0.6);
+      text-transform: uppercase; color:rgba(255,255,255,0.80);
       margin-right: 0.5rem; flex-shrink: 0;
       min-width: 80px;
     }
@@ -108,7 +108,7 @@
       border-radius: 999px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.55);
+      color:rgba(255,255,255,0.80);
       font-size: 0.7rem;
       font-weight: 600;
       font-family: inherit;
@@ -144,7 +144,7 @@
     .phase-tab {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
       padding: 0.5rem 0.875rem; border-radius: 0; cursor: pointer; white-space: nowrap;
-      background: rgba(255,255,255,0.04); border: none; border-right: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.04); border: none; border-right: 1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
       transition: all 0.15s; min-height: 44px;
     }
     .phase-tab.active { background: rgba(167,139,250,0.12); border-color: var(--wh-violet-text); color: var(--wh-violet-text); }
@@ -162,12 +162,12 @@
       border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.25rem;
       margin-bottom: 1rem;
     }
-    .card-title { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.62); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; } /* arc U5: WCAG AA 4.5:1 over dark bg */
-    .card-standard { font-size: 0.6rem; color: rgba(255,255,255,0.6); font-weight: 500; }
+    .card-title { font-size: 0.72rem; font-weight: 700; color:rgba(255,255,255,0.80); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; } /* arc U5: WCAG AA 4.5:1 over dark bg */
+    .card-standard { font-size: 0.6rem; color:rgba(255,255,255,0.80); font-weight: 500; }
 
     /* ── Tables ── */
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-    .data-table th { text-align: left; color: rgba(255,255,255,0.62); font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
+    .data-table th { text-align: left; color:rgba(255,255,255,0.80); font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color:rgba(255,255,255,0.86); }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table .machine-name { font-weight: 600; color: #fff; }
     .data-table .num { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -223,7 +223,7 @@
       outline: none;
       -webkit-appearance: none;
     }
-    .list-with-showall .list-search::placeholder { color: rgba(255,255,255,0.6); }    .list-with-showall .list-search:focus {
+    .list-with-showall .list-search::placeholder { color:rgba(255,255,255,0.80); }    .list-with-showall .list-search:focus {
       background: rgba(255,255,255,0.06);
       border-color: var(--wh-violet-text);
     }
@@ -234,16 +234,16 @@
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .stat-tile { background: rgba(255,255,255,0.04); border-radius: 0.75rem; padding: 0.875rem; border: 1px solid rgba(255,255,255,0.06); }
     .stat-tile .val { font-size: 1.5rem; font-weight: 800; color: var(--wh-violet-text); line-height: 1; }
-    .stat-tile .label { font-size: 0.65rem; color: rgba(255,255,255,0.62); margin-top: 0.25rem; font-weight: 600; }
+    .stat-tile .label { font-size: 0.65rem; color:rgba(255,255,255,0.80); margin-top: 0.25rem; font-weight: 600; }
     /* ── Bar chart (CSS) ── */
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .bar-label { font-size: 0.7rem; color: rgba(255,255,255,0.6); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-label { font-size: 0.7rem; color:rgba(255,255,255,0.80); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--wh-violet), #7c3aed); transition: width 0.6s ease; }
-    .bar-val { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.5); width: 40px; text-align: right; flex-shrink: 0; }
+    .bar-val { font-size: 0.68rem; font-weight: 700; color:rgba(255,255,255,0.80); width: 40px; text-align: right; flex-shrink: 0; }
 
     /* ── Empty / loading states ── */
-    .empty { text-align: center; padding: 2rem; color: rgba(255,255,255,0.6); font-size: 0.78rem; }    .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color: rgba(255,255,255,0.6); font-size: 0.8rem; }    .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: var(--wh-violet-text); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .empty { text-align: center; padding: 2rem; color:rgba(255,255,255,0.80); font-size: 0.78rem; }    .loading-card { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 2rem; color:rgba(255,255,255,0.80); font-size: 0.8rem; }    .spinner { width: 20px; height: 20px; border: 2px solid rgba(167,139,250,0.2); border-top-color: var(--wh-violet-text); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     /* ── Collapsible card detail ── */
     .kpi-detail {
@@ -278,7 +278,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .kpi-chevron {
-      font-size: 0.65rem; color: rgba(255,255,255,0.6); /* arc U5: SC 1.4.11 non-text contrast */
+      font-size: 0.65rem; color:rgba(255,255,255,0.80); /* arc U5: SC 1.4.11 non-text contrast */
       transition: transform 0.25s ease; flex-shrink: 0; margin-left: 0.5rem;
     }
     .kpi-chevron.open { transform: rotate(180deg); }
@@ -294,7 +294,7 @@
       font-family:inherit; font-size:0.72rem; font-weight:600;
       padding:0.35rem 0.875rem; border-radius:999px; cursor:pointer;
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-      color:rgba(255,255,255,0.6); transition:all 0.15s; min-height:44px;
+      color:rgba(255,255,255,0.80); transition:all 0.15s; min-height:44px;
     }
     .role-btn.active { background:rgba(41,182,217,0.12); border-color:rgba(41,182,217,0.3); color:var(--wh-blue); }
     .role-btn .role-icon { margin-right:0.25rem; }
@@ -305,10 +305,10 @@
       background:linear-gradient(145deg,rgba(41,182,217,0.08),rgba(31,46,69,0.7));
       border:1px solid rgba(41,182,217,0.2);
     }
-    .role-card-title { font-size:0.68rem; font-weight:700; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
+    .role-card-title { font-size:0.68rem; font-weight:700; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.625rem; }
     .role-row { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
     .role-row:last-child { border-bottom:none; }
-    .role-row .label { color:rgba(255,255,255,0.62); }    .role-row .val { font-weight:700; }
+    .role-row .label { color:rgba(255,255,255,0.80); }    .role-row .val { font-weight:700; }
 
     /* In-card AI recommendation block (replaces the separate banner below) */
     .role-ai-rec {
@@ -323,7 +323,7 @@
       text-transform: uppercase; color: var(--wh-violet-text); margin-bottom: 0.25rem;
     }
     .role-ai-rec-text {
-      font-size: 0.74rem; color: rgba(255,255,255,0.75); line-height: 1.45;
+      font-size: 0.74rem; color:rgba(255,255,255,0.86); line-height: 1.45;
     }
     .pm-asset-select {
       font-family:'Poppins',sans-serif; font-size:1rem; font-weight:500;
@@ -334,7 +334,7 @@
     .pm-asset-select option { background:#1a2e44; color:var(--wh-cloud); }
 
     /* ── Info banner ── */
-    .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.55); }
+    .info-banner { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: 0.75rem; background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15); margin-bottom: 1rem; font-size: 0.75rem; color:rgba(255,255,255,0.80); }
 
     /* ── Repeat failure badge ── */
     .repeat-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 999px; background: rgba(248,113,113,0.15); color: var(--wh-red-text); border: 1px solid rgba(248,113,113,0.25); }
@@ -357,7 +357,7 @@
     .verdict { display:flex; align-items:center; gap:16px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; min-height:72px; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; color:rgba(255,255,255,0.92); }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -365,23 +365,23 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; margin-bottom:16px; }
     .simple-card { background:rgba(22,32,50,0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     /* tabular-nums keeps digits on a fixed pitch so KPIs stay comparable
        column-to-column and do not jitter as values refresh (C4). */
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     /* min-height reserves the height of the recommendation + its CTA, which are
        both filled in after the fetch resolves (I1/CLS). */
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; min-height:168px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.82rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
@@ -389,9 +389,9 @@
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:14px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #an-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #an-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #an-summary-details.open { display:block; }
 
     /* N1: EN/FIL toggle. 44px min on both axes -- F1 fails on the MIN dimension,
@@ -404,7 +404,7 @@
          it wore the 8px ACTION rect instead: same job, two shapes (rubric R3). */
       min-width:44px; min-height:44px; padding:0 8px; border-radius:var(--wh-radius-pill); cursor:pointer;
       background:transparent; border:1px solid rgba(255,255,255,0.12);
-      color:rgba(255,255,255,0.6); font-family:inherit; font-size:0.62rem; font-weight:800;
+      color:rgba(255,255,255,0.80); font-family:inherit; font-size:0.62rem; font-weight:800;
       letter-spacing:0.06em; transition:background 0.15s, color 0.15s, border-color 0.15s;
     }
     .an-lang button:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.24); }
@@ -433,7 +433,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No analytics data yet for the selected period.</div>
+  <div id="empty-state" class="empty-state" hidden>No analytics data yet for the selected period. Try a wider period, or log work and it lands here.</div>
 
 
 
@@ -526,21 +526,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="sc-hero" id="an-oee-hero">-</div>
         <div class="sc-sub" id="an-oee-sub">Loading...</div>
         <span class="sc-tag" id="an-oee-tag">-</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 22400-2:2014 · Availability × Quality only. Add each asset's cycle time to include Performance.</small>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 22400-2:2014 · Availability × Quality only. Add each asset's cycle time to include Performance.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-mtbf" data-rag-tile="analytics:mtbf" data-rag-label="Worst MTBF (partial)">
         <div class="sc-label" data-i="lblmtbf">Worst MTBF (partial)</div>
         <div class="sc-hero" id="an-mtbf-hero">-</div>
         <div class="sc-sub" id="an-mtbf-sub">Loading...</div>
         <span class="sc-tag" id="an-mtbf-tag">-</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">ISO 14224:2016 · Counts calendar days between failures, not running hours.</small>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 14224:2016 · Counts calendar days between failures, not running hours.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-pm" data-rag-tile="analytics:pm_compliance" data-rag-label="PM compliance (30d approx)">
         <div class="sc-label" data-i="lblpm">PM compliance (30 days)</div>
         <div class="sc-hero" id="an-pm-hero">-</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
         <span class="sc-tag" id="an-pm-tag">-</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.6);margin-top:4px;">SMRP v5.0 · Estimated from the last 30 days.</small>
+        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">SMRP v5.0 · Estimated from the last 30 days.</small>
       </div>
     </div>
     <div class="action-card">
@@ -562,7 +562,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <li><strong>PM compliance</strong>: scope items completed within frequency window / total scope items in the period.</li>
         <li><strong>Verdict</strong>: red if OEE &lt; 60% OR worst MTBF &lt; 14 days OR compliance &lt; 50%; amber if any KPI under its healthy threshold; green when all three clear.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
     </div>
   </div>
 
@@ -580,7 +580,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Status bar: last updated + loading indicator -->
   <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;min-height:20px;">
     <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--wh-green);flex-shrink:0;display:none;"></span>
-    <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.6);"></span>
+    <span id="status-text" style="font-size:0.68rem;color:rgba(255,255,255,0.80);"></span>
     <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);display:none;"></div>
   </div>
 
@@ -643,7 +643,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     data-rag-label="Per-machine analytics results">
     <div class="card" style="padding:2rem;text-align:center;">
       <div class="spinner" style="width:32px;height:32px;border-width:3px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);margin:0 auto 1rem;"></div>
-      <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Loading analytics...</p>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.80);">Loading analytics...</p>
     </div>
   </div>
 
@@ -1090,7 +1090,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="spinner" style="width:40px;height:40px;border-width:3px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);margin-bottom:1.25rem;"></div>
         <div style="color:var(--wh-violet-text);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem;">WorkHive Analytics AI</div>
         <div id="loading-status-msg" style="font-size:0.85rem;font-weight:600;color:#fff;min-height:1.4rem;transition:opacity 0.4s;margin-bottom:0.4rem;">Loading...</div>
-        <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">ISO 14224 standards-grade analysis</div>
         <div style="display:flex;gap:0.5rem;">
           <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out infinite;"></div>
           <div style="width:7px;height:7px;border-radius:50%;background:var(--wh-violet);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
@@ -1114,7 +1114,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const period = data.period_days || _period;
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
 
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">
       Generated: ${escHtml(gen)} · Period: last ${period} days
     </p>`;
 
@@ -1353,7 +1353,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!d?.oee_by_asset?.length) return `<div class="card">
       <h2 class="card-title">OEE: Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (Availability × Quality)</span></h2>
       <div class="empty" style="padding:1rem 0;">${escHtml(d?.note || 'No production_output data yet. Fill Quick Readings and production units in Breakdown entries.')}</div>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">This is OEE without Performance. Add each asset's ideal cycle time to see the full score.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">This is OEE without Performance. Add each asset's ideal cycle time to see the full score.</p>
     </div>`;
     // Arc P · Wave 2 (P2 list-discipline): sort worst-OEE first + cap to top-8 with a
     // "Show all N" toggle via the shared helper (was: all ~25 rows rendered inline,
@@ -1383,7 +1383,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            metaphor onto the glass ("until that fuel field lands"). A supervisor needs:
            what this shows, what unlocks the rest, how to read the colours. One idea per
            sentence, <=20 words each. (2026-07-15, found by the B3 readability lens.) -->
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. This shows A × Q only. Add each asset's ideal cycle time to see Performance. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Full OEE = <strong>Availability × Performance × Quality</strong>. This shows A × Q only. Add each asset's ideal cycle time to see Performance. 🟢 ≥85% World class · 🟡 ≥65% Typical · 🔴 &lt;65% Needs attention.</p>
     </div>`;
   }
 
@@ -1694,7 +1694,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016</span></h2>
         <div class="empty" style="padding:1rem 0;">
           <span style="color:var(--wh-green);">✓ No repeat failures detected.</span><br>
-          <span style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
+          <span style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-top:0.25rem;display:block;">Same root cause on same machine ≥ 2 times indicates ineffective repair.</span>
         </div>
       </div>`;
     }
@@ -1705,14 +1705,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       itemNoun: 'pair',
       renderRow: (r) => `<tr>
         <td class="machine-name">${escHtml(r.machine)}</td>
-        <td style="font-size:0.72rem;color:rgba(255,255,255,0.6);">${escHtml(r.root_cause)}</td>
+        <td style="font-size:0.72rem;color:rgba(255,255,255,0.80);">${escHtml(r.root_cause)}</td>
         <td class="num"><span class="repeat-badge">${r.occurrences}×</span></td>
       </tr>`,
     });
     return `<div class="card">
       <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></h2>
       ${list}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
@@ -1721,7 +1721,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: root causes → recurrence → correlations (strategic→tactical) → taxonomy → QA
     html += renderFailureModeDistribution(data.failure_mode_distribution);  // top "why" signal
     html += renderRepeatFailureClustering(data.repeat_failure_clustering);  // root cause × machine = clearest action
@@ -1755,7 +1755,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">RCM Consequence Classification <span class="card-standard">SAE JA1011 §5.4 · ${d.coverage_pct}% coverage</span></h2>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${d.recorded_count} of ${d.total_failures} failures have consequence recorded. Coverage improves as team fills impact level on Breakdown entries.</p>
     </div>`;
   }
 
@@ -1773,7 +1773,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Failure Mode Distribution <span class="card-standard">ISO 14224:2016 · ${d.total_failures} total failures</span></h2>
       ${bars}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Top mode: <strong style="color:var(--wh-violet-text)">${escHtml(d.top_root_cause || '-')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Top mode: <strong style="color:var(--wh-violet-text)">${escHtml(d.top_root_cause || '-')}</strong> accounts for ${d.top_root_cause_pct || 0}% of all failures.</p>
     </div>`;
   }
 
@@ -1787,11 +1787,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       ${corr !== null ? `
         <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0.75rem;">
           <div class="stat-tile"><div class="val ${cls}">${corr}</div><div class="label">Correlation r</div></div>
-          <div class="stat-tile"><div class="val" style="color:rgba(255,255,255,0.6)">${d.p_value}</div><div class="label">P-value</div></div>
+          <div class="stat-tile"><div class="val" style="color:rgba(255,255,255,0.80)">${d.p_value}</div><div class="label">P-value</div></div>
           <div class="stat-tile"><div class="val" style="color:${sig ? 'var(--wh-red)' : 'var(--wh-green)'}">${sig ? 'YES' : 'NO'}</div><div class="label">Significant?</div></div>
         </div>` : ''}
-      <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);line-height:1.5;">${escHtml(d.interpretation || d.note || '')}</p>
-      ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
+      <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);line-height:1.5;">${escHtml(d.interpretation || d.note || '')}</p>
+      ${d.data_points ? `<p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">${d.data_points} machines analysed</p>` : ''}
     </div>`;
   }
 
@@ -1820,14 +1820,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(disc.discipline)}</span>
           <span class="${cls}" style="font-size:0.72rem;font-weight:700;">r = ${disc.correlation} (${strength(disc.correlation)}) ${sig ? '✓' : ''}</span>
         </div>
-        ${sig ? `<p style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${escHtml(disc.interpretation)}</p>` : ''}
-        ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
+        ${sig ? `<p style="font-size:0.7rem;color:rgba(255,255,255,0.80);">${escHtml(disc.interpretation)}</p>` : ''}
+        ${disc.by_level.map(l => `<span style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-right:0.75rem;">L${l.level}: ${l.avg_mttr}h avg</span>`).join('')}
       </div>`;
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Skill-MTTR Correlation <span class="card-standard">Spearman rank by discipline</span></h2>
-      <p style="font-size:0.72rem;color:rgba(255,255,255,0.75);font-weight:600;margin-bottom:0.5rem;">${escHtml(headline)}</p>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-bottom:0.75rem;">r = how strongly skill level tracks repair speed (-1 to +1). A negative r means more-skilled workers repair faster (good). The check mark = statistically significant.</p>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.86);font-weight:600;margin-bottom:0.5rem;">${escHtml(headline)}</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-bottom:0.75rem;">r = how strongly skill level tracks repair speed (-1 to +1). A negative r means more-skilled workers repair faster (good). The check mark = statistically significant.</p>
       ${cards}
     </div>`;
   }
@@ -1838,7 +1838,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <td class="machine-name">${escHtml(j.machine)}</td>
       <td class="num alert">${j.downtime_hours}h</td>
       <td class="num">${j.above_avg_by_h > 0 ? '+' : ''}${j.above_avg_by_h}h</td>
-      <td style="font-size:0.68rem;color:rgba(255,255,255,0.6);">${escHtml(j.date)}</td>
+      <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(j.date)}</td>
     </tr>`).join('');
     return `<div class="card">
       <h2 class="card-title">Parts Availability Impact <span class="card-standard">logbook × inventory cross-reference</span></h2>
@@ -1847,7 +1847,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
       </div>
       ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
 
@@ -1868,22 +1868,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const more = rest > 0
         ? `<details style="display:inline;">
              <summary style="display:inline;cursor:pointer;color:var(--wh-violet-text);min-height:44px;line-height:44px;">+${rest} more</summary>
-             <span style="color:rgba(255,255,255,0.6);">${all.slice(MILLER).map(m => escHtml(m)).join(', ')}</span>
+             <span style="color:rgba(255,255,255,0.80);">${all.slice(MILLER).map(m => escHtml(m)).join(', ')}</span>
            </details>`
         : '';
       return `
       <div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(248,113,113,0.06);border-radius:var(--wh-radius-sm);border:1px solid rgba(248,113,113,0.15);">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;">
           <span style="font-size:0.75rem;font-weight:600;color:var(--wh-red-text);">${escHtml(s.root_cause)}</span>
-          <span style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.75);white-space:nowrap;">${s.machine_count} machines · ${s.total_occurrences} occurrences</span>
+          <span style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.86);white-space:nowrap;">${s.machine_count} machines · ${s.total_occurrences} occurrences</span>
         </div>
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.2rem;">${head}${more ? ' ' + more : ''}</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.2rem;">${head}${more ? ' ' + more : ''}</div>
       </div>`;
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Repeat Failure Clustering <span class="card-standard">ISO 14224:2016 · ${d.systemic_count} systemic issue(s)</span></h2>
       ${systemic || '<p style="font-size:0.75rem;color:var(--wh-green);">✓ No systemic failures detected across machines.</p>'}
-      <p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
+      <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.insight || '')}</p>
     </div>`;
   }
 
@@ -1898,8 +1898,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(f.machine)}</span>
           <span class="warn" style="font-size:0.68rem;font-weight:700;">${f.failure_count} failures · ${f.total_downtime_h}h DT</span>
         </div>
-        <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);">Matched calc: ${escHtml(f.matched_calc)}</div>
-        <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);">Matched calc: ${escHtml(f.matched_calc)}</div>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-top:0.3rem;">${escHtml(f.recommendation)}</p>
       </div>`).join('');
     return `<div class="card">
       <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: ${d.flagged_count} match(es) flagged</span></h2>
@@ -1912,7 +1912,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Recompute risk (supervisors only): risk scores come from the daily 13:00 PHT
     // cron, so this forces an on-demand recompute for THIS hive. It renders inside
     // the panel rather than the shared header row — see the note at the header.
@@ -1958,10 +1958,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ${s.spike_factor ? s.spike_factor + '× spike' : 'New usage'}
             </span>
           </div>
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:0.25rem;">
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:0.25rem;">
             Now: ${s.current_rate}/mo ${s.previous_rate > 0 ? `· Before: ${s.previous_rate}/mo` : '· No prior usage'}
           </div>
-          <p style="font-size:0.7rem;color:rgba(255,255,255,0.55);">${escHtml(s.interpretation)}</p>
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);">${escHtml(s.interpretation)}</p>
         </div>`;
       },
     });
@@ -1993,7 +1993,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <span style="font-size:0.75rem;font-weight:700;color:#fff;">${escHtml(a.machine)}</span>
             <span class="alert" style="font-size:0.7rem;font-weight:700;">${escHtml(a.direction)} · ${a.deviation}σ</span>
           </div>
-          <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);margin-top:0.2rem;">${escHtml(a.alert)}</p>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-top:0.2rem;">${escHtml(a.alert)}</p>
         </div>`).join('')
       : `<p style="font-size:0.72rem;color:var(--wh-green);margin-bottom:0.75rem;">✓ All readings within 2σ control limits.</p>`;
 
@@ -2006,7 +2006,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       searchPlaceholder: 'Filter by machine or reading type…',
       renderRow: (b) => `<tr>
         <td class="machine-name">${escHtml(b.machine)}</td>
-        <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
+        <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(b.label)} (${escHtml(b.unit)})</td>
         <td class="num">${b.mean}</td>
         <td class="num">${b.ucl}</td>
         <td class="num">${b.last_value}</td>
@@ -2016,9 +2016,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Anomaly Baseline Detection <span class="card-standard">ISO 7870-2 SPC · ${d.machines_tracked} machine(s) · ${d.anomaly_count} alert(s)</span><!-- native-dialog-allow: literal text in HTML string, not a function call --></h2>
       ${anomalyHtml}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin:0.75rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Baseline reference (top 8 by sample count)</p>
       ${baselineList}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">"σ" (sigma) = how far a reading strays from the machine's normal range. Past 2σ (the UCL / upper control limit) is unusual and worth a check. Mean = the machine's typical value.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">"σ" (sigma) = how far a reading strays from the machine's normal range. Past 2σ (the UCL / upper control limit) is unusual and worth a check. Mean = the machine's typical value.</p>
     </div>`;
   }
 
@@ -2080,10 +2080,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const worstComps = worst.components || {};
     const compBreakdown = worstComps.pm_score !== undefined ? `
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">PM ${worstComps.pm_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">Fault ${worstComps.fault_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">Time ${worstComps.time_score}</span>
-        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);">Repeat ${worstComps.repeat_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">PM ${worstComps.pm_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Fault ${worstComps.fault_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Time ${worstComps.time_score}</span>
+        <span style="font-size:0.62rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);">Repeat ${worstComps.repeat_score}</span>
       </div>` : '';
 
     return kpiCard({
@@ -2112,7 +2112,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const isSuspect = p.mtbf_days < 1; // < 1 day MTBF = likely data quality issue
         let statusHtml;
         if (isSuspect) {
-          statusHtml = `<span style="font-size:0.62rem;color:var(--wh-orange);">⚠ Check data</span>`;
+          statusHtml = `<span style="font-size:0.62rem;color:var(--wh-orange-text);">⚠ Check data</span>`;
         } else if (isOverdue) {
           statusHtml = `<span style="font-size:0.62rem;color:var(--wh-red-text);">Overdue by ${Math.abs(Math.round(p.days_until))}d, not yet logged</span>`;
         } else {
@@ -2121,9 +2121,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const dateColor = isOverdue ? '#f87171' : p.risk === 'MEDIUM' ? '#F7A21B' : 'rgba(255,255,255,0.6)';
         const dateLabel = isOverdue ? `${escHtml(p.predicted_next)} ← past` : escHtml(p.predicted_next);
         return `<tr style="${isSuspect ? 'background:rgba(247,162,27,0.06);' : ''}">
-          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:var(--wh-orange);">⚠</span>' : ''}</td>
+          <td class="machine-name">${escHtml(p.machine)}${isSuspect ? ' <span style="font-size:0.6rem;color:var(--wh-orange-text);">⚠</span>' : ''}</td>
           <td class="num" style="color:${isSuspect?'var(--wh-orange)':'rgba(255,255,255,0.6)'};">${p.mtbf_days}d</td>
-          <td class="num" style="color:rgba(255,255,255,0.6);">${escHtml(p.last_failure)}</td>
+          <td class="num" style="color:rgba(255,255,255,0.80);">${escHtml(p.last_failure)}</td>
           <td class="num" style="color:${dateColor};font-size:0.72rem;">${dateLabel}</td>
           <td>${statusHtml}</td>
         </tr>`;
@@ -2141,8 +2141,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       color: d.high_risk > 0 ? 'red' : d.medium_risk > 0 ? 'yellow' : 'green',
       detail: `
         ${list}
-        ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:var(--wh-orange);margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day (likely multiple failures logged in same shift). Review logbook entries for data accuracy.</p>` : ''}
-        <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">A past date means MTBF expected another failure by now. Check the logbook, or inspect the machine.</p>`,
+        ${suspectCount > 0 ? `<p style="font-size:0.65rem;color:var(--wh-orange-text);margin-top:0.75rem;">⚠ ${suspectCount} machine(s) with MTBF < 1 day (likely multiple failures logged in same shift). Review logbook entries for data accuracy.</p>` : ''}
+        <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">A past date means MTBF expected another failure by now. Check the logbook, or inspect the machine.</p>`,
       legend: 'Prediction = last logged failure date + mean interval between historical failures. Requires ≥ 2 failures per machine.',
     });
   }
@@ -2177,7 +2177,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const hasSoon   = tasks.some(t => t.risk === 'DUE SOON');
       const assetColor = hasOver ? '#f87171' : hasSoon ? '#F7A21B' : '#a78bfa';
       const badge     = hasOver ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.25);">${tasks.filter(t=>t.risk==='OVERDUE').length} OVERDUE</span>`
-                      : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
+                      : hasSoon ? `<span style="font-size:0.6rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:999px;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);">${tasks.length} DUE SOON</span>` : '';
       const id = `pm-asset-${pmCardId++}`;
       // Auto-expand overdue assets
       const autoOpen = hasOver;
@@ -2186,8 +2186,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const tc = t.risk === 'OVERDUE' ? '#f87171' : t.risk === 'DUE SOON' ? '#F7A21B' : '#a78bfa';
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
           <div style="flex:1;min-width:0;">
-            <p style="font-size:0.73rem;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
-            <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
+            <p style="font-size:0.73rem;color:rgba(255,255,255,0.86);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
+            <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
           </div>
           <span style="font-size:0.68rem;font-weight:700;color:${tc};white-space:nowrap;margin-left:0.75rem;flex-shrink:0;">${escHtml(t.status)}</span>
         </div>`;
@@ -2199,9 +2199,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <span style="width:8px;height:8px;border-radius:50%;background:${assetColor};flex-shrink:0;"></span>
             <span style="font-size:0.8rem;font-weight:700;color:#fff;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(assetName)}</span>
             ${badge}
-            <span style="font-size:0.65rem;color:rgba(255,255,255,0.6);">${tasks.length} task${tasks.length!==1?'s':''}</span>
+            <span style="font-size:0.65rem;color:rgba(255,255,255,0.80);">${tasks.length} task${tasks.length!==1?'s':''}</span>
           </div>
-          <span id="${id}-chev" style="font-size:0.65rem;color:rgba(255,255,255,0.6);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
+          <span id="${id}-chev" style="font-size:0.65rem;color:rgba(255,255,255,0.80);transition:transform 0.25s;flex-shrink:0;margin-left:0.5rem;${autoOpen?'transform:rotate(180deg)':''}">▼</span>
         </button>
         <div id="${id}" style="max-height:${autoOpen?'800px':'0'};overflow:hidden;transition:max-height 0.3s ease;padding:${autoOpen?'0 1rem':'0'};background:rgba(22,32,50,0.4);">
           <div style="padding-bottom:0.5rem;">${taskRows}</div>
@@ -2330,7 +2330,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     _kpiCardId = 0;
     const panel = document.getElementById('results-panel');
     const gen = data.generated_at ? whFmtDate(data.generated_at, { time: true }) : '';
-    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
+    let html = `<p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin-bottom:1rem;">Generated: ${escHtml(gen)} · Period: last ${data.period_days} days</p>`;
     // Order: AI synthesis → triage → this-week ops actions → scheduling change → HR development
     if (data.action_plan) html += renderActionPlan(data.action_plan);  // cross-phase synthesis
     html += renderPriorityRanking(data.priority_ranking);              // which assets to attack first
@@ -2344,12 +2344,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   function renderActionPlan(plan) {
     if (!plan?.this_week?.length) return '';
     const items = plan.this_week.map(a => `<li style="margin-bottom:0.4rem;color:rgba(255,255,255,0.8);">${escHtml(a)}</li>`).join('');
-    const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
+    const watchItems = (plan.watch_list || []).map(w => `<span style="font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px;background:rgba(247,162,27,0.12);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.25);margin-right:0.4rem;">${escHtml(w)}</span>`).join('');
     return `<div class="card" style="border-color:var(--wh-violet-text);background:linear-gradient(145deg,rgba(124,58,237,0.12),rgba(31,46,69,0.7));margin-bottom:1rem;">
       <div class="card-title" style="color:var(--wh-violet-text);">⚡ AI Action Plan <span class="card-standard">WorkHive AI · ISO 55000:2014</span></div>
       ${plan.summary ? `<p style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:0.75rem;">${escHtml(plan.summary)}</p>` : ''}
       <ul style="padding-left:1.25rem;font-size:0.75rem;line-height:1.7;">${items}</ul>
-      ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.6);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
+      ${watchItems ? `<div style="margin-top:0.75rem;"><p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-bottom:0.4rem;">Watch list:</p>${watchItems}</div>` : ''}
     </div>`;
   }
 
@@ -2366,7 +2366,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return `<tr>
           <td><span style="font-size:0.7rem;font-weight:800;color:${pColor};padding:0.15rem 0.4rem;border-radius:999px;background:rgba(0,0,0,0.2);">${r.priority}</span></td>
           <td class="machine-name">${escHtml(r.machine)}</td>
-          <td style="font-size:0.68rem;color:rgba(255,255,255,0.6);">${escHtml(r.criticality)}</td>
+          <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(r.criticality)}</td>
           <td class="num">${r.failure_count}</td>
           <td class="num">${r.avg_downtime_h}h</td>
           <td class="num" style="color:var(--wh-violet-text);font-weight:800;">${r.risk_score}</td>
@@ -2376,7 +2376,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return `<div class="card">
       <h2 class="card-title">Priority Maintenance Ranking <span class="card-standard">ISO 55001-inspired · 🔴 ${d.p1_count} P1 · 🟡 ${d.p2_count} P2</span></h2>
       ${list}
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
+      <p style="font-size:0.62rem;color:rgba(255,255,255,0.80);margin-top:0.5rem;">Score = Criticality × Failure count × Avg downtime. P1 ≥ 150, P2 ≥ 60.</p>
     </div>`;
   }
 
@@ -2391,9 +2391,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const skipped = d?.skipped_count ?? 0;
       let empty;
       if (scopeN === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">No PM scopes registered yet. Add PM tasks to assets in PM Scheduler to enable interval optimisation.</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.80);padding:1rem 0;font-size:0.82rem;">No PM scopes registered yet. Add PM tasks to assets in PM Scheduler to enable interval optimisation.</div>`;
       } else if (cmp === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">Couldn't compare PM intervals: ${scopeN} assets have PM scopes but none have matching failure history in logbook for this period. Recommendations will appear once breakdowns log against the same assets.</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.80);padding:1rem 0;font-size:0.82rem;">Couldn't compare PM intervals: ${scopeN} assets have PM scopes but none have matching failure history in logbook for this period. Recommendations will appear once breakdowns log against the same assets.</div>`;
       } else {
         empty = `<div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ Compared ${cmp} asset${cmp === 1 ? '' : 's'}: current PM intervals are appropriate based on failure history.</div>`;
       }
@@ -2411,7 +2411,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       searchPlaceholder: 'Filter by asset name or code…',
       renderRow: (r) => {
         const codeBadge = r.machine_code
-          ? `<code style="font-size:0.65rem;color:var(--wh-orange);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
+          ? `<code style="font-size:0.65rem;color:var(--wh-orange-text);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
           : '';
         const scopeNote = r.scope_items_count
           ? ` · covers ${r.scope_items_count} PM task${r.scope_items_count === 1 ? '' : 's'}`
@@ -2422,7 +2422,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <span style="font-size:0.78rem;font-weight:700;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
               <span style="font-size:0.65rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'var(--wh-red)':r.action.includes('INCREASE')?'var(--wh-red)':'var(--wh-orange)'};">${escHtml(r.action)}</span>
             </div>
-            <p style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(r.reason)}</p>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(r.reason)}</p>
             <!-- Name the SCHEDULABLE frequency ("Daily"), not "every 1 days": the operator
                  picks a frequency from a dropdown, so a raw day-count is not actionable.
                  ROOT CAUSE means PM frequency is not the lever, so it must NOT print a
@@ -2443,8 +2443,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!d?.assignments?.length && !d?.skill_gaps?.length) return cardEmpty('Technician Assignment', 'SMRP workforce metrics', d?.note || 'No open jobs to assign.');
     const assignments = (d.assignments || []).map(a => `<tr>
       <td class="machine-name">${escHtml(a.machine)}</td>
-      <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">${escHtml(a.problem)}</td>
-      <td style="font-size:0.72rem;font-weight:600;color:var(--wh-blue);">${escHtml(a.assigned_to)}</td>
+      <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">${escHtml(a.problem)}</td>
+      <td style="font-size:0.72rem;font-weight:600;color:var(--wh-blue-text);">${escHtml(a.assigned_to)}</td>
       <td class="num good">L${a.skill_level}</td>
     </tr>`).join('');
     // Group identical gaps so we don't render 8 copies of "No qualified Mechanical
@@ -2457,9 +2457,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     });
     const gaps = Object.values(gapsByDisc).map(grp => {
       const machineList = grp.machines.length
-        ? `<span style="color:rgba(255,255,255,0.55);"> · ${escHtml(grp.machines.slice(0, 4).join(', '))}${grp.machines.length > 4 ? ` +${grp.machines.length - 4} more` : ''}</span>`
+        ? `<span style="color:rgba(255,255,255,0.80);"> · ${escHtml(grp.machines.slice(0, 4).join(', '))}${grp.machines.length > 4 ? ` +${grp.machines.length - 4} more` : ''}</span>`
         : '';
-      return `<div style="font-size:0.74rem;color:var(--wh-red-text);margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.6);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
+      return `<div style="font-size:0.74rem;color:var(--wh-red-text);margin-top:0.5rem;">⚠ No qualified <strong>${escHtml(grp.discipline)}</strong> technician in the team. <span style="color:rgba(255,255,255,0.80);">(${grp.machines.length} machine${grp.machines.length === 1 ? '' : 's'} affected)</span>${machineList}</div>`;
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></h2>
@@ -2486,7 +2486,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <td class="num">${r.qty_on_hand}</td>
           <td class="num">${r.reorder_point}</td>
           <td class="num ${cls}">${r.urgency}</td>
-          <td style="font-size:0.68rem;color:rgba(255,255,255,0.5);">Order ${r.suggested_order}</td>
+          <td style="font-size:0.68rem;color:rgba(255,255,255,0.80);">Order ${r.suggested_order}</td>
         </tr>`;
       },
     });
@@ -2508,9 +2508,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const badges = d?.badge_count ?? 0;
       let empty;
       if (cats === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">${escHtml(d?.note || 'No closed corrective entries with downtime in this period, nothing to evaluate yet.')}</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.80);padding:1rem 0;font-size:0.82rem;">${escHtml(d?.note || 'No closed corrective entries with downtime in this period, nothing to evaluate yet.')}</div>`;
       } else if (badges === 0) {
-        empty = `<div class="empty" style="color:rgba(255,255,255,0.6);padding:1rem 0;font-size:0.82rem;">No skill badges yet. Workers need to take exams in Skill Matrix before training gaps can be detected.</div>`;
+        empty = `<div class="empty" style="color:rgba(255,255,255,0.80);padding:1rem 0;font-size:0.82rem;">No skill badges yet. Workers need to take exams in Skill Matrix before training gaps can be detected.</div>`;
       } else if (above === 0) {
         empty = `<div class="empty" style="color:var(--wh-green);padding:1rem 0;">✓ Evaluated ${cats} categor${cats === 1 ? 'y' : 'ies'}: no MTTR spike above the +20% threshold. Repair times are consistent across the team.</div>`;
       } else {
@@ -2527,7 +2527,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span style="font-size:0.8rem;font-weight:700;color:#fff;">${escHtml(g.discipline)}</span>
           <span style="font-size:0.7rem;color:var(--wh-red-text);">Avg MTTR: ${g.avg_mttr_h}h (+${g.above_avg_by_h}h above avg)</span>
         </div>
-        <p style="font-size:0.72rem;color:rgba(255,255,255,0.6);">${escHtml(g.recommendation)}</p>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.80);">${escHtml(g.recommendation)}</p>
         ${g.low_skill_workers?.length ? `<div style="margin-top:0.4rem;">${g.low_skill_workers.map(w=>`<span style="font-size:0.65rem;color:var(--wh-violet-text);margin-right:0.5rem;">${escHtml(w.worker)} (L${w.current_level})</span>`).join('')}</div>` : ''}
       </div>`).join('');
     return `<div class="card">

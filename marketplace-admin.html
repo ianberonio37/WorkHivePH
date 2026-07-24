@@ -35,7 +35,7 @@
     .page-header p { font-size: 0.78rem; color: #9fb0c3; margin-top: 0.15rem; } /* AA contrast on navy (was --wh-steel ≈ 4.3:1) */
     .header-badge {
       padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;
-      background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3); color: var(--wh-orange);
+      background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.3); color:var(--wh-orange-text);
     }
 
     /* Gate */
@@ -49,7 +49,7 @@
     #supervisor-gate a {
       margin-top: 0.5rem; display: inline-block; padding: 0.6rem 1.5rem;
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3);
-      border-radius: 0.625rem; color: var(--wh-orange); font-weight: 600; font-size: 0.82rem; text-decoration: none;
+      border-radius: 0.625rem; color:var(--wh-orange-text); font-weight: 600; font-size: 0.82rem; text-decoration: none;
     }
 
     /* Tab switcher */
@@ -191,7 +191,7 @@
     .btn-verify {
       padding: 0.45rem 0.875rem; border-radius: 0.5rem; cursor: pointer;
       background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.3);
-      color: var(--wh-blue); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 700;
+      color:var(--wh-blue-text); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 700;
       white-space: nowrap; transition: background 0.15s;
     }
     .btn-verify:hover { background: rgba(41,182,217,0.2); }
@@ -243,7 +243,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:var(--wh-cloud); display:flex; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h1>
+    <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h2>
     <p style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
       Listing / seller / dispute VOLUMES are now live Grafana panels; approve / verify / resolve
       ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).
@@ -345,7 +345,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Content area -->
   <div id="content-area" class="listing-list"></div>
   <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+    <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
   </div>
 </main>
 

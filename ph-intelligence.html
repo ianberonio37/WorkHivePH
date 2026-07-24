@@ -21,7 +21,7 @@
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet); --yellow: var(--wh-orange);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.4);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px;
@@ -60,7 +60,7 @@
 
     /* Failure modes */
     .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .fm-rank { font-size: .65rem; font-weight: 800; color: rgba(255,255,255,0.62); width: 20px; flex-shrink: 0; }
+    .fm-rank { font-size: .65rem; font-weight: 800; color:rgba(255,255,255,0.80); width: 20px; flex-shrink: 0; }
     .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
     .fm-bar-bg { width: 80px; background: rgba(255,255,255,0.05); border-radius: 999px; height: 4px; flex-shrink: 0; }
     .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
@@ -89,7 +89,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -97,9 +97,9 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.62); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ph-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+    #ph-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
     #ph-summary-details.open { display:block; }
   </style>
 </head>
@@ -122,7 +122,7 @@
   <summary>How this page works</summary>
   <p>Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
 </details>
-<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">Updated monthly &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated monthly &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
@@ -175,7 +175,7 @@
         <li><strong>Report freshness</strong>: days since the report was generated (refreshes monthly).</li>
         <li><strong>Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.62);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
     </div>
 
     <!-- Key stats -->
@@ -567,8 +567,8 @@
 <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 </main>
 <!-- Calm Dashboard Contract footer moved INSIDE main (A3: the lens roots at main/.page; a page-owned disclosure outside it was invisible to the ruler AND semantically outside the page's landmark) -->

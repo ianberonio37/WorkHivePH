@@ -5,19 +5,20 @@
     "ge90": 0,
     "ge85": 0,
     "pageErrors": 0,
-    "ranAt": "2026-07-23T03:43:18.015Z",
+    "ranAt": "2026-07-24T07:06:27.116Z",
     "identity": "pabloaguilar@auth.workhiveph.com"
   },
   "pages": {
     "shift-brain": {
       "overall": 70,
       "counts": {
-        "dims": 67,
-        "measured": 37,
+        "dims": 90,
+        "measured": 40,
         "judged": 7,
-        "na": 23
+        "na": 43
       },
       "failing": [
+        "C5 0% — 2 pass WCAG but miss APCA Lc (worst: \"Not Found\" Lc 0/45 at 32px)",
         "C2 0% — worst 1:1 \"Not Found\"",
         "E3 0% — NO source chip",
         "G1 0% — no status region",
@@ -125,6 +126,14 @@
           "total": 3,
           "pct": 100,
           "note": "bigSizes=[32] distinct=2"
+        },
+        {
+          "dim": "C5",
+          "kind": "MEASURED",
+          "pass": 0,
+          "total": 2,
+          "pct": 0,
+          "note": "2 pass WCAG but miss APCA Lc (worst: \"Not Found\" Lc 0/45 at 32px)"
         },
         {
           "dim": "C2",
@@ -300,7 +309,7 @@
           "pass": 2,
           "total": 2,
           "pct": 100,
-          "note": "LCP 56ms OK · CLS 0.000 OK"
+          "note": "LCP 72ms OK · CLS 0.000 OK"
         },
         {
           "dim": "I2",
@@ -405,6 +414,22 @@
           "total": null,
           "pct": null,
           "note": "nothing animates in this state: no motion to reduce"
+        },
+        {
+          "dim": "Q2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no focusable control in this state"
+        },
+        {
+          "dim": "Q3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no drag-operated function on this page"
         },
         {
           "dim": "R1",
@@ -605,6 +630,166 @@
           "total": null,
           "pct": null,
           "note": "no compose/entry form (textarea) on this page — draft-survival N/A"
+        },
+        {
+          "dim": "X1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no conditional empty/no-results panels in the DOM — dead-end slice N/A (dynamic states are the live-journey step)"
+        },
+        {
+          "dim": "Y2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no consequential/destructive actions on this page — stress-timing N/A"
+        },
+        {
+          "dim": "AI1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI input surface on this page"
+        },
+        {
+          "dim": "AI2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI output surface on this page"
+        },
+        {
+          "dim": "AI3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI output surface on this page"
+        },
+        {
+          "dim": "AI4",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI invoke on this page"
+        },
+        {
+          "dim": "AI5",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no AI overlay/output on this page"
+        },
+        {
+          "dim": "PP1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no async operations on this page"
+        },
+        {
+          "dim": "PP2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no long (>10s) operation on this page"
+        },
+        {
+          "dim": "PP3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no submit action with an async op on this page"
+        },
+        {
+          "dim": "DL1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no empty/first-run states on this page"
+        },
+        {
+          "dim": "DL2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no write/completion action on this page"
+        },
+        {
+          "dim": "DD1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a KPI dashboard (fewer than 3 stat tiles)"
+        },
+        {
+          "dim": "DD2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no data-viz charts on this page"
+        },
+        {
+          "dim": "TR1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no transactional surface on this page"
+        },
+        {
+          "dim": "TR2",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no transactional surface on this page"
+        },
+        {
+          "dim": "RE1",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "not a feed/social surface on this page"
+        },
+        {
+          "dim": "DP1",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "no manufactured urgency/scarcity pressure; any deadline shown is a real date"
+        },
+        {
+          "dim": "DP2",
+          "kind": "MEASURED",
+          "pass": 1,
+          "total": 1,
+          "pct": 100,
+          "note": "decline/cancel controls are plainly worded (no guilt copy)"
+        },
+        {
+          "dim": "DP3",
+          "kind": "N/A",
+          "pass": null,
+          "total": null,
+          "pct": null,
+          "note": "no checkbox surface on this page"
         }
       ]
     }
@@ -676,6 +861,17 @@
       "judged": 0,
       "failPages": [],
       "mean": 100
+    },
+    "C5": {
+      "name": "Perceptual contrast (APCA Lc)",
+      "green": 0,
+      "fail": 1,
+      "na": 0,
+      "judged": 0,
+      "failPages": [
+        "shift-brain 0"
+      ],
+      "mean": 0
     },
     "C2": {
       "name": "Colour & contrast (WCAG)",
@@ -1006,6 +1202,24 @@
       "failPages": [],
       "mean": null
     },
+    "Q2": {
+      "name": "No phantom focus stop (WCAG 2.2 focus-not-obscured)",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "Q3": {
+      "name": "Dragging has a single-pointer alternative (WCAG 2.2)",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
     "R1": {
       "name": "Spacing scale (declared tokens / 8-pt)",
       "green": 0,
@@ -1232,6 +1446,186 @@
     },
     "X2": {
       "name": "Interruption resilience & draft-survival",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "X1": {
+      "name": "Task-flow coherence (no dead-end conditional state)",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "Y2": {
+      "name": "Stress-case resilience (no time-pressure on consequential actions)",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "AI1": {
+      "name": "AI capability transparency",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "AI2": {
+      "name": "AI confidence & grounding",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "AI3": {
+      "name": "AI correction & feedback",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "AI4": {
+      "name": "AI graceful failure",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "AI5": {
+      "name": "AI global controls",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "PP1": {
+      "name": "Working indicator on async ops",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "PP2": {
+      "name": "Progress + cancel on long ops",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "PP3": {
+      "name": "Optimistic acknowledgment",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "DL1": {
+      "name": "Surface-delight microcopy",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "DL2": {
+      "name": "Success microinteraction",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "DD1": {
+      "name": "At-a-glance primary KPI",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "DD2": {
+      "name": "Chart-type fitness",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "TR1": {
+      "name": "Upfront disclosure",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "TR2": {
+      "name": "Credibility signals",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "RE1": {
+      "name": "Re-engagement & content freshness",
+      "green": 0,
+      "fail": 0,
+      "na": 1,
+      "judged": 0,
+      "failPages": [],
+      "mean": null
+    },
+    "DP1": {
+      "name": "No fake urgency or scarcity (manufactured pressure)",
+      "green": 1,
+      "fail": 0,
+      "na": 0,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "DP2": {
+      "name": "No confirmshaming on the decline path",
+      "green": 1,
+      "fail": 0,
+      "na": 0,
+      "judged": 0,
+      "failPages": [],
+      "mean": 100
+    },
+    "DP3": {
+      "name": "No pre-selected opt-in",
       "green": 0,
       "fail": 0,
       "na": 1,

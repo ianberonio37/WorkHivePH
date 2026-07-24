@@ -50,7 +50,7 @@
       outline: none;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.62); }
+    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -70,7 +70,7 @@
     .btn-ghost {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       font-weight: 500;
       border-radius: 0.75rem;
       padding: 0.875rem 1.5rem;
@@ -162,7 +162,7 @@
       overflow-y: auto;
     }
     .chat-textarea:focus { border-color: rgba(247,162,27,0.4); }
-    .chat-textarea::placeholder { color: rgba(255,255,255,0.62); }
+    .chat-textarea::placeholder { color:rgba(255,255,255,0.80); }
 
     /* Toast */
     .toast {
@@ -201,12 +201,12 @@
     .key-toggle {
       background: transparent;
       border: none;
-      color: rgba(255,255,255,0.62);
+      color:rgba(255,255,255,0.80);
       cursor: pointer;
       padding: 0 0.5rem;
       transition: color 0.2s;
     }
-    .key-toggle:hover { color: rgba(255,255,255,0.7); }
+    .key-toggle:hover { color:rgba(255,255,255,0.83); }
 
     .error-text { color: var(--wh-red); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
     .error-text.show { display: block; }
@@ -224,13 +224,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       <!-- Back nav -->
       <div class="flex items-center justify-between mb-8">
-        <button onclick="handleBack()" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+        <button onclick="handleBack()" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
           <span class="ic ic-back" aria-hidden="true"></span>
           <span id="back-label">Basic Worker</span>
         </button>
         <div class="flex items-center gap-2">
           <div class="w-2 h-2 rounded-full" style="background:var(--wh-orange);"></div>
-          <span class="text-xs text-white/60 font-medium tracking-wide uppercase">Stage 1</span>
+          <span class="text-xs text-white/80 font-medium tracking-wide uppercase">Stage 1</span>
         </div>
       </div>
 
@@ -240,29 +240,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h1 class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
-        <p class="text-sm text-white/60">Ask anything: technical, operational, planning, safety, or your own job history.</p>
+        <p class="text-sm text-white/80">Ask anything: technical, operational, planning, safety, or your own job history.</p>
       </div>
 <details class="wh-help">
   <summary>How this page works</summary>
   <p>Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.</p>
 </details>
-<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.6);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
+<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
 
         <!-- Worker name -->
         <div>
-          <label for="worker-name" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Your Name</label>
+          <label for="worker-name" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">Your Name</label>
           <input id="worker-name" type="text" class="wh-input" aria-describedby="name-error" placeholder="e.g. Juan dela Cruz" required aria-required="true" maxlength="80" />
           <p role="alert" aria-live="assertive" id="name-error" class="error-text">Please enter your name.</p>
         </div>
 
         <!-- Today's context (optional) -->
         <div>
-          <label for="today-context" class="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">
+          <label for="today-context" class="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
             Today's Context
-            <span class="text-white/60 normal-case font-normal ml-1">(optional)</span>
+            <span class="text-white/80 normal-case font-normal ml-1">(optional)</span>
           </label>
           <textarea id="today-context" class="wh-input" rows="4" maxlength="500" placeholder="e.g. Working on Line 3 pumps, PM schedule for Compressor C-01..." style="resize:none;"></textarea>
         </div>
@@ -271,7 +271,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
           <p class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
-          <p id="empty-records-nudge" class="text-xs text-white/60 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
+          <p id="empty-records-nudge" class="text-xs text-white/80 mt-2 hidden">No records yet. Add logbook entries or parts to unlock personalised insights. You can still ask technical questions.</p>
         </div>
 
       </div>
@@ -281,7 +281,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         Start Chat
       </button>
 
-      <p class="text-center text-xs text-white/60 mt-4">Powered by WorkHive AI</p>
+      <p class="text-center text-xs text-white/80 mt-4">Powered by WorkHive AI</p>
 
     </div>
   </div>
@@ -295,7 +295,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- Chat header -->
     <div class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);">
-      <button onclick="handleBack()" class="flex items-center gap-2 text-white/60 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
+      <button onclick="handleBack()" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;">
         <span class="ic ic-back" aria-hidden="true"></span>
         Setup
       </button>
@@ -304,7 +304,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--wh-green);"></div>
         <span id="chat-worker-name" class="text-sm font-semibold text-white/80"></span>
       </div>
-      <button onclick="clearChat()" class="text-xs text-white/60 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;" data-i="newchat">New Chat</button>
+      <button onclick="clearChat()" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;" data-i="newchat">New Chat</button>
     </div>
 
     <!-- Companion Streamline Step C: tab strip [Chat | Journal].
@@ -318,13 +318,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button id="tab-chat" type="button" role="tab" aria-selected="true"
               onclick="switchAssistantTab('chat')"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:rgba(247,162,27,0.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
+              style="background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
         Chat
       </button>
       <button id="tab-journal" type="button" role="tab" aria-selected="false"
               onclick="switchAssistantTab('journal')"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:transparent; color:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_journal">
+              style="background:transparent; color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_journal">
         Journal
       </button>
     </div>
@@ -358,7 +358,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span class="ic ic-send" aria-hidden="true"></span>
         </button>
       </div>
-      <p class="text-center text-[10px] text-white/60 mt-2">Powered by WorkHive AI</p>
+      <p class="text-center text-[10px] text-white/80 mt-2">Powered by WorkHive AI</p>
     </div>
 
   </div>
@@ -459,7 +459,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         _journalLoaded = true;
       }
       const onStyle  = 'background:rgba(247,162,27,0.15); color:#F7A21B; border:1px solid rgba(247,162,27,0.30);';
-      const offStyle = 'background:transparent; color:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.10);';
+      const offStyle = 'background:transparent; color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.10);';
       if (tabChat)  { tabChat.setAttribute('style',  isJournal ? offStyle : onStyle);  tabChat.setAttribute('aria-selected',  isJournal ? 'false' : 'true'); }
       if (tabJourn) { tabJourn.setAttribute('style', isJournal ? onStyle  : offStyle); tabJourn.setAttribute('aria-selected', isJournal ? 'true' : 'false'); }
     }
@@ -500,7 +500,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(i => `
         <div class="flex items-center justify-between">
-          <span class="text-xs text-white/60">${i.label}</span>
+          <span class="text-xs text-white/80">${i.label}</span>
           <span class="text-xs font-bold" style="color:${i.color}">${i.count} record${i.count !== 1 ? 's' : ''}</span>
         </div>
       `).join('');
@@ -815,8 +815,8 @@ happens to know maintenance, not a manual.`;
       wrap.className = 'fade-up';
       wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; max-width:32rem;';
       wrap/* xss-allow: static author-controlled prompt strings, escHtml'd */ .innerHTML =
-        `<h2 style="width:100%; font-size:0.68rem; color:rgba(255,255,255,0.62); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
-        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 14px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
+        `<h2 style="width:100%; font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
+        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange-text); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 14px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
       container.appendChild(wrap);
       wrap.querySelectorAll('.starter-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {

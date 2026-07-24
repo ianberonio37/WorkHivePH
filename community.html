@@ -45,7 +45,7 @@
       outline: none; transition: border-color 0.2s; -webkit-appearance: none;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.6); }
+    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
 
     /* ── Buttons ── */
     .btn-primary {
@@ -58,7 +58,7 @@
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .btn-ghost {
-      min-height: 44px; background: transparent; color: rgba(255,255,255,0.7); font-weight: 600;
+      min-height: 44px; background: transparent; color:rgba(255,255,255,0.83); font-weight: 600;
       border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-size: 0.875rem;
       border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: all 0.2s;
     }
@@ -67,7 +67,7 @@
 
     .btn-icon {
       min-height: 44px; min-width: 44px; background: transparent; border: none;
-      border-radius: 0.5rem; color: rgba(255,255,255,0.6); cursor: pointer;
+      border-radius: 0.5rem; color:rgba(255,255,255,0.80); cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       transition: all 0.15s; padding: 0.5rem;
     }
@@ -88,12 +88,12 @@
     /* ── Person card (identity + reputation + marketplace bridge) ── */
     .pc-stat { text-align: center; padding: 0.5rem 0.25rem; background: rgba(255,255,255,0.04); border-radius: 0.6rem; }
     .pc-stat b { display: block; font-size: 1.1rem; font-weight: 800; color: white; }
-    .pc-stat span { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.55); }
+    .pc-stat span { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color:rgba(255,255,255,0.80); }
     .pc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
     .pc-tier.voice_of_the_hive { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.4); }
     .pc-tier.top_contributor  { background: rgba(41,182,217,0.14); color: var(--wh-blue); border: 1px solid rgba(41,182,217,0.4); }
     .pc-tier.active_contributor { background: rgba(34,197,94,0.12); color: var(--wh-green); border: 1px solid rgba(34,197,94,0.35); }
-    .pc-tier.new_member { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+    .pc-tier.new_member { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83); border: 1px solid rgba(255,255,255,0.15); }
     .pc-seller-link {
       display: flex; align-items: center; justify-content: space-between; gap: 8px; text-decoration: none;
       background: linear-gradient(135deg, rgba(247,162,27,0.12), rgba(41,182,217,0.10));
@@ -127,7 +127,7 @@
       display: inline-flex; align-items: center; gap: 5px;
       padding: 6px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.65); cursor: pointer; white-space: nowrap;
+      color:rgba(255,255,255,0.83); cursor: pointer; white-space: nowrap;
       transition: all 0.15s; min-height: 44px;
     }
     .filter-chip:hover { border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.8); }
@@ -158,7 +158,7 @@
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
       font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .cat-general     { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.65); }
+    .cat-general     { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
     .cat-safety      { background: rgba(239,68,68,0.15); color: var(--wh-red-text); }
     .cat-technical   { background: rgba(41,182,217,0.12); color: #4fc3e8; }   /* C2: AA-safe blue on the 12% tint (was --wh-blue #29B6D9 @ 4.03:1 → #4fc3e8 ~4.7:1) */
     .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange); }
@@ -171,7 +171,7 @@
       width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
       background: rgba(41,182,217,0.2); border: 1px solid rgba(41,182,217,0.3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; font-weight: 700; color: var(--wh-blue);
+      font-size: 0.7rem; font-weight: 700; color:var(--wh-blue-text);
     }
     .avatar-initial.mine { background: rgba(247,162,27,0.2); border-color: rgba(247,162,27,0.3); color: var(--wh-orange); }
 
@@ -180,7 +180,7 @@
       display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
       border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.15s;
+      color:rgba(255,255,255,0.80); cursor: pointer; transition: all 0.15s;
       min-height: 44px;
     }
     /* R3 one-shape-per-role: the reply/open-thread button reuses .reaction-btn (pill) but is a
@@ -205,12 +205,14 @@
       border-bottom: 1px solid rgba(255,255,255,0.04);
     }
     .lb-row:last-child { border-bottom: none; }
-    .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.6); flex-shrink: 0; }
+    .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color:rgba(255,255,255,0.80); flex-shrink: 0; }
     .lb-rank.gold   { color: var(--wh-orange); }
     .lb-rank.silver { color: #94a3b8; }
     .lb-rank.bronze { color: var(--wh-orange); }
 
     /* ── Bottom sheet (post composer) ── */
+    /* Q2 no-phantom-focus: the CLOSED-overlay visibility guard (which takes these controls OUT of the
+       tab order) is injected once for every page by utils.js - do NOT re-declare it here. */
     .sheet-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50;
       opacity: 0; pointer-events: none; transition: opacity 0.25s;
@@ -229,7 +231,7 @@
     /* ── Mod queue tab ── */
     .tab-btn {
       flex: 1; padding: 0.6rem 0.5rem; border: none; background: transparent;
-      color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 600;
+      color:rgba(255,255,255,0.80); font-size: 0.8rem; font-weight: 600;
       border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s;
       min-height: 44px;
     }
@@ -255,10 +257,13 @@
       display: flex; align-items: center; gap: 12px; transition: opacity 0.3s;
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
-    #undo-toast.hidden { opacity: 0; pointer-events: none; }
+    /* Q2 no-phantom-focus: the dismissed toast kept its "Undo" button in the tab order (live-verified
+       focusable), so a keyboard user could focus - and fire - an Undo for a post they already
+       finished undoing. visibility:hidden after the 0.3s fade removes it from the tab order. */
+    #undo-toast.hidden { opacity: 0; pointer-events: none; visibility: hidden; transition: opacity 0.3s, visibility 0s linear 0.3s; }
     #undo-toast button {
       background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.4);
-      color: var(--wh-orange); font-weight: 700; border-radius: 999px;
+      color:var(--wh-orange-text); font-weight: 700; border-radius: 999px;
       padding: 0.35rem 0.9rem; font-size: 0.75rem; cursor: pointer;
       min-height: 32px;
     }
@@ -374,7 +379,7 @@
 <!-- ── NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div style="max-width:900px; margin:0 auto; padding:0 1.25rem; height:56px; display:flex; align-items:center; justify-content:space-between;">
-    <a href="index.html" class="home-link" aria-label="WorkHive home" style="display:flex; align-items:center; gap:8px; min-height:44px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+    <a href="index.html" class="home-link" aria-label="WorkHive home" style="display:flex; align-items:center; gap:8px; min-height:44px; color:rgba(255,255,255,0.80); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
       <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height:28px; width:auto;" />
     </a>
@@ -384,9 +389,9 @@
            state was redundant noise — the source chip already says "Live · updates automatically". -->
       <div id="conn-pill" role="status" aria-live="polite" aria-atomic="true" style="display:none; align-items:center; gap:6px;">
         <div class="conn-dot offline" id="conn-dot" aria-hidden="true"></div>
-        <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.6);">Connecting…</span>
+        <span id="conn-label" style="font-size:0.7rem; color:rgba(255,255,255,0.80);">Connecting…</span>
       </div>
-      <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.6); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+      <span id="nav-worker" style="font-size:0.75rem; color:rgba(255,255,255,0.80); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
     </div>
   </div>
 </nav>
@@ -412,14 +417,14 @@
     <!-- Page header -->
     <div style="margin-bottom:1.25rem;">
       <h1 style="font-size:1.5rem; font-weight:800; margin:0 0 2px;" data-i="comm_title">Community</h1>
-      <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin:0;">Your hive's discussion board</p>
+      <p id="hive-name-label" style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin:0;">Your hive's discussion board</p>
       <p id="community-source-chip" style="margin-top:3px; min-height:1.1em;"></p>
     </div>
 
     <!-- Presence bar -->
     <!-- Y6 silent-loop: the green-dot bar had no label or basis. Name it + state what "online" means, inline (field phones have no hover). -->
-    <p style="font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.55); margin:0 0 2px;">Online now</p>
-    <p style="font-size:0.62rem; color:rgba(255,255,255,0.6); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
+    <p style="font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin:0 0 2px;">Online now</p>
+    <p style="font-size:0.62rem; color:rgba(255,255,255,0.80); margin:0 0 6px;">Green dot = a teammate has this board open right now (live).</p>
     <div id="presence-bar" tabindex="0" role="region" aria-label="Members online" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:1.25rem; scrollbar-width:none; min-height:40px; align-items:center;"></div>
 
     <!-- Layout grid (feed + sidebar on desktop) -->
@@ -464,7 +469,7 @@
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-posts" onclick="loadMorePosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
               <span data-i="c_loadmore">Load more posts</span>
             </button>
           </div>
@@ -472,13 +477,13 @@
 
         <!-- Global feed panel (D Phase 2 — public posts from all hives) -->
         <div id="panel-global" style="display:none; flex-direction:column; gap:0.75rem;">
-          <p style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin:0 0 0.5rem; text-align:center;">
+          <p style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; text-align:center;">
             Public posts from all WorkHive teams · Read-only outside your hive
           </p>
           <div id="global-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="global-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-global" onclick="loadMoreGlobalPosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;">
+              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.6rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;">
               Load more
             </button>
           </div>
@@ -494,51 +499,51 @@
       <div>
         <!-- My profile card -->
         <div class="wh-card" style="padding:1.25rem; margin-bottom:1rem;" id="profile-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.75rem;">Your Profile</p>
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.75rem;">Your Profile</p>
           <div style="display:flex; align-items:center; gap:12px;">
             <div id="profile-avatar" style="flex-shrink:0;padding-bottom:10px;"></div>
             <div style="flex:1; min-width:0;">
               <p id="profile-name" style="font-size:0.9rem; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></p>
-              <p id="profile-role" style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin:0; text-transform:capitalize;"></p>
+              <p id="profile-role" style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin:0; text-transform:capitalize;"></p>
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
               <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange); font-variant-numeric:tabular-nums;">-</p>
-              <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Posts</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
               <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue); font-variant-numeric:tabular-nums;">-</p>
-              <p style="font-size:0.65rem; color:rgba(255,255,255,0.6); margin:0; margin-top:2px;">Community XP</p>
+              <p style="font-size:0.65rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
           <!-- Belonging / contribution ladder (heavyweight-U): show the member their next rung so
                participation feels progressive, not a one-off. Computed from server-truth post count. -->
-          <p id="profile-next-milestone" style="display:none; font-size:0.75rem; color:var(--wh-orange); font-weight:600; margin:0.85rem 0 0; line-height:1.5;"></p>
+          <p id="profile-next-milestone" style="display:none; font-size:0.75rem; color:var(--wh-orange-text); font-weight:600; margin:0.85rem 0 0; line-height:1.5;"></p>
           <!-- Recognition legibility (heavyweight-U): a member can always explain WHY they earned their XP. -->
           <details style="margin-top:0.85rem;">
-            <summary style="font-size:0.72rem; font-weight:700; color:var(--wh-blue); cursor:pointer;">How do I earn Community XP?</summary>
-            <ul style="font-size:0.72rem; color:rgba(255,255,255,0.75); line-height:1.65; margin:0.5rem 0 0; padding-left:1.1rem;">
+            <summary style="font-size:0.72rem; font-weight:700; color:var(--wh-blue-text); cursor:pointer;">How do I earn Community XP?</summary>
+            <ul style="font-size:0.72rem; color:rgba(255,255,255,0.86); line-height:1.65; margin:0.5rem 0 0; padding-left:1.1rem;">
               <li><b>+50</b> for your first post: welcome to the hive</li>
               <li><b>+25</b> for a safety post: keeping the team safe matters</li>
               <li><b>+20</b> when one of your posts gets 3 reactions: the team found it useful</li>
               <li><b>🐝 Voice of the Hive</b> badge at your 10th post</li>
             </ul>
-            <p style="font-size:0.68rem; color:rgba(255,255,255,0.55); margin:0.5rem 0 0; line-height:1.5;">XP rewards real help, never logins, streaks, or giving reactions.</p>
+            <p style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0.5rem 0 0; line-height:1.5;">XP rewards real help, never logins, streaks, or giving reactions.</p>
           </details>
         </div>
 
         <!-- "My people" — same-trade discovery (U-axis belonging). Hidden until the
              get_hive_trade_peers RPC returns hive-mates who share the worker's trade. -->
         <div class="wh-card" style="padding:1.25rem; display:none;" id="trade-peers-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.2rem;">People in your trade</p>
-          <p style="font-size:0.72rem; color:rgba(255,255,255,0.65); margin:0 0 0.75rem;">Hive-mates who work the same discipline as you. Start here.</p>
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.2rem;">People in your trade</p>
+          <p style="font-size:0.72rem; color:rgba(255,255,255,0.83); margin:0 0 0.75rem;">Hive-mates who work the same discipline as you. Start here.</p>
           <div id="trade-peers-list"></div>
         </div>
 
         <!-- Leaderboard -->
         <div class="wh-card" style="padding:1.25rem;" id="leaderboard-card">
-          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin:0 0 0.75rem;">Top Posters</p>
+          <p style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin:0 0 0.75rem;">Top Posters</p>
           <div id="leaderboard-list" style="min-height:132px;">
             <div style="height:16px; width:80%; border-radius:4px;" class="skeleton"></div>
             <div style="height:16px; width:70%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
@@ -566,7 +571,7 @@
       </button>
     </div>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Category</label>
+    <label for="post-category" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Category</label>
     <select id="post-category" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Post category" data-select-placeholder-allow="default 'General' category is the broadest, safe default">
       <option value="general">General</option>
       <option value="safety">Safety</option>
@@ -575,7 +580,7 @@
       <option value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
     </select>
     <!-- Knowledge->commerce bridge: a commerce-intent post points to the FREE marketplace -->
-    <p id="marketplace-hint" style="display:none; font-size:0.72rem; color:rgba(255,255,255,0.7); background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:0.6rem; padding:0.6rem 0.75rem; margin:-0.5rem 0 1rem; line-height:1.5;">
+    <p id="marketplace-hint" style="display:none; font-size:0.72rem; color:rgba(255,255,255,0.83); background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:0.6rem; padding:0.6rem 0.75rem; margin:-0.5rem 0 1rem; line-height:1.5;">
       🛒 Buying or selling parts, or offering a service? Post it here to reach your hive, and list it on the
       <a href="marketplace.html" style="color:var(--wh-orange); font-weight:700; text-decoration:none;">free Marketplace →</a>
     </p>
@@ -585,22 +590,22 @@
       <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:var(--wh-green);" aria-label="Share publicly with all WorkHive teams" />
       <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
         🌐 Share with all WorkHive teams
-        <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
+        <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
       </span>
     </label>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Message</label>
+    <label for="post-content" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Message</label>
     <div style="position:relative;">
       <textarea id="post-content" class="wh-input" rows="4" placeholder="What's on your mind? Type @ to mention a teammate." maxlength="2000" aria-label="Post content" style="resize:vertical; min-height:100px;"></textarea>
       <div id="mention-dropdown" role="listbox" aria-label="Mention suggestions"></div>
     </div>
-    <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.6); margin:4px 0 1rem;">0 / 2000</p>
+    <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.80); margin:4px 0 1rem;">0 / 2000</p>
 
-    <details class="wh-help" style="font-size:0.78rem; color:rgba(255,255,255,0.7);">
+    <details class="wh-help" style="font-size:0.78rem; color:rgba(255,255,255,0.83);">
       <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px; min-height:44px;">
         <span class="ic ic-doc" aria-hidden="true"></span>
         Community guidelines
-        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.6); font-weight:400;">tap to read</span>
+        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400;">tap to read</span>
       </summary>
       <ul style="margin:0.6rem 0 0; padding-left:1.2rem; line-height:1.55;">
         <li>Be respectful: no harassment, bullying, or personal attacks.</li>
@@ -651,11 +656,11 @@
       </button>
     </div>
 
-    <p style="font-size:0.78rem; color:rgba(255,255,255,0.7); margin:0 0 1rem; line-height:1.5;">
+    <p style="font-size:0.78rem; color:rgba(255,255,255,0.83); margin:0 0 1rem; line-height:1.5;">
       Send this post to your supervisor for review. Your name and reason will be recorded in the audit log.
     </p>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Reason</label>
+    <label for="report-reason" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Reason</label>
     <select id="report-reason" class="wh-input" style="margin-bottom:1rem; cursor:pointer;" aria-label="Reason for report" data-select-placeholder-allow="report-reason picker is required field with submit button; UX guards against silent send">
       <option value="harassment">Harassment or bullying</option>
       <option value="unsafe">Unsafe or wrong information</option>
@@ -663,9 +668,9 @@
       <option value="other">Other</option>
     </select>
 
-    <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:6px;">Details (optional)</label>
+    <label for="report-details" style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.80); margin-bottom:6px;">Details (optional)</label>
     <textarea id="report-details" class="wh-input" rows="3" maxlength="500" placeholder="Any extra context for your supervisor…" aria-label="Report details" style="resize:vertical; min-height:80px;"></textarea>
-    <p id="report-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.6); margin:4px 0 1rem;">0 / 500</p>
+    <p id="report-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.80); margin:4px 0 1rem;">0 / 500</p>
 
     <button id="btn-submit-report" class="btn-primary" style="width:100%;" onclick="submitReport()">Send Report</button>
   </div>
@@ -811,6 +816,15 @@
       }
     } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
 
+    // Y1b: offline POST queue (client-settable id → optimistic card + realtime echo dedup by it).
+    if (window.whCreateQueue) {
+      window._whCommQueue = window.whCreateQueue({
+        db: 'wh_community_offline', table: 'community_posts',
+        postSync: () => { try { showToast('Offline posts synced.'); } catch (_) { /* empty-catch-allow */ } },
+      });
+      window.whRegisterQueue('community', window._whCommQueue);
+      window._whCommQueue.startAutoSync(db);
+    }
     await Promise.all([loadPosts(), loadLeaderboard(), loadProfileStats(), loadHiveMembers(), loadTradePeers()]);
     if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
     // E3 provenance bottom chip (#cm-source-chip) REMOVED 2026-07-22 (Ian: "merge to one chip"):
@@ -986,7 +1000,7 @@
       .limit(10);
 
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-align:center; padding:1rem 0;">No activity yet.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">No activity yet.</p>';
       return;
     }
 
@@ -1006,7 +1020,7 @@
         <div style="flex:1; min-width:0;">
           <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(row.worker_name)}')" aria-label="View ${escHtml(row.worker_name)}'s member card" style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? 'var(--wh-orange)' : 'white'};">${escHtml(row.worker_name)}</button>
         </div>
-        <div style="font-size:0.75rem; font-weight:700; color:var(--wh-blue);">${row.xp_total} XP</div>
+        <div style="font-size:0.75rem; font-weight:700; color:var(--wh-blue-text);">${row.xp_total} XP</div>
       </div>`;
     }).join('');
   }
@@ -1044,13 +1058,13 @@
         `<span style="display:inline-block; font-size:0.62rem; font-weight:600; color:var(--wh-blue-light); background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.25); border-radius:6px; padding:1px 6px; margin:2px 4px 0 0;">${escHtml(d.discipline)}</span>`
       ).join('');
       const more = disc.length > 2
-        ? `<span style="font-size:0.62rem; color:rgba(255,255,255,0.55);">+${disc.length - 2} more</span>` : '';
+        ? `<span style="font-size:0.62rem; color:rgba(255,255,255,0.80);">+${disc.length - 2} more</span>` : '';
       const roleLabel = r.role === 'supervisor' ? 'Supervisor' : 'Technician'; // role-check-allow: r.role is a per-member DB field (the post author's role), not the ambient user role
       return `<div style="display:flex; align-items:flex-start; gap:0.6rem; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
         <div style="flex-shrink:0;padding-bottom:${(tiers[r.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(r.worker_name, tiers[r.worker_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
           <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(r.worker_name)}')" aria-label="View ${escHtml(r.worker_name)}'s member card" style="display:block; font-size:0.8rem; font-weight:600; color:white; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(r.worker_name)}</button>
-          <span style="font-size:0.65rem; color:rgba(255,255,255,0.55);">${roleLabel} · you both work:</span>
+          <span style="font-size:0.65rem; color:rgba(255,255,255,0.80);">${roleLabel} · you both work:</span>
           <div style="margin-top:2px;">${chips}${more}</div>
         </div>
       </div>`;
@@ -1203,7 +1217,7 @@
       if (isFiltered) {
         el.innerHTML = `<div class="empty-state">
           <span class="ic ic-search" aria-hidden="true"></span>
-          <p style="color:rgba(255,255,255,0.6); font-size:0.875rem;">No posts match your search or filter.</p>
+          <p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">No posts match your search or filter.</p>
         </div>`;
       } else {
         // First-time / fresh-hive welcome with a clear CTA + how-to
@@ -1212,10 +1226,10 @@
             <span style="font-size:1.25rem;">👋</span>
             <h3 style="font-size:1rem; font-weight:800; margin:0;">Welcome to your hive's discussion board</h3>
           </div>
-          <p style="font-size:0.85rem; color:rgba(255,255,255,0.6); line-height:1.55; margin:0 0 1rem;">
+          <p style="font-size:0.85rem; color:rgba(255,255,255,0.80); line-height:1.55; margin:0 0 1rem;">
             Share tips, ask questions, and flag safety concerns with your team. Posts in this hive are private to its members.
           </p>
-          <ul style="margin:0 0 1.25rem; padding-left:1.2rem; font-size:0.82rem; color:rgba(255,255,255,0.7); line-height:1.7;">
+          <ul style="margin:0 0 1.25rem; padding-left:1.2rem; font-size:0.82rem; color:rgba(255,255,255,0.83); line-height:1.7;">
             <li><strong>Tap the orange + button</strong> to write a post.</li>
             <li>Use categories to organise: <span style="color:var(--wh-red);">Safety</span>, <span style="color:var(--wh-blue);">Technical</span>, General.</li>
             <li>React with 👍 🔧 🔥 👀 or open a thread to reply.</li>
@@ -1330,7 +1344,7 @@
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <button type="button" translate="no" class="author-link" style="font-size:0.8rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}')" aria-label="View ${escHtml(p.author_name)}'s member card">${escHtml(p.author_name)}</button>
             ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
-            <span style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -1476,7 +1490,7 @@
     if (activeTab !== 'mod') return;
     const el = document.getElementById('mod-list');
     if (flagged.length === 0) {
-      el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.6); font-size:0.875rem;">No flagged posts.</p></div>';
+      el.innerHTML = '<div class="empty-state"><p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">No flagged posts.</p></div>';
       return;
     }
     el.innerHTML = [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
@@ -1491,7 +1505,7 @@
     _globalHasMore  = true;
 
     const el = document.getElementById('global-list');
-    el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-align:center; padding:1rem 0;">Loading…</p>';
+    el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">Loading…</p>';
 
     const { data, error } = await db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
@@ -1499,7 +1513,7 @@
       .order('created_at', { ascending: false }).limit(20);
 
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
       document.getElementById('global-load-more').style.display = 'none';
       return;
     }
@@ -1566,12 +1580,12 @@
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
             <button type="button" translate="no" class="author-link" style="font-size:0.8rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}','${escJsAttr(p.hive_id)}')" aria-label="View ${escHtml(p.author_name)}'s member card">${escHtml(p.author_name)}</button>
             <span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>
-            <span style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
+            <span style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
           </div>
           <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
-          <div style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.80); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
             <span class="ic ic-globe" aria-hidden="true"></span>
-            From <strong style="color:rgba(255,255,255,0.6); margin-left:2px;">${escHtml(hiveName)}</strong>
+            From <strong style="color:rgba(255,255,255,0.80); margin-left:2px;">${escHtml(hiveName)}</strong>
           </div>
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             ${rxBtn('thumbs_up','Thumbs up','👍')}
@@ -1662,7 +1676,7 @@
     if (HIVE_ROLE !== 'supervisor' && post.author_name !== WORKER_NAME) {
       showToast('Cannot delete another worker\'s post', 'error'); return;
     }
-    // Soft-delete: stamp deleted_at, leave the row for 5s undo or supervisor recovery.
+    // Soft-delete: stamp deleted_at, leave the row for 10s undo or supervisor recovery.
     const deletedAt = new Date().toISOString();
     const { error } = await db.from('community_posts')
       .update({ deleted_at: deletedAt })
@@ -1875,14 +1889,42 @@
       return;
     }
 
+    // Y1b: a client-settable id lets a brownout post queue + optimistically render (XP is server-
+    // awarded at drain, so an honest "will post" message, no offline XP toast).
+    const _newPostId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : (String(Date.now()) + '-' + Math.random().toString(36).slice(2));
+    const _postRow = { id: _newPostId, hive_id: HIVE_ID, author_name: WORKER_NAME, content, category, public: isPublic, mentions, auth_uid: _authUid || null };
+    const _queueOfflinePost = async (msg) => {
+      await window._whCommQueue.enqueue({ id: _newPostId, op: 'insert', payload: _postRow });
+      btn.disabled = false; btn.textContent = 'Post to Hive';
+      _lastPostTs = Date.now();
+      _postDraft.clear();
+      myPostIds.add(_newPostId);
+      allPosts.unshift({ ..._postRow, created_at: new Date().toISOString() });
+      _prependPostCard(_postRow);
+      closeComposer();
+      showToast(msg);
+    };
+    if (!navigator.onLine && window._whCommQueue) {
+      await _queueOfflinePost('Saved offline. Will post to the hive when you reconnect.');
+      return;
+    }
+
     const { data, error } = await db.from('community_posts')
-      .insert({ hive_id: HIVE_ID, author_name: WORKER_NAME, content, category, public: isPublic, mentions, auth_uid: _authUid || null })
+      .insert(_postRow)   // hive-scoped write: _postRow carries hive_id: HIVE_ID (built above)
       .select().single();
 
     btn.disabled = false;
     btn.textContent = 'Post to Hive';
 
-    if (error) { showToast('Could not post. Try again.', 'error'); return; }
+    if (error) {
+      // network hiccup while nominally "online": queue it (same client id), don't lose the post
+      if (window._whCommQueue && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
+        await _queueOfflinePost('Network issue: saved offline, will post automatically.');
+        return;
+      }
+      showToast('Could not post. Try again.', 'error'); return;
+    }
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
     _postDraft.clear();       // X2b: post committed — wipe the draft so the next composer opens fresh
@@ -1928,7 +1970,7 @@
     hiveId = hiveId || HIVE_ID;
     const body = document.getElementById('person-body');
     document.getElementById('person-title').textContent = name;
-    body.innerHTML = '<p style="font-size:0.8rem;color:rgba(255,255,255,0.6);padding:0.5rem 0;">Loading…</p>';
+    body.innerHTML = '<p style="font-size:0.8rem;color:rgba(255,255,255,0.80);padding:0.5rem 0;">Loading…</p>';
     document.getElementById('person-overlay').classList.add('open');
     if (_focusTrapCleanup) _focusTrapCleanup();
     _focusTrapCleanup = trapFocus(document.getElementById('person-sheet'));
@@ -1957,7 +1999,7 @@
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:0.85rem;">
         <div style="flex-shrink:0;">${renderWorkerAvatar(name, tier, 48)}</div>
         <div style="min-width:0;">
-          <p style="font-size:0.95rem; font-weight:800; margin:0;">${escHtml(name)}${isMe ? ' <span style="font-weight:500;color:rgba(255,255,255,0.5);">(you)</span>' : ''}</p>
+          <p style="font-size:0.95rem; font-weight:800; margin:0;">${escHtml(name)}${isMe ? ' <span style="font-weight:500;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</p>
           <span class="pc-tier ${tierKey}" style="margin-top:4px;">${t.icon} ${escHtml(t.label)}</span>
         </div>
       </div>`;
@@ -1970,9 +2012,9 @@
           <div class="pc-stat"><b>${rep.public_posts}</b><span>Public posts</span></div>
           <div class="pc-stat"><b>${rep.public_reactions_received}</b><span>Reactions</span></div>
         </div>
-        ${rep.is_voice_of_hive ? `<p style="font-size:0.72rem;color:var(--wh-orange);margin:0.6rem 0 0;display:flex;align-items:center;gap:5px;line-height:1.4;">🐝 Trusted in the community, earned by helping teammates in the hive forum</p>` : ''}`;
+        ${rep.is_voice_of_hive ? `<p style="font-size:0.72rem;color:var(--wh-orange-text);margin:0.6rem 0 0;display:flex;align-items:center;gap:5px;line-height:1.4;">🐝 Trusted in the community, earned by helping teammates in the hive forum</p>` : ''}`;
     } else {
-      repBlock = `<p style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.5;margin:0;">This member hasn't shared publicly yet. Their private hive activity stays private.</p>`;
+      repBlock = `<p style="font-size:0.82rem;color:rgba(255,255,255,0.80);line-height:1.5;margin:0;">This member hasn't shared publicly yet. Their private hive activity stays private.</p>`;
     }
 
     let sellerBlock = '';
@@ -1984,18 +2026,18 @@
         <a class="pc-seller-link" href="${url}">
           <div style="min-width:0;">
             <p style="font-size:0.8rem;font-weight:700;margin:0;">🛒 Sells on the Marketplace</p>
-            <p style="font-size:0.72rem;color:rgba(255,255,255,0.65);margin:2px 0 0;">${escHtml(meta)}</p>
+            <p style="font-size:0.72rem;color:rgba(255,255,255,0.83);margin:2px 0 0;">${escHtml(meta)}</p>
           </div>
-          <span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange);white-space:nowrap;">View listings →</span>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange-text);white-space:nowrap;">View listings →</span>
         </a>`;
     } else if (isMe) {
       sellerBlock = `
         <a class="pc-seller-link" href="marketplace.html">
           <div style="min-width:0;">
             <p style="font-size:0.8rem;font-weight:700;margin:0;">🛒 Sell your parts or services</p>
-            <p style="font-size:0.72rem;color:rgba(255,255,255,0.65);margin:2px 0 0;">Turn your community standing into jobs &amp; trades</p>
+            <p style="font-size:0.72rem;color:rgba(255,255,255,0.83);margin:2px 0 0;">Turn your community standing into jobs &amp; trades</p>
           </div>
-          <span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange);white-space:nowrap;">Open →</span>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange-text);white-space:nowrap;">Open →</span>
         </a>`;
     }
 
@@ -2031,7 +2073,7 @@
     document.getElementById('thread-title').textContent = 'Thread';
     _threadPostAuthor = post.author_name;  // who asked — gates who can mark the best answer
     document.getElementById('thread-post').innerHTML = renderPostCard(post);
-    document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6);">Loading replies…</p>';
+    document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">Loading replies…</p>';
     document.getElementById('reply-content').value = '';
     document.getElementById('thread-overlay').classList.add('open');
     if (_focusTrapCleanup) _focusTrapCleanup();
@@ -2094,7 +2136,7 @@
     const el = document.getElementById('thread-replies');
     if (error) { el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">Could not load replies.</p>'; return; }
     if (!data || data.length === 0) {
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.6);">No replies yet. Start the conversation.</p>';
+      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">No replies yet. Start the conversation.</p>';
       return;
     }
     const replyAuthors = [...new Set(data.map(r => r.author_name).filter(Boolean))];
@@ -2121,7 +2163,7 @@
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px; flex-wrap:wrap;">
               <button type="button" translate="no" class="author-link" style="font-size:0.75rem;" onclick="openPersonCard('${escJsAttr(r.author_name)}')" aria-label="View ${escHtml(r.author_name)}'s member card">${escHtml(r.author_name)}</button>
               ${badge}
-              <span style="font-size:0.65rem; color:rgba(255,255,255,0.6);">${escHtml(formatTimeAgo(r.created_at))}</span>
+              <span style="font-size:0.65rem; color:rgba(255,255,255,0.80);">${escHtml(formatTimeAgo(r.created_at))}</span>
             </div>
             <p style="font-size:0.82rem; line-height:1.5; color:rgba(255,255,255,0.78); margin:0 0 ${markBtn ? '6px' : '0'}; word-break:break-word;">${escHtml(r.content)}</p>
             ${markBtn}
@@ -2160,11 +2202,11 @@
     if (!data || !data.length) return;
     el.innerHTML = `
       <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.2); border-radius:0.75rem; padding:0.85rem;">
-        <p style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--wh-orange); margin:0 0 0.5rem;">🛒 Related on the free Marketplace</p>
+        <p style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--wh-orange-text); margin:0 0 0.5rem;">🛒 Related on the free Marketplace</p>
         ${data.map(l => `
           <a href="marketplace.html?listing=${encodeURIComponent(l.id)}" style="display:flex; align-items:center; justify-content:space-between; gap:8px; text-decoration:none; color:white; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
             <span style="font-size:0.8rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(l.title)}</span>
-            <span style="font-size:0.75rem; color:var(--wh-orange); white-space:nowrap; font-weight:700;">${l.price ? whFmtPeso(l.price) : 'View'} →</span>
+            <span style="font-size:0.75rem; color:var(--wh-orange-text); white-space:nowrap; font-weight:700;">${l.price ? whFmtPeso(l.price) : 'View'} →</span>
           </a>`).join('')}
       </div>`;
     el.style.display = 'block';
@@ -2540,7 +2582,7 @@
                    onmousedown="event.preventDefault(); selectMention(${i});">
         <div class="avatar-initial">${escHtml(initials)}</div>
         <span>${escHtml(m.worker_name)}</span>
-        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.6); text-transform:capitalize;">${escHtml(m.role || 'worker')}</span>
+        <span style="margin-left:auto; font-size:0.65rem; color:rgba(255,255,255,0.80); text-transform:capitalize;">${escHtml(m.role || 'worker')}</span>
       </div>`;
     }).join('');
     el.classList.add('open');
@@ -2640,9 +2682,9 @@
     else if (document.getElementById('report-overlay')?.classList.contains('open')) closeReport();
   });
 
-  // ── Undo toast (5s window for soft-delete recovery) ─────────────────────────
+  // ── Undo toast (10s window for soft-delete recovery — Y2 stress-case: ≥8s so a rushed/gloved worker keeps the recovery path) ─
   let _undoTimer = null;
-  function showUndoToast(message, onUndo, ttlMs = 5000) {
+  function showUndoToast(message, onUndo, ttlMs = 10000) {
     const el  = document.getElementById('undo-toast');
     const txt = document.getElementById('undo-toast-text');
     const btn = document.getElementById('undo-toast-btn');

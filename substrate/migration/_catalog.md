@@ -1,19 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:362
-source_sha: b3bb5f5a22197687
+source: dir:supabase/migrations:366
+source_sha: b4e4317569c05d01
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (362 migrations)
+## migration · catalog (366 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000012_v_sensor_truth` — (misc DDL/DML)
-- `20260520000013_v_alert_truth_add_rule_id` — (misc DDL/DML)
-- `20260520000014_register_iec_60812` — (misc DDL/DML)
-- `20260520000015_canonical_view_allow_insurance_bridge` — (misc DDL/DML)
 - `20260520000016_register_canonical_standards_from_file` — tables:canonical_standards
 - `20260520000017_v_marketplace_listings_truth` — (misc DDL/DML)
 - `20260520000018_v_community_posts_truth` — (misc DDL/DML)
@@ -210,6 +206,10 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260720000002_fix_fetch_active_alerts_type` — fns:fetch_active_alerts
 - `20260721000001_text_id_defaults` — tables:inventory_items,inventory_transactions,logbook
 - `20260722000001_grant_select_marketplace_sellers` — (misc DDL/DML)
+- `20260723000001_client_errors_frontend_observability` — policies:client_errors_insert,client_errors_read · tables:client_errors
+- `20260723000002_asset_node_rejection_reason` — tables:asset_nodes
+- `20260724000001_fault_knowledge_ai_provenance` — tables:fault_knowledge
+- `20260724000002_failure_alert_detail_provenance` — tables:failure_signature_alerts
 
 (showing last 200)
 

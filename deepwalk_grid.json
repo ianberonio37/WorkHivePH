@@ -1,5 +1,5 @@
 {
- "generated": "2026-07-22T06:09:58+00:00",
+ "generated": "2026-07-24T07:13:04+00:00",
  "coverage_pct": 100.0,
  "page_pct": 100.0,
  "ai_surface_pct": 100.0,
@@ -157,6 +157,7 @@
   "validate_ai_hive_context",
   "validate_ai_input_caps",
   "validate_ai_live_invoke",
+  "validate_ai_write_provenance",
   "validate_analytics_correctness",
   "validate_analytics_page",
   "validate_analytics_synthesis_grounding",
@@ -228,6 +229,7 @@
   "validate_intelligence_jsonb_shape",
   "validate_intelligence_write_isolation",
   "validate_inventory_txn_isolation",
+  "validate_journey_ux_dims",
   "validate_landing",
   "validate_leave_audit_ordering",
   "validate_lineage_status_drift",
@@ -282,6 +284,7 @@
   "validate_text_cap_coverage",
   "validate_truth_view_read_isolation",
   "validate_truth_view_security_invoker",
+  "validate_ufai_deep_u",
   "validate_view_security_invoker",
   "validate_visual_defect_confidence",
   "validate_voice_alert_order",
@@ -293,7 +296,7 @@
  ],
  "newly_joined": [],
  "surface_set_hash": "9f26fa121503",
- "oracle_set_hash": "3103c091bebe",
+ "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
   "live_cells": 27,
   "live_cell_ids": [
@@ -327,7 +330,7 @@
   ],
   "breaches": 0,
   "fresh": true,
-  "age_days": 4.0,
+  "age_days": 6.1,
   "proven_ever": 32,
   "this_run": 27
  },
@@ -9289,7 +9292,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 1.0,
+ "delta_vs_last": 0.0,
  "dry_streak": 0,
  "dry": false
 }

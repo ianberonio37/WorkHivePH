@@ -23,6 +23,29 @@
    [external-consistency-and-standards-heuristic-internal-ext] */
 button, input, select, textarea, optgroup { font-family: inherit; }
 
+/* ── Responsive image reset (Z2d · PDDA journey rubric, 2026-07-23) ──────────
+   A content image with no width constraint overflows its container on a 320-390px
+   phone → horizontal page scroll (WCAG 1.4.10 reflow). max-width:100% only SHRINKS
+   an over-wide image (smaller images + explicit-width avatars/icons/logos are
+   untouched — it is a ceiling, not a set width), so it is the standard safe
+   responsive reset (Bootstrap .img-fluid / Tailwind base). NO height:auto — that
+   would override an explicit height= on a non-square avatar and distort it; height
+   is left to each image. One central rule instead of per-image classes that drift. */
+img { max-width: 100%; }
+
+/* ── Form-control tap-target floor (UFAI U2 · §11 deepwalk, 2026-07-23) ──────
+   The deep U2 probe found the shared .wh-input/.wh-select form fields render at
+   40-41px across 15 pages (per-page defs set only padding, no height) — under the
+   44px field tap goal for a gloved worker (the 24px WCAG floor the coarse lens uses
+   is a MINIMUM, not the field standard). element+class specificity (input.wh-input
+   = 0,1,1) wins over the per-page `.wh-input` (0,1,0) defs, so one central rule
+   lifts every form control on every page to 44px. box-sizing so the height is the
+   border-box (padding-inclusive), and a textarea only grows from 44px. */
+input.wh-input, select.wh-select, textarea.wh-input,
+input.wh-select, select.wh-input { min-height: 44px; box-sizing: border-box; }
+/* Shared secondary/ghost buttons meet the same 44px tap floor (element+class wins over per-page defs). */
+a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-height: 44px; box-sizing: border-box; }
+
 :root {
   --wh-orange:       #F7A21B;
   --wh-orange-dark:  #D88A0E;
@@ -45,6 +68,14 @@ button, input, select, textarea, optgroup { font-family: inherit; }
   --wh-red-text:     #FCA5A5;
   /* Violet accent TEXT on dark tints — #a78bfa measures 3.4–4.1:1 there. */
   --wh-violet-text:  #C4B5FD;
+  /* Orange + Blue accent TEXT on dark (C5/APCA fix 2026-07-24, same pattern as --wh-red-text /
+     --wh-violet-text). Small brand-accent TEXT fails APCA on the navy shell: --wh-orange #F7A21B
+     measures Lc 60 (Lc 59 on a faint-orange ghost-button tint) and --wh-blue #29B6D9 only Lc 53,
+     both below the Lc 60 content floor for a control label. The -light shades clear it (orange-light
+     #FDB94A Lc 70, blue-light #5FCCE8 Lc 66). Fills/icons/borders KEEP the stronger brand hues; only
+     small TEXT on dark uses these. */
+  --wh-orange-text:  #FDB94A;
+  --wh-blue-text:    #5FCCE8;
   --wh-cloud:        #F4F6FA;
 
   /* ── Semantic + accent canonicals (2026-07-19, "follow my theme brand"): the palette

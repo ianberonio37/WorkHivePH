@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: a5874338b0d97646
+source_sha: cc85de20ba4ca04c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (642) — the 'what's already gated' brain
+## gate · registered validators (645) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (95)
+### AI Validation (96)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -19,6 +19,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `ai_prompt_injection` ⚡ [fail] — Arc H: AI prompt-injection posture (untrusted input out of system prompt; LLM01)
 - `ai_rate_limit_coverage` ⚡ [fail] — Arc H: AI rate-limit coverage (no unbounded frontend-direct LLM call; LLM10)
 - `ai_retrieval_isolation` [fail] — Arc H: AI retrieval isolation (no cross-tenant DEFINER read/vector IDOR; LLM08)
+- `ai_write_provenance` ⚡ [fail] — AI6: agentic write accountability (AI writes into human-read domain tables declare machine authorship)
 - `analytics_correctness` ⚡ [fail] — AI Self-Improvement: Analytics Engine Value Accuracy
 - `analytics_page` ⚡ [fail] — Analytics A4/AI3/A6: page invariants (chart CLS reserve, honest label, no em-dash)
 - `analytics_synthesis_grounding` ⚡ [fail] — Analytics AI2/F5: action-plan synthesis reads real phase keys (no ungrounded AI)
@@ -205,7 +206,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (453)
+### Platform (455)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -255,6 +256,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `ai-safety` ⚡ [fail] — AI Input Bounds / Safety (4-layer: field slices + any slice + slice constants + input inventory)
 - `ai-seam-coverage` ⚡ [fail] — AI Seam Contract-Test Coverage (C4 Phase 2a: forward-only on uncovered seam count; floor auto-lowers as tests get wired)
 - `ai-seams-inventory` ⚡ [fail] — AI Seams Inventory (C4 Phase 1: catalog SaaS→AI / AI→tenant / AI→quota boundaries + forward-only ratchet)
+- `ai-surface-quota` [warn] — D12 per-SURFACE AI cost/quota adoption (2026-07-23, the D-ledger's 'per-surface oracle unbuilt' cell, now built). `ai_rate_limits` is keyed by hive_id ALONE - o
 - `amc` ⚡ [fail] — AMC Validator (Phase 1.9: amc_briefings migration + cost log + realtime + alert-hub subscription + canonical anchor)
 - `analytics` ⚡ [fail] — Analytics Engine Validator (4-layer: HTML + Edge + Python + AST)
 - `analytics-integrity` ⚡ [fail] — Analytics Integrity (Phase 8: conversation quality metrics, health view)
@@ -635,6 +637,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `truth-view-read-isolation` [fail] — Cross-hive READ isolation across ALL truth views (LIVE, rolled-back - batch generalization of the security_invoker read-leak class, mig 001). As a real authenti
 - `truth-view-signal-trust` ⚡ [fail] — Truth-View Signal-Trust (no local re-derivation alongside v_*_truth reads; forward-only ratchet)
 - `tts-quality` ⚡ [fail] — TTS Quality Metrics (Phase 7: latency logging, cache)
+- `ufai-deep-u` [warn] — UFAI U-pillar deep-verification lock (2026-07-23, PDDA §11 comprehensive deepwalk) — the live per-page deep-probe found the coarse A-Z lens (Z3 = 24px WCAG floo
 - `unbounded-query` ⚡ [fail] — Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)
 - `user-facing-jargon` ⚡ [fail] — User-Facing Jargon (no v_*_truth / RPC / code-ident / *.md / SQL on the glass; chip source: exempt; forward-only ratchet)
 - `user-facing-kpi-canonical` ⚡ [fail] — User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)

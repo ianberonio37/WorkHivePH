@@ -74,7 +74,7 @@
 
     .btn-ghost {
       background: transparent;
-      color: rgba(255,255,255,0.7);
+      color:rgba(255,255,255,0.83);
       font-weight: 500;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
@@ -102,7 +102,7 @@
       border-radius: var(--wh-radius-sm);
       font-size: 0.8rem;
       font-weight: 500;
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       cursor: pointer;
       transition: all 0.2s;
       border: none;
@@ -114,7 +114,7 @@
     }
     .page-tab.active {
       background: rgba(247,162,27,0.15);
-      color: var(--wh-orange);
+      color: var(--wh-orange-text);
       border: 1px solid rgba(247,162,27,0.3);
     }
     .page-tab:hover:not(.active) { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
@@ -133,7 +133,7 @@
       cursor: pointer;
       transition: all 0.2s;
       border: 2px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.5);
+      color:rgba(255,255,255,0.80);
       background: rgba(22,32,50,0.4);
       min-height: 44px;
       display: flex;
@@ -145,7 +145,7 @@
     }
     .discipline-pill.active {
       border-color: var(--wh-orange);
-      color: var(--wh-orange);
+      color: var(--wh-orange-text);
       background: rgba(247,162,27,0.1);
     }
 
@@ -171,7 +171,7 @@
       font-size: 0.8rem;
       font-weight: 500;
       border: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       background: rgba(22,32,50,0.5);
       cursor: pointer;
       transition: all 0.15s;
@@ -182,13 +182,13 @@
     .toggle-btn.active {
       background: rgba(247,162,27,0.2);
       border-color: var(--wh-orange);
-      color: var(--wh-orange);
+      color: var(--wh-orange-text);
       font-weight: 600;
     }
 
     /* Input label */
-    .field-label { font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 0.35rem; }
-    .field-unit { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-left: 0.5rem; }
+    .field-label { font-size: 0.78rem; font-weight: 500; color:rgba(255,255,255,0.80); margin-bottom: 0.35rem; }
+    .field-unit { font-size: 0.8rem; color:rgba(255,255,255,0.80); margin-left: 0.5rem; }
 
     /* Input with unit suffix */
     .input-group { position: relative; }
@@ -281,7 +281,7 @@
     #drawing-panel.svg-edit-mode svg polygon,
     #drawing-panel.svg-edit-mode svg polyline,
     #drawing-panel.svg-edit-mode svg path { cursor: crosshair; }
-    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:0.4rem; padding:0.35rem 0.85rem; font-size:0.73rem; color:var(--wh-blue); margin-bottom:0.6rem; }
+    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:0.4rem; padding:0.35rem 0.85rem; font-size:0.73rem; color:var(--wh-blue-text); margin-bottom:0.6rem; }
 
     /* History card */
     .hist-card {
@@ -329,12 +329,12 @@
       font-size: 0.8rem;
       font-weight: 500;
       border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.5);
+      color:rgba(255,255,255,0.80);
       cursor: pointer;
       background: transparent;
       transition: all 0.2s;
     }
-    .bom-tab-btn.active { background: rgba(247,162,27,0.15); color: var(--wh-orange); border-color: rgba(247,162,27,0.3); }
+    .bom-tab-btn.active { background: rgba(247,162,27,0.15); color: var(--wh-orange-text); border-color: rgba(247,162,27,0.3); }
     .bom-tab-btn:hover:not(.active) { color: rgba(255,255,255,0.8); }
 
     .bom-checklist-item {
@@ -483,7 +483,7 @@
       display: inline-flex; align-items: center; justify-content: center;
       background: rgba(255,255,255,0.12); border-radius: 999px;
       font-size: 0.68rem; font-weight: 700; padding: 1px 6px; margin-left: 4px;
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
     }
     .discipline-pill.active .pill-count {
       background: rgba(247,162,27,0.2); color: var(--wh-orange-light);
@@ -515,7 +515,7 @@
       background: rgba(42,61,88,0.7);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 999px; padding: 5px 12px; min-height: 44px;
-      font-size: 0.75rem; color: rgba(255,255,255,0.7);
+      font-size: 0.75rem; color:rgba(255,255,255,0.83);
       cursor: pointer; white-space: nowrap;
       transition: border-color 0.2s, background 0.2s;
     }
@@ -530,7 +530,7 @@
       grid-column: 1 / -1;
       font-size: 0.7rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       padding: 0.5rem 0 0.25rem;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       margin-top: 0.25rem;
@@ -540,7 +540,7 @@
     /* Search result discipline tag */
     .calc-disc-tag {
       font-size: 0.65rem; font-weight: 600;
-      color: rgba(255,255,255,0.6);
+      color:rgba(255,255,255,0.80);
       background: rgba(255,255,255,0.06);
       border-radius: 4px; padding: 1px 5px;
       margin-left: auto; flex-shrink: 0;
@@ -567,7 +567,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="card p-8 max-w-sm w-full mx-4 text-center">
     <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
     <h2 class="text-xl font-bold mb-2">Hive Required</h2>
-    <p class="text-sm mb-6" style="color:rgba(255,255,255,0.5)">The Engineering Design Calculator is a team feature. Join or create a Hive to access it.</p>
+    <p class="text-sm mb-6" style="color:rgba(255,255,255,0.80)">The Engineering Design Calculator is a team feature. Join or create a Hive to access it.</p>
     <a href="hive.html" class="btn-primary inline-block" style="text-decoration:none;">Go to Hive Setup</a>
   </div>
 </div>
@@ -581,10 +581,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);" class="sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <a href="index.html" style="color:rgba(255,255,255,0.72);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
+        <a href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
-          <h1 class="font-bold text-sm" style="color:var(--wh-orange);margin:0;" data-i="ed_title">Engineering Design</h1>
-          <div class="text-xs" style="color:rgba(255,255,255,0.6);">Design Calculation Tool</div>
+          <h1 class="font-bold text-sm" style="color:var(--wh-orange-text);margin:0;" data-i="ed_title">Engineering Design</h1>
+          <div class="text-xs" style="color:rgba(255,255,255,0.80);">Design Calculation Tool</div>
           <!-- Arc L/L1 CLS: filled by renderSourceChip() in init() (deterministic
                freshness+source+2 notes ≈ 161px @390). Reserve it so the header doesn't
                grow and push #tab-calculator down (residual CLS source after the grid fix). -->
@@ -614,7 +614,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="step-dot" id="dot-2"></div>
       <div class="step-dot" id="dot-3"></div>
       <div class="step-dot" id="dot-4"></div>
-      <span class="text-xs ml-2" style="color:rgba(255,255,255,0.6);" id="step-label">Step 1 of 4: Select Discipline</span>
+      <span class="text-xs ml-2" style="color:rgba(255,255,255,0.80);" id="step-label">Step 1 of 4: Select Discipline</span>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -636,7 +636,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div id="recent-calcs-row" style="display:none;" class="mb-2"></div>
 
         <div class="card p-5" id="step1-card">
-          <div class="text-xs font-600 mb-3" style="color:var(--wh-orange);text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
+          <div class="text-xs font-600 mb-3" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 1: Discipline</div>
           <div class="flex gap-3" style="flex-wrap:wrap;">
             <button class="discipline-pill active" translate="no" data-disc="HVAC & Cooling" onclick="selectDiscipline('HVAC & Cooling')">❄️ HVAC & Cooling <span class="pill-count">10</span></button>
             <button class="discipline-pill" translate="no" data-disc="Mechanical" onclick="selectDiscipline('Mechanical')">🔧 Mechanical <span class="pill-count">4</span></button>
@@ -649,7 +649,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
         <!-- Step 2: Calc Type -->
         <div class="card p-5" id="step2-card" style="opacity:0.5;pointer-events:none;">
-          <h2 class="text-xs font-600 mb-3" style="color:var(--wh-orange);text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
+          <h2 class="text-xs font-600 mb-3" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;margin-top:0;">Step 2: Calculation Type</h2>
           <!-- Arc L/L1 CLS: this grid ships EMPTY and is filled by selectDiscipline('HVAC')
                in init() (after the deferred bundle parses). Reserve the MEASURED default-
                discipline fill height (HVAC = 11 cards + 2 sub-headers ≈ 893px @390) so the
@@ -662,14 +662,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- Step 3: Inputs -->
         <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
           <div class="flex items-center justify-between gap-2 mb-3">
-            <div class="text-xs font-600" style="color:var(--wh-orange);text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
+            <div class="text-xs font-600" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
                  stay untouched. The engine always receives SI (runCalculation normalizes). -->
             <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size:0.68rem;padding:0.3rem 0.65rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial">⇄ Units: Metric (SI)</button>
           </div>
           <div id="input-form-area">
-            <p class="text-sm" style="color:rgba(255,255,255,0.6);">Select a calculation type first.</p>
+            <p class="text-sm" style="color:rgba(255,255,255,0.80);">Select a calculation type first.</p>
           </div>
         </div>
 
@@ -688,7 +688,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
           <div class="font-semibold text-lg mb-2">No Report Yet</div>
-          <div class="text-sm" style="color:rgba(255,255,255,0.6);">Fill in the inputs on the left and click<br><strong style="color:var(--wh-orange);">Run Calculation</strong> to generate your report.</div>
+          <div class="text-sm" style="color:rgba(255,255,255,0.80);">Fill in the inputs on the left and click<br><strong style="color: var(--wh-orange-text);">Run Calculation</strong> to generate your report.</div>
         </div>
 
         <!-- Loading state -->
@@ -696,7 +696,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- Spinner -->
           <div class="spinner mb-6" style="width:48px;height:48px;border-width:4px;border-color:rgba(247,162,27,0.15);border-top-color:var(--wh-orange);"></div>
           <!-- Brand label -->
-          <div class="font-bold mb-3" style="color:var(--wh-orange);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
+          <div class="font-bold mb-3" style="color:var(--wh-orange-text);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
           <!-- Rotating status message -->
           <div id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
           <!-- Sub-label -->
@@ -712,14 +712,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- Report output -->
         <div id="report-output" class="hidden">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-            <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.7);">Report Preview</div>
+            <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.83);">Report Preview</div>
             <div class="flex gap-2">
               <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()">⬇ Download PDF</button>
               <button class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()">💾 Save</button>
             </div>
           </div>
           <!-- AI-7 (deep-arc P5): disclose AI-drafted content + display where trust should/should not go -->
-          <div class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.6);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
+          <div class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.80);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
             ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong style="color:var(--wh-blue);">AI-drafted; review before use</strong>.
           </div>
           <div id="report-panel"></div>
@@ -732,8 +732,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div id="bom-trigger">
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
-                <div class="font-semibold text-sm" style="color:var(--wh-orange);">📋 Generate BOM + Scope of Works</div>
-                <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.6);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
+                <div class="font-semibold text-sm" style="color:var(--wh-orange-text);">📋 Generate BOM + Scope of Works</div>
+                <div class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);">AI will generate a standard procurement list and contractor scope from this calculation result</div>
               </div>
               <button onclick="generateBomSowChecklist()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
             </div>
@@ -743,7 +743,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div id="bom-loading" class="hidden card p-8 text-center mt-4">
             <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:var(--wh-orange);"></div>
             <div class="font-semibold text-sm mb-1">Generating standard items...</div>
-            <div class="text-xs" style="color:rgba(255,255,255,0.6);">AI is preparing BOM and SOW from your calculation results</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.80);">AI is preparing BOM and SOW from your calculation results</div>
           </div>
 
           <!-- Checklist panel -->
@@ -810,8 +810,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div id="drawing-trigger">
             <div class="card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div class="flex-1">
-                <div class="font-semibold text-sm" style="color:var(--wh-orange);">📐 Generate System Diagram</div>
-                <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.6);">Generates a system diagram from your calculation results</div>
+                <div class="font-semibold text-sm" style="color:var(--wh-orange-text);">📐 Generate System Diagram</div>
+                <div class="text-xs mt-0.5" id="drawing-trigger-desc" style="color:rgba(255,255,255,0.80);">Generates a system diagram from your calculation results</div>
               </div>
               <button onclick="generateDrawing()" class="btn-primary text-sm py-2 px-5 whitespace-nowrap flex-shrink-0">Generate</button>
             </div>
@@ -821,7 +821,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div id="drawing-loading" class="hidden card p-8 text-center mt-4">
             <div class="spinner mx-auto mb-3" style="width:32px;height:32px;border-width:3px;border-color:rgba(247,162,27,0.2);border-top-color:var(--wh-orange);"></div>
             <div class="font-semibold text-sm mb-1">Building diagram...</div>
-            <div class="text-xs" style="color:rgba(255,255,255,0.6);">Generating HVAC system schematic</div>
+            <div class="text-xs" style="color:rgba(255,255,255,0.80);">Generating HVAC system schematic</div>
           </div>
 
           <!-- Drawing output -->
@@ -851,11 +851,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="flex items-center justify-between mb-4">
       <div>
         <h2 class="font-bold text-lg">Calculation History</h2>
-        <p class="text-sm" style="color:rgba(255,255,255,0.6);">All saved calculations for your hive</p>
+        <p class="text-sm" style="color:rgba(255,255,255,0.80);">All saved calculations for your hive</p>
       </div>
     </div>
     <div id="history-list">
-      <div class="text-center py-16" style="color:rgba(255,255,255,0.6);">
+      <div class="text-center py-16" style="color:rgba(255,255,255,0.80);">
         <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
         <div>No saved calculations yet.</div>
       </div>

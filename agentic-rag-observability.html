@@ -133,7 +133,7 @@
 <div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Agentic-RAG Observability has moved to Grafana</h1>
+    <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Agentic-RAG Observability has moved to Grafana</h2>
     <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">RAG trace volume, grader/checker pass rate, citations, retries, latency and token use are live panels on the Founder / Platform Ops dashboard, never stale.</p>
     <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(52,211,153,0.14); color:rgba(52,211,153,0.95); border:1px solid rgba(52,211,153,0.4); text-decoration:none; font-weight:700; min-height:44px;">📊 Founder Ops dashboard →</a>
@@ -205,6 +205,9 @@
          so a quiet route reads as calm, not broken.</p>
     </details>
 
+    <!-- U5 heading-order (§11 deepwalk): the metric-section H3s sit under the page H1 with no H2 (WCAG
+         skip). A screen-reader H2 groups them without a visual change. -->
+    <h2 translate="no" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Observability metrics</h2>
     <div class="card">
       <h3 translate="no">Route breakdown</h3>
       <div class="meta">Volume + retry rate + checker pass rate per route. Source: agentic_rag_traces grouped by route in the selected window.</div>
@@ -333,7 +336,7 @@
 
     function renderRouteTable(rows) {
       var tbody = document.querySelector('#route-tbl tbody');
-      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No traces yet for this window.</td></tr>'; return; }
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No traces yet for this window. Widen the window or run an AI question.</td></tr>'; return; }
       var byRoute = {};
       rows.forEach(function(r) {
         var k = r.route || 'unknown';

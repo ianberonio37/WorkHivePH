@@ -7,7 +7,7 @@ import { logRequestStart } from "../_shared/logger.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
-import { checkAIRateLimit, rateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { validateContract } from "../_shared/validate-contract.ts";
@@ -89,6 +89,18 @@ serveObserved("batch-risk-scoring", async (req) => {
       // bucket). On-demand recompute fans out to the Python API per asset, so it
       // is not free; the per-hive AI limiter caps hammering. Local dev sets
       // WH_RATE_LIMIT_OVERRIDE → unthrottled while testing.
+      // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+      // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+      // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+      // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+      // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+      // fail a real request.
+      try {
+        const _rq = await checkRouteRateLimit(db, reqHiveId || "", "batch-risk-scoring");
+        // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+        // a no-op until an admin sets a cap - while always counting for attribution.
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "batch-risk-scoring", _rq.cap);
+      } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const rl = await checkAIRateLimit(db, reqHiveId);
       if (!rl.allowed) return rateLimitedResponse(corsHeaders);
 

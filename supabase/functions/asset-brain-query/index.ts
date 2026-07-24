@@ -91,7 +91,7 @@ narration is a 1-2 sentence prose summary of the answer in your persona's voice 
 // _shared/rate-limit.ts version (no daily cap, no solo-mode, racy double-write).
 // Delegated to the canonical — same call site, richer protection.
 // ---------------------------------------------------------------------------
-import { checkAIRateLimit } from "../_shared/rate-limit.ts";
+import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // ---------------------------------------------------------------------------
 // Retrieval lanes
@@ -504,6 +504,18 @@ serveObserved("asset-brain-query", async (req) => {
 
     // Rate-limit gate (after the auth gate so a foreign caller can't drain this
     // hive's bucket; still before any model call, per ai-engineer skill).
+    // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+    // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+    // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+    // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+    // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+    // fail a real request.
+    try {
+      const _rq = await checkRouteRateLimit(db, hive_id || "", "asset-brain-query");
+      // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+      // a no-op until an admin sets a cap - while always counting for attribution.
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "asset-brain-query", _rq.cap);
+    } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {
       return jsonResponse(

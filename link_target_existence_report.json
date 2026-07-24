@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 28,
-    "total_links": 259,
+    "total_links": 260,
     "total_broken": 0,
     "baseline": 0
   },
@@ -123,7 +123,7 @@
     },
     {
       "page": "asset-hub.html",
-      "link_count": 12,
+      "link_count": 13,
       "broken": []
     },
     {

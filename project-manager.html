@@ -23,7 +23,7 @@
   :root {
     --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44; --card-hover: #243a55;
     --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green); --amber: var(--wh-amber); --red: var(--wh-red);
-    --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6); --border: rgba(255,255,255,0.08);
+    --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80); --border: rgba(255,255,255,0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
@@ -330,7 +330,7 @@
 .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:14px; border-radius:12px; border:1px solid; }
 .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
 .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-.verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+.verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
 .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
 .verdict.healthy .verdict-icon { color:var(--wh-green); }
 .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -338,7 +338,7 @@
 .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
 .verdict.attn    .verdict-icon { color:var(--wh-red); }
 .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-.verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+.verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
 /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
 /* ── CLS reservation (Arc L) — reserve settled heights of above-the-fold async growers ──
    Each container below renders empty/placeholder at first paint then fills from a DB read,
@@ -351,7 +351,7 @@
 #hive-tag { display:inline-block; min-height: 18px; } /* h1-row chip fills with hive name */
 .simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
 #pm-action-text { min-height: 79px; }            /* recommendation 60→79 (longer real text wraps) */
-#pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:14px; }
+#pm-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:14px; }
 #pm-summary-details.open { display:block; }
 </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -433,7 +433,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <li><strong>On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
         <li><strong>Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the status tabs below for the per-project drilldown.</p>
     </div>
 
     <div class="recent-row" id="recent-strip"></div>
@@ -466,7 +466,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     data-rag-tile="project-manager:project_cards"
     data-rag-label="Project card grid"></div>
     <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
   </div>
 
@@ -2685,9 +2685,9 @@ function renderSignoff() {
       </div>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
-      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
+      <h3 id="lessons-text-label" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Lessons learned</h3>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.</div>
-      <textarea aria-label="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
+      <textarea aria-labelledby="lessons-text-label" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
       ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))}: supervisor edit before sign-off recommended.</div>` : ''}
       <div class="row" style="gap: 8px; margin-top: 8px; justify-content: flex-end;">
         <button class="btn small" onclick="aiDraftLessons()" title="Use AI to draft from progress logs">🤖 AI: Draft from logs</button>

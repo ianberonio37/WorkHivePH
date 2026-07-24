@@ -407,7 +407,7 @@
 
     /* ---- nav link ---- */
     .nav-link {
-      color: rgba(244,246,250,0.75);
+      color:rgba(244,246,250,0.86);
       font-size: 0.9rem;
       font-weight: 500;
       transition: color 0.2s ease;
@@ -451,7 +451,7 @@
       gap: 6px;
       background: rgba(247,162,27,0.12);
       border: 1px solid rgba(247,162,27,0.3);
-      color: var(--wh-orange);
+      color:var(--wh-orange-text);
       font-size: 0.75rem;
       font-weight: 600;
       padding: 5px 14px;
@@ -696,7 +696,7 @@
       gap: 6px;
       background: rgba(247,162,27,0.1);
       border: 1px solid rgba(247,162,27,0.35);
-      color: var(--wh-orange);
+      color:var(--wh-orange-text);
       font-size: 0.8rem;
       font-weight: 700;
       padding: 6px 14px;
@@ -861,7 +861,7 @@
     .faq-item[open] summary::after { content: '\2212'; }
     .faq-item .faq-answer {
       padding: 0 22px 20px;
-      color: rgba(244,246,250,0.7);
+      color:rgba(244,246,250,0.83);
       line-height: 1.7;
       font-size: 0.95rem;
     }
@@ -989,10 +989,10 @@
       <div class="relative user-menu-wrapper">
         <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5" data-i="signin">Sign In</button>
         <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p class="text-[11px] text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
-            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/80 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
             <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors" data-i="deactivate">Deactivate account</button>
           </div>
         </div>
@@ -1005,10 +1005,10 @@
       <div class="relative user-menu-wrapper-mobile">
         <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4" data-i="signin">Sign In</button>
         <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <p class="text-[11px] text-white/60 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
+          <p class="text-[11px] text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
           <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
-            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/60 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
+            <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/80 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
             <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors" data-i="deactivate">Deactivate account</button>
           </div>
         </div>
@@ -1031,7 +1031,7 @@
     <div class="pt-4 flex flex-col gap-3">
       <button id="pwa-install-btn-mobile" onclick="triggerInstall()"
               class="hidden items-center justify-center gap-2 text-sm text-center font-bold"
-              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:var(--wh-orange);padding:10px 16px;border-radius:10px;width:100%;"
+              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:var(--wh-orange-text);padding:10px 16px;border-radius:10px;width:100%;"
               aria-label="Install WorkHive">
         <span class="ic ic-parts" aria-hidden="true"></span>
         <span data-i="installwh">Install WorkHive</span>
@@ -1063,7 +1063,7 @@
     /* D1 affordance: a subtle corner chevron signifies each stat tile is tappable (it deep-links
        to its source page). Decorative, so aria-hidden via content-only; brightens on hover. */
     #ops-home .oh-tile::after { content:"\203A"; position:absolute; top:9px; right:12px; font-size:.95rem; font-weight:700; line-height:1; color:rgba(255,255,255,0.28); transition:color .15s; }
-    #ops-home .oh-tile:hover::after { color:rgba(255,255,255,0.6); }
+    #ops-home .oh-tile:hover::after { color:rgba(255,255,255,0.80); }
     #ops-home .oh-tile-num { font-size:1.5rem; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
     #ops-home .oh-tile-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:rgba(255,255,255,.6); margin-top:6px; }
     /* Primary action buttons (max 2 above the fold) */
@@ -1127,7 +1127,7 @@
           <label for="oh-persona-toggle" class="sr-only" data-i="aicompanion">AI companion</label>
           <span aria-hidden="true" data-i="companionlbl">Companion: </span><span id="oh-persona-name" translate="no">Zaniah</span>
         </button>
-        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:var(--wh-blue); border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
+        <a href="hive.html" id="oh-hive-btn" style="display:none; font-size:.7rem; font-weight:700; padding:6px 14px; background:rgba(41,182,217,.12); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,.25); border-radius:8px; text-decoration:none;" aria-label="Open hive board"></a>
         <!-- N1 i18n: language switch (rubric N1 "offer a language switch"). Persists to
              wh_lang; setLang() swaps [data-i] statics + re-renders the dashboard's _t() labels. -->
         <div id="oh-lang" role="group" aria-label="Language / Wika">
@@ -1297,7 +1297,7 @@
              access — so these open the (free) SIGN-UP modal rather than bouncing a cold
              visitor to a gated tool page. The promise stays truthful: free to use, sign up to start. -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
-          <span class="text-white/60 font-medium uppercase tracking-wider">Free to use, sign up to start:</span>
+          <span class="text-white/80 font-medium uppercase tracking-wider">Free to use, sign up to start:</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
           <span class="text-white/15">·</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
@@ -1311,15 +1311,15 @@
         <div class="flex flex-wrap gap-2 mb-6">
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
             <span class="ic ic-check" aria-hidden="true"></span>
-            <span class="text-xs font-semibold text-white/85">DTI Registered <span class="text-white/60 font-normal">· 8080496</span></span>
+            <span class="text-xs font-semibold text-white/85">DTI Registered <span class="text-white/80 font-normal">· 8080496</span></span>
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-orange-wh/30" style="background: rgba(247,162,27,0.08);">
             <span class="ic ic-check" aria-hidden="true"></span>
-            <span class="text-xs font-semibold text-white/85">Free Forever <span class="text-white/60 font-normal">· worker tier</span></span>
+            <span class="text-xs font-semibold text-white/85">Free Forever <span class="text-white/80 font-normal">· worker tier</span></span>
           </div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-wh/30" style="background: rgba(41,182,217,0.08);">
             <span class="ic ic-secure" aria-hidden="true"></span>
-            <span class="text-xs font-semibold text-white/85">PDPA Compliant <span class="text-white/60 font-normal">· data isolated per hive</span></span>
+            <span class="text-xs font-semibold text-white/85">PDPA Compliant <span class="text-white/80 font-normal">· data isolated per hive</span></span>
           </div>
         </div>
 
@@ -1327,14 +1327,14 @@
         <div class="flex flex-wrap gap-x-10 gap-y-5">
           <div>
             <p class="text-3xl font-black stat-orange leading-none">40-60%</p>
-            <p class="text-xs text-white/60 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
-            <p class="text-[10px] text-white/60 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
+            <p class="text-xs text-white/80 font-medium mt-1 tracking-wide">Less Unplanned Downtime</p>
+            <p class="text-[10px] text-white/80 mt-0.5 tracking-wide">SMRP world-class benchmarks</p>
           </div>
           <div class="w-px bg-white/10"></div>
           <div>
             <p class="text-3xl font-black stat-blue leading-none">4 Gaps</p>
-            <p class="text-xs text-white/60 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
-            <p class="text-[10px] text-white/60 mt-0.5 tracking-wide">closed by one hive</p>
+            <p class="text-xs text-white/80 font-medium mt-1 tracking-wide">Execution · Skills · Intelligence · Marketplace</p>
+            <p class="text-[10px] text-white/80 mt-0.5 tracking-wide">closed by one hive</p>
           </div>
         </div>
       </div>
@@ -1357,8 +1357,8 @@
                 <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
               <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
-              <p class="text-[11px] text-white/60 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
-              <p class="text-[10px] text-white/60 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
+              <p class="text-[11px] text-white/80 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
+              <p class="text-[10px] text-white/80 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
             </div>
 
             <!-- Stage Cards Grid -->
@@ -1391,10 +1391,10 @@
               </style>
 
               <!-- Label above grid -->
-              <p style="font-size:9.5px;color:rgba(255,255,255,0.6);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
+              <p style="font-size:9.5px;color:rgba(255,255,255,0.80);text-align:center;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
 
               <style>
-                .stage-meta { font-size:9px; color:rgba(255,255,255,0.5); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
+                .stage-meta { font-size:9px; color:rgba(255,255,255,0.80); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
                 .stage-meta-row { display:flex; gap:5px; align-items:flex-start; }
                 .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size:8px; opacity:0.7; min-width:32px; padding-top:1px; }
               </style>
@@ -1405,8 +1405,8 @@
                 <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:3px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue);background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Now</span><span>Hive joined</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Next</span><span>10 assets logged, 1 SOP documented</span></div>
@@ -1419,8 +1419,8 @@
                 <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:3px solid var(--wh-blue); background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">02</div>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue);background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Now</span><span>Stage 1 complete</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Next</span><span>PM compliance ≥70% for 30 days</span></div>
@@ -1432,7 +1432,7 @@
                 <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:3px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:var(--wh-violet);">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
                   <span style="font-size:9px;font-weight:800;color:var(--wh-violet);background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">AI · Sensor</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet);">Now</span><span>Stage 2 complete</span></div>
@@ -1446,8 +1446,8 @@
                 <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:3px solid var(--wh-orange); background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:14px 12px;">
                   <div class="stage-hex-num" style="background:var(--wh-orange);">04</div>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
-                  <p style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-orange);background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
+                  <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-orange-text);background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
                   <div class="stage-meta">
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange);">Now</span><span>Stage 3 complete</span></div>
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange);">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
@@ -1534,10 +1534,10 @@
   <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
     <p class="text-xs text-orange-wh font-bold uppercase tracking-[0.15em] mb-4">In one paragraph</p>
     <h2 class="text-3xl sm:text-4xl font-black leading-[1.15] tracking-[-0.02em] mb-6 text-white" data-i="whatiswh">What is WorkHive?</h2>
-    <p class="text-base sm:text-lg text-white/75 leading-[1.75] font-light max-w-3xl mx-auto">
+    <p class="text-base sm:text-lg text-white/85 leading-[1.75] font-light max-w-3xl mx-auto">
       WorkHive is a <strong class="text-white font-semibold">free industrial intelligence platform</strong> for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
     </p>
-    <p class="text-sm text-white/60 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
+    <p class="text-sm text-white/80 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
     <a href="/learn/what-is-workhive-complete-platform-guide/" class="inline-flex items-center gap-2 mt-7 text-orange-wh hover:text-orange-light transition-colors font-semibold text-sm">
       Read the complete platform guide
       <span class="ic ic-next" aria-hidden="true"></span>
@@ -1550,34 +1550,34 @@
 ═══════════════════════════════════════════════ -->
 <section class="py-8 border-y border-white/[0.06]" style="background: rgba(31,46,69,0.75); position: relative; z-index: 1;">
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <p class="text-center text-xs text-white/60 font-medium uppercase tracking-widest mb-6">Designed for Philippine Industry</p>
+    <p class="text-center text-xs text-white/80 font-medium uppercase tracking-widest mb-6">Designed for Philippine Industry</p>
     <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-4">
-      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-factory" aria-hidden="true"></span>
         <span class="text-sm font-medium">Manufacturing</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-power" aria-hidden="true"></span>
         <span class="text-sm font-medium">Energy &amp; Utilities</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-food" aria-hidden="true"></span>
         <span class="text-sm font-medium">Food Processing</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-chip" aria-hidden="true"></span>
         <span class="text-sm font-medium">Electronics</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-building" aria-hidden="true"></span>
         <span class="text-sm font-medium">Facilities &amp; BMS</span>
       </div>
       <div class="w-px h-5 bg-white/10 hidden sm:block"></div>
-      <div class="flex items-center gap-2.5 text-white/60 hover:text-white/60 transition-colors">
+      <div class="flex items-center gap-2.5 text-white/80 hover:text-white/60 transition-colors">
         <span class="ic ic-oil" aria-hidden="true"></span>
         <span class="text-sm font-medium">Petrochemicals</span>
       </div>
@@ -1604,7 +1604,7 @@
         <span data-i="fourgaps">Four gaps.</span><br/>
         <span style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="onehive">One hive.</span>
       </h2>
-      <p class="text-white/55 leading-[1.75] font-light">
+      <p class="text-white/80 leading-[1.75] font-light">
         Philippine industrial work is held back by four compounding gaps. WorkHive is the first
         hive designed to close all of them, simultaneously, from a single system.
       </p>
@@ -1622,17 +1622,17 @@
           </div>
         </div>
         <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
-        <p class="text-white/55 text-sm leading-relaxed mb-6">
+        <p class="text-white/80 text-sm leading-relaxed mb-6">
           Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">40-60%</p>
-            <p class="text-white/60 text-xs mt-0.5">Less Unplanned Downtime Costs</p>
+            <p class="text-white/80 text-xs mt-0.5">Less Unplanned Downtime Costs</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">4-8x</p>
-            <p class="text-white/60 text-xs mt-0.5">Cost Saved vs. Reactive Repair</p>
+            <p class="text-white/80 text-xs mt-0.5">Cost Saved vs. Reactive Repair</p>
           </div>
         </div>
       </div>
@@ -1647,17 +1647,17 @@
           </div>
         </div>
         <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.</p>
-        <p class="text-white/55 text-sm leading-relaxed mb-6">
+        <p class="text-white/80 text-sm leading-relaxed mb-6">
           Right person, right job, every time. Competence replaces availability.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">15-25%</p>
-            <p class="text-white/60 text-xs mt-0.5">Maintenance Labor Efficiency Gain</p>
+            <p class="text-white/80 text-xs mt-0.5">Maintenance Labor Efficiency Gain</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">Data</p>
-            <p class="text-white/60 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
+            <p class="text-white/80 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
           </div>
         </div>
       </div>
@@ -1672,17 +1672,17 @@
           </div>
         </div>
         <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
-        <p class="text-white/55 text-sm leading-relaxed mb-6">
+        <p class="text-white/80 text-sm leading-relaxed mb-6">
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">60-80%</p>
-            <p class="text-white/60 text-xs mt-0.5">Less Knowledge Loss at Transitions</p>
+            <p class="text-white/80 text-xs mt-0.5">Less Knowledge Loss at Transitions</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl">∞</p>
-            <p class="text-white/60 text-xs mt-0.5">Compounding Organizational Memory</p>
+            <p class="text-white/80 text-xs mt-0.5">Compounding Organizational Memory</p>
           </div>
         </div>
       </div>
@@ -1697,17 +1697,17 @@
           </div>
         </div>
         <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> The right specialist takes weeks to find, if you find them at all.</p>
-        <p class="text-white/55 text-sm leading-relaxed mb-6">
+        <p class="text-white/80 text-sm leading-relaxed mb-6">
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">35%</p>
-            <p class="text-white/60 text-xs mt-0.5">Faster Time-to-Source Specialists</p>
+            <p class="text-white/80 text-xs mt-0.5">Faster Time-to-Source Specialists</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl">4 Pillars</p>
-            <p class="text-white/60 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
+            <p class="text-white/80 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
           </div>
         </div>
       </div>
@@ -1734,7 +1734,7 @@
           <span data-i="dayafter">The day after</span><br/>
           <span style="background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" translate="no">WorkHive.</span>
         </h2>
-        <p class="text-white/55 leading-[1.75] font-light mb-10">
+        <p class="text-white/80 leading-[1.75] font-light mb-10">
           The gap is not talent or ambition. It is systems. WorkHive gives capable Filipino workers the infrastructure they deserve.
         </p>
 
@@ -1742,7 +1742,7 @@
         <div class="space-y-4">
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-            <p class="text-white/60 text-sm line-through">Equipment fails without warning. 24h downtime. Millions lost.</p>
+            <p class="text-white/80 text-sm line-through">Equipment fails without warning. 24h downtime. Millions lost.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
@@ -1751,7 +1751,7 @@
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-            <p class="text-white/60 text-sm line-through">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
+            <p class="text-white/80 text-sm line-through">Skills guessed at. Wrong person assigned. Job takes 2x longer.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
@@ -1760,7 +1760,7 @@
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-            <p class="text-white/60 text-sm line-through">Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.</p>
+            <p class="text-white/80 text-sm line-through">Expert retires. ₱800K–₱2.4M in knowledge walks out the door. Start from scratch.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
@@ -1774,22 +1774,22 @@
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-orange mb-2">40-60%</p>
           <p class="text-sm font-semibold text-white mb-1">Less Downtime</p>
-          <p class="text-xs text-white/60 leading-relaxed">Reduction in unplanned downtime costs through predictive maintenance</p>
+          <p class="text-xs text-white/80 leading-relaxed">Reduction in unplanned downtime costs through predictive maintenance</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-blue mb-2">60-80%</p>
           <p class="text-sm font-semibold text-white mb-1">Knowledge Preserved</p>
-          <p class="text-xs text-white/60 leading-relaxed">Reduction in knowledge loss costs at workforce transitions</p>
+          <p class="text-xs text-white/80 leading-relaxed">Reduction in knowledge loss costs at workforce transitions</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-blue mb-2">15-25%</p>
           <p class="text-sm font-semibold text-white mb-1">Labor Efficiency</p>
-          <p class="text-xs text-white/60 leading-relaxed">Improvement in maintenance labor efficiency through AI-matched assignments</p>
+          <p class="text-xs text-white/80 leading-relaxed">Improvement in maintenance labor efficiency through AI-matched assignments</p>
         </div>
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <p class="text-5xl font-black stat-orange mb-2">35%</p>
           <p class="text-sm font-semibold text-white mb-1">Faster Sourcing</p>
-          <p class="text-xs text-white/60 leading-relaxed">Average reduction in time-to-source for specialized maintenance services</p>
+          <p class="text-xs text-white/80 leading-relaxed">Average reduction in time-to-source for specialized maintenance services</p>
         </div>
       </div>
 
@@ -1809,7 +1809,7 @@
         <span data-i="everyworker">Every worker</span><br/>
         <span style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="roleinhive">has a role in the hive.</span>
       </h2>
-      <p class="text-white/55 leading-[1.75] font-light">
+      <p class="text-white/80 leading-[1.75] font-light">
         Whether you're on the floor or running the floor, the hive works for you.
       </p>
     </div>
@@ -1821,7 +1821,7 @@
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h3 class="font-bold text-white text-lg mb-2" data-i="techsops">Technicians &amp; Operators</h3>
-        <p class="text-sm text-white/50 leading-relaxed">You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.</p>
+        <p class="text-sm text-white/80 leading-relaxed">You prevented ten failures this year and received less credit than the person who fixed one breakdown. WorkHive changes that. Your skills become visible, searchable, and fairly rewarded.</p>
       </div>
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-glow" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
@@ -1829,7 +1829,7 @@
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h3 class="font-bold text-white text-lg mb-2" data-i="mgrsups">Managers &amp; Supervisors</h3>
-        <p class="text-sm text-white/50 leading-relaxed">You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.</p>
+        <p class="text-sm text-white/80 leading-relaxed">You can't deploy your best people to your most critical problems if you don't know what your people can actually do. WorkHive gives you the full picture, and the tools to act on it.</p>
       </div>
 
       <div class="rounded-2xl p-7 border border-white/[0.07] card-orange sm:col-span-2 lg:col-span-1" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.8) 100%);">
@@ -1837,7 +1837,7 @@
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h3 class="font-bold text-white text-lg mb-2" data-i="entrepreneurs">Entrepreneurs &amp; Builders</h3>
-        <p class="text-sm text-white/50 leading-relaxed">Build a verified reputation in the hive. Post your services, get found by the plants that need exactly what you do, and let your track record speak. No middleman, no platform fee.</p>
+        <p class="text-sm text-white/80 leading-relaxed">Build a verified reputation in the hive. Post your services, get found by the plants that need exactly what you do, and let your track record speak. No middleman, no platform fee.</p>
       </div>
 
     </div>
@@ -1847,7 +1847,7 @@
          and the CoP explainer. -->
     <div class="mt-10 rounded-2xl p-8 sm:p-10 border border-white/[0.07] reveal text-center" style="background: linear-gradient(145deg, rgba(41,182,217,0.10) 0%, rgba(247,162,27,0.06) 100%);">
       <h3 class="font-black text-white text-2xl sm:text-3xl mb-3 tracking-[-0.02em]" data-i="communitypractice">A community of practice, not just a forum</h3>
-      <p class="text-white/60 leading-relaxed font-light max-w-2xl mx-auto mb-7">
+      <p class="text-white/80 leading-relaxed font-light max-w-2xl mx-auto mb-7">
         Ask a question at 2am and a technician three plants away answers it. Share the fix that saved your shift.
         The trust you build by helping others follows you, from the community straight to the free marketplace,
         where it becomes real jobs and trades.
@@ -1872,7 +1872,7 @@
   <div class="max-w-3xl mx-auto px-5 sm:px-8">
     <div class="hex-divider"><span></span><span></span><span></span></div>
     <h2 class="text-4xl sm:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-6 text-white" data-i="faqtitle">Frequently asked questions</h2>
-    <p class="text-white/55 mb-12 text-lg leading-relaxed font-light">Quick answers about WorkHive, pricing, privacy, and what works offline.</p>
+    <p class="text-white/80 mb-12 text-lg leading-relaxed font-light">Quick answers about WorkHive, pricing, privacy, and what works offline.</p>
 
     <div class="space-y-4">
 
@@ -1965,7 +1965,7 @@
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-[-0.025em] mb-5" data-i="practicalwriting">
         Practical writing for the Philippine plant floor
       </h2>
-      <p class="text-white/55 leading-relaxed font-light">
+      <p class="text-white/80 leading-relaxed font-light">
         <!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
       </p>
     </div>
@@ -2025,7 +2025,7 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       background: rgba(247,162,27,0.18);
-      color: var(--wh-orange);
+      color:var(--wh-orange-text);
       border: 1px solid rgba(247,162,27,0.35);
       margin-bottom: 14px;
     }
@@ -2038,7 +2038,7 @@
     }
     .learn-teaser-meta {
       font-size: 0.78rem;
-      color: rgba(244,246,250,0.62);  /* 0.45 was 3.82:1 (fail); 0.62 clears WCAG 4.5:1 */
+      color:rgba(244,246,250,0.80);  /* 0.45 was 3.82:1 (fail); 0.62 clears WCAG 4.5:1 */
     }
   </style>
 </section>
@@ -2061,7 +2061,7 @@
       <span data-i="jointhehive">Join the hive.</span><br/>
       <span style="background: linear-gradient(135deg, var(--wh-orange) 30%, var(--wh-orange-light) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" data-i="buildfuture">Build the future.</span>
     </h2>
-    <p class="text-lg text-white/55 leading-[1.75] font-light mb-10 max-w-xl mx-auto">
+    <p class="text-lg text-white/80 leading-[1.75] font-light mb-10 max-w-xl mx-auto">
       The beehive has been showing us how for 80 million years: every worker valued, every role
       purposeful, the whole greater than the sum of its parts. That's the system Philippine industry
       has been missing. Be among the first to build it.
@@ -2073,11 +2073,12 @@
          differently from plant manager copy). -->
     <form id="joinForm" data-ga4-signup class="max-w-md mx-auto mb-3" onsubmit="handleSignup(event)">
       <div class="flex flex-col sm:flex-row gap-3 mb-3">
+        <label for="join-email" class="sr-only-none" style="display:block;font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.86);margin-bottom:4px;">Work email</label>
         <input
+          id="join-email"
           type="email"
           name="email"
-          placeholder="Enter your work email"
-          aria-label="Work email"
+          placeholder="you@company.com"
           required
           autocomplete="email"
           class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
@@ -2108,16 +2109,16 @@
       </select>
     </form>
 
-    <p class="text-xs text-white/60 mb-12">Free to join · Philippines-first · No spam, ever</p>
+    <p class="text-xs text-white/80 mb-12">Free to join · Philippines-first · No spam, ever</p>
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));">
           <span class="ic ic-check" aria-hidden="true"></span>
         </div>
-        <p class="text-sm text-white/55 leading-snug">DTI Registered Business <span class="text-white/60">No. 8080496</span></p>
+        <p class="text-sm text-white/80 leading-snug">DTI Registered Business <span class="text-white/80">No. 8080496</span></p>
       </div>
-      <div class="flex items-center gap-2 text-white/60">
+      <div class="flex items-center gap-2 text-white/80">
         <span class="ic ic-star" aria-hidden="true"></span>
         <span class="text-sm">Free at the worker tier, forever</span>
       </div>
@@ -2135,41 +2136,41 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
       <div class="lg:col-span-2">
         <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-10 w-auto mb-4" />
-        <p class="text-sm text-white/60 leading-relaxed max-w-xs">
+        <p class="text-sm text-white/80 leading-relaxed max-w-xs">
           The industrial intelligence hive for the Philippines. Closing the Execution, Skills,
           Intelligence, and Marketplace gaps that hold Filipino workers back.
         </p>
-        <p class="text-xs text-white/60 mt-4 font-medium">workhiveph.com · 2026</p>
+        <p class="text-xs text-white/80 mt-4 font-medium">workhiveph.com · 2026</p>
       </div>
       <div>
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Tools (Free)</p>
+        <p class="text-xs font-semibold text-white/80 uppercase tracking-[0.12em] mb-4">Tools (Free)</p>
         <ul class="space-y-3">
-          <li><a href="/logbook.html"            class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Digital Maintenance Logbook</a></li>
-          <li><a href="/pm-scheduler.html"       class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">PM Scheduler</a></li>
-          <li><a href="/inventory.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Spare-Parts Inventory</a></li>
-          <li><a href="/skillmatrix.html"        class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Skill Matrix</a></li>
-          <li><a href="/engineering-design.html" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Design Calculator</a></li>
-          <li><a href="/assistant.html"          class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">AI Work Assistant</a></li>
-          <li><a href="/learn/"                  class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (<!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> free guides)</a></li>
+          <li><a href="/logbook.html"            class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Digital Maintenance Logbook</a></li>
+          <li><a href="/pm-scheduler.html"       class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">PM Scheduler</a></li>
+          <li><a href="/inventory.html"          class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Spare-Parts Inventory</a></li>
+          <li><a href="/skillmatrix.html"        class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Skill Matrix</a></li>
+          <li><a href="/engineering-design.html" class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Design Calculator</a></li>
+          <li><a href="/assistant.html"          class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">AI Work Assistant</a></li>
+          <li><a href="/learn/"                  class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (<!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> free guides)</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-xs font-semibold text-white/60 uppercase tracking-[0.12em] mb-4">Company</p>
+        <p class="text-xs font-semibold text-white/80 uppercase tracking-[0.12em] mb-4">Company</p>
         <ul class="space-y-3">
-          <li><a href="/about/" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]" style="min-width:44px; justify-content:center;">About</a></li><!-- F1/K2: "About" text is 42px wide → min-width:44px clears the touch-target floor (was borderline, font-load flicker) -->
+          <li><a href="/about/" class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]" style="min-width:44px; justify-content:center;">About</a></li><!-- F1/K2: "About" text is 42px wide → min-width:44px clears the touch-target floor (was borderline, font-load flicker) -->
 
-          <li><a href="/feedback/" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Roadmap &amp; Feedback</a></li>
-          <li><a href="mailto:admin@workhiveph.com" class="text-sm text-white/60 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Contact</a></li>
+          <li><a href="/feedback/" class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Roadmap &amp; Feedback</a></li>
+          <li><a href="mailto:admin@workhiveph.com" class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Contact</a></li>
         </ul>
-        <p class="text-xs text-white/60 mt-6">DTI Registered<br/>Business Name 8080496</p>
+        <p class="text-xs text-white/80 mt-6">DTI Registered<br/>Business Name 8080496</p>
       </div>
     </div>
 
     <div class="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-white/60">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+      <p class="text-xs text-white/80">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
       <div class="flex items-center gap-6">
-        <a href="/privacy-policy/" class="text-xs text-white/60 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Privacy Policy</a>
-        <a href="/terms-of-service/" class="text-xs text-white/60 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Terms of Service</a>
+        <a href="/privacy-policy/" class="text-xs text-white/80 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Privacy Policy</a>
+        <a href="/terms-of-service/" class="text-xs text-white/80 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Terms of Service</a>
       </div>
     </div>
   </div>
@@ -2327,36 +2328,36 @@
     <!-- popup top bar: stage tabs + close -->
     <div class="px-5 pt-5 pb-0 flex-shrink-0">
       <div class="flex items-center justify-between mb-4">
-        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/60">Your Growth Path</p>
-        <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close">
+        <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/80">Your Growth Path</p>
+        <button onclick="closeStagePopup()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
       <!-- stage tabs -->
       <div id="popup-tabs-row" class="grid grid-cols-4 gap-1.5 mb-5">
         <button onclick="switchPopupStage(1)" id="ptab-1" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/60 mb-0.5">01</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stfoundation">Foundation</span>
+          <span class="text-[10px] font-bold block text-white/80 mb-0.5">01</span>
+          <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stfoundation">Foundation</span>
         </button>
         <button onclick="switchPopupStage(2)" id="ptab-2" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/60 mb-0.5">02</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stdiscipline">Discipline</span>
+          <span class="text-[10px] font-bold block text-white/80 mb-0.5">02</span>
+          <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stdiscipline">Discipline</span>
         </button>
         <button onclick="switchPopupStage(3)" id="ptab-3" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/60 mb-0.5">03</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stpredictive">Predictive</span>
+          <span class="text-[10px] font-bold block text-white/80 mb-0.5">03</span>
+          <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stpredictive">Predictive</span>
         </button>
         <button onclick="switchPopupStage(4)" id="ptab-4" class="popup-tab rounded-xl px-2 py-2.5 text-center transition-all duration-200 border border-transparent">
-          <span class="text-[10px] font-bold block text-white/60 mb-0.5">04</span>
-          <span class="text-xs font-bold block text-white/60 leading-tight" data-i="stleader">Leader</span>
+          <span class="text-[10px] font-bold block text-white/80 mb-0.5">04</span>
+          <span class="text-xs font-bold block text-white/80 leading-tight" data-i="stleader">Leader</span>
         </button>
       </div>
     </div>
 
     <!-- stage info -->
     <div id="popup-stage-info" class="px-5 pb-4 border-b border-white/[0.07] flex-shrink-0">
-      <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:var(--wh-orange);"></p>
-      <p id="popup-stage-quote" class="text-white/60 text-xs italic"></p>
+      <p id="popup-stage-label" class="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style="color:var(--wh-orange-text);"></p>
+      <p id="popup-stage-quote" class="text-white/80 text-xs italic"></p>
     </div>
 
     <!-- tools grid (scrollable) -->
@@ -2480,7 +2481,7 @@
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="${s.color}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${t.icon}"/></svg>
         </div>
         <p class="font-bold text-white text-xs mb-1">${t.name}</p>
-        <p class="text-white/60 text-[11px] leading-relaxed">${t.desc}</p>
+        <p class="text-white/80 text-[11px] leading-relaxed">${t.desc}</p>
         ${isLink ? `<p class="text-[10px] font-semibold mt-2 flex items-center gap-1" style="color:${s.color}">Open Tool <span class="ic ic-next" aria-hidden="true"></span></p>` : ''}
       </${closeTag}>`;
     }).join('');
@@ -2609,12 +2610,12 @@
 <div id="upgrade-banner" style="display:none; position:fixed; bottom:96px; left:50%; transform:translateX(-50%); z-index:40; white-space:nowrap; max-width:calc(100vw - 2rem);"
      role="status" aria-live="polite">
   <div style="background:rgba(22,32,50,0.97); border:1px solid rgba(247,162,27,0.3); border-radius:999px; padding:10px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,0.4); font-size:0.78rem;">
-    <span style="color:rgba(255,255,255,0.6);">Signed in as <strong id="upgrade-banner-name" style="color:white;"></strong></span>
+    <span style="color:rgba(255,255,255,0.80);">Signed in as <strong id="upgrade-banner-name" style="color:white;"></strong></span>
     <!-- Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
          housekeeping nudge no longer outshines the page's real primary action (the
          verdict/next-job). Also bumped to the 44px gloved-field tap target. -->
-    <button onclick="upgradeToAccount()" style="background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Secure account →</button>
-    <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
+    <button onclick="upgradeToAccount()" style="background:rgba(247,162,27,0.12); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Secure account →</button>
+    <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.80); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
   </div>
 </div>
 
@@ -2638,7 +2639,7 @@
 </style>
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
   <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
-    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/60 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
+    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/80 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
 
     <div class="flex justify-center mb-5">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
@@ -2648,10 +2649,10 @@
     <div class="flex mb-5 rounded-xl overflow-hidden" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
       <button id="tab-signin" onclick="switchAuthTab('signin')" role="tab" aria-selected="true" aria-controls="panel-signin"
         class="flex-1 py-2.5 text-sm font-bold transition-colors"
-        style="background:rgba(247,162,27,0.1); color:var(--wh-orange); border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
+        style="background:rgba(247,162,27,0.1); color:var(--wh-orange-text); border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
       <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
         class="flex-1 py-2.5 text-sm font-semibold transition-colors"
-        style="color:rgba(255,255,255,0.6);" data-i="signup">Sign Up</button>
+        style="color:rgba(255,255,255,0.80);" data-i="signup">Sign Up</button>
     </div>
 
     <!-- Sign In panel -->
@@ -2659,15 +2660,17 @@
          onsubmit returns false because submitSignIn() handles the POST via JS. -->
     <form id="panel-signin" role="tabpanel" aria-labelledby="tab-signin" onsubmit="event.preventDefault(); submitSignIn(); return false;">
       <div class="space-y-3 mb-3">
-        <input id="si-username" type="text" placeholder="Username" autocomplete="username" aria-label="Username"
+        <label for="si-username" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Username</label>
+        <input id="si-username" type="text" placeholder="Username" autocomplete="username"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+        <label for="si-password" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Password</label>
         <div style="position:relative;">
-          <input id="si-password" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"
+          <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;" aria-label="Show password">
             <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
@@ -2683,10 +2686,10 @@
 
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
-        <p style="font-size:.65rem; color:rgba(255,255,255,0.6); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
+        <p style="font-size:.65rem; color:rgba(255,255,255,0.80); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
         <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
           class="w-full rounded-xl py-2.5 text-sm font-semibold"
-          style="background:rgba(41,182,217,0.08); color:var(--wh-blue); border:1px solid rgba(41,182,217,0.25);" translate="no">
+          style="background:rgba(41,182,217,0.08); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,0.25);" translate="no">
           Enterprise SSO (Okta / Azure AD)
         </button>
       </div>
@@ -2697,31 +2700,35 @@
     <form id="panel-signup" class="hidden" role="tabpanel" aria-labelledby="tab-signup" onsubmit="event.preventDefault(); submitSignUp(); return false;">
       <div class="space-y-3 mb-3">
         <div>
-          <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username" aria-label="Username"
+          <label for="su-username" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Username</label>
+          <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);"
             oninput="checkUsernameDebounced()" />
           <p id="su-username-status" class="text-xs mt-1 hidden"></p>
         </div>
+        <label for="su-password" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Password</label>
         <div style="position:relative;">
-          <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" aria-label="Password"
+          <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;" aria-label="Show password">
             <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
+        <label for="su-confirm" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Repeat password</label>
         <div style="position:relative;">
-          <input id="su-confirm" type="password" placeholder="Repeat password" autocomplete="new-password" aria-label="Repeat password"
+          <input id="su-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-confirm',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);padding:4px;" aria-label="Show confirm password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;" aria-label="Show confirm password">
             <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
-        <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname" aria-label="Display name (shown to teammates)"
+        <label for="su-displayname" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Display name (shown to teammates)</label>
+        <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
       </div>
@@ -2733,14 +2740,14 @@
       <button type="submit" id="su-btn" onclick="submitSignUp()"
         class="w-full rounded-xl py-3 text-sm font-bold"
         style="background:var(--wh-orange); color:var(--wh-navy);" data-i="createaccount">Create Account</button>
-      <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.6);">Username cannot be changed later</p>
+      <p class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.80);">Username cannot be changed later</p>
     </form>
 
     <!-- Guest panel removed (C4: all access now requires auth) -->
     <div id="panel-guest" class="hidden">
       <div style="text-align:center; padding:1rem 0;">
-        <p style="color:rgba(255,255,255,0.6); font-size:0.875rem; margin-bottom:0.5rem;">Account required</p>
-        <p style="color:rgba(255,255,255,0.6); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
+        <p style="color:rgba(255,255,255,0.80); font-size:0.875rem; margin-bottom:0.5rem;">Account required</p>
+        <p style="color:rgba(255,255,255,0.80); font-size:0.75rem; line-height:1.5; margin-bottom:1.25rem;">
           WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
         </p>
         <button onclick="switchAuthTab('signup')" style="background:var(--wh-orange);color:var(--wh-navy);border:none;border-radius:0.75rem;padding:0.75rem 2rem;font-size:0.875rem;font-weight:700;cursor:pointer;" data-i="createaccountgo">
@@ -3137,7 +3144,7 @@
         <div style="text-align:center; padding:0.5rem 0 1rem;">
           <div style="font-size:2.5rem; margin-bottom:0.75rem;">&#10003;</div>
           <p style="color:white; font-weight:800; font-size:1rem; margin:0 0 0.5rem;">Account secured!</p>
-          <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin:0 0 1.5rem; line-height:1.5;">
+          <p style="color:rgba(255,255,255,0.80); font-size:0.8rem; margin:0 0 1.5rem; line-height:1.5;">
             Your existing records as <strong style="color:var(--wh-orange);">${escHtml(displayName)}</strong>
             are now linked to your account.
           </p>

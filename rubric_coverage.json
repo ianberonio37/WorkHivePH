@@ -1,8 +1,8 @@
 {
   "summary": {
-    "dims_total": 74,
-    "dims_accounted": 73,
-    "dims_with_pct": 63,
+    "dims_total": 99,
+    "dims_accounted": 99,
+    "dims_with_pct": 91,
     "board_pages": 32,
     "board_mean": 100,
     "s2_shared_chrome": 100,
@@ -61,7 +61,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 99
     },
     "B4": {
       "class": "B",
@@ -90,6 +90,14 @@
     "C2": {
       "class": "C",
       "title": "Colour & contrast (WCAG)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "C5": {
+      "class": "C",
+      "title": "Perceptual contrast (APCA Lc) \u2014 WCAG 2.x ratio overestimates legibility on DARK backgrounds; APCA scores by lightness AND font size/weight",
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
@@ -165,7 +173,7 @@
       "verdict": "measured",
       "owner": "rubric-lens",
       "source": "family_rubric_scoreboard.json",
-      "pct": 100
+      "pct": 99
     },
     "F1": {
       "class": "F",
@@ -546,18 +554,18 @@
     "X1": {
       "class": "X",
       "title": "Task-flow coherence (multi-step task, no dead-end/re-entry/lost-context)",
-      "verdict": "planned",
-      "owner": "family-sweep",
-      "source": "PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md (planned \u2014 detector pending)",
-      "pct": null
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
     },
     "X2": {
       "class": "X",
       "title": "Interruption resilience & resumability (draft survives refresh/interruption)",
       "verdict": "measured",
       "owner": "rubric-lens",
-      "source": null,
-      "pct": null
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
     },
     "X3": {
       "class": "X",
@@ -578,10 +586,10 @@
     "Y2": {
       "class": "Y",
       "title": "Stress-case / real-life resilience (tired/gloved/rushed; no safety-task countdown)",
-      "verdict": "planned",
-      "owner": "family-sweep",
-      "source": "PDDA_UX_PAINPOINT_JOURNEY_ROADMAP.md (planned \u2014 detector pending)",
-      "pct": null
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
     },
     "G5": {
       "class": "G",
@@ -602,6 +610,198 @@
     "S4": {
       "class": "S",
       "title": "Behavioral consistency (same action behaves identically across pages)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": 100.0
+    },
+    "AI1": {
+      "class": "AI",
+      "title": "AI capability transparency (input hints what it can do)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "AI2": {
+      "class": "AI",
+      "title": "AI confidence & grounding (output shows its basis)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "AI3": {
+      "class": "AI",
+      "title": "AI correction & feedback (retry + per-response feedback)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "AI4": {
+      "class": "AI",
+      "title": "AI graceful failure & scoping (honest error, no fabrication)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "AI5": {
+      "class": "AI",
+      "title": "AI global controls & dismissal (close/stop/clear)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "AI6": {
+      "class": "AI",
+      "title": "Agentic write accountability (when the AI WRITES domain content on the user's behalf, the row declares machine authorship; it is never attributed to a human or laundered into RAG as field experience)",
+      "verdict": "measured",
+      "owner": "ai-write-provenance-validator",
+      "source": "ai_write_provenance_report.json (validate_ai_write_provenance.py)",
+      "pct": 100.0
+    },
+    "PP1": {
+      "class": "PP",
+      "title": "Working indicator on async ops (>1s feedback)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "PP2": {
+      "class": "PP",
+      "title": "Progress + cancel on long (>10s) ops",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "PP3": {
+      "class": "PP",
+      "title": "Optimistic acknowledgment (<0.1s feel)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "DL1": {
+      "class": "DL",
+      "title": "Surface-delight microcopy (human empty/first-run copy)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "DL2": {
+      "class": "DL",
+      "title": "Success microinteraction (satisfying confirmation)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "DD1": {
+      "class": "DD",
+      "title": "At-a-glance primary KPI (biggest number seen first)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "DD2": {
+      "class": "DD",
+      "title": "Chart-type fitness (length/position not area/angle)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "TR1": {
+      "class": "TR",
+      "title": "Upfront disclosure (price + seller shown, not gated)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "TR2": {
+      "class": "TR",
+      "title": "Credibility signals (verified/rating/reviews/history)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "RE1": {
+      "class": "RE",
+      "title": "Re-engagement (per-item freshness + a new-content signal)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "JA1": {
+      "class": "JA",
+      "title": "Deep-link arrival fidelity (an entity hand-off lands ON the target, or SAYS it could not be found; never a silent drop into unfiltered content)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": 100.0
+    },
+    "DP1": {
+      "class": "DP",
+      "title": "No fake urgency or scarcity (manufactured pressure copy; a real dated deadline is factual and exempt)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "DP2": {
+      "class": "DP",
+      "title": "No confirmshaming on the decline path (plain 'No thanks', never guilt copy)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "DP3": {
+      "class": "DP",
+      "title": "No pre-selected opt-in (consent is an act, not a shipped default)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Q2": {
+      "class": "Q",
+      "title": "No phantom focus stop (WCAG 2.2 SC 2.4.11: a control hidden by opacity:0 must not stay in the tab order)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "Q3": {
+      "class": "Q",
+      "title": "Dragging has a single-pointer alternative (WCAG 2.2 SC 2.5.7)",
+      "verdict": "measured",
+      "owner": "rubric-lens",
+      "source": "family_rubric_scoreboard.json",
+      "pct": 100
+    },
+    "JA2": {
+      "class": "JA",
+      "title": "Return-promise kept (a gate that promises to bring the user back must carry the return target, and the destination must honour it)",
+      "verdict": "measured",
+      "owner": "journey-validator",
+      "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",
+      "pct": 100.0
+    },
+    "JA3": {
+      "class": "JA",
+      "title": "Back dismisses an open overlay (history-aware modals; Back must not eject the user from the page)",
       "verdict": "measured",
       "owner": "journey-validator",
       "source": "journey_ux_dims_report.json (validate_journey_ux_dims.py)",

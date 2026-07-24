@@ -61,6 +61,7 @@ import { logRequestStart } from "../_shared/logger.ts";
 // contract-allow: produces visual defect draft; future Tier C: visual_defect_draft_v1
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callAIMultimodal } from "../_shared/ai-chain.ts";
+import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 import { log } from "../_shared/logger.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -140,23 +141,12 @@ interface DraftRow {
 
 // ─── Rate-limit gate ─────────────────────────────────────────────────────────
 
-async function checkAIRateLimit(
-  db: SupabaseClient, hiveId: string, limitPerHour: number,
-): Promise<{ allowed: boolean; remaining: number }> {
-  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
-  const { data } = await db.from("ai_rate_limits")
-    .select("call_count, window_start").eq("hive_id", hiveId).maybeSingle();
-  if (!data || new Date(data.window_start) < windowStart) {
-    await db.from("ai_rate_limits").upsert({
-      hive_id: hiveId, call_count: 1, window_start: new Date().toISOString(),
-    });
-    return { allowed: true, remaining: limitPerHour - 1 };
-  }
-  if (data.call_count >= limitPerHour) return { allowed: false, remaining: 0 };
-  await db.from("ai_rate_limits")
-    .update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
-  return { allowed: true, remaining: limitPerHour - data.call_count - 1 };
-}
+// Rate limiting uses the SHARED limiter (see the _shared/rate-limit.ts import above), not a local copy.
+// WHY (2026-07-23, §12 flywheel D12 walk): the local copy tracked ONLY the hourly window and never
+// incremented `day_count`, so this surface silently BYPASSED the hive's DAILY AI ceiling - a real
+// free-tier cost bound, not style drift. The shared limiter enforces hour AND day in one place and is
+// a drop-in swap (same .allowed/.remaining used below). This REPLACES an existing limit rather than
+// adding one, so it introduces no double-limiting on a gateway-routed specialist. Do not re-inline.
 
 // ─── Image validation ────────────────────────────────────────────────────────
 
@@ -293,6 +283,18 @@ serveObserved("visual-defect-capture", async (req) => {
     }
 
     // Rate-limit gate FIRST (per ai-engineer skill).
+    // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+    // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+    // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+    // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+    // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+    // fail a real request.
+    try {
+      const _rq = await checkRouteRateLimit(db, hive_id || "", "visual-defect-capture");
+      // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+      // a no-op until an admin sets a cap - while always counting for attribution.
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "visual-defect-capture", _rq.cap);
+    } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {
       return new Response(
@@ -432,7 +434,16 @@ serveObserved("visual-defect-capture", async (req) => {
             root_cause:       draft.root_cause,
             action:           draft.action,
             knowledge:        draft.knowledge,
+            // AI6 · agentic write accountability. worker_name is who CAPTURED the photo;
+            // `source` is who AUTHORED the text - and every field above (problem/root_cause/
+            // action/knowledge) is MODEL output, not this worker's words. Without this marker the
+            // row re-enters RAG (search_fault_knowledge) + intelligence reports as human field
+            // experience under a named technician who never wrote it. Mirrors the convention
+            // rcm_fmea_modes already uses (source='manual' vs 'ai_logbook' + ai_confidence).
             worker_name:      worker_name,
+            source:           "ai_visual_capture",
+            ai_model:         MODEL_VERSION,
+            ai_confidence:    draft.confidence,
             embedding,
             maintenance_type: "Visual Defect Capture",
           }).select("id").single();

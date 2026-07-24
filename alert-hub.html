@@ -25,7 +25,7 @@
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.6);
+      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
       --border: rgba(255,255,255,0.07);
     }
     /* This page <link>s Poppins above and then rendered system-ui anyway: all 53 of its
@@ -46,7 +46,7 @@
       padding: 6px 12px; min-height: 44px; background: rgba(22,32,50,0.85);
       border: 1px solid var(--border); border-radius: 999px;
       font-family: inherit; font-size: .72rem; font-weight: 600;
-      color: rgba(255,255,255,0.6); cursor: pointer;
+      color:rgba(255,255,255,0.80); cursor: pointer;
       transition: all .15s;
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
@@ -80,7 +80,7 @@
     .tag-info     { background: rgba(41,182,217,0.12); color: var(--blue); }
     .alert-title { font-size: .85rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
     .alert-time { font-size: .65rem; color: var(--muted); flex-shrink: 0; }
-    .alert-msg { font-size: .75rem; color: rgba(255,255,255,0.6); line-height: 1.4; margin-top: 2px; }
+    .alert-msg { font-size: .75rem; color:rgba(255,255,255,0.80); line-height: 1.4; margin-top: 2px; }
     .alert-action {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
       font-size: .65rem; font-weight: 700; color: var(--gold);
@@ -94,7 +94,7 @@
     .alert-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .alert-dismiss {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: .65rem; font-weight: 700; color: rgba(255,255,255,0.72);
+      font-size: .65rem; font-weight: 700; color:rgba(255,255,255,0.86);
       margin-top: 8px; padding: 4px 12px; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.16); border-radius: var(--wh-radius-sm);
       background: rgba(255,255,255,0.05); transition: background .15s;
@@ -114,7 +114,7 @@
     .alert-seen-badge {
       font-size: .5rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
       padding: .15rem .45rem; border-radius: 5px; flex-shrink: 0;
-      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
       border: 1px solid rgba(255,255,255,0.14);
     }
 
@@ -172,7 +172,7 @@
     .amc-stat { background: rgba(15,25,35,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
     .amc-stat-num { font-size: 1.1rem; font-weight: 800; color: var(--text); line-height: 1; }
     .amc-stat-label { font-size: .55rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
-    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .76rem; color: rgba(255,255,255,0.7); }
+    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .76rem; color:rgba(255,255,255,0.83); }
     .amc-details.open { display: block; }
     .amc-section-title { font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin: 10px 0 4px; }
     .amc-row { padding: 4px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
@@ -184,7 +184,7 @@
     .amc-btn-approve:disabled { opacity: 0.5; cursor: wait; }
     .amc-btn-reject { background: rgba(248,113,113,0.10); color: var(--red); border-color: rgba(248,113,113,0.30); }
     .amc-btn-reject:hover:not(:disabled) { background: rgba(248,113,113,0.20); }
-    .amc-btn-toggle { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); border-color: var(--border); }
+    .amc-btn-toggle { background: rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border-color: var(--border); }
     .amc-btn-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
     .amc-readonly-note { font-size: .68rem; color: var(--muted); margin-left: auto; align-self: center; }
     .amc-status-msg { font-size: .72rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
@@ -197,7 +197,7 @@
     .verdict { display:flex; align-items:center; gap:12px; padding:14px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.65); margin-top:3px; }
+    .verdict-text small { display:block; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:3px; }
     .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
@@ -205,19 +205,19 @@
     .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
     .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.55); }
+    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
     .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; min-height:134px; } /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
-    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.55); line-height:1.4; }
+    .simple-card .sc-sub   { font-size:0.7rem; color:rgba(255,255,255,0.80); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.58rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; border-radius:999px; margin-top:7px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
-    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.75rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1: 0.82rem→0.75rem, merge the lone 13px tier into 12px (11→10 distinct sizes) */
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
@@ -229,9 +229,9 @@
        async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
     /* #ah-verdict re-added (UX Contract Layer D) — composite-tone verdict, no KPI-number duplication (styled by .verdict rules above). */
     #filters { min-height:144px; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.80); padding:8px 14px; border-radius:8px; font-family:inherit; font-size:0.7rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.7); margin-bottom:16px; }
+    #ah-summary-details { display:none; padding:14px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
   </style>
 </head>
@@ -368,11 +368,14 @@
         </div>
         <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
       </div>
-      <div id="anomaly-engine-empty" style="font-size:0.74rem; color:rgba(255,255,255,0.5); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
+      <div id="anomaly-engine-empty" style="font-size:0.74rem; color:rgba(255,255,255,0.80); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
       <div id="anomaly-engine-list" style="margin-top:8px;"></div>
     </div>
 
     <div class="filter-row" id="filters" role="tablist" aria-label="Alert filters"></div>
+    <!-- U5 heading-order (§11 deepwalk): the alert-card H3s sit under H1 with no H2 (WCAG skip). A
+         screen-reader H2 section heading restores H1→H2→H3 without a visual change. -->
+    <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Alerts</h2>
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
     </div>
@@ -382,7 +385,7 @@
       <div class="empty-sub">No active alerts in your hive right now.</div>
     </div>
     <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -600,6 +603,15 @@
     (async function loadUnifiedAmcBrief(){
       const e = escHtml;   // shorthand used by the slice renderers below (top_assets/pm_due maps) — was undeclared in this IIFE scope (ReferenceError)
       if (!summaryEl || !HIVE_ID || typeof renderActionBrief !== 'function') return;
+      // PP2: the prescriptive analytics-orchestrator is a >10s AI compose. The stored brief is already
+      // shown (instant fallback), so this is a background UPGRADE — surface an honest "refreshing with
+      // live data…" hint so the >10s wait isn't silent, and clear it when the live brief lands/fails.
+      const _refreshHint = document.createElement('div');
+      _refreshHint.className = 'ah-brief-refreshing';
+      _refreshHint.setAttribute('role', 'status');
+      _refreshHint.style.cssText = 'font-size:.68rem;color:var(--muted,rgba(255,255,255,0.6));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
+      _refreshHint.textContent = '↻ Refreshing this brief with live data…';
+      try { summaryEl.parentNode && summaryEl.parentNode.insertBefore(_refreshHint, summaryEl); } catch (_) { /* empty-catch-allow */ }
       try {
         const { data } = await db.functions.invoke('analytics-orchestrator', {
           body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'today' },
@@ -608,6 +620,7 @@
         if (ap) summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
           renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
       } catch (_) { /* empty-catch-allow: engine action-brief render failed → intentionally keep the stored amc_briefings.brief summary as the fallback */ }
+      finally { _refreshHint.remove(); }
     })();
 
     const setStat = (id, n) => {
@@ -951,7 +964,7 @@
             <div style="font-weight:800; font-size:0.85rem;">${e(r.machine)}</div>
             <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.color}33;">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
-          <div style="font-size:0.74rem; color:rgba(255,255,255,0.7); margin-top:6px;">${reasonStr}</div>
+          <div style="font-size:0.74rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
           <div style="font-size:0.62rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
           ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
         </div>
@@ -1678,6 +1691,11 @@
             hit.style.outline = '2px solid #29B6D9';
             hit.style.outlineOffset = '2px';
             setTimeout(() => { hit.style.outline = ''; hit.style.outlineOffset = ''; }, 2600);
+          } else if (typeof showToast === 'function') {
+            // JA1 arrival fidelity (§12): if the machine we were sent to focus has no alert in the
+            // current feed, SAY so. Silently showing the generic feed reads as "here is your alert"
+            // and the user may act on the wrong row (the same silent-drop class fixed in asset-hub).
+            showToast('No current alert for "' + _focus + '": showing all alerts');
           }
         }
       } catch (_) { /* empty-catch-allow: best-effort focus; feed still renders */ }
@@ -1696,8 +1714,8 @@
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:.78rem; color:rgba(255,255,255,0.55); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

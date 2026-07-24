@@ -67,6 +67,34 @@ def ai_daily_present() -> bool:
             and "limitPerDay" in rl_txt and "DEFAULT_RATE_LIMIT_PER_DAY" in rl_txt)
 
 
+def ai_per_surface_attribution() -> tuple[bool, str]:
+    """D12: is AI spend ATTRIBUTABLE per surface, or only as one hive-wide number?
+
+    The hive-wide hourly+daily ceiling (dimension 5) answers "is the hive bounded?" but NOT
+    "which surface burned it" - so one runaway agent can starve assistant/voice/RAG and the
+    board still reads green. Attribution needs every AI edge fn to call the shared
+    checkRouteRateLimit, which counts into hive_route_calls keyed by (hive, route, hour).
+    Measured as adoption across the fns that rate-limit at all (the same denominator
+    validate_ai_surface_quota.py uses). Observe-mode counts: enforcement is a separate,
+    deliberate step (setting hourly_cap rows), so attribution is what this dimension asserts.
+    """
+    fns = ROOT / "supabase" / "functions"
+    per = tot = 0
+    if fns.is_dir():
+        for f in sorted(fns.glob("*/index.ts")):
+            if f.parent.name == "_shared":
+                continue
+            src = f.read_text(encoding="utf-8", errors="replace")
+            has_route = "checkRouteRateLimit(" in src
+            has_global = "checkAIRateLimit(" in src
+            if not (has_route or has_global):
+                continue
+            tot += 1
+            if has_route:
+                per += 1
+    return (tot > 0 and per == tot), f"{per}/{tot}"
+
+
 def main() -> int:
     check = "--check" in sys.argv[1:]
 
@@ -82,6 +110,7 @@ def main() -> int:
         ("Upload caps (photo/audio/file size+duration)", u_all > 0 and u_ok == u_all, f"{u_ok}/{u_all}"),
         ("Logbook pilot (reference impl, deep gate)", lb_rc == 0, coverage(lb_out)),
         ("AI rate limits (hourly + daily ceiling)", ai_daily, "hourly+daily" if ai_daily else "hourly-only"),
+        ("AI spend ATTRIBUTABLE per surface (D12)", *(lambda t: (t[0], t[1]))(ai_per_surface_attribution())),
     ]
 
     lines = ["# FREE-TIER QUOTA BOARD — measured coverage", "",

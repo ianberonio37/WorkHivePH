@@ -636,7 +636,17 @@
           opacity: 0;
           transform: translateY(10px) scale(0.96);
           pointer-events: none;
-          transition: opacity 0.2s ease, transform 0.2s ease-out;
+          /* A11Y — WCAG 2.2 SC 2.4.11 Focus Not Obscured / rubric Q2 "no phantom focus stop"
+             (live-MCP keyboard walk, 2026-07-23). opacity:0 + pointer-events:none hides the CLOSED
+             panel from sighted and mouse users but NOT from the keyboard: visibility stayed "visible",
+             so all 28 nav links/buttons inside stayed IN THE TAB ORDER. A keyboard user tabbing the
+             page walked through 28 invisible controls before reaching real content. axe scores this
+             CLEAN (it only treats display:none / visibility:hidden / aria-hidden as hidden), which is
+             how the arc-wide "0 violations" was true while this shipped on every page. visibility:hidden
+             removes the subtree from the tab order AND the a11y tree; the 0.2s delay lets the fade-out
+             finish first so the open/close animation is unchanged. */
+          visibility: hidden;
+          transition: opacity 0.2s ease, transform 0.2s ease-out, visibility 0s linear 0.2s;
           /* FAB-CONSOLIDATION: the panel now carries the header pill + Companion/Feedback
              row at the TOP, so on short viewports it must never clip them off-screen (the
              panel grows upward from the FAB). Cap to the viewport and scroll the whole
@@ -653,6 +663,11 @@
           opacity: 1;
           transform: translateY(0) scale(1);
           pointer-events: all;
+          /* Must reset BOTH: the base rule hides the closed panel from the tab order
+             (visibility:hidden, delayed 0.2s). Without these two lines the panel could
+             never become visible or focusable again. */
+          visibility: visible;
+          transition-delay: 0s;
         }
 
         /* ── Panel header ── */
