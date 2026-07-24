@@ -364,7 +364,7 @@ Respond only in JSON:
   "top_risks": [
     {
       "theme": "string",
-      "project_codes": ["SHD-2026-001", ...],
+      "project_codes": ["<project-code copied verbatim from the data — never invent one>", ...],
       "example_blocker": "verbatim quote ≤120 chars",
       "recommendation": "1 sentence actionable next step"
     }
