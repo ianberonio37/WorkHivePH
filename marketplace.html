@@ -1283,6 +1283,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const message = (document.getElementById('rfq-message')?.value || '').trim();
 
     if (!name || !contact || !message) { showToast('Name, contact, and message are required.', 'error'); return; }
+    // P4 validate-before-write (deepwalk 2026-07-24): marketplace_inquiries RLS is
+    // WITH CHECK (buyer_name IN auth_worker_names()), so a name that is not the signed-in worker's
+    // is rejected server-side with a raw 42501. The field is prefilled but EDITABLE, so a buyer who
+    // types a nickname or their company name previously got only "Failed to send quote requests.
+    // Try again." and could retry forever without learning that the NAME was the problem.
+    if (WORKER_NAME && name !== WORKER_NAME) {
+      showToast(`Send quote requests under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`, 'error');
+      document.getElementById('rfq-name')?.focus();
+      return;
+    }
     if (!_compareSet.size) { showToast('No listings selected.', 'error'); return; }
 
     const selected = _listings.filter(l => _compareSet.has(l.id));
@@ -1312,7 +1322,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('form-rfq')?.reset();
     } catch (_err) {
       console.error('marketplace send-quotes failed:', _err);
-      showToast('Failed to send quote requests. Try again.', 'error');
+      // 42501 here means the RLS buyer_name check rejected the row: name it, do not say "try again".
+      showToast(_err && _err.code === '42501'
+        ? `Send quote requests under your WorkHive name (${WORKER_NAME || 'your account name'}).`
+        : 'Failed to send quote requests. Try again.', 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Send All Quote Requests'; }
     }

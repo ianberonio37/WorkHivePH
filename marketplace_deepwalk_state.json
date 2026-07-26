@@ -103,20 +103,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-seller"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-edge"
         ]
       },
-      "notes": "handleSubmitRfq inserts N inquiries (COMPARE_MAX cap). Validates name/contact/message pre-write. Unwalked live."
+      "notes": "handleSubmitRfq inserts N inquiries (COMPARE_MAX cap). Validates name/contact/message pre-write. Unwalked live. | 2026-07-24 WALKED END-TO-END + FIX. Compare mode -> 2 selected -> bar 'Tap up to 5 listings to request quotes' -> RFQ sheet -> submit created exactly ONE inquiry PER listing (2/2, distinct listing_ids) with the toast 'Quote requests sent to 2 sellers.' FOUND ON THE WAY: marketplace_inquiries RLS is WITH CHECK (buyer_name IN auth_worker_names()), and the Your Name field - though prefilled from WORKER_NAME - stays EDITABLE. Any edit (a nickname, a company name) produced a raw 42501 that the catch reported as 'Failed to send quote requests. Try again.', so a buyer could retry forever without ever learning the NAME was the problem. FIX (P4 validate-before-write): the submit now blocks a mismatched name BEFORE the write with an actionable message naming their WorkHive name, and the 42501 catch explains itself instead of prompting a blind retry. VERIFIED both cases live: wrong name -> blocked, 0 rows attempted; real name -> 2 inquiries created. ★My own bad test data (a fake buyer name) is what surfaced this - the RLS rejection was CORRECT, the error MESSAGE was the defect."
     },
     "J4-watchlist-stale": {
       "type": "T8-commerce",
