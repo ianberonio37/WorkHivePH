@@ -1295,6 +1295,18 @@ function whParsePrice(inputEl, opts) {
   return { ok: true, value: Math.round(n * 100) / 100 };         // clamp to 2 decimals (numeric scale=2)
 }
 if (typeof window !== 'undefined') window.whParsePrice = whParsePrice;
+// Central "has this seller EARNED the Certified badge?" test (marketplace deepwalk 2026-07-24, MK1/J11).
+// The badge used to render on the cert_verified flag ALONE on three surfaces (the public seller profile,
+// the listing detail sheet, and the seller's own dashboard), while the certifications LIST render on the
+// same pages already required the list. Three sellers were found with cert_verified true, certifications
+// NULL and cert_verified_at NULL, so a violet "Certified" chip claimed an admin had verified trade
+// credentials that did not exist. One rule, one place: a verification badge requires the thing it
+// verifies. Kept as a plain predicate (no DOM, no async) so every surface can call it inline.
+function whCertBadgeEarned(seller) {
+  if (!seller || !seller.cert_verified) return false;
+  return String(seller.certifications || '').trim().length > 0;
+}
+if (typeof window !== 'undefined') window.whCertBadgeEarned = whCertBadgeEarned;
 // Central refresh-retry dedup guard (deepwalk D2, 2026-07-22). A NON-idempotent client write (a fresh-id
 // insert or a decrement RPC) carries no idempotency key, so a refresh-mid-submit then retry creates a
 // DUPLICATE / double effect (live-confirmed: logbook dup entry; inventory double stock deduction). The

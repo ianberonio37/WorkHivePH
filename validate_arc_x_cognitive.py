@@ -223,7 +223,19 @@ def check_l2_a1_deeplinks():
         for iid in c2["input_ids"]:
             m = re.search(r'<input\b[^>]*\bid="' + re.escape(iid) + r'"[^>]*>', c2src)
             tag = m.group(0) if m else ""
-            if not tag or not re.search(r'\baria-label(ledby)?\s*=', tag):
+            if not tag:
+                unlabeled.append(iid)
+                continue
+            # The requirement is a PERSISTENT label, and this check used to accept only aria-label /
+            # aria-labelledby on the tag itself. That failed the six front-door auth inputs even though
+            # each has a real `<label for="...">` above it — which is the stronger pattern, because a
+            # visible label serves sighted users too, whereas an aria-label alone is invisible to them
+            # (see feedback_aria_label_only_is_invisible_to_sighted_users). The gate's own message says
+            # "<label>/aria-label", so accept either association: an explicit <label for=<id>> in the
+            # document, or an aria-label(ledby) on the input.
+            has_aria  = bool(re.search(r'\baria-label(ledby)?\s*=', tag))
+            has_label = bool(re.search(r'<label\b[^>]*\bfor="' + re.escape(iid) + r'"', c2src))
+            if not (has_aria or has_label):
                 unlabeled.append(iid)
         if unlabeled:
             issues.append({"check": "c2_seed_labels_present", "reason":

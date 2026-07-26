@@ -487,7 +487,9 @@
     const certPill   = document.getElementById('cert-status-pill');
     if (certInput && _seller?.certifications) certInput.value = _seller.certifications;
     if (certPill) {
-      if (_seller?.cert_verified) {
+      // MK1/J11 (2026-07-24): central earned-badge rule (utils.js), so the seller's own dashboard
+      // never claims a verification covers certifications they have not entered.
+      if (whCertBadgeEarned(_seller)) {
         certPill.textContent = '✓ Admin verified';
         certPill.style.background = 'rgba(167,139,250,0.15)';
         certPill.style.color = '#a78bfa';

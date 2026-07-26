@@ -1756,7 +1756,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           }
           showToast(`Removed ${_dead.length} unavailable listing${_dead.length === 1 ? '' : 's'} from your saved list.`, 'success');
           openWatchlistSheet(); /* reload so the note disappears */
-        } catch (_) {
+        } catch (err) {
+          // L-layer: this tells the user the delete failed, so it must also be greppable — a
+          // watchlist delete that starts failing would otherwise be invisible in the console.
+          console.error('[marketplace] clear-gone watchlist saves failed', err);
           _b.disabled = false; _b.textContent = 'Remove';
           showToast('Could not update your saved list. Try again.', 'error');
         }
@@ -1872,11 +1875,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       total === 0 ? 'EMPTY' : total >= 10 ? 'BROWSE' : 'NARROW',
       total === 0 ? 'grey' : 'green'
     );
+    // J1 2026-07-24 (MK5 audience rule): an anon has no listings because they have no ACCOUNT, so
+    // "You have no live listings yet" wrongly asserts they have one and the guidance below used to
+    // point them at a control the sign-in wall owns. Speak to the audience actually reading it.
+    const canPost = !!(HIVE_ID || _authUid);
     setCard('mine',
-      String(mine),
-      mine === 0 ? 'You have no live listings yet' : `${mine} of your listings live in marketplace`,
-      mine === 0 ? 'NONE' : 'LISTED',
-      mine === 0 ? 'grey' : 'green'
+      canPost ? String(mine) : '-',
+      !canPost ? 'Sign in to list your own parts'
+               : mine === 0 ? 'You have no live listings yet' : `${mine} of your listings live in marketplace`,
+      !canPost ? 'GUEST' : mine === 0 ? 'NONE' : 'LISTED',
+      canPost && mine > 0 ? 'green' : 'grey'
     );
     setCard('section',
       sectionLabel,
@@ -1908,7 +1916,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const actBox = document.getElementById('mk-action-text');
     if (actBox) {
       let text;
-      if (total === 0 && mine === 0) {
+      // J1: a signed-out visitor cannot act on "+ Post" (it routes to sign-in), so pointing them at it
+      // is guidance they cannot follow. Tell them what IS free to them here, and name the requirement.
+      if (!canPost) {
+        text = total === 0
+          ? `No ${section} listings match this view yet. Browsing and contacting sellers is free: posting your own listing needs a WorkHive account.`
+          : `Browse the ${total} listing${total === 1 ? '' : 's'} below and contact any seller directly, free of charge. Posting your own listing needs a WorkHive account.`;
+      } else if (total === 0 && mine === 0) {
         text = `No ${section} listings yet. Click + Post to add the first one: listings are free, and the trust bar above shows what buyers care about (ID-verified sellers, secure inquiries).`;
       } else if (total === 0) {
         text = 'No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.';
@@ -2333,7 +2347,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 if (sp.kyb_verified || item.seller_verified) {
                   out.push(`<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`);
                 }
-                if (sp.cert_verified) {
+                // MK1/J11 (2026-07-24): central earned-badge rule (utils.js) — a "Certified" chip
+                // with no certifications on file is an empty claim.
+                if (whCertBadgeEarned(sp)) {
                   out.push(`<span style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
                 }
                 if (isTopRated) {
@@ -2512,6 +2528,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   })();
 
   function openPostSheet() {
+    /* J1/J7 2026-07-24 (NN/g trustworthy-design: gating AFTER the user's effort costs far more than
+       disclosing it before). Walked signed-out: the FAB is visible to anons and this opened the ENTIRE
+       listing form; the account requirement only surfaced when the RLS insert failed at submit.
+       Fail SAFE for a signed-in seller whose hive has not resolved yet, fail CLOSED for a true anon. */
+    if (!HIVE_ID && !_authUid) {
+      showToast('Posting a listing needs a WorkHive account. Browsing and contacting sellers stays free.', 'error');
+      setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 1800);
+      return;
+    }
     populateCategorySelect(_section);
     openSheet('post');
     updatePriceHint();

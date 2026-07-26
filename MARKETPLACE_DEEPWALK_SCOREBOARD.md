@@ -4,20 +4,20 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 79.7%** · journeys **74.5%** (20) · MK classes **88.3%** (10)
+**OVERALL 84.1%** · journeys **80.0%** (20) · MK classes **90.8%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
 | Journey | Type | G | W | O | H | R | personas×states | % |
 |---|---|:-:|:-:|:-:|:-:|:-:|:-:|--:|
-| J1-anon-discovery | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×3 | 80.0% |
+| J1-anon-discovery | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×3 | 100.0% |
 | J10-moderation-approve-reject | T3-review-approval | ✅ | ✅ | ✅ | 🟡 | ✅ | 2×2 | 90.0% |
-| J11-cert-verification | T3-review-approval | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
+| J11-cert-verification | T3-review-approval | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J12-dispute-lifecycle | T3-review-approval | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×1 | 60.0% |
 | J13-seller-profile-config | T9-configuration | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
 | J14-seller-analytics | T4-analysis-insight | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
-| J15-review-flow | T10-social-gamification | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×2 | 60.0% |
-| J16-trust-badges-tiers | T10-social-gamification | ✅ | 🟡 | ✅ | ⬜ | ✅ | 2×1 | 70.0% |
+| J15-review-flow | T10-social-gamification | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
+| J16-trust-badges-tiers | T10-social-gamification | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J17-marketplace-to-inventory | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J18-inventory-to-marketplace | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | 🟡 | ✅ | 2×2 | 90.0% |
@@ -27,24 +27,24 @@
 | J4-watchlist-stale | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J5-saved-search-alert | T8-commerce | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×1 | 70.0% |
 | J6-price-comps-recommend | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
-| J7-post-listing | T2-capture | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
+| J7-post-listing | T2-capture | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J8-post-from-inventory | T2-capture | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
 
-**Per phase:** G 100.0% · W 72.5% · O 95.0% · H 20.0% · R 85.0%
+**Per phase:** G 100.0% · W 77.5% · O 95.0% · H 40.0% · R 87.5%
 
-**Per type:** T1-onboarding 30.0% · T10-social-gamification 65.0% · T11-admin-console 80.0% · T12-cross-page-handoff 76.7% · T2-capture 75.0% · T3-review-approval 76.7% · T4-analysis-insight 70.0% · T8-commerce 88.3% · T9-configuration 40.0%
+**Per type:** T1-onboarding 30.0% · T10-social-gamification 90.0% · T11-admin-console 80.0% · T12-cross-page-handoff 76.7% · T2-capture 85.0% · T3-review-approval 83.3% · T4-analysis-insight 70.0% · T8-commerce 91.7% · T9-configuration 40.0%
 
 ## Board 2 — New MK dimension classes
 
 | Class | harvest | define | detect | sweep | fix | gate | % |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|
-| MK1-trust-signal-integrity | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
+| MK1-trust-signal-integrity | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK2-moderation-state-honesty | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ✅ | ⬜ | ✅ | 66.7% |
 | MK4-listing-lifecycle-completeness | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
-| MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
+| MK5-two-sided-liquidity-honesty | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK6-parts-flow-continuity | 🟡 | ✅ | ✅ | ✅ | ⬜ | ⬜ | 58.3% |
 | MK7-public-seo-surface-truth | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK8-marketplace-safety-fraud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |

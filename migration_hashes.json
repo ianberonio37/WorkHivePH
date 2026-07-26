@@ -367,5 +367,10 @@
   "20260724000002_failure_alert_detail_provenance.sql": "36278deb3db042a037b55df665e2b0988b77335377259666326c572ab766d0d7",
   "20260724000003_marketplace_listing_moderation_guard.sql": "d2197f8e33b8cff233d691625a22d4bc2f7ed24863f1cb583c199f17565ed7d6",
   "20260724000004_marketplace_seller_public_profile.sql": "a6d5d73a517a7a1952446e69f6a2378cacedea29838a73f16bffef250bb0cbd8",
-  "20260724000005_marketplace_moderation_reason.sql": "9646d8f5f76cdfd0fe1669b5cdfe8800dcd28f7d526ab46dea011105a258a1cb"
+  "20260724000005_marketplace_moderation_reason.sql": "9646d8f5f76cdfd0fe1669b5cdfe8800dcd28f7d526ab46dea011105a258a1cb",
+  "20260724000006_marketplace_response_stats_computed.sql": "1b3dc19211949bd9f3f5edd867a9dbabc28d1b3b542101f9c3d6c75c83b3e53f",
+  "20260724000007_marketplace_rating_backfill_verified_only.sql": "1a203c04deeb7d0611aeb1592d4b71ed6a82e026fbe436c2763a419f89e15cb9",
+  "20260724000008_marketplace_sales_and_tier_earnable.sql": "6eea8076ce0e74ccfff42e7b1280c32e0221f890f23430f19f15a8868fbd68ae",
+  "20260724000009_marketplace_cert_badge_requires_certs.sql": "7236d38b46aacd66d4b26fc3f363215fbda326bedeaaca781289cfab295aa780",
+  "20260724000010_register_seller_public_canonical_source.sql": "f4ceec17fdf2f9c230140a3a247b528186c7e2d73667c5e5471083737421624d"
 }

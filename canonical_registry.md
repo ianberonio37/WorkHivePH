@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **188**
+- RPCs:          **190**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -313,6 +313,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `platform_feedback_stamp_resolved` |  | yes | — | — |
 | `populate_asset_node_bridges` |  | yes | — | — |
 | `prune_embedding_cache` | p_max_age_days int DEFAULT 45 | yes | — | — |
+| `recompute_seller_sales_and_tier` | p_seller_name text | yes | — | — |
 | `record_ai_chain_depth` | p_depth int | yes | — | ai-gateway |
 | `record_login_failure` | p_identifier text, p_ip text default '',                     | yes | — | login |
 | `refresh_v_kpi_truth` |  | yes | — | — |
@@ -351,6 +352,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `trg_engcalc_achievement_xp` |  | yes | — | — |
 | `trg_hivemember_achievement_xp` |  | yes | — | — |
 | `trg_iron_worker_check` |  | yes | — | — |
+| `trg_listing_sold_recompute` |  | yes | — | — |
 | `trg_logbook_achievement_xp` |  | yes | — | — |
 | `trg_pm_achievement_xp` |  | yes | — | — |
 | `trg_shiftplan_achievement_xp` |  | yes | — | — |

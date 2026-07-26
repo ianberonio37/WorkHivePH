@@ -1481,9 +1481,29 @@
     // Retry once deferred in case the bottom-nav renders a tick after nav-hub inits.
     liftFabStackAboveBottomNav();
     setTimeout(liftFabStackAboveBottomNav, 600);
+    // Identity reconcile runs BEFORE the community check so the badge path reads a true worker name.
+    setTimeout(reconcileIdentity, 400);
     // Cross-page community unread badge — mirrors the companion FAB nudge. Deferred
     // so the page can finish building its Supabase client + restoring the session.
     setTimeout(scheduleCommunityCheck, 800);
+  }
+
+  // Identity reconcile (marketplace deepwalk 2026-07-24, J15).
+  // whWorker() reads a localStorage cache, and on a shared device that cache can belong to a PRIOR
+  // user, so every page has to reconcile it against the live session. That reconcile used to happen
+  // ONLY as a side effect of scheduleCommunityCheck, which returns early when whHiveId() is empty.
+  // On pages where it is empty (marketplace-seller-profile.html, caught live) the reconcile never
+  // ran, so whWorker() kept returning the previous user's name while a DIFFERENT account held the
+  // session: measured as worker "Pablo Aguilar" under christinedizon's JWT. Anything that role-gates
+  // or attributes on that name was reading the wrong person. Identity is not a feature's side
+  // effect, so it now runs unconditionally on every page that loads nav-hub, needing only a client.
+  async function reconcileIdentity() {
+    try {
+      if (typeof window.restoreIdentityFromSession !== 'function') return;
+      const db = _whNavClient();
+      if (!db || !db.auth) return;
+      await window.restoreIdentityFromSession(db);
+    } catch (_) { /* empty-catch-allow: best-effort. restoreIdentityFromSession already fails closed (clears the cache) when signed out; a client that is not ready yet simply retries on the next page load. */ }
   }
 
   if (document.readyState === 'loading') {

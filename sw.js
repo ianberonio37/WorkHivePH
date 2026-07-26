@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v196';  // bump: MK7 per-listing Product/Offer JSON-LD (availability from real status) + status added to listing selects
+const CACHE_NAME  = 'workhive-shell-v197';  // bump: unbacked-trust-signal sweep (rating reads the canonical verified-only column, no client recompute; honest "Not rated"; Certified badge requires actual certifications on all 3 surfaces) + anon post discloses the account requirement before the form + nav-hub reconciles identity unconditionally
+// const CACHE_NAME  = 'workhive-shell-v196';  // bump: MK7 per-listing Product/Offer JSON-LD (availability from real status) + status added to listing selects
 // const CACHE_NAME  = 'workhive-shell-v188';  // bump: marketplace deepwalk fixes — P7 load-error grid state + admin-link fail-closed gate + restoreIdentityFromSession reconciles stale identity cache
 // const CACHE_NAME  = 'workhive-shell-v187';  // bump: E4 shift-brain -> reflowIdDump (utils.js) wraps crammed asset-code runs onto scannable rows (lens-blessed multi-line)
 // const CACHE_NAME  = 'workhive-shell-v186';  // bump: C5 last 3 pages -> 100 (banner/heading content-floor calibration + engineering-design tab/pill orange -text)

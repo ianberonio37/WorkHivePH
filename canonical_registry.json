@@ -7902,6 +7902,22 @@
       "comment": "Computes marketplace_sellers.response_rate + response_time_h from the real marketplace_inquiries record (avg replied_at-created_at in hours, replied/total). Before this the buyer-facing \"Responds in ~Nh / N% reply rate\" came from seeded columns nothing ever maintained. Stays NULL until a first reply so a new seller is not shown a fabricated 0%. MK9 response-SLA honesty, 2026-07-24.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "recompute_seller_sales_and_tier": {
+      "defined_in": "20260724000008_marketplace_sales_and_tier_earnable.sql",
+      "args": "p_seller_name text",
+      "security_definer": true,
+      "comment": "Recomputes marketplace_sellers.total_sales from listings marked sold and derives tier with the documented 51/gold, 11/silver thresholds. Idempotent by design so a reopened or deleted listing self-corrects. MK1 trust-signal integrity; replaces a producer that could never fire (orders are vestigial since Stripe removal).",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "trg_listing_sold_recompute": {
+      "defined_in": "20260724000008_marketplace_sales_and_tier_earnable.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8334,7 +8350,7 @@
         "get_seller_community_reputation"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 42.8
+      "size_kb": 45.4
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -8354,7 +8370,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 76.8
+      "size_kb": 77.0
     },
     "marketplace.html": {
       "tables_read": [
@@ -8387,7 +8403,7 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 180.1
+      "size_kb": 183.0
     },
     "offline-fallback.html": {
       "tables_read": [],

@@ -330,6 +330,9 @@
   let _section   = 'all';
   let _avgResponseHours = null;
   let _replyCount       = 0;
+  // How many reviews this page shows. Named so the query cap and the label that discloses the cap
+  // can never drift apart (MK10: a truncated list has to say so).
+  const REVIEWS_SHOWN   = 20;
 
   /* ── Utilities ──────────────────────────────────────────────────────── */
   // escHtml() is loaded from utils.js -- never redefined inline (security skill rule).
@@ -497,7 +500,9 @@
       if (_seller?.kyb_verified) {
         parts.push(`<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`);
       }
-      if (_seller?.cert_verified) {
+      // MK1/J11 (2026-07-24): a verification badge requires the thing it verifies. Central rule in
+      // utils.js so all three surfaces that render this chip cannot drift apart.
+      if (whCertBadgeEarned(_seller)) {
         parts.push(`<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(167,139,250,0.15);color:var(--wh-violet-text);border:1px solid rgba(167,139,250,0.3);"><span class="ic ic-check" aria-hidden="true"></span>Certified</span>`);
       }
       if (isQuickReply) {
@@ -691,7 +696,7 @@
         .select('reviewer_name, rating, comment, created_at, verified_purchase')
         .in('listing_id', listingIds)
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(REVIEWS_SHOWN);
       _reviews = data || [];
     } catch (_) { _reviews = []; }
     renderReviews();
@@ -704,18 +709,48 @@
     const ratingEl = document.getElementById('stat-rating');
     if (!wrap) return;
 
-    const avg = _reviews.length
-      ? (_reviews.reduce((s, r) => s + Number(r.rating || 0), 0) / _reviews.length)
-      : (_seller?.rating_avg || 0);
-    if (ratingEl) ratingEl.textContent = avg ? avg.toFixed(1) + '★' : '-';
-    if (countEl)  countEl.textContent  = _reviews.length + (_reviews.length === 1 ? ' review' : ' reviews');
+    // MK1 (deepwalk 2026-07-24): the headline rating reads the CANONICAL column only. It used to be
+    // recomputed here from _reviews, which is (a) unfiltered, so an UNVERIFIED review moved the stars
+    // even though the platform's own rule counts verified purchases only (mig 20260719000003), giving
+    // a seller a second, forgeable path to a score the guarded column refuses them; and (b) capped at
+    // .limit(20), so it was a partial average presented as the rating. It also disagreed with the
+    // aggregateRating we emit in JSON-LD (which correctly uses rating_avg), which is a mismatch Google
+    // treats as untrustworthy markup. One source, or it is not a trust signal.
+    const avg        = Number(_seller?.rating_avg || 0);
+    const ratedCount = Number(_seller?.rating_count || 0);
+    if (ratingEl) {
+      if (avg && ratedCount) {
+        ratingEl.textContent = avg.toFixed(1) + '★';
+        ratingEl.title = `${ratedCount} verified ${ratedCount === 1 ? 'purchase' : 'purchases'} rated this seller`;
+      } else {
+        // Honest over decorative: a bare "-" reads as broken. Say which it is.
+        ratingEl.textContent = 'Not rated';
+        ratingEl.title = 'No verified purchase has rated this seller yet';
+      }
+    }
+    // MK10 (2026-07-24): this list is newest-first and capped at REVIEWS_SHOWN, so a seller with more
+    // than that would show "20 reviews" right beside a rating tooltip citing the true verified count.
+    // A truncated list must say it is truncated, and a ranked one must say how it is ranked.
+    if (countEl) {
+      const shown = _reviews.length;
+      countEl.textContent = shown === 1 ? '1 review'
+        : shown >= REVIEWS_SHOWN ? `${shown} most recent reviews`
+        : `${shown} reviews`;
+    }
 
     if (!_reviews.length) {
       wrap.innerHTML = `<div class="empty-reviews">No reviews yet. Reviews will appear here after buyers submit them.</div>`;
       return;
     }
 
-    wrap.innerHTML = _reviews.map(rv => `
+    // MK1: with the headline now verified-only, an unverified review in this list would otherwise look
+    // like it was ignored. Explain the rule once, and only when it actually applies to what is shown.
+    const unverified = _reviews.filter(rv => !rv.verified_purchase).length;
+    const note = unverified
+      ? `<p class="reviews-rule" style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin:0 0 0.75rem;">Every review is shown. The star rating above counts only reviews from buyers with a confirmed purchase, so ${unverified === 1 ? 'the one below without a Verified badge is' : `the ${unverified} below without a Verified badge are`} not included in it.</p>`
+      : '';
+
+    wrap.innerHTML = note + _reviews.map(rv => `
       <div class="review-item">
         <div class="review-head">
           <div style="display:flex;align-items:center;gap:0.4rem;">

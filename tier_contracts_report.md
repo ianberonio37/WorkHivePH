@@ -7,7 +7,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
 | F (Fuel) | `canonical/capture_contracts.json` | 494 | 233 | 16 |
-| E (Engine) | `canonical/formula_contracts.json` | 22 | 19 | 16 |
+| E (Engine) | `canonical/formula_contracts.json` | 22 | 20 | 17 |
 | B (Brain) | `canonical/agent_contracts.json` | 7 | 98 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
@@ -30,7 +30,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `status-filter`
 - `window`
 
-## Tier E (Engine) — pending registrations (16)
+## Tier E (Engine) — pending registrations (17)
 
 - `get_adoption_risk_current`
 - `get_community_reputation`
@@ -43,6 +43,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `get_hive_trade_peers`
 - `get_marketplace_parts_for_my_assets`
 - `get_marketplace_price_comps`
+- `get_marketplace_seller_public`
 - `get_marketplace_trust_badges`
 - `get_pm_compliance_smrp`
 - `get_repeat_failures`

@@ -27,6 +27,31 @@ LISTING_TEMPLATES_JOBS = [
     ("Mechanical Fitter — Pump Shop", "Manila, NCII certificate required.", "Technician"),
 ]
 
+# Real PH trade credentials, so a seeded "Certified" badge has something to actually show. Newline
+# separated because that is the format marketplace-seller.html reads and writes ("one per line").
+CERT_SAMPLES = [
+    "PRC Registered Mechanical Engineer\nTESDA HVAC/R NC II",
+    "PRC Registered Electrical Engineer\nDOLE Safety Officer 2",
+    "TESDA Shielded Metal Arc Welding NC II\nDOLE Safety Officer 1",
+    "Vibration Analysis ISO 18436-2 Category I\nTESDA Instrumentation NC III",
+]
+
+# Review copy for the seeded verified purchases. Ordinary buyer voice, not marketing.
+REVIEW_COMMENTS = [
+    "Item was exactly as described. Met at the plant gate, no issues.",
+    "Good unit, seller let me inspect and run it before I paid.",
+    "Fair price and honest about the wear. Would buy again.",
+    "Packaging was fine and the part number matched what I needed.",
+    "Quick to reply and flexible on the pickup time.",
+    "Condition matched the photos. Straightforward transaction.",
+]
+
+
+def _verified_stamp(rng) -> str:
+    """A verification badge needs a record of WHEN it happened, or it is an unauditable claim."""
+    # rng is threaded through so this stays on the caller's LOCAL deterministic stream.
+    return to_iso(random_timestamp_in_last_n_days(rng.randint(20, 180), rng=rng))
+
 
 def seed_marketplace(client, log, ctx: dict) -> dict:
     hives = ctx["hives"]
@@ -135,10 +160,19 @@ def seed_marketplace_sellers(client, log, ctx: dict) -> dict:
 
     This makes the bridge reproducible out of the box:
       1. Each hive's TOP community-XP member becomes the hive's "voice of the hive"
-         (grant the skill_badge if absent) + a GOLD seller — so the Community-trusted
-         chip has something real to show after every reset.
+         (grant the skill_badge if absent) — so the Community-trusted chip has
+         something real to show after every reset.
       2. Every published-listing seller + a couple more community-active workers get
-         a seller profile too (tier/rating scaled by community standing).
+         a seller profile too.
+
+    ★ EARNED-ONLY TRUST (2026-07-24 deepwalk). This function used to ASSIGN the trust display
+    directly: a random rating with no reviews, a random sales count against an empty orders table, a
+    tier from community XP that contradicted the platform's own 51/11 thresholds, and verification
+    flags with no dates and, for certifications, nothing to verify. Those are states no user or admin
+    action can produce, and the deepwalk found every one of them being shown to buyers as evidence.
+    It now seeds the CAUSE and lets the platform's own triggers derive the display: verified reviews
+    produce the rating, sold listings produce total_sales and the tier, and a verification always
+    carries its date. Some sellers are deliberately left unrated, because that is a real state.
     Idempotent: skips already-granted badges; upserts sellers on the unique worker_name.
     Uses a LOCAL RNG so it never perturbs the global deterministic seeder stream.
     """
@@ -164,6 +198,20 @@ def seed_marketplace_sellers(client, log, ctx: dict) -> dict:
     for r in _fetch("marketplace_listings", "hive_id, seller_name", status="published"):
         if r.get("seller_name"):
             sellers_by_hive.setdefault(r["hive_id"], set()).add(r["seller_name"])
+
+    # total_sales comes from listings actually marked sold, which is the only observable sale event in a
+    # contact-only marketplace, and listings_by_seller gives the reviews below something real to attach
+    # to. Both replace invented numbers: see the earned-only trust block further down.
+    sold_by_seller: dict = {}
+    listings_by_seller: dict = {}
+    for r in _fetch("marketplace_listings", "id, seller_name, status"):
+        nm = r.get("seller_name")
+        if not nm:
+            continue
+        if r.get("status") == "sold":
+            sold_by_seller[nm] = sold_by_seller.get(nm, 0) + 1
+        if r.get("status") in ("published", "sold"):
+            listings_by_seller.setdefault(nm, []).append(r["id"])
 
     new_badges, seller_rows = [], []
     seen_sellers = set()          # worker_name is globally UNIQUE -> dedupe across hives
@@ -194,20 +242,45 @@ def seed_marketplace_sellers(client, log, ctx: dict) -> dict:
             w = by_name.get(name)
             is_voice = name in voice
             xp = xp_by.get((hid, name), 0)
-            tier = "gold" if is_voice else ("silver" if xp >= 25 else "bronze")
-            seller_rows.append({
+            # ── EARNED-ONLY TRUST STATE (marketplace deepwalk 2026-07-24) ──────────────────────────
+            # This block used to fabricate every trust signal directly: a random rating_avg/rating_count
+            # with no reviews behind them, a random total_sales against an empty orders table, a tier
+            # derived from community XP rather than from sales (so it contradicted the platform's own
+            # 51/gold, 11/silver thresholds -- gold at 16 sales, silver at 0), kyb_verified with no
+            # kyb_verified_at, and cert_verified with NO certifications and no cert_verified_at. Every
+            # one of those was a state no user or admin action can produce, and the deepwalk found all
+            # of them displayed to buyers as evidence. Migrations 20260724000007/8/9 cleaned the data;
+            # this is the source, so without it every RESET would put all of it straight back.
+            #
+            # The rule now: seed the CAUSE and let the platform's own triggers derive the display.
+            #   rating_avg / rating_count -> omitted; produced by the verified-review trigger from the
+            #                                real reviews seeded below (20260719000003).
+            #   response_rate / _time_h   -> omitted; produced from real inquiries (20260724000006).
+            #   total_sales / tier        -> derived from listings actually marked sold, with the
+            #                                documented thresholds (20260724000008).
+            #   kyb / cert verification   -> stamped with a date, and cert only when there are
+            #                                certifications for it to cover (20260724000009).
+            sold_count = sold_by_seller.get(name, 0)
+            certs = CERT_SAMPLES[rng.randrange(len(CERT_SAMPLES))] if is_voice else None
+            row = {
                 "worker_name": name,
                 "hive_id": hid,
                 "auth_uid": (w or {}).get("auth_uid"),
-                "tier": tier,
-                "rating_avg": round(rng.uniform(4.4, 5.0) if is_voice else rng.uniform(3.8, 4.8), 2),
-                "rating_count": rng.randint(6, 14) if is_voice else rng.randint(1, 8),
-                "response_rate": round(rng.uniform(0.85, 1.0), 2),
-                "response_time_h": rng.randint(1, 12),
-                "total_sales": rng.randint(4, 20) if is_voice else rng.randint(0, 8),
+                "total_sales": sold_count,
+                "tier": "gold" if sold_count >= 51 else ("silver" if sold_count >= 11 else "bronze"),
                 "kyb_verified": bool(is_voice or rng.random() < 0.4),
-                "cert_verified": bool(is_voice),
-            })
+            }
+            # A verification is only real if there is a record of it happening.
+            row["kyb_verified_at"] = _verified_stamp(rng) if row["kyb_verified"] else None
+            if certs:
+                row["certifications"]    = certs
+                row["cert_verified"]     = True
+                row["cert_verified_at"]  = _verified_stamp(rng)
+            else:
+                row["certifications"]    = None
+                row["cert_verified"]     = False
+                row["cert_verified_at"]  = None
+            seller_rows.append(row)
 
     if new_badges:
         try:
@@ -216,7 +289,41 @@ def seed_marketplace_sellers(client, log, ctx: dict) -> dict:
             log(f"  (voice-of-hive grant skipped: {e})")
     if seller_rows:
         client.table("marketplace_sellers").upsert(seller_rows, on_conflict="worker_name").execute()
+
+    # Seed the CAUSE of a rating, not the rating. update_seller_rating (20260719000003) recomputes
+    # rating_avg/rating_count over VERIFIED purchases only, so inserting real verified reviews here is
+    # what makes a displayed star rating true. Deliberately leaves some sellers with no reviews at all:
+    # "Not rated" is a real state a marketplace must show honestly, and it is the state the UI empty
+    # path is built for. Runs after the seller upsert so the trigger has a row to update.
+    review_rows = []
+    reviewer_pool = [w["display_name"] for w in workers if w.get("display_name")]
+    for name in sorted(seen_sellers):
+        ids = listings_by_seller.get(name) or []
+        if not ids or not reviewer_pool or rng.random() < 0.35:
+            continue
+        for _ in range(rng.randint(1, 4)):
+            reviewer = reviewer_pool[rng.randrange(len(reviewer_pool))]
+            if reviewer == name:      # never let a seller review their own listing
+                continue
+            review_rows.append({
+                "listing_id": ids[rng.randrange(len(ids))],
+                "reviewer_name": reviewer,
+                "rating": rng.choice([3, 4, 4, 5, 5, 5]),
+                "comment": REVIEW_COMMENTS[rng.randrange(len(REVIEW_COMMENTS))],
+                "verified_purchase": True,
+                "created_at": to_iso(random_timestamp_in_last_n_days(rng.randint(1, 120), rng=rng)),
+            })
+    if review_rows:
+        try:
+            client.table("marketplace_reviews").insert(review_rows).execute()
+        except Exception as e:
+            log(f"  (verified reviews skipped: {e})")
+
+    rated = len({r["listing_id"] for r in review_rows})
     log(f"  linked {len(seller_rows)} marketplace_sellers "
-        f"({sum(1 for r in seller_rows if r['tier'] == 'gold')} community-trusted / voice-of-hive; "
+        f"(tier + total_sales derived from sold listings; "
+        f"{sum(1 for r in seller_rows if r['cert_verified'])} with verified certifications; "
         f"+{len(new_badges)} voice badges granted)")
+    log(f"  seeded {len(review_rows)} VERIFIED reviews across {rated} listings "
+        f"-> ratings are trigger-computed, never invented (sellers without reviews stay unrated)")
     return {"marketplace_sellers_count": len(seller_rows)}

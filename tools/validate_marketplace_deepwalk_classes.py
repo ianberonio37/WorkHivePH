@@ -37,6 +37,13 @@ LINK_EMITTERS = ["marketplace-seller-profile.html", "marketplace.html", "marketp
 PUBLIC_SELLER_RPC_MIG = "supabase/migrations/20260724000004_marketplace_seller_public_profile.sql"
 FORBIDDEN_PUBLIC_COLS = ["messenger_username", "hive_id", "auth_uid"]
 
+# MK1: the client-side rating recompute. ONE constant, used by both the check and its self-test, so
+# the self-test exercises the real detector instead of a copy that can drift away from it. (The first
+# draft used `\([^)]*rating`, which can never match: the arrow-function's own `(s, r)` closes the class
+# before `rating` is reached, so the gate silently passed everything. A gate that cannot fire is not a
+# gate — the self-test is what caught it.)
+RECOMPUTE_RE = re.compile(r"_reviews\s*\.\s*reduce\s*\(.{0,240}?\brating\b", re.S)
+
 
 def _read(rel: str) -> str:
     p = ROOT / rel
@@ -106,6 +113,23 @@ def check_mk1_attributable_rating(results: list) -> None:
                     "listing-level empty state names its scope" if scoped
                     else "bare 'No reviews yet' beside a seller rating reads as a contradiction"))
 
+    # J15 (2026-07-24): the seller profile used to recompute its headline star rating client-side from
+    # the review list it had just fetched — which is UNFILTERED and .limit(20)'d. That gave a seller a
+    # second, FORGEABLE path to a score (an unverified review moved the visible stars even though the
+    # guarded rating_avg column, verified-only since 20260719000003, refused it) and it disagreed with
+    # the aggregateRating we emit in JSON-LD from the canonical column. One source, or it is not a
+    # trust signal. The regression shape is literal: averaging _reviews into the rating element.
+    prof = _read("marketplace-seller-profile.html")
+    recomputes = bool(RECOMPUTE_RE.search(prof))
+    results.append(("MK1 profile rating is not client-recomputed", not recomputes,
+                    "headline reads the canonical verified-only rating_avg" if not recomputes
+                    else "profile averages the fetched review list -> an UNVERIFIED review moves the "
+                         "visible stars, bypassing the verified-only trust column"))
+    honest_empty = "Not rated" in prof and "No verified purchase has rated" in prof
+    results.append(("MK1 unrated seller says so", honest_empty,
+                    "renders 'Not rated' + explains why, instead of a bare '-'" if honest_empty
+                    else "an unrated seller shows a bare '-' that reads as broken, not as unrated"))
+
 
 def check_mk4_lifecycle_gone_surface(results: list) -> None:
     """A saved listing that goes sold/removed becomes RLS-unreadable to a normal buyer; the watchlist
@@ -145,8 +169,59 @@ def check_mk10_ranking_disclosure(results: list) -> None:
                     else "the grid ranks silently, so a buyer cannot tell recency from paid placement"))
 
 
+def check_mk5_anon_post_discloses_upfront(results: list) -> None:
+    """A signed-out visitor must learn that posting needs an account BEFORE filling the form.
+
+    J1/J7 (2026-07-24, walked signed out): #fab-post is visible to anonymous visitors, and
+    openPostSheet had no session check, so an anon got the ENTIRE listing form (title, part number,
+    category, condition, description, price, location, photo) and only discovered the requirement when
+    the RLS-backed insert failed. Harvested rule (substrate/external/
+    external-trustworthy-design-credibility-signals-ecommerce.md, nngroup.com/articles/trustworthy-design):
+    gated content costs trust, and gating AFTER the effort costs far more than disclosing before it.
+    AI assist already guarded on HIVE_ID; posting did not."""
+    src = _read("marketplace.html")
+    if not src:
+        results.append(("MK5 anon post discloses upfront", None, "marketplace.html absent — skipped"))
+        return
+    m = re.search(r"function openPostSheet\s*\([^)]*\)\s*\{(.*?)\n  \}", src, re.S)
+    body = m.group(1) if m else ""
+    gated = bool(m) and "HIVE_ID" in body and "_authUid" in body and "return" in body
+    results.append(("MK5 anon post discloses upfront", gated,
+                    "openPostSheet routes a signed-out visitor to sign-in before the form" if gated
+                    else "openPostSheet opens the full listing form with no session check -> an anon "
+                         "fills every field and only hits the account wall at submit"))
+    audience = "Sign in to list your own parts" in src
+    results.append(("MK5 guest stats card is audience-correct", audience,
+                    "the MY LISTINGS card addresses a guest instead of asserting they have an account"
+                    if audience
+                    else "'You have no live listings yet' is shown to visitors who have no account at all"))
+
+
+def check_identity_reconcile_is_unconditional(results: list) -> None:
+    """whWorker() reads a localStorage cache that can belong to a PRIOR user on a shared device, so it
+    must be reconciled against the live session on EVERY page.
+
+    J15 (2026-07-24) found that reconcile happening only as a side effect of the community-unread
+    badge, which returns early when whHiveId() is empty. On such a page the reconcile never ran and
+    whWorker() returned the previous user's name under a different account's JWT (measured: worker
+    "Pablo Aguilar" under christinedizon's session). Identity must not be a feature's side effect."""
+    src = _read("nav-hub.js")
+    if not src:
+        results.append(("IDENTITY reconcile runs on every page", None, "nav-hub.js absent — skipped"))
+        return
+    defined  = "async function reconcileIdentity" in src
+    # It must be scheduled from init directly, NOT from inside the hive-gated community routine.
+    scheduled = bool(re.search(r"setTimeout\(\s*reconcileIdentity\b", src))
+    results.append(("IDENTITY reconcile runs on every page", defined and scheduled,
+                    "nav-hub schedules reconcileIdentity unconditionally" if (defined and scheduled)
+                    else "identity reconcile is not scheduled on its own -> pages without a hive id "
+                         "keep a prior user's cached worker name under the current session"))
+
+
 def run() -> int:
     results: list = []
+    check_identity_reconcile_is_unconditional(results)
+    check_mk5_anon_post_discloses_upfront(results)
     check_mk2_moderation_reason(results)
     check_mk7_no_hash_deeplinks(results)
     check_mk3_public_rpc_pii(results)
@@ -192,6 +267,16 @@ def selftest() -> int:
     chk("MK3 flags messenger_username", bool(re.search(r"\bmessenger_username\b", m.group(1))), True)
     # MK2 detector: a surface with 'removed' but no reason must fail
     chk("MK2 flags reason-less reject", ("moderation_reason" in "update({status:'removed'})"), False)
+    # MK1 client-recompute detector: fires on the old shape, silent on the canonical read
+    old = "const avg = _reviews.length ? (_reviews.reduce((s, r) => s + Number(r.rating || 0), 0) / n) : 0;"
+    new = "const avg = Number(_seller?.rating_avg || 0);"
+    chk("MK1 flags client-recomputed rating", bool(RECOMPUTE_RE.search(old)), True)
+    chk("MK1 accepts canonical rating read", bool(RECOMPUTE_RE.search(new)), False)
+    # ...and must not be fooled by the legitimate _reviews uses that remain on the page
+    chk("MK1 ignores the review LIST render",
+        bool(RECOMPUTE_RE.search("_reviews.map(rv => renderStars(rv.rating)).join('')")), False)
+    chk("MK1 ignores the unverified-count filter",
+        bool(RECOMPUTE_RE.search("_reviews.filter(rv => !rv.verified_purchase).length")), False)
     print(f"\n  SELFTEST: {GREEN + 'PASS' + RESET if ok else RED + 'FAIL' + RESET}")
     return 0 if ok else 1
 
