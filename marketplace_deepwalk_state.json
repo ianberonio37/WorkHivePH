@@ -330,17 +330,21 @@
         "marketplace-admin.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "partial"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-admin"
+        ],
+        "states": [
+          "S-empty"
+        ]
       },
-      "notes": "PAYMENTS_ENABLED=false hides the Disputes tab. VERIFY: live dead-code or reachable? A dead admin path is its own finding."
+      "notes": "2026-07-24 RESOLVED BY EVIDENCE: the dispute lifecycle is DEAD-BY-DESIGN, not broken. A platform-wide search shows marketplace_disputes is referenced ONLY by admin resolve-handlers (marketplace-admin / founder-console / platform-actions), audit-log, grafana_reader and validators - there is NO INSERT path on any buyer or seller surface, so no one can ever FILE a dispute. That is coherent with the deliberate Stripe removal (2026-06-30, Ian: 'my marketplace is free'): contact-only, no escrow, no orders, therefore nothing to dispute. marketplace-admin already gates its tab behind PAYMENTS_ENABLED=false. NOT REMOVED unilaterally: ~20 validators + grafana_reader + audit-coverage reference the table, and the panels would be needed again if payments ever return, so ripping them out is a product call with real blast radius, not a cleanup. DISPOSITION: documented vestigial path; the honest follow-up if Ian wants it is to hide the always-empty 'Open disputes' panel on platform-actions the same way marketplace-admin already does."
     },
     "J13-seller-profile-config": {
       "type": "T9-configuration",
