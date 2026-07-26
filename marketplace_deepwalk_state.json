@@ -158,9 +158,9 @@
       "phases": {
         "G": "done",
         "W": "partial",
-        "O": "partial",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
         "personas": [
@@ -170,7 +170,7 @@
           "S-populated"
         ]
       },
-      "notes": "get_saved_search_matches RPC -> badge. Alert honesty + 0-match case unwalked."
+      "notes": "get_saved_search_matches RPC -> badge. Alert honesty + 0-match case unwalked. | 2026-07-24 WALKED - CLEAN. Saving the current search captured the LIVE filter state correctly: search_name, section='parts', query_text='Bearing', category null (=all), active=true, scoped to the signed-in worker. ★My verification 400'd TWICE on wrong column names (I guessed 'name'/'query'; the table uses 'search_name'/'query_text') - the feature was working the whole time. Third instance this session of my PROBE being the fault, not the page: read the schema before asserting a write failed. Row deleted after the walk. Remaining for W-done: a second persona + the match-badge/alert path (get_saved_search_matches)."
     },
     "J6-price-comps-recommend": {
       "type": "T8-commerce",
