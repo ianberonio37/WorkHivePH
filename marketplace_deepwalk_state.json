@@ -557,20 +557,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
         "H": "todo",
-        "R": "partial"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-admin"
+          "P-admin",
+          "P-seller"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-edge"
         ]
       },
-      "notes": "2026-07-24: THREE surfaces over ONE authority, not two. marketplace-admin.html + founder-console.html are BOTH retired behind #wh-retired-overlay (reversible, content preserved for ~35 scanners); platform-actions.html is the live governance queue (Grafana owns the volumes/alerts). All three moderation handlers were brought into LOCKSTEP for the MK2 reason capture. Residual: moderated_by falls back to 'admin' on platform-actions/founder-console (WORKER_NAME not defined there) - the actor is still captured in hive_audit_log, but wiring the real name is an open polish item."
+      "notes": "2026-07-24: THREE surfaces over ONE authority, not two. marketplace-admin.html + founder-console.html are BOTH retired behind #wh-retired-overlay (reversible, content preserved for ~35 scanners); platform-actions.html is the live governance queue (Grafana owns the volumes/alerts). All three moderation handlers were brought into LOCKSTEP for the MK2 reason capture. Residual: moderated_by falls back to 'admin' on platform-actions/founder-console (WORKER_NAME not defined there) - the actor is still captured in hive_audit_log, but wiring the real name is an open polish item. | 2026-07-24 RESIDUAL CLOSED: moderated_by fell back to the literal string 'admin' on BOTH consoles because neither defines WORKER_NAME - so the moderation record could not say WHO acted, which defeats half the point of recording a moderator at all. Switched both to whWorker() (the shared utils.js identity accessor both pages already load). VERIFIED live through the real platform-actions Reject flow: the row now reads moderated_by='Pablo Aguilar' with the reason and status='removed'. Test row deleted."
     }
   },
   "dim_classes": {

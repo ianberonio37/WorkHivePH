@@ -1860,7 +1860,10 @@
             // approving clears any stale reason. Keep this in lockstep with handleListingAction().
             const _nowIso = new Date().toISOString();
             const _patch = { status: newStatus, updated_at: _nowIso, moderated_at: _nowIso,
-                             moderated_by: (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || 'admin' };
+                             // J20 (deepwalk 2026-07-24): neither console defines WORKER_NAME, so this always
+                             // fell back to the literal 'admin' and the moderation record could not say WHO acted.
+                             // whWorker() (utils.js) is the shared identity accessor both pages already load.
+                             moderated_by: (typeof whWorker === 'function' && whWorker()) || 'admin' };
             if (act === 'reject-listing') {
               if (typeof whPrompt !== 'function') { btn.disabled = false; showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
               let _reason = await whPrompt('Reject this listing. Tell the seller why:',
