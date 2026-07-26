@@ -46,6 +46,14 @@
   }
   </script>
 
+  <!-- MK7 (deepwalk 2026-07-24, harvested from Google's structured-data product policy): a
+       DEEP-LINKED listing (?listing=<id>) is a real product page to a crawler, but we only described
+       the SITE. injectListingJsonLd() fills this element with Product + Offer when one listing is
+       open, so price and availability can surface as rich results. availability is derived from our
+       OWN status (published -> InStock, sold -> SoldOut, anything else -> the element stays empty),
+       so the markup can never claim a listing is buyable when the platform says otherwise. -->
+  <script type="application/ld+json" id="listing-ld-json"></script>
+
   <!-- JSON-LD: BreadcrumbList -->
   <script type="application/ld+json">
   {
@@ -2076,7 +2084,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       let q = db
         .from('v_marketplace_listings_truth')
-        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
         .eq('status', 'published')
         .eq('section', _section)
         .order('created_at', { ascending: false })
@@ -2381,7 +2389,47 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       window.location.href = 'inventory.html?receive=1&pn=' + encodeURIComponent(pn) + '&name=' + encodeURIComponent(nm);
     });
 
+    injectListingJsonLd(item, sellerProfile);
     openSheet('detail');
+  }
+
+  /* MK7 public/SEO surface truth: describe the OPEN listing as a Product/Offer for crawlers.
+     Only claims what the platform can back - price only when a real number exists, availability
+     straight from status, and the seller name as the offer's seller. Cleared when nothing is open
+     so a stale product never lingers in the DOM after the sheet closes. */
+  function injectListingJsonLd(item, sellerProfile) {
+    const el = document.getElementById('listing-ld-json');
+    if (!el) return;
+    if (!item) { el.textContent = ''; return; }
+    const availability = item.status === 'published' ? 'https://schema.org/InStock'
+                       : item.status === 'sold'      ? 'https://schema.org/SoldOut'
+                       : null;
+    if (!availability) { el.textContent = ''; return; }
+    const product = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: item.title || 'Listing',
+      description: (item.description || '').slice(0, 300),
+      category: item.category || undefined,
+      sku: item.part_number || undefined,
+      itemCondition: item.condition === 'new' ? 'https://schema.org/NewCondition'
+                   : item.condition === 'used' ? 'https://schema.org/UsedCondition' : undefined,
+      image: item.image_url || undefined,
+      offers: {
+        '@type': 'Offer',
+        url: 'https://workhiveph.com/marketplace.html?listing=' + item.id,
+        priceCurrency: 'PHP',
+        availability,
+        itemCondition: item.condition === 'new' ? 'https://schema.org/NewCondition'
+                     : item.condition === 'used' ? 'https://schema.org/UsedCondition' : undefined,
+        seller: { '@type': 'Person', name: item.seller_name || 'Seller' },
+      },
+    };
+    // Only state a price when there is a real one; "Negotiable" is not a price.
+    const _p = Number(item.price);
+    if (item.price != null && item.price !== '' && _p > 0) product.offers.price = _p.toFixed(2);
+    else product.offers.priceSpecification = { '@type': 'PriceSpecification', valueAddedTaxIncluded: false };
+    el.textContent = JSON.stringify(product);
   }
 
   /* ============================================================
@@ -3024,7 +3072,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         try {
           const { data } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
             .eq('id', payload.new.id)
             .eq('status', 'published')
             .eq('section', _section)
@@ -3207,7 +3255,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_listings.some(l => l.id === lid)) {
         try {
           const { data: one } = await db.from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
             .eq('id', lid).eq('status', 'published').maybeSingle();
           if (one) _listings.push(one);
         } catch (_) { /* empty-catch-allow: best-effort stage; detail may still render from cache */ }
@@ -3255,7 +3303,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (!_listings.some(l => l.id === deepListing)) {
           const { data: one } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
             .eq('id', deepListing)
             .eq('status', 'published')
             .maybeSingle();

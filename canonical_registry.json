@@ -8140,7 +8140,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 134.3
+      "size_kb": 134.6
     },
     "hive.html": {
       "tables_read": [
@@ -8387,7 +8387,7 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 173.7
+      "size_kb": 180.1
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -8439,7 +8439,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 19.2
+      "size_kb": 19.5
     },
     "pm-scheduler.html": {
       "tables_read": [

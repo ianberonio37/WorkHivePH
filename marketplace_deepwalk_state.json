@@ -656,14 +656,14 @@
     },
     "MK7-public-seo-surface-truth": {
       "stages": {
-        "harvest": "partial",
+        "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
-      "seed": "marketplace-seller-profile.html calls injectJsonLd on an anon-visible page. If it emits AggregateRating for a seller with 0 real reviews, that is a structured-data lie (Google policy + a trust lie at the widest blast radius). | 2026-07-24 RESULT: the 'fake AggregateRating' hypothesis is KILLED WITH PROOF - injectJsonLd guards `if (_seller?.rating_avg && _seller.rating_count)`, so a 0-review seller emits NO aggregateRating (correct). But MK7 caught a DIFFERENT real defect: the ItemList advertised dead #hash deep links (FIXED -> ?listing=). Residual MK7 items: (a) JSON-LD is still emitted on a 'Seller not found' page (structured data for nonexistent content); (b) the entire public surface is anon-invisible pending the RLS fork.",
+      "seed": "marketplace-seller-profile.html calls injectJsonLd on an anon-visible page. If it emits AggregateRating for a seller with 0 real reviews, that is a structured-data lie (Google policy + a trust lie at the widest blast radius). | 2026-07-24 RESULT: the 'fake AggregateRating' hypothesis is KILLED WITH PROOF - injectJsonLd guards `if (_seller?.rating_avg && _seller.rating_count)`, so a 0-review seller emits NO aggregateRating (correct). But MK7 caught a DIFFERENT real defect: the ItemList advertised dead #hash deep links (FIXED -> ?listing=). Residual MK7 items: (a) JSON-LD is still emitted on a 'Seller not found' page (structured data for nonexistent content); (b) the entire public surface is anon-invisible pending the RLS fork. | HARVEST -> BUILD (spoke 5 -> 6, 2026-07-24): crawled Google's structured-data product policy (URL VERIFIED with curl first, after two NN/g slugs 404'd) -> substrate/external/external-structured-data-product-offer-policy.md. It named a real gap: a DEEP-LINKED listing is a product page to a crawler, but we described only the SITE (WebSite + BreadcrumbList). BUILT injectListingJsonLd(): the open listing now emits Product + Offer with price, PHP currency, sku from part_number, itemCondition, seller, and the working ?listing= deep-link URL. HONESTY BY CONSTRUCTION: availability is derived from OUR status (published->InStock, sold->SoldOut, anything else -> the element is CLEARED), a 'Negotiable' listing states no price rather than a fake one, and no aggregateRating is invented. ★The first attempt emitted NOTHING and my guard was right to refuse: item.status was undefined because all four listing selects FILTERED on status without SELECTING it. Added status to the selects so availability is REAL rather than assumed-from-the-query. VERIFIED live: Product / PHP 68980.48 / InStock / working deep link / no rating.",
       "distinct_from": "SEO gates check meta/sitemap EXISTENCE; MK7 checks structured-data CLAIMS against canonical DB truth.",
       "skill": "seo-content + security"
     },
