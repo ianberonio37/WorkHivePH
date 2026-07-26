@@ -126,17 +126,19 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-admin"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-edge"
         ]
       },
       "notes": "S-edge target: what happens to a watchlisted listing that goes sold/removed? (dead-end risk -> MK4). | 2026-07-24 WALKED: heart toggle round-trips correctly (click -> marketplace_watchlist row created -> click -> row deleted, UI state follows). The S-edge case (a watchlisted listing that goes sold/removed) is still unwalked -> MK4."
@@ -579,14 +581,14 @@
     },
     "MK4-listing-lifecycle-completeness": {
       "stages": {
-        "harvest": "todo",
-        "define": "todo",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
         "gate": "todo"
       },
-      "seed": "status domain = {draft, published, sold, removed} (+ rejected semantics). Are 'sold' and 'removed' reachable, visible, and non-dead-end for both seller and buyer (e.g. a watchlisted listing that sells)?",
+      "seed": "status domain = {draft, published, sold, removed} (+ rejected semantics). Are 'sold' and 'removed' reachable, visible, and non-dead-end for both seller and buyer (e.g. a watchlisted listing that sells)? | 2026-07-24 REAL DEAD-END FOUND + FIXED. mkt_listings_read is (published OR own OR admin), so once a watchlisted listing goes sold/removed a NORMAL buyer can no longer READ it - and the watchlist sheet queried .in('id',ids) then simply rendered fewer cards. The saved item VANISHED with no word, and 'it sold' is the single most useful thing to tell someone who saved it. FIX: render the DIFFERENCE (saved ids vs readable rows) as a role=status note - 'N saved listing(s) is/are no longer available. It was/They were sold or withdrawn by the seller.' - plus a matching all-gone empty state. No RLS widening, no new exposure. PROVEN with the CORRECT persona: as pabloaguilar (a platform ADMIN) the sold row still rendered and the bug was INVISIBLE; re-run as christinedizon (non-admin, owns neither listing) showed 2 saved -> 1 readable -> banner '1 saved listing is no longer available'. ★The admin persona masks every RLS-visibility bug on this page - always re-test visibility findings as a non-admin. Test data fully restored (listing republished, 0 watchlist rows).",
       "distinct_from": "D3 covers empty-vs-filtered lists; MK4 covers the ENTITY STATE MACHINE having a surface + transition for every state.",
       "skill": "frontend + qa-tester"
     },

@@ -1677,13 +1677,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (error) throw error;
 
       const items = data || [];
+      // MK4 listing-lifecycle completeness (deepwalk 2026-07-24): a saved listing that later goes
+      // sold/removed becomes UNREADABLE to this buyer (mkt_listings_read = published OR own OR admin),
+      // so it silently vanished from their saved list. Disappearing without a word is the dead-end this
+      // class exists to catch, and "it sold" is the single most useful thing to tell someone who saved it.
+      // Render the DIFFERENCE (saved ids vs readable rows) instead of quietly showing fewer cards.
+      const _goneCount = Math.max(0, ids.length - items.length);
+      const _goneNote = _goneCount
+        ? `<p role="status" style="font-size:0.75rem;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:0.5rem;padding:0.5rem 0.65rem;margin:0 0 0.6rem;">${_goneCount} saved listing${_goneCount === 1 ? ' is' : 's are'} no longer available. ${_goneCount === 1 ? 'It was' : 'They were'} sold or withdrawn by the seller.</p>`
+        : '';
       if (!items.length) {
-        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<p style="font-size:0.78rem;color:#9aa6b3;padding:1rem 0;">Saved listings are no longer available.</p>`;
+        content/* xss-allow: static strings + a computed integer */ .innerHTML = `<p style="font-size:0.78rem;color:rgba(255,255,255,0.80);padding:1rem 0;">${_goneCount ? `All ${_goneCount} of your saved listing${_goneCount === 1 ? ' was' : 's were'} sold or withdrawn by the seller.` : 'Saved listings are no longer available.'}</p>`;
         return;
       }
 
       const e = escHtml;
-      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(item => {
+      content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _goneNote + items.map(item => {
         const removed = item.status === 'removed';
         const hasImg  = !!item.image_url;
         return `

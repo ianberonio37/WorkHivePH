@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 50.0%** · journeys **44.0%** (20) · MK classes **60.0%** (10)
+**OVERALL 53.4%** · journeys **45.5%** (20) · MK classes **66.7%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -24,16 +24,16 @@
 | J2-buyer-contact-seller | T8-commerce | ✅ | 🟡 | 🟡 | ✅ | 🟡 | 1×1 | 70.0% |
 | J20-founder-console-fused-moderation | T11-admin-console | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×1 | 60.0% |
 | J3-compare-rfq | T8-commerce | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
-| J4-watchlist-stale | T8-commerce | ✅ | 🟡 | ✅ | ⬜ | ⬜ | 1×1 | 50.0% |
+| J4-watchlist-stale | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
 | J5-saved-search-alert | T8-commerce | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
 | J6-price-comps-recommend | T8-commerce | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
 | J7-post-listing | T2-capture | ✅ | 🟡 | 🟡 | ⬜ | 🟡 | 1×1 | 50.0% |
 | J8-post-from-inventory | T2-capture | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
 
-**Per phase:** G 77.5% · W 42.5% · O 57.5% · H 10.0% · R 32.5%
+**Per phase:** G 77.5% · W 45.0% · O 57.5% · H 10.0% · R 37.5%
 
-**Per type:** T1-onboarding 30.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 30.0% · T2-capture 25.0% · T3-review-approval 33.3% · T4-analysis-insight 70.0% · T8-commerce 53.3% · T9-configuration 40.0%
+**Per type:** T1-onboarding 30.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 30.0% · T2-capture 25.0% · T3-review-approval 33.3% · T4-analysis-insight 70.0% · T8-commerce 58.3% · T9-configuration 40.0%
 
 ## Board 2 — New MK dimension classes
 
@@ -43,7 +43,7 @@
 | MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ⬜ | 66.7% |
 | MK2-moderation-state-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ⬜ | ⬜ | ✅ | 50.0% |
-| MK4-listing-lifecycle-completeness | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
+| MK4-listing-lifecycle-completeness | 🟡 | ✅ | ✅ | 🟡 | ✅ | ⬜ | 66.7% |
 | MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK6-parts-flow-continuity | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
 | MK7-public-seo-surface-truth | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
