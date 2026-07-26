@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 703a2ccf9e90fac4
+source_sha: a69423751b59f961
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (648) — the 'what's already gated' brain
+## gate · registered validators (649) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -209,7 +209,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (455)
+### Platform (456)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -426,6 +426,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `growth-write-isolation` [fail] — Growth-layer write isolation (LIVE, rolled-back: simulates a real authenticated member and asserts a member CANNOT self-mint a skill_badge [competence + 250 XP 
 - `hardcoded-secrets` ⚡ [fail] — Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)
 - `heading-hierarchy` ⚡ [fail] — Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)
+- `hidden_class_defined` ⚡ [fail] — `.hidden` is actually DEFINED for every page that uses it — a page hiding an element with class="hidden" must load a stylesheet carrying a GENERAL `.hidden` rul
 - `hierarchical-summaries` ⚡ [fail] — Hierarchical Period Summaries Phase 2 (16-layer: migration + 5 levels + RLS + aggregator + Breakdown/Corrective filter + FREE-TIER-ONLY + callAI + hive scoping 
 - `hive` ⚡ [fail] — Hive Validator
 - `hive-battery` [fail] — hive.html LIVE per-page battery — PER_PAGE_BUGHUNT_ROADMAP Tier-1 (P1 Smoke / P2 Console+Network / P8 Visual). Headless Playwright signs in as the REAL Baguio s

@@ -4993,6 +4993,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "hidden_class_defined",
+        "script":  "tools/validate_hidden_class_defined.py",
+        "args":    [],
+        "label":   "`.hidden` is actually DEFINED for every page that uses it — a page hiding an element with class=\"hidden\" must load a stylesheet carrying a GENERAL `.hidden` rule, or the element ships permanently VISIBLE. Found live 2026-07-24 (deepwalk J9, first-time-seller dashboard): a dead \"Load More\" button under an empty inquiry list, because marketplace-seller.html links only tokens.css and the JS toggled a class nothing defined. Six live pages were in that state (asset-hub / audit-log / community / marketplace-admin / marketplace-seller / shift-brain). Easy to ship because wh-tw.css DOES define it (so the pattern works on most pages), because components.css's rule is SCOPED to `.action-card .ac-cta.hidden` and grep makes it look covered, and because an ID base style like `#toast{display:flex}` outranks the class anyway. The gate resolves it the way the browser does: only a selector that is exactly `.hidden` counts. Design prototypes (*-test.html) and *.backup*.html are exempt (not shipped, not in the SW shell). Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         # Arc R (S, OWASP A02) — no real secret in a TRACKED .env.* file (the hardcoded-secrets
         # scanner only opens *.html/js/ts/py, so a committed dotfile credential is invisible). Teeth.
         "id":      "committed_env_secret",

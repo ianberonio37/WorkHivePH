@@ -213,3 +213,24 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
   /* 0.5rem/8px bottom gap: on the 8-pt grid (R1). 0.6rem=9.6px rounds to 10px = off-scale. */
   color: var(--wh-text-faint); margin: 0 0 0.5rem; line-height: 1.3;
 }
+
+/* ── .hidden utility ─────────────────────────────────────────────────────────
+   Found live 2026-07-24 (marketplace deepwalk J9, walking the first-time-seller
+   dashboard as a worker with no seller row): a dead "Load More" button sat under an
+   empty inquiry list. The markup said class="hidden" but nothing on that page
+   defined the class.
+
+   Where the rule DOES come from, for anyone tracing this later: `wh-tw.css` (the
+   self-hosted Tailwind subset) carries `.hidden{display:none}`, and that is what
+   makes the class work on the pages that link it (logbook, hive, index,
+   engineering-design, inventory). The rule in components.css is NOT a general one:
+   it is scoped to `.action-card .ac-cta.hidden`. So the class silently did nothing
+   on the pages that link neither: asset-hub, audit-log, community, marketplace-admin,
+   marketplace-seller and shift-brain. Defining it here (and in components.css, for
+   the pages that load that instead) closes the gap for all six.
+
+   Deliberately NO !important: inline `style="display:..."` must still win, because
+   plenty of code shows an element by setting an inline display while leaving the
+   class in place. This makes the class do what the markup already claims, without
+   overriding anything that currently works. */
+.hidden { display: none; }

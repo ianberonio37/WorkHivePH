@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 84.1%** · journeys **80.0%** (20) · MK classes **90.8%** (10)
+**OVERALL 85.6%** · journeys **82.5%** (20) · MK classes **90.8%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -29,11 +29,11 @@
 | J6-price-comps-recommend | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
 | J7-post-listing | T2-capture | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J8-post-from-inventory | T2-capture | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
-| J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
+| J9-first-time-seller | T1-onboarding | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
 
-**Per phase:** G 100.0% · W 77.5% · O 95.0% · H 40.0% · R 87.5%
+**Per phase:** G 100.0% · W 82.5% · O 97.5% · H 40.0% · R 92.5%
 
-**Per type:** T1-onboarding 30.0% · T10-social-gamification 90.0% · T11-admin-console 80.0% · T12-cross-page-handoff 76.7% · T2-capture 85.0% · T3-review-approval 83.3% · T4-analysis-insight 70.0% · T8-commerce 91.7% · T9-configuration 40.0%
+**Per type:** T1-onboarding 80.0% · T10-social-gamification 90.0% · T11-admin-console 80.0% · T12-cross-page-handoff 76.7% · T2-capture 85.0% · T3-review-approval 83.3% · T4-analysis-insight 70.0% · T8-commerce 91.7% · T9-configuration 40.0%
 
 ## Board 2 — New MK dimension classes
 

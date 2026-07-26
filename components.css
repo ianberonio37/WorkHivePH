@@ -182,3 +182,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
    Pages' local .card rules (loaded after this link) intentionally override while their values
    converge; this canonical is the single reference + the floor for new pages. */
 .card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; margin-bottom: 16px; }
+
+/* General .hidden utility — see the full note in tokens.css (marketplace deepwalk J9,
+   2026-07-24). Repeated here because asset-hub and shift-brain load components.css but
+   neither tokens.css nor wh-tw.css, so the class did nothing for them. Note the rule
+   above at .action-card .ac-cta.hidden is SCOPED and never covered the general case.
+   No !important, so an inline display still wins. */
+.hidden { display: none; }
