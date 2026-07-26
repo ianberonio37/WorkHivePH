@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:560-files
-source_sha: 5ce05ff14da95dfe
+source: memory-curated:561-files
+source_sha: ea5636fe00bca511
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (560 durable topic files)
+## memory · curated auto-memory (561 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=183 · project=288 · reference=89
+**By type:** feedback=184 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -66,6 +66,7 @@ Entries (name · type · sha):
 - `feedback_engine_a_drives_engine_b_journey_seeds_harvest` · feedback · 5f49337e62b0d128
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
 - `feedback_expand_dimensions_not_reverify` · feedback · cb9386cdf70a09d6
+- `feedback_expansion_arc_flywheel_with_inloop_crawl` · feedback · 1e46290519d16bee
 - `feedback_external_reference_is_a_research_task_not_a_ceiling` · feedback · b4ce91f9b25b3cd2
 - `feedback_f5_silent_zero_fanout_method` · feedback · 08f76478b043de50
 - `feedback_fab_consolidation_into_nav_hub` · feedback · 7f15d40a03931cdd
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `reference_deepwalk_flywheel_v2_built` · project · 12d7fb6ad72f2f3d
 - `reference_delete_worker_data_three_bugs` · reference · 8e67ec1bd854faa8
 - `reference_edge_error_capture_keystone` · reference · aa92f78c5edf35f1
-- `reference_embed_entry_jwt_drop_class` · reference · c8f9d4442dd06325
-- … +60 more (all included in the fingerprint)
+- … +61 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

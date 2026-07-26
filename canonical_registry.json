@@ -7894,6 +7894,14 @@
         "marketplace-seller-profile.html"
       ],
       "called_by_edge_fns": []
+    },
+    "update_seller_response_stats": {
+      "defined_in": "20260724000006_marketplace_response_stats_computed.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Computes marketplace_sellers.response_rate + response_time_h from the real marketplace_inquiries record (avg replied_at-created_at in hours, replied/total). Before this the buyer-facing \"Responds in ~Nh / N% reply rate\" came from seeded columns nothing ever maintained. Stays NULL until a first reply so a new seller is not shown a fabricated 0%. MK9 response-SLA honesty, 2026-07-24.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8379,7 +8387,7 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 173.2
+      "size_kb": 173.7
     },
     "offline-fallback.html": {
       "tables_read": [],

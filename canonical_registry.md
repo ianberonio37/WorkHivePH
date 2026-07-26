@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **187**
+- RPCs:          **188**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -358,6 +358,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `unified_event_source_rank` | p_source text | no | — | — |
 | `update_dialog_state` | p_hive_id uuid,   p_session_id text,   p_turn_num int,   p_i | no | — | — |
 | `update_seller_rating` |  | yes | — | — |
+| `update_seller_response_stats` |  | yes | — | — |
 | `update_seller_tier` |  | yes | — | — |
 | `user_can_access_hive` | p_hive_id uuid | yes | — | — |
 | `user_hive_ids` |  | yes | — | — |

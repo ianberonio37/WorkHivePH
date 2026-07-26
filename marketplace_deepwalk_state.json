@@ -46,10 +46,10 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "partial"
+        "R": "done"
       },
       "walked": {
         "personas": [
@@ -58,10 +58,11 @@
         ],
         "states": [
           "S-populated",
-          "S-error"
+          "S-error",
+          "S-filtered0"
         ]
       },
-      "notes": "2026-07-24: anon render clean (11 listings, 0 P1 defects, PHP fmt ok). S-error walked -> P7 bug found+FIXED (_loadError branch). Remaining: S-filtered0 + the SEO/JSON-LD path (seeds MK7)."
+      "notes": "2026-07-24: anon render clean (11 listings, 0 P1 defects, PHP fmt ok). S-error walked -> P7 bug found+FIXED (_loadError branch). Remaining: S-filtered0 + the SEO/JSON-LD path (seeds MK7). | 2026-07-24 S-filtered0 VERIFIED: a 0-result search shows 'No listings match those filters' and NOT the first-run sell CTA, and the grid recovers to 9 cards on clear. All THREE MK5 states now proven distinct."
     },
     "J2-buyer-contact-seller": {
       "type": "T8-commerce",
@@ -99,15 +100,19 @@
         "marketplace.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated"
+        ]
       },
       "notes": "handleSubmitRfq inserts N inquiries (COMPARE_MAX cap). Validates name/contact/message pre-write. Unwalked live."
     },
@@ -120,17 +125,21 @@
         "marketplace.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "done",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated"
+        ]
       },
-      "notes": "S-edge target: what happens to a watchlisted listing that goes sold/removed? (dead-end risk -> MK4)."
+      "notes": "S-edge target: what happens to a watchlisted listing that goes sold/removed? (dead-end risk -> MK4). | 2026-07-24 WALKED: heart toggle round-trips correctly (click -> marketplace_watchlist row created -> click -> row deleted, UI state follows). The S-edge case (a watchlisted listing that goes sold/removed) is still unwalked -> MK4."
     },
     "J5-saved-search-alert": {
       "type": "T8-commerce",
@@ -141,15 +150,19 @@
         "marketplace.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated"
+        ]
       },
       "notes": "get_saved_search_matches RPC -> badge. Alert honesty + 0-match case unwalked."
     },
@@ -162,15 +175,19 @@
         "marketplace.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated"
+        ]
       },
       "notes": "get_marketplace_price_comps + get_marketplace_parts_for_my_assets. Recommendation provenance unverified."
     },
@@ -325,15 +342,19 @@
         "marketplace-seller.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-seller"
+        ],
+        "states": [
+          "S-populated"
+        ]
       },
       "notes": "messenger + certifications + contact. Past 42501 GRANT issue on this path (feedback_permission_denied_table_is_grant_not_rls) - re-verify live."
     },
@@ -346,17 +367,22 @@
         "marketplace-seller.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-seller"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
       },
-      "notes": "loadAnalytics: views/inquiries/conversion. Seeds MK9 (SLA honesty) - are these computed or seeded?"
+      "notes": "loadAnalytics: views/inquiries/conversion. Seeds MK9 (SLA honesty) - are these computed or seeded? | 2026-07-24 WALKED: analytics tab renders 108 views / 0 inquiries / 0% conversion / 'Response Time -' with 'No replies yet' = HONEST (no fabricated stat, 0 P1 defects). That honesty is what exposed MK9: the seller's own view computed from real inquiries while the BUYER's view read a never-computed column."
     },
     "J15-review-flow": {
       "type": "T10-social-gamification",
@@ -569,7 +595,7 @@
         "harvest": "partial",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
@@ -619,14 +645,14 @@
     },
     "MK9-response-sla-honesty": {
       "stages": {
-        "harvest": "todo",
-        "define": "todo",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
         "gate": "todo"
       },
-      "seed": "Detail sheet renders 'Responds in ~1h - 95% reply rate - 1 sale'. Provenance unverified: computed from marketplace_inquiries, or seeded/static?",
+      "seed": "Detail sheet renders 'Responds in ~1h - 95% reply rate - 1 sale'. Provenance unverified: computed from marketplace_inquiries, or seeded/static? | 2026-07-24 RESOLVED. DEFECT: response_rate/response_time_h were DECLARED in schema and DEFENDED by the trust guard (a seller may not self-assign them) but NOTHING EVER COMPUTED THEM - no trigger, function, edge fn or cron. So the buyer-facing 'Responds in ~1h / 95% reply rate' was a seeded promise about future behaviour that no real event could create, correct or invalidate. (The seller dashboard + public profile computed the same idea correctly from marketplace_inquiries, so only the buyer-facing column was orphaned.) FIX: mig 20260724000006 adds update_seller_response_stats() + a trigger on marketplace_inquiries (AFTER INSERT OR UPDATE OF replied_at,status), computing avg(replied_at-created_at) hours + replied/total, announcing itself via the seller_system_write GUC so the trust guard permits the SYSTEM write. Stays NULL until a first reply so a new seller is never shown a fabricated 0%. BACKFILLED: every seeded seller had ZERO inquiries, so all the fake 0.95/2.0h promises are now correctly NULL. TRIGGER PROVEN: 2 inquiries / 1 replied 3h later -> rate 0.50, time 3.0. LIVE: the detail sheet no longer claims any response SLA. KNOWN GAP: DELETE of an inquiry does not recompute (no delete path exists in the app; inquiries are closed, not deleted).",
       "distinct_from": "MK1 governs trust BADGES/ratings; MK9 governs computed BEHAVIOURAL stats (a promise about future responsiveness).",
       "skill": "analytics-engineer"
     },
