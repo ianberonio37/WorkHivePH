@@ -2,7 +2,7 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 0bef584d2edd8ff8
+source_sha: b79bcd115fc909e8
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -67,7 +67,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)
 - `landing-extractability` [fail] — Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)
 - `login_proxy_lockout` [fail] — Arc I: login brute-force lockout (server-side proxy; correct pw can't bypass a lock)
-- `marketplace_deepwalk_classes` ⚡ [fail] — Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK7 no dead deep links)
+- `marketplace_deepwalk_classes` ⚡ [fail] — Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK4 watchlist sold-surface
 - `marketplace_deepwalk_ratchet` ⚡ [fail] — Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)
 - `memory_index_budget` [fail] — Memory hygiene: MEMORY.md index under the session load cap (auto-memory)
 - `memory_pii_redaction` ⚡ [fail] — Arc H: multi-turn PII egress rail (K2, memory_block + summariser, redactMemoryText)

@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 53.4%** · journeys **45.5%** (20) · MK classes **66.7%** (10)
+**OVERALL 55.9%** · journeys **45.5%** (20) · MK classes **73.3%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -40,14 +40,14 @@
 | Class | harvest | define | detect | sweep | fix | gate | % |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|
 | MK1-trust-signal-integrity | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
-| MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ⬜ | 66.7% |
+| MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK2-moderation-state-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ⬜ | ⬜ | ✅ | 50.0% |
-| MK4-listing-lifecycle-completeness | 🟡 | ✅ | ✅ | 🟡 | ✅ | ⬜ | 66.7% |
+| MK4-listing-lifecycle-completeness | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK6-parts-flow-continuity | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
 | MK7-public-seo-surface-truth | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
-| MK8-marketplace-safety-fraud | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ⬜ | 58.3% |
-| MK9-response-sla-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ⬜ | 75.0% |
+| MK8-marketplace-safety-fraud | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | 75.0% |
+| MK9-response-sla-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 
 _Anti-drift: at ANY 'what next / is this done?' doubt → read this board + the roadmap §7 NEXT._

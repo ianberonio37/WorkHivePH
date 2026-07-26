@@ -586,7 +586,7 @@
         "detect": "done",
         "sweep": "partial",
         "fix": "done",
-        "gate": "todo"
+        "gate": "done"
       },
       "seed": "status domain = {draft, published, sold, removed} (+ rejected semantics). Are 'sold' and 'removed' reachable, visible, and non-dead-end for both seller and buyer (e.g. a watchlisted listing that sells)? | 2026-07-24 REAL DEAD-END FOUND + FIXED. mkt_listings_read is (published OR own OR admin), so once a watchlisted listing goes sold/removed a NORMAL buyer can no longer READ it - and the watchlist sheet queried .in('id',ids) then simply rendered fewer cards. The saved item VANISHED with no word, and 'it sold' is the single most useful thing to tell someone who saved it. FIX: render the DIFFERENCE (saved ids vs readable rows) as a role=status note - 'N saved listing(s) is/are no longer available. It was/They were sold or withdrawn by the seller.' - plus a matching all-gone empty state. No RLS widening, no new exposure. PROVEN with the CORRECT persona: as pabloaguilar (a platform ADMIN) the sold row still rendered and the bug was INVISIBLE; re-run as christinedizon (non-admin, owns neither listing) showed 2 saved -> 1 readable -> banner '1 saved listing is no longer available'. ★The admin persona masks every RLS-visibility bug on this page - always re-test visibility findings as a non-admin. Test data fully restored (listing republished, 0 watchlist rows).",
       "distinct_from": "D3 covers empty-vs-filtered lists; MK4 covers the ENTITY STATE MACHINE having a surface + transition for every state.",
@@ -638,7 +638,7 @@
         "detect": "partial",
         "sweep": "partial",
         "fix": "partial",
-        "gate": "todo"
+        "gate": "done"
       },
       "seed": "Contact-only free marketplace (PAYMENTS_ENABLED=false) = no escrow, so ALL risk sits at the contact/meet stage. No duplicate/spam/price-anomaly/impersonation detector exists. | 2026-07-24 HARVEST DONE (Engine B, spoke 5): night_crawler --url lawphil RA 11967 -> substrate/external/external-ph-internet-transactions-act-ra11967.md. NOTE the officialgazette PDF was Cloudflare-blocked ('Just a moment...') -> used another publisher of the same statute (the blocked-publisher class). WHAT IT OBLIGATES that maps to code: (a) DTI takedown orders for prohibited/regulated listings -> we now satisfy the record-keeping half via moderation_reason/moderated_by/moderated_at (MK2, same arc); (b) consumer education on the RED FLAGS of internet transactions -> BUILT: a safety notice at the contact step (the exact moment of risk on a contact-only, no-escrow marketplace): inspect first, meet at a business address or public place, avoid full advance payment to a new seller, and an honest 'WorkHive never holds your payment, so we cannot reverse it'. VERIFIED live in the real Contact Seller sheet. (c) Registration with the DTI E-Commerce Bureau + the Online Business Database are BUSINESS-COMPLIANCE items for Ian, not code. STILL TODO: duplicate/spam listing + price-anomaly + impersonation detectors, and a prohibited-goods policy check.",
       "distinct_from": "Net-new. Nothing in the 99-dim lens models adversarial USER behaviour (vs adversarial input).",
@@ -652,7 +652,7 @@
         "detect": "done",
         "sweep": "done",
         "fix": "done",
-        "gate": "todo"
+        "gate": "done"
       },
       "seed": "Detail sheet renders 'Responds in ~1h - 95% reply rate - 1 sale'. Provenance unverified: computed from marketplace_inquiries, or seeded/static? | 2026-07-24 RESOLVED. DEFECT: response_rate/response_time_h were DECLARED in schema and DEFENDED by the trust guard (a seller may not self-assign them) but NOTHING EVER COMPUTED THEM - no trigger, function, edge fn or cron. So the buyer-facing 'Responds in ~1h / 95% reply rate' was a seeded promise about future behaviour that no real event could create, correct or invalidate. (The seller dashboard + public profile computed the same idea correctly from marketplace_inquiries, so only the buyer-facing column was orphaned.) FIX: mig 20260724000006 adds update_seller_response_stats() + a trigger on marketplace_inquiries (AFTER INSERT OR UPDATE OF replied_at,status), computing avg(replied_at-created_at) hours + replied/total, announcing itself via the seller_system_write GUC so the trust guard permits the SYSTEM write. Stays NULL until a first reply so a new seller is never shown a fabricated 0%. BACKFILLED: every seeded seller had ZERO inquiries, so all the fake 0.95/2.0h promises are now correctly NULL. TRIGGER PROVEN: 2 inquiries / 1 replied 3h later -> rate 0.50, time 3.0. LIVE: the detail sheet no longer claims any response SLA. KNOWN GAP: DELETE of an inquiry does not recompute (no delete path exists in the app; inquiries are closed, not deleted).",
       "distinct_from": "MK1 governs trust BADGES/ratings; MK9 governs computed BEHAVIOURAL stats (a promise about future responsiveness).",
@@ -665,7 +665,7 @@
         "detect": "done",
         "sweep": "partial",
         "fix": "done",
-        "gate": "todo"
+        "gate": "done"
       },
       "seed": "The grid orders created_at desc with no disclosure of WHY these listings in this order. Ranking transparency is a legal duty for online marketplaces under EU P2B Art.5 and good practice everywhere. | 2026-07-24 FIXED: the grid ordered created_at DESC with NO disclosure, so a buyer could not tell recency from relevance from paid placement. The listings-info line now states it plainly: 'newest first. Sellers cannot pay for placement.' That is the EU P2B Art.5 ranking-parameter duty and, more importantly, an honest answer to 'why am I seeing these?'. VERIFIED live: 'Showing 9 listings - newest first. Sellers cannot pay for placement.'",
       "distinct_from": "Net-new. No existing dim asks a ranked list to EXPLAIN ITSELF.",

@@ -4972,7 +4972,7 @@ VALIDATORS = [
         "id":      "marketplace_deepwalk_classes",
         "script":  "tools/validate_marketplace_deepwalk_classes.py",
         "args":    [],
-        "label":   "Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK7 no dead deep links)",
+        "label":   "Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK4 watchlist sold-surface / MK7 no dead deep links / MK8 contact-step safety / MK9 computed response SLA / MK10 ranking disclosure)",
         "group":   "AI Validation",
         "report":  None,
     },

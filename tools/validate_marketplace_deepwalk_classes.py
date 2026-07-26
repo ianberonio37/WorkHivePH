@@ -107,14 +107,56 @@ def check_mk1_attributable_rating(results: list) -> None:
                     else "bare 'No reviews yet' beside a seller rating reads as a contradiction"))
 
 
+def check_mk4_lifecycle_gone_surface(results: list) -> None:
+    """A saved listing that goes sold/removed becomes RLS-unreadable to a normal buyer; the watchlist
+    must SAY SO rather than silently render fewer cards."""
+    src = _read("marketplace.html")
+    ok = "no longer available" in src and ("_goneCount" in src or "ids.length - items.length" in src)
+    results.append(("MK4 watchlist surfaces sold/withdrawn saves", ok,
+                    "renders the saved-vs-readable difference" if ok
+                    else "a saved listing that sells vanishes from the watchlist with no explanation"))
+
+
+def check_mk8_safety_notice(results: list) -> None:
+    """Contact-only marketplace, no escrow: the contact step must carry red-flag guidance (RA 11967)."""
+    src = _read("marketplace.html")
+    ok = "Before you pay" in src and "never holds your payment" in src
+    results.append(("MK8 contact step carries safety guidance", ok,
+                    "inspect / meet / avoid full advance payment / no escrow stated" if ok
+                    else "the inquiry sheet takes a buyer off-platform with no red-flag guidance"))
+
+
+def check_mk9_response_stats_computed(results: list) -> None:
+    """response_rate/response_time_h must be COMPUTED from real inquiries, never left seed-only."""
+    mig = _read("supabase/migrations/20260724000006_marketplace_response_stats_computed.sql")
+    has_fn = "update_seller_response_stats" in mig
+    has_trg = "trg_update_seller_response_stats" in mig and "marketplace_inquiries" in mig
+    results.append(("MK9 response SLA is computed, not seeded", has_fn and has_trg,
+                    "trigger recomputes rate + avg hours from marketplace_inquiries" if (has_fn and has_trg)
+                    else "the buyer-facing responsiveness promise has no producer -> permanently stale"))
+
+
+def check_mk10_ranking_disclosure(results: list) -> None:
+    """A ranked list must explain itself (EU P2B Art.5 + plain honesty)."""
+    src = _read("marketplace.html")
+    ok = "newest first" in src and "cannot pay for placement" in src
+    results.append(("MK10 grid discloses its ranking", ok,
+                    "states the ordering parameter + no paid placement" if ok
+                    else "the grid ranks silently, so a buyer cannot tell recency from paid placement"))
+
+
 def run() -> int:
     results: list = []
     check_mk2_moderation_reason(results)
     check_mk7_no_hash_deeplinks(results)
     check_mk3_public_rpc_pii(results)
     check_mk1_attributable_rating(results)
+    check_mk4_lifecycle_gone_surface(results)
+    check_mk8_safety_notice(results)
+    check_mk9_response_stats_computed(results)
+    check_mk10_ranking_disclosure(results)
 
-    print(f"{BOLD}Marketplace Deepwalk class locks (MK1 / MK2 / MK3 / MK7){RESET}")
+    print(f"{BOLD}Marketplace Deepwalk class locks (MK1/2/3/4/7/8/9/10){RESET}")
     n_pass = n_fail = n_skip = 0
     for label, ok, detail in results:
         if ok is None:
