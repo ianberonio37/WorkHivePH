@@ -182,20 +182,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-seller"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-empty"
         ]
       },
-      "notes": "get_marketplace_price_comps + get_marketplace_parts_for_my_assets. Recommendation provenance unverified."
+      "notes": "get_marketplace_price_comps + get_marketplace_parts_for_my_assets. Recommendation provenance unverified. | 2026-07-24 WALKED - CLEAN and notably HONEST. get_marketplace_price_comps(p_category,p_condition,p_part_number) returns n=0 with min/median/max NULL when there are no comparables - it refuses to invent a price range from thin data, and the page only narrates it above 3 comparables. get_marketplace_parts_for_my_assets(p_hive_id) returns 0 rows for a hive with nothing below reorder point: an honest empty, not a broken call. NOTE the seeded listings all have part_number NULL, so both features are data-thin locally by seed, not by defect. ★SIXTH instrument-fault: I guessed both RPC signatures wrong (real: p_category/p_condition/p_part_number and p_hive_id) and the 'function not found in schema cache' error looked like a missing function. Read pg_get_function_identity_arguments before calling an RPC from a probe."
     },
     "J7-post-listing": {
       "type": "T2-capture",
@@ -449,17 +451,18 @@
         "W": "partial",
         "O": "done",
         "H": "todo",
-        "R": "partial"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-seller"
         ],
         "states": [
           "S-populated"
         ]
       },
-      "notes": "Detail sheet showed Bronze + ID Verified + community chip. Trust FORGE is defended (truth view overrides forged base cols; self-verify -> 42501). Backing-data integrity = MK1."
+      "notes": "Detail sheet showed Bronze + ID Verified + community chip. Trust FORGE is defended (truth view overrides forged base cols; self-verify -> 42501). Backing-data integrity = MK1. | 2026-07-24 WALKED - CLEAN. get_marketplace_trust_badges returns ONLY public-scoped aggregates (worker_name, is_voice_of_hive, trust_tier) with ZERO PII columns - no messenger, auth_uid, email or contact. Confirms the MK3 disclosure-staging boundary holds on the community-trust bridge as well as the seller profile. [W held at PARTIAL: shallow_W flagged only ONE state walked; the rule needs >=2 personas AND >=2 states.]"
     },
     "J17-marketplace-to-inventory": {
       "type": "T12-cross-page-handoff",
@@ -602,7 +605,7 @@
         "harvest": "partial",
         "define": "partial",
         "detect": "done",
-        "sweep": "todo",
+        "sweep": "done",
         "fix": "todo",
         "gate": "done"
       },

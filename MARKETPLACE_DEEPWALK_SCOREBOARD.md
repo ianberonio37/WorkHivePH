@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 74.4%** · journeys **70.0%** (20) · MK classes **81.7%** (10)
+**OVERALL 76.6%** · journeys **72.5%** (20) · MK classes **83.3%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -17,7 +17,7 @@
 | J13-seller-profile-config | T9-configuration | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
 | J14-seller-analytics | T4-analysis-insight | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J15-review-flow | T10-social-gamification | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×2 | 60.0% |
-| J16-trust-badges-tiers | T10-social-gamification | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×1 | 60.0% |
+| J16-trust-badges-tiers | T10-social-gamification | ✅ | 🟡 | ✅ | ⬜ | ✅ | 2×1 | 70.0% |
 | J17-marketplace-to-inventory | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J18-inventory-to-marketplace | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | 🟡 | ✅ | 2×2 | 90.0% |
@@ -26,14 +26,14 @@
 | J3-compare-rfq | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
 | J4-watchlist-stale | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J5-saved-search-alert | T8-commerce | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×1 | 70.0% |
-| J6-price-comps-recommend | T8-commerce | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
+| J6-price-comps-recommend | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
 | J7-post-listing | T2-capture | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
 | J8-post-from-inventory | T2-capture | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
 
-**Per phase:** G 100.0% · W 67.5% · O 92.5% · H 15.0% · R 75.0%
+**Per phase:** G 100.0% · W 70.0% · O 95.0% · H 15.0% · R 82.5%
 
-**Per type:** T1-onboarding 30.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 76.7% · T2-capture 75.0% · T3-review-approval 76.7% · T4-analysis-insight 70.0% · T8-commerce 78.3% · T9-configuration 40.0%
+**Per type:** T1-onboarding 30.0% · T10-social-gamification 65.0% · T11-admin-console 60.0% · T12-cross-page-handoff 76.7% · T2-capture 75.0% · T3-review-approval 76.7% · T4-analysis-insight 70.0% · T8-commerce 85.0% · T9-configuration 40.0%
 
 ## Board 2 — New MK dimension classes
 
@@ -42,7 +42,7 @@
 | MK1-trust-signal-integrity | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK2-moderation-state-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
-| MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ⬜ | ⬜ | ✅ | 50.0% |
+| MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ✅ | ⬜ | ✅ | 66.7% |
 | MK4-listing-lifecycle-completeness | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK6-parts-flow-continuity | 🟡 | ✅ | ✅ | ✅ | ⬜ | ⬜ | 58.3% |
