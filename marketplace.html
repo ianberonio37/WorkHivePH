@@ -1684,7 +1684,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Render the DIFFERENCE (saved ids vs readable rows) instead of quietly showing fewer cards.
       const _goneCount = Math.max(0, ids.length - items.length);
       const _goneNote = _goneCount
-        ? `<p role="status" style="font-size:0.75rem;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:0.5rem;padding:0.5rem 0.65rem;margin:0 0 0.6rem;">${_goneCount} saved listing${_goneCount === 1 ? ' is' : 's are'} no longer available. ${_goneCount === 1 ? 'It was' : 'They were'} sold or withdrawn by the seller.</p>`
+        ? `<div role="status" style="font-size:0.75rem;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:0.5rem;padding:0.5rem 0.65rem;margin:0 0 0.6rem;display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
+             <span>${_goneCount} saved listing${_goneCount === 1 ? ' is' : 's are'} no longer available. ${_goneCount === 1 ? 'It was' : 'They were'} sold or withdrawn by the seller.</span>
+             <button id="btn-clear-gone-saves" class="btn-secondary" style="min-height:44px;padding:0.35rem 0.75rem;font-size:0.72rem;white-space:nowrap;">Remove ${_goneCount === 1 ? 'it' : 'them'}</button>
+           </div>`
         : '';
       if (!items.length) {
         content/* xss-allow: static strings + a computed integer */ .innerHTML = `<p style="font-size:0.78rem;color:rgba(255,255,255,0.80);padding:1rem 0;">${_goneCount ? `All ${_goneCount} of your saved listing${_goneCount === 1 ? ' was' : 's were'} sold or withdrawn by the seller.` : 'Saved listings are no longer available.'}</p>`;
@@ -1714,6 +1717,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             </div>
           </div>`;
       }).join('');
+
+      // MK4 + NN/g empty-state guidance (harvested 2026-07-24): an unavailable state must offer a
+      // PATHWAY, not just a message. The dead saves are invisible rows the buyer cannot act on, so
+      // give them the one useful action - prune them - and reopen the sheet so the list is honest again.
+      document.getElementById('btn-clear-gone-saves')?.addEventListener('click', async (ev) => {
+        const _b = ev.currentTarget;
+        _b.disabled = true; _b.textContent = 'Removing…';
+        try {
+          const _liveIds = new Set(items.map(i => i.id));
+          const _dead = ids.filter(id => !_liveIds.has(id));
+          if (_dead.length) {
+            await db.from('marketplace_watchlist').delete().in('listing_id', _dead).eq('worker_name', WORKER_NAME);
+            _dead.forEach(id => _watchlist.delete(id));
+            syncHeartIcons();
+            updateCountBadges();
+          }
+          showToast(`Removed ${_dead.length} unavailable listing${_dead.length === 1 ? '' : 's'} from your saved list.`, 'success');
+          openWatchlistSheet(); /* reload so the note disappears */
+        } catch (_) {
+          _b.disabled = false; _b.textContent = 'Remove';
+          showToast('Could not update your saved list. Try again.', 'error');
+        }
+      });
 
       content.querySelectorAll('.btn-watch-view').forEach(btn => {
         btn.addEventListener('click', () => {

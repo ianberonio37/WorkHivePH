@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v192';  // bump: MK4 watchlist tells the buyer when a saved listing was sold/withdrawn + MK9 computed response SLA
+const CACHE_NAME  = 'workhive-shell-v193';  // bump: MK4 watchlist gone-note gains a Remove pathway (NN/g empty-state rule)
 // const CACHE_NAME  = 'workhive-shell-v188';  // bump: marketplace deepwalk fixes — P7 load-error grid state + admin-link fail-closed gate + restoreIdentityFromSession reconciles stale identity cache
 // const CACHE_NAME  = 'workhive-shell-v187';  // bump: E4 shift-brain -> reflowIdDump (utils.js) wraps crammed asset-code runs onto scannable rows (lens-blessed multi-line)
 // const CACHE_NAME  = 'workhive-shell-v186';  // bump: C5 last 3 pages -> 100 (banner/heading content-floor calibration + engineering-design tab/pill orange -text)
