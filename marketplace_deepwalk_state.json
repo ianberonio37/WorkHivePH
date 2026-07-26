@@ -228,17 +228,22 @@
         "marketplace.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-seller"
+        ],
+        "states": [
+          "S-populated",
+          "S-edge"
+        ]
       },
-      "notes": "prefillPostFromInventory: part_number + source_inventory_item_id provenance. Seeds MK6."
+      "notes": "prefillPostFromInventory: part_number + source_inventory_item_id provenance. Seeds MK6. | 2026-07-24 WALKED: prefill carries part_number + source_inventory_item_id + title/category/description. CLEAN. [W held at PARTIAL: the shallow_W guard correctly flagged that this was walked in only ONE persona; the coverage rule needs >=2 personas AND >=2 states. Honest score over a green number.]"
     },
     "J9-first-time-seller": {
       "type": "T1-onboarding",
@@ -472,17 +477,22 @@
         "marketplace.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "partial",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated",
+          "S-filtered0"
+        ]
       },
-      "notes": "low-stock -> 'Find on Marketplace' searches by part_number (loadListings ilike includes part_number). Seeds MK6."
+      "notes": "low-stock -> 'Find on Marketplace' searches by part_number (loadListings ilike includes part_number). Seeds MK6. | 2026-07-24 WALKED: ?section=parts&q= arrives prefilled + section-switched with real matches. CLEAN. [W held at PARTIAL: the shallow_W guard correctly flagged that this was walked in only ONE persona; the coverage rule needs >=2 personas AND >=2 states. Honest score over a green number.]"
     },
     "J19-listing-to-public-profile": {
       "type": "T12-cross-page-handoff",
@@ -607,14 +617,14 @@
     },
     "MK6-parts-flow-continuity": {
       "stages": {
-        "harvest": "todo",
-        "define": "todo",
-        "detect": "todo",
-        "sweep": "todo",
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
         "fix": "todo",
         "gate": "todo"
       },
-      "seed": "part_number + source_inventory_item_id are written on insert (X keystone), but the inventory->marketplace->inventory ROUND TRIP has never been walked end-to-end.",
+      "seed": "part_number + source_inventory_item_id are written on insert (X keystone), but the inventory->marketplace->inventory ROUND TRIP has never been walked end-to-end. | 2026-07-24 WALKED BOTH DIRECTIONS - CLEAN, no fix needed (a clean walk is a real result). J8 inventory->marketplace: 'marketplace.html?post=1&from_inventory=<id>' opens the post sheet with title, category, description AND both identity fields carried - part_number 'MS-32-AT' + source_inventory_item_id 'at-ms32-1784523395'. So a listing born from stock keeps its provenance, which is the X-keystone. J18 marketplace<-inventory: 'marketplace.html?section=parts&q=<part>' ARRIVES honestly - the search box is prefilled, the Parts section is active, 3 real matches render (JA arrival fidelity holds, no silent drop). REMAINING for this class: J17 'Received this? Add to your inventory' (the third hop) is still unwalked, and there is no GATE yet asserting the two identity fields survive.",
       "distinct_from": "JA (journey-arrival) covers deep-link arrival; MK6 covers IDENTITY SURVIVAL of a domain entity across a 3-hop round trip.",
       "skill": "data-engineer"
     },
