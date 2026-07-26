@@ -76,20 +76,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "done",
-        "R": "partial"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-seller"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-empty"
         ]
       },
-      "notes": "handleInquirySubmit -> marketplace_inquiries.insert -> seller handleReply. End-to-end round trip NOT yet walked. | 2026-07-24: contact sheet opened live; MK8 safety notice verified rendering at this step. The seller-reply round trip is still unwalked."
+      "notes": "handleInquirySubmit -> marketplace_inquiries.insert -> seller handleReply. End-to-end round trip NOT yet walked. | 2026-07-24: contact sheet opened live; MK8 safety notice verified rendering at this step. The seller-reply round trip is still unwalked. | 2026-07-24 FULL ROUND TRIP WALKED, 2 personas - CLEAN. P-buyer (christinedizon) sent a real inquiry on Romeo's listing -> it ARRIVED on his dashboard (badge 'Inquiries 1', message visible) -> he replied through the REAL reply box + button -> DB shows status='replied', reply_text set, replied_at set. ★AND it proved MK9 on genuine user activity rather than a synthetic probe: the inquiries trigger immediately computed Romeo's response_rate=1.00 (1 of 1 replied) and response_time_h=0.0 - the buyer-facing responsiveness promise is now EARNED. Test data removed (0 test inquiries; stats reset to NULL since he again has no inquiry history)."
     },
     "J3-compare-rfq": {
       "type": "T8-commerce",
@@ -662,14 +664,14 @@
     },
     "MK9-response-sla-honesty": {
       "stages": {
-        "harvest": "partial",
+        "harvest": "done",
         "define": "done",
         "detect": "done",
         "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
-      "seed": "Detail sheet renders 'Responds in ~1h - 95% reply rate - 1 sale'. Provenance unverified: computed from marketplace_inquiries, or seeded/static? | 2026-07-24 RESOLVED. DEFECT: response_rate/response_time_h were DECLARED in schema and DEFENDED by the trust guard (a seller may not self-assign them) but NOTHING EVER COMPUTED THEM - no trigger, function, edge fn or cron. So the buyer-facing 'Responds in ~1h / 95% reply rate' was a seeded promise about future behaviour that no real event could create, correct or invalidate. (The seller dashboard + public profile computed the same idea correctly from marketplace_inquiries, so only the buyer-facing column was orphaned.) FIX: mig 20260724000006 adds update_seller_response_stats() + a trigger on marketplace_inquiries (AFTER INSERT OR UPDATE OF replied_at,status), computing avg(replied_at-created_at) hours + replied/total, announcing itself via the seller_system_write GUC so the trust guard permits the SYSTEM write. Stays NULL until a first reply so a new seller is never shown a fabricated 0%. BACKFILLED: every seeded seller had ZERO inquiries, so all the fake 0.95/2.0h promises are now correctly NULL. TRIGGER PROVEN: 2 inquiries / 1 replied 3h later -> rate 0.50, time 3.0. LIVE: the detail sheet no longer claims any response SLA. KNOWN GAP: DELETE of an inquiry does not recompute (no delete path exists in the app; inquiries are closed, not deleted).",
+      "seed": "Detail sheet renders 'Responds in ~1h - 95% reply rate - 1 sale'. Provenance unverified: computed from marketplace_inquiries, or seeded/static? | 2026-07-24 RESOLVED. DEFECT: response_rate/response_time_h were DECLARED in schema and DEFENDED by the trust guard (a seller may not self-assign them) but NOTHING EVER COMPUTED THEM - no trigger, function, edge fn or cron. So the buyer-facing 'Responds in ~1h / 95% reply rate' was a seeded promise about future behaviour that no real event could create, correct or invalidate. (The seller dashboard + public profile computed the same idea correctly from marketplace_inquiries, so only the buyer-facing column was orphaned.) FIX: mig 20260724000006 adds update_seller_response_stats() + a trigger on marketplace_inquiries (AFTER INSERT OR UPDATE OF replied_at,status), computing avg(replied_at-created_at) hours + replied/total, announcing itself via the seller_system_write GUC so the trust guard permits the SYSTEM write. Stays NULL until a first reply so a new seller is never shown a fabricated 0%. BACKFILLED: every seeded seller had ZERO inquiries, so all the fake 0.95/2.0h promises are now correctly NULL. TRIGGER PROVEN: 2 inquiries / 1 replied 3h later -> rate 0.50, time 3.0. LIVE: the detail sheet no longer claims any response SLA. KNOWN GAP: DELETE of an inquiry does not recompute (no delete path exists in the app; inquiries are closed, not deleted). | CONFIRMED ON REAL ACTIVITY via the J2 walk: a genuine buyer inquiry + a genuine seller reply drove the trigger to rate 1.00 / 0.0h with no manual intervention.",
       "distinct_from": "MK1 governs trust BADGES/ratings; MK9 governs computed BEHAVIOURAL stats (a promise about future responsiveness).",
       "skill": "analytics-engineer"
     },

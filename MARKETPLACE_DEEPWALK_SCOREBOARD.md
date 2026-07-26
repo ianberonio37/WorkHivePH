@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 65.9%** · journeys **57.0%** (20) · MK classes **80.8%** (10)
+**OVERALL 67.2%** · journeys **58.5%** (20) · MK classes **81.7%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -21,7 +21,7 @@
 | J17-marketplace-to-inventory | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J18-inventory-to-marketplace | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | 🟡 | ✅ | 2×2 | 90.0% |
-| J2-buyer-contact-seller | T8-commerce | ✅ | 🟡 | 🟡 | ✅ | 🟡 | 1×1 | 70.0% |
+| J2-buyer-contact-seller | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J20-founder-console-fused-moderation | T11-admin-console | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×1 | 60.0% |
 | J3-compare-rfq | T8-commerce | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | 1×1 | 40.0% |
 | J4-watchlist-stale | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
@@ -31,9 +31,9 @@
 | J8-post-from-inventory | T2-capture | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
 
-**Per phase:** G 92.5% · W 52.5% · O 72.5% · H 15.0% · R 52.5%
+**Per phase:** G 92.5% · W 55.0% · O 75.0% · H 15.0% · R 55.0%
 
-**Per type:** T1-onboarding 30.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 76.7% · T2-capture 60.0% · T3-review-approval 33.3% · T4-analysis-insight 70.0% · T8-commerce 61.7% · T9-configuration 40.0%
+**Per type:** T1-onboarding 30.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 76.7% · T2-capture 60.0% · T3-review-approval 33.3% · T4-analysis-insight 70.0% · T8-commerce 66.7% · T9-configuration 40.0%
 
 ## Board 2 — New MK dimension classes
 
@@ -48,6 +48,6 @@
 | MK6-parts-flow-continuity | 🟡 | ✅ | ✅ | ✅ | ⬜ | ⬜ | 58.3% |
 | MK7-public-seo-surface-truth | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK8-marketplace-safety-fraud | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | 75.0% |
-| MK9-response-sla-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
+| MK9-response-sla-honesty | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 
 _Anti-drift: at ANY 'what next / is this done?' doubt → read this board + the roadmap §7 NEXT._
