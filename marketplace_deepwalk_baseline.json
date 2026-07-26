@@ -1,6 +1,6 @@
 {
-  "journey_pct": 66.5,
+  "journey_pct": 70.0,
   "class_pct": 81.7,
-  "overall_pct": 72.2,
+  "overall_pct": 74.4,
   "_doc": "Forward-only ratchet baseline for the marketplace deepwalk expansion arc. Raised by --accept; a FALL below these numbers FAILs the gate."
 }

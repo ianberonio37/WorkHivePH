@@ -313,17 +313,23 @@
         "marketplace-admin.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-seller",
+          "P-admin"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
       },
-      "notes": "handleSaveCerts sets cert_verified=false on edit (good: forces admin re-review). Admin verify half unwalked."
+      "notes": "handleSaveCerts sets cert_verified=false on edit (good: forces admin re-review). Admin verify half unwalked. | 2026-07-24 WALKED, 2 personas - CLEAN. The trust separation holds exactly as designed: a seller CAN write their own certifications (with auth_uid, which handleSaveCerts supplies), cert_verified stays FALSE so the claim sits pending admin re-review, and a seller attempting cert_verified=true is BLOCKED with 42501 by the trust guard. Certs restored to null after the walk. ★FIFTH instrument-fault of the session: my first upsert OMITTED auth_uid and the RLS rejection briefly looked like 'the seller cannot edit their own certs' - the real page passes it. Mirror the page's actual payload when probing a write, or the policy will reject YOUR call and you will blame the feature."
     },
     "J12-dispute-lifecycle": {
       "type": "T3-review-approval",
