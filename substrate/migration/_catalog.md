@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:367
-source_sha: d43b242e8cdfa5ae
+source: dir:supabase/migrations:369
+source_sha: 6b793394a9811b1c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (367 migrations)
+## migration · catalog (369 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000017_v_marketplace_listings_truth` — (misc DDL/DML)
-- `20260520000018_v_community_posts_truth` — (misc DDL/DML)
 - `20260520000019_v_hives_truth` — (misc DDL/DML)
 - `20260520000020_v_marketplace_inquiries_truth` — (misc DDL/DML)
 - `20260520000021_v_external_sync_truth` — (misc DDL/DML)
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260724000001_fault_knowledge_ai_provenance` — tables:fault_knowledge
 - `20260724000002_failure_alert_detail_provenance` — tables:failure_signature_alerts
 - `20260724000003_marketplace_listing_moderation_guard` — fns:guard_marketplace_listing_status · triggers:trg_guard_listing_status
+- `20260724000004_marketplace_seller_public_profile` — fns:get_marketplace_seller_public
+- `20260724000005_marketplace_moderation_reason` — tables:marketplace_listings
 
 (showing last 200)
 

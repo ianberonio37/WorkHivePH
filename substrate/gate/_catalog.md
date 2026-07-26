@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: cc85de20ba4ca04c
+source_sha: 0bef584d2edd8ff8
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (645) — the 'what's already gated' brain
+## gate · registered validators (647) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (96)
+### AI Validation (98)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -67,6 +67,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)
 - `landing-extractability` [fail] — Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)
 - `login_proxy_lockout` [fail] — Arc I: login brute-force lockout (server-side proxy; correct pw can't bypass a lock)
+- `marketplace_deepwalk_classes` ⚡ [fail] — Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK7 no dead deep links)
+- `marketplace_deepwalk_ratchet` ⚡ [fail] — Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)
 - `memory_index_budget` [fail] — Memory hygiene: MEMORY.md index under the session load cap (auto-memory)
 - `memory_pii_redaction` ⚡ [fail] — Arc H: multi-turn PII egress rail (K2, memory_block + summariser, redactMemoryText)
 - `migration_grant_regression` ⚡ [fail] — Arc R: migration grant-regression (a revoked lock not silently re-granted; A01)

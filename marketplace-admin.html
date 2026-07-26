@@ -688,15 +688,44 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   async function handleListingAction(action, id) {
     const card = document.querySelector(`.admin-card[data-id="${id}"]`);
     const btns = card?.querySelectorAll('button');
-    btns?.forEach(b => { b.disabled = true; });
 
     const newStatus = action === 'approve' ? 'published' : action === 'reject' ? 'removed' : 'draft';
     const listing   = _listings.find(l => l.id === id);
 
+    // MK2 moderation-state honesty (deepwalk 2026-07-24): a rejection/unpublish MUST carry a reason
+    // back to the seller. Before this, reject just set status='removed' and the seller saw a bare red
+    // "Removed" chip with no explanation and no way to fix it -- the review pipeline was a one-way
+    // mirror. Ask the moderator for the reason BEFORE disabling the buttons, so a cancel leaves the
+    // card fully usable. Reason is required for reject/unpublish, never for approve.
+    let _reason = null;
+    if (action !== 'approve') {
+      const _verb = action === 'reject' ? 'Reject' : 'Unpublish';
+      _reason = await (window.whPrompt
+        ? whPrompt(`${_verb} "${(listing && listing.title) || 'this listing'}". Tell the seller why:`,
+            { okLabel: _verb, cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller (e.g. photo does not match the part described)' })
+        : Promise.resolve(window.prompt(`${_verb}. Reason shown to the seller:`)));
+      if (_reason === null) return;                       // cancelled: no write, buttons untouched
+      _reason = String(_reason).trim();
+      if (!_reason) { showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }
+    }
+
+    btns?.forEach(b => { b.disabled = true; });
+
     try {
+      const _patch = { status: newStatus, updated_at: new Date().toISOString() };
+      if (action !== 'approve') {
+        _patch.moderation_reason = _reason;
+        _patch.moderated_at      = new Date().toISOString();
+        _patch.moderated_by      = WORKER_NAME || 'admin';
+      } else {
+        // Approving clears any prior rejection note so a fixed+republished listing is not haunted by it.
+        _patch.moderation_reason = null;
+        _patch.moderated_at      = new Date().toISOString();
+        _patch.moderated_by      = WORKER_NAME || 'admin';
+      }
       const { error } = await db
         .from('marketplace_listings')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .update(_patch)
         .eq('id', id);
       if (error) throw error;
 

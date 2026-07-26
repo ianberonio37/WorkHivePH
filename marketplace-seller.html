@@ -505,7 +505,10 @@
     try {
       const { data, error } = await db
         .from('v_marketplace_listings_truth')
-        .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at')
+        // MK2 (deepwalk 2026-07-24): moderation_reason/_at come with the row so a rejected listing can
+        // TELL the seller why (previously they saw only a bare red "Removed" chip). RLS keeps these
+        // readable to the owning seller + admins only (mkt_listings_read).
+        .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at,moderation_reason,moderated_at')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
@@ -632,6 +635,16 @@
               <span class="meta-chip">${e(item.category || 'Other')}</span>
               <span class="meta-chip">${e(timeAgo(item.created_at))}</span>
             </div>
+            ${item.status === 'removed' && item.moderation_reason ? `
+            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(248,113,113,0.10);border:1px solid rgba(248,113,113,0.30);">
+              <div style="font-size:0.7rem;font-weight:700;color:var(--wh-red-text);margin-bottom:0.15rem;">Not approved${item.moderated_at ? ' · ' + e(timeAgo(item.moderated_at)) : ''}</div>
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.85);line-height:1.4;">${e(item.moderation_reason)}</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin-top:0.3rem;">Edit this listing to fix it, then save: it goes back into review automatically.</div>
+            </div>` : ''}
+            ${item.status === 'removed' && !item.moderation_reason ? `
+            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.65rem;border-radius:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);font-size:0.75rem;color:rgba(255,255,255,0.85);">
+              This listing was removed by WorkHive. No reason was recorded, so contact support if you need details.
+            </div>` : ''}
           </div>
         </div>
         <div class="li-actions">

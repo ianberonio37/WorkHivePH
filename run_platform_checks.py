@@ -4943,6 +4943,40 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # Marketplace Deepwalk EXPANSION arc (2026-07-24) — the ANTI-DRIFT COMPASS with teeth.
+        # The arc grows TWO denominators: journeys (20 x 5 phases G/W/O/H/R, each requiring >=2
+        # personas AND >=2 states) and new MK dimension classes (10 x 6 stages). This gate is the
+        # FORWARD-ONLY RATCHET: the measured % may only RISE. A dropped journey, a downgraded phase,
+        # or a deleted MK class FAILs the build — so the roadmap cannot silently rot into a stale
+        # doc (feedback_roadmap_percent_is_the_anti_drift_compass + measured_percent_not_qualitative).
+        # Offline + deterministic (pure JSON maths, no DB/network) -> runs in --fast. Self-test:
+        # `python tools/marketplace_deepwalk_scoreboard.py --selftest`. Ratchet up with --accept.
+        "id":      "marketplace_deepwalk_ratchet",
+        "script":  "tools/marketplace_deepwalk_scoreboard.py",
+        "args":    ["--check"],
+        "label":   "Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)",
+        "group":   "AI Validation",
+        "report":  "MARKETPLACE_DEEPWALK_SCOREBOARD.md",
+    },
+    {
+        # The ⑥ R-resolve LOCK for the classes closed by the Marketplace Deepwalk EXPANSION arc
+        # (2026-07-24). Each check encodes a live-found defect so a regression FAILs the build instead
+        # of waiting for the next deepwalk to rediscover it:
+        #   MK2 — all THREE moderation surfaces (platform-actions live; marketplace-admin +
+        #         founder-console retired-but-preserved) must capture moderation_reason on reject.
+        #         Fixing one and missing another is the J20 divergence this arc exists to catch.
+        #   MK7 — no `marketplace.html#listing-<id>` dead deep links (the page only reads ?listing=).
+        #   MK3 — the anon-granted public seller RPC must project no messenger_username/hive_id/auth_uid.
+        #   MK1 — a star rating must be guarded by a real review count (no unattributable score).
+        # Static/offline (file parsing only) -> runs in --fast, never flakes. Self-test: --selftest.
+        "id":      "marketplace_deepwalk_classes",
+        "script":  "tools/validate_marketplace_deepwalk_classes.py",
+        "args":    [],
+        "label":   "Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK7 no dead deep links)",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
         # Arc R (S, OWASP A02) — no real secret in a TRACKED .env.* file (the hardcoded-secrets
         # scanner only opens *.html/js/ts/py, so a committed dotfile credential is invisible). Teeth.
         "id":      "committed_env_secret",

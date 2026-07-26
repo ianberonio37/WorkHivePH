@@ -2,7 +2,7 @@
 name: table-rls-marketplace_listings
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_listings
-source_sha: f4a3fabab02f67e5
+source_sha: d302c38456fc5ff7
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, hive_id, seller_name*, seller_contact, seller_verified*, completed_sales*, rating_avg, section*, category, title*, description, price, condition, location, image_url, status*, created_at*, updated_at*, search_vector, view_count*, part_number, source_inventory_item_id
+Columns (*=NOT NULL): id*, hive_id, seller_name*, seller_contact, seller_verified*, completed_sales*, rating_avg, section*, category, title*, description, price, condition, location, image_url, status*, created_at*, updated_at*, search_vector, view_count*, part_number, source_inventory_item_id, moderation_reason, moderated_at, moderated_by
 
 Policies:
 - `mkt_listings_delete` [DELETE · roles=public] USING=`((seller_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR is_marketplace_admin())` CHECK=`∅`

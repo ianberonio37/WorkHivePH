@@ -2,16 +2,16 @@
 name: page-marketplace-seller-profile
 type: page
 source: file:marketplace-seller-profile.html
-source_sha: 5ed4e944d97eeb35
+source_sha: 461c2d2e31d8b52e
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `marketplace-seller-profile.html` — Seller Profile: WorkHive Marketplace
 
-Size: 40KB · 15 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 42KB · 15 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
-**RPC calls**: `get_seller_community_reputation`
+**RPC calls**: `get_marketplace_seller_public`, `get_seller_community_reputation`
 **Edge invokes**: (none)
 **Truth views read**: `v_marketplace_inquiries_truth`, `v_marketplace_listings_truth`, `v_marketplace_sellers_truth`
 

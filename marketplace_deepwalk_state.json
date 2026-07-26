@@ -1,0 +1,644 @@
+{
+  "_doc": "Anti-drift compass for the MARKETPLACE DEEPWALK EXPANSION arc (Ian 2026-07-24: 'expand and extend deepwalk journey with this same page, lay out the comprehensive roadmap'). Companion to MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md. tools/marketplace_deepwalk_scoreboard.py reads this and emits MEASURED % per type / per phase / per MK class. EXPANSION means growing BOTH denominators: journeys x personas x states (board 1) and new MK dimension classes (board 2) - NOT re-verifying existing UFAI sub-layers (feedback_expand_dimensions_not_reverify).",
+  "_phases_def": {
+    "G": "ground - map the steps + surfaces + the code paths",
+    "W": "walk - live-MCP deepwalk end-to-end carrying the FULL 99-dim lens (never spot-checks); requires >=2 personas AND >=2 states",
+    "O": "observe - record friction/ideas with evidence",
+    "H": "harvest - Engine B night-crawl on a REAL observed friction, or mark clean",
+    "R": "resolve - dim built / candidate killed / fix shipped / verified clean"
+  },
+  "_phase_values": [
+    "todo",
+    "partial",
+    "done"
+  ],
+  "_class_stages": [
+    "harvest",
+    "define",
+    "detect",
+    "sweep",
+    "fix",
+    "gate"
+  ],
+  "_coverage_rule": "A journey's W phase is 'done' only when walked in >=2 personas and >=2 states (including S-error or S-empty where reachable). One-persona/one-state = the shallowness this arc exists to kill.",
+  "personas": [
+    "P-anon",
+    "P-buyer",
+    "P-seller",
+    "P-admin",
+    "P-switch"
+  ],
+  "states": [
+    "S-empty",
+    "S-populated",
+    "S-filtered0",
+    "S-error",
+    "S-edge"
+  ],
+  "journeys": {
+    "J1-anon-discovery": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-anon"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
+        "H": "todo",
+        "R": "partial"
+      },
+      "walked": {
+        "personas": [
+          "P-anon",
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "notes": "2026-07-24: anon render clean (11 listings, 0 P1 defects, PHP fmt ok). S-error walked -> P7 bug found+FIXED (_loadError branch). Remaining: S-filtered0 + the SEO/JSON-LD path (seeds MK7)."
+    },
+    "J2-buyer-contact-seller": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-buyer",
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "handleInquirySubmit -> marketplace_inquiries.insert -> seller handleReply. End-to-end round trip NOT yet walked."
+    },
+    "J3-compare-rfq": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "handleSubmitRfq inserts N inquiries (COMPARE_MAX cap). Validates name/contact/message pre-write. Unwalked live."
+    },
+    "J4-watchlist-stale": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "S-edge target: what happens to a watchlisted listing that goes sold/removed? (dead-end risk -> MK4)."
+    },
+    "J5-saved-search-alert": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "get_saved_search_matches RPC -> badge. Alert honesty + 0-match case unwalked."
+    },
+    "J6-price-comps-recommend": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "get_marketplace_price_comps + get_marketplace_parts_for_my_assets. Recommendation provenance unverified."
+    },
+    "J7-post-listing": {
+      "type": "T2-capture",
+      "personas": [
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
+        "H": "todo",
+        "R": "partial"
+      },
+      "walked": {
+        "personas": [
+          "P-seller"
+        ],
+        "states": [
+          "S-populated"
+        ]
+      },
+      "notes": "Code-read: validate-before-write OK (P4), whParsePrice (D5), whRecentDuplicate refresh-guard (D2), button lock (P6). Insert lands status=draft. LIVE form walk (image upload, AI assist, quality widget) still todo."
+    },
+    "J8-post-from-inventory": {
+      "type": "T2-capture",
+      "personas": [
+        "P-seller"
+      ],
+      "surfaces": [
+        "inventory.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "prefillPostFromInventory: part_number + source_inventory_item_id provenance. Seeds MK6."
+    },
+    "J9-first-time-seller": {
+      "type": "T1-onboarding",
+      "personas": [
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "No marketplace_sellers row -> first post -> row created -> dashboard S-empty. Seeds MK4/MK5."
+    },
+    "J10-moderation-approve-reject": {
+      "type": "T3-review-approval",
+      "personas": [
+        "P-admin",
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace-admin.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "partial",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-admin",
+          "P-seller"
+        ],
+        "states": [
+          "S-edge",
+          "S-populated"
+        ]
+      },
+      "notes": "2026-07-24: SELF-PUBLISH BYPASS found (non-admin PATCH status=published went live) -> FIXED mig 20260724000003 guard_marketplace_listing_status, verified 42501, deployed prod. REMAINING: the REJECT half - does the seller ever see WHY a listing was rejected? (MK2 detect). | 2026-07-24 REJECT HALF CLOSED (MK2). Found: reject wrote status='removed' with NO reason anywhere (marketplace_listings had ZERO reason columns; the only trace was a hive_audit_log row the seller cannot read) -> the seller saw a bare red 'Removed' chip, no explanation, no path to fix. ALSO FOUND (J20): there are THREE moderation surfaces, not two - marketplace-admin.html AND founder-console.html are both RETIRED behind #wh-retired-overlay (content preserved so ~35 scanners pass) and platform-actions.html is the ONE LIVE surface. Fixing only the admin page would have missed the path actually used. FIX: mig 20260724000005 adds moderation_reason/moderated_at/moderated_by (+ appended to v_marketplace_listings_truth via CREATE OR REPLACE, existing columns untouched); all THREE surfaces now require a reason on reject (whPrompt, cancel-safe, empty rejected) and CLEAR it on approve; the seller dashboard renders a role=alert 'Not approved - <reason>' banner + 'edit and save, it goes back into review'. Privacy is correct by construction: mkt_listings_read = published OR own OR admin, so a removed row + its reason is owner/admin only. VERIFIED LIVE end-to-end through the REAL platform-actions UI (P-admin: modal demanded a reason -> DB row shows status removed + reason + moderated_at) then P-seller (banner renders the exact reason). Test row deleted, 0 leftovers."
+    },
+    "J11-cert-verification": {
+      "type": "T3-review-approval",
+      "personas": [
+        "P-seller",
+        "P-admin"
+      ],
+      "surfaces": [
+        "marketplace-seller.html",
+        "marketplace-admin.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "handleSaveCerts sets cert_verified=false on edit (good: forces admin re-review). Admin verify half unwalked."
+    },
+    "J12-dispute-lifecycle": {
+      "type": "T3-review-approval",
+      "personas": [
+        "P-admin"
+      ],
+      "surfaces": [
+        "marketplace-admin.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "PAYMENTS_ENABLED=false hides the Disputes tab. VERIFY: live dead-code or reachable? A dead admin path is its own finding."
+    },
+    "J13-seller-profile-config": {
+      "type": "T9-configuration",
+      "personas": [
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "messenger + certifications + contact. Past 42501 GRANT issue on this path (feedback_permission_denied_table_is_grant_not_rls) - re-verify live."
+    },
+    "J14-seller-analytics": {
+      "type": "T4-analysis-insight",
+      "personas": [
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "loadAnalytics: views/inquiries/conversion. Seeds MK9 (SLA honesty) - are these computed or seeded?"
+    },
+    "J15-review-flow": {
+      "type": "T10-social-gamification",
+      "personas": [
+        "P-buyer",
+        "P-seller"
+      ],
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "partial",
+        "O": "done",
+        "H": "todo",
+        "R": "partial"
+      },
+      "walked": {
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "notes": "2026-07-24 OBSERVED: seller rating_avg=3.93/count=5 with ZERO marketplace_reviews rows (local seed). Prod is trigger-maintained verified-only (mig 20260719000003) so NOT a code bug - but the DISPLAY contradiction (stars beside 'No reviews yet') is real. Seeds MK1. | 2026-07-24: the DISPLAY half is fixed (MK1 attributable rating + scoped empty state, verified live). The WRITE half (buyer actually posts a review -> trigger recomputes verified-only) is still unwalked."
+    },
+    "J16-trust-badges-tiers": {
+      "type": "T10-social-gamification",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "partial",
+        "O": "done",
+        "H": "todo",
+        "R": "partial"
+      },
+      "walked": {
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated"
+        ]
+      },
+      "notes": "Detail sheet showed Bronze + ID Verified + community chip. Trust FORGE is defended (truth view overrides forged base cols; self-verify -> 42501). Backing-data integrity = MK1."
+    },
+    "J17-marketplace-to-inventory": {
+      "type": "T12-cross-page-handoff",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html",
+        "inventory.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "'Received this? Add to your inventory' CTA seen live on the detail sheet. Round trip unwalked. Seeds MK6."
+    },
+    "J18-inventory-to-marketplace": {
+      "type": "T12-cross-page-handoff",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "inventory.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "low-stock -> 'Find on Marketplace' searches by part_number (loadListings ilike includes part_number). Seeds MK6."
+    },
+    "J19-listing-to-public-profile": {
+      "type": "T12-cross-page-handoff",
+      "personas": [
+        "P-anon"
+      ],
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "partial",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-anon",
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated",
+          "S-edge"
+        ]
+      },
+      "notes": "2026-07-24 FLYWHEEL TURN 1 (P-anon). TWO REAL FINDINGS. (1) FIXED: both listing links on the public profile pointed at 'marketplace.html#listing-<id>' - a HASH form marketplace.html never reads (it reads URLSearchParams.get('listing') and has ZERO location.hash handling). So the visible card href (line 634) dropped a real buyer onto the generic grid (deep-link silent drop, anon-visible), and injectJsonLd (line 573) advertised the same dead URLs to Google (unreachable listings + duplicate-content signal). Both switched to ?listing=<id>; VERIFIED live as P-anon: the deep link opens the CORRECT detail sheet. (2) OPEN FORK: the whole public profile is 'Seller not found' for ANON (incl. Googlebot) because marketplace_sellers RLS is 'auth.uid() IS NOT NULL' while the page is designed public (JSON-LD, anon-visible 'View profile ->' link, no signin gate). Page error-handling is CORRECT; the data policy contradicts the page's intent. Fix direction if Ian wants it public: a SECURITY DEFINER RPC exposing PUBLIC-SAFE columns only (never messenger_username/hive_id) - same pattern as get_seller_community_reputation. NOT built: product/privacy fork (SEO reach vs anti-scraping). | H-HARVEST (spoke 5) RAN: night_crawler Tier-1 --query 'marketplace seller profile public visibility SEO structured data scraping tradeoff' = BAG MISS (only internal doctrine returned: platform book, MARKETPLACE_DEEP_ARC, seo-content skill, 20260706000001_marketplace_rls). Honest result: we have NO external best-practice source on public-marketplace-profile SEO-vs-scraping. OWED: escalate --url to reputable sources (Google Search Essentials / structured-data policy for marketplace listing pages; a marketplace privacy/anti-scraping reference) once the anon-visibility fork is decided - the decision determines which standard we must meet. | RESOLVED (Ian chose 'public, safe columns only'): mig 20260724000004 adds SECURITY DEFINER get_marketplace_seller_public(p_worker_name) returning 16 PUBLIC-SAFE columns; loadSeller falls back to it when the authed view read is empty; injectJsonLd now emits NOTHING when !_seller (no structured data for a not-found page). VERIFIED LIVE as P-anon: profile renders (Romeo Beltran / Bronze / ID Verified / 2 listings), JSON-LD emits real name + aggregateRating + BOTH ItemList urls in ?listing= form. PII CHECK CLEAN: RPC returns 0 of messenger/hive_id/auth_uid, no m.me link in the rendered DOM, contact button display:none for anon (MK3 staging holds). AUTHED REGRESSION CLEAN: full row path unchanged, 2 listings, 0 P1 defects. NOTE messenger_username is NULL on the seed sellers, so the contact button is hidden for BOTH personas here - not a regression."
+    },
+    "J20-founder-console-fused-moderation": {
+      "type": "T11-admin-console",
+      "personas": [
+        "P-admin"
+      ],
+      "surfaces": [
+        "founder-console.html",
+        "marketplace-admin.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "partial",
+        "O": "done",
+        "H": "todo",
+        "R": "partial"
+      },
+      "walked": {
+        "personas": [
+          "P-admin"
+        ],
+        "states": [
+          "S-populated"
+        ]
+      },
+      "notes": "2026-07-24: THREE surfaces over ONE authority, not two. marketplace-admin.html + founder-console.html are BOTH retired behind #wh-retired-overlay (reversible, content preserved for ~35 scanners); platform-actions.html is the live governance queue (Grafana owns the volumes/alerts). All three moderation handlers were brought into LOCKSTEP for the MK2 reason capture. Residual: moderated_by falls back to 'admin' on platform-actions/founder-console (WORKER_NAME not defined there) - the actor is still captured in hive_audit_log, but wiring the real name is an open polish item."
+    }
+  },
+  "dim_classes": {
+    "MK1-trust-signal-integrity": {
+      "stages": {
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "done"
+      },
+      "seed": "Listing showed '3.9 stars / 1 completed' beside 'No reviews yet' - a rendered trust signal with zero backing rows (local seed). Every displayed trust signal must be derived from a forge-proof canonical source or be suppressed. | 2026-07-24 FIXED: the detail sheet printed a BARE '3.9' with no count directly above a Reviews section reading 'No reviews yet' - two numbers that read as a contradiction (and as a fabricated score). Now: stars render ONLY when a real rating_count backs them (else 'New seller, no ratings yet'), the count is always printed ('3.9 (5 seller reviews)') so the number traces to evidence, and the listing-level list is scoped 'No reviews for THIS listing yet' - distinguishing seller-level reputation from listing-level reviews. VERIFIED LIVE.",
+      "distinct_from": "C-class (contrast) / P (tables) are rendering dims; the marketplace trust-forge migrations guard WRITES. MK1 governs DISPLAY-vs-BACKING-DATA truth.",
+      "skill": "security + analytics-engineer"
+    },
+    "MK2-moderation-state-honesty": {
+      "stages": {
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
+        "gate": "done"
+      },
+      "seed": "Self-publish bypass (FIXED + deployed). Remaining half: a REJECTED listing - does the seller see the state and the REASON, or does it silently vanish?",
+      "distinct_from": "P6/P7 are generic write/empty dims; MK2 is specifically the promise-vs-enforcement + pipeline-visibility of a moderation workflow.",
+      "skill": "security + frontend"
+    },
+    "MK3-contact-disclosure-staging": {
+      "stages": {
+        "harvest": "partial",
+        "define": "partial",
+        "detect": "done",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "done"
+      },
+      "seed": "Detail sheet correctly hid seller phone/email pre-contact (PASSED - lock it so it cannot regress). | 2026-07-24 RE-VERIFIED on the now-public profile: anon gets NO messenger_username from the public RPC and the contact button stays display:none -> making the profile public did NOT widen contact exposure. Still owed: an automated detector (currently hand-verified).",
+      "distinct_from": "Generic XSS/PII scanners look for leaks anywhere; MK3 governs STAGE-correctness (which identity data is allowed at which step).",
+      "skill": "security"
+    },
+    "MK4-listing-lifecycle-completeness": {
+      "stages": {
+        "harvest": "todo",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "seed": "status domain = {draft, published, sold, removed} (+ rejected semantics). Are 'sold' and 'removed' reachable, visible, and non-dead-end for both seller and buyer (e.g. a watchlisted listing that sells)?",
+      "distinct_from": "D3 covers empty-vs-filtered lists; MK4 covers the ENTITY STATE MACHINE having a surface + transition for every state.",
+      "skill": "frontend + qa-tester"
+    },
+    "MK5-two-sided-liquidity-honesty": {
+      "stages": {
+        "harvest": "partial",
+        "define": "partial",
+        "detect": "partial",
+        "sweep": "todo",
+        "fix": "partial",
+        "gate": "todo"
+      },
+      "seed": "P7: a load FAILURE rendered the first-run 'Be the first to sell' CTA to a BUYER (fixed). Thin-supply (1-2 listings) case still unmeasured - does it read as broken?",
+      "distinct_from": "Extends D3/P7 with a THIRD state (load-error) + AUDIENCE-correctness (never prompt a buyer to sell).",
+      "skill": "qa-tester + community"
+    },
+    "MK6-parts-flow-continuity": {
+      "stages": {
+        "harvest": "todo",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "seed": "part_number + source_inventory_item_id are written on insert (X keystone), but the inventory->marketplace->inventory ROUND TRIP has never been walked end-to-end.",
+      "distinct_from": "JA (journey-arrival) covers deep-link arrival; MK6 covers IDENTITY SURVIVAL of a domain entity across a 3-hop round trip.",
+      "skill": "data-engineer"
+    },
+    "MK7-public-seo-surface-truth": {
+      "stages": {
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "done"
+      },
+      "seed": "marketplace-seller-profile.html calls injectJsonLd on an anon-visible page. If it emits AggregateRating for a seller with 0 real reviews, that is a structured-data lie (Google policy + a trust lie at the widest blast radius). | 2026-07-24 RESULT: the 'fake AggregateRating' hypothesis is KILLED WITH PROOF - injectJsonLd guards `if (_seller?.rating_avg && _seller.rating_count)`, so a 0-review seller emits NO aggregateRating (correct). But MK7 caught a DIFFERENT real defect: the ItemList advertised dead #hash deep links (FIXED -> ?listing=). Residual MK7 items: (a) JSON-LD is still emitted on a 'Seller not found' page (structured data for nonexistent content); (b) the entire public surface is anon-invisible pending the RLS fork.",
+      "distinct_from": "SEO gates check meta/sitemap EXISTENCE; MK7 checks structured-data CLAIMS against canonical DB truth.",
+      "skill": "seo-content + security"
+    },
+    "MK8-marketplace-safety-fraud": {
+      "stages": {
+        "harvest": "todo",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "seed": "Contact-only free marketplace (PAYMENTS_ENABLED=false) = no escrow, so ALL risk sits at the contact/meet stage. No duplicate/spam/price-anomaly/impersonation detector exists.",
+      "distinct_from": "Net-new. Nothing in the 99-dim lens models adversarial USER behaviour (vs adversarial input).",
+      "harvest_query": "PH Internet Transactions Act RA 11967 marketplace obligations; C2C scam-pattern taxonomy",
+      "skill": "security + marketplace"
+    },
+    "MK9-response-sla-honesty": {
+      "stages": {
+        "harvest": "todo",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "seed": "Detail sheet renders 'Responds in ~1h - 95% reply rate - 1 sale'. Provenance unverified: computed from marketplace_inquiries, or seeded/static?",
+      "distinct_from": "MK1 governs trust BADGES/ratings; MK9 governs computed BEHAVIOURAL stats (a promise about future responsiveness).",
+      "skill": "analytics-engineer"
+    },
+    "MK10-ranking-sort-transparency": {
+      "stages": {
+        "harvest": "todo",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "seed": "The grid orders created_at desc with no disclosure of WHY these listings in this order. Ranking transparency is a legal duty for online marketplaces under EU P2B Art.5 and good practice everywhere.",
+      "distinct_from": "Net-new. No existing dim asks a ranked list to EXPLAIN ITSELF.",
+      "harvest_query": "EU P2B Regulation 2019/1150 Article 5 ranking transparency; DSA marketplace duties",
+      "skill": "seo-content + designer"
+    }
+  }
+}

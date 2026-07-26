@@ -425,6 +425,20 @@
       _seller = data;
     } catch (_) { _seller = null; }
 
+    // J19/MK7 (deepwalk 2026-07-24): ANON fallback. marketplace_sellers RLS is authenticated-only
+    // (mkt_sellers_read USING auth.uid() IS NOT NULL) and the truth view is security_invoker, so the
+    // read above returns NOTHING for a logged-out visitor — including Googlebot. This page is designed
+    // PUBLIC (JSON-LD + an anon-visible "View profile ->" link), so every shared link and every crawl
+    // rendered "Seller not found". Fall back to the public-safe DEFINER RPC, which returns trust columns
+    // only (no messenger_username / hive_id / auth_uid). Signed-in users keep the full row above, so the
+    // contact button — display:none unless messenger_username exists — simply stays hidden for anon.
+    if (!_seller) {
+      try {
+        const { data: pub } = await db.rpc('get_marketplace_seller_public', { p_worker_name: WORKER_VIEW });
+        _seller = (pub && pub[0]) || null;
+      } catch (_) { /* empty-catch-allow: public fallback is best-effort; the not-found state below still renders */ }
+    }
+
     // X-axis bridge (Community PDDA 7th): pull this seller's PORTABLE community reputation
     // via the DEFINER RPC (public-scoped aggregates only; no post content, no private-hive data).
     // Community builds trust -> the marketplace realizes it. Hive-scoped to avoid worker_name ambiguity.
@@ -547,6 +561,11 @@
   function injectJsonLd() {
     const ldEl = document.getElementById('seller-ld-json');
     if (!ldEl) return;
+    // MK7 (deepwalk 2026-07-24): never emit structured data for a seller that does not exist. The
+    // caller runs this after loadSeller(), which renders a "Seller not found" state when the ?worker=
+    // resolves to nothing — emitting a Person schema there would publish structured data describing
+    // a page whose own body says the entity is not found.
+    if (!_seller) { ldEl.textContent = ''; return; }
     const tier = _seller?.tier || 'bronze';
     const personSchema = {
       "@context": "https://schema.org",
@@ -570,7 +589,11 @@
         "@type": "ListItem",
         "position": i + 1,
         "name": l.title,
-        "url": `https://workhiveph.com/marketplace.html#listing-${l.id}`,
+        // MK7 (deepwalk 2026-07-24): must be the ?listing= QUERY param — marketplace.html reads
+        // `URLSearchParams.get('listing')` (fetches the single row + opens the detail sheet) and has
+        // NO location.hash handling at all, so the old `#listing-<id>` advertised dead deep links to
+        // Google: every ItemList URL landed on the generic grid (unreachable listing + duplicate content).
+        "url": `https://workhiveph.com/marketplace.html?listing=${l.id}`,
       })),
     };
     ldEl.textContent = JSON.stringify([personSchema, itemListSchema]);
@@ -627,11 +650,18 @@
       return;
     }
 
+    // MK7/JA (deepwalk 2026-07-24): the card href MUST use the ?listing= QUERY param, never a #hash.
+    // marketplace.html reads URLSearchParams.get('listing') and opens that listing's detail sheet
+    // (fetching the row even when it is not in the first page of results); it has NO location.hash
+    // handling at all, so the old hash form silently dropped a real buyer onto the generic grid --
+    // they clicked a specific listing on a public seller profile and lost it (deep-link silent drop,
+    // anon-visible). NOTE: keep prose like this in a JS comment OUT here, never inside the template
+    // literal below -- a backtick in an inline HTML comment terminates the literal and kills the script.
     grid.innerHTML = filtered.map(item => {
       const hasPrice = item.price && Number(item.price) > 0;
       const hasImg   = !!item.image_url;
       return `
-        <a class="listing-card" href="marketplace.html#listing-${e(item.id)}" data-id="${e(item.id)}" style="text-decoration:none;color:inherit;display:block;">
+        <a class="listing-card" href="marketplace.html?listing=${e(item.id)}" data-id="${e(item.id)}" style="text-decoration:none;color:inherit;display:block;">
           <div class="card-image">
             ${hasImg
               ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" loading="lazy" />`

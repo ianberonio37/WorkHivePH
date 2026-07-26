@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v188';  // bump: marketplace deepwalk fixes — P7 load-error grid state + admin-link fail-closed gate + restoreIdentityFromSession reconciles stale identity cache
+const CACHE_NAME  = 'workhive-shell-v189';  // bump: marketplace EXPANSION arc — MK2 moderation reason (3 surfaces + seller banner), MK1 attributable rating, MK7 public profile RPC + ?listing= deep links
+// const CACHE_NAME  = 'workhive-shell-v188';  // bump: marketplace deepwalk fixes — P7 load-error grid state + admin-link fail-closed gate + restoreIdentityFromSession reconciles stale identity cache
 // const CACHE_NAME  = 'workhive-shell-v187';  // bump: E4 shift-brain -> reflowIdDump (utils.js) wraps crammed asset-code runs onto scannable rows (lens-blessed multi-line)
 // const CACHE_NAME  = 'workhive-shell-v186';  // bump: C5 last 3 pages -> 100 (banner/heading content-floor calibration + engineering-design tab/pill orange -text)
 // const CACHE_NAME  = 'workhive-shell-v185';  // bump: C5 accent status-captions (small-text class + inline orange/blue) -> -text tokens

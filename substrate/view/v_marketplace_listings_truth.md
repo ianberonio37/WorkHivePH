@@ -2,7 +2,7 @@
 name: view-v_marketplace_listings_truth
 type: view
 source: db:pg_get_viewdef:v_marketplace_listings_truth
-source_sha: f8a8d04a2a55f518
+source_sha: a49850e61714088c
 last_verified: 2026-07-13
 supersedes: null
 ---

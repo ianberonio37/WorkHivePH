@@ -2158,7 +2158,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { sellerRep = null; }
     }
 
-    let reviewsHtml = '<p style="font-size:0.78rem;color:#9aa6b3;">No reviews yet.</p>';
+    // MK1 (2026-07-24): scope the empty state. This list is LISTING-level while the seller card above
+    // shows a SELLER-level rating; an unqualified "No reviews yet" beside a star rating reads as a
+    // contradiction. Naming the scope makes both numbers honest.
+    let reviewsHtml = '<p style="font-size:0.78rem;color:rgba(255,255,255,0.80);">No reviews for this listing yet.</p>';
     try {
       const { data: reviews } = await db
         .from('marketplace_reviews')
@@ -2218,7 +2221,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div class="seller-card-info">
             <div class="seller-card-name">${e(item.seller_name || 'Seller')}</div>
             <div class="seller-card-meta">
-              ${item.rating_avg ? renderStars(item.rating_avg) + ' ' + Number(item.rating_avg).toFixed(1) : 'No ratings yet'}
+              ${(() => {
+                /* MK1 trust-signal integrity (deepwalk 2026-07-24): a rating must be ATTRIBUTABLE.
+                   This printed a bare "3.9" with no count, directly above a Reviews section reading
+                   "No reviews yet" -- which reads as a fabricated score. Two rules now: (1) show stars
+                   ONLY when a real review count backs them, else "New seller"; (2) always print the
+                   count so the number traces to evidence. The rating is SELLER-level (across all their
+                   listings) while the Reviews list below is LISTING-level. */
+                const _sp = sellerProfile || {};
+                const _rc = Number(_sp.rating_count || 0);
+                const _ra = Number(_sp.rating_avg != null ? _sp.rating_avg : (item.rating_avg || 0));
+                if (!_rc || !_ra) return '<span style="color:rgba(255,255,255,0.80);">New seller, no ratings yet</span>';
+                return renderStars(_ra) + ' ' + _ra.toFixed(1)
+                     + '<span style="color:rgba(255,255,255,0.80);font-weight:600;">&nbsp;(' + _rc + ' seller review' + (_rc === 1 ? '' : 's') + ')</span>';
+              })()}
               ${item.completed_sales ? ' · ' + item.completed_sales + ' completed' : ''}
             </div>
             ${(() => {

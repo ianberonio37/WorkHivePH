@@ -1854,8 +1854,27 @@
         try {
           if (act === 'approve-listing' || act === 'reject-listing') {
             const newStatus = act === 'approve-listing' ? 'published' : 'removed';
+            // MK2/J20 (deepwalk 2026-07-24): this console and marketplace-admin.html are TWO surfaces
+            // over ONE authority, so they must MODERATE IDENTICALLY. A rejection carries a reason back
+            // to the seller (who otherwise sees only a bare "Removed" chip with no way to fix it);
+            // approving clears any stale reason. Keep this in lockstep with handleListingAction().
+            const _nowIso = new Date().toISOString();
+            const _patch = { status: newStatus, updated_at: _nowIso, moderated_at: _nowIso,
+                             moderated_by: (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || 'admin' };
+            if (act === 'reject-listing') {
+              let _reason = await (window.whPrompt
+                ? whPrompt('Reject this listing. Tell the seller why:',
+                    { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller' })
+                : Promise.resolve(window.prompt('Reject. Reason shown to the seller:')));
+              if (_reason === null) { btn.disabled = false; return; }   // cancelled
+              _reason = String(_reason).trim();
+              if (!_reason) { btn.disabled = false; showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }
+              _patch.moderation_reason = _reason;
+            } else {
+              _patch.moderation_reason = null;
+            }
             const { error } = await db.from('marketplace_listings')
-              .update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', btn.dataset.id);
+              .update(_patch).eq('id', btn.dataset.id);
             if (error) throw error;
             if (typeof writeAuditLog === 'function') writeAuditLog(act === 'approve-listing' ? 'approve_listing' : 'reject_listing', 'marketplace_listings', btn.dataset.id, btn.dataset.id, { new_status: newStatus });
             showToast(act === 'approve-listing' ? 'Listing approved: now live to buyers.' : 'Listing rejected.', act === 'approve-listing' ? 'success' : 'info');
