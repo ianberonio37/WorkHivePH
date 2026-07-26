@@ -309,9 +309,15 @@ def link_density(md: str) -> float:
     return link_chars / max(1, len(md))
 
 
+# STRONG signals: a title carrying these IS an error / bot-wall page, no further evidence needed.
 _ERROR_TITLE_RE = re.compile(
-    r"\b(page not found|not found|404|403|error|access denied|forbidden|"
+    r"\b(page not found|404|403|access denied|forbidden|"
     r"are you a robot|just a moment|attention required|captcha)\b", re.I)
+# WEAK signals: real ARTICLES are titled with these ("Error-Message Guidelines", "Not Found: a study"),
+# so they may only condemn a page when the BODY is ALSO nav-only. Fixed 2026-07-24: a bare "error" in
+# the title blocked NN/g's error-message guidelines - a live HTTP-200 article, and exactly the content
+# a UX rubric wants. A harvester that cannot ingest writing about errors is self-limiting.
+_ERROR_WEAK_RE = re.compile(r"\b(error|not found)\b", re.I)
 
 
 def is_error_page(title: str, md: str) -> tuple[bool, str]:
@@ -322,8 +328,13 @@ def is_error_page(title: str, md: str) -> tuple[bool, str]:
     if _ERROR_TITLE_RE.search(t):
         return True, f"title '{t[:60]}'"
     head = (md or "")[:600]
-    if _ERROR_TITLE_RE.search(head) and link_density(md or "") > 0.5:
+    dense = link_density(md or "") > 0.5
+    if _ERROR_TITLE_RE.search(head) and dense:
         return True, "error phrasing + nav-only body"
+    # A WEAK signal condemns only alongside a nav-only body: an article ABOUT errors has real prose,
+    # so it survives here while a genuine soft-404 shell (nav links, no content) still does not.
+    if (_ERROR_WEAK_RE.search(t) or _ERROR_WEAK_RE.search(head)) and dense:
+        return True, "weak error phrasing + nav-only body"
     return False, ""
 
 

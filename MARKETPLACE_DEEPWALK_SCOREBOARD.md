@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 78.8%** · journeys **73.5%** (20) · MK classes **87.5%** (10)
+**OVERALL 79.7%** · journeys **74.5%** (20) · MK classes **88.3%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -23,7 +23,7 @@
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | 🟡 | ✅ | 2×2 | 90.0% |
 | J2-buyer-contact-seller | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J20-founder-console-fused-moderation | T11-admin-console | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
-| J3-compare-rfq | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
+| J3-compare-rfq | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J4-watchlist-stale | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J5-saved-search-alert | T8-commerce | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×1 | 70.0% |
 | J6-price-comps-recommend | T8-commerce | ✅ | ✅ | ✅ | ⬜ | ✅ | 2×2 | 80.0% |
@@ -31,9 +31,9 @@
 | J8-post-from-inventory | T2-capture | ✅ | 🟡 | ✅ | ⬜ | ✅ | 1×2 | 70.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
 
-**Per phase:** G 100.0% · W 72.5% · O 95.0% · H 15.0% · R 85.0%
+**Per phase:** G 100.0% · W 72.5% · O 95.0% · H 20.0% · R 85.0%
 
-**Per type:** T1-onboarding 30.0% · T10-social-gamification 65.0% · T11-admin-console 80.0% · T12-cross-page-handoff 76.7% · T2-capture 75.0% · T3-review-approval 76.7% · T4-analysis-insight 70.0% · T8-commerce 85.0% · T9-configuration 40.0%
+**Per type:** T1-onboarding 30.0% · T10-social-gamification 65.0% · T11-admin-console 80.0% · T12-cross-page-handoff 76.7% · T2-capture 75.0% · T3-review-approval 76.7% · T4-analysis-insight 70.0% · T8-commerce 88.3% · T9-configuration 40.0%
 
 ## Board 2 — New MK dimension classes
 
@@ -41,7 +41,7 @@
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|
 | MK1-trust-signal-integrity | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
-| MK2-moderation-state-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
+| MK2-moderation-state-honesty | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ✅ | ⬜ | ✅ | 66.7% |
 | MK4-listing-lifecycle-completeness | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |

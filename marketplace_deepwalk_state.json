@@ -105,7 +105,7 @@
         "G": "done",
         "W": "done",
         "O": "done",
-        "H": "todo",
+        "H": "done",
         "R": "done"
       },
       "walked": {
@@ -118,7 +118,7 @@
           "S-edge"
         ]
       },
-      "notes": "handleSubmitRfq inserts N inquiries (COMPARE_MAX cap). Validates name/contact/message pre-write. Unwalked live. | 2026-07-24 WALKED END-TO-END + FIX. Compare mode -> 2 selected -> bar 'Tap up to 5 listings to request quotes' -> RFQ sheet -> submit created exactly ONE inquiry PER listing (2/2, distinct listing_ids) with the toast 'Quote requests sent to 2 sellers.' FOUND ON THE WAY: marketplace_inquiries RLS is WITH CHECK (buyer_name IN auth_worker_names()), and the Your Name field - though prefilled from WORKER_NAME - stays EDITABLE. Any edit (a nickname, a company name) produced a raw 42501 that the catch reported as 'Failed to send quote requests. Try again.', so a buyer could retry forever without ever learning the NAME was the problem. FIX (P4 validate-before-write): the submit now blocks a mismatched name BEFORE the write with an actionable message naming their WorkHive name, and the 42501 catch explains itself instead of prompting a blind retry. VERIFIED both cases live: wrong name -> blocked, 0 rows attempted; real name -> 2 inquiries created. ★My own bad test data (a fake buyer name) is what surfaced this - the RLS rejection was CORRECT, the error MESSAGE was the defect."
+      "notes": "handleSubmitRfq inserts N inquiries (COMPARE_MAX cap). Validates name/contact/message pre-write. Unwalked live. | 2026-07-24 WALKED END-TO-END + FIX. Compare mode -> 2 selected -> bar 'Tap up to 5 listings to request quotes' -> RFQ sheet -> submit created exactly ONE inquiry PER listing (2/2, distinct listing_ids) with the toast 'Quote requests sent to 2 sellers.' FOUND ON THE WAY: marketplace_inquiries RLS is WITH CHECK (buyer_name IN auth_worker_names()), and the Your Name field - though prefilled from WORKER_NAME - stays EDITABLE. Any edit (a nickname, a company name) produced a raw 42501 that the catch reported as 'Failed to send quote requests. Try again.', so a buyer could retry forever without ever learning the NAME was the problem. FIX (P4 validate-before-write): the submit now blocks a mismatched name BEFORE the write with an actionable message naming their WorkHive name, and the 42501 catch explains itself instead of prompting a blind retry. VERIFIED both cases live: wrong name -> blocked, 0 rows attempted; real name -> 2 inquiries created. ★My own bad test data (a fake buyer name) is what surfaced this - the RLS rejection was CORRECT, the error MESSAGE was the defect. | H-HARVEST: crawled NN/g error-message guidelines -> substrate/external/external-error-message-quality-guidelines.md. It backs the fix exactly: 'use human-readable language, avoiding technical jargon and obscure error codes' and 'concisely describe the issue, providing context and potential remedies'. A raw 42501 with 'Try again' violated both; naming the WorkHive name and why the seller needs it satisfies both. ★The harvest was only possible after fixing the crawler itself (below)."
     },
     "J4-watchlist-stale": {
       "type": "T8-commerce",
@@ -591,14 +591,14 @@
     },
     "MK2-moderation-state-honesty": {
       "stages": {
-        "harvest": "partial",
+        "harvest": "done",
         "define": "done",
         "detect": "done",
         "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
-      "seed": "Self-publish bypass (FIXED + deployed). Remaining half: a REJECTED listing - does the seller see the state and the REASON, or does it silently vanish?",
+      "seed": "Self-publish bypass (FIXED + deployed). Remaining half: a REJECTED listing - does the seller see the state and the REASON, or does it silently vanish? | H-HARVEST: the same error-message guidelines back the rejection-reason design - an error must describe the issue AND offer a remedy, which is why the seller banner says what was wrong and that editing resubmits it for review.",
       "distinct_from": "P6/P7 are generic write/empty dims; MK2 is specifically the promise-vs-enforcement + pipeline-visibility of a moderation workflow.",
       "skill": "security + frontend"
     },
