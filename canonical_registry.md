@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **185**
+- RPCs:          **187**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -23,7 +23,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `asset_nodes` | 27 | yes | yes | asset-hub.html, hive.html, integrations.html, inventory.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
 | `pm_completions` | 9 | yes | no | asset-hub.html, hive.html, logbook.html, pm-scheduler.html ... | logbook.html, pm-scheduler.html | — |
 | `project_links` | 8 | no | no | inventory.html, logbook.html, pm-scheduler.html, project-manager.html ... | inventory.html, logbook.html, pm-scheduler.html ... | — |
-| `marketplace_listings` | 22 | yes | yes | founder-console.html, marketplace-admin.html, marketplace-seller.html, marketplace.html ... | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
+| `marketplace_listings` | 25 | yes | yes | founder-console.html, marketplace-admin.html, marketplace-seller.html, marketplace.html ... | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
 | `pm_assets` | 12 | yes | no | asset-hub.html, integrations.html, logbook.html, pm-scheduler.html | asset-hub.html, integrations.html, logbook.html ... | — |
 | `hive_members` | 7 | yes | no | asset-hub.html, hive.html, inventory.html, logbook.html ... | hive.html | — |
 | `marketplace_sellers` | 19 | yes | no | founder-console.html, marketplace-admin.html, marketplace-seller.html, platform-actions.html | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
@@ -280,6 +280,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `get_hive_trade_peers` | p_hive_id uuid | yes | community.html | — |
 | `get_marketplace_parts_for_my_assets` | p_hive_id uuid | yes | marketplace.html | — |
 | `get_marketplace_price_comps` | p_category    text,   p_condition   text DEFAULT NULL,   p_p | yes | marketplace.html | — |
+| `get_marketplace_seller_public` | p_worker_name text | yes | marketplace-seller-profile.html | — |
 | `get_marketplace_trust_badges` | p_seller_names text[] | yes | marketplace.html | — |
 | `get_mtbf_by_machine` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator, batch-risk-scoring, scheduled-agents |
 | `get_mttr_by_machine` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator, scheduled-agents |
@@ -290,6 +291,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `get_seller_community_reputation` | p_worker_name text, p_hive_id uuid | yes | marketplace-seller-profile.html | — |
 | `grade_skill_exam` | p_discipline text, p_level int, p_answers int[] | yes | skillmatrix.html | — |
 | `guard_community_announcement` |  | yes | — | — |
+| `guard_marketplace_listing_status` |  | yes | — | — |
 | `guard_marketplace_order_status` |  | yes | — | — |
 | `guard_marketplace_seller_trust_columns` |  | yes | — | — |
 | `handle_community_post_xp` |  | yes | — | — |
@@ -396,7 +398,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `llm-observability.html` | ai_cost_log | — | — | — |
 | `logbook.html` | asset_nodes, equipment_reading_templates, fault_knowledge, hive_audit_log ... | asset_nodes, hive_audit_log, logbook ... | inventory_deduct | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
 | `marketplace-admin.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_orders ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
-| `marketplace-seller-profile.html` | marketplace_reviews, v_marketplace_inquiries_truth, v_marketplace_listings_truth, v_marketplace_sellers_truth | — | get_seller_community_reputation | — |
+| `marketplace-seller-profile.html` | marketplace_reviews, v_marketplace_inquiries_truth, v_marketplace_listings_truth, v_marketplace_sellers_truth | — | get_marketplace_seller_public, get_seller_community_reputation | — |
 | `marketplace-seller.html` | hive_audit_log, marketplace_inquiries, marketplace_listings, marketplace_sellers ... | hive_audit_log, marketplace_inquiries, marketplace_listings ... | — | — |
 | `marketplace.html` | hive_audit_log, marketplace_inquiries, marketplace_listings, marketplace_platform_admins ... | hive_audit_log, marketplace_inquiries, marketplace_listings ... | get_community_reputation, get_marketplace_parts_for_my_assets, get_marketplace_price_comps | marketplace-listing-assist |
 | `offline-fallback.html` | — | — | — | — |

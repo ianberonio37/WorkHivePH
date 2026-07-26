@@ -74,17 +74,21 @@
         "marketplace-seller.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "partial",
+        "O": "partial",
+        "H": "done",
+        "R": "partial"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer"
+        ],
+        "states": [
+          "S-populated"
+        ]
       },
-      "notes": "handleInquirySubmit -> marketplace_inquiries.insert -> seller handleReply. End-to-end round trip NOT yet walked."
+      "notes": "handleInquirySubmit -> marketplace_inquiries.insert -> seller handleReply. End-to-end round trip NOT yet walked. | 2026-07-24: contact sheet opened live; MK8 safety notice verified rendering at this step. The seller-reply round trip is still unwalked."
     },
     "J3-compare-rfq": {
       "type": "T8-commerce",
@@ -601,14 +605,14 @@
     },
     "MK8-marketplace-safety-fraud": {
       "stages": {
-        "harvest": "todo",
-        "define": "todo",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
+        "harvest": "done",
+        "define": "done",
+        "detect": "partial",
+        "sweep": "partial",
+        "fix": "partial",
         "gate": "todo"
       },
-      "seed": "Contact-only free marketplace (PAYMENTS_ENABLED=false) = no escrow, so ALL risk sits at the contact/meet stage. No duplicate/spam/price-anomaly/impersonation detector exists.",
+      "seed": "Contact-only free marketplace (PAYMENTS_ENABLED=false) = no escrow, so ALL risk sits at the contact/meet stage. No duplicate/spam/price-anomaly/impersonation detector exists. | 2026-07-24 HARVEST DONE (Engine B, spoke 5): night_crawler --url lawphil RA 11967 -> substrate/external/external-ph-internet-transactions-act-ra11967.md. NOTE the officialgazette PDF was Cloudflare-blocked ('Just a moment...') -> used another publisher of the same statute (the blocked-publisher class). WHAT IT OBLIGATES that maps to code: (a) DTI takedown orders for prohibited/regulated listings -> we now satisfy the record-keeping half via moderation_reason/moderated_by/moderated_at (MK2, same arc); (b) consumer education on the RED FLAGS of internet transactions -> BUILT: a safety notice at the contact step (the exact moment of risk on a contact-only, no-escrow marketplace): inspect first, meet at a business address or public place, avoid full advance payment to a new seller, and an honest 'WorkHive never holds your payment, so we cannot reverse it'. VERIFIED live in the real Contact Seller sheet. (c) Registration with the DTI E-Commerce Bureau + the Online Business Database are BUSINESS-COMPLIANCE items for Ian, not code. STILL TODO: duplicate/spam listing + price-anomaly + impersonation detectors, and a prohibited-goods policy check.",
       "distinct_from": "Net-new. Nothing in the 99-dim lens models adversarial USER behaviour (vs adversarial input).",
       "harvest_query": "PH Internet Transactions Act RA 11967 marketplace obligations; C2C scam-pattern taxonomy",
       "skill": "security + marketplace"

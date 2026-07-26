@@ -2582,7 +2582,11 @@ async function restoreIdentityFromSession(db) {
   try {
     const { data: { session } } = await db.auth.getSession();
     // Signed OUT: any lingering cache belongs to a prior user — clear it so nothing reads a stale identity.
-    if (!session) { if (cached) { try { localStorage.removeItem('wh_last_worker'); } catch (_) {} } return ''; }
+    if (!session) {
+      // Signed OUT: drop a prior user's cached name so nothing downstream role-gates on a stale identity.
+      if (cached) { try { localStorage.removeItem('wh_last_worker'); } catch (_) { /* empty-catch-allow: storage may be blocked (private mode); the signed-out return below is what matters */ } }
+      return '';
+    }
     // Signed IN: resolve THIS session's worker and reconcile the cache so a foreign cache can't persist.
     const { data: profile } = await db.from('v_worker_truth')
       .select('worker_name').eq('auth_uid', session.user.id).maybeSingle();

@@ -890,7 +890,10 @@
         "search_vector",
         "view_count",
         "part_number",
-        "source_inventory_item_id"
+        "source_inventory_item_id",
+        "moderation_reason",
+        "moderated_at",
+        "moderated_by"
       ],
       "rls_enabled": true,
       "grants": {
@@ -6060,7 +6063,10 @@
         "is_published",
         "is_sold",
         "is_draft",
-        "part_number"
+        "part_number",
+        "moderation_reason",
+        "moderated_at",
+        "moderated_by"
       ]
     },
     "v_community_posts_truth": {
@@ -7870,6 +7876,24 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "guard_marketplace_listing_status": {
+      "defined_in": "20260724000003_marketplace_listing_moderation_guard.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Moderation backstop: a non-admin seller may edit / withdraw / mark-sold their OWN listing but may NOT transition it INTO status=published (self-publish). Only a platform admin (is_marketplace_admin) or a service-role/system write may publish. Closes the deepwalk-2026-07-24 self-publish hole; parity with guard_marketplace_seller_trust_columns (Marketplace PDDA I-axis).",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "get_marketplace_seller_public": {
+      "defined_in": "20260724000004_marketplace_seller_public_profile.sql",
+      "args": "p_worker_name text",
+      "security_definer": true,
+      "comment": "Public-safe seller profile for the anon-visible marketplace seller page + its JSON-LD (SEO). Returns trust/reputation columns only; deliberately OMITS messenger_username (contact stays sign-in gated per MK3 disclosure-staging), hive_id and auth_uid (no tenant/identity topology leak). SECURITY DEFINER so marketplace_sellers RLS stays authenticated-only for the full row. Marketplace Deepwalk EXPANSION arc J19/MK7, 2026-07-24.",
+      "called_by_surfaces": [
+        "marketplace-seller-profile.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8108,7 +8132,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 132.9
+      "size_kb": 134.3
     },
     "hive.html": {
       "tables_read": [
@@ -8287,7 +8311,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 52.4
+      "size_kb": 54.1
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -8298,10 +8322,11 @@
       ],
       "tables_written": [],
       "rpcs_called": [
+        "get_marketplace_seller_public",
         "get_seller_community_reputation"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 40.3
+      "size_kb": 42.8
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -8321,7 +8346,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 75.3
+      "size_kb": 76.8
     },
     "marketplace.html": {
       "tables_read": [
@@ -8354,7 +8379,7 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 168.4
+      "size_kb": 173.2
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -8406,7 +8431,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 17.7
+      "size_kb": 19.2
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -9198,7 +9223,7 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 1095
+      "loc": 1098
     },
     "asset-brain-query": {
       "tables_read": [

@@ -888,6 +888,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span class="ic ic-info" aria-hidden="true"></span>
       Sellers are expected to respond within 48 hours. The marketplace is free: you arrange any payment directly with the seller, off-platform.
     </div>
+    <!-- MK8 marketplace safety (deepwalk 2026-07-24, harvested from RA 11967 the PH Internet
+         Transactions Act, which requires consumer education on the "red flags in internet
+         transactions"). This is a CONTACT-ONLY marketplace with no escrow, so 100% of the money risk
+         sits at this exact step: the buyer is about to take a stranger off-platform. Saying "payment is
+         off-platform" states the fact but does not warn. Short active sentences keep the B3 bar. -->
+    <div class="info-notice" role="note" style="background:rgba(247,162,27,0.08);border-color:rgba(247,162,27,0.28);">
+      <span class="ic ic-secure" aria-hidden="true"></span>
+      <span>
+        <strong>Before you pay:</strong> inspect the item first. Meet at the seller's business address or a public place.
+        Avoid paying in full up front to a new seller. WorkHive never holds your payment, so we cannot reverse it.
+      </span>
+    </div>
     <button type="submit" class="btn-primary" id="btn-submit-inquiry" data-i="sendinquiry">Send Inquiry</button>
   </form>
 </div>

@@ -362,5 +362,10 @@
   "20260721000001_text_id_defaults.sql": "a2de8290cc541e80df0f9363c72d5d4d646aad77868601003e72bc5181df9c8e",
   "20260722000001_grant_select_marketplace_sellers.sql": "b73cd80dbcb347bb8b7f0d1a2485c34e112a2a43d971d15dafc04ef2a6df2d4f",
   "20260723000001_client_errors_frontend_observability.sql": "1e3d83c0d48d3f25dade256ec3ce5e76cbf7dab64a241ad240212534131e05c5",
-  "20260723000002_asset_node_rejection_reason.sql": "c63623462214eb26f3935ddbfbb2c4e9561c1f5e9ebcbfe86d1438744c7be606"
+  "20260723000002_asset_node_rejection_reason.sql": "c63623462214eb26f3935ddbfbb2c4e9561c1f5e9ebcbfe86d1438744c7be606",
+  "20260724000001_fault_knowledge_ai_provenance.sql": "4f21238ea6a4a4c6c2dfb4b4de9da82c997d4465bb3509b9133c0a6aeb1345bc",
+  "20260724000002_failure_alert_detail_provenance.sql": "36278deb3db042a037b55df665e2b0988b77335377259666326c572ab766d0d7",
+  "20260724000003_marketplace_listing_moderation_guard.sql": "d2197f8e33b8cff233d691625a22d4bc2f7ed24863f1cb583c199f17565ed7d6",
+  "20260724000004_marketplace_seller_public_profile.sql": "a6d5d73a517a7a1952446e69f6a2378cacedea29838a73f16bffef250bb0cbd8",
+  "20260724000005_marketplace_moderation_reason.sql": "9646d8f5f76cdfd0fe1669b5cdfe8800dcd28f7d526ab46dea011105a258a1cb"
 }

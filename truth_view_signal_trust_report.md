@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **316**
+- View/column pairs scanned: **318**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **254**
@@ -207,6 +207,8 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_listings_truth` | `description` | ✅ OK | 3 | direct |
 | `v_marketplace_listings_truth` | `image_url` | ✅ OK | 4 | direct |
 | `v_marketplace_listings_truth` | `location` | ✅ OK | 5 | direct, mapped_enum |
+| `v_marketplace_listings_truth` | `moderated_at` | ✅ OK | 1 | direct |
+| `v_marketplace_listings_truth` | `moderation_reason` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `part_number` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `price` | ✅ OK | 8 | direct |
 | `v_marketplace_listings_truth` | `rating_avg` | ✅ OK | 1 | direct |

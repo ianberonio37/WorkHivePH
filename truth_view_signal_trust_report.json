@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 316,
+    "view_column_pairs": 318,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 254
@@ -3810,6 +3810,32 @@
         },
         {
           "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "moderated_at",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "moderation_reason",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
         }

@@ -700,10 +700,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let _reason = null;
     if (action !== 'approve') {
       const _verb = action === 'reject' ? 'Reject' : 'Unpublish';
-      _reason = await (window.whPrompt
-        ? whPrompt(`${_verb} "${(listing && listing.title) || 'this listing'}". Tell the seller why:`,
-            { okLabel: _verb, cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller (e.g. photo does not match the part described)' })
-        : Promise.resolve(window.prompt(`${_verb}. Reason shown to the seller:`)));
+      if (typeof whPrompt !== 'function') { showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
+      _reason = await whPrompt(`${_verb} "${(listing && listing.title) || 'this listing'}". Tell the seller why:`,
+        { okLabel: _verb, cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller (e.g. photo does not match the part described)' });
       if (_reason === null) return;                       // cancelled: no write, buttons untouched
       _reason = String(_reason).trim();
       if (!_reason) { showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }

@@ -1,4 +1,4 @@
-# Substrate Manifest — 2026-07-24T02:07:53.014284+00:00
+# Substrate Manifest — 2026-07-26T20:19:09.184266+00:00
 
 **Aggregates 13 pattern-miner + drift-detector outputs into one view.**
 
@@ -9,7 +9,7 @@
 
 | Source | Present | Notes |
 |---|---|---|
-| Edge fn patterns | yes | `proposal_count`: 0 |
+| Edge fn patterns | yes | `proposal_count`: 2 |
 | HTML patterns | yes | `proposal_count`: 2 |
 | Migration patterns | yes | `proposal_count`: 1 |
 | Seeder patterns | yes | `proposal_count`: 1 |

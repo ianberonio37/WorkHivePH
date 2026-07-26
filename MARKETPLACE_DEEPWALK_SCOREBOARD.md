@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 28.4%** · journeys **25.0%** (20) · MK classes **34.2%** (10)
+**OVERALL 32.5%** · journeys **28.0%** (20) · MK classes **40.0%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -21,7 +21,7 @@
 | J17-marketplace-to-inventory | T12-cross-page-handoff | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
 | J18-inventory-to-marketplace | T12-cross-page-handoff | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | 🟡 | ✅ | 2×2 | 90.0% |
-| J2-buyer-contact-seller | T8-commerce | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 10.0% |
+| J2-buyer-contact-seller | T8-commerce | ✅ | 🟡 | 🟡 | ✅ | 🟡 | 1×1 | 70.0% |
 | J20-founder-console-fused-moderation | T11-admin-console | ✅ | 🟡 | ✅ | ⬜ | 🟡 | 1×1 | 60.0% |
 | J3-compare-rfq | T8-commerce | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 10.0% |
 | J4-watchlist-stale | T8-commerce | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
@@ -31,9 +31,9 @@
 | J8-post-from-inventory | T2-capture | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
 | J9-first-time-seller | T1-onboarding | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
 
-**Per phase:** G 45.0% · W 22.5% · O 30.0% · H 5.0% · R 22.5%
+**Per phase:** G 47.5% · W 25.0% · O 32.5% · H 10.0% · R 25.0%
 
-**Per type:** T1-onboarding 0.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 30.0% · T2-capture 25.0% · T3-review-approval 33.3% · T4-analysis-insight 0.0% · T8-commerce 11.7% · T9-configuration 10.0%
+**Per type:** T1-onboarding 0.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 30.0% · T2-capture 25.0% · T3-review-approval 33.3% · T4-analysis-insight 0.0% · T8-commerce 21.7% · T9-configuration 10.0%
 
 ## Board 2 — New MK dimension classes
 
@@ -47,7 +47,7 @@
 | MK5-two-sided-liquidity-honesty | 🟡 | 🟡 | 🟡 | ⬜ | 🟡 | ⬜ | 33.3% |
 | MK6-parts-flow-continuity | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
 | MK7-public-seo-surface-truth | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
-| MK8-marketplace-safety-fraud | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
+| MK8-marketplace-safety-fraud | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ⬜ | 58.3% |
 | MK9-response-sla-honesty | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
 
 _Anti-drift: at ANY 'what next / is this done?' doubt → read this board + the roadmap §7 NEXT._

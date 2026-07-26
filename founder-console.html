@@ -1862,10 +1862,9 @@
             const _patch = { status: newStatus, updated_at: _nowIso, moderated_at: _nowIso,
                              moderated_by: (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || 'admin' };
             if (act === 'reject-listing') {
-              let _reason = await (window.whPrompt
-                ? whPrompt('Reject this listing. Tell the seller why:',
-                    { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller' })
-                : Promise.resolve(window.prompt('Reject. Reason shown to the seller:')));
+              if (typeof whPrompt !== 'function') { btn.disabled = false; showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
+              let _reason = await whPrompt('Reject this listing. Tell the seller why:',
+                { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller' });
               if (_reason === null) { btn.disabled = false; return; }   // cancelled
               _reason = String(_reason).trim();
               if (!_reason) { btn.disabled = false; showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }
