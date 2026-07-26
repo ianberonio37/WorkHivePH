@@ -1875,7 +1875,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     if (info) {
       info/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _listings.length
+        // MK10 ranking transparency (deepwalk 2026-07-24): a ranked list must explain ITSELF. The grid
+        // orders created_at DESC, but a buyer had no way to tell whether that was recency, relevance, or
+        // paid placement. Disclosing the parameter (and that placement is not for sale) is the EU P2B
+        // Art.5 duty for online marketplaces and plain honesty everywhere else.
         ? `Showing <span>${_listings.length}</span>${_hasMore ? '+' : ''} listing${_listings.length !== 1 ? 's' : ''}`
+          + `<span style="color:rgba(255,255,255,0.80);font-weight:500;">&nbsp;&middot;&nbsp;newest first. Sellers cannot pay for placement.</span>`
         : '';
     }
 

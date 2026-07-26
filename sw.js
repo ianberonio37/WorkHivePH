@@ -3,7 +3,7 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v190';  // bump: MK8 marketplace safety notice at the contact step (harvested from PH RA 11967 red-flags duty)
+const CACHE_NAME  = 'workhive-shell-v191';  // bump: MK10 ranking transparency disclosure on the marketplace grid
 // const CACHE_NAME  = 'workhive-shell-v188';  // bump: marketplace deepwalk fixes — P7 load-error grid state + admin-link fail-closed gate + restoreIdentityFromSession reconciles stale identity cache
 // const CACHE_NAME  = 'workhive-shell-v187';  // bump: E4 shift-brain -> reflowIdDump (utils.js) wraps crammed asset-code runs onto scannable rows (lens-blessed multi-line)
 // const CACHE_NAME  = 'workhive-shell-v186';  // bump: C5 last 3 pages -> 100 (banner/heading content-floor calibration + engineering-design tab/pill orange -text)

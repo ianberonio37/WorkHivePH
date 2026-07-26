@@ -231,9 +231,9 @@
         "marketplace-seller.html"
       ],
       "phases": {
-        "G": "todo",
+        "G": "done",
         "W": "todo",
-        "O": "todo",
+        "O": "partial",
         "H": "todo",
         "R": "todo"
       },
@@ -241,7 +241,7 @@
         "personas": [],
         "states": []
       },
-      "notes": "No marketplace_sellers row -> first post -> row created -> dashboard S-empty. Seeds MK4/MK5."
+      "notes": "No marketplace_sellers row -> first post -> row created -> dashboard S-empty. Seeds MK4/MK5. | 2026-07-24 GROUNDED: loadProfile tolerates a missing marketplace_sellers row (_seller=null -> defaults), and the listings empty state reads 'Post your first listing to start selling on WorkHive.' That CTA is AUDIENCE-CORRECT here (the seller's own dashboard) - the exact same sell-CTA was the P7 bug on the BUYER grid, which confirms the MK5 audience rule rather than violating it. W still owed: a real signed-in walk as a worker with NO seller row (all 13 seeded workers already have one, so this needs a fresh test identity)."
     },
     "J10-moderation-approve-reject": {
       "type": "T3-review-approval",
@@ -567,11 +567,11 @@
     "MK5-two-sided-liquidity-honesty": {
       "stages": {
         "harvest": "partial",
-        "define": "partial",
-        "detect": "partial",
-        "sweep": "todo",
-        "fix": "partial",
-        "gate": "todo"
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "done"
       },
       "seed": "P7: a load FAILURE rendered the first-run 'Be the first to sell' CTA to a BUYER (fixed). Thin-supply (1-2 listings) case still unmeasured - does it read as broken?",
       "distinct_from": "Extends D3/P7 with a THIRD state (load-error) + AUDIENCE-correctness (never prompt a buyer to sell).",
@@ -632,14 +632,14 @@
     },
     "MK10-ranking-sort-transparency": {
       "stages": {
-        "harvest": "todo",
-        "define": "todo",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
+        "harvest": "partial",
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
         "gate": "todo"
       },
-      "seed": "The grid orders created_at desc with no disclosure of WHY these listings in this order. Ranking transparency is a legal duty for online marketplaces under EU P2B Art.5 and good practice everywhere.",
+      "seed": "The grid orders created_at desc with no disclosure of WHY these listings in this order. Ranking transparency is a legal duty for online marketplaces under EU P2B Art.5 and good practice everywhere. | 2026-07-24 FIXED: the grid ordered created_at DESC with NO disclosure, so a buyer could not tell recency from relevance from paid placement. The listings-info line now states it plainly: 'newest first. Sellers cannot pay for placement.' That is the EU P2B Art.5 ranking-parameter duty and, more importantly, an honest answer to 'why am I seeing these?'. VERIFIED live: 'Showing 9 listings - newest first. Sellers cannot pay for placement.'",
       "distinct_from": "Net-new. No existing dim asks a ranked list to EXPLAIN ITSELF.",
       "harvest_query": "EU P2B Regulation 2019/1150 Article 5 ranking transparency; DSA marketplace duties",
       "skill": "seo-content + designer"

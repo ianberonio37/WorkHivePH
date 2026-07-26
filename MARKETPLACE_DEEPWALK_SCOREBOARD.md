@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 32.5%** · journeys **28.0%** (20) · MK classes **40.0%** (10)
+**OVERALL 37.8%** · journeys **29.5%** (20) · MK classes **51.7%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -29,22 +29,22 @@
 | J6-price-comps-recommend | T8-commerce | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
 | J7-post-listing | T2-capture | ✅ | 🟡 | 🟡 | ⬜ | 🟡 | 1×1 | 50.0% |
 | J8-post-from-inventory | T2-capture | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
-| J9-first-time-seller | T1-onboarding | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0×0 | 0.0% |
+| J9-first-time-seller | T1-onboarding | ✅ | ⬜ | 🟡 | ⬜ | ⬜ | 0×0 | 30.0% |
 
-**Per phase:** G 47.5% · W 25.0% · O 32.5% · H 10.0% · R 25.0%
+**Per phase:** G 52.5% · W 25.0% · O 35.0% · H 10.0% · R 25.0%
 
-**Per type:** T1-onboarding 0.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 30.0% · T2-capture 25.0% · T3-review-approval 33.3% · T4-analysis-insight 0.0% · T8-commerce 21.7% · T9-configuration 10.0%
+**Per type:** T1-onboarding 30.0% · T10-social-gamification 60.0% · T11-admin-console 60.0% · T12-cross-page-handoff 30.0% · T2-capture 25.0% · T3-review-approval 33.3% · T4-analysis-insight 0.0% · T8-commerce 21.7% · T9-configuration 10.0%
 
 ## Board 2 — New MK dimension classes
 
 | Class | harvest | define | detect | sweep | fix | gate | % |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|--:|
 | MK1-trust-signal-integrity | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
-| MK10-ranking-sort-transparency | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
+| MK10-ranking-sort-transparency | 🟡 | ✅ | ✅ | 🟡 | ✅ | ⬜ | 66.7% |
 | MK2-moderation-state-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK3-contact-disclosure-staging | 🟡 | 🟡 | ✅ | ⬜ | ⬜ | ✅ | 50.0% |
 | MK4-listing-lifecycle-completeness | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
-| MK5-two-sided-liquidity-honesty | 🟡 | 🟡 | 🟡 | ⬜ | 🟡 | ⬜ | 33.3% |
+| MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK6-parts-flow-continuity | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0% |
 | MK7-public-seo-surface-truth | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
 | MK8-marketplace-safety-fraud | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ⬜ | 58.3% |
