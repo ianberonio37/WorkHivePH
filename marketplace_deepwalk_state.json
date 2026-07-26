@@ -207,20 +207,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "partial"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-seller"
+          "P-seller",
+          "P-buyer"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-edge"
         ]
       },
-      "notes": "Code-read: validate-before-write OK (P4), whParsePrice (D5), whRecentDuplicate refresh-guard (D2), button lock (P6). Insert lands status=draft. LIVE form walk (image upload, AI assist, quality widget) still todo."
+      "notes": "Code-read: validate-before-write OK (P4), whParsePrice (D5), whRecentDuplicate refresh-guard (D2), button lock (P6). Insert lands status=draft. LIVE form walk (image upload, AI assist, quality widget) still todo. | 2026-07-24 LIVE FORM WALKED - CLEAN. D5 price validation holds client-side: '-50' is blocked with 'Price cannot be negative.' and writes 0 rows (no raw DB CHECK leaking to the seller); an over-precision '1234.567' is ROUNDED to 1234.57 rather than rejected, which is the friendlier correct call for numeric(14,2). The listing landed as status='draft', NOT published - re-verifying the moderation guard from the SELLER's own posting path, not just the admin side. The form correctly resets after a successful submit (the follow-up submit then said 'Title and description are required', which is right, not a bug). Test row deleted."
     },
     "J8-post-from-inventory": {
       "type": "T2-capture",
