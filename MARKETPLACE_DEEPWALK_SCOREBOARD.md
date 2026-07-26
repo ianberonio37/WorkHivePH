@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 77.2%** · journeys **73.5%** (20) · MK classes **83.3%** (10)
+**OVERALL 78.1%** · journeys **73.5%** (20) · MK classes **85.8%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -47,7 +47,7 @@
 | MK5-two-sided-liquidity-honesty | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 91.7% |
 | MK6-parts-flow-continuity | 🟡 | ✅ | ✅ | ✅ | ⬜ | ⬜ | 58.3% |
 | MK7-public-seo-surface-truth | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | 83.3% |
-| MK8-marketplace-safety-fraud | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | 75.0% |
+| MK8-marketplace-safety-fraud | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 | MK9-response-sla-honesty | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 100.0% |
 
 _Anti-drift: at ANY 'what next / is this done?' doubt → read this board + the roadmap §7 NEXT._

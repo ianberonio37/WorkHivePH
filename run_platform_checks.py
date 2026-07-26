@@ -4969,6 +4969,22 @@ VALIDATORS = [
         #   MK3 — the anon-granted public seller RPC must project no messenger_username/hive_id/auth_uid.
         #   MK1 — a star rating must be guarded by a real review count (no unattributable score).
         # Static/offline (file parsing only) -> runs in --fast, never flakes. Self-test: --selftest.
+        # MK8 marketplace safety: the ONLY gate modelling adversarial USER BEHAVIOUR rather than
+        # adversarial input. This is a contact-only marketplace with no escrow, so a buyer's whole
+        # risk sits at the off-platform meet-and-pay step. Three live signals: duplicate/spam
+        # listings, price anomalies vs the category median (with a peer-count floor so a thin
+        # category is never judged), and copy pressuring payment before inspection - the scam-shaped
+        # ask that contradicts the safety guidance the contact step now shows. Integrity-at-zero
+        # forward-only. Reads the live DB and SKIPS cleanly when it is down. Self-test: --selftest.
+        "id":      "marketplace_fraud_signals",
+        "script":  "tools/validate_marketplace_fraud_signals.py",
+        "args":    [],
+        "label":   "Marketplace fraud signals (MK8: duplicate/spam listings, price anomalies, off-platform payment pressure)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "marketplace_deepwalk_classes",
         "script":  "tools/validate_marketplace_deepwalk_classes.py",
         "args":    [],
