@@ -2,7 +2,7 @@
 name: doc-LOGBOOK_DEEPWALK_EXPANSION_ROADMAP
 type: doc
 source: file:LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md
-source_sha: 1919e325a2d3d054
+source_sha: f789bb71565e935c
 last_verified: 2026-07-13
 supersedes: null
 ---

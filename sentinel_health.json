@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-07-28T08:33:14.930044",
+  "timestamp": "2026-07-28T09:02:26.987397",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 15.9,
+      "duration": 16.4,
       "stderr": ""
     },
     {
       "id": "multi-scenario-per-rule",
       "status": "PASS",
-      "duration": 0.1,
+      "duration": 0.2,
       "stderr": ""
     },
     {
@@ -30,7 +30,7 @@
     {
       "id": "depth",
       "status": "PASS",
-      "duration": 0.1,
+      "duration": 0.2,
       "stderr": ""
     },
     {

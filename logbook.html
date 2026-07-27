@@ -2375,8 +2375,16 @@ async function deleteAsset(id) {
 
   if (!(await window.whConfirm('Remove this asset from the registry?', { okLabel: 'Remove', cancelLabel: 'Cancel' }))) return;
 
-  const { error } = await db.from('asset_nodes').delete().eq('id', id);
+  // LG9: same confirmation the edit path needs. The role/ownership checks above are CLIENT guards;
+  // asset_nodes_write is the real one and keys on auth_uid, so they can disagree. A 0-row delete
+  // returns error:null, and without this the page would write a delete_asset audit entry and drop
+  // the asset from the visible list while the row survived, reappearing on the next reload.
+  const { data: deletedRows, error } = await db.from('asset_nodes').delete().eq('id', id).select('id');
   if (error) { showToast('Could not remove asset: ' + error.message); return; }
+  if (!deletedRows || deletedRows.length === 0) {
+    showToast('Could not remove that asset. It can only be removed by whoever registered it, or by a supervisor.', '⚠️');
+    return;
+  }
 
   writeAuditLog('delete_asset', 'assets', id, asset.asset_id || id, {
     name: asset.name, prev_status: asset.status, owner: asset.worker_name,
@@ -2449,13 +2457,30 @@ async function saveEditAsset() {
   let q = db.from('asset_nodes').update(updates).eq('id', id);
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
 
-  const { error } = await q;
+  // LG9 (2026-07-28): confirm the write before believing it. The `.eq('worker_name', ...)` scope
+  // above is a CLIENT guard; the real one is asset_nodes_write, which requires `auth_uid =
+  // auth.uid()` (or supervisor of the hive). Those are not the same test — every seeded asset has
+  // auth_uid NULL, so a worker whose NAME matches passes the client scope and is still refused by
+  // RLS. A 0-row update is not an error, so the old `if (error)` fell straight through and the page
+  // then (a) wrote an audit-log entry for an edit that never happened, (b) painted the new name
+  // into the local cache so the user saw it applied, and (c) propagated the new tag/name to
+  // pm_assets — leaving pm_assets and asset_nodes actively disagreeing. Walked live as a worker:
+  // the DB kept "Toshiba TIK-FK" while the screen showed the edit and hive_audit_log recorded it.
+  // Corrupting a DOLE/ISO audit trail with amendments that did not occur is the worst of the three.
+  const { data: updatedRows, error } = await q.select('id');
   if (error) {
     errEl.textContent = 'Could not save: ' + error.message;
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
     return;
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    errEl.textContent = 'Could not save. An asset can only be edited by whoever registered it, or by a supervisor.';
+    errEl.classList.remove('hidden');
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Changes';
+    return;   // stop BEFORE the audit log, the cache repaint and the pm_assets sync
   }
 
   writeAuditLog('edit_asset', 'assets', id, asset_id, {

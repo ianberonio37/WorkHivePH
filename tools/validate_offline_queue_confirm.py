@@ -130,6 +130,33 @@ def audit_write_affordance_gating(src: str):
     return []
 
 
+# ── LG9b: a write that is followed by an AUDIT-LOG entry ─────────────────────
+# The worst shape found in this arc. asset_nodes_write requires `auth_uid = auth.uid()` (or
+# supervisor), while the page's client guard scopes by worker_name — not the same test, and every
+# seeded asset has auth_uid NULL, so a worker whose NAME matches passes the client check and is
+# still refused. The 0-row result is not an error, so saveEditAsset() fell through and wrote a
+# hive_audit_log entry for an edit that never happened, repainted the local cache, and propagated
+# the new tag/name to pm_assets. Walked live: the DB kept the old name while the screen and the
+# DOLE/ISO audit trail both recorded the change. An audit trail that records refused actions is
+# worse than no audit trail, so any write whose success path calls writeAuditLog must confirm first.
+_AUDITED_WRITE_FNS = ("saveEditAsset", "deleteAsset")
+
+
+def audit_audited_write_confirmation(src: str):
+    problems = []
+    for name, body in _find_functions(src):
+        if name not in _AUDITED_WRITE_FNS or "writeAuditLog" not in body:
+            continue
+        if not re.search(r"\.select\(", body):
+            problems.append(f"logbook.html:{name}() writes an audit-log entry after a write it never "
+                            f"confirmed - a 0-row refusal would be recorded as a real amendment")
+            continue
+        if not re.search(r"(updatedRows|deletedRows|\w+Rows)\s*(\|\||\.length|===)", body):
+            problems.append(f"logbook.html:{name}() calls .select(...) but never checks the returned "
+                            f"rows before writing to the audit log")
+    return problems
+
+
 def audit_queue_hive_scope(src: str):
     """The function that merges queued rows into the feed must filter them by the active hive."""
     for name, body in _find_functions(src):
@@ -245,6 +272,28 @@ def _selftest() -> int:
     fixed_modal = prefix_modal.replace('el.innerHTML = `', 'el.innerHTML = `${_canWriteEntry(entry) ? `')
     chk("ownership-gated Edit/Delete passes", len(audit_write_affordance_gating(fixed_modal)), 0)
 
+    # LG9b — an audited write that never confirmed the write landed.
+    prefix_audited = """
+    async function saveEditAsset() {
+      let q = db.from('asset_nodes').update(updates).eq('id', id);
+      const { error } = await q;
+      if (error) { showErr(error.message); return; }
+      writeAuditLog('edit_asset', 'assets', id, asset_id, { name: updates.name });
+    }
+    """
+    chk("unconfirmed audited write is caught", len(audit_audited_write_confirmation(prefix_audited)), 1)
+
+    fixed_audited = """
+    async function saveEditAsset() {
+      let q = db.from('asset_nodes').update(updates).eq('id', id);
+      const { data: updatedRows, error } = await q.select('id');
+      if (error) { showErr(error.message); return; }
+      if (!updatedRows || updatedRows.length === 0) { showErr('not yours'); return; }
+      writeAuditLog('edit_asset', 'assets', id, asset_id, { name: updates.name });
+    }
+    """
+    chk("confirmed audited write passes", len(audit_audited_write_confirmation(fixed_audited)), 0)
+
     print(f"\n  SELFTEST: {GREEN+'PASS'+RESET if ok else RED+'FAIL'+RESET}")
     return 0 if ok else 1
 
@@ -266,6 +315,7 @@ def main() -> int:
         if fname == "logbook.html":
             v += audit_queue_hive_scope(src)
             v += audit_write_affordance_gating(src)
+            v += audit_audited_write_confirmation(src)
         checked += len(drains)
         all_violations += v
         status = f"{RED}FAIL{RESET}" if v else f"{GREEN}OK  {RESET}"

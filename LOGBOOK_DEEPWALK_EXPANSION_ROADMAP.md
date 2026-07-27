@@ -178,7 +178,7 @@ No new H0 walk was needed; the seeds are prior MEASURED findings:
 
 ## §7 · NEXT (the standing queue — drive top-down)
 
-**Board after the first drive (measured, 2026-07-28): 53.2% overall** — journeys 31.5%, classes 75.0%
+**Board after the first drive (measured, 2026-07-28): 56.0% overall** — journeys 31.5%, classes 80.6%
 over a denominator that GREW from 2 classes to 6. Done: ~~scaffold + gate + shim~~,
 ~~LB7 offline walk~~ (2 personas × 3 states; silent-loss defect found, fixed across 7 drain sites,
 gated with teeth proven), ~~LB17 switch walk~~ (cross-hive feed leak found, fixed, gated),
@@ -190,9 +190,10 @@ mirror finally has a foreign key).
 1. **LG1 finish** — enumerate every logbook mutation site (saveEdit modal, saveEditFromForm,
    deleteEntry, the PM mirror, voice/photo capture) against one contract, then detect + gate the
    parity. Confirmation and explanation are single-sourced now; the enumeration is not.
-2. **LG9 sweep** — only the entry-detail modal is audited for offering what RLS refuses. The feed
-   cards, the **asset manager that lives on this same page** (`asset_nodes` upsert/update/delete),
-   and the parts/inventory actions have not been checked for the same shape.
+2. ~~**LG9 sweep**~~ — done, and it found a worse instance than the one that earned the class: the
+   asset manager on this same page was writing **audit-log entries for edits the database refused**,
+   repainting the UI as if they had applied, and propagating the phantom name to `pm_assets`. Fixed
+   and gated. The parts/inventory actions on this page are still unswept.
 3. **LG8 sweep** — the sibling mirrors (`pm_knowledge.pm_completion_id`, `skill_knowledge`,
    `project_links`) have not been checked for the same missing-FK shape that let the knowledge
    corpus drift.
