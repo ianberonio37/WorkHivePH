@@ -184,7 +184,7 @@
         "G": "done",
         "W": "done",
         "O": "done",
-        "H": "todo",
+        "H": "done",
         "R": "done"
       },
       "walked": {
@@ -197,7 +197,7 @@
           "S-empty"
         ]
       },
-      "notes": "get_marketplace_price_comps + get_marketplace_parts_for_my_assets. Recommendation provenance unverified. | 2026-07-24 WALKED - CLEAN and notably HONEST. get_marketplace_price_comps(p_category,p_condition,p_part_number) returns n=0 with min/median/max NULL when there are no comparables - it refuses to invent a price range from thin data, and the page only narrates it above 3 comparables. get_marketplace_parts_for_my_assets(p_hive_id) returns 0 rows for a hive with nothing below reorder point: an honest empty, not a broken call. NOTE the seeded listings all have part_number NULL, so both features are data-thin locally by seed, not by defect. ★SIXTH instrument-fault: I guessed both RPC signatures wrong (real: p_category/p_condition/p_part_number and p_hive_id) and the 'function not found in schema cache' error looked like a missing function. Read pg_get_function_identity_arguments before calling an RPC from a probe."
+      "notes": "get_marketplace_price_comps + get_marketplace_parts_for_my_assets. Recommendation provenance unverified. | 2026-07-24 WALKED - CLEAN and notably HONEST. get_marketplace_price_comps(p_category,p_condition,p_part_number) returns n=0 with min/median/max NULL when there are no comparables - it refuses to invent a price range from thin data, and the page only narrates it above 3 comparables. get_marketplace_parts_for_my_assets(p_hive_id) returns 0 rows for a hive with nothing below reorder point: an honest empty, not a broken call. NOTE the seeded listings all have part_number NULL, so both features are data-thin locally by seed, not by defect. ★SIXTH instrument-fault: I guessed both RPC signatures wrong (real: p_category/p_condition/p_part_number and p_hive_id) and the 'function not found in schema cache' error looked like a missing function. Read pg_get_function_identity_arguments before calling an RPC from a probe. | 2026-07-24 H APPLIED + LIVE-VERIFIED: the grounded-price rule (WAT split - CODE computes the comp band via get_marketplace_price_comps, the UI only NARRATES it; below 3 comparables show an honest note and NO range, never a fabricated price). Walked the post sheet as christinedizon and stepped the category select across real data, so the threshold was OBSERVED rather than read: Filters (1 comp) -> 'Only 1 comparable listing so far, not enough for a reliable price range yet' (correct singular); Bearings and Motors & Drives (2) -> the same honest refusal; Instrumentation (3) -> a real band, 'Comparable parts sell for PHP 68,980-185,439 (median PHP 104,525) across 3 listings'. The load-bearing detail is that BOTH branches name their denominator - the refusal says how many it has, and the range says how many it is built from. That is the same state-the-backing discipline as MK1, applied to price instead of reputation, and it is why a thin category cannot quietly produce a confident-looking number."
     },
     "J7-post-listing": {
       "type": "T2-capture",
@@ -401,21 +401,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
-        "H": "todo",
+        "H": "done",
         "R": "done"
       },
       "walked": {
         "personas": [
-          "P-seller"
+          "P-seller",
+          "P-seller-2"
         ],
         "states": [
-          "S-empty",
-          "S-populated"
+          "S-populated",
+          "S-empty"
         ]
       },
-      "notes": "loadAnalytics: views/inquiries/conversion. Seeds MK9 (SLA honesty) - are these computed or seeded? | 2026-07-24 WALKED: analytics tab renders 108 views / 0 inquiries / 0% conversion / 'Response Time -' with 'No replies yet' = HONEST (no fabricated stat, 0 P1 defects). That honesty is what exposed MK9: the seller's own view computed from real inquiries while the BUYER's view read a never-computed column."
+      "notes": "loadAnalytics: views/inquiries/conversion. Seeds MK9 (SLA honesty) - are these computed or seeded? | 2026-07-24 WALKED: analytics tab renders 108 views / 0 inquiries / 0% conversion / 'Response Time -' with 'No replies yet' = HONEST (no fabricated stat, 0 P1 defects). That honesty is what exposed MK9: the seller's own view computed from real inquiries while the BUYER's view read a never-computed column. | 2026-07-24 WALKED (2nd persona christinedizon: 1 listing, 253 views, 0 inquiries) + H APPLIED from substrate/external/external-ux-dashboard-preattentive-attributes-kpi.md. Its testable rules are about ENCODING: use length and 2D position for quantitative data, avoid pie/donut/gauge (area and angle), keep color categorical. Measured in the live DOM rather than assumed: 0 canvases, 0 arc/donut SVGs, 0 conic-gradients, and 2 length-based bars - so the panel uses the recommended attribute and none of the discouraged ones. ALSO ran the MK1 producer test on this surface, since a dashboard is exactly where an unbacked number hides: view_count HAS a living producer (marketplace.html fires increment_listing_view fire-and-forget on every detail open), PROVEN live 38 -> 39 by opening one listing. Conversion is derived from views and inquiries, and response time comes from the 20260724000006 trigger, so every headline here traces to a real event. That is the OPPOSITE outcome from total_sales, which failed the same test, which is why the test is worth running per surface rather than per arc. The Quick Reply badge also states its own unlock rule ('<4h with 5+ replies'), i.e. earnable rather than decorative."
     },
     "J15-review-flow": {
       "type": "T10-social-gamification",

@@ -21,6 +21,12 @@ from __future__ import annotations
 import subprocess, sys
 from pathlib import Path
 
+# Platform rule: every validate_*.py installs the cp1252 stdout guard, so a box-drawing or accented
+# character in a report never kills the run on a Windows console (validate_validator_cp1252_guard).
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent
 SCOREBOARD = ROOT / "tools" / "marketplace_deepwalk_scoreboard.py"
 
