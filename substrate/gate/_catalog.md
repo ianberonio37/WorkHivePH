@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 2e25b6b0edae9cf6
+source_sha: 51c45c8e62456e87
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (661) — the 'what's already gated' brain
+## gate · registered validators (662) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (103)
+### AI Validation (104)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -43,6 +43,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `committed_env_secret` ⚡ [fail] — Arc R: committed .env secret (no credential in a tracked dotfile; A02)
 - `companion_output_escaping` ⚡ [fail] — Arc H: companion output escaping (LLM05 — untrusted LLM output can't XSS)
 - `content-grounding` [fail] — Content Grounding Gate (12-check outward content drift: feature/count/link/capability/surface-render/llms-completeness; forward-only ratchet)
+- `corrective_definition_parity` [fail] — LG2 · corrective-definition parity — one derived semantic must not carry three definitions. 'Corrective' is expressed three ways: v_logbook_truth.is_corrective 
 - `csp-ratchet` ⚡ [fail] — CSP Hardening Ratchet (index.html inline-handler/un-nonced-script debt frozen; forward-only toward strict CSP)
 - `cwv` [fail] — Core Web Vitals Gate (P3: warm-median mobile LCP/INP/CLS over public surfaces vs 2026 thresholds + coverage; reads cwv_measurements.json; forward-only ratchet)
 - `data_completeness` ⚡ [fail] — AI Self-Improvement: Data Completeness

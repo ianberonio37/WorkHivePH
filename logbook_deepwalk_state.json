@@ -61,8 +61,8 @@
         "G": "done",
         "W": "done",
         "O": "done",
-        "H": "todo",
-        "R": "todo"
+        "H": "done",
+        "R": "done"
       },
       "walked": {
         "personas": [
@@ -74,7 +74,7 @@
           "S-populated"
         ]
       },
-      "notes": "WALKED LIVE 2026-07-28, both personas. Grounded: #empty-state (‘No entries yet. Log your first repair to get started.’) WITH a CTA, plus a distinct #no-results (‘No entries match your search.’) and a #team-prompt for the unsearched team tab - three separate states, not one. Reached S-empty honestly by filtering to a machine that cannot exist rather than by emptying data. Both personas see the right one. A clean walk, recorded as a real result: the empty state names a next action rather than dead-ending, which is the bar the platform's own empty-state rule sets."
+      "notes": "WALKED LIVE 2026-07-28, both personas. Grounded: #empty-state (‘No entries yet. Log your first repair to get started.’) WITH a CTA, plus a distinct #no-results (‘No entries match your search.’) and a #team-prompt for the unsearched team tab - three separate states, not one. Reached S-empty honestly by filtering to a machine that cannot exist rather than by emptying data. Both personas see the right one. A clean walk, recorded as a real result: the empty state names a next action rather than dead-ending, which is the bar the platform's own empty-state rule sets. HARVEST (retrieve-first, 0 crawl tokens): the platform's own D3 standard - a 0-result SEARCH must show no-results, never the first-run empty-state CTA - which logbook was the FIRST instance of (#D3-1) and which the marketplace sweep later generalised. RESOLVE: that property is locked by the registered empty-state-discrimination gate, re-run here and green, naming renderEntries() explicitly: 'searched-0 branch is view-aware (routes to #no-results)'. So this clean walk is not merely clean, it is HELD clean by a gate."
     },
     "LB02": {
       "type": "T2-core",
@@ -133,8 +133,8 @@
         "G": "done",
         "W": "done",
         "O": "done",
-        "H": "todo",
-        "R": "todo"
+        "H": "done",
+        "R": "done"
       },
       "walked": {
         "personas": [
@@ -146,7 +146,7 @@
           "S-populated"
         ]
       },
-      "notes": "WALKED LIVE 2026-07-28, both personas. 6 equipment_reading_templates load; renderReadingsFields produces 3 typed inputs (temperature_c / vibration_mms / pressure_bar) for a Mechanical Inspection and for an Electrical one, driven by kindTakesReadings rather than the old breakdown-only gate. The collection leak this journey shares with LB03 is recorded and fixed there. Clean otherwise."
+      "notes": "WALKED LIVE 2026-07-28, both personas. 6 equipment_reading_templates load; renderReadingsFields produces 3 typed inputs (temperature_c / vibration_mms / pressure_bar) for a Mechanical Inspection and for an Electrical one, driven by kindTakesReadings rather than the old breakdown-only gate. The collection leak this journey shares with LB03 is recorded and fixed there. Clean otherwise. HARVEST: the entry-kind->field oracle from the PDDA arc (an inspection IS reading-taking; a PM records condition; a project does not), which is what kindTakesReadings encodes. RESOLVE: locked by entry_kind_readings_shaping, which this arc extended with a fourth check so the COLLECTOR is gated by the same predicate as the reveal - teeth proven by removing that gate (1 issue) against clean (0)."
     },
     "LB05": {
       "type": "T6-fabric",
@@ -179,14 +179,23 @@
         "logbook.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Voice (voice-logbook-entry) / photo (visual-defect-capture) / OCR (equipment-label-ocr) capture paths. G partial: edge invokes named in substrate; per-path row contract unmapped (feeds LG10)."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-error",
+          "S-populated"
+        ]
+      },
+      "notes": "WALKED 2026-07-28, both personas. All three alternate capture paths are present and reachable on the page: voice (voice-logbook-entry -> applySmartVoiceFill), photo defect capture (#vdc-capture-btn -> visual-defect-capture), and equipment-tag OCR (equipment-label-ocr, wired through the scan button with an asset-match fallback that pre-fills the picker when no tag matches). THE PROPERTY THAT MATTERS and that this journey exists to protect: every one of them funnels into the SAME addEntry() contract rather than writing its own row, so the capture-contract validation, the auth_uid binding and the asset lineage cannot be bypassed by a side door - verified by the live capture on LB02, which produced a contract-valid row through that single path. S-error covered: the OCR/voice edge functions failing is surfaced to the user and leaves the manual form usable rather than dead-ending the capture."
     },
     "LB07": {
       "type": "T4-transition",
@@ -317,14 +326,23 @@
         "shift-brain.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Shift handover composes FROM the logbook (shift_plans via shift-planner-orchestrator). G partial: compose-from verdict recorded (KEEP-DISTINCT, derived rollup); PDDA leftover - orchestrator still prefers lotoRx regex over loto_applied column."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "notes": "WALKED/GROUNDED 2026-07-28. Confirmed by direct search that logbook.html contains NO shift-handover code at all - the handover lives in shift-brain.html and the shift-planner-orchestrator edge function, which READ v_logbook_truth and write their own derived shift_plans (14 rows seeded). So the reuse verdict the PDDA arc recorded is correct and re-confirmed here: KEEP-DISTINCT, because the handover is a derived rollup rather than a competing capture form - it composes FROM the logbook and never asks a worker to re-key an entry. That is the right shape under the reuse-is-fitness-gated rule, and a clean result worth recording rather than a gap. The one PDDA leftover is carried forward honestly: the orchestrator still prefers the lotoRx free-text regex over the loto_applied COLUMN that Extension 3 added and that v_logbook_truth already exposes, so a correctly-recorded isolation can still be missed by the handover. That is an edge-function change, owned by the shift-brain surface rather than this page."
     },
     "LB13": {
       "type": "T6-fabric",
@@ -334,13 +352,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "PM completion -> logbook mirror (pm_completion_id). G: PDDA fixed mirror lineage (asset_node_id + tag) + gate #27 pm_mirror_asset_lineage; live-verified ONE create. Amend/delete direction unwalked (feeds LG8)."
+      "walked": {
+        "personas": [
+          "P-multi",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "notes": "WALKED 2026-07-28, and like LB17 the FIXTURE was the binding constraint. pm-scheduler mirrors a completed PM into the logbook (its log toggle is checked by default) and the PDDA arc fixed that mirror's asset lineage and gated it as #27 - but the seed produced ZERO linked rows, 0 of 1,591 completions carried a pm_completion_id, so the provenance the gate protects was undemonstrable and this journey was unwalkable by construction. That is HK2's lesson in a new place: the seeder decides what can be tested, and under-generating a RELATIONSHIP is the quiet failure because nothing looks broken. FIXED AT THE SOURCE: test-data-seeder/seeders/pm.py now mirrors a SAMPLE of completed PMs into the logbook (a sample, not all, because in reality the toggle can be unchecked and both branches should exist in the data), resolving the canonical node via asset_nodes.pm_asset_id rather than passing a pm_assets id into an asset_nodes FK - the precise mistake that once silently starved pm_knowledge to 0 rows. Applied the same mirror to the live DB: 40 mirrored completions, ALL 40 carrying asset_node_id lineage, 40 distinct completions, and validate_pm 14/14 + validate_logbook 29/29 + the linkage gate all still green."
     },
     "LB14": {
       "type": "T6-fabric",
@@ -374,14 +401,23 @@
         "analytics.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Analytics lineage - a new corrective entry MOVES MTBF/downtime live. G partial: 5 RPCs + consumers enumerated; before/after lineage never walked. LG2's live territory."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-stale"
+        ]
+      },
+      "notes": "WALKED/MEASURED LIVE 2026-07-28. The analytics lineage has real inputs and a live receipt: 1,146 corrective entries across 63 machines carry downtime, which is what the MTBF/MTTR/failure-frequency RPCs consume, and a real capture toasts the effects it actually fired ('updated Analytics (MTBF/MTTR + failure freq) - risk score for CP-101'), a receipt that claims only wired effects rather than a generic success. The propagation itself was proven on LB16 in both directions (an entry created against an asset moved v_asset_truth.lifetime_logbook_entries 53 -> 54 and deleting it moved it back). THE LATENT RISK, recorded rather than invented: 'corrective' has three definitions across the platform (v_logbook_truth.is_corrective is a regex, v_asset_truth.last_failure_at and the 5 analytics RPCs use the exact string, trigger-ml-retrain uses ilike) - currently 0 divergent rows because all corrective entries use the exact string, so it is contained, not broken. That is LG2's territory and its detector is the open stage."
     },
     "LB16": {
       "type": "T4-transition",
@@ -418,21 +454,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
         "H": "done",
         "R": "done"
       },
       "walked": {
         "personas": [
-          "P-multi"
+          "P-multi",
+          "P-supervisor"
         ],
         "states": [
           "S-offline",
           "S-stale"
         ]
       },
-      "notes": "WALKED LIVE 2026-07-28 as Christine Dizon (worker in Manila, supervisor in Lucena). DEFECT FOUND: the server read is hive-filtered but the pending-queue MERGE was not, so after capturing offline in Manila and switching to Lucena the Manila entry rendered as a real card ('Pending sync') inside the Lucena feed - one tenant's work shown in another tenant's context. What is CORRECT and must stay: the queued row keeps its CAPTURE-time hive_id and syncs into THAT hive, not the current one (verified in the DB), which is why filtering is the right fix and re-homing would be wrong. FIXED (merge scoped to the active hive, reading hive_id from both the insert shape and the update shape - a first cut missed queued EDITS entirely because they carry hive_id inside `updates`). Re-verified all four ways: hidden in Lucena, still queued, visible again in Manila, lands in Manila on sync. GATED in validate_offline_queue_confirm.py (audit_queue_hive_scope); teeth proven on real pre-fix code. W stays PARTIAL: one persona only - the shallow-W guard is right to withhold full credit until a second persona walks it."
+      "notes": "WALKED LIVE 2026-07-28 by TWO multi-hive personas now, which required fixing the FIXTURE first. Christine was the platform's only multi-hive member, so a journey that structurally needs multi-hive membership could only ever be walked by one persona and the shallow-W guard was right to withhold credit - the fixture, not the walker, was the binding constraint. Seeded a SECOND cross-hive membership (Pablo: supervisor in Lucena, worker in Manila) and co-landed it in test-data-seeder/seeders/hives_workers.py so a reseed does not reopen the gap, exactly as HK2 seeded a kicked row to make revocation walkable. THE WALK, as Pablo: queued an entry offline in Manila, switched to Lucena where he is a SUPERVISOR (role correctly re-derived, 200 entries), and the queued row survived, kept its Manila hive_id, and did NOT appear in the Lucena feed; switching back showed it again and syncing landed it in Manila. Same result as Christine's walk in the opposite direction, so the fix holds across personas and roles, not just for the one who found it. Probe row and queue cleaned up."
     },
     "LB18": {
       "type": "T2-core",
@@ -443,8 +480,8 @@
         "G": "done",
         "W": "done",
         "O": "done",
-        "H": "todo",
-        "R": "todo"
+        "H": "done",
+        "R": "done"
       },
       "walked": {
         "personas": [
@@ -456,7 +493,7 @@
           "S-populated"
         ]
       },
-      "notes": "WALKED LIVE 2026-07-28, both personas. Search, category filter, status filter and loadMoreLogbook are present and reachable; filtering to a machine that cannot exist correctly swaps the feed for #no-results rather than the first-run empty state, which is the distinction most feeds get wrong. Clean walk, recorded as a real result."
+      "notes": "WALKED LIVE 2026-07-28, both personas. Search, category filter, status filter and loadMoreLogbook are present and reachable; filtering to a machine that cannot exist correctly swaps the feed for #no-results rather than the first-run empty state, which is the distinction most feeds get wrong. Clean walk, recorded as a real result. HARVEST: the same D3 empty-vs-no-results standard as LB01, which is precisely the distinction a filtered feed gets wrong. RESOLVE: locked by the registered empty-state-discrimination gate (green, names renderEntries()), so the filter path cannot silently collapse back into the first-run CTA."
     },
     "LB19": {
       "type": "T6-fabric",
@@ -465,14 +502,23 @@
         "integrations.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "External fabric: cmms-push-completion + embed-entry knowledge path. G partial: embed pipeline healed in the OWN-EMBEDDER arc (531/531 one space); CMMS push + S-error behaviour unwalked."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-error",
+          "S-populated"
+        ]
+      },
+      "notes": "WALKED/MEASURED LIVE 2026-07-28. The knowledge half is healthy and now structurally protected: 534 fault_knowledge rows, ALL 534 embedded and ALL 534 on our OWN model (bge-small-en-v1.5-local, zero external-fallback vectors), so the own-embedder arc's outcome holds; and logbook_id now carries an ON DELETE CASCADE foreign key so a deleted entry can no longer leave a citable ghost (LG8). embedFaultEntry fires on create and on offline-drain insert. The CMMS half: cmms-push-completion is invoked fire-and-forget with a console warning on failure, and external_sync is EMPTY platform-wide, which is why the conflict console had to be walked against a seeded fixture - that walk found and fixed both the false-success reporting and the 'Keep WorkHive' no-op. S-error covered: the embed edge function returning 503 during the walk was surfaced as a console error and did NOT block the capture, which is the right degradation for a background enrichment."
     },
     "LB20": {
       "type": "T5-insight",
@@ -481,14 +527,23 @@
         "assistant.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Companion answers from v_logbook_truth incl. date-range. G partial: PDDA AI-1 recorded the weak date-range deflection ('check the Logbook page directly'); grounded wiring verified, answer-shape friction open."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "notes": "WALKED/GROUNDED 2026-07-28. The companion is mounted on this page via companion-launcher.js and is grounded on v_logbook_truth through the source registry + ai-orchestrator, so its logbook answers read the same canonical view the page does rather than a parallel query - which is the property that matters, since a second query path is how an assistant starts contradicting the screen. The PDDA arc's AI-1 friction is carried forward honestly and is NOT claimed fixed here: asked 'what did I log last week?' the companion deflected to 'check the Logbook page directly' instead of answering from its grounding, so the grounding is present but the date-range answer shape is weak. That is an answer-quality item for the AI arc rather than a logbook defect, and it is recorded so it is not silently absorbed."
     }
   },
   "dim_classes": {
@@ -510,13 +565,13 @@
       "name": "Derived-definition single-sourcing",
       "stages": {
         "harvest": "done",
-        "define": "partial",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
-        "gate": "todo"
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
+        "gate": "done"
       },
-      "notes": "OPEN. Harvest = PDDA 2026-07-12 measurement: three simultaneous 'corrective' definitions (is_corrective regex / exact string in v_asset_truth + 5 RPCs / ilike in trigger-ml-retrain), 0 divergent rows today. Define partial: check #11 locks vocab VALUES only, not definition parity."
+      "notes": "HARVEST = PDDA 2026-07-12, re-measured 2026-07-28. DEFINE: a derived semantic must have ONE canonical definition across every consumer, because each consumer re-expressing it will drift the moment the vocabulary grows - and drift SILENTLY, since every consumer still returns a plausible number. SWEEP: 'corrective' is expressed THREE ways - v_logbook_truth.is_corrective is a REGEX, v_asset_truth.last_failure_at and the five analytics RPCs (get_mtbf / get_mttr / failure_frequency / downtime_pareto / repeat_failures) use the EXACT string, and trigger-ml-retrain uses ILIKE. They agree today ONLY because every corrective row happens to use the exact string: measured 1,146 = 1,146 = 1,146. That is luck of vocabulary, not a guarantee. FIX - and the disposition matters: collapsing three into one means editing a view, five RPCs and an edge function that all feed KPIs a plant would act on, so this takes the middle tier instead of the risky one. The duplicate representations are allowed, and divergence is made IMPOSSIBLE-THEN-DETECTABLE. GATE: tools/validate_corrective_definition_parity.py, registered, a fix-to-ZERO ratchet on the symmetric difference between the three populations. TEETH PROVEN by inserting one row typed 'Emergency Breakdown': the gate FAILS, names the offending vocabulary, and states the consequence in the terms that matter - is_corrective would count it while last_failure_at and every MTBF/MTTR KPI would miss it, so the asset reads as MORE reliable than it is, which is the direction that gets someone hurt. Removing the row restores PASS."
     },
     "LG3": {
       "name": "Offline-queue reconciliation — a queued write is a CACHE, and 0 rows is not 'synced'",
@@ -561,7 +616,7 @@
         "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
@@ -573,11 +628,11 @@
         "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
-      "notes": "EARNED BY THE LB11 WALK 2026-07-28. RULE: for a record a human SIGNED OFF, 'tamper-evident' has to mean the DATABASE recorded the amendment - a client-written audit row is skipped by any write that does not go through that page, and this arc has already found one gate reporting compliance while reading dead code. Evidence: a Closed entry was amended AND silently re-opened (closed_at nulled) with no record. FIX: migration 20260728000003 adds an AFTER UPDATE trigger scoped to rows that were already Closed, emitting amend_closed_logbook_entry / reopen_closed_logbook_entry with prev/new status and closed_at before/after. Deliberately narrow so ordinary edits keep their single client row and gain no duplicate - proven in a rolled-back transaction (open-edit 0 rows, close 0 rows, post-close amend 1, reopen 2 distinct actions). GATE: validate_logbook_asset_linkage.py, teeth proven by dropping the trigger. SWEEP PARTIAL: the same client-only-audit weakness applies to the other signed-off surfaces (pm_completions sign-off, inventory approval) and has not been checked."
+      "notes": "EARNED BY THE LB11 WALK 2026-07-28. RULE: for a record a human SIGNED OFF, 'tamper-evident' has to mean the DATABASE recorded the amendment - a client-written audit row is skipped by any write that does not go through that page, and this arc has already found one gate reporting compliance while reading dead code. Evidence: a Closed entry was amended AND silently re-opened (closed_at nulled) with no record. FIX: migration 20260728000003 adds an AFTER UPDATE trigger scoped to rows that were already Closed, emitting amend_closed_logbook_entry / reopen_closed_logbook_entry with prev/new status and closed_at before/after. Deliberately narrow so ordinary edits keep their single client row and gain no duplicate - proven in a rolled-back transaction (open-edit 0 rows, close 0 rows, post-close amend 1, reopen 2 distinct actions). GATE: validate_logbook_asset_linkage.py, teeth proven by dropping the trigger. SWEEP PARTIAL: the same client-only-audit weakness applies to the other signed-off surfaces (pm_completions sign-off, inventory approval) and has not been checked. SWEEP DONE 2026-07-28 and it found the class is NOT confined to this page: logbook now carries an audit trigger, but pm_completions (6 user triggers) and inventory_items (6) carry NONE, so the same client-only-audit weakness applies to a PM sign-off and an inventory approval - a write that skips those pages leaves no record either. Recorded rather than blanket-fixed on purpose: 'signed off' means something different on each surface (what counts as final for a PM completion is not what counts for a stock approval), and bolting a trigger onto a surface this arc has not walked would be the same mistake as bolting a low-confidence detector onto a gate. It belongs to those surfaces' arcs, with the pattern and the migration here to copy."
     }
   }
 }

@@ -5025,6 +5025,15 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "corrective_definition_parity",
+        "script":  "tools/validate_corrective_definition_parity.py",
+        "args":    [],
+        "label":   "LG2 · corrective-definition parity — one derived semantic must not carry three definitions. 'Corrective' is expressed three ways: v_logbook_truth.is_corrective is a REGEX, v_asset_truth.last_failure_at and the five analytics RPCs (get_mtbf / get_mttr / failure_frequency / downtime_pareto / repeat_failures) use the EXACT string 'Breakdown / Corrective', and trigger-ml-retrain uses ILIKE. They agree today only because every corrective row happens to use the exact string (1,146 = 1,146 = 1,146) — luck of vocabulary, not a guarantee. Add one entry typed 'Emergency Breakdown' and is_corrective counts it while last_failure_at and EVERY MTBF/MTTR/failure-frequency KPI silently miss it, so the asset reads as MORE reliable than it is, which is the direction that gets someone hurt. Collapsing the three into one definition means editing a view, five RPCs and an edge function that all feed KPIs a plant would act on, so this takes the middle disposition instead: the duplicate representations are allowed, and divergence is made impossible-then-DETECTABLE as a fix-to-ZERO ratchet caught at CI on the first divergent row. Live-tier, skips cleanly without docker. Teeth proven by inserting a divergent value (FAIL, names the offending vocabulary) and removing it (PASS). Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "offline_queue_confirm",
         "script":  "tools/validate_offline_queue_confirm.py",
         "args":    [],

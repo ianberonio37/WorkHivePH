@@ -178,17 +178,32 @@ def seed_hives_and_workers(client, log) -> dict:
     # So: give ONE worker a second membership, in a different hive, with a DIFFERENT role. Different
     # role matters — it makes the switch observable (the board must re-derive supervisor affordances,
     # not carry the previous hive's role across), which is exactly the transition worth walking.
+    # LOGBOOK deepwalk (2026-07-28): make it TWO such workers, not one. The hive arc seeded a single
+    # multi-hive member, which made the switch walkable at all — but a journey that structurally
+    # requires multi-hive membership can then only ever be walked by ONE persona, and the deepwalk
+    # boards refuse to credit a walk below two personas (rightly: one-persona coverage is the
+    # shallowness these arcs exist to kill). So the fixture, not the walker, was the binding
+    # constraint. Seeding a second cross-hive member with a different role fixes the constraint at
+    # its source, the same way HK2 seeded a kicked row so the revocation branch could be exercised.
+    _cross_hive = []
     if len(hives) > 1 and member_rows:
-        primary = member_rows[0]
-        other_hive = next((h["id"] for h in hives if h["id"] != primary["hive_id"]), None)
-        if other_hive:
-            member_rows.append({
-                "hive_id":     other_hive,
-                "worker_name": primary["worker_name"],
-                "auth_uid":    primary["auth_uid"],
-                "role":        "supervisor" if primary["role"] != "supervisor" else "worker",
-                "status":      "active",
-            })
+        _seen_workers = set()
+        for primary in member_rows:
+            if len(_cross_hive) >= 2:
+                break
+            if primary["worker_name"] in _seen_workers:
+                continue
+            _seen_workers.add(primary["worker_name"])
+            other_hive = next((h["id"] for h in hives if h["id"] != primary["hive_id"]), None)
+            if other_hive:
+                _cross_hive.append({
+                    "hive_id":     other_hive,
+                    "worker_name": primary["worker_name"],
+                    "auth_uid":    primary["auth_uid"],
+                    "role":        "supervisor" if primary["role"] != "supervisor" else "worker",
+                    "status":      "active",
+                })
+        member_rows.extend(_cross_hive)
 
     # HK2 (hive deepwalk 2026-07-27): a KICKED membership, so the revocation branch is walkable.
     # hive.html ships an explicit rejoin-blocked path — the initHive kicked check, and submitJoin's

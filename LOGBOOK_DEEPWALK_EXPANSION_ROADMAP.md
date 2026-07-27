@@ -176,7 +176,49 @@ No new H0 walk was needed; the seeds are prior MEASURED findings:
 
 ---
 
-## §7 · NEXT (the standing queue — drive top-down)
+## §7 · STATUS — COMPLETE ON EVERY AXIS §4 NAMES (2026-07-28)
+
+**Journey board 100.0%** (20 journeys × 5 phases; G/W/O/H/R each at 100%). **Class board 100.0%**
+(7 LG classes × 6 stages, over a denominator that GREW from 2 during the arc). **`shallow_W`
+reports zero violations** — every one of the 20 journeys was walked with **≥2 personas AND ≥2
+states**, so no cell was credited on a one-persona glance. Ratcheted; `--accept` sits at the final
+numbers.
+
+Two fixtures had to be built before the board could honestly reach 100%, and both are recorded as
+findings rather than hidden as setup — **the fixture, not the walker, was the binding constraint**:
+
+- **LB17** needed a second multi-hive member. Christine was the platform's only one, so a journey
+  that structurally requires multi-hive membership could only ever be walked by one persona and the
+  guard was right to refuse it. Seeded a second cross-hive membership and co-landed it in
+  `hives_workers.py` so a reseed cannot reopen the gap.
+- **LB13** needed a PM→logbook mirror that existed in data. The wiring was fixed and gated by the
+  PDDA arc (#27), but **0 of 1,591** completions carried a `pm_completion_id`, so the provenance
+  that gate protects was undemonstrable. `pm.py` now mirrors a sample, resolving the canonical node
+  via `asset_nodes.pm_asset_id` rather than feeding a `pm_assets` id into an `asset_nodes` FK —
+  precisely the mistake that once silently starved `pm_knowledge` to zero rows.
+
+Both are the HK2 lesson from the hive arc in new places: **the seeder decides what can be tested,
+and under-generating a relationship is the quiet failure because nothing looks broken.**
+
+### What the arc was, in one line
+**A record that outlives the action it claims to describe.** Found six ways: the offline queue said
+"1 offline change synced" for an edit it deleted; the entry modal offered Edit and Delete on rows
+owner-scoped RLS always refuses; `fault_knowledge` kept citing deleted entries; `hive_audit_log`
+recorded an asset edit the database rejected; `inventory_transactions` recorded a quantity that
+never moved; and a gate reported the DOLE/ISO trail audit-grade while reading a function nothing
+could reach. Every one was confirmed live before it was fixed, fixed structurally, and locked with
+a gate whose teeth were proven by reverting.
+
+### Still open, and NOT owed to this arc
+Two data decisions are deliberately left for a human (see below), and two sweeps found the class
+living on surfaces this arc did not walk: `pm_completions` and `inventory_items` carry the same
+client-only-audit weakness the logbook trigger just closed, and 8 fixed-character-window heuristics
+remain in `validate_logbook.py`. Each belongs to its own surface's arc, with the pattern and the
+migration here to copy.
+
+---
+
+## §7b · PRIOR QUEUE (kept for lineage — all items closed above)
 
 **Board after the first drive (measured, 2026-07-28): 56.0% overall** — journeys 31.5%, classes 80.6%
 over a denominator that GREW from 2 classes to 6. Done: ~~scaffold + gate + shim~~,

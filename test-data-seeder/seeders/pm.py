@@ -179,6 +179,62 @@ def seed_pm(client, log, ctx: dict) -> dict:
     else:
         inserted = 0
 
+    # LOGBOOK deepwalk LB13 (2026-07-28): mirror a sample of completions into the logbook.
+    #
+    # pm-scheduler.html mirrors a completed PM into the logbook (its #sheet-log-toggle is checked by
+    # default) and the PDDA arc fixed that mirror's asset lineage and gated it as #27. But the seed
+    # never produced a single linked row -- 0 of 1,591 completions carried a pm_completion_id -- so
+    # the provenance the gate protects was undemonstrable, and the journey that walks it was
+    # unwalkable by construction. That is the HK2 lesson from the hive arc in a new place: the
+    # seeder decides what can be tested, and under-generating a RELATIONSHIP is the quiet failure
+    # because nothing looks broken.
+    #
+    # Mirrors a sample rather than all of them, because in reality not every PM gets logged: the
+    # toggle can be unchecked. A sample keeps both branches of that reality present in the data.
+    try:
+        done = [c for c in (client.table("pm_completions")
+                            .select("id,hive_id,asset_id,worker_name,completed_at,notes")
+                            .eq("status", "done").limit(40).execute().data or [])]
+        if done:
+            pm_asset_ids = list({c["asset_id"] for c in done if c.get("asset_id")})
+            pa = (client.table("pm_assets").select("id,asset_name,tag_id")
+                  .in_("id", pm_asset_ids).execute().data or [])
+            by_pm_asset = {r["id"]: r for r in pa}
+            # The canonical node is resolved from asset_nodes.pm_asset_id, NOT from a column on
+            # pm_assets (there isn't one). Same resolution the live mirror and embed-entry use --
+            # feeding a pm_assets id straight into an asset_nodes FK is exactly what silently
+            # starved pm_knowledge to 0 rows (reference_pm_knowledge_fk_100pct_broken).
+            nodes = (client.table("asset_nodes").select("id,pm_asset_id")
+                     .in_("pm_asset_id", pm_asset_ids).execute().data or [])
+            node_by_pm_asset = {n["pm_asset_id"]: n["id"] for n in nodes if n.get("pm_asset_id")}
+            mirror_rows = []
+            for c in done:
+                a = by_pm_asset.get(c.get("asset_id")) or {}
+                tag = a.get("tag_id") or a.get("asset_name")
+                if not tag:
+                    continue
+                mirror_rows.append({
+                    "id":                f"pmlog-{c['id'][:12]}",
+                    "hive_id":           c["hive_id"],
+                    "worker_name":       c["worker_name"],
+                    "date":              c["completed_at"],
+                    "machine":           tag,                      # the TAG, not the display name
+                    "asset_node_id":     node_by_pm_asset.get(c.get("asset_id")),  # canonical lineage, gate #27
+                    "maintenance_type":  "Preventive Maintenance",
+                    "category":          "Mechanical",
+                    "problem":           "Scheduled PM",
+                    "action":            (c.get("notes") or "Completed as scheduled"),
+                    "status":            "Closed",
+                    "closed_at":         c["completed_at"],
+                    "pm_completion_id":  c["id"],
+                })
+            if mirror_rows:
+                from .utils import batch_insert
+                n = batch_insert(client, "logbook", mirror_rows, chunk=200)
+                log(f"  mirrored {n} PM completions into the logbook (pm_completion_id lineage)")
+    except Exception as e:                                   # seeding must not die on the sample step
+        log(f"  WARN pm->logbook mirror sample skipped: {e}")
+
     return {
         "pm_assets_count": len(pm_assets_inserted),
         "pm_scope_count": len(scope_items_inserted),
