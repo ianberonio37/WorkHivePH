@@ -4993,6 +4993,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "post_action_coherence",
+        "script":  "tools/validate_post_action_coherence.py",
+        "args":    [],
+        "label":   "MK12 · post-action coherence — a handler that writes and then tells the user it SUCCEEDED must also re-derive the surfaces it just invalidated, or the page contradicts its own receipt. Born from the walk: saving a marketplace search toasted \"Search saved.\" while the counter beside it still read 0 until a full reload, because the handler refreshed the sheet but never called updateSavedSearchBadge(), which already existed. Deliberately tolerant, since a gate that cries wolf on correct code gets ignored: an OPTIMISTIC refresh made BEFORE the write counts (the watchlist toggle updates the heart, then writes, then confirms — better than refreshing after), a degraded/queued notice (\"saved offline, will sync\") is not a commit receipt, and a handler that navigates away or is realtime-backed is exempt. All three shapes were live findings pinned as self-test cases. Forward-only, currently 0. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "error_remedy_actionable",
         "script":  "tools/validate_error_remedy_actionable.py",
         "args":    [],
