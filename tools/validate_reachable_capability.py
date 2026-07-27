@@ -49,6 +49,11 @@ SERVER_FED_ALLOW = {
     "analytics_events", "ai_cost_log", "ai_audit_log", "client_errors", "hive_audit_log",
     "analytics_snapshots", "db_size_history", "ops_artifact_metrics", "agent_memory",
     "agent_episodic_memory", "failure_alerts", "notifications",
+    # Reviewed 2026-07-24 during the MK13 sweep — each is genuinely written off-client:
+    "agentic_rag_traces",             # written by the RAG edge functions as they answer
+    "equipment_reading_templates",    # migration-seeded catalog (see the catalog-tables rule: these are
+                                      # INSERT-only from migrations and must never be in RESET_TABLES)
+    "parts_staging_recommendations",  # produced by the scheduled parts-staging agent
 }
 
 

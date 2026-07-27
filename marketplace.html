@@ -2281,6 +2281,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
     } catch (_) { /* ignore */ /* empty-catch-allow: best-effort silent swallow */ }
 
+    /* MK13 (2026-07-24, Ian chose "build the review flow"): the rating ladder had no first rung —
+       marketplace_reviews was SELECT-only everywhere, so no buyer could write one and no seller could
+       ever earn a rating in-product. STANDING mirrors the RLS policy exactly (20260724000011): signed
+       in, has an inquiry on THIS listing, and is not the seller. Checking it client-side is purely so
+       we do not show a control that would 42501 — the policy is what actually enforces it. */
+    let _canReview = false;
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (session && WORKER_NAME && item.seller_name !== WORKER_NAME) {
+        const { count } = await db.from('marketplace_inquiries')
+          .select('id', { count: 'exact', head: true })
+          .eq('listing_id', id).eq('buyer_name', WORKER_NAME);
+        _canReview = (count || 0) > 0;
+      }
+    } catch (_) { /* empty-catch-allow: best-effort — without standing we simply do not offer the form */ }
+
+    if (_canReview) {
+      reviewsHtml += `
+        <button id="btn-open-review" class="btn-secondary" style="margin-top:0.75rem;min-height:44px;width:100%;">Write a review</button>
+        <div id="review-form" class="hidden" style="margin-top:0.75rem;">
+          <label class="form-label" for="review-rating">Your rating</label>
+          <select class="wh-input" id="review-rating">
+            <option value="5">5 — excellent</option>
+            <option value="4">4 — good</option>
+            <option value="3">3 — okay</option>
+            <option value="2">2 — poor</option>
+            <option value="1">1 — bad</option>
+          </select>
+          <label class="form-label" for="review-comment" style="margin-top:0.5rem;">What happened?</label>
+          <textarea class="wh-textarea" id="review-comment" maxlength="600" placeholder="How was the part, and how did the seller handle it?"></textarea>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin:0.35rem 0 0.5rem;">Your review shows publicly under your name. It counts toward the seller's star rating only once WorkHive confirms the purchase, so an unconfirmed review is still shown but does not change their score.</p>
+          <button id="btn-submit-review" class="btn-primary" style="min-height:44px;width:100%;">Post review</button>
+        </div>`;
+    }
+
     const content = document.getElementById('detail-content');
     if (!content) return;
 
@@ -2412,6 +2447,45 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       openInquirySheet(item);
     });
     document.getElementById('btn-detail-save')?.addEventListener('click', () => toggleWatchlist(item.id));
+
+    /* MK13 review flow. verified_purchase is never sent: the RLS policy only accepts false from a
+       buyer, and the rating is computed over VERIFIED reviews only, so posting here can never move a
+       seller's score. That is deliberate — the form is open, the score stays earned. */
+    document.getElementById('btn-open-review')?.addEventListener('click', () => {
+      document.getElementById('review-form')?.classList.remove('hidden');
+      document.getElementById('btn-open-review')?.classList.add('hidden');
+      document.getElementById('review-comment')?.focus();
+    });
+    document.getElementById('btn-submit-review')?.addEventListener('click', async (ev) => {
+      const btn = ev.currentTarget;
+      const ratingEl = document.getElementById('review-rating');
+      const commentEl = document.getElementById('review-comment');
+      const comment = (commentEl?.value || '').trim();
+      // Validate BEFORE the write, so a blank review never becomes a raw PostgREST error (P4 rule).
+      if (comment.length < 10) {
+        showToast('Tell buyers what happened, in a sentence or two.', 'error');
+        commentEl?.focus();
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Posting…';
+      try {
+        const { error } = await db.from('marketplace_reviews').insert([{
+          listing_id: item.id,
+          reviewer_name: WORKER_NAME,
+          rating: Number(ratingEl?.value || 5),
+          comment: comment,
+          verified_purchase: false,
+        }]);
+        if (error) throw error;
+        showToast('Review posted. Thanks for helping other buyers.', 'success');
+        openDetailSheet(item.id);            // MK12: re-derive the list we just changed
+      } catch (err) {
+        console.error('[marketplace] review insert failed', err);
+        btn.disabled = false; btn.textContent = 'Post review';
+        // MK11: only offer a retry that can work.
+        showToast(whWriteError(err, 'Could not post your review. Try again.'), 'error');
+      }
+    });
     document.getElementById('btn-detail-receive')?.addEventListener('click', () => {
       // Close the parts-flow loop: deep-link to inventory's OWN Restock/Add path (which writes
       // qty_on_hand + inventory_transactions consistently) rather than duplicating that write here.
