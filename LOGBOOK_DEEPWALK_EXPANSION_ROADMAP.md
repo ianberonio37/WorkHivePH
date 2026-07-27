@@ -178,27 +178,38 @@ No new H0 walk was needed; the seeds are prior MEASURED findings:
 
 ## §7 · NEXT (the standing queue — drive top-down)
 
-**Board after the first drive (measured, 2026-07-28): 42.7% overall** — journeys 27.0%, classes 58.3%
-over a denominator that GREW from 2 classes to 5. Done: ~~scaffold + gate + shim~~,
+**Board after the first drive (measured, 2026-07-28): 53.2% overall** — journeys 31.5%, classes 75.0%
+over a denominator that GREW from 2 classes to 6. Done: ~~scaffold + gate + shim~~,
 ~~LB7 offline walk~~ (2 personas × 3 states; silent-loss defect found, fixed across 7 drain sites,
 gated with teeth proven), ~~LB17 switch walk~~ (cross-hive feed leak found, fixed, gated),
 ~~LG5 sweep~~ (came back clean — see below), ~~LB9 / the auth_uid trap~~ (backfilled + one honest
-explainer shared by both write paths).
+explainer shared by both write paths), ~~the stuck Save button~~ (an async race, fixed at the
+source), ~~LB10 / LG9~~ (boundary proven real, glass made honest, gated), ~~LG8~~ (the knowledge
+mirror finally has a foreign key).
 
-1. **LB10 boundary walk** — P-teammate vs P-worker vs P-supervisor on someone else's entry; glass +
-   direct-write probes (LG9 earn attempt). The RLS asymmetry is already mapped and is the thing to
-   test against: SELECT is hive-scoped, UPDATE/DELETE are owner-scoped, so the feed deliberately
-   shows entries you cannot change — the question is whether the *affordances* admit that.
-2. **LB16 amendment walk + LG8** — the orphan finding is already measured (no FK on
-   `fault_knowledge.logbook_id`, 21 live orphans, pre-existing); decide FK-with-`ON DELETE` vs an
-   application-side sweep, then walk edit+delete of a consumed entry and diff asset-hub / analytics
-   / resume before and after.
-3. **LG1 finish** — enumerate every logbook mutation site (saveEdit modal, saveEditFromForm,
+1. **LG1 finish** — enumerate every logbook mutation site (saveEdit modal, saveEditFromForm,
    deleteEntry, the PM mirror, voice/photo capture) against one contract, then detect + gate the
    parity. Confirmation and explanation are single-sourced now; the enumeration is not.
-4. **The small one from the walk** — clicking Save while `openEditModal` is still populating leaves
-   the button disabled with no feedback. Found live, not yet fixed.
-5. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+2. **LG9 sweep** — only the entry-detail modal is audited for offering what RLS refuses. The feed
+   cards, the **asset manager that lives on this same page** (`asset_nodes` upsert/update/delete),
+   and the parts/inventory actions have not been checked for the same shape.
+3. **LG8 sweep** — the sibling mirrors (`pm_knowledge.pm_completion_id`, `skill_knowledge`,
+   `project_links`) have not been checked for the same missing-FK shape that let the knowledge
+   corpus drift.
+4. **LB16 amendment walk** — now that deletes cascade, walk edit+delete of a *consumed* entry and
+   diff asset-hub / analytics / resume before and after (LG6 earn attempt).
+5. **LB11 close/sign-off** — post-close immutability is still unwalked; gate #28 locks the audit
+   *wiring*, not the behaviour (LG4 earn attempt).
+6. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+
+**One decision left with you, deliberately not made in a migration:** one dangling
+`fault_knowledge` row survives — the mirror of the entry this arc deleted to prove the silent-loss
+defect. It holds that entry's full content (WLD-001, "Output current unstable, weld quality poor",
+"Replaced 4 carbon brushes, cleaned commutator"). Either delete the knowledge row, or restore the
+logbook entry from it; then run `ALTER TABLE fault_knowledge VALIDATE CONSTRAINT
+fault_knowledge_logbook_id_fkey;` and the constraint becomes fully verified rather than
+forward-only. I did not restore it myself because `date`, `status` and `downtime_hours` are not in
+the mirror, and a row with those NULL would skew analytics more quietly than a missing row does.
 
 **LG5's sweep came back clean, which is a real result and recorded as one:** every other queue
 surface (community, dayplanner, inventory, pm-scheduler, skillmatrix, asset-hub FMEA) only
@@ -207,12 +218,14 @@ hives. `logbook.html` is the only page that merges pending items into its feed, 
 why it was the only page with the defect. The same shape as the hive arc's finding that `hive.html`
 was the only page mutating role without a reload.
 
-**Fixture note (honest record):** the LB7 walk consumed one real seeded row — `log-3f8360c61f28`
-(Pablo Aguilar, WLD-001) was deleted to prove the silent-loss defect, and its id is randomly
-generated so the seeder cannot restore that exact row. Pablo is at 571 entries, was 572.
-`validate_fixture_capability_coverage.py` still passes on all 4 capabilities and the loss is one row
-in 3,771, but it is a real deletion and is recorded rather than papered over — inventing a
-replacement row would put fabricated maintenance history into the corpus, which is worse.
+**Fixture note (honest record, and a correction):** the LB7 walk consumed one real seeded row —
+`log-3f8360c61f28` (Pablo Aguilar, WLD-001) was deleted to prove the silent-loss defect. Pablo is at
+571 entries, was 572; `validate_fixture_capability_coverage.py` still passes on all 4 capabilities.
+**A claim I made earlier in this arc was wrong and is corrected here:** I reported that none of the
+21 orphaned `fault_knowledge` rows came from this session, but that check only examined the 10 most
+recent orphans and missed mine. One of them *was* the deleted entry's mirror — which is how its
+content turned out to be recoverable after I had already recorded it as lost. See §7 for the
+decision that leaves.
 
 ---
 

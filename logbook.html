@@ -1795,6 +1795,25 @@ async function syncOfflineQueue() {
   }
 }
 
+// LB10 (2026-07-28): can THIS user actually write THIS entry?
+//
+// The client mirror of the server rule, and it must not drift from it: `logbook_update` and
+// `logbook_delete` are owner-scoped (`auth_uid = auth.uid()`) with NO supervisor branch, while
+// `logbook_read` is hive-scoped — so the team feed correctly shows entries nobody but their author
+// may change. The page offered Edit and Delete on every one of them anyway. Verified live that the
+// boundary itself is REAL, not cosmetic: a direct client update AND delete on a teammate's row,
+// with the worker_name filter removed so nothing but RLS stood in the way, both affected 0 rows and
+// left the row untouched. So this is a dead affordance rather than a hole — a worker walking into a
+// guaranteed refusal — and the fix is to stop offering what the database will always deny.
+//
+// RLS stays the enforcement; this only keeps the glass honest about it.
+function _canWriteEntry(entry) {
+  if (!entry) return false;
+  if (entry._offline) return true;                       // not yet on the server; it is still yours
+  if (_authUid && entry.auth_uid) return entry.auth_uid === _authUid;
+  return (entry.worker_name || '') === WORKER_NAME;      // same proxy the write filters already use
+}
+
 // LB9 (2026-07-28): why a write changed 0 rows, answered honestly.
 //
 // An update that matches nothing is not an error — PostgREST returns error:null/204 — and there are
@@ -3608,10 +3627,15 @@ async function openModal(id) {
       </div>
     </div>` : ''}
 
+    ${_canWriteEntry(entry) ? `
     <div class="flex gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <button onclick="openEditModal('${entry.id}')" class="btn-primary flex-1 text-sm">Edit Entry</button>
       <button onclick="confirmDelete('${entry.id}'); document.getElementById('modal').classList.add('hidden');" class="btn-danger px-4 text-sm py-2">Delete</button>
-    </div>
+    </div>` : `
+    <div class="flex items-center gap-2 pt-2 border-t border-white/[0.07] mt-2">
+      <span class="ic ic-secure" aria-hidden="true"></span>
+      <p class="text-xs" style="color:rgba(255,255,255,0.55);">Logged by ${escHtml(entry.worker_name || 'a teammate')}. Only the person who wrote an entry can edit or delete it.<\p>
+    </div>`}
   `;
 
   document.getElementById('modal').classList.remove('hidden');

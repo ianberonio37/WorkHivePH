@@ -2,11 +2,11 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: d36ea007dbccb28c
+source_sha: 68a1c281bc2a500d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (146 foreign keys)
+## fk · relational-integrity graph (147 foreign keys)
 
 **UNINDEXED FK columns (21)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
@@ -31,7 +31,7 @@ supersedes: null
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (96)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (97)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`
@@ -66,11 +66,11 @@ supersedes: null
 - `drone_inspections`.`hive_id` -> `hives`
 - `failure_signature_alerts`.`hive_id` -> `hives`
 - `fault_knowledge`.`hive_id` -> `hives`
+- `fault_knowledge`.`logbook_id` -> `logbook`
 - `hive_adoption_score`.`hive_id` -> `hives`
 - `hive_analytics_cache`.`hive_id` -> `hives`
 - `hive_audit_log`.`hive_id` -> `hives`
 - `hive_benchmarks`.`hive_id` -> `hives`
 - `hive_members`.`hive_id` -> `hives`
-- `hive_quotas`.`hive_id` -> `hives`
 
 Links: [[reference_pm_knowledge_fk_100pct_broken]] [[reference_logbook_asset_linkage_undercount]]

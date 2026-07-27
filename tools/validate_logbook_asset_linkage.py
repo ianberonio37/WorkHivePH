@@ -35,6 +35,21 @@ WHERE l.asset_node_id IS NULL
               WHERE a.hive_id = l.hive_id AND a.tag = l.machine);
 """
 
+# ── LG8 (2026-07-28): the OTHER lineage direction — the knowledge mirror ─────────────────────
+# fault_knowledge mirrors corrective entries into the RAG corpus via logbook_id, but that column
+# had NO foreign key (the table's only FK was hive_id). Deleting an entry therefore left its
+# knowledge row behind, still embedded and still retrievable, citing an entry that no longer
+# exists. Measured 21 dangling rows against the "529/529 valid" reading of 2026-07-12.
+# Migration 20260728000001 added the FK with ON DELETE CASCADE (the knowledge is DERIVED from the
+# entry, so a retracted entry must not leave a citable ghost). This asserts the constraint is still
+# there and still cascades, because a later migration could drop it and nothing else would notice.
+FK_SQL = """
+SELECT pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE conrelid = 'public.fault_knowledge'::regclass AND contype = 'f'
+  AND conname = 'fault_knowledge_logbook_id_fkey';
+"""
+
 # A few example offenders (tag + count) for the failure message.
 SAMPLE_SQL = """
 SELECT l.machine, count(*)
@@ -72,7 +87,10 @@ def analyze():
             if "|" in line:
                 tag, cnt = line.rsplit("|", 1)
                 samples.append(f"{tag.strip()} x{cnt.strip()}")
-    return {"skipped": False, "count": n, "samples": samples}
+    fkdef = (psql(FK_SQL) or "").strip()
+    return {"skipped": False, "count": n, "samples": samples,
+            "knowledge_fk": fkdef,
+            "knowledge_fk_ok": bool(fkdef) and "ON DELETE CASCADE" in fkdef.upper()}
 
 
 def run_selftest():
@@ -83,9 +101,15 @@ def run_selftest():
         problems.append("COUNT_SQL must filter asset_node_id IS NULL")
     if "a.tag = l.machine" not in COUNT_SQL or "a.hive_id = l.hive_id" not in COUNT_SQL:
         problems.append("COUNT_SQL must EXISTS-join asset_nodes on (hive_id, tag = machine)")
+    if "fault_knowledge_logbook_id_fkey" not in FK_SQL or "pg_constraint" not in FK_SQL:
+        problems.append("FK_SQL must read the real constraint definition from pg_constraint "
+                        "by name -- otherwise the knowledge-mirror check has nothing to assert")
     live = analyze()
     if not live.get("skipped") and live.get("count", 0) != 0:
         problems.append(f"live count is {live['count']} (expected 0 after the backfill) -- fix-to-zero ratchet breached")
+    if not live.get("skipped") and not live.get("knowledge_fk_ok"):
+        problems.append("fault_knowledge.logbook_id is missing its ON DELETE CASCADE FK to logbook "
+                        "(migration 20260728000001)")
     return problems
 
 
@@ -109,9 +133,18 @@ def main():
             print(f"  FAIL: {res['count']} logbook entries name a real asset tag EXACTLY but are asset_node_id NULL "
                   f"(asset-brain / analytics undercount their history). Top: {', '.join(res['samples'])}")
             print("  Fix: re-run backfill migration 20260708000000 + harden the logbook save to resolve machine->asset_node_id.")
+        if not res.get("skipped"):
+            if res.get("knowledge_fk_ok"):
+                print("  PASS: fault_knowledge.logbook_id is FK'd to logbook ON DELETE CASCADE "
+                      "(a deleted entry cannot leave a citable ghost in the RAG corpus)")
+            else:
+                print("  FAIL: fault_knowledge.logbook_id has no ON DELETE CASCADE foreign key to logbook "
+                      f"(found: {res.get('knowledge_fk') or 'no constraint'}). A deleted entry orphans its "
+                      "knowledge row, which stays embedded and retrievable citing an entry that no longer exists.")
+                print("  Fix: re-apply migration 20260728000001_fault_knowledge_logbook_fk.sql.")
     if res.get("skipped"):
         return 0
-    return 1 if res["count"] > 0 else 0
+    return 1 if (res["count"] > 0 or not res.get("knowledge_fk_ok")) else 0
 
 
 if __name__ == "__main__":

@@ -110,6 +110,26 @@ TARGETS = [
 _MERGE_FN = "loadEntries"
 
 
+# ── LG9: an affordance the database will always refuse ───────────────────────
+# logbook_update / logbook_delete are owner-scoped (`auth_uid = auth.uid()`) with NO supervisor
+# branch, while logbook_read is hive-scoped — so the team feed correctly lists entries nobody but
+# their author may change, and the detail modal offered Edit and Delete on every one of them.
+# Verified live 2026-07-28 that the boundary itself is REAL (a direct update AND delete on a
+# teammate's row, with the client filter removed, both affected 0 rows), so this was a dead
+# affordance rather than a hole. The fix keeps the glass honest; this keeps the fix.
+def audit_write_affordance_gating(src: str):
+    """The entry-detail Edit/Delete buttons must be gated on an ownership predicate."""
+    for name, body in _find_functions(src):
+        if "openEditModal('${entry.id}')" not in body:
+            continue
+        if not re.search(r"_canWriteEntry\s*\(|entry\.worker_name\s*===?\s*WORKER_NAME|"
+                         r"entry\.auth_uid\s*===?\s*_authUid", body):
+            return [f"logbook.html:{name}() renders Edit/Delete for every entry - the team feed "
+                    f"shows teammates' rows that owner-scoped RLS will always refuse to write"]
+        return []
+    return []
+
+
 def audit_queue_hive_scope(src: str):
     """The function that merges queued rows into the feed must filter them by the active hive."""
     for name, body in _find_functions(src):
@@ -209,6 +229,22 @@ def _selftest() -> int:
         "      const pendingInserts = live.filter(p => p._queueOp !== 'update');")
     chk("hive-scoped queue merge passes", len(audit_queue_hive_scope(fixed_merge)), 0)
 
+    # LG9 — the pre-fix modal offered Edit/Delete on every entry, including teammates'.
+    prefix_modal = """
+    function openModal(id) {
+      const entry = _allEntries.find(e => e.id === id);
+      el.innerHTML = `
+        <div class="flex gap-2">
+          <button onclick="openEditModal('${entry.id}')">Edit Entry</button>
+          <button onclick="confirmDelete('${entry.id}')">Delete</button>
+        </div>`;
+    }
+    """
+    chk("ungated Edit/Delete is caught", len(audit_write_affordance_gating(prefix_modal)), 1)
+
+    fixed_modal = prefix_modal.replace('el.innerHTML = `', 'el.innerHTML = `${_canWriteEntry(entry) ? `')
+    chk("ownership-gated Edit/Delete passes", len(audit_write_affordance_gating(fixed_modal)), 0)
+
     print(f"\n  SELFTEST: {GREEN+'PASS'+RESET if ok else RED+'FAIL'+RESET}")
     return 0 if ok else 1
 
@@ -229,6 +265,7 @@ def main() -> int:
         v = audit_source(fname, src)
         if fname == "logbook.html":
             v += audit_queue_hive_scope(src)
+            v += audit_write_affordance_gating(src)
         checked += len(drains)
         all_violations += v
         status = f"{RED}FAIL{RESET}" if v else f"{GREEN}OK  {RESET}"

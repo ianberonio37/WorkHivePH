@@ -2000,8 +2000,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <span style="font-size:.68rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
             </div>
             <div style="display:flex; gap:6px;">
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:6px; font-size:.65rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
             </div>
           </div>`).join('')}`;
     } catch (e) {
@@ -2009,16 +2009,44 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
   }
 
-  async function resolveConflict(logId, status, winner) {
+  // LG1 (2026-07-28, logbook deepwalk): this console reported reconciliation it had not performed.
+  //
+  // Two defects, both live. First, neither branch checked its write. supabase-js does not THROW on a
+  // failed write, it RETURNS { error }, so the try/catch here caught nothing — and a PostgREST update
+  // matching ZERO rows is not even an error (error:null, 204). That matters more here than almost
+  // anywhere else on the platform: loadConflicts() deliberately excludes the CMMS-sync accounts, so
+  // every row it offers to resolve belongs to a REAL worker, while logbook UPDATE is owner-scoped
+  // (`auth_uid = auth.uid()`, no supervisor branch). A supervisor resolving a teammate's conflict
+  // therefore changed nothing, was told "Resolved", and left SAP and WorkHive diverged — with the
+  // conflict list refreshing to show the same conflict still there.
+  //
+  // Second, the "Keep WorkHive" branch updated `logbook` with the status it already had — a no-op
+  // that contradicted both its own comment and its toast ("SAP will receive the update on next
+  // push"). Keeping WorkHive means writing OUR status onto the EXTERNAL record, which is what
+  // external_sync holds; that is why extId is now passed in.
+  async function resolveConflict(logId, status, winner, extId) {
     try {
       if (winner === 'sap') {
-        // Update logbook to match SAP
-        await db.from('logbook').update({ status }).eq('id', logId);
+        // SAP wins: bring the logbook entry into line with the external record.
+        const { data, error } = await db.from('logbook')
+          .update({ status }).eq('id', logId).select('id');
+        if (error) { showToast('Resolution failed: ' + error.message); return; }
+        if (!data || data.length === 0) {
+          showToast('Could not update that entry. A logbook entry can only be changed by the worker who wrote it, so ask them to set it to "' + status + '".', '⚠️');
+          return;
+        }
         showToast('Resolved: logbook updated to match SAP.');
       } else {
-        // Keep WorkHive — update external_sync to match logbook
-        // (will be re-overwritten on next sync unless worker edits it again)
-        await db.from('logbook').update({ status }).eq('id', logId);
+        // WorkHive wins: write OUR status onto the external record, not back onto our own.
+        if (!extId) { showToast('Cannot keep WorkHive status: the external record is unknown.', '⚠️'); return; }
+        const { data, error } = await db.from('external_sync')
+          .update({ status }).eq('external_id', extId).eq('hive_id', HIVE_ID)
+          .eq('entity_type', 'work_order').select('external_id');
+        if (error) { showToast('Resolution failed: ' + error.message); return; }
+        if (!data || data.length === 0) {
+          showToast('Could not update the external record: it is no longer present for this hive.', '⚠️');
+          return;
+        }
         showToast('Kept WorkHive status. SAP will receive the update on next push.');
       }
       loadConflicts();
