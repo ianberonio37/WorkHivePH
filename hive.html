@@ -2316,9 +2316,44 @@ async function renderHiveSwitcher() {
 }
 
 // ── SHOW INVITE CODE (supervisor) ──
-document.getElementById('btn-show-code').addEventListener('click', () => {
+document.getElementById('btn-show-code').addEventListener('click', async () => {
   const strip = document.getElementById('code-strip');
   strip.classList.toggle('hidden');
+
+  /* H6 (hive deepwalk 2026-07-27): the strip was filled ONLY from localStorage wh_hive_code, which is
+     written just by the two flows that hand you the code directly — creating the hive, or joining as
+     a supervisor with the code in hand. Every other way of becoming a supervisor leaves it empty:
+     being PROMOTED by another supervisor, signing in on a new device, clearing storage, or coming
+     back through recoverHiveMembership (which restores the list from v_worker_truth / v_hives_truth
+     and can only set the code `if (first.code)`). Those supervisors clicked "Show Invite Code" and
+     got a panel reading "Share this code with your team… Members enter this code to join your hive"
+     with NO CODE IN IT — a displayed claim with nothing behind it, and a supervisor who cannot invite
+     anyone. Verified live before fixing.
+     The server can answer: v_hives_truth carries invite_code and is member-scoped, so a supervisor
+     reads their own hive's code and nobody else's. Fetch on demand, cache it for next time, and if
+     the fetch fails say so instead of leaving an empty strip pretending to be a code. */
+  const valEl = document.getElementById('code-strip-value');
+  if (!valEl || strip.classList.contains('hidden')) return;
+  if ((valEl.textContent || '').trim()) return;   // already populated
+
+  const cached = localStorage.getItem('wh_hive_code');
+  if (cached) { valEl.textContent = cached; return; }
+
+  valEl.textContent = _t('Loading…', 'Naglo-load…');
+  try {
+    const { data, error } = await db.from('v_hives_truth')
+      .select('invite_code').eq('id', HIVE_ID).maybeSingle();
+    if (error || !data?.invite_code) {
+      valEl.textContent = _t('Code unavailable — refresh to try again',
+                             'Hindi makuha ang code — i-refresh at subukan ulit');
+      return;
+    }
+    valEl.textContent = data.invite_code;
+    try { localStorage.setItem('wh_hive_code', data.invite_code); } catch (_) { /* empty-catch-allow: cache is best-effort, the code is already shown */ }
+  } catch (_) {
+    valEl.textContent = _t('Code unavailable — refresh to try again',
+                           'Hindi makuha ang code — i-refresh at subukan ulit');
+  }
 });
 
 // ── BOARD INIT ──

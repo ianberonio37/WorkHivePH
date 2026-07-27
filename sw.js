@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v211';  // bump: entering the code of a hive you are ALREADY in no longer shows the new-member welcome screen - it says so and lands you on your board
+const CACHE_NAME  = 'workhive-shell-v212';  // bump: a supervisor who was PROMOTED (or signed in on a new device) saw an empty invite-code panel that still said 'share this code with your team' - the code is now fetched from v_hives_truth when the local cache is empty
+// const CACHE_NAME  = 'workhive-shell-v211';  // bump: entering the code of a hive you are ALREADY in no longer shows the new-member welcome screen - it says so and lands you on your board
 // const CACHE_NAME  = 'workhive-shell-v210';  // bump: role adoption is now centralized in applyHiveRole() - seven places set the role and only two repainted, so joining a hive where you are a worker while holding supervisor paint kept the supervisor layout (4th door onto the same defect)
 // const CACHE_NAME  = 'workhive-shell-v209';  // bump: switching hive now re-derives the role from the SERVER (it adopted the cached role and never repainted, so switching into a hive where you are a worker kept supervisor chrome and hid your own work card); a switch into a hive you were removed from is refused and drops the stale entry
 // const CACHE_NAME  = 'workhive-shell-v208';  // bump: the supervisor paint marker no longer outlives the role (a demoted worker was losing their own work card + PM/stock alerts), and wh-roles.js now understands the 'worker' role it was silently treating as permissive
