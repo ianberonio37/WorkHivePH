@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v198';  // bump: tokens.css + components.css gained the general `.hidden` utility (6 pages were rendering class="hidden" elements permanently visible). A CSS shell file changed AFTER the v197 bump, so PWA users would have kept the cached copy and never received the fix — caught by validate_pwa sw_cache_staleness.
+const CACHE_NAME  = 'workhive-shell-v199';  // bump: the post-sheet account guard now decides on the LIVE SESSION (wh_hive_id survives sign-out, so the previous HIVE_ID check let a signed-out visitor through) and covers BOTH doors incl. the ?post=1&from_inventory= deep link
+// const CACHE_NAME  = 'workhive-shell-v198';  // bump: tokens.css + components.css gained the general `.hidden` utility (6 pages were rendering class="hidden" elements permanently visible). A CSS shell file changed AFTER the v197 bump, so PWA users would have kept the cached copy and never received the fix — caught by validate_pwa sw_cache_staleness.
 // const CACHE_NAME  = 'workhive-shell-v197';  // bump: unbacked-trust-signal sweep (rating reads the canonical verified-only column, no client recompute; honest "Not rated"; Certified badge requires actual certifications on all 3 surfaces) + anon post discloses the account requirement before the form + nav-hub reconciles identity unconditionally
 // const CACHE_NAME  = 'workhive-shell-v196';  // bump: MK7 per-listing Product/Offer JSON-LD (availability from real status) + status added to listing selects
 // const CACHE_NAME  = 'workhive-shell-v188';  // bump: marketplace deepwalk fixes — P7 load-error grid state + admin-link fail-closed gate + restoreIdentityFromSession reconciles stale identity cache

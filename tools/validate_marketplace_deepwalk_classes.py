@@ -183,13 +183,22 @@ def check_mk5_anon_post_discloses_upfront(results: list) -> None:
     if not src:
         results.append(("MK5 anon post discloses upfront", None, "marketplace.html absent — skipped"))
         return
-    m = re.search(r"function openPostSheet\s*\([^)]*\)\s*\{(.*?)\n  \}", src, re.S)
+    # The guard must (a) exist, (b) decide on the SESSION, and (c) cover BOTH entry points.
+    m = re.search(r"async function requirePostAccount\s*\([^)]*\)\s*\{(.*?)\n  \}", src, re.S)
     body = m.group(1) if m else ""
-    gated = bool(m) and "HIVE_ID" in body and "_authUid" in body and "return" in body
-    results.append(("MK5 anon post discloses upfront", gated,
-                    "openPostSheet routes a signed-out visitor to sign-in before the form" if gated
-                    else "openPostSheet opens the full listing form with no session check -> an anon "
-                         "fills every field and only hits the account wall at submit"))
+    # (b) A cache is not proof of an account: `wh_hive_id` survives sign-out, so the first version of
+    # this guard (which accepted HIVE_ID) let a signed-out visitor on a shared device straight through.
+    session_based = bool(m) and "auth.getSession" in body
+    results.append(("MK5 post guard decides on the session, not a cache", session_based,
+                    "requirePostAccount reads the live session" if session_based
+                    else "the post guard is missing or trusts a cached value (wh_hive_id survives "
+                         "sign-out) -> a signed-out visitor on a shared device is treated as an account"))
+    # (c) The post sheet has TWO doors: the FAB (openPostSheet) and the ?post=1&from_inventory= deep
+    # link, which calls openSheet('post') directly and would otherwise walk past the guard entirely.
+    both_doors = len(re.findall(r"requirePostAccount\s*\(", src)) >= 3   # definition + 2 call sites
+    results.append(("MK5 both post entry points are guarded", both_doors,
+                    "the FAB and the from_inventory deep link both call requirePostAccount" if both_doors
+                    else "only one door is guarded -> the other still hands an anon the whole form"))
     audience = "Sign in to list your own parts" in src
     results.append(("MK5 guest stats card is audience-correct", audience,
                     "the MY LISTINGS card addresses a guest instead of asserting they have an account"

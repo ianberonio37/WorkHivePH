@@ -2527,16 +2527,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     });
   })();
 
-  function openPostSheet() {
-    /* J1/J7 2026-07-24 (NN/g trustworthy-design: gating AFTER the user's effort costs far more than
-       disclosing it before). Walked signed-out: the FAB is visible to anons and this opened the ENTIRE
-       listing form; the account requirement only surfaced when the RLS insert failed at submit.
-       Fail SAFE for a signed-in seller whose hive has not resolved yet, fail CLOSED for a true anon. */
-    if (!HIVE_ID && !_authUid) {
-      showToast('Posting a listing needs a WorkHive account. Browsing and contacting sellers stays free.', 'error');
-      setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 1800);
-      return;
-    }
+  /* J1/J7 2026-07-24 (NN/g trustworthy-design: gating AFTER the user's effort costs far more than
+     disclosing it before). Walked signed-out: the FAB is visible to anons and the post sheet opened the
+     ENTIRE listing form; the account requirement only surfaced when the RLS insert failed at submit.
+     Fail SAFE for a signed-in seller whose hive has not resolved yet, fail CLOSED for a true anon.
+     This lives in its own function because the post sheet has TWO entry points: the FAB, and the
+     ?post=1&from_inventory= deep link, which calls openSheet('post') directly and would otherwise walk
+     straight past the guard. Returns true when posting may proceed. */
+  async function requirePostAccount() {
+    /* Gate on the SESSION, never on a cache. The first version of this guard accepted `HIVE_ID`, and
+       `wh_hive_id` SURVIVES sign-out in localStorage — so on a shared device a signed-out visitor still
+       carried a truthy hive id and walked straight through. That is the same stale-cache-as-identity
+       class as the admin-link gate and the nav-hub identity reconcile: a cache says who someone WAS,
+       only the session says who they ARE. Caught by re-testing the guard signed-out instead of
+       assuming it worked. */
+    let session = null;
+    try { session = (await db.auth.getSession())?.data?.session || null; } catch (_) { session = null; }
+    if (session) return true;
+    showToast('Posting a listing needs a WorkHive account. Browsing and contacting sellers stays free.', 'error');
+    setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 1800);
+    return false;
+  }
+
+  async function openPostSheet() {
+    if (!(await requirePostAccount())) return;
     populateCategorySelect(_section);
     openSheet('post');
     updatePriceHint();
@@ -3344,7 +3358,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _params = new URLSearchParams(window.location.search);
       if (_params.get('post') === '1') {
         const _fromInv = _params.get('from_inventory');
-        if (_fromInv) { await prefillPostFromInventory(_fromInv); }
+        // Guard BOTH branches: prefillPostFromInventory ends in openSheet('post') directly, so without
+        // this an anon reaching ?post=1&from_inventory= would still be handed the whole form.
+        if (!(await requirePostAccount())) { /* routed to sign-in */ }
+        else if (_fromInv) { await prefillPostFromInventory(_fromInv); }
         else { openPostSheet(); }
       }
     } catch (_) { /* empty-catch-allow: best-effort; user can still open Post manually */ }
