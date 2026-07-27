@@ -251,16 +251,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-multi"
+        ],
+        "states": [
+          "S-populated",
+          "S-stale"
+        ]
       },
-      "notes": "performLeave() + the audit-log ordering already hardened 2026-07-07 (audit BEFORE self-delete). Walk it end to end: where does the user land?"
+      "notes": "performLeave() + the audit-log ordering already hardened 2026-07-07 (audit BEFORE self-delete). Walk it end to end: where does the user land? | 2026-07-27 WALKED as the LAST SUPERVISOR of a hive, chosen because it is the one path that exercises applyHiveRole('') - the CLEAR direction of the centralization - plus the auto-switch, neither of which any earlier walk had touched. TWO PASSES, no defect. (1) THE COPY IS GENUINELY GOOD and deserves recording rather than skipping past: clicking Leave as the sole supervisor does not just warn, it names the CONSEQUENCE - 'Hand over supervisor before you leave. You run this hive. Pick someone to take over first: without a supervisor, no one can manage the hive or remove members.' - and offers a transfer picker listing real members alongside an explicit 'Leave Without Transferring' escape hatch. That is the MK11 actionable-remedy property in a destructive flow: it explains what breaks, offers the fix first, and still lets an adult proceed. (2) THE STATE TRANSITION IS CLEAN: leaving Lucena (supervisor) auto-switched to Manila, and critically REPAINTED for the new hive's role - role 'worker', html.is-supervisor false, #my-work-card back to flex, and the cached hive list pruned to just Manila. So the clear-then- adopt sequence (applyHiveRole('') in leaveHive, then applyHiveRole(membership.role) in renderHiveSwitcher off a SERVER-verified role) holds. This is the same transition that was broken in three other doors before centralizing; here it was correct on the first try, which is the centralization paying off rather than luck. Fixture restored afterwards (Lucena supervisor membership re-inserted, member_left audit row deleted) and the HK2 gate re-run: 3/3 present."
     },
     "H10-switch-hive": {
       "type": "T4-transition",
