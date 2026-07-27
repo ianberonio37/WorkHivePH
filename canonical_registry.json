@@ -7937,6 +7937,14 @@
       "comment": "Bounds the review flow opened in 20260724000011 to 10 reviews per reviewer per day. Standing already requires an inquiry per listing, so this only bites a scripted abuser, never a real buyer. Raises rather than silently dropping, so the user is never told a review posted when it did not.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "audit_logbook_post_close_amendment": {
+      "defined_in": "20260728000003_logbook_post_close_amendment_audit.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8220,7 +8228,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 311.3
+      "size_kb": 330.3
     },
     "index.html": {
       "tables_read": [],
@@ -8258,7 +8266,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 125.4
+      "size_kb": 127.5
     },
     "inventory.html": {
       "tables_read": [
@@ -8332,7 +8340,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 301.5
+      "size_kb": 308.9
     },
     "marketplace-admin.html": {
       "tables_read": [

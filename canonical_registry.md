@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **192**
+- RPCs:          **193**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -183,6 +183,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ai_cache_sweep_expired` |  | yes | — | — |
 | `amc_expire_stale` |  | yes | — | — |
 | `anomaly_signals_forward_only_status` |  | no | — | — |
+| `audit_logbook_post_close_amendment` |  | yes | — | — |
 | `auth_worker_names` |  | yes | — | — |
 | `award_achievement_xp` | p_worker    text,   p_ach_id    text,   p_xp        int,   p | yes | — | — |
 | `bind_acknowledged_by_from_hive` |  | no | — | — |
