@@ -3669,32 +3669,9 @@ async function openModal(id) {
 // ────────────────────────────────────────────
 // MODAL: EDIT
 // ────────────────────────────────────────────
-let _editPartsUsed    = []; // tracks parts added during edit session
 let _editingEntry     = null; // cached entry being edited
 let _editingId        = null; // null = new entry, string id = edit-in-place mode
-let _editPhotoData    = null; // current photo for the edit modal (null = remove, string = keep/replace)
 let _editingUpdatedAt = null; // updated_at snapshot at edit-open time (optimistic lock sentinel)
-
-function renderEditParts() {
-  // gid-allow: edit-modal scaffold — HTML form pending; guard returns when absent
-  const el = document.getElementById('e-parts-display');
-  if (!el) return;
-  if (!_editPartsUsed.length) { el.innerHTML = '<p class="text-xs text-white/80 py-1">No parts added yet.</p>'; return; }
-  el.innerHTML = _editPartsUsed.map((p, i) => `
-    <div class="flex items-center gap-2 rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-      <div class="flex-1 min-w-0">
-        <span class="text-xs font-semibold text-white/80">${escHtml(p.partName)}</span>
-        ${p.partNumber ? `<span class="text-[10px] text-white/80 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
-      </div>
-      <input type="number" min="0.1" step="0.1" value="${p.qty}" aria-label="Quantity used" class="wh-input w-16 text-center px-1 py-1" style="font-size:1rem;"
-        onchange="_editPartsUsed[${i}].qty = parseFloat(this.value) || 1" />
-      <span class="text-[10px] text-white/80">${escHtml(p.unit || 'pcs')}</span>
-      <button onclick="_editPartsUsed.splice(${i},1); renderEditParts();"
-        class="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);color:var(--wh-red);" aria-label="Remove">
-        <span class="ic ic-close" aria-hidden="true"></span>
-      </button>
-    </div>`).join('');
-}
 
 async function openEditModal(id) {
   // LB9 (2026-07-28): this function is async and sets _editingId only at the very END, after a
@@ -3846,82 +3823,16 @@ async function openEditModal(id) {
 }
 
 
-async function saveEdit(id) {
-  const downtimeRaw = document.getElementById('f-downtime').value;
-  const machine     = document.getElementById('f-machine').value.trim();
-  const assetMatch  = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
-  const newStatus   = document.querySelector('input[name="f-status"]:checked').value;
-
-  // Use cached entry from openEditModal: avoids an extra DB round-trip
-  const existing  = _editingEntry?.id === id ? _editingEntry : null;
-  let closedAt;
-  if (newStatus === 'Closed') {
-    closedAt = existing?.closed_at || new Date().toISOString(); // preserve original close time if re-saving
-  } else {
-    closedAt = null; // reopened: reset the clock
-  }
-
-  const updates = {
-    machine,
-    maintenance_type: document.getElementById('f-maint-type').value,
-    category:        document.getElementById('f-category').value,
-    problem:         document.getElementById('f-problem').value.trim(),
-    root_cause:      document.getElementById('f-root-cause').value,
-    action:          document.getElementById('f-action').value.trim(),
-    knowledge:       document.getElementById('f-knowledge').value.trim(),
-    downtime_hours:  downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
-    photo:           _editPhotoData,
-    status:          newStatus,
-    // Phase 5b: assetMatch.id is the legacy text id; resolve to uuid.
-    asset_node_id:   assetMatch ? await resolveAssetNodeId(db, HIVE_ID, assetMatch.id) : null,
-    hive_id:         HIVE_ID,
-    parts_used:             _editPartsUsed.map(p => ({ partId: p.partId, partName: p.partName, partNumber: p.partNumber, qty: p.qty, unit: p.unit })),
-    closed_at:              closedAt,
-    // gid-allow: edit-modal scaffold — HTML form pending; optional-chained
-    tasklist_acknowledged:  document.getElementById('e-tasklist-ack-check')?.checked ?? existing?.tasklist_acknowledged ?? false,
-    tasklist_note:          _tasklistNote || existing?.tasklist_note || null,
-    failure_consequence:    existing?.failure_consequence ?? null,
-    readings_json:          existing?.readings_json ?? null,
-    production_output:      existing?.production_output ?? null,
-  };
-  _tasklistNote = ''; // clear so it doesn't bleed into the next edit session
-  // Optimistic concurrency guard (PRODUCTION_FIXES #43). logbook.updated_at
-  // is auto-touched by trg_logbook_touch_updated_at on every UPDATE; we
-  // send the row's last-seen value back as a .eq guard so a parallel edit
-  // by another worker is detected and surfaced instead of silently
-  // overwritten.
-  if (existing?.updated_at && typeof ocUpdate === 'function') {
-    const ocRes = await ocUpdate(db, 'logbook', id, updates, existing.updated_at);
-    if (ocRes.conflict) {
-      showToast('Another worker just edited this entry. Refresh the list and try again.');
-      return;
-    }
-    if (!ocRes.ok && ocRes.error) { showToast('Could not update entry: ' + ocRes.error.message); return; }
-  } else {
-    // Fallback path for offline / pre-trigger rows without updated_at.
-    const { error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME);
-    if (error) { showToast('Could not update entry: ' + error.message); return; }
-  }
-  writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
-    new_status: newStatus, prev_status: existing?.status,
-    new_category: updates.category, new_downtime_hours: updates.downtime_hours,
-    parts_added: Array.isArray(_editPartsUsed) ? _editPartsUsed.filter(p => p.partId && !p._existing).length : 0,
-  });
-  // Deduct any newly added parts from inventory
-  for (const p of _editPartsUsed) {
-    if (!p.partId || p._existing) continue;
-    const item = _inventoryItems.find(i => i.id === p.partId);
-    // Arc S C-lens (gap-C-002): atomic balance+ledger in ONE txn (no partial-write corruption)
-    const { data: newQty, error: deductErr } = await db.rpc('inventory_deduct', {
-      p_item_id: p.partId, p_qty: p.qty, p_note: 'Used in job: ' + updates.machine, p_job_ref: updates.machine
-    });
-    if (deductErr) { console.error('edit deduct rpc:', deductErr.message); showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
-    if (item && typeof newQty === 'number') item.qty_on_hand = newQty;
-  }
-  await renderEntries();
-  showToast('Entry updated.');
-  openModal(id);
-}
+// saveEdit() lived here until 2026-07-28. It was the edit-modal save path, and it was DEAD:
+// nothing called it, and the six `e-` prefixed inputs it read do not exist in this page at all --
+// the modal was replaced by the in-place form path (openEditModal -> saveEditFromForm). Removed
+// rather than repaired because it carried the exact defect the LG9 sweep had just fixed in the
+// asset manager: it branched on `error` only, and a 0-row RLS refusal is not an error, so it
+// would have called writeAuditLog() unconditionally and recorded a DOLE/ISO amendment for an edit
+// the database rejected. Dead code carrying a live defect shape is worth deleting, not fixing --
+// fixing it would imply it is reachable. Its scaffold (openPartsPickerForEdit, _editPartsUsed,
+// _editPhotoData) went with it; _editingEntry and _editingUpdatedAt did NOT, because the live
+// saveEditFromForm path uses both.
 
 // ────────────────────────────────────────────
 // EDIT-IN-PLACE: cancel + save via main form
@@ -4057,6 +3968,21 @@ async function saveEditFromForm() {
     if (deductErr) { showToast('Stock update failed for ' + p.partName + ': ' + deductErr.message); continue; }
     if (item && typeof newQty === 'number') item.qty_on_hand = newQty;
   }
+
+  // LG1 (2026-07-28): the amendment record for the DOLE/ISO trail. It was missing here entirely.
+  // gate #28 (audit_trail_wiring) has been green since the PDDA arc because it found this call in
+  // saveEdit() -- the edit-modal path that was DEAD, unreachable, and is now deleted. So every real
+  // logbook amendment since that arc went unrecorded while the gate reported the trail audit-grade.
+  // A false-green gate is the same defect this whole arc is about, one level up: a record (the
+  // gate's own verdict) that did not match what actually happened.
+  //
+  // Placed AFTER the 0-row guard above on purpose, which is the asset-manager lesson: never write an
+  // audit entry for an amendment the database refused.
+  writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
+    new_status: newStatus, prev_status: existing?.status,
+    new_category: updates.category, new_downtime_hours: updates.downtime_hours,
+    parts_added: _partsUsed.filter(p => p.partId && !p._existing).length,
+  });
 
   cancelEditMode();
   await renderEntries();
@@ -5502,10 +5428,8 @@ async function loadInventoryForPicker() {
   }
 }
 
-let _partsPickerMode = 'new'; // 'new' | 'edit'
 
 function openPartsPicker() {
-  _partsPickerMode = 'new';
   const modal = document.getElementById('parts-picker-modal');
   modal.style.display = 'flex';
   document.getElementById('parts-picker-search').value = '';
@@ -5513,14 +5437,8 @@ function openPartsPicker() {
   setTimeout(() => document.getElementById('parts-picker-search').focus(), 80);
 }
 
-function openPartsPickerForEdit() {
-  _partsPickerMode = 'edit';
-  const modal = document.getElementById('parts-picker-modal');
-  modal.style.display = 'flex';
-  document.getElementById('parts-picker-search').value = '';
-  renderPartsPickerList('');
-  setTimeout(() => document.getElementById('parts-picker-search').focus(), 80);
-}
+// openPartsPickerForEdit() removed 2026-07-28 with saveEdit(): it was the only writer of
+// _partsPickerMode = 'edit', and nothing called it.
 
 function closePartsPicker() {
   document.getElementById('parts-picker-modal').style.display = 'none';
@@ -5588,15 +5506,11 @@ function renderPartsPickerList(query) {
 }
 
 function selectPart(partId, partName, partNumber, unit) {
-  if (_partsPickerMode === 'edit') {
-    if (_editPartsUsed.some(p => p.partId === partId)) return;
-    _editPartsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
-    renderEditParts();
-  } else {
-    if (_partsUsed.some(p => p.partId === partId)) return;
-    _partsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
-    renderSelectedParts();
-  }
+  // The 'edit' branch went with saveEdit() on 2026-07-28: openPartsPickerForEdit() was its only
+  // entry point and nothing called it, so _partsPickerMode could never be anything but 'new'.
+  if (_partsUsed.some(p => p.partId === partId)) return;
+  _partsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
+  renderSelectedParts();
   renderPartsPickerList(document.getElementById('parts-picker-search').value.trim());
 }
 

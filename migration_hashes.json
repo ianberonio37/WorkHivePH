@@ -376,5 +376,6 @@
   "20260724000011_marketplace_review_requires_inquiry.sql": "f045b8e3793eb285f05012db0c6aaea5043a728312875539bde82c61ee72ba50",
   "20260724000012_marketplace_review_caps.sql": "b6fb7618c60ae10c09b1abe117f9f9471940f8b4befcb69a89bdef952e2272c1",
   "20260728000000_logbook_auth_uid_backfill.sql": "3c6cfe66dfadb80776c07507fad7ef8616f3a908490d52433a65b21a3ae5d4a8",
-  "20260728000001_fault_knowledge_logbook_fk.sql": "693f7728c12efd842b47fcb042d264ae141744c49db6e1bddff93cc0e6adbcf1"
+  "20260728000001_fault_knowledge_logbook_fk.sql": "693f7728c12efd842b47fcb042d264ae141744c49db6e1bddff93cc0e6adbcf1",
+  "20260728000002_inventory_deduct_ledger_truth.sql": "9230a5fe3d14a1d7445872e53544d30e935cd3cdfba4eac1cf1313260e9de8d1"
 }

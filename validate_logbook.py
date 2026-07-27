@@ -106,18 +106,18 @@ def check_closed_at_consistency(content, page):
 
 
 def check_parts_deduction_guard(content, page):
-    m = re.search(r"async function saveEdit\b", content)
-    if not m:
+    # 2026-07-28: retargeted from saveEdit() to saveEditFromForm(). saveEdit was the edit-MODAL
+    # path and it was dead -- nothing called it, and the `e-` inputs it read do not exist -- so
+    # these three checks had been passing against unreachable code. saveEditFromForm is the path a
+    # worker actually takes. Body read by brace-matching rather than a fixed window, per function_body.
+    body = function_body(content, r"async function saveEditFromForm\s*\(")
+    if body is None:
         return [{"check": "parts_deduction_guard", "page": page,
-                 "reason": "saveEdit() function not found — cannot verify parts deduction guard"}]
-    # Phase Tier2.1 (2026-05-12): saveEdit gained ~600 chars of optimistic-
-    # concurrency wrapping, so the parts-deduction loop now lives further
-    # down. Widen the window from 3000 to 6000 chars (saveEdit is ~120 lines
-    # in total, well within that bound).
-    edit_block = content[m.start():m.start() + 6000]
+                 "reason": "saveEditFromForm() function not found — cannot verify parts deduction guard"}]
+    edit_block = body
     if not re.search(r"if\s*\(!p\.partId\s*\|\|\s*p\._existing\)\s*continue", edit_block):
         return [{"check": "parts_deduction_guard", "page": page,
-                 "reason": "saveEdit() deducts parts without _existing guard — will double-deduct inventory on re-save"}]
+                 "reason": "saveEditFromForm() deducts parts without _existing guard — will double-deduct inventory on re-save"}]
     return []
 
 
@@ -227,15 +227,13 @@ def check_delete_scoped_by_worker(content, page):
 
 
 def check_update_scoped_by_worker(content, page):
-    m = re.search(r"async function saveEdit\s*\(", content)
+    m = re.search(r"async function saveEditFromForm\s*\(", content)
     if not m:
         return [{"check": "update_scoped_by_worker", "page": page,
-                 "reason": "saveEdit() function not found"}]
-    # Phase Tier2.1 (2026-05-12): saveEdit grew with the optimistic-
-    # concurrency wrapper. Window widened to 6000 chars to span the OC
-    # branch + the fallback .update() path that still exists for rows
-    # without updated_at.
-    body = content[m.start():m.start() + 6000]
+                 "reason": "saveEditFromForm() function not found"}]
+    # 2026-07-28: retargeted to the LIVE saveEditFromForm and read by brace-matching, so the check
+    # no longer depends on a fixed window OR on the dead edit-modal path it used to inspect.
+    body = function_body(content, r"async function saveEditFromForm\s*\(")
     # Two acceptable patterns:
     #   (a) Legacy: .from('logbook').update(...).eq('worker_name', WORKER_NAME)
     #   (b) Phase Tier2.1: ocUpdate(db, 'logbook', id, updates, oldStamp)
@@ -243,14 +241,18 @@ def check_update_scoped_by_worker(content, page):
     #       moves on every UPDATE and is unique per writer).
     if re.search(r"ocUpdate\s*\(\s*db\s*,\s*['\"]logbook['\"]", body):
         return []
-    update_m = re.search(r"from\(['\"]logbook['\"]\)\.update\(", body)
+    # Allow the chain to be broken across lines. The live saveEditFromForm writes
+    #   db.from('logbook')\n    .update({...})\n    .eq('id', id)\n    .eq('worker_name', WORKER_NAME)
+    # which the old adjacent-only pattern could not span -- it only ever matched the single-line
+    # form in the dead edit-modal path, which is why this check went red the moment that was deleted.
+    update_m = re.search(r"from\(['\"]logbook['\"]\)\s*\.update\(", body)
     if not update_m:
         return [{"check": "update_scoped_by_worker", "page": page,
-                 "reason": "saveEdit() logbook.update() / ocUpdate call not found"}]
-    after = body[update_m.start():update_m.start() + 200]
+                 "reason": "saveEditFromForm() logbook.update() / ocUpdate call not found"}]
+    after = body[update_m.start():update_m.start() + 400]
     if not re.search(r"\.eq\s*\(['\"]worker_name['\"],\s*WORKER_NAME\s*\)", after):
         return [{"check": "update_scoped_by_worker", "page": page,
-                 "reason": "saveEdit() logbook.update() not scoped by worker_name or ocUpdate — users could overwrite other workers' entries"}]
+                 "reason": "saveEditFromForm() logbook.update() not scoped by worker_name or ocUpdate — users could overwrite other workers' entries"}]
     return []
 
 
@@ -316,19 +318,20 @@ def check_new_fields_in_add_entry(content, page):
 
 def check_new_fields_in_save_edit(content, page):
     """
-    saveEdit() updates object must include or preserve the new fields.
+    saveEditFromForm()'s updates object must include or preserve the new fields.
     Missing = editing an entry silently wipes failure_consequence, readings, production data.
+
+    2026-07-28: retargeted from the dead edit-modal saveEdit() and read by brace-matching.
     """
-    m = re.search(r"async function saveEdit\s*\(", content)
-    if not m:
+    body = function_body(content, r"async function saveEditFromForm\s*\(")
+    if body is None:
         return [{"check": "new_fields_in_save_edit", "page": page,
-                 "reason": "saveEdit() not found"}]
-    body = content[m.start():m.start() + 3000]
+                 "reason": "saveEditFromForm() not found"}]
     issues = []
     for field in NEW_LOGBOOK_FIELDS:
         if field not in body:
             issues.append({"check": "new_fields_in_save_edit", "page": page, "field": field,
-                           "reason": f"saveEdit() updates object missing '{field}' — editing an entry wipes this field to null"})
+                           "reason": f"saveEditFromForm() updates object missing '{field}' — editing an entry wipes this field to null"})
     return issues
 
 
