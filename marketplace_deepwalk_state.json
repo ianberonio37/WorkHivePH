@@ -754,6 +754,18 @@
       },
       "seed": "A success message must not outrun the page. Saving a marketplace search toasted 'Search saved.' while the counter immediately beside it still read 0, and stayed 0 until a full reload: the handler reloaded the SHEET but never called updateSavedSearchBadge(), which already existed. Nothing was wrong with the write; the page disagreed with its own receipt, and a receipt contradicted by the number next to it teaches the user to trust neither.",
       "notes": "DEFINE: a handler that writes and then claims success must also re-derive the surfaces it invalidated. DETECT/SWEEP: tools/validate_post_action_coherence.py, 10 raw hits across 5 pages. FIX: the one REAL instance (saved-search badge) was fixed and verified live. Every other hit proved to be a FALSE POSITIVE, and each taught the detector something: the watchlist toggle refreshes OPTIMISTICALLY before the write (heart, then write, then confirm - better than refreshing after, and the first cut flagged exactly that correct shape); dayplanner/inventory/logbook emit DEGRADED or queued notices ('saved offline, will sync'), which are not commit receipts; and syncHeartIcons had to be recognised as a refresh verb, because the real file was passing only by accident on an unrelated updateCountBadges that happened to sit inside the scan window. All three are pinned as self-test cases. GATE: registered, 7/7 selftest, ratcheted at 0. The deliberate tolerance is the point - a gate that cries wolf on correct code gets ignored, which is worse than not having it."
+    },
+    "MK13-reachable-capability": {
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "gate": "done",
+        "fix": "partial"
+      },
+      "seed": "An empty state must not promise what nothing can produce. Both admin consoles said 'No open disputes' for a queue no buyer can EVER file into - the dispute flow left with the payment rail.",
+      "notes": "DETECT: tools/validate_reachable_capability.py cross-references what each page LISTS against what the whole app can INSERT; a table read-and-listed but written by no page is unreachable from the UI. SWEEP found 4, of which 3 are legitimately server-fed (agentic_rag_traces via edge fn, equipment_reading_templates as a migration-seeded catalog, parts_staging_recommendations from the scheduled agent) and are allowlisted. THE FOURTH IS THE REAL ONE AND IT IS THE DEEPEST FINDING OF THE ARC: marketplace_reviews is SELECT-only on BOTH pages that touch it. There is no review-submission UI anywhere in the app, so no buyer can write a review - and because the verified-only rating is COMPUTED from reviews, a seller cannot currently earn a rating in-product at all. The MK1 work made the rating honest; this shows the ladder behind it has no first rung. Seeded data has reviews only because the seeder writes them with service-role. FIX is PARTIAL by design: the false promise is removed ('Reviews will appear here after buyers submit them' -> an honest statement that reviews are not open yet and what sellers ARE judged on), verified live on an unrated seller. Building the actual review-submission flow is a PRODUCT decision for Ian, not something to infer - it is the open fork this class surfaced."
     }
   }
 }

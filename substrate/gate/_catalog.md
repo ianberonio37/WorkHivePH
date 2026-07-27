@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: cb5f9ad95fca18aa
+source_sha: 1f259a23669fb0e9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (653) — the 'what's already gated' brain
+## gate · registered validators (654) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -211,7 +211,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (458)
+### Platform (459)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -560,6 +560,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rag-flywheel-locks` ⚡ [fail] — RAG Flywheel Locks (inter-tile throttle + domain prefix + view-name self-check + positive-framing seeds + cold_archive demotion)
 - `rag-integrity` ⚡ [fail] — RAG Integrity (Phase 1.5: semantic search, KB chunks, embeddings)
 - `rate-limit-handling` ⚡ [fail] — per-page SaaS-LAYER · Layer RL (Rate Limiting) — METHOD-LAW central-adoption gate. When a page's AI/edge call is rate-limited (server checkAIRateLimit → structu
+- `reachable_capability` ⚡ [fail] — MK13 - reachable capability: a page that LISTS table T and shows a forward-looking empty state ("they will appear here") must have some client path that can INS
 - `reactivity-wiring` [fail] — Reactivity Wiring (Phase D anti-rot: every write surface with cross-page fan-out emits a cross-surface receipt [D1], and every high-blast surface has impact-pre
 - `read-battery` [fail] — Per-page P3 read-correctness + P7 empty-vs-error gate (LIVE headless Playwright, real Baguio supervisor). For 8 READ-heavy pages compares what the page RENDERS 
 - `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc

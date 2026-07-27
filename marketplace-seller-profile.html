@@ -746,7 +746,13 @@
     }
 
     if (!_reviews.length) {
-      wrap.innerHTML = `<div class="empty-reviews">No reviews yet. Reviews will appear here after buyers submit them.</div>`;
+      /* MK13 (2026-07-24): this used to read "Reviews will appear here after buyers submit them." —
+         a promise the product cannot keep. Both pages that touch marketplace_reviews only SELECT from
+         it; there is no review-submission UI anywhere in the app, so no buyer can write one. That also
+         means a seller cannot currently EARN a rating in-product, since the verified-only rating is
+         computed from reviews. Say what is true until the flow exists, rather than implying a door
+         that is not there. */
+      wrap.innerHTML = `<div class="empty-reviews">No reviews yet. Buyer reviews are not open on WorkHive yet, so sellers are judged on their verified ID, certifications and how quickly they reply.</div>`;
       return;
     }
 

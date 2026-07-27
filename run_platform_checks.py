@@ -4993,6 +4993,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "reachable_capability",
+        "script":  "tools/validate_reachable_capability.py",
+        "args":    [],
+        "label":   "MK13 - reachable capability: a page that LISTS table T and shows a forward-looking empty state (\"they will appear here\") must have some client path that can INSERT into T, or the empty state is promising a capability the product does not have. Born from the walk: both admin consoles said \"No open disputes\" for a queue no buyer can ever file into, and the same detector then found marketplace_reviews is SELECT-only everywhere - there is no review-submission UI, so a seller cannot currently earn a rating in-product. Views and reviewed server-fed tables (trigger/edge-fn/cron) are allowlisted, since unwritable-from-the-client is legitimate for those. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "post_action_coherence",
         "script":  "tools/validate_post_action_coherence.py",
         "args":    [],
