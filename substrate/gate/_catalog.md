@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: a69423751b59f961
+source_sha: a63f68fce4f993d0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (649) — the 'what's already gated' brain
+## gate · registered validators (650) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (99)
+### AI Validation (100)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -70,6 +70,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `marketplace_deepwalk_classes` ⚡ [fail] — Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK4 watchlist sold-surface
 - `marketplace_deepwalk_ratchet` ⚡ [fail] — Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)
 - `marketplace_fraud_signals` [fail] — Marketplace fraud signals (MK8: duplicate/spam listings, price anomalies, off-platform payment pressure)
+- `marketplace_partsflow_continuity` ⚡ [fail] — Marketplace parts-flow continuity (MK6) — locks the inventory <-> marketplace ROUND TRIP that the 2026-07-24 deepwalk walked clean in both directions: (1) inven
 - `memory_index_budget` [fail] — Memory hygiene: MEMORY.md index under the session load cap (auto-memory)
 - `memory_pii_redaction` ⚡ [fail] — Arc H: multi-turn PII egress rail (K2, memory_block + summariser, redactMemoryText)
 - `migration_grant_regression` ⚡ [fail] — Arc R: migration grant-regression (a revoked lock not silently re-granted; A01)

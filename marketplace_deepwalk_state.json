@@ -657,12 +657,13 @@
         "define": "done",
         "detect": "done",
         "sweep": "done",
-        "fix": "todo",
-        "gate": "todo"
+        "fix": "done",
+        "gate": "done"
       },
       "seed": "part_number + source_inventory_item_id are written on insert (X keystone), but the inventory->marketplace->inventory ROUND TRIP has never been walked end-to-end. | 2026-07-24 WALKED BOTH DIRECTIONS - CLEAN, no fix needed (a clean walk is a real result). J8 inventory->marketplace: 'marketplace.html?post=1&from_inventory=<id>' opens the post sheet with title, category, description AND both identity fields carried - part_number 'MS-32-AT' + source_inventory_item_id 'at-ms32-1784523395'. So a listing born from stock keeps its provenance, which is the X-keystone. J18 marketplace<-inventory: 'marketplace.html?section=parts&q=<part>' ARRIVES honestly - the search box is prefilled, the Parts section is active, 3 real matches render (JA arrival fidelity holds, no silent drop). REMAINING for this class: J17 'Received this? Add to your inventory' (the third hop) is still unwalked, and there is no GATE yet asserting the two identity fields survive. | J17 third hop WALKED CLEAN: the loop closes into inventory's own restock/add path with the part identity carried on the URL. All THREE hops of the parts-flow round trip are now verified.",
       "distinct_from": "JA (journey-arrival) covers deep-link arrival; MK6 covers IDENTITY SURVIVAL of a domain entity across a 3-hop round trip.",
-      "skill": "data-engineer"
+      "skill": "data-engineer",
+      "notes": " | 2026-07-24 FIX = NO FIX NEEDED, recorded as evidence rather than left ambiguous: the round trip was walked end to end in both directions and every hop held. GATE now built (tools/validate_marketplace_partsflow_continuity.py, registered, 6/6 selftest, 4/4 live). It locks the two halves of the Sell deep link SEPARATELY (a link that inventory emits but marketplace never reads is a dead end that a one-sided grep would call fine), the part_number search filter, the receive round trip, and - checked LIVE against the view, not the migration text - that source_inventory_item_id stays BASE-only, since a later CREATE OR REPLACE VIEW could add it and leak one tenant's internal inventory id to buyers. A clean walk is a real result but not a durable one; this is what makes it stay true."
     },
     "MK7-public-seo-surface-truth": {
       "stages": {

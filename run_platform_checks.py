@@ -4993,6 +4993,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "marketplace_partsflow_continuity",
+        "script":  "tools/validate_marketplace_partsflow_continuity.py",
+        "args":    [],
+        "label":   "Marketplace parts-flow continuity (MK6) — locks the inventory <-> marketplace ROUND TRIP that the 2026-07-24 deepwalk walked clean in both directions: (1) inventory emits a `from_inventory` Sell deep link AND marketplace READS it to prefill (a link nobody reads is a dead end); (2) buyer search matches `part_number`, the strong join key, because inventory is material-centric while listings are equipment-centric so their categories diverge and category alone can never match a part; (3) the listing detail routes back into inventory's own ledger-consistent receive path (`receive=1`); (4) LIVE check that `source_inventory_item_id` stays BASE-only and is never projected through v_marketplace_listings_truth, since it is one tenant's internal inventory id and would leak tenant topology to buyers. A clean walk is a real result but not a durable one — this is what makes it stay true. MK6.4 needs the DB and skips cleanly without it; the rest are static. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
         "id":      "hidden_class_defined",
         "script":  "tools/validate_hidden_class_defined.py",
         "args":    [],
