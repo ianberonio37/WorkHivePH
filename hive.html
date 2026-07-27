@@ -1785,6 +1785,35 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       HIVE_ROLE = membership.role;
       localStorage.setItem('wh_hive_role', membership.role);
     }
+    /* H10 (hive deepwalk 2026-07-27): the ACTIVE membership above is re-validated every load — role
+       synced, kicked handled — but the LIST of hives behind the switcher was not. wh_hives is written
+       at sign-in (index.html) and rebuilt only by recoverHiveMembership(), which runs solely when the
+       user has NO active hive. So with a hive set (the normal case) a membership granted AFTER sign-in
+       — a supervisor adding you to a second plant, a join on another device — stayed invisible in the
+       switcher until sign-out. Walked live: a second membership existed in the DB while "Your Hives"
+       listed only one. Same shape as the identity caches this platform has been bitten by twice: a
+       cache trusted when present and re-derived only when absent. Reconcile it on every load; it is
+       one bounded query against the same view the recovery path already uses. Best-effort — the board
+       must render even if this fails. */
+    (async function reconcileHiveList() {
+      try {
+        const { data: mems, error: mErr } = await db.from('v_worker_truth')
+          .select('hive_id, role').eq('worker_name', WORKER_NAME)
+          .neq('hive_status', 'kicked').limit(500);
+        if (mErr || !mems || !mems.length) return;
+        const { data: hs } = await db.from('v_hives_truth')
+          .select('id, name').in('id', mems.map(m => m.hive_id)).limit(500);
+        if (!hs || !hs.length) return;
+        const prev = getHiveList();
+        saveHiveList(hs.map(h => ({
+          id: h.id,
+          name: h.name,
+          role: (mems.find(m => m.hive_id === h.id) || {}).role || 'worker',
+          // keep any invite code we already held for that hive; it is not in the truth view
+          code: (prev.find(p => p.id === h.id) || {}).code || '',
+        })));
+      } catch (_) { /* empty-catch-allow: switcher freshness is best-effort, never blocks the board */ }
+    })();
     showView('board');
     Promise.resolve(initBoard()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
     return;

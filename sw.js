@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v206';  // bump: J21 lens walk of the new review form - the sentence explaining how the score works moved 0.68rem -> 0.72rem, since it is load-bearing for the decision to post, not an incidental hint
+const CACHE_NAME  = 'workhive-shell-v207';  // bump: hive board now reconciles the MEMBERSHIP LIST on every load - a hive you were added to after sign-in was invisible in the switcher until you signed out
+// const CACHE_NAME  = 'workhive-shell-v206';  // bump: J21 lens walk of the new review form - the sentence explaining how the score works moved 0.68rem -> 0.72rem, since it is load-bearing for the decision to post, not an incidental hint
 // const CACHE_NAME  = 'workhive-shell-v205';  // bump: the review flow ships - buyers with a real inquiry can now write a review, so a seller can finally EARN a rating in-product; unverified reviews are shown but never move the score
 // const CACHE_NAME  = 'workhive-shell-v204';  // bump: MK13 - the seller profile no longer promises 'Reviews will appear here after buyers submit them' when no review-submission UI exists anywhere in the app
 // const CACHE_NAME  = 'workhive-shell-v203';  // bump: MK11 - an error no longer tells you to 'try again' when the write failed because your session expired; central whIsAuthFailure/whWriteError in utils.js, adopted across marketplace + admin surfaces (12 sites -> 2)
