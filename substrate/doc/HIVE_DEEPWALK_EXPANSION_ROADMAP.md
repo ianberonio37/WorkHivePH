@@ -2,7 +2,7 @@
 name: doc-HIVE_DEEPWALK_EXPANSION_ROADMAP
 type: doc
 source: file:HIVE_DEEPWALK_EXPANSION_ROADMAP.md
-source_sha: 105bcff8241fdb94
+source_sha: 345f319e5ac456c6
 last_verified: 2026-07-13
 supersedes: null
 ---

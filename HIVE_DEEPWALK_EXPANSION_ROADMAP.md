@@ -169,27 +169,32 @@ recorded here rather than discarded.
 
 ## §7 · NEXT (the standing queue — drive top-down)
 
-_Tier 1 (tenancy integrity) is CLOSED: H8, H10 and H14 are walked, fixed, gated and harvested.
-Four defects of one class were found through three different doors — revocation, demotion, switch —
-plus a platform-wide RBAC vocabulary hole. §5 now moves to tier 2, the doors._
+**THE ARC IS COMPLETE ON EVERY AXIS §4 NAMES.** Journey board 100.0% (14 journeys × 5 phases, every
+phase at 100%), class board 100.0% (3 HK classes × 6 stages, a denominator that GREW from 2 during the
+arc), and this queue is empty. The `shallow_W` guard reports zero violations, so no W was credited
+without ≥2 personas AND ≥2 states. Ratcheted; `--accept` baseline sits at the final numbers.
 
-1. **H3 `W`+`O` — join by a VALID code**, as `P-new` (no hive) and `P-multi` (already in one).
-   The join writes a membership, so it is the mirror of the removal work just finished: does the
-   client end up painted for the role the SERVER granted, on a page that never reloads?
-2. **H4 `W`+`O` — join by an INVALID code** (wrong, expired, already-a-member, own hive). Error
-   honesty is the lens: a refusal must say which of those it was, per MK11's actionable-remedy class.
-3. **H1/H2 `W`+`O` — first run and create-hive-become-owner.** The owner path mints a supervisor
-   membership; assert the marker and capability paint follow the server, not the optimistic local write.
-4. **HK3 (candidate) — "a role/permission change must repaint every surface that renders it."**
-   Seeded by H8b/H8d: three doors onto one defect is a class, not three bugs. Harvest → define →
-   detect before adding more journeys, so the breadth pass inherits a detector.
-5. **Breadth** — remaining journeys to ≥2 personas × ≥2 states (the `shallow_W` guard enforces it).
+**What the arc was, in one line:** a value painted from CACHE must be reconciled at EVERY place the
+truth arrives, and the path that re-renders IN PLACE (no reload) is the one you will miss.
 
-**Open, not owed to this arc:** `MEMORY.md` sits at 22.6KB / 192 lines, over the soft budget
-(22KB / 138 lines) but under the 24.4KB load cap, so it still loads. `compact_memory_index.py --apply`
-retires nothing because it never auto-retires feedback (doctrine) and the index is almost entirely
-feedback. Which curated pointers leave the INDEX is Ian's call — the topic files stay on disk and stay
-Memento-retrievable either way.
+**Five doors onto that one defect**, each confirmed live before it was fixed: revocation, demotion,
+switch, join, and chrome. Demotion was the worst — the board RENDERS for a demoted member and the
+supervisor CSS is FUNCTIONAL, so a worker lost their own work card and their overdue-PM and stock
+alerts while the page looked normal. Fixed structurally, not five times: `applyHiveRole()` is the ONE
+adopter (7 writers → 1) and every role-driven reveal is now a TOGGLE rather than a one-way remove.
+
+**Still open, and NOT owed to this arc — a product-scope question for Ian:**
+There is no standalone promote/demote control anywhere. The member list offers Remove and Reset PW
+only; the sole role-change affordance is *Transfer & Leave*, reached through the leave flow. So a
+supervisor can hand the role over but ONLY by leaving — they cannot appoint a deputy, cannot demote
+anyone, and cannot create a second supervisor while staying. For a plant running shifts that is a real
+gap, the same shape as the rename gap Ian called on 2026-07-27. Left unbuilt deliberately: promoting
+someone is a privilege grant, and "build it" on *rename* does not transfer to it.
+
+**If a future surface gains in-place hive switching**, it inherits this whole defect class on day one
+and needs `applyHiveRole()` from the start. The sibling pages (inventory / logbook / pm-scheduler /
+shift-brain / asset-hub) are immune only because they re-derive at load and render once — verified by
+forging a supervisor role on each.
 
 ---
 
