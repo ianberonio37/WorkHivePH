@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-27T08:43:07.099441+00:00",
+  "timestamp": "2026-07-27T23:42:33.944206+00:00",
   "validators": {
     "calc-suite": "PASS",
     "auto-discovery": "PASS",
@@ -513,8 +513,16 @@
     "reachable_capability": "PASS",
     "post_action_coherence": "PASS",
     "error_remedy_actionable": "PASS",
+    "hive_deepwalk_ratchet": "PASS",
+    "corrective_definition_parity": "SKIP",
+    "offline_queue_confirm": "PASS",
+    "logbook_deepwalk_ratchet": "PASS",
     "marketplace_partsflow_continuity": "PASS",
     "hidden_class_defined": "PASS",
+    "role_marker_revocation": "PASS",
+    "role_adoption_centralized": "PASS",
+    "role_vocabulary_coverage": "SKIP",
+    "fixture_capability_coverage": "SKIP",
     "committed_env_secret": "PASS",
     "sri_cdn_scripts": "PASS",
     "sast_owasp_complete": "PASS",
