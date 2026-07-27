@@ -1,7 +1,7 @@
 {
   "clones": 56,
-  "duplicatedLines": 3817,
-  "percentage": 19.68,
+  "duplicatedLines": 3820,
+  "percentage": 19.67,
   "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational",
-  "reason_2026_07_24": "Marketplace deepwalk trust-signal sweep. The GENUINE duplication this change introduced (the Certified-badge earned test, repeated on 3 surfaces) was EXTRACTED to window.whCertBadgeEarned in utils.js, not baselined away. The residual growth is the known jscpd shape-vs-copy-paste conflation: the added guards and comments fall inside marketplace-seller-profile.html-s shared page-chrome block (CDN script tag + utils.js + IIFE boilerplate), which jscpd already matches against public-feed.html as a 542-line clone. Both sides were read before re-baselining, per feedback_jscpd_line_count_conflates_shape_with_copypaste."
+  "reason_2026_07_24": " Second +3 on the same day from the MK10 ranking disclosure (a visible order-note paragraph on the seller profile). Same shape-conflation as above: the added markup sits inside the shared page-chrome block jscpd already matches against public-feed.html. No new copy-paste."
 }

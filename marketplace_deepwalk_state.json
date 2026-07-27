@@ -706,17 +706,18 @@
     },
     "MK10-ranking-sort-transparency": {
       "stages": {
-        "harvest": "partial",
+        "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
       "seed": "The grid orders created_at desc with no disclosure of WHY these listings in this order. Ranking transparency is a legal duty for online marketplaces under EU P2B Art.5 and good practice everywhere. | 2026-07-24 FIXED: the grid ordered created_at DESC with NO disclosure, so a buyer could not tell recency from relevance from paid placement. The listings-info line now states it plainly: 'newest first. Sellers cannot pay for placement.' That is the EU P2B Art.5 ranking-parameter duty and, more importantly, an honest answer to 'why am I seeing these?'. VERIFIED live: 'Showing 9 listings - newest first. Sellers cannot pay for placement.'",
       "distinct_from": "Net-new. No existing dim asks a ranked list to EXPLAIN ITSELF.",
       "harvest_query": "EU P2B Regulation 2019/1150 Article 5 ranking transparency; DSA marketplace duties",
-      "skill": "seo-content + designer"
+      "skill": "seo-content + designer",
+      "notes": " | 2026-07-24 SWEEP: the grid on marketplace.html was disclosed earlier; the SECOND ranked list, the seller profile's own listing list, was not. It now carries the same VISIBLE line ('Newest first. Sellers cannot pay for placement.'), shown only when there is an order to describe. A title tooltip was written first and rejected: it never appears on touch, which is most of this audience (feedback_aria_label_only_is_invisible_to_sighted_users). The review list, capped at 20, now also says it is truncated, because the headline rating cites the canonical verified count and the two would otherwise disagree for a seller with more than 20 reviews. | 2026-07-24 HARVEST APPLIED (retrieve-first, no new crawl): substrate/external/external-deceptive-design-dark-pattern-taxonomy.md (deceptive.design/types). Audited the marketplace surfaces against its named patterns: FAKE SOCIAL PROOF was our real one and is what this turn fixed and gated (a rating with no reviews, Gold with no sales, Certified with no certifications). The rest came back clean, measured not assumed: 0 fake-urgency/fake-scarcity strings (no 'only N left', no countdowns, no 'N people viewing'), 0 preselected checkboxes or radios, fees disclosed three times ('no platform fees'), and COMPARISON PREVENTION is inverted here since we ship a compare mode. Hidden subscription / hidden costs are structurally impossible: there is no payment rail."
     }
   }
 }

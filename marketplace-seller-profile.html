@@ -299,6 +299,10 @@
     <h2 data-i="msp_listings">Listings</h2>
     <span class="count" id="listings-count"></span>
   </div>
+  <!-- MK10 (2026-07-24): a ranked list has to say how it is ranked, and it has to say it VISIBLY. A
+       title tooltip does not count: it never appears on touch, which is most of this audience. Same
+       wording as the grid on marketplace.html so the two surfaces agree. -->
+  <p id="listings-order-note" style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin:-0.5rem 0 0.6rem;">Newest first. Sellers cannot pay for placement.</p>
   <div class="filter-row" id="section-filter" role="tablist" aria-label="Filter by section">
     <button class="filter-chip active" data-section="all"      role="tab" aria-selected="true" data-i="f_all">All</button>
     <button class="filter-chip"        data-section="parts"    role="tab" aria-selected="false" data-i="f_parts">Parts</button>
@@ -643,7 +647,10 @@
     if (!grid) return;
 
     const filtered = _section === 'all' ? _listings : _listings.filter(l => l.section === _section);
-    if (countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? ' listing' : ' listings');
+    if (countEl) countEl.textContent = filtered.length === 1 ? '1 listing' : `${filtered.length} listings`;
+    // The ordering note is only meaningful when there is an order to describe.
+    const orderNote = document.getElementById('listings-order-note');
+    if (orderNote) orderNote.style.display = filtered.length > 1 ? '' : 'none';
 
     if (!filtered.length) {
       grid.innerHTML = `
