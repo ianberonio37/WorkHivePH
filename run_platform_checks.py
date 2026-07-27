@@ -5058,6 +5058,15 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        # HIVE DEEPWALK · HK3 — one adopter per page for the canonical role.
+        "id":      "role_adoption_centralized",
+        "script":  "tools/validate_role_adoption_centralized.py",
+        "args":    [],
+        "label":   "A page may adopt the canonical role (`wh_hive_role`) from exactly ONE place. Adopting a role is not one assignment — it is the module variable, the stored hint, AND any paint derived from it, which must move together. Found live 2026-07-27 (hive deepwalk H8b/H8d/H3): hive.html had SEVEN role-adoption sites and only TWO repainted `html.is-supervisor`, whose rules are FUNCTIONAL not cosmetic (they set `#my-work-card{display:none}` and hide `#pm-overdue-alert` / `#stock-alert`). Each unreconciled site was its own door onto the same defect and THREE were confirmed live before being fixed: DEMOTION (role synced down, marker stayed, so a demoted worker lost their own work card and their overdue-PM and stock alerts while the page looked normal), SWITCH (a switch never reloads — it calls initBoard() in place — so the page-load fix never ran), and JOIN (joining a hive where you are a worker while holding supervisor paint from another). The lesson is not 'remember to repaint' but that a value with invariants attached needs ONE adopter, so the invariant is written once instead of remembered seven times; hive.html now routes everything through applyHiveRole(). Verified as an instrument rather than assumed: against pre-centralization hive.html it FAILS with 7 sites (lines 1807/1911/1980/2119/2256/2270/5234), against the fix it passes with 1. Reads are deliberately not counted — counting them would fail every page on the platform — and scan/test harnesses that plant a role to set up a scenario are exempt. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         # HIVE DEEPWALK · H8c — the client role reader must understand every role the DB stores.
         "id":      "role_vocabulary_coverage",
         "script":  "tools/validate_role_vocabulary_coverage.py",

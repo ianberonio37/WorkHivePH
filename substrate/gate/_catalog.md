@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 14d7df64093e663f
+source_sha: 587074da6a0532ed
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (658) — the 'what's already gated' brain
+## gate · registered validators (659) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -212,7 +212,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (462)
+### Platform (463)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -588,6 +588,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `role-checks` ⚡ [blocker] — Client RBAC Ratchet (PLATFORM_CENTRALIZATION +RBAC: raw `role === 'supervisor'` comparisons may only FALL — new client role-gates must use window.WHRoles.isSupe
 - `role-gate-server-backstop` [fail] — P5 UI-role-gate server-backstop gate (LIVE) — the LAST P5 sub-property: several pages source HIVE_ROLE from localStorage (tamperable) and hide supervisor-only a
 - `role-string-consistency` ⚡ [fail] — Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)
+- `role_adoption_centralized` ⚡ [fail] — A page may adopt the canonical role (`wh_hive_role`) from exactly ONE place. Adopting a role is not one assignment — it is the module variable, the stored hint,
 - `role_marker_revocation` ⚡ [fail] — A role-derived class on a PERSISTENT ROOT (<html>/<body>) must be removable — if a page adds one, it must also remove it on the path where the role is lost. Fou
 - `role_vocabulary_coverage` [fail] — The canonical client RBAC reader (wh-roles.js) must UNDERSTAND every role value hive_members actually stores. Found live 2026-07-27 (hive deepwalk H8c): the rea
 - `rpc-argument-consistency` ⚡ [fail] — RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)
