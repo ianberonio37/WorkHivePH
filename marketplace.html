@@ -2311,7 +2311,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </select>
           <label class="form-label" for="review-comment" style="margin-top:0.5rem;">What happened?</label>
           <textarea class="wh-textarea" id="review-comment" maxlength="600" placeholder="How was the part, and how did the seller handle it?"></textarea>
-          <p style="font-size:0.68rem;color:rgba(255,255,255,0.80);margin:0.35rem 0 0.5rem;">Your review shows publicly under your name. It counts toward the seller's star rating only once WorkHive confirms the purchase, so an unconfirmed review is still shown but does not change their score.</p>
+          <!-- 0.72rem, not the 0.68rem used for incidental hints on this page: this sentence explains how
+               the score works and who sees your name, so it is load-bearing for the decision to post, not
+               decoration. Matches the equivalent note on the seller profile. -->
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.80);margin:0.35rem 0 0.5rem;">Your review shows publicly under your name. It counts toward the seller's star rating only once WorkHive confirms the purchase, so an unconfirmed review is still shown but does not change their score.</p>
           <button id="btn-submit-review" class="btn-primary" style="min-height:44px;width:100%;">Post review</button>
         </div>`;
     }

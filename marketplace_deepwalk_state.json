@@ -591,6 +591,33 @@
         ]
       },
       "notes": "2026-07-24: THREE surfaces over ONE authority, not two. marketplace-admin.html + founder-console.html are BOTH retired behind #wh-retired-overlay (reversible, content preserved for ~35 scanners); platform-actions.html is the live governance queue (Grafana owns the volumes/alerts). All three moderation handlers were brought into LOCKSTEP for the MK2 reason capture. Residual: moderated_by falls back to 'admin' on platform-actions/founder-console (WORKER_NAME not defined there) - the actor is still captured in hive_audit_log, but wiring the real name is an open polish item. | 2026-07-24 RESIDUAL CLOSED: moderated_by fell back to the literal string 'admin' on BOTH consoles because neither defines WORKER_NAME - so the moderation record could not say WHO acted, which defeats half the point of recording a moderator at all. Switched both to whWorker() (the shared utils.js identity accessor both pages already load). VERIFIED live through the real platform-actions Reject flow: the row now reads moderated_by='Pablo Aguilar' with the reason and status='removed'. Test row deleted. | 2026-07-24 H APPLIED (retrieve-first, no new crawl): substrate/external/external-nng-confirmation-dialog-consequence-proportional.md. Its testable rule: FAIL on a bare 'Are you sure?', an OK/Cancel with no consequence, or a silent consequential action with no receipt. Audited both moderation surfaces. HOLDS: rejection requires a typed reason and names the consequence; approve/verify/resolve all emit receipts; the one native confirm() (publishing feedback to the PUBLIC roadmap) does state its consequence specifically (indexable by Google, check for private data) - the native-dialog style is separate, already-baselined debt. TWO REAL GAPS FIXED: (1) the reject receipt said only 'Listing rejected.', leaving the admin unsure whether the reason they were REQUIRED to type ever reaches the seller - it now says so, and I verified the claim before shipping it (marketplace-seller.html renders moderation_reason to the seller when status='removed', with a fallback when absent), because an unverified reassurance would be the same false-promise class this arc exists to kill. (2) the catch said 'Action failed. Try again.' even for a 42501/401, i.e. the same doomed-retry class just fixed on the buyer's inquiry step - an expired admin session now says so. Applied to BOTH surfaces (platform-actions + founder-console) as a sibling sweep, not one page. Both reload with 0 console errors."
+    },
+    "J21-write-a-review": {
+      "type": "T8-commerce",
+      "personas": [
+        "P-buyer"
+      ],
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-buyer",
+          "P-anon"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "notes": "The journey that did not exist until this turn: MK13 found marketplace_reviews was SELECT-only everywhere, so no buyer could review and no seller could earn a rating. Built on Ian's call, then DEEP-WALKED as new code rather than trusted, because new code is where new friction lives. STANDING proven both ways (no inquiry -> no control; after a real inquiry -> control appears). Forge proven closed against RLS directly, bypassing the UI: no-standing, self-claimed verified, and impersonation all 42501. Score integrity proven: seller ended with 2 reviews (1 verified, 1 not) and rating_count still 1. LENS RESULTS on the new form: both fields carry a real <label for> (M1, not aria-label-only); submit 45px and the rating select 48px (U2 >=44); focus moves to the comment field on open; the CTA hides itself so it cannot be double-tapped; the validation error is ANNOUNCED because the toast carries role=alert + aria-live=polite (E2); reflow is safe BY CONSTRUCTION - no fixed px widths, fluid wh-input/wh-textarea; note colour is the APCA-calibrated rgba(255,255,255,0.80). ONE FIX FROM THE WALK: the sentence explaining how the score works was 0.68rem (10.88px), the size this page uses for incidental hints. It is load-bearing for the decision to post - it says the review is public under your name - so it is now 0.72rem, matching the equivalent note on the seller profile."
     }
   },
   "dim_classes": {

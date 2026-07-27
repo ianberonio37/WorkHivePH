@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 100.0%** · journeys **100.0%** (20) · MK classes **100.0%** (13)
+**OVERALL 100.0%** · journeys **100.0%** (21) · MK classes **100.0%** (13)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -23,6 +23,7 @@
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J2-buyer-contact-seller | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J20-founder-console-fused-moderation | T11-admin-console | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| J21-write-a-review | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J3-compare-rfq | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J4-watchlist-stale | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J5-saved-search-alert | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
