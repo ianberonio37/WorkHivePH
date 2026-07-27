@@ -926,7 +926,7 @@
       _editItem = null;
       await loadListings();
     } catch (_err) {
-      showToast('Save failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
     }
@@ -945,9 +945,9 @@
         { prev_status: item.status });
       showToast('Listing deleted.', 'success');
       await loadListings();
-    } catch (_) {
+    } catch (_err) {
       console.error('marketplace-seller delete failed:', _);
-      showToast('Delete failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Delete failed. Try again.'), 'error');
     }
   }
 
@@ -967,8 +967,8 @@
       if (error) throw error;
       showToast('Marked as replied.', 'success');
       await loadInquiries();
-    } catch (_) {
-      showToast('Failed. Try again.', 'error');
+    } catch (_err) {
+      showToast(whWriteError(_err, 'Failed. Try again.'), 'error');
       if (btn) { btn.disabled = false; btn.textContent = 'Send Reply + Mark Replied'; }
     }
   }
@@ -979,7 +979,7 @@
       if (error) throw error;
       showToast('Inquiry closed.', 'info');
       await loadInquiries();
-    } catch (_) { console.error('marketplace-seller action failed:', _); showToast('Failed. Try again.', 'error'); }
+    } catch (_err) { console.error('marketplace-seller action failed:', _); showToast(whWriteError(_err, 'Failed. Try again.'), 'error'); }
   }
 
   /* Arc X A3 (list-state persistence): mirror the active tab + listing status filter
@@ -1191,7 +1191,7 @@
       }
       showToast(raw ? 'Messenger handle saved.' : 'Messenger handle cleared.', 'success');
     } catch (_err) {
-      showToast('Save failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
     }
@@ -1249,7 +1249,7 @@
       }
       showToast(normalized ? 'Saved. Admin will review your certifications.' : 'Certifications cleared.', 'success');
     } catch (_err) {
-      showToast('Save failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Save certifications'; }
     }

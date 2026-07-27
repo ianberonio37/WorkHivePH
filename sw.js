@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v202';  // bump: saved-search badge refreshes on save (the toast said saved while the counter still read 0 until reload) + the disputes empty state stops implying a capability the contact-only marketplace does not have
+const CACHE_NAME  = 'workhive-shell-v203';  // bump: MK11 - an error no longer tells you to 'try again' when the write failed because your session expired; central whIsAuthFailure/whWriteError in utils.js, adopted across marketplace + admin surfaces (12 sites -> 2)
+// const CACHE_NAME  = 'workhive-shell-v202';  // bump: saved-search badge refreshes on save (the toast said saved while the counter still read 0 until reload) + the disputes empty state stops implying a capability the contact-only marketplace does not have
 // const CACHE_NAME  = 'workhive-shell-v201';  // bump: moderation receipts now name what happened (a rejection tells the admin the seller can see the reason and resubmit) and an expired admin session no longer says 'try again' - platform-actions + founder-console
 // const CACHE_NAME  = 'workhive-shell-v200';  // bump: MK3 - the Contact Seller step now gates on the live session and discloses WHY an account is needed BEFORE opening the inquiry form (an anon used to type name+phone+message and get 'Failed to send inquiry. Try again.' from a 42501), and an auth failure no longer invites a doomed retry
 // const CACHE_NAME  = 'workhive-shell-v199';  // bump: the post-sheet account guard now decides on the LIVE SESSION (wh_hive_id survives sign-out, so the previous HIVE_ID check let a signed-out visitor through) and covers BOTH doors incl. the ?post=1&from_inventory= deep link

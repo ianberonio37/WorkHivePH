@@ -743,7 +743,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       renderListings();
       await loadStats();
     } catch (_err) {
-      showToast('Action failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Action failed. Try again.'), 'error');
       btns?.forEach(b => { b.disabled = false; });
     }
   }
@@ -796,7 +796,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast(labelMap[action] || 'Updated.', verified ? 'success' : 'info');
       await Promise.all([loadSellers(), loadStats()]);
     } catch (_err) {
-      showToast('Update failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Update failed. Try again.'), 'error');
     }
   }
 
@@ -963,7 +963,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       await loadDisputes();
       await loadStats();
     } catch (_err) {
-      showToast('Action failed. Try again.', 'error');
+      showToast(whWriteError(_err, 'Action failed. Try again.'), 'error');
       card?.querySelectorAll('button').forEach(b => { b.disabled = false; });
     }
   }

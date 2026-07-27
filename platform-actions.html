@@ -297,8 +297,7 @@
           // Same rule as the marketplace inquiry step: only say "try again" when trying again could
           // actually work. A 42501/401 here means the admin session expired or the role no longer
           // resolves, and retrying will fail identically until they sign in again.
-          const _authFail = err && (String(err.code) === '42501' || String(err.status) === '401'
-                                    || /row-level security|JWT|not authenticated|permission denied/i.test(String(err.message || '')));
+          const _authFail = whIsAuthFailure(err);
           showToast(_authFail
             ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
             : 'Action failed. Try again.', 'error');

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 2a112c52ec6053c3
+source_sha: c9f973d930fc35f7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (651) — the 'what's already gated' brain
+## gate · registered validators (652) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -211,7 +211,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (456)
+### Platform (457)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -399,6 +399,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `env-variable-existence` ⚡ [fail] — Env Variable Existence (every env reference must be in .env.example/README; forward-only ratchet)
 - `episodic-memory-wiring` ⚡ [fail] — Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)
 - `error-capture` ⚡ [fail] — per-page SaaS-LAYER · Layer L (Error Tracking & Logs) — a catch around a BACKEND op (db.from/db.rpc/db.functions.invoke/fetch) that SURFACES the error to the us
+- `error_remedy_actionable` ⚡ [fail] — MK11 · error-remedy actionability — a catch around a client WRITE (insert/upsert/update/delete/rpc/functions.invoke) that tells the user to "try again" must FIR
 - `event-listener-cleanup` ⚡ [fail] — Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)
 - `external-link-rel` ⚡ [fail] — External Link rel=noopener (every <a target=_blank> sets rel=noopener/noreferrer; forward-only ratchet)
 - `fab-consolidation` ⚡ [blocker] — FAB Consolidation Contract (bottom-right corner stays consolidated into the nav-hub; companion/feedback/connectivity launch from inside the hub, no standalone c

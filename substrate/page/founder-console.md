@@ -2,7 +2,7 @@
 name: page-founder-console
 type: page
 source: file:founder-console.html
-source_sha: 2f6007a55293a1a2
+source_sha: e36fbd0752423b5c
 last_verified: 2026-07-13
 supersedes: null
 ---

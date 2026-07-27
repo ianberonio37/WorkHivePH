@@ -1307,6 +1307,35 @@ function whCertBadgeEarned(seller) {
   return String(seller.certifications || '').trim().length > 0;
 }
 if (typeof window !== 'undefined') window.whCertBadgeEarned = whCertBadgeEarned;
+// Central WRITE-failure message (MK11 · error-remedy actionability, marketplace deepwalk 2026-07-24).
+// The same shape turned up four independent times in one walk: a client write failed because the
+// SESSION was gone (42501 / 401 / RLS), and the catch answered "Try again." Retrying reproduces that
+// failure exactly, so the app was proposing a remedy it knew could not work — after the user had
+// already typed, in one case a phone number. The harvested standard (nngroup.com/articles/
+// error-message-guidelines) asks an error to give "context and potential remedies" and "instructions
+// on how to resolve"; a remedy that cannot resolve it fails that on its own terms.
+// One helper rather than a branch per call site, the same way whAiError centralizes the 429 mapping.
+// `fallback` is the caller's own wording for a genuinely retryable failure, so nothing is flattened.
+// The DETECTION is what must be shared; the REMEDY should stay local. A caller that can say "sign in
+// again and re-save it" or "your message will go through" is giving better instructions than any
+// generic string, which is what the standard asks for, so the helper deliberately does not flatten
+// those. Sites with nothing specific to add use whWriteError below.
+function whIsAuthFailure(err) {
+  if (!err) return false;
+  var code = err.code != null ? String(err.code) : '';
+  var status = err.status != null ? String(err.status) : '';
+  var msg = String(err.message || '');
+  return code === '42501' || status === '401' || status === '403'
+    || /row-level security|permission denied|not authenticated|JWT|invalid token|session expired/i.test(msg);
+}
+if (typeof window !== 'undefined') window.whIsAuthFailure = whIsAuthFailure;
+
+function whWriteError(err, fallback) {
+  return whIsAuthFailure(err)
+    ? 'Your session expired, so nothing was saved. Sign in again and redo this step.'
+    : (fallback || 'That did not go through. Please try again.');
+}
+if (typeof window !== 'undefined') window.whWriteError = whWriteError;
 // Central refresh-retry dedup guard (deepwalk D2, 2026-07-22). A NON-idempotent client write (a fresh-id
 // insert or a decrement RPC) carries no idempotency key, so a refresh-mid-submit then retry creates a
 // DUPLICATE / double effect (live-confirmed: logbook dup entry; inventory double stock deduction). The

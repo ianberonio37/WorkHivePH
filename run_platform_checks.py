@@ -4993,6 +4993,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "error_remedy_actionable",
+        "script":  "tools/validate_error_remedy_actionable.py",
+        "args":    [],
+        "label":   "MK11 · error-remedy actionability — a catch around a client WRITE (insert/upsert/update/delete/rpc/functions.invoke) that tells the user to \"try again\" must FIRST branch on the auth/permission case, because a 42501/401 means the session is gone and retrying reproduces the failure exactly. Born from the walk, not a reading list: the 2026-07-24 deepwalk hit this shape four independent times (buyer inquiry, platform-actions, founder-console, saved-search save) — on the inquiry step the user had already typed a phone number before being told to retry something that could never work. Standard: nngroup.com/articles/error-message-guidelines (\"context and potential remedies\", \"instructions on how to resolve\"). The branch is centralized as window.whIsAuthFailure / whWriteError in utils.js, and the detector accepts either the helper or an inline signature test, so adopting the helper never reads as a regression. Forward-only; 12 -> 2 on the seeding sweep. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "marketplace_deepwalk_ratchet",
         "script":  "validate_marketplace_deepwalk.py",
         "args":    [],

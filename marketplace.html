@@ -1530,8 +1530,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } catch (_err) {
       console.error('marketplace saved-search save failed:', _err);
       // Only offer a retry when retrying could work; an expired session needs a sign-in, not a re-tap.
-      const _authFail = _err && (String(_err.code) === '42501' || String(_err.status) === '401'
-                                 || /row-level security|JWT|not authenticated/i.test(String(_err.message || '')));
+      const _authFail = whIsAuthFailure(_err);
       showToast(_authFail
         ? 'Your session expired, so the search was not saved. Sign in again and re-save it.'
         : 'Could not save. Try again.', 'error');
@@ -1589,9 +1588,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (error) throw error;
       showToast('Saved search removed.', 'info');
       openSavedSearchesSheet(); /* reload */
-    } catch (_) {
+    } catch (_err) {
       console.error('marketplace saved-search delete failed:', _);
-      showToast('Could not delete. Try again.', 'error');
+      showToast(whWriteError(_err, 'Could not delete. Try again.'), 'error');
     }
   }
 
@@ -1652,7 +1651,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (isSaved) _watchlist.add(listingId);
       else _watchlist.delete(listingId);
       syncHeartIcons(listingId);
-      showToast('Could not update watchlist. Try again.', 'error');
+      showToast(whWriteError(_err, 'Could not update watchlist. Try again.'), 'error');
     }
   }
 
@@ -1771,7 +1770,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // watchlist delete that starts failing would otherwise be invisible in the console.
           console.error('[marketplace] clear-gone watchlist saves failed', err);
           _b.disabled = false; _b.textContent = 'Remove';
-          showToast('Could not update your saved list. Try again.', 'error');
+          showToast(whWriteError(err, 'Could not update your saved list. Try again.'), 'error');
         }
       });
 
@@ -3084,8 +3083,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       console.error(err);
       // "Try again" must only be said when trying again could actually work. A 42501/401 means the
       // session is missing or expired, and no amount of retrying fixes that (MK3, 2026-07-24).
-      const _authFail = err && (String(err.code) === '42501' || String(err.status) === '401'
-                                || /row-level security|JWT|not authenticated/i.test(String(err.message || '')));
+      const _authFail = whIsAuthFailure(err);
       showToast(_authFail
         ? 'Your session expired, so the inquiry was not sent. Sign in again and your message will go through.'
         : 'Failed to send inquiry. Try again.', 'error');
