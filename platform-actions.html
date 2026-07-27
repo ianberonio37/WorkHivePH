@@ -261,7 +261,12 @@
               .update(_patch).eq('id', btn.dataset.id);
             if (error) throw error;
             writeAuditLog(act === 'approve-listing' ? 'approve_listing' : 'reject_listing', 'marketplace_listings', btn.dataset.id, btn.dataset.id, { new_status: newStatus });
-            showToast(act === 'approve-listing' ? 'Listing approved: now live to buyers.' : 'Listing rejected.', act === 'approve-listing' ? 'success' : 'info');
+            // J3 receipt: name what actually happened. "Listing rejected." left the admin unsure
+            // whether the reason they were required to type ever reaches the seller. It does.
+            showToast(act === 'approve-listing'
+              ? 'Listing approved: now live to buyers.'
+              : 'Listing rejected. The seller can see your reason and resubmit.',
+              act === 'approve-listing' ? 'success' : 'info');
           } else if (act === 'verify-kyb' || act === 'verify-cert') {
             const nowIso = new Date().toISOString();
             const upd = act === 'verify-kyb'
@@ -289,7 +294,14 @@
           await refreshQueues();
         } catch (err) {
           console.error('platform-actions action failed:', err);
-          showToast('Action failed. Try again.', 'error');
+          // Same rule as the marketplace inquiry step: only say "try again" when trying again could
+          // actually work. A 42501/401 here means the admin session expired or the role no longer
+          // resolves, and retrying will fail identically until they sign in again.
+          const _authFail = err && (String(err.code) === '42501' || String(err.status) === '401'
+                                    || /row-level security|JWT|not authenticated|permission denied/i.test(String(err.message || '')));
+          showToast(_authFail
+            ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
+            : 'Action failed. Try again.', 'error');
           btn.disabled = false;
         }
       });

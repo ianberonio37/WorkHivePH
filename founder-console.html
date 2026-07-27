@@ -1879,7 +1879,10 @@
               .update(_patch).eq('id', btn.dataset.id);
             if (error) throw error;
             if (typeof writeAuditLog === 'function') writeAuditLog(act === 'approve-listing' ? 'approve_listing' : 'reject_listing', 'marketplace_listings', btn.dataset.id, btn.dataset.id, { new_status: newStatus });
-            showToast(act === 'approve-listing' ? 'Listing approved: now live to buyers.' : 'Listing rejected.', act === 'approve-listing' ? 'success' : 'info');
+            showToast(act === 'approve-listing'
+              ? 'Listing approved: now live to buyers.'
+              : 'Listing rejected. The seller can see your reason and resubmit.',
+              act === 'approve-listing' ? 'success' : 'info');
           } else if (act === 'verify-kyb' || act === 'verify-cert') {
             const nowIso = new Date().toISOString();
             const upd = act === 'verify-kyb'
@@ -1908,7 +1911,13 @@
           renderMktModeration(await fetchMktModeration());  // refresh the queues
         } catch (err) {
           console.error('founder-console action failed:', err);
-          showToast('Action failed. Try again.', 'error');
+          // Only say "try again" when trying again could actually work: a 42501/401 means the admin
+          // session expired, and retrying fails identically until they sign in again (J3 receipt honesty).
+          const _authFail = err && (String(err.code) === '42501' || String(err.status) === '401'
+                                    || /row-level security|JWT|not authenticated|permission denied/i.test(String(err.message || '')));
+          showToast(_authFail
+            ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
+            : 'Action failed. Try again.', 'error');
           btn.disabled = false;
         }
       });

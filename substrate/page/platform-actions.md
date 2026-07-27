@@ -2,13 +2,13 @@
 name: page-platform-actions
 type: page
 source: file:platform-actions.html
-source_sha: 93dfa8ba9803fd9c
+source_sha: 3aaee5279ac216d1
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `platform-actions.html` — Platform Actions · WorkHive
 
-Size: 19KB · 7 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 20KB · 7 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (4): `hive_audit_log.insert`, `marketplace_disputes.update`, `marketplace_listings.update`, `marketplace_sellers.update`
 **RPC calls**: (none)

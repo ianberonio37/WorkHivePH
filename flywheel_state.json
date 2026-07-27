@@ -1,180 +1,6 @@
 {
-  "turn": 265,
+  "turn": 268,
   "history": [
-    {
-      "turn": 256,
-      "ts": "2026-07-27T09:52:25",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 2436,
-          "to": 2485,
-          "delta": 49
-        },
-        "L0_validators_with_baseline": {
-          "from": 177,
-          "to": 177,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [
-        {
-          "validator": "marketplace_deepwalk",
-          "from": 25,
-          "to": 74,
-          "classification": "unknown",
-          "scored": true,
-          "env_up": true,
-          "note": "no validate_<name>.py to re-run; surfaced conservatively"
-        }
-      ],
-      "L0_regressions_quarantined": [],
-      "env_up": true,
-      "promotions": {
-        "rule_candidates": 5,
-        "sentinel_candidates": 1,
-        "tracked_total": 9,
-        "below_threshold": 2,
-        "top_rule": "rule:python_tool:has_print_calls",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
-    {
-      "turn": 257,
-      "ts": "2026-07-27T10:26:33",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 2485,
-          "to": 2488,
-          "delta": 3
-        },
-        "L0_validators_with_baseline": {
-          "from": 177,
-          "to": 177,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [
-        {
-          "validator": "marketplace_deepwalk",
-          "from": 74,
-          "to": 77,
-          "classification": "unknown",
-          "scored": true,
-          "env_up": true,
-          "note": "no validate_<name>.py to re-run; surfaced conservatively"
-        }
-      ],
-      "L0_regressions_quarantined": [],
-      "env_up": true,
-      "promotions": {
-        "rule_candidates": 7,
-        "sentinel_candidates": 1,
-        "tracked_total": 9,
-        "below_threshold": 0,
-        "top_rule": "rule:python_tool:has_print_calls",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
-    {
-      "turn": 258,
-      "ts": "2026-07-27T10:57:02",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 2488,
-          "to": 2489,
-          "delta": 1
-        },
-        "L0_validators_with_baseline": {
-          "from": 177,
-          "to": 177,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [
-        {
-          "validator": "render_budget",
-          "from": 9,
-          "to": 10,
-          "classification": "adoption-ratchet",
-          "scored": false,
-          "env_up": true,
-          "fresh_count": 10
-        }
-      ],
-      "env_up": true,
-      "promotions": {
-        "rule_candidates": 7,
-        "sentinel_candidates": 1,
-        "tracked_total": 9,
-        "below_threshold": 0,
-        "top_rule": "rule:python_tool:has_print_calls",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
     {
       "turn": 259,
       "ts": "2026-07-27T11:19:12",
@@ -510,6 +336,170 @@
         "top_rule": "rule:python_tool:has_print_calls",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
+    },
+    {
+      "turn": 266,
+      "ts": "2026-07-27T13:49:50",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 2489,
+          "to": 2496,
+          "delta": 7
+        },
+        "L0_validators_with_baseline": {
+          "from": 177,
+          "to": 177,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [
+        {
+          "validator": "marketplace_deepwalk",
+          "from": 77,
+          "to": 84,
+          "classification": "unknown",
+          "scored": true,
+          "env_up": true,
+          "note": "no validate_<name>.py to re-run; surfaced conservatively"
+        }
+      ],
+      "L0_regressions_quarantined": [],
+      "env_up": true,
+      "promotions": {
+        "rule_candidates": 7,
+        "sentinel_candidates": 1,
+        "tracked_total": 8,
+        "below_threshold": 0,
+        "top_rule": "rule:python_tool:has_print_calls",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
+    },
+    {
+      "turn": 267,
+      "ts": "2026-07-27T14:08:47",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 2496,
+          "to": 2504,
+          "delta": 8
+        },
+        "L0_validators_with_baseline": {
+          "from": 177,
+          "to": 177,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [
+        {
+          "validator": "marketplace_deepwalk",
+          "from": 84,
+          "to": 92,
+          "classification": "unknown",
+          "scored": true,
+          "env_up": true,
+          "note": "no validate_<name>.py to re-run; surfaced conservatively"
+        }
+      ],
+      "L0_regressions_quarantined": [],
+      "env_up": true,
+      "promotions": {
+        "rule_candidates": 7,
+        "sentinel_candidates": 1,
+        "tracked_total": 8,
+        "below_threshold": 0,
+        "top_rule": "rule:python_tool:has_print_calls",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
+    },
+    {
+      "turn": 268,
+      "ts": "2026-07-27T14:09:41",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 2504,
+          "to": 2504,
+          "delta": 0
+        },
+        "L0_validators_with_baseline": {
+          "from": 177,
+          "to": 177,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [],
+      "env_up": null,
+      "promotions": {
+        "rule_candidates": 7,
+        "sentinel_candidates": 1,
+        "tracked_total": 8,
+        "below_threshold": 0,
+        "top_rule": "rule:python_tool:has_print_calls",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
     }
   ],
   "snapshots": {
@@ -639,7 +629,7 @@
         "llm_cache_adoption": 3,
         "localstorage_key_consistency": 0,
         "log_surface": 0,
-        "marketplace_deepwalk": 77,
+        "marketplace_deepwalk": 92,
         "memory_recall": 25,
         "meta_description_coverage": 0,
         "meta_refresh": 0,
@@ -710,7 +700,7 @@
         "view_select_star": 0,
         "viewport_user_scalable": 0
       },
-      "total_baseline_count": 2489,
+      "total_baseline_count": 2504,
       "validators_with_baseline": 177
     },
     "L2": {
@@ -727,50 +717,50 @@
     "rule:html:loads_utils_js": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 265,
-      "seen_turns": 209
+      "last_seen_turn": 268,
+      "seen_turns": 212
     },
     "rule:seeder:accepts_client_param": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 265,
-      "seen_turns": 209
+      "last_seen_turn": 268,
+      "seen_turns": 212
     },
     "rule:validator:has_main_guard": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 265,
-      "seen_turns": 209
+      "last_seen_turn": 268,
+      "seen_turns": 212
     },
     "rule:python_tool:has_print_calls": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 265,
-      "seen_turns": 209
+      "last_seen_turn": 268,
+      "seen_turns": 212
     },
     "sentinel:user_facing_jargon": {
       "kind": "sentinel",
       "first_seen_turn": 109,
-      "last_seen_turn": 265,
-      "seen_turns": 157
+      "last_seen_turn": 268,
+      "seen_turns": 160
     },
     "rule:html:has_main_landmark": {
       "kind": "rule",
       "first_seen_turn": 142,
-      "last_seen_turn": 265,
-      "seen_turns": 124
+      "last_seen_turn": 268,
+      "seen_turns": 127
     },
     "rule:edge:handles_options": {
       "kind": "rule",
       "first_seen_turn": 256,
-      "last_seen_turn": 265,
-      "seen_turns": 10
+      "last_seen_turn": 268,
+      "seen_turns": 13
     },
     "rule:edge:uses_get_cors_headers": {
       "kind": "rule",
       "first_seen_turn": 256,
-      "last_seen_turn": 265,
-      "seen_turns": 10
+      "last_seen_turn": 268,
+      "seen_turns": 13
     }
   }
 }
