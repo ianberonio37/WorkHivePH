@@ -169,13 +169,27 @@ recorded here rather than discarded.
 
 ## §7 · NEXT (the standing queue — drive top-down)
 
-1. **H10 `W`+`O` as `P-multi`** — now walkable after the §6 seeder fix. Switch hive; assert role, name,
-   id and every dependent surface re-derive. Seeds the transition-atomicity candidate class.
-2. **H8 `W`+`O` as `P-supervisor` + `P-removed`** — remove a member, then walk as them. What still
-   renders? Seeds the revocation-completeness candidate class.
-3. **HK1 `detect`** — build the static/live detector for "hidden element must be empty, not hiding data".
-4. **HK2 `gate`** — assert seeded fixtures can exercise every shipped capability (start: multi-hive).
-5. **Engine B harvest** on whichever friction H10/H8 actually surfaces (never crawl blind).
+_Tier 1 (tenancy integrity) is CLOSED: H8, H10 and H14 are walked, fixed, gated and harvested.
+Four defects of one class were found through three different doors — revocation, demotion, switch —
+plus a platform-wide RBAC vocabulary hole. §5 now moves to tier 2, the doors._
+
+1. **H3 `W`+`O` — join by a VALID code**, as `P-new` (no hive) and `P-multi` (already in one).
+   The join writes a membership, so it is the mirror of the removal work just finished: does the
+   client end up painted for the role the SERVER granted, on a page that never reloads?
+2. **H4 `W`+`O` — join by an INVALID code** (wrong, expired, already-a-member, own hive). Error
+   honesty is the lens: a refusal must say which of those it was, per MK11's actionable-remedy class.
+3. **H1/H2 `W`+`O` — first run and create-hive-become-owner.** The owner path mints a supervisor
+   membership; assert the marker and capability paint follow the server, not the optimistic local write.
+4. **HK3 (candidate) — "a role/permission change must repaint every surface that renders it."**
+   Seeded by H8b/H8d: three doors onto one defect is a class, not three bugs. Harvest → define →
+   detect before adding more journeys, so the breadth pass inherits a detector.
+5. **Breadth** — remaining journeys to ≥2 personas × ≥2 states (the `shallow_W` guard enforces it).
+
+**Open, not owed to this arc:** `MEMORY.md` sits at 22.6KB / 192 lines, over the soft budget
+(22KB / 138 lines) but under the 24.4KB load cap, so it still loads. `compact_memory_index.py --apply`
+retires nothing because it never auto-retires feedback (doctrine) and the index is almost entirely
+feedback. Which curated pointers leave the INDEX is Ian's call — the topic files stay on disk and stay
+Memento-retrievable either way.
 
 ---
 

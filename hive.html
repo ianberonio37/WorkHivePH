@@ -1519,6 +1519,34 @@ function getHiveList() {
 }
 function saveHiveList(list) { localStorage.setItem('wh_hives', JSON.stringify(list)); }
 
+/* METHOD LAW — the ONE way to adopt a role on this page (hive deepwalk H8b/H8d/H3, 2026-07-27).
+   Setting the role means three things that must never drift apart: the module variable, the stored
+   hint, and the PAINT MARKER on <html>. `html.is-supervisor` is stamped synchronously at parse from
+   the cached role (a deliberate CLS optimisation, so supervisor chrome does not flash in after the
+   async membership check) and the supervisor rules are FUNCTIONAL, not cosmetic — they set
+   `#my-work-card{display:none}` and hide `#pm-overdue-alert` and `#stock-alert`, which is correct for
+   a supervisor because they get the summary panel instead.
+
+   Seven places set the role; before this helper only TWO reconciled the marker, and each unreconciled
+   one was its own door onto the same defect. Three were confirmed live: DEMOTION (role synced down,
+   marker stayed, worker lost their own work card and safety alerts), SWITCH (a switch never reloads,
+   it calls initBoard() in place, so the page-load fix never ran), and JOIN (joining a hive where you
+   are a worker while holding supervisor paint from another). Patching the fourth site individually is
+   how a fifth ships, so the assignment itself is centralized here.
+
+   `toggle` rather than `remove` because promotion is the same bug mirrored: a freshly promoted
+   supervisor would otherwise sit on the worker layout until their next sign-in. Pass '' to clear. */
+function applyHiveRole(role) {
+  const r = role || '';
+  HIVE_ROLE = r;
+  try {
+    // storage-key-allow: wh_hive_role is the canonical role key (storage_key_registry.json)
+    if (r) localStorage.setItem('wh_hive_role', r);
+    else   localStorage.removeItem('wh_hive_role');
+  } catch (_) { /* empty-catch-allow: storage full/blocked must not stop the repaint below */ }
+  document.documentElement.classList.toggle('is-supervisor', r === 'supervisor'); // role-check-allow: this IS the role->paint SSOT for hive.html
+}
+
 // Migrate legacy single-hive keys to list format on first load
 (function migrateLegacyHive() {
   const legId   = whHiveId();
@@ -1782,8 +1810,8 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
          a removed member — but it is exactly HK1's caveat shape, and the moment any supervisor-only rule
          keys off html.is-supervisor on a view a removed member CAN see, it would misapply. Revocation
          should leave nothing behind. */
-      document.documentElement.classList.remove('is-supervisor');
-      HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
+      HIVE_ID = ''; HIVE_NAME = '';
+      applyHiveRole('');   // clears the stored hint AND the paint marker together
       /* H8: being removed from your ACTIVE hive does not mean you have no hive. A multi-hive worker was
          dumped straight to the create/join onboarding even while still a member elsewhere — the branch
          only ever considered the hive that was just lost. wh_hives is deliberately NOT cleared here (it
@@ -1803,8 +1831,6 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     }
     // Sync role from DB in case it changed
     if (!valErr && membership) {
-      HIVE_ROLE = membership.role;
-      localStorage.setItem('wh_hive_role', membership.role);
       /* H8b (hive deepwalk 2026-07-27): reconcile the PAINT HINT with the role we just synced.
          html.is-supervisor is stamped synchronously at parse from the CACHED role (a deliberate CLS
          optimisation — see the stamp near the top of this file), and until now nothing re-derived it
@@ -1816,8 +1842,9 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
          the board otherwise looked normal. Verified live: role synced to 'worker', marker still true,
          all three elements computed display:none. toggle() rather than remove() because promotion is
          the same bug mirrored — a freshly promoted supervisor would otherwise keep the worker layout
-         until their next sign-in. */
-      document.documentElement.classList.toggle('is-supervisor', membership.role === 'supervisor');
+         until their next sign-in. Now routed through applyHiveRole(), the one place that keeps the
+         variable, the stored hint and the paint marker from drifting apart. */
+      applyHiveRole(membership.role);
     }
     /* H10 (hive deepwalk 2026-07-27): the ACTIVE membership above is re-validated every load — role
        synced, kicked handled — but the LIST of hives behind the switcher was not. wh_hives is written
@@ -1908,12 +1935,11 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     localStorage.setItem('wh_active_hive_id', first.id);
     localStorage.setItem('wh_hive_id',         first.id);
     localStorage.setItem('wh_hive_name',       first.name);
-    localStorage.setItem('wh_hive_role',       first.role);
     if (first.code) localStorage.setItem('wh_hive_code', first.code);
 
     HIVE_ID   = first.id;
     HIVE_NAME = first.name;
-    HIVE_ROLE = first.role;
+    applyHiveRole(first.role);   // first.role came from v_worker_truth above, not from a cache
 
     showView('board');
     initBoard();
@@ -1977,12 +2003,12 @@ async function submitCreate() {
 
   localStorage.setItem('wh_hive_id',       hive.id);
   localStorage.setItem('wh_hive_name',     hive.name);
-  localStorage.setItem('wh_hive_role',     'supervisor');
   localStorage.setItem('wh_hive_code',     code);
   localStorage.setItem('wh_active_hive_id', hive.id);
   const _existing = getHiveList().filter(h => h.id !== hive.id);
   saveHiveList([..._existing, { id: hive.id, name: hive.name, role: 'supervisor', code }]);
-  HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = 'supervisor';
+  HIVE_ID = hive.id; HIVE_NAME = hive.name;
+  applyHiveRole('supervisor');   // creating a hive makes you its supervisor: paint must follow immediately
 
   document.getElementById('code-hive-name').textContent = hive.name || '';  // textContent is XSS-safe; escHtml would double-escape (P4-01 fix, matches board-hive-name at ~1854)
   document.getElementById('code-value').textContent = code;
@@ -2116,12 +2142,16 @@ async function submitJoin() {
 
   localStorage.setItem('wh_hive_id',        hive.id);
   localStorage.setItem('wh_hive_name',      hive.name);
-  localStorage.setItem('wh_hive_role',      joinRole);
   localStorage.setItem('wh_active_hive_id', hive.id);
   if (joinRole === 'supervisor') localStorage.setItem('wh_hive_code', codeVal); // role-check-allow: joinRole is the role being JOINED AS in the hive-join flow (a form value), not the ambient user role
   const _existingJ = getHiveList().filter(h => h.id !== hive.id);
   saveHiveList([..._existingJ, { id: hive.id, name: hive.name, role: joinRole, code: codeVal }]);
-  HIVE_ID = hive.id; HIVE_NAME = hive.name; HIVE_ROLE = joinRole;
+  HIVE_ID = hive.id; HIVE_NAME = hive.name;
+  /* H3 (hive deepwalk 2026-07-27): the join is the FOURTH door onto the marker defect. joinRole is
+     read from the server (the existing-membership query above), so the ROLE was always right — only
+     the paint was stale. Verified live: holding supervisor paint from another hive, joining a hive
+     where she is a worker kept html.is-supervisor and left #my-work-card hidden. */
+  applyHiveRole(joinRole);
 
   if (!existingRow) {
     writeAuditLog('member_joined', 'hive_members', null, WORKER_NAME, {
@@ -2226,7 +2256,8 @@ async function performLeave() {
   presenceChannel = null; feedChannel = null; partsChannel = null;
   _readinessChannel = null; _adoptionChannel = null;
 
-  HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
+  HIVE_ID = ''; HIVE_NAME = '';
+  applyHiveRole('');   // leaving a hive drops the role AND its paint
   memberNames = [];
 
   // If user has other hives, offer to switch; otherwise go to onboard
@@ -2253,8 +2284,8 @@ async function renderHiveSwitcher() {
     localStorage.setItem('wh_active_hive_id', next.id);
     localStorage.setItem('wh_hive_id',         next.id);
     localStorage.setItem('wh_hive_name',        next.name);
-    localStorage.setItem('wh_hive_role',        next.role);
-    HIVE_ID = next.id; HIVE_NAME = next.name; HIVE_ROLE = next.role;
+    HIVE_ID = next.id; HIVE_NAME = next.name;
+    applyHiveRole(next.role);   // offline fail-open: the cached role is all we have, but paint it consistently
     initBoard();
     return;
   }
@@ -2267,8 +2298,8 @@ async function renderHiveSwitcher() {
   localStorage.setItem('wh_active_hive_id', next.id);
   localStorage.setItem('wh_hive_id',         next.id);
   localStorage.setItem('wh_hive_name',        next.name);
-  localStorage.setItem('wh_hive_role',        membership.role);
-  HIVE_ID = next.id; HIVE_NAME = next.name; HIVE_ROLE = membership.role;
+  HIVE_ID = next.id; HIVE_NAME = next.name;
+  applyHiveRole(membership.role);   // server-verified role above
   initBoard();
 }
 
@@ -5231,9 +5262,8 @@ async function switchToHive(id) {
   localStorage.setItem('wh_active_hive_id', h.id);
   localStorage.setItem('wh_hive_id',         h.id);
   localStorage.setItem('wh_hive_name',        h.name);
-  localStorage.setItem('wh_hive_role',        _role);
-  HIVE_ID = h.id; HIVE_NAME = h.name; HIVE_ROLE = _role;
-  document.documentElement.classList.toggle('is-supervisor', _role === 'supervisor');
+  HIVE_ID = h.id; HIVE_NAME = h.name;
+  applyHiveRole(_role);   // _role is the SERVER's answer for this hive, not the cached one
   // Keep the cached list honest too, so the next paint-from-cache starts from the truth.
   saveHiveList(getHiveList().map(x => (x.id === id ? { ...x, role: _role } : x)));
   memberNames = [];

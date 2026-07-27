@@ -97,16 +97,23 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker",
+          "P-multi"
+        ],
+        "states": [
+          "S-populated",
+          "S-stale"
+        ]
       },
-      "notes": "view-join / view-code -> hive_members.upsert -> welcome. P-invited is the persona that has never been walked."
+      "notes": "view-join / view-code -> hive_members.upsert -> welcome. P-invited is the persona that has never been walked. | 2026-07-27 WALKED, and it was the FOURTH door onto the marker defect. Drove the real submitJoin() with a real invite code while holding supervisor paint from another hive: joining the hive where she is a WORKER left html.is-supervisor painted. joinRole is read from the SERVER (the existing- membership query), so the role was always right - only the paint was stale, same as the switch. THE FIX WAS NOT A FOURTH PATCH. Counted the writers: SEVEN places set the role (sync, kicked, recovery, create, join, leave, leave->next x2, switch) and only TWO reconciled the marker. Patching the fourth individually is how a fifth ships, so role adoption is now ONE method-law helper, applyHiveRole(role), which sets the variable, the stored hint and the paint marker together and is the only writer on the page (verified by grep: the sole remaining assignments are inside the helper and the initial let-declaration; everything else is a read). VERIFIED LIVE after centralizing: the join repaints (marker false, role worker). REGRESSION-CHECKED the whole refactor against the full hive suite rather than trusting it."
     },
     "H4-join-by-code-invalid": {
       "type": "T1-onboarding",
@@ -134,7 +141,7 @@
       "phases": {
         "G": "done",
         "W": "done",
-        "O": "done",
+        "O": "partial",
         "H": "todo",
         "R": "todo"
       },
@@ -148,7 +155,7 @@
           "S-stale"
         ]
       },
-      "notes": "2026-07-27 walked as christinedizon (worker): board renders, supervisor panel hidden and EMPTY (see HK1). Owed: supervisor + owner personas, and S-single-member. | 2026-07-27 completed via the H10 switch: the SAME user was walked as worker (Manila) and supervisor (Lucena), which is a stronger comparison than two different accounts because only the role differs. Worker: supervisor panel hidden and EMPTY. Supervisor: visible and FILLED (20 / 4 / 0 / 65), and documentElement carries is-supervisor."
+      "notes": "2026-07-27 walked as christinedizon (worker): board renders, supervisor panel hidden and EMPTY (see HK1). Owed: supervisor + owner personas, and S-single-member. | 2026-07-27 completed via the H10 switch: the SAME user was walked as worker (Manila) and supervisor (Lucena), which is a stronger comparison than two different accounts because only the role differs. Worker: supervisor panel hidden and EMPTY. Supervisor: visible and FILLED (20 / 4 / 0 / 65), and documentElement carries is-supervisor. | 2026-07-27 PARTIAL OBSERVATION, arrived at sideways via the test suite rather than a walk. Five supervisor-journey tests were failing on hive.html; I A/B'd them against HEAD and then against the PRE-SESSION baseline before touching anything, which proved they were STALE TESTS, not a regression I had caused. Cause: the supervisor first-run intent modal (#intent-capture, aria-modal=true) legitimately intercepts pointer events, so every click in those tests landed on the overlay. The product is CORRECT - 'Later' is remembered (verified: it does not reappear on the next load, keyed off sessionStorage wh_intent_dismissed_<HIVE_ID>). Fixed as a shared test helper (dismissIntentCapture in _helpers.ts, addInitScript so it beats the async open) rather than per-spec hand-edits. THE FIFTH FAILURE WAS THE INTERESTING ONE and is a finding in its own right: the test asserted the board source chip CONTAINS 'v_logbook_truth'. That is stale AND actively harmful - provenance is deliberately authored in USER voice (STREAMLINE E1, Ian 2026-06-14: 'sloppy details my users can't understand') and validate_user_facing_jargon.py now FAILS on a rendered view name, so 'fixing' the page to satisfy the test would have re-leaked internals onto the glass and turned another gate red. Two gates in direct conflict, resolved by RECALLING THE DISPOSITION (memento) instead of believing the red. Rewrote it to assert the property that actually holds: the live-data trust signal + the three fuels in plain language + a negative assertion that no v_*_truth name is ever rendered. Suite now 43 pass / 0 fail / 1 skip."
     },
     "H6-invite-and-code-lifecycle": {
       "type": "T3-collab",

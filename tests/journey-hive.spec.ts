@@ -13,7 +13,7 @@
  *   - Supervisor-only elements visible
  */
 import { test, expect } from './_fixtures';
-import { waitForPageReady, pageSrcWithExternals, bypassMaturityGate } from './_helpers';
+import { waitForPageReady, pageSrcWithExternals, bypassMaturityGate, dismissIntentCapture } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
 const PAGE = '/workhive/hive.html';
@@ -22,6 +22,12 @@ const SETTLE_TIMEOUT = 20000;
 // Hive board's stair card uses maturity progress; without bypass it shows "—".
 test.beforeEach(async ({ whPage }) => {
   await bypassMaturityGate(whPage);
+  /* 2026-07-27 (hive deepwalk): pre-dismiss the supervisor first-run intent modal. It is correct
+     product behaviour — aria-modal="true", so it legitimately intercepts pointer events, and its
+     "Later" IS remembered. But five tests in this file were failing purely because their clicks
+     landed on the overlay. Confirmed a STALE TEST rather than a regression by reproducing the same
+     failures on the pre-session baseline before changing anything. */
+  await dismissIntentCapture(whPage);
 });
 
 /** Wait for the Plain-Read verdict to leave its initial "Computing..." state. */
@@ -275,16 +281,30 @@ test.describe('hive.html — supervisor Plain-Read journey', () => {
     // Hidden is the expected state — passes either way
   });
 
-  test('source chip on KPI strip declares canonical fuels', async ({ whPage }) => {
+  test('source chip on KPI strip declares its fuels in USER voice', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(2000);
 
-    // The board-source-chip declares the 3 canonical views
+    /* 2026-07-27 (hive deepwalk): this test used to assert the chip CONTAINED "v_logbook_truth".
+       That was stale, and satisfying it would have been actively harmful. Provenance UI is
+       deliberately authored in USER voice (STREAMLINE E1, 2026-06-14 — Ian on the old chips:
+       "sloppy details my users can't understand"), and `validate_user_facing_jargon.py` now FAILS
+       on a rendered view name. So the old assertion and that gate were in direct conflict: "fixing"
+       the page to satisfy this test would have re-leaked internals onto the glass and turned another
+       gate red. The property actually worth locking is the TRUST SIGNAL plus plain-language fuels —
+       keep the signal, translate the content. */
     const chip = whPage.locator('#board-source-chip');
-    const text = await chip.textContent({ timeout: 5000 }).catch(() => '');
-    expect(text, 'board source chip should mention v_logbook_truth')
-      .toContain('v_logbook_truth');
+    const text = (await chip.textContent({ timeout: 5000 }).catch(() => '')) || '';
+
+    expect(text.trim(), 'the board must declare where its numbers come from').not.toBe('');
+    expect(text, 'the chip must carry the live-data trust signal').toMatch(/live data/i);
+    // The three real fuels, named the way a plant supervisor would name them.
+    expect(text, 'chip should name the logbook as a fuel').toMatch(/logbook/i);
+    expect(text, 'chip should name the PM schedule as a fuel').toMatch(/PM schedule/i);
+    expect(text, 'chip should name inventory as a fuel').toMatch(/inventory/i);
+    // And it must NOT regress into engineer voice.
+    expect(text, 'provenance must never render internal view names').not.toMatch(/v_[a-z_]+_truth/);
   });
 
   test('Maturity Stairway card has a readiness score (not "--")', async ({ whPage }) => {

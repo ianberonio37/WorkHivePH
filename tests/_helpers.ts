@@ -24,6 +24,30 @@ import { Page, expect } from '@playwright/test';
  *
  * Call from a beforeEach BEFORE page.goto.
  */
+/**
+ * Pre-dismiss the supervisor first-run "What should WorkHive focus on?" intent modal.
+ *
+ * It is a legitimate product behaviour, not a bug: `maybeShowIntentCapture()` opens it for a
+ * SUPERVISOR whose hive has no intent set, it is `aria-modal="true"` so it correctly intercepts
+ * pointer events, and its "Later" is remembered (verified live 2026-07-27 — it does not reappear on
+ * the next load). But a spec that lands on the board as a supervisor and clicks straight into the
+ * page will have every click swallowed by the overlay, which is exactly how FIVE supervisor-journey
+ * tests were failing before this helper existed — a stale test, not a regression (confirmed by
+ * reproducing them on the pre-session baseline).
+ *
+ * The page keys the dismissal off sessionStorage `wh_intent_dismissed_<HIVE_ID>`, so set it for both
+ * hive-id keys before any page script runs. addInitScript rather than a post-load click: the modal
+ * opens asynchronously after the membership check, so clicking it away is a race.
+ */
+export async function dismissIntentCapture(page: Page) {
+  await page.addInitScript(() => {
+    try {
+      const ids = [localStorage.getItem('wh_active_hive_id'), localStorage.getItem('wh_hive_id')];
+      ids.filter(Boolean).forEach(id => sessionStorage.setItem('wh_intent_dismissed_' + id, '1'));
+    } catch (_) { /* noop */ }
+  });
+}
+
 export async function bypassMaturityGate(page: Page) {
   await page.addInitScript(() => {
     try {
