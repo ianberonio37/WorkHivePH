@@ -51,6 +51,14 @@
    ],
    "reason": "Role-views over marketplace canonical sources. platform-actions.html is the Operator Console (platform-staff/operator role) that moderates the marketplace family -- approve/reject listings, verify seller KYB/cert, resolve disputes -- reading marketplace_listings / marketplace_sellers / marketplace_disputes / hive_audit_log from the operator angle. Same data model as founder-console, different access predicate. Same class as the marketplace-admin<->marketplace-seller entry above. NOTE: platform-actions<->marketplace-admin Jaccard 0.75 is high; flagged for a future consolidation review, kept distinct for now (Operator Console is the platform-wide superset, marketplace-admin is marketplace-scoped).",
    "reviewed": "2026-07-18"
+  },
+  {
+   "surfaces": [
+    "marketplace-seller.html",
+    "marketplace.html"
+   ],
+   "reason": "The BUYER side and the SELLER side of one conversation, not duplicate surfaces to consolidate. marketplace.html writes an inquiry and reads the listing; marketplace-seller.html reads that same inquiry to reply and manages the same listing. They necessarily share marketplace_listings / marketplace_inquiries and their truth views, plus hive_audit_log for moderation trails. Overlap grew to 6 tables on 2026-07-24 when the review flow's standing check was migrated from the base marketplace_inquiries table to v_marketplace_inquiries_truth, which is the canonical rule being followed, not new coupling.",
+   "recorded": "2026-07-24 marketplace deepwalk expansion (MK13 review flow)"
   }
  ],
  "near_duplicate_columns": [
