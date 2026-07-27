@@ -61,16 +61,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-new",
+          "P-multi"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
       },
-      "notes": "view-onboard: create vs join. Grounded 2026-07-27: the 7 views exist (onboard/create/code/join/welcome/board/shell)."
+      "notes": "view-onboard: create vs join. Grounded 2026-07-27: the 7 views exist (onboard/create/code/join/welcome/board/shell). | 2026-07-27 WALKED, and it is a PASS worth recording precisely because it is the inverse of every defect this arc found. Cleared EVERY hive key (wh_active_hive_id / wh_hive_id / wh_hive_role / wh_hive_name / wh_hive_code / wh_hives) - the storage-cleared or new-device state - and reloaded. The page did NOT show the create/join screen to someone who has hives: it recovered from the SERVER, rebuilt the full list with correct PER-HIVE roles (Manila worker + Lucena supervisor), landed her on the Manila board and painted worker (marker false). That is the cache-must-not- answer-for-the-server rule holding on the one path where the cache is genuinely absent, and it also confirms applyHiveRole() on the recovery path. TRUE first-run (zero memberships anywhere) was observed during the H8 walk's case C: view-onboard with 'Join or create a team to share work, see who's active, and track your hive's jobs in real time' and both doors offered (Create a Hive / Join with Code). Two states, two personas, no defect found."
     },
     "H2-create-hive-become-owner": {
       "type": "T1-onboarding",
@@ -79,16 +85,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-new",
+          "P-worker"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
       },
-      "notes": "view-create -> hives.insert -> owner membership -> view-welcome -> view-board."
+      "notes": "view-create -> hives.insert -> owner membership -> view-welcome -> view-board. | 2026-07-27 WALKED through the real submitCreate(), and chosen deliberately to test the PROMOTION direction of the applyHiveRole() centralization - the half that no earlier walk had exercised, since every prior defect was a demotion. Started from a WORKER paint (marker false) so creating a hive had to promote it. Result: role 'supervisor', marker true, invite code minted and stored, the code view shown. So the mirrored bug I predicted when choosing toggle() over remove() - a freshly promoted supervisor stranded on the worker layout until their next sign-in - does not occur. Probe hive and its membership deleted afterwards; validate_fixture_capability_coverage.py re-run to confirm the seeded fixtures survived the walk (3/3 present), which is the HK2 gate doing exactly the job it was built for after a walk that CREATES rather than consumes."
     },
     "H3-join-by-code-valid": {
       "type": "T1-onboarding",
