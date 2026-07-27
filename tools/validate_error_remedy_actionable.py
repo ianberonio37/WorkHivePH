@@ -41,8 +41,19 @@ SKIP_SUFFIXES = ("-test.html", ".backup.html", ".backup2.html")
 SKIP_DIRS = {".emoji_bak", ".hexvar_bak", ".leftover_bak", ".tmp", "radbak", "radbak2", "learn", "node_modules"}
 
 CATCH_RE  = re.compile(r"catch\s*\(([^)]*)\)\s*\{")
-# A remedy that tells the user to repeat the same action.
+# A remedy that tells the user to repeat the same action — and only where it is ADDRESSED to the user
+# as an error message. Two shapes look identical to a naive match but are correct code:
+#   * a BUTTON CAPTION being reset (`lbl.textContent = 'Try again'`) is a control's label, not a claim
+#     about why the write failed;
+#   * a SYSTEM retry ("will retry automatically", the offline queue draining on reconnect) is a promise
+#     the app keeps itself, and it does work — the opposite of the dead end this class is about.
+# Both were live findings on analytics.html and dayplanner.html; treating them as defects would have
+# meant "fixing" correct behaviour, which is how a gate starts costing more than it catches.
 RETRY_RE  = re.compile(r"\b(try again|retry|please try)\b", re.I)
+LABEL_RETRY_RE = re.compile(r"(textContent|innerHTML|innerText|\.label|value)\s*=\s*['\"`][^'\"`]*\btry again\b",
+                            re.I)
+SYSTEM_RETRY_RE = re.compile(r"retry\s+automatically|will\s+retry|saved\s+offline|queued\s+offline|auto[- ]?retry",
+                             re.I)
 # The write verbs whose failure is plausibly an auth/RLS rejection.
 WRITE_RE  = re.compile(r"\.(insert|upsert|update|delete)\s*\(|\.rpc\s*\(|functions\s*\.\s*invoke\s*\(")
 # The branch that makes the remedy honest — either the inline signature test, or (preferred) the
@@ -76,6 +87,12 @@ def scan_source(src: str) -> list[str]:
         body = _catch_body(src, m.end() - 1)
         if not RETRY_RE.search(body):
             continue                                   # offers no retry -> nothing to be wrong about
+        if SYSTEM_RETRY_RE.search(body):
+            continue                                   # the APP retries, and it works (offline queue)
+        # If the only "try again" is a control's caption, the user was never told to retry a failed write.
+        stripped = LABEL_RETRY_RE.sub("", body)
+        if not RETRY_RE.search(stripped):
+            continue
         if AUTHBR_RE.search(body):
             continue                                   # already branches on the auth case
         # Only a WRITE can fail this way; a parse/render catch is out of scope.
@@ -124,6 +141,15 @@ def selftest() -> int:
 
     invoke = "try { await db.functions.invoke('f'); } catch (e) { showToast('Failed, please try again'); }"
     chk("covers functions.invoke", len(scan_source(invoke)), 1)
+
+    # The two live false positives that shaped this detector.
+    caption = ("try { await db.rpc('recompute'); } catch (e) { "
+               "lbl.textContent = 'Try again'; showToast('Recompute failed, check console'); }")
+    chk("ignores a retry used as a BUTTON CAPTION", len(scan_source(caption)), 0)
+
+    offline = ("try { await db.from('t').upsert(r); } catch (e) { "
+               "await q.enqueue(r); showToast('Network issue: saved offline, will retry automatically.'); }")
+    chk("ignores a SYSTEM retry that actually works", len(scan_source(offline)), 0)
     print(f"\n  SELFTEST: {GREEN+'PASS'+RESET if ok else RED+'FAIL'+RESET}")
     return 0 if ok else 1
 

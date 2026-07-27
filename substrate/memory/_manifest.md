@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:563-files
-source_sha: b0fbac58a9c44371
+source: memory-curated:564-files
+source_sha: 5890f4ab676543b0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (563 durable topic files)
+## memory · curated auto-memory (564 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=186 · project=288 · reference=89
+**By type:** feedback=187 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -44,6 +44,7 @@ Entries (name · type · sha):
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
 - `feedback_coarse_lens_100_is_not_deep_100` · feedback · e49b39cdc46bdbd7
+- `feedback_commit_only_ian_decides_push` · feedback · d2ef55dbbb57adff
 - `feedback_commit_workflow` · feedback · 0569ad290e0e5fd3
 - `feedback_community_complete_redesign_authorized` · feedback · 19b6e6375689d9d8
 - `feedback_confirm_file_absence_before_rebuild` · feedback · 21e4a9778e754fee
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `reference_comprehensive_study` · reference · bd44eed1a89ce4dc
 - `reference_cron_silent_failure_retention` · reference · c26d95b891d6383d
 - `reference_dayplanner_growth_spine_arc` · reference · e0c96ef3f3ff90ff
-- `reference_deepwalk_flywheel_v2_built` · project · 12d7fb6ad72f2f3d
-- … +63 more (all included in the fingerprint)
+- … +64 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
