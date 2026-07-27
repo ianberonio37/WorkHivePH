@@ -89,11 +89,22 @@ def check_branch_symmetry(content):
 
         missing = []
         for key in REQUIRED_KEYS:
-            # Match either setItem of the key OR a forEach loop array that includes it
+            # Match either setItem of the key OR a forEach loop array that includes it.
+            #
+            # 2026-07-28: wh_hive_role is additionally satisfied by a call to applyHiveRole(...).
+            # The hive arc replaced SEVEN scattered role writers with that one adopter precisely so
+            # the role could not be set inconsistently, and applyHiveRole does the canonical
+            # setItem('wh_hive_role', r) itself (hive.html ~1551). This check predates the refactor
+            # and looked only for a literal setItem in the window, so it went red on BOTH branches
+            # that adopted the improvement — and the only way to satisfy it literally would be to
+            # re-scatter the writes the refactor removed. Teach the gate the better pattern rather
+            # than let it argue for the worse one ([[feedback_teach_the_gate_not_bend_the_code]]).
             pattern = (
                 r"localStorage\.setItem\(\s*['\"]" + re.escape(key) + r"['\"]"
                 r"|\[[^\]]*['\"]" + re.escape(key) + r"['\"]"
             )
+            if key == "wh_hive_role":
+                pattern += r"|applyHiveRole\s*\("
             if not re.search(pattern, block):
                 missing.append(key)
         if missing:

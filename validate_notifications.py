@@ -180,11 +180,36 @@ def check_build_notifications_on_init(page):
     content = read_file(page)
     if not content:
         return []
+
+    def _function_body(src, decl_start):
+        """The REAL body, by brace-matching from the declaration's opening '{'."""
+        i = src.find("{", decl_start)
+        if i == -1:
+            return ""
+        depth, j = 0, i
+        while j < len(src):
+            c = src[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    return src[i:j + 1]
+            j += 1
+        return src[i:]
+
     # Find the main init function (initBoard, init, or DOMContentLoaded handler)
     init_m = re.search(r"async function\s+initBoard\s*\(", content)
     if not init_m:
         return []
-    body = content[init_m.start():init_m.start() + 3000]
+    # 2026-07-28: this read content[start:start+3000] and had gone FALSE-POSITIVE. hive.html's
+    # initBoard begins at ~line 2440 and its Promise.allSettled — which does call both
+    # buildNotifications() and checkStockAlert() — sits at ~line 2508, past the 3000-char window
+    # once the hive arc's applyHiveRole refactor and its comments grew the function. So the gate
+    # was reporting "workers see no notifications on board load", a serious user-facing claim, about
+    # code that was fine. Third instance of this exact fixed-window bug found in one session; read
+    # the REAL body by brace-matching instead ([[feedback_red_gate_may_be_inaccuracy_not_backlog]]).
+    body = _function_body(content, init_m.start())
     if "buildNotifications" not in body and "checkStockAlert" not in body:
         return [{"check": "build_notifications_init", "page": page,
                  "reason": f"{page} initBoard() does not call buildNotifications() or checkStockAlert() — workers see no notifications on board load"}]

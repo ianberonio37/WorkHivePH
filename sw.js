@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v214';  // bump: rename is single-flight locked and its failures are now LOGGED as well as shown (three gates caught my own new code: P7 double-submit, Layer-L show-but-do-not-log, and an em dash in user copy)
+const CACHE_NAME  = 'workhive-shell-v215';  // bump: the offline queue no longer reports a lost edit as synced, and logbook stops offering writes the database refuses - without this bump the PWA would keep serving the stale offline-queue.js and none of it would reach an installed user
+// const CACHE_NAME  = 'workhive-shell-v214';  // bump: rename is single-flight locked and its failures are now LOGGED as well as shown (three gates caught my own new code: P7 double-submit, Layer-L show-but-do-not-log, and an em dash in user copy)
 // const CACHE_NAME  = 'workhive-shell-v213';  // bump: hive RENAME ships (supervisor-only, RLS already allowed it) and the supervisor menu now RETRACTS when you switch into a hive where you are a worker - it used to stay on screen, invite-code button included
 // const CACHE_NAME  = 'workhive-shell-v212';  // bump: a supervisor who was PROMOTED (or signed in on a new device) saw an empty invite-code panel that still said 'share this code with your team' - the code is now fetched from v_hives_truth when the local cache is empty
 // const CACHE_NAME  = 'workhive-shell-v211';  // bump: entering the code of a hive you are ALREADY in no longer shows the new-member welcome screen - it says so and lands you on your board

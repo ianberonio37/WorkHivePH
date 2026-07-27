@@ -181,6 +181,30 @@ PY_AUDIT_ACTION_RE = re.compile(
 )
 
 
+def _balanced_paren_groups(text: str, limit: int = 4000):
+    """Yield the contents of each TOP-LEVEL (...) group, keeping nested calls intact.
+
+    A VALUES row is one such group. Matching with `\\(([^)]*)\\)` instead stops at the first ')',
+    which both truncates a row containing a nested call and then matches that nested call's own
+    argument list as if it were a row — how a jsonb_build_object meta key came to be reported as an
+    audit action while the row's real CASE-based actions went unseen.
+    """
+    depth, start = 0, None
+    for i, ch in enumerate(text):
+        if ch == '(':
+            if depth == 0:
+                start = i + 1
+            depth += 1
+        elif ch == ')':
+            if depth > 0:
+                depth -= 1
+                if depth == 0 and start is not None:
+                    group = text[start:i]
+                    if len(group) <= limit:
+                        yield group
+                    start = None
+
+
 def _harvest_actions_from_sql(src: str) -> set:
     # Strip SQL line comments FIRST. A commented-out `-- INSERT INTO hive_audit_log (action, ...)`
     # example, or an aside like `-- gen_random_uuid() (pg_catalog)`, must never be parsed as a real
@@ -200,9 +224,20 @@ def _harvest_actions_from_sql(src: str) -> set:
             for lit in re.findall(r"'([a-z][a-z0-9_]*)'", arr.group(1)):
                 out.add(lit)
         # Plain VALUES (... 'action_name' ...): pick column at action_idx.
-        # Crude positional scan: split VALUES rows on `(...)` and walk each.
-        for row_m in re.finditer(r"\(([^)]{1,2000})\)", body):
-            row = row_m.group(1)
+        # Positional scan over each VALUES row.
+        #
+        # 2026-07-28: the old pattern was `\(([^)]{1,2000})\)`, which stops at the FIRST ')'. On a
+        # row whose action is a CASE expression and whose meta is a jsonb_build_object(...), that is
+        # wrong in both directions at once: it never captures the real row (so the actual actions are
+        # missed), and it DOES match the inner jsonb_build_object argument list, where position
+        # `action_idx` lands on a META KEY. A trigger writing
+        #   ... CASE WHEN ... THEN 'reopen_...' ELSE 'amend_...' END, ...,
+        #       jsonb_build_object('prev_status', OLD.status, 'new_status', NEW.status, ...)
+        # therefore reported a phantom action 'new_status' while silently missing both real ones.
+        # Same false-positive family as the pg_catalog fix above, one nesting level deeper.
+        #
+        # Fixed by matching balanced parens, so a row is the whole row and nested calls stay nested.
+        for row in _balanced_paren_groups(body, limit=4000):
             # Tokenise on commas at depth 0 (won't split inside nested parens)
             parts, depth, buf = [], 0, []
             for ch in row:
@@ -218,6 +253,11 @@ def _harvest_actions_from_sql(src: str) -> set:
                 lit = re.search(r"^'([a-z][a-z0-9_]*)'$", tok)
                 if lit:
                     out.add(lit.group(1))
+                elif re.match(r"^\s*CASE\b", tok, re.IGNORECASE):
+                    # A conditional action picks one of several literals at runtime, so EVERY
+                    # branch is a real action the viewer must be able to render. Harvest them all.
+                    for branch in re.findall(r"'([a-z][a-z0-9_]*)'", tok):
+                        out.add(branch)
     return out
 
 
