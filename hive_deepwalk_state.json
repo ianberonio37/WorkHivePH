@@ -358,20 +358,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-worker"
+          "P-supervisor",
+          "P-new"
         ],
         "states": [
-          "S-populated"
+          "S-populated",
+          "S-empty"
         ]
       },
-      "notes": "2026-07-27: the panel ships to a worker as template only, 'Computing hive health...', zero filled values. Owed: walk as supervisor and apply the producer test to every number it shows. | 2026-07-27 PARTIAL: the readiness/maturity card renders a real composite (65) rather than the '--' placeholder, so the stair is fed by live data on a populated hive. Marked PARTIAL deliberately and not done: only ONE state (populated, supervisor) was observed. The interesting states for this journey are a BRAND-NEW hive (does it show an honest 'No data yet' rather than a green 'Healthy' - the exact defect the display-correctness regression gate already locks) and the worker view. Those are the next slice, not a claim I can make from what I saw."
+      "notes": "2026-07-27: the panel ships to a worker as template only, 'Computing hive health...', zero filled values. Owed: walk as supervisor and apply the producer test to every number it shows. | 2026-07-27 PARTIAL: the readiness/maturity card renders a real composite (65) rather than the '--' placeholder, so the stair is fed by live data on a populated hive. Marked PARTIAL deliberately and not done: only ONE state (populated, supervisor) was observed. The interesting states for this journey are a BRAND-NEW hive (does it show an honest 'No data yet' rather than a green 'Healthy' - the exact defect the display-correctness regression gate already locks) and the worker view. Those are the next slice, not a claim I can make from what I saw. | 2026-07-27 COMPLETED with the state that actually mattered: a BRAND-NEW hive, created through the real UI, because that is where a falsely-healthy empty state would live (the exact defect the display-correctness regression gate already locks for the adoption card). It reads HONESTLY: the verdict is the first-run greeting 'Welcome, Christine. Let's set up your hive' rather than an all-clear, no stat cards are fabricated, 1 member, and readiness scores 5 against 65 on the populated hive - a real low score, not a green default. INSTRUMENT LESSON, and I nearly filed a false bug on it: my first probe drove showView('board') + initBoard() BY HAND instead of reloading, and the board came back showing '1 thing needs you' with a card hero of 19 on an EMPTY hive. That looked exactly like hive-switch data leakage. It was my probe: calling initBoard() in place left module-level counters from the PREVIOUS hive. A clean reload showed the correct first-run state. Third instrument error this arc (after offsetParent on a fixed element and a collapsed menu read as a hidden button) - the pattern is that I keep measuring a page I put into a state the product never produces. Probe the state the USER reaches. Probe hive deleted; fixtures re-verified 3/3."
     },
     "H14-cross-surface-hive-identity": {
       "type": "T6-fabric",
