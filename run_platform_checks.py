@@ -4993,6 +4993,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "marketplace_deepwalk_ratchet",
+        "script":  "validate_marketplace_deepwalk.py",
+        "args":    [],
+        "label":   "Marketplace deepwalk ANTI-DRIFT ratchet — the measured %-board (20 journeys x 5 phases, 10 MK classes x 6 stages) held as a forward-only FLOOR: a cell that was walked/observed/resolved/locked cannot silently revert. Lives at the repo root under this exact name because the flywheel orchestrator classifies a baseline rise by re-running `validate_<name>.py`; without it, every legitimate rise in the locked-cell count fell into the conservative 'unknown' bucket and was scored as ROT rather than as the adoption floor moving up (77 -> 84 -> 92 in one session). Delegates to tools/marketplace_deepwalk_scoreboard.py, which fails only when the board drops BELOW its accepted baseline; `--accept` ratchets.",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
         "id":      "marketplace_partsflow_continuity",
         "script":  "tools/validate_marketplace_partsflow_continuity.py",
         "args":    [],

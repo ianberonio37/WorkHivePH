@@ -1,4 +1,4 @@
-# Substrate Manifest — 2026-07-27T01:56:47.430236+00:00
+# Substrate Manifest — 2026-07-27T02:26:51.647134+00:00
 
 **Aggregates 13 pattern-miner + drift-detector outputs into one view.**
 
@@ -18,7 +18,7 @@
 | Python tool patterns | yes | `proposal_count`: 1 |
 | Skill rules | yes | — |
 | Test page drift | yes | `warnings`: [] |
-| Validator self coverage | yes | `warnings`: [{'check': 'unregistered', 'skip': True, 'reason': '`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py).'}] |
+| Validator self coverage | yes | `warnings`: [{'check': 'unregistered', 'skip': True, 'reason': '`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py).'}, {'check': 'unregistered', 'skip': True, 'reason': '`validate_marketplace_deepwalk.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py).'}] |
 | Canonical drift | yes | — |
 | Auto-discovery | yes | — |
 | New surfaces | yes | — |

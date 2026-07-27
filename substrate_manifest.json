@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T01:56:47.430236+00:00",
+  "generated_at": "2026-07-27T02:26:51.647134+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -212,6 +212,11 @@
           "check": "unregistered",
           "skip": true,
           "reason": "`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
+        },
+        {
+          "check": "unregistered",
+          "skip": true,
+          "reason": "`validate_marketplace_deepwalk.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
         }
       ],
       "issues": []
@@ -237,9 +242,9 @@
       "file": "auto_discovery_report.json",
       "present": true,
       "summary": {
-        "pass": 3,
+        "pass": 2,
         "warn": 0,
-        "fail": 0
+        "fail": 1
       }
     },
     {
