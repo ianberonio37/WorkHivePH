@@ -374,20 +374,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-seller"
+          "P-seller",
+          "P-seller-new"
         ],
         "states": [
+          "S-empty",
           "S-populated"
         ]
       },
-      "notes": "messenger + certifications + contact. Past 42501 GRANT issue on this path (feedback_permission_denied_table_is_grant_not_rls) - re-verify live."
+      "notes": "messenger + certifications + contact. Past 42501 GRANT issue on this path (feedback_permission_denied_table_is_grant_not_rls) - re-verify live. | 2026-07-24 WALKED with a FRESH persona (emmavelasquez, who had no marketplace_sellers row at all) across both states. S-empty: messenger handle and certifications both blank, cert pill 'Not verified'. Then saved two real certification lines through the page's OWN UI (not a synthetic probe): the write CREATED her seller row, stored both lines, and left cert_verified=false with cert_verified_at NULL -- so a seller CANNOT self-verify, which is the trust guard holding from the seller side, and the pill correctly moved to 'Pending admin review'. Her tier/total_sales/rating_avg came out bronze/0/NULL, i.e. the earned-only defaults from migrations 20260724000007/8 behaving correctly for a genuinely new seller. Probe row deleted afterwards; DB restored to 13 sellers and all six MK8 detectors at 0."
     },
     "J14-seller-analytics": {
       "type": "T4-analysis-insight",
