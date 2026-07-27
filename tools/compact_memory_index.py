@@ -107,8 +107,37 @@ def parse(md: str):
     return out
 
 
-def curate(entries, budget):
-    """Return (kept_lines_in_order, retired:list[(link,reason)])."""
+# ── Ian's escape hatch, 2026-07-27: "retire the oldest low-star pointers" ────────────────────────
+# The default policy NEVER auto-retires feedback, because feedback is behavioural doctrine. That is
+# right as a default and wrong as an absolute: once the index is ~190 entries and nearly all of them
+# are feedback, the tool can no longer make headroom at all, and the index drifts toward the load cap
+# where entries silently stop loading. So retiring feedback is possible but OPT-IN ONLY — it requires
+# an explicit human instruction, never a heuristic the tool applies on its own.
+#
+# A pointer naming one of these is protected regardless of stars: forgetting it would change what I
+# DO, not merely what I know. Losing a "how it works" lesson costs a re-read; losing "never push"
+# costs a mistake against Ian's standing rules.
+HARD_RULE_PROTECT = (
+    "no_remote_push", "commit_only_ian_decides_push", "never_git_checkout_uncommitted",
+    "never_write_probe_user_tokens", "pasted_keys_in_docs", "free_tier_only_models",
+    "playwright_test_identity", "local_only_tester", "workhive_url_prefix",
+    "retrieve_first_no_workflow", "momentum_stop_guard", "live_mcp_writes_pollute",
+    "memento_visible_confirmation", "ai_provider", "use_ai_chain_always",
+    "local_supabase_rewrite", "deploy_subst", "no_typescript_in_html", "powershell_ascii",
+    "dont_stop_hold_trajectory", "skill_first_rule", "new_feature_playbook",
+)
+
+
+def _is_hard_rule(link: str) -> bool:
+    return any(p in link for p in HARD_RULE_PROTECT)
+
+
+def curate(entries, budget, retire_low_star=False):
+    """Return (kept_lines_in_order, retired:list[(link,reason)]).
+
+    retire_low_star: when True (opt-in, human-instructed only), feedback entries become eligible for
+    retirement — fewest stars first, and within a star tier the LOWEST in the file first, since the
+    index is newest-at-top so lowest means oldest. Hard-rule pointers stay regardless."""
     retired = []
     seen = set(); dd = []
     for e in entries:
@@ -120,6 +149,23 @@ def curate(entries, budget):
 
     keep_always = [e for e in dd if e["cat"] in ("feedback", "reference", "other")]
     proj = [e for e in dd if e["cat"] == "project"]
+
+    if retire_low_star:
+        # Order of retirement: fewest stars first, then oldest (lowest position) first.
+        pos = {e["link"]: i for i, e in enumerate(dd)}
+        eligible = [e for e in keep_always if not _is_hard_rule(e["link"])]
+        eligible.sort(key=lambda e: (stars(e["raw"]), -pos[e["link"]]))
+        # How many lines must go? 2 header lines + one per surviving entry.
+        overflow = (2 + len(dd)) - LINE_BUDGET
+        drop = set()
+        for e in eligible:
+            if len(drop) >= overflow:
+                break
+            drop.add(e["link"])
+            retired.append((e["link"],
+                            f"low-star retirement ({stars(e['raw'])} stars) — INDEX only, "
+                            f"topic file kept and Memento-retrievable"))
+        keep_always = [e for e in keep_always if e["link"] not in drop]
 
     # family-collapse projects to one canonical
     byf = collections.defaultdict(list)
@@ -173,6 +219,23 @@ def self_test() -> bool:
     longline = "- [" + "T" * 200 + "](project_z.md) — " + "h" * 300
     if len(tighten(longline)) > 200:
         print(f"{R}self-test FAIL: tighten did not cap a long line.{X}"); ok = False
+
+    # --retire-low-star (opt-in): must retire the LOWEST-star feedback first, must never touch a
+    # hard-rule pointer, and must stay OFF by default. An over-budget index of pure feedback.
+    over = "# Memory Index\n\n" + "".join(
+        f"- [{'⭐' * ((i % 3) + 1)} FB {i}](feedback_topic_{i}.md) — hook\n" for i in range(LINE_BUDGET + 12)
+    ) + "- [⭐ FB push](feedback_no_remote_push.md) — never push\n"
+    kept_def, _ = curate(parse(over), budget=999999)
+    if len(kept_def) < LINE_BUDGET:
+        print(f"{R}self-test FAIL: default policy retired feedback without being asked.{X}"); ok = False
+    kept_opt, ret_opt = curate(parse(over), budget=999999, retire_low_star=True)
+    if len(kept_opt) >= len(kept_def):
+        print(f"{R}self-test FAIL: --retire-low-star freed no lines.{X}"); ok = False
+    if any("feedback_no_remote_push.md" in k for k in kept_opt) is False:
+        print(f"{R}self-test FAIL: retired a HARD-RULE pointer (no_remote_push).{X}"); ok = False
+    retired_stars = [r for r in ret_opt if "low-star retirement" in r[1]]
+    if retired_stars and not all("(1 stars)" in r[1] for r in retired_stars):
+        print(f"{R}self-test FAIL: retirement did not take the fewest-star entries first.{X}"); ok = False
     print((G + "self-test PASS — curation has teeth (keeps feedback, dedups, collapses, caps)." + X)
           if ok else (R + "self-test FAILED." + X))
     return ok
@@ -187,6 +250,13 @@ def main() -> int:
     ap.add_argument("--auto", action="store_true",
                     help="M4.2: deterministically --apply ONLY when over the HARD load cap; else no-op")
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--retire-low-star", action="store_true",
+                    help="OPT-IN, human-instructed only: allow FEEDBACK pointers to be retired from "
+                         "the index, fewest stars first then oldest first, until the line budget is "
+                         "met. Hard-rule pointers (push policy, credentials, test identity, ...) are "
+                         "never retired. Topic files are untouched and stay Memento-retrievable. "
+                         "Never applied by --auto; the default policy still never auto-retires "
+                         "feedback, because deciding which doctrine leaves the index is a human call.")
     a = ap.parse_args()
     if a.self_test:
         return 0 if self_test() else 1
@@ -231,7 +301,9 @@ def main() -> int:
         return 0
 
     # --apply  (single-spaced entries → 1 line each, to stay under the LINE cap too)
-    kept, retired = curate(entries, a.budget)
+    # --retire-low-star is deliberately NOT reachable from --auto: an unattended run must never
+    # decide on its own which behavioural doctrine stops loading.
+    kept, retired = curate(entries, a.budget, retire_low_star=a.retire_low_star)
     new_md = "# Memory Index\n\n" + "\n".join(kept) + "\n"
     nb = len(new_md.encode("utf-8")); nl = len(new_md.splitlines())
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
