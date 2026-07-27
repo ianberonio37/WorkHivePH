@@ -81,6 +81,22 @@ SELECT count(*) FROM project_links pl WHERE pl.link_type='asset'
 """
 ASSET_LINK_BASELINE = 12
 
+# ── LG9 parts sweep (2026-07-28): the ledger must record what actually MOVED ─────────────────
+# inventory_deduct clamps the balance with GREATEST(0, qty - p_qty), which is right -- stock must
+# never go negative. But it used to write the ledger row with qty_change = -p_qty, the amount the
+# caller ASKED for, so every clamped deduction produced a row that could not reconcile to its own
+# qty_after: deduct 999 from an item holding 7 and the shelf moved by 7 while the ledger claimed
+# 999. Replaying the ledger is how a balance gets audited, so those rows poison the replay silently
+# and forever. Migration 20260728000002 records the real delta; this asserts the property holds by
+# reading the function body, since a later CREATE OR REPLACE could quietly restore the old form.
+LEDGER_TRUTH_SQL = """
+SELECT CASE
+         WHEN prosrc LIKE '%v_moved%' AND prosrc LIKE '%-v_moved%' THEN 'ok'
+         ELSE 'stale'
+       END
+FROM pg_proc WHERE proname = 'inventory_deduct' LIMIT 1;
+"""
+
 # A few example offenders (tag + count) for the failure message.
 SAMPLE_SQL = """
 SELECT l.machine, count(*)
@@ -131,7 +147,8 @@ def analyze():
             "knowledge_fk": fkdef,
             "knowledge_fk_ok": bool(fkdef) and "ON DELETE CASCADE" in fkdef.upper(),
             "dangling_links": _int(DANGLING_LINKS_SQL),
-            "dangling_asset_links": _int(DANGLING_ASSET_LINKS_SQL)}
+            "dangling_asset_links": _int(DANGLING_ASSET_LINKS_SQL),
+            "ledger_truth": (psql(LEDGER_TRUTH_SQL) or "").strip()}
 
 
 def run_selftest():
@@ -190,6 +207,13 @@ def main():
             elif dl is not None:
                 print(f"  FAIL: {dl} project_links point at a logbook / pm_completion / inventory_item row "
                       "that no longer exists. A project shows a link whose target is gone.")
+            if res.get("ledger_truth") == "ok":
+                print("  PASS: inventory_deduct records the quantity that actually moved "
+                      "(a clamped deduction still replays to its own qty_after)")
+            elif res.get("ledger_truth"):
+                print("  FAIL: inventory_deduct writes qty_change from the REQUESTED quantity, so a "
+                      "clamped deduction leaves a ledger row that cannot reconcile to its qty_after.")
+                print("  Fix: re-apply migration 20260728000002_inventory_deduct_ledger_truth.sql.")
             if dal is not None and dal > ASSET_LINK_BASELINE:
                 print(f"  FAIL: dangling asset project_links GREW {ASSET_LINK_BASELINE} -> {dal}")
             elif dal is not None and dal == ASSET_LINK_BASELINE:
@@ -201,7 +225,8 @@ def main():
     bad = (res["count"] > 0
            or not res.get("knowledge_fk_ok")
            or (res.get("dangling_links") or 0) > 0
-           or (res.get("dangling_asset_links") or 0) > ASSET_LINK_BASELINE)
+           or (res.get("dangling_asset_links") or 0) > ASSET_LINK_BASELINE
+           or (res.get("ledger_truth") or "ok") != "ok")
     return 1 if bad else 0
 
 

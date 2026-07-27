@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:378
-source_sha: 763dc598126e5926
+source: dir:supabase/migrations:379
+source_sha: 0d28451ca304e6d5
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (378 migrations)
+## migration · catalog (379 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260521000001_fk_on_delete_hardening` — tables:parts_records,worker_achievements
 - `20260521120000_agentic_rag_traces` — policies:agentic_rag_traces_insert,agentic_rag_traces_read · tables:agentic_rag_traces
 - `20260521121000_canonical_period_summaries` — policies:cps_insert,cps_read,cps_update · tables:canonical_period_summaries
 - `20260521122000_agent_episodic_memory` — policies:aem_insert,aem_read,aem_update · tables:agent_episodic_memory
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260724000012_marketplace_review_caps` — fns:cap_marketplace_reviews_text,enforce_marketplace_review_daily_cap · triggers:trg_review_daily_cap,trg_text_caps_mkt_reviews
 - `20260728000000_logbook_auth_uid_backfill` — (misc DDL/DML)
 - `20260728000001_fault_knowledge_logbook_fk` — tables:fault_knowledge
+- `20260728000002_inventory_deduct_ledger_truth` — fns:inventory_deduct
 
 (showing last 200)
 
