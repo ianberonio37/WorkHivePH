@@ -2,7 +2,7 @@
 name: doc-LOGBOOK_DEEPWALK_SCOREBOARD
 type: doc
 source: file:LOGBOOK_DEEPWALK_SCOREBOARD.md
-source_sha: edbe3d2f21f3b262
+source_sha: a65109dc9fcac76c
 last_verified: 2026-07-13
 supersedes: null
 ---

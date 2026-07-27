@@ -3093,6 +3093,18 @@ function toggleLotoPermit() {
 }
 
 function collectReadings() {
+  // LB03/LB04 (walked live 2026-07-28): gate collection on the SAME predicate that gates the
+  // reveal. Hiding #readings-section does not clear its inputs -- unlike the consequence branch,
+  // which zeroes f-consequence when it hides -- so entering readings as an Inspection and then
+  // switching to Project Work left the values in the DOM and this function still returned them.
+  // Verified: {temperature_c:40, vibration_mms:41, pressure_bar:42} collected on a Project Work
+  // entry whose readings section was hidden. That is the hive arc's demotion defect in capture
+  // form: CSS hid the field, the data path did not. Readings on a kind that does not take them
+  // pollute the trend/threshold analytics that read readings_json by maintenance_type.
+  //
+  // Checked at the COLLECTOR on purpose: the change handler can be edited or a new kind added
+  // without anyone remembering to clear, but nothing reaches the database except through here.
+  if (!kindTakesReadings(document.getElementById('f-maint-type')?.value)) return null;
   const inputs = document.querySelectorAll('#readings-fields input[data-key]');
   if (!inputs.length) return null;
   const readings = {};
@@ -3216,6 +3228,10 @@ document.getElementById('f-maint-type').addEventListener('change', async functio
   } else {
     readingsEl.classList.add('hidden');
     if (lotoEl) lotoEl.classList.add('hidden');
+    // LB03: clear as well as hide, the way the consequence branch above already does. collectReadings()
+    // refuses to collect for this kind regardless, but leaving stale numbers in a hidden field means
+    // switching BACK to Inspection silently re-surfaces values the user typed for a different kind.
+    document.querySelectorAll('#readings-fields input[data-key]').forEach(i => { i.value = ''; });
   }
 
   updateProductionVisibility();

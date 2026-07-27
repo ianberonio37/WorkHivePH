@@ -630,6 +630,21 @@ def check_entry_kind_readings_shaping(content, page):
         issues.append({"check": "entry_kind_readings_shaping", "page": page,
                        "reason": "readings rendering is not driven by kindTakesReadings() — regression risk to breakdown-only shaping."})
 
+    # (4) 2026-07-28, walked live: the DISPLAY gate is not enough. Hiding #readings-section does not
+    # clear its inputs (unlike the consequence branch, which zeroes f-consequence when it hides), so
+    # entering readings as an Inspection and switching to Project Work left the values in the DOM and
+    # collectReadings() still returned them — {temperature_c:40, vibration_mms:41, pressure_bar:42}
+    # collected onto a Project Work entry. Readings on a kind that does not take them pollute the
+    # trend/threshold analytics that read readings_json by maintenance_type. The COLLECTOR must apply
+    # the same predicate as the reveal, because nothing reaches the database except through it.
+    body = function_body(content, r"function collectReadings\s*\(")
+    if body is None:
+        issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                       "reason": "collectReadings() not found — cannot verify readings are collected only for kinds that take them."})
+    elif "kindTakesReadings" not in body:
+        issues.append({"check": "entry_kind_readings_shaping", "page": page,
+                       "reason": "collectReadings() does not gate on kindTakesReadings() — a hidden readings field is still collected, so switching kind after typing saves readings onto an entry kind that does not take them."})
+
     # (3) production must not be re-coupled to isBreakdown (strip // comments first — the
     #     rationale comment legitimately names the retired `isBreakdown && isClosed` gate)
     m2 = re.search(r"function\s+updateProductionVisibility\s*\(\)\s*\{(.*?)\n\}", content, re.S)

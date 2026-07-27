@@ -97,6 +97,21 @@ SELECT CASE
 FROM pg_proc WHERE proname = 'inventory_deduct' LIMIT 1;
 """
 
+# ── LG4 (2026-07-28): a signed-off entry's amendment must be evident at the DATABASE ────────
+# Walked live: a Closed entry is fully mutable -- its content was amended and it was then silently
+# re-opened (status back to Open, closed_at nulled) by a direct client write, and NOTHING recorded
+# either, because the amendment audit row is written by the CLIENT and any write that skips that
+# page skips the record. Client-side audit logging can always be bypassed; for the entry a
+# technician signed off, and which the DOLE/ISO export presents as the trail, "evident" has to mean
+# the database recorded it. Migration 20260728000003 adds a trigger scoped to rows that were ALREADY
+# Closed, so ordinary edits keep their single client-written row and gain no duplicate.
+POST_CLOSE_AUDIT_SQL = """
+SELECT count(*) FROM pg_trigger t
+JOIN pg_class c ON c.oid = t.tgrelid
+WHERE c.relname = 'logbook' AND NOT t.tgisinternal
+  AND t.tgname = 'trg_logbook_post_close_audit';
+"""
+
 # A few example offenders (tag + count) for the failure message.
 SAMPLE_SQL = """
 SELECT l.machine, count(*)
@@ -148,7 +163,8 @@ def analyze():
             "knowledge_fk_ok": bool(fkdef) and "ON DELETE CASCADE" in fkdef.upper(),
             "dangling_links": _int(DANGLING_LINKS_SQL),
             "dangling_asset_links": _int(DANGLING_ASSET_LINKS_SQL),
-            "ledger_truth": (psql(LEDGER_TRUTH_SQL) or "").strip()}
+            "ledger_truth": (psql(LEDGER_TRUTH_SQL) or "").strip(),
+            "post_close_audit": _int(POST_CLOSE_AUDIT_SQL)}
 
 
 def run_selftest():
@@ -207,6 +223,14 @@ def main():
             elif dl is not None:
                 print(f"  FAIL: {dl} project_links point at a logbook / pm_completion / inventory_item row "
                       "that no longer exists. A project shows a link whose target is gone.")
+            pca = res.get("post_close_audit")
+            if pca and pca > 0:
+                print("  PASS: a post-close amendment or silent re-open is recorded by the DATABASE "
+                      "(trg_logbook_post_close_audit), not only by the page")
+            elif pca is not None:
+                print("  FAIL: no trg_logbook_post_close_audit on logbook. A signed-off entry can be "
+                      "amended or silently re-opened by any write that skips the page, leaving no record.")
+                print("  Fix: re-apply migration 20260728000003_logbook_post_close_amendment_audit.sql.")
             if res.get("ledger_truth") == "ok":
                 print("  PASS: inventory_deduct records the quantity that actually moved "
                       "(a clamped deduction still replays to its own qty_after)")
@@ -226,7 +250,8 @@ def main():
            or not res.get("knowledge_fk_ok")
            or (res.get("dangling_links") or 0) > 0
            or (res.get("dangling_asset_links") or 0) > ASSET_LINK_BASELINE
-           or (res.get("ledger_truth") or "ok") != "ok")
+           or (res.get("ledger_truth") or "ok") != "ok"
+           or not (res.get("post_close_audit") or 0))
     return 1 if bad else 0
 
 
