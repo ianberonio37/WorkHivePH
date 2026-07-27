@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 99.1%** · journeys **98.5%** (20) · MK classes **100.0%** (10)
+**OVERALL 100.0%** · journeys **100.0%** (20) · MK classes **100.0%** (10)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -18,8 +18,8 @@
 | J14-seller-analytics | T4-analysis-insight | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J15-review-flow | T10-social-gamification | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J16-trust-badges-tiers | T10-social-gamification | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
-| J17-marketplace-to-inventory | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ✅ | ✅ | 1×2 | 90.0% |
-| J18-inventory-to-marketplace | T12-cross-page-handoff | ✅ | 🟡 | ✅ | ✅ | ✅ | 1×2 | 90.0% |
+| J17-marketplace-to-inventory | T12-cross-page-handoff | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| J18-inventory-to-marketplace | T12-cross-page-handoff | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J19-listing-to-public-profile | T12-cross-page-handoff | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J2-buyer-contact-seller | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J20-founder-console-fused-moderation | T11-admin-console | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
@@ -28,12 +28,12 @@
 | J5-saved-search-alert | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J6-price-comps-recommend | T8-commerce | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J7-post-listing | T2-capture | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
-| J8-post-from-inventory | T2-capture | ✅ | 🟡 | ✅ | ✅ | ✅ | 1×2 | 90.0% |
+| J8-post-from-inventory | T2-capture | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 
-**Per phase:** G 100.0% · W 92.5% · O 100.0% · H 100.0% · R 100.0%
+**Per phase:** G 100.0% · W 100.0% · O 100.0% · H 100.0% · R 100.0%
 
-**Per type:** T1-onboarding 100.0% · T10-social-gamification 100.0% · T11-admin-console 100.0% · T12-cross-page-handoff 93.3% · T2-capture 95.0% · T3-review-approval 100.0% · T4-analysis-insight 100.0% · T8-commerce 100.0% · T9-configuration 100.0%
+**Per type:** T1-onboarding 100.0% · T10-social-gamification 100.0% · T11-admin-console 100.0% · T12-cross-page-handoff 100.0% · T2-capture 100.0% · T3-review-approval 100.0% · T4-analysis-insight 100.0% · T8-commerce 100.0% · T9-configuration 100.0%
 
 ## Board 2 — New MK dimension classes
 

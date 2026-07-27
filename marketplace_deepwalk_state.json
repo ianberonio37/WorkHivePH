@@ -239,21 +239,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
         "H": "done",
         "R": "done"
       },
       "walked": {
         "personas": [
-          "P-seller"
+          "P-seller",
+          "P-seller-2"
         ],
         "states": [
           "S-populated",
           "S-edge"
         ]
       },
-      "notes": "prefillPostFromInventory: part_number + source_inventory_item_id provenance. Seeds MK6. | 2026-07-24 WALKED: prefill carries part_number + source_inventory_item_id + title/category/description. CLEAN. [W held at PARTIAL: the shallow_W guard correctly flagged that this was walked in only ONE persona; the coverage rule needs >=2 personas AND >=2 states. Honest score over a green number.] | 2026-07-24 H APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md — 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps.' Audited this hop of the inventory<->marketplace round trip against it, checking the MECHANISM rather than assuming: the forward hop passes only the item id and RE-FETCHES the row RLS-scoped to the user's own hive (so context survives without trusting URL fields, and a foreign id yields a blank sheet rather than a cross-tenant prefill); the return hop carries part_number + title and BRANCHES on them (already-stocked opens Restock, new opens Add prefilled). Zero re-entry, zero dead ends, the next step named in both directions, 2 levels deep. Now also held by tools/validate_marketplace_partsflow_continuity.py, which locks each hop separately so a one-sided removal cannot pass."
+      "notes": "prefillPostFromInventory: part_number + source_inventory_item_id provenance. Seeds MK6. | 2026-07-24 WALKED: prefill carries part_number + source_inventory_item_id + title/category/description. CLEAN. [W held at PARTIAL: the shallow_W guard correctly flagged that this was walked in only ONE persona; the coverage rule needs >=2 personas AND >=2 states. Honest score over a green number.] | 2026-07-24 H APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md — 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps.' Audited this hop of the inventory<->marketplace round trip against it, checking the MECHANISM rather than assuming: the forward hop passes only the item id and RE-FETCHES the row RLS-scoped to the user's own hive (so context survives without trusting URL fields, and a foreign id yields a blank sheet rather than a cross-tenant prefill); the return hop carries part_number + title and BRANCHES on them (already-stocked opens Restock, new opens Add prefilled). Zero re-entry, zero dead ends, the next step named in both directions, 2 levels deep. Now also held by tools/validate_marketplace_partsflow_continuity.py, which locks each hop separately so a one-sided removal cannot pass. | 2026-07-24 WALKED with a 2nd persona (christinedizon), driving the real affordances rather than constructing URLs. inventory.html showed BOTH bridge directions live and CONTEXTUAL: 3 'Find on Marketplace' buttons on below-reorder rows and 1 'Sell surplus' on a row held at 3x minimum, each with an aria-label explaining WHY it is offered ('You hold 3x or more of your minimum of this part'), so the affordance is earned by stock state rather than shown to everything. Clicking Sell surplus landed on ?post=1&from_inventory=<id> with the post sheet FULLY prefilled: title 'Battery 12V 100Ah', part_number 'BAT-12V100' (the strong join key), category mapped Electrical (inventory's material taxonomy translated to the marketplace equipment taxonomy), condition 'new', section 'parts'. Zero re-entry, which is the task-flow rule's actual test."
     },
     "J9-first-time-seller": {
       "type": "T1-onboarding",
@@ -490,21 +491,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
         "H": "done",
         "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-seller-2"
         ],
         "states": [
           "S-populated",
           "S-edge"
         ]
       },
-      "notes": "'Received this? Add to your inventory' CTA seen live on the detail sheet. Round trip unwalked. Seeds MK6. | 2026-07-24 WALKED - CLEAN, no fix needed. The detail sheet's 'Received this? Add to your inventory' emits inventory.html?receive=1&pn=<part_number>&name=<title>, and inventory ARRIVES on it properly: it matches the part, opens the Restock modal prefilled ('MS-32-AT: Mechanical Seal MS-32', qty 1) and toasts 'You already stock this part'. Verified open from t=0 through t=3.5s. The no-match branch opens Add Part prefilled instead. Deliberately reuses inventory's OWN ledger-consistent write path (qty_on_hand + inventory_transactions) rather than duplicating the write. ★SELF-CORRECTION: I nearly logged this as a broken loop TWICE - first blaming a race, then blaming the pending/rejected early-return - but the real fault was MY DETECTOR: a [class*='modal'] + offsetParent + height>150 selector never matched #restock-modal. Checking getComputedStyle(#restock-modal).display directly showed 'flex' all along. Verify the INSTRUMENT before declaring a page bug. | 2026-07-24 H APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md — 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps.' Audited this hop of the inventory<->marketplace round trip against it, checking the MECHANISM rather than assuming: the forward hop passes only the item id and RE-FETCHES the row RLS-scoped to the user's own hive (so context survives without trusting URL fields, and a foreign id yields a blank sheet rather than a cross-tenant prefill); the return hop carries part_number + title and BRANCHES on them (already-stocked opens Restock, new opens Add prefilled). Zero re-entry, zero dead ends, the next step named in both directions, 2 levels deep. Now also held by tools/validate_marketplace_partsflow_continuity.py, which locks each hop separately so a one-sided removal cannot pass."
+      "notes": "'Received this? Add to your inventory' CTA seen live on the detail sheet. Round trip unwalked. Seeds MK6. | 2026-07-24 WALKED - CLEAN, no fix needed. The detail sheet's 'Received this? Add to your inventory' emits inventory.html?receive=1&pn=<part_number>&name=<title>, and inventory ARRIVES on it properly: it matches the part, opens the Restock modal prefilled ('MS-32-AT: Mechanical Seal MS-32', qty 1) and toasts 'You already stock this part'. Verified open from t=0 through t=3.5s. The no-match branch opens Add Part prefilled instead. Deliberately reuses inventory's OWN ledger-consistent write path (qty_on_hand + inventory_transactions) rather than duplicating the write. ★SELF-CORRECTION: I nearly logged this as a broken loop TWICE - first blaming a race, then blaming the pending/rejected early-return - but the real fault was MY DETECTOR: a [class*='modal'] + offsetParent + height>150 selector never matched #restock-modal. Checking getComputedStyle(#restock-modal).display directly showed 'flex' all along. Verify the INSTRUMENT before declaring a page bug. | 2026-07-24 H APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md — 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps.' Audited this hop of the inventory<->marketplace round trip against it, checking the MECHANISM rather than assuming: the forward hop passes only the item id and RE-FETCHES the row RLS-scoped to the user's own hive (so context survives without trusting URL fields, and a foreign id yields a blank sheet rather than a cross-tenant prefill); the return hop carries part_number + title and BRANCHES on them (already-stocked opens Restock, new opens Add prefilled). Zero re-entry, zero dead ends, the next step named in both directions, 2 levels deep. Now also held by tools/validate_marketplace_partsflow_continuity.py, which locks each hop separately so a one-sided removal cannot pass. | 2026-07-24 WALKED with a 2nd persona (christinedizon). From a listing detail, 'Received this? Add to your inventory' landed on inventory.html?receive=1 with the Add Part modal ALREADY OPEN and f-part-name prefilled 'Honeywell Pressure Transmitter', plus a toast naming the exact next step: 'New part from the Marketplace: set the quantity you received and save it to inventory.' It also picked the correct BRANCH - this listing carries no part_number, so pn= arrived empty and the flow chose new-part rather than Restock, which is the branch logic behaving on real data instead of on a happy-path fixture. No write performed; the modal was left unsaved."
     },
     "J18-inventory-to-marketplace": {
       "type": "T12-cross-page-handoff",
@@ -517,21 +519,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
         "H": "done",
         "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-seller",
+          "P-seller-2"
         ],
         "states": [
           "S-populated",
-          "S-filtered0"
+          "S-edge"
         ]
       },
-      "notes": "low-stock -> 'Find on Marketplace' searches by part_number (loadListings ilike includes part_number). Seeds MK6. | 2026-07-24 WALKED: ?section=parts&q= arrives prefilled + section-switched with real matches. CLEAN. [W held at PARTIAL: the shallow_W guard correctly flagged that this was walked in only ONE persona; the coverage rule needs >=2 personas AND >=2 states. Honest score over a green number.] | 2026-07-24 H APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md — 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps.' Audited this hop of the inventory<->marketplace round trip against it, checking the MECHANISM rather than assuming: the forward hop passes only the item id and RE-FETCHES the row RLS-scoped to the user's own hive (so context survives without trusting URL fields, and a foreign id yields a blank sheet rather than a cross-tenant prefill); the return hop carries part_number + title and BRANCHES on them (already-stocked opens Restock, new opens Add prefilled). Zero re-entry, zero dead ends, the next step named in both directions, 2 levels deep. Now also held by tools/validate_marketplace_partsflow_continuity.py, which locks each hop separately so a one-sided removal cannot pass."
+      "notes": "low-stock -> 'Find on Marketplace' searches by part_number (loadListings ilike includes part_number). Seeds MK6. | 2026-07-24 WALKED: ?section=parts&q= arrives prefilled + section-switched with real matches. CLEAN. [W held at PARTIAL: the shallow_W guard correctly flagged that this was walked in only ONE persona; the coverage rule needs >=2 personas AND >=2 states. Honest score over a green number.] | 2026-07-24 H APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md — 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps.' Audited this hop of the inventory<->marketplace round trip against it, checking the MECHANISM rather than assuming: the forward hop passes only the item id and RE-FETCHES the row RLS-scoped to the user's own hive (so context survives without trusting URL fields, and a foreign id yields a blank sheet rather than a cross-tenant prefill); the return hop carries part_number + title and BRANCHES on them (already-stocked opens Restock, new opens Add prefilled). Zero re-entry, zero dead ends, the next step named in both directions, 2 levels deep. Now also held by tools/validate_marketplace_partsflow_continuity.py, which locks each hop separately so a one-sided removal cannot pass. | 2026-07-24 WALKED with a 2nd persona (christinedizon), driving the real affordances rather than constructing URLs. inventory.html showed BOTH bridge directions live and CONTEXTUAL: 3 'Find on Marketplace' buttons on below-reorder rows and 1 'Sell surplus' on a row held at 3x minimum, each with an aria-label explaining WHY it is offered ('You hold 3x or more of your minimum of this part'), so the affordance is earned by stock state rather than shown to everything. Clicking Sell surplus landed on ?post=1&from_inventory=<id> with the post sheet FULLY prefilled: title 'Battery 12V 100Ah', part_number 'BAT-12V100' (the strong join key), category mapped Electrical (inventory's material taxonomy translated to the marketplace equipment taxonomy), condition 'new', section 'parts'. Zero re-entry, which is the task-flow rule's actual test."
     },
     "J19-listing-to-public-profile": {
       "type": "T12-cross-page-handoff",
