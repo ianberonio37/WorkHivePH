@@ -122,16 +122,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
+        "W": "done",
+        "O": "done",
         "H": "todo",
-        "R": "todo"
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-multi"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
       },
-      "notes": "S-error: bad code / expired / already a member. Does each say which it is, or one generic failure?"
+      "notes": "S-error: bad code / expired / already a member. Does each say which it is, or one generic failure? | 2026-07-27 WALKED through the real submitJoin() with four bad inputs and one interesting good one. THE ERROR HONESTY IS GOOD, which is worth recording as a PASS rather than skipping past: 'abc' and 'W11B4Z@' both get 'Enter the 6-character code from your supervisor.' (says the shape AND where to get it); a well-formed but non-existent 'ZZZZZZ' gets 'Code not found. Double-check with your supervisor.' (distinguishes malformed from not-found, which is the MK11 actionable-remedy property); in every case the button recovers to 'Join Hive' enabled and NO state changes. ONE REAL DEFECT, in the VALID-code path that lands here: entering the code of a hive you are ALREADY an active member of fell through to showWelcome(), so the page greeted a long-standing SUPERVISOR with the new-member welcome screen, announcing a join that never happened. Nothing was corrupted - no row written, role and hive unchanged - but the screen told a false story, the same displayed-claim-with-nothing-behind-it shape this arc keeps finding. FIXED: say what actually happened ('You're already a member of <hive>') and land them on the board they already belong to. Caught a copy detail while verifying: hive names often END in a period ('Lucena Pharmaceutical Mfg.'), so the sentence rendered 'Mfg..' - dropped the trailing period and let the name terminate it. REGRESSION-CHECKED the branch I restructured: a genuinely NEW join (Baguio, never a member) still gets the welcome screen, with role 'worker' assigned by the SERVER and the marker correctly unpainted. Test DB restored: probe membership deleted, the member_joined audit row my walk wrote deleted, 0 residue, and the multi-hive fixture (Lucena supervisor + Manila worker) intact."
     },
     "H5-board-first-paint-by-role": {
       "type": "T2-core",

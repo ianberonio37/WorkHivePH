@@ -2158,9 +2158,21 @@ async function submitJoin() {
       role: 'worker',
       auth_uid: _authUid  // page guards !_authUid -> signin (line ~1232), so this is always the caller's uid
     });
+    await showWelcome(hive);
+    return;
   }
 
-  await showWelcome(hive);
+  /* H4 (hive deepwalk 2026-07-27): entering the code of a hive you are ALREADY an active member of
+     used to fall through to showWelcome(), so the page greeted a long-standing supervisor with the
+     new-member welcome screen — announcing a join that never happened. Nothing was corrupted (no row
+     written, role and hive unchanged), but the screen told a false story, which is the same
+     displayed-claim-with-nothing-behind-it shape this arc keeps finding. Say what actually happened
+     and put them where they already belong. */
+  // No trailing period: hive names often end in one themselves ("Lucena Pharmaceutical Mfg."),
+  // which rendered "…Mfg..". Let the name terminate the sentence.
+  showToast(`You're already a member of ${hive.name}`);
+  showView('board');
+  initBoard();
 }
 
 async function showWelcome(hive) {
