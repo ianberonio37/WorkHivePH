@@ -5017,6 +5017,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "hive_deepwalk_ratchet",
+        "script":  "tools/hive_deepwalk_scoreboard.py",
+        "args":    [],
+        "label":   "Hive deepwalk ANTI-DRIFT ratchet (HIVE_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (14 journeys x 5 phases G/W/O/H/R, HK classes x 6 stages) held as a forward-only FLOOR, so a cell that was walked/observed/resolved/locked cannot silently revert. Computed from hive_deepwalk_state.json, never asserted in prose. Carries the shallow_W guard: a journey cannot claim W=done without >=2 personas AND >=2 states recorded, because without it 'walked' degrades into 'opened the page once as myself' — the exact shallowness this arc exists to kill (it caught over-crediting twice on the marketplace board). `--accept` ratchets the floor up after real progress. Static/fast. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
         "id":      "marketplace_deepwalk_ratchet",
         "script":  "validate_marketplace_deepwalk.py",
         "args":    [],

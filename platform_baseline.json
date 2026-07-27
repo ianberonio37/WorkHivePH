@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-27T01:56:58.067290+00:00",
+  "timestamp": "2026-07-27T08:43:07.099441+00:00",
   "validators": {
     "calc-suite": "PASS",
     "auto-discovery": "PASS",
@@ -510,6 +510,9 @@
     "marketplace_deepwalk_ratchet": "PASS",
     "marketplace_fraud_signals": "SKIP",
     "marketplace_deepwalk_classes": "PASS",
+    "reachable_capability": "PASS",
+    "post_action_coherence": "PASS",
+    "error_remedy_actionable": "PASS",
     "marketplace_partsflow_continuity": "PASS",
     "hidden_class_defined": "PASS",
     "committed_env_secret": "PASS",

@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 1f259a23669fb0e9
+source_sha: 830a6ed87c6c86d8
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (654) — the 'what's already gated' brain
+## gate · registered validators (655) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (101)
+### AI Validation (102)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -62,6 +62,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `extractability` [fail] — Extractability Gate (P2: answer-first + statistic + cited-source per article; Princeton GEO triad; forward-only ratchet)
 - `grounding_contract` [fail] — AI Self-Improvement: Grounding Field-Contract (§13.15 A6, forward-only)
 - `hive_board` ⚡ [fail] — Hive Board: asset write on asset_nodes + role-scoped reserve + RLS migration
+- `hive_deepwalk_ratchet` ⚡ [fail] — Hive deepwalk ANTI-DRIFT ratchet (HIVE_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (14 journeys x 5 phases G/W/O/H/R, HK classes x 6 stages) held a
 - `indigenous_stack` ⚡ [fail] — Arc H/V: indigenous stack keeps local-first + fallback (data sovereignty, no hard external dep)
 - `integration_configs_authz_live` [fail] — CMMS: live integration_configs authz (config_id BOLA closed; worker token-read/write blocked)
 - `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)

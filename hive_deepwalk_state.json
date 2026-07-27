@@ -1,0 +1,127 @@
+{
+ "_doc": "Anti-drift compass for the HIVE DEEPWALK EXPANSION arc (Ian 2026-07-27: 'I love this flow we just had in marketplace'). Companion to HIVE_DEEPWALK_EXPANSION_ROADMAP.md. tools/hive_deepwalk_scoreboard.py reads this and emits a MEASURED % per phase and per HK class. EXPANSION means growing BOTH denominators: journeys x personas x states (board 1) and new HK dimension classes (board 2). A cell moves only on cited live evidence.",
+ "_phases_def": [
+  ["G", "ground - map the views, transitions and the caches each one touches"],
+  ["W", "walk - live-MCP journey walk carrying the full lens; requires >=2 personas AND >=2 states"],
+  ["O", "observe - record friction with evidence (a clean walk is a real result, record it as such)"],
+  ["H", "harvest - Engine B, at spoke 5 ONLY, for a friction the walk actually surfaced"],
+  ["R", "resolve - fix, then LOCK with a gate; a fix without a gate is not done"]
+ ],
+ "_phase_values": ["todo", "partial", "done"],
+ "_class_stages": ["harvest", "define", "detect", "sweep", "fix", "gate"],
+ "_coverage_rule": "A journey's W phase is 'done' only when walked in >=2 personas AND >=2 states. One-persona/one-state is the shallowness this arc exists to kill.",
+ "personas": ["P-anon", "P-invited", "P-worker", "P-supervisor", "P-owner", "P-multi", "P-removed"],
+ "states": ["S-empty", "S-populated", "S-single-member", "S-error", "S-stale"],
+ "journeys": {
+  "H1-first-run-onboard-choice": {
+   "type": "T1-onboarding",
+   "surfaces": ["hive.html", "index.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "view-onboard: create vs join. Grounded 2026-07-27: the 7 views exist (onboard/create/code/join/welcome/board/shell)."
+  },
+  "H2-create-hive-become-owner": {
+   "type": "T1-onboarding",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "view-create -> hives.insert -> owner membership -> view-welcome -> view-board."
+  },
+  "H3-join-by-code-valid": {
+   "type": "T1-onboarding",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "view-join / view-code -> hive_members.upsert -> welcome. P-invited is the persona that has never been walked."
+  },
+  "H4-join-by-code-invalid": {
+   "type": "T1-onboarding",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "S-error: bad code / expired / already a member. Does each say which it is, or one generic failure?"
+  },
+  "H5-board-first-paint-by-role": {
+   "type": "T2-core",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "partial", "O": "partial", "H": "todo", "R": "todo"},
+   "walked": {"personas": ["P-worker"], "states": ["S-populated"]},
+   "notes": "2026-07-27 walked as christinedizon (worker): board renders, supervisor panel hidden and EMPTY (see HK1). Owed: supervisor + owner personas, and S-single-member."
+  },
+  "H6-invite-and-code-lifecycle": {
+   "type": "T3-collab",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "Code generation + regeneration. Does regenerating invalidate the old code immediately?"
+  },
+  "H7-change-member-role": {
+   "type": "T3-collab",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "hive_members.update. Does the demoted member's OPEN SESSION lose the affordances, or only after reload?"
+  },
+  "H8-remove-member": {
+   "type": "T3-collab",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "hive_members.delete. THE REVOCATION QUESTION: what does P-removed still hold client-side and still render? Drive-order item 1."
+  },
+  "H9-leave-hive": {
+   "type": "T3-collab",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "performLeave() + the audit-log ordering already hardened 2026-07-07 (audit BEFORE self-delete). Walk it end to end: where does the user land?"
+  },
+  "H10-switch-hive": {
+   "type": "T4-transition",
+   "surfaces": ["hive.html", "nav-hub.js", "utils.js"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "partial"},
+   "walked": {"personas": [], "states": []},
+   "notes": "WAS UNWALKABLE BY CONSTRUCTION until 2026-07-27 (see HK2): seeded data was strictly 1:1 worker->hive so the switcher list was always length 1. Seeder now creates one P-multi worker with a DIFFERENT role in the second hive, so the switch is observable. R=partial: the fixture is fixed, the walk is owed. Drive-order item 1."
+  },
+  "H11-hive-settings-rename": {
+   "type": "T3-collab",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "hives.update. Does a rename propagate to wh_hive_name and every surface showing it?"
+  },
+  "H12-member-list-and-presence": {
+   "type": "T2-core",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "partial", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": ["P-worker"], "states": ["S-populated"]},
+   "notes": "'ON SHIFT NOW / Green dot = a teammate is in WorkHive right now' observed rendering 2026-07-27. Owed: is the presence signal BACKED by a live producer, or decorative? (the MK1 producer test, applied here)."
+  },
+  "H13-hive-health-maturity": {
+   "type": "T5-insight",
+   "surfaces": ["hive.html"],
+   "phases": {"G": "done", "W": "partial", "O": "partial", "H": "todo", "R": "todo"},
+   "walked": {"personas": ["P-worker"], "states": ["S-populated"]},
+   "notes": "2026-07-27: the panel ships to a worker as template only, 'Computing hive health...', zero filled values. Owed: walk as supervisor and apply the producer test to every number it shows."
+  },
+  "H14-cross-surface-hive-identity": {
+   "type": "T6-fabric",
+   "surfaces": ["hive.html", "utils.js", "nav-hub.js", "community.html", "marketplace.html"],
+   "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+   "walked": {"personas": [], "states": []},
+   "notes": "A switch or removal must be correct on EVERY page reading whHiveId(), not just the board that changed it. Cache set grounded 2026-07-27: wh_hive_id, wh_hive_name, wh_hive_role, wh_active_hive_id, wh_hives, wh_hive_lastseen_<id>. Drive-order item 1."
+  }
+ },
+ "dim_classes": {
+  "HK1-boundary-is-real-not-cosmetic": {
+   "stages": {"harvest": "todo", "define": "done", "detect": "todo", "sweep": "partial", "fix": "todo", "gate": "todo"},
+   "seed": "A role/tenancy boundary must be enforced by DATA (RLS or a server-derived role), never by CSS visibility alone. A hidden element must be EMPTY, not display:none over real data.",
+   "notes": "2026-07-27 SWEEP (partial, one page): hive.html PASSES with a caveat. #supervisor-summary is present in a worker's DOM (9,699 chars) behind class='hidden', but contains TEMPLATE ONLY - zero filled numeric nodes. Then the stronger probe: forging wh_hive_role to 'supervisor' in localStorage and reloading, the page OVERWROTE it back to 'worker' and granted nothing, so the role is server-re-derived. That is the opposite of the marketplace's wh_last_worker/wh_hive_id staleness. CAVEAT driving the detect stage: the pattern is fragile - if a later change fills that panel before checking role, CSS becomes the only thing hiding real data."
+  },
+  "HK2-testability-of-a-built-capability": {
+   "stages": {"harvest": "todo", "define": "done", "detect": "partial", "sweep": "partial", "fix": "done", "gate": "todo"},
+   "seed": "If the product ships a capability, seeded state must be able to EXERCISE it. A capability no fixture can reach is untested by construction, and its bugs are invisible to every walk and every screenshot.",
+   "notes": "2026-07-27 FOUND + FIXED: seeded data was strictly 1:1 worker->hive (15 memberships / 15 workers / 0 multi-hive) because hives_workers.py built exactly one member_row per worker, while hive.html carries ~28 hive-switcher references. H10 was therefore unwalkable by construction. Fixed in the seeder: one worker now receives a second membership in a different hive with a DIFFERENT role, so the switch is observable rather than merely possible. Same lesson as the marketplace trust columns in a new shape - the SEEDER decides what can be tested; under-generating a relationship is the quieter failure because nothing looks wrong. GATE owed: assert every shipped capability has a fixture that can reach it."
+  }
+ }
+}

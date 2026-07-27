@@ -163,8 +163,36 @@ def seed_hives_and_workers(client, log) -> dict:
         }
         for w in workers
     ]
+    # ── MULTI-HIVE MEMBERSHIP (hive deepwalk, 2026-07-27) ────────────────────────────────────────
+    # Every worker got exactly ONE membership above (one row per worker, using the hive_id assigned at
+    # creation), so seeded data was strictly 1:1 worker->hive: 15 memberships across 15 workers, none
+    # of them in two hives. Meanwhile hive.html carries ~28 hive-switcher references and utils.js 4 —
+    # a real, built capability that NO seeded state could exercise. Every walk, screenshot and test saw
+    # a switcher whose list was always length 1, so any staleness in the switch path (the caches
+    # wh_hive_id / wh_hive_name / wh_hive_role / wh_active_hive_id all change together) was invisible.
+    #
+    # This is the same lesson as the marketplace trust columns in a different shape: the SEEDER decides
+    # what can be tested. There it fabricated values that could not be earned; here it under-generated
+    # a whole relationship, which is the quieter failure because nothing looks wrong.
+    #
+    # So: give ONE worker a second membership, in a different hive, with a DIFFERENT role. Different
+    # role matters — it makes the switch observable (the board must re-derive supervisor affordances,
+    # not carry the previous hive's role across), which is exactly the transition worth walking.
+    if len(hives) > 1 and member_rows:
+        primary = member_rows[0]
+        other_hive = next((h["id"] for h in hives if h["id"] != primary["hive_id"]), None)
+        if other_hive:
+            member_rows.append({
+                "hive_id":     other_hive,
+                "worker_name": primary["worker_name"],
+                "auth_uid":    primary["auth_uid"],
+                "role":        "supervisor" if primary["role"] != "supervisor" else "worker",
+                "status":      "active",
+            })
+
     client.table("hive_members").insert(member_rows).execute()
-    log(f"  inserted {len(member_rows)} hive_members")
+    log(f"  inserted {len(member_rows)} hive_members"
+        f" (incl. 1 multi-hive worker so the hive-switch journey is walkable)")
 
     hive_lookup = {h["id"]: h["name"] for h in hives}
     summary: dict = {}
