@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 318,
+    "view_column_pairs": 319,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 254
@@ -1805,6 +1805,19 @@
     {
       "view": "v_hives_truth",
       "column": "intent",
+      "consumers": [
+        {
+          "file": "hive.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hives_truth",
+      "column": "invite_code",
       "consumers": [
         {
           "file": "hive.html",

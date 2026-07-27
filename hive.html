@@ -2351,15 +2351,18 @@ document.getElementById('btn-show-code').addEventListener('click', async () => {
     const { data, error } = await db.from('v_hives_truth')
       .select('invite_code').eq('id', HIVE_ID).maybeSingle();
     if (error || !data?.invite_code) {
-      valEl.textContent = _t('Code unavailable — refresh to try again',
-                             'Hindi makuha ang code — i-refresh at subukan ulit');
+      // Layer L: surfaced to the user, so it must also be captured for the console/aggregator.
+      console.error('invite-code fetch failed:', error?.message || 'no invite_code on the row');
+      valEl.textContent = _t('Code unavailable. Refresh to try again.',
+                             'Hindi makuha ang code. I-refresh at subukan ulit.');
       return;
     }
     valEl.textContent = data.invite_code;
     try { localStorage.setItem('wh_hive_code', data.invite_code); } catch (_) { /* empty-catch-allow: cache is best-effort, the code is already shown */ }
-  } catch (_) {
-    valEl.textContent = _t('Code unavailable — refresh to try again',
-                           'Hindi makuha ang code — i-refresh at subukan ulit');
+  } catch (err) {
+    console.error('invite-code fetch threw:', err && err.message ? err.message : err);
+    valEl.textContent = _t('Code unavailable. Refresh to try again.',
+                           'Hindi makuha ang code. I-refresh at subukan ulit.');
   }
 });
 
@@ -2377,6 +2380,19 @@ document.getElementById('btn-show-code').addEventListener('click', async () => {
 async function renameHive() {
   if (HIVE_ROLE !== 'supervisor') return;   // role-check-allow: mirrors the RLS policy this write must satisfy
   document.getElementById('hive-menu')?.classList.add('hidden');
+  // P7 single-flight: this handler writes, so it disables its own button before any await. Without
+  // it a double-tap fires two renames (harmless in outcome, but it also double-writes the audit row,
+  // and the gate is right to refuse an unlocked click->write binding on principle).
+  const _rnBtn = document.getElementById('btn-rename-hive');
+  if (_rnBtn) _rnBtn.disabled = true;
+  try {
+    await _renameHiveInner();
+  } finally {
+    if (_rnBtn) _rnBtn.disabled = false;
+  }
+}
+
+async function _renameHiveInner() {
 
   const current = HIVE_NAME || '';
   const next = await whPrompt(
@@ -2396,6 +2412,9 @@ async function renameHive() {
 
   const { error } = await db.from('hives').update({ name }).eq('id', HIVE_ID);
   if (error) {
+    // Layer L: SHOW it and CAPTURE it. A catch that surfaces a backend failure to the user without
+    // logging leaves the failure invisible in the console once it starts happening in the field.
+    console.error('renameHive failed:', error.message || error);
     // whWriteError distinguishes an expired session from a real failure, so we never invite a
     // doomed retry on a 401 (the MK11 lesson from the marketplace arc).
     showToast(whWriteError(error, _t('Could not rename the hive.',
@@ -5370,6 +5389,9 @@ async function switchToHive(id) {
     .maybeSingle();
 
   if (_mErr) {
+    // Layer L: shown to the user, so capture it too — a switch that starts failing in the field
+    // must not be invisible in the console.
+    console.error('switchToHive membership verify failed:', _mErr.message || _mErr);
     showToast('Could not verify your access to that hive. Check your connection and try again.');
     return;
   }

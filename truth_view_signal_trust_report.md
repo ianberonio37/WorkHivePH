@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **318**
+- View/column pairs scanned: **319**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **254**
@@ -138,6 +138,7 @@ re-deriving what the canonical view should expose:
 | `v_hives_truth` | `created_by` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `hive_members` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `intent` | ✅ OK | 1 | direct |
+| `v_hives_truth` | `invite_code` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `name` | ✅ OK | 8 | direct |
 | `v_hives_truth` | `preferred_persona` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `bin_location` | ✅ OK | 2 | direct |
