@@ -1721,8 +1721,14 @@ async function updateOfflineBadge() {
     return;
   }
   const badge   = document.getElementById('offline-queue-count');
-  if (pending.length) {
-    badge.textContent = pending.length + ' pending';
+  // LB7: a dead-lettered item is kept on the device for recovery but is NOT pending work —
+  // counting it would promise a sync that can never happen.
+  const actionable = pending.filter(p => !p._stalled);
+  const stalled    = pending.length - actionable.length;
+  if (actionable.length || stalled) {
+    badge.textContent = actionable.length
+      ? actionable.length + ' pending' + (stalled ? ` · ${stalled} stuck` : '')
+      : `${stalled} stuck`;
     badge.classList.remove('hidden');
   } else {
     badge.classList.add('hidden');
@@ -1738,29 +1744,83 @@ async function syncOfflineQueue() {
     return;
   }
   if (!pending.length) return;
-  let synced = 0;
+  let synced = 0, unapplied = 0, stallReason = '';
   for (const p of pending) {
-    const { _offline, _queueOp, ...rest } = p; // rest retains worker_name and hive_id
-    let error;
+    if (p._stalled) continue;   // dead-lettered: retrying can't help, and it must not read as pending work
+    const { _offline, _queueOp, _stalled, _retryCount, ...rest } = p; // rest retains worker_name and hive_id
+    let error, unconfirmed = false;
     if (_queueOp === 'update') {
-      // Offline edit — apply update to existing DB row
+      // Offline edit — apply update to existing DB row.
+      // LB7 (2026-07-28): ask for the row back. A PostgREST update matching ZERO rows returns
+      // { error: null, status: 204 }, so the old `if (!error)` treated "changed nothing" as
+      // "synced" — it deleted the queue item and toasted success while the worker's edit went
+      // nowhere. Confirmed live: an entry deleted server-side while offline drained to 0 pending
+      // with "1 offline change synced." and no write. Zero rows is the NORMAL outcome whenever
+      // logbook's owner-scoped UPDATE policy (auth_uid = auth.uid()) filters the row out, even
+      // though the hive-scoped SELECT policy still shows it — so the worker sees an entry they
+      // cannot actually edit. This mirrors the 0-row guard the ONLINE edit path already has
+      // (saveEditFromForm), rather than inventing a second convention.
       const { id, updates } = rest;
-      ({ error } = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME));
+      const r = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME).select('id');
+      error = r.error;
+      if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
     } else {
       // Offline new entry — insert
       ({ error } = await db.from('logbook').insert(rest)); /* attribution-allow: `rest` = queued offline payload built by addEntry() with auth_uid (line ~1809) */
       if (!error) embedFaultEntry({ ...rest });
     }
-    if (!error) {
+    if (!error && !unconfirmed) {
       await removeFromQueue(p.id);
       synced++;
+    } else if (unconfirmed) {
+      // Never drop the worker's text: keep the item so it stays recoverable, mark it so it
+      // stops masquerading as pending work, and say so out loud — with the SAME explanation the
+      // online path gives, resolved from the live row rather than guessed.
+      const why = await explainZeroRowWrite(p.id);
+      await queueEntryOffline({ ...p, _stalled: true, _retryCount: (p._retryCount || 0) + 1, _stallReason: why });
+      unapplied++;
+      if (!stallReason) stallReason = why;
     }
   }
-  if (synced) {
+  if (synced || unapplied) {
     _allEntries = _allEntries.filter(e => !e._offline && !e._pending_edit);
     await updateOfflineBadge();
-    showToast(`${synced} offline ${synced === 1 ? 'change' : 'changes'} synced.`);
+    if (synced) showToast(`${synced} offline ${synced === 1 ? 'change' : 'changes'} synced.`);
+    if (unapplied) {
+      showToast(
+        `${unapplied} offline ${unapplied === 1 ? 'edit' : 'edits'} could not be applied. ` +
+        `${stallReason} Your text is kept on this device.`, '⚠️');
+    }
     await renderEntries();
+  }
+}
+
+// LB9 (2026-07-28): why a write changed 0 rows, answered honestly.
+//
+// An update that matches nothing is not an error — PostgREST returns error:null/204 — and there are
+// three quite different reasons for it, which the page used to collapse into one message:
+// "Entry was modified by someone else, reload to see the latest version." That is right for a
+// concurrent edit and WRONG for the other two, and in the ownership case no amount of reloading can
+// ever help. logbook's RLS is asymmetric by design: SELECT is hive-scoped so you can read your
+// team's entries, while UPDATE and DELETE are owner-scoped (`auth_uid = auth.uid()`) — so the feed
+// legitimately shows entries you cannot change.
+//
+// One resolver, used by BOTH the online save and the offline-queue drain, so the two paths cannot
+// drift into telling the worker different stories about the same failure.
+async function explainZeroRowWrite(id) {
+  try {
+    const { data, error } = await db.from('logbook').select('id, auth_uid, updated_at').eq('id', id).maybeSingle();
+    if (error) return 'Could not save. Check your connection and try again.';
+    if (!data)  return 'That entry no longer exists. It was deleted.';
+    if (_authUid && data.auth_uid && data.auth_uid !== _authUid) {
+      return 'This entry belongs to someone else, so it cannot be edited from your account.';
+    }
+    if (!data.auth_uid) {
+      return 'This entry has no recorded owner, so it cannot be edited. Ask your supervisor to have it re-attributed.';
+    }
+    return 'Entry was modified by someone else, reload to see the latest version.';
+  } catch (_) {
+    return 'Could not save. Check your connection and try again.';
   }
 }
 
@@ -1794,8 +1854,25 @@ async function loadEntries() {
     showToast('Offline queue unavailable, showing saved entries only.');
     pending = [];
   }
-  const pendingInserts = pending.filter(p => !p._queueOp || p._queueOp !== 'update');
-  const pendingUpdates = pending.filter(p => p._queueOp === 'update');
+  // LB7: a dead-lettered edit was never applied server-side, so merging it would paint a value
+  // the database does not hold — the cache-vs-truth defect this queue exists to avoid. The item
+  // stays in IndexedDB (recoverable), but the feed shows only what is real.
+  //
+  // LB17 (walked live 2026-07-28): the queue is per-DEVICE, not per-hive, so it must be filtered
+  // to the active hive exactly as the server read above is. Without this a multi-hive member who
+  // captures offline in one hive and switches to another sees the first hive's entry rendered in
+  // the second hive's feed — one tenant's work shown inside another tenant's context. Confirmed
+  // as a real card ("captured in Manila", Pending sync) in the Lucena feed. The queued row keeps
+  // its CAPTURE-time hive_id, which is what makes filtering correct here and re-homing wrong; the
+  // null case mirrors the server's `.or(hive_id.is.null)` for pre-hive rows. The badge stays
+  // deliberately global — a pending write is a fact about this device, not about a hive.
+  // An insert item carries hive_id at the top level; an edit item carries it inside `updates`
+  // (saveEditFromForm puts it there). Read both shapes, or every queued EDIT slips the filter.
+  const _queuedHive = (p) => (p && p._queueOp === 'update' ? (p.updates || {}).hive_id : p.hive_id);
+  const live           = pending.filter(p => !p._stalled)
+                                .filter(p => { const h = _queuedHive(p); return !HIVE_ID || h === HIVE_ID || h == null; });
+  const pendingInserts = live.filter(p => !p._queueOp || p._queueOp !== 'update');
+  const pendingUpdates = live.filter(p => p._queueOp === 'update');
   const insertIds      = new Set(pendingInserts.map(p => p.id));
   const updateMap      = Object.fromEntries(pendingUpdates.map(p => [p.id, p.updates]));
   _allEntries = [
@@ -3571,13 +3648,27 @@ function renderEditParts() {
 }
 
 async function openEditModal(id) {
+  // LB9 (2026-07-28): this function is async and sets _editingId only at the very END, after a
+  // possible entry re-fetch and an await on renderReadingsFields(). The save button stayed live for
+  // that whole window, so a fast tap ran saveEditFromForm() with _editingId still null: offline that
+  // enqueues under a null IndexedDB keyPath, which throws, and the button is left disabled forever
+  // with the form unusable. Hit during the LB7 walk. Hold the button until the form is actually
+  // populated, rather than hoping the user is slower than the fetch.
+  const _saveBtn = document.getElementById('save-entry-btn');
+  if (_saveBtn) { _saveBtn.disabled = true; _saveBtn.textContent = 'Loading…'; }
+
   // Resolve entry from cache (avoids re-fetching all entries)
   let entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id);
   if (!entry) {
     const { data } = await db.from('logbook').select('*').eq('id', id).single();
     entry = data;
   }
-  if (!entry) return;
+  if (!entry) {
+    // Nothing to edit: hand the button back rather than leaving the form dead.
+    if (_saveBtn) { _saveBtn.disabled = false; _saveBtn.textContent = 'Save Entry'; }
+    showToast('Could not open that entry for editing.', '⚠️');
+    return;
+  }
 
   // Close the view modal
   document.getElementById('modal').classList.add('hidden');
@@ -3684,8 +3775,8 @@ async function openEditModal(id) {
   document.getElementById('edit-mode-machine').textContent = entry.machine || 'Entry';
   document.getElementById('edit-mode-banner').classList.remove('hidden');
 
-  // ── Switch save button label ──
-  document.getElementById('save-entry-btn').textContent = 'Update Entry';
+  // ── Switch save button label ── (and release the hold: the form is populated and _editingId is set)
+  if (_saveBtn) { _saveBtn.textContent = 'Update Entry'; _saveBtn.disabled = false; }
 
   // ── Open extras drawer so all fields are visible ──
   const drawer = document.getElementById('extras-drawer');
@@ -3798,6 +3889,13 @@ function cancelEditMode() {
 async function saveEditFromForm() {
   const id      = _editingId;
   const saveBtn = document.getElementById('save-entry-btn');
+  // Defence in depth behind openEditModal's button hold: without an id there is nothing to update,
+  // and offline this would enqueue under a null IndexedDB keyPath, which throws and strands the form.
+  if (!id) {
+    showToast('That entry is still loading. Try again in a moment.', '⚠️');
+    saveBtn.disabled = false;
+    return;
+  }
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving…';
 
@@ -3893,7 +3991,7 @@ async function saveEditFromForm() {
   // Guard: 0 rows updated means either worker mismatch OR stale data (concurrent edit).
   // Do NOT deduct parts — the update didn't land.
   if (updatedRows !== null && updatedRows !== undefined && updatedRows.length === 0) {
-    showToast('Entry was modified by someone else, reload to see the latest version.', '⚠️');
+    showToast(await explainZeroRowWrite(id), '⚠️');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Update Entry';
     return;

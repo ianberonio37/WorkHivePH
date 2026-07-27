@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 587074da6a0532ed
+source_sha: 2e25b6b0edae9cf6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (659) — the 'what's already gated' brain
+## gate · registered validators (661) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (102)
+### AI Validation (103)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -67,6 +67,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `integration_configs_authz_live` [fail] — CMMS: live integration_configs authz (config_id BOLA closed; worker token-read/write blocked)
 - `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)
 - `landing-extractability` [fail] — Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)
+- `logbook_deepwalk_ratchet` ⚡ [fail] — Logbook deepwalk ANTI-DRIFT ratchet (LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (20 journeys x 5 phases G/W/O/H/R, LG classes x 6 stages) 
 - `login_proxy_lockout` [fail] — Arc I: login brute-force lockout (server-side proxy; correct pw can't bypass a lock)
 - `marketplace_deepwalk_classes` ⚡ [fail] — Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK4 watchlist sold-surface
 - `marketplace_deepwalk_ratchet` ⚡ [fail] — Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)
@@ -212,7 +213,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (463)
+### Platform (464)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -513,6 +514,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `observability` ⚡ [fail] — Observability Validator
 - `oc-updated-at-backed` [fail] — Optimistic-concurrency backing (LIVE) — every client `updated_at` write must be backed by a real column (bug-hunt roadmap P6, 2026-07-17). Scans client pages fo
 - `offline-resilience` ⚡ [fail] — Offline Resilience (Phase 6: snapshot caching, response queue)
+- `offline_queue_confirm` ⚡ [fail] — LG3 · offline-queue drain confirmation — a queued write that changed 0 ROWS must never be reported as synced. A PostgREST update/delete matching nothing is not 
 - `onconflict-index` [fail] — Per-page P3/P4 gate: every supabase-js `.upsert(rows,{onConflict:'a,b'})` in the page HTML must have a MATCHING unique index in the live DB (Postgres ON CONFLIC
 - `ops-snapshot-agents` [fail] — Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)
 - `optimistic-concurrency` ⚡ [fail] — Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)

@@ -374,5 +374,6 @@
   "20260724000009_marketplace_cert_badge_requires_certs.sql": "7236d38b46aacd66d4b26fc3f363215fbda326bedeaaca781289cfab295aa780",
   "20260724000010_register_seller_public_canonical_source.sql": "f4ceec17fdf2f9c230140a3a247b528186c7e2d73667c5e5471083737421624d",
   "20260724000011_marketplace_review_requires_inquiry.sql": "f045b8e3793eb285f05012db0c6aaea5043a728312875539bde82c61ee72ba50",
-  "20260724000012_marketplace_review_caps.sql": "b6fb7618c60ae10c09b1abe117f9f9471940f8b4befcb69a89bdef952e2272c1"
+  "20260724000012_marketplace_review_caps.sql": "b6fb7618c60ae10c09b1abe117f9f9471940f8b4befcb69a89bdef952e2272c1",
+  "20260728000000_logbook_auth_uid_backfill.sql": "3c6cfe66dfadb80776c07507fad7ef8616f3a908490d52433a65b21a3ae5d4a8"
 }

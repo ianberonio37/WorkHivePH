@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:566-files
-source_sha: 2bdb533a4f49b857
+source: memory-curated:568-files
+source_sha: ffe4d8be0b39ea63
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (566 durable topic files)
+## memory · curated auto-memory (568 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=189 · project=288 · reference=89
+**By type:** feedback=191 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -75,6 +75,7 @@ Entries (name · type · sha):
 - `feedback_false_ceiling_start_the_container` · feedback · 35cbf496f20a0f84
 - `feedback_family_resemblance_cross_page_lens` · feedback · 07a404794b0d4dc1
 - `feedback_fix_every_path_that_mutates_not_just_the_walked_one` · feedback · b0e67d0a9251e8b1
+- `feedback_fixed_char_window_validator_is_brittle` · feedback · 8d70c5bbff536c80
 - `feedback_flywheel_is_full_loop_not_shallow` · feedback · 86b75303ba39dfb5
 - `feedback_follow_framework_antidrift_before_building` · feedback · 014de31a1ef7f2bc
 - `feedback_free_tier_only_models` · feedback · a7149c3cbb49a7fc
@@ -207,6 +208,7 @@ Entries (name · type · sha):
 - `feedback_workhive_url_prefix` · feedback · ab7e507277340c1f
 - `feedback_x1_y2_hidden_states_statically_gradable` · feedback · d0fc88858eeff4a7
 - `feedback_y1b_offline_queue_adoption_and_load_order` · feedback · f138da542f3e0bcd
+- `feedback_zero_row_write_is_not_an_error` · feedback · 2510152ad7fddc5b
 - `project_admin_email_setup` · project · 261593f7892bd94e
 - `project_agent_memory_schema_collision_2026_05_20` · project · 97572047cf5a7310
 - `project_agentic_rag_all_phases_complete_2026_05_21` · project · 55545cc41e79f205
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `reference_companion_action_fabrication_rail` · reference · db60da0c94079af0
 - `reference_companion_grader_fit` · reference · 461f92653b060be4
 - `reference_companion_marketplace_grounding` · reference · c5ddb518fd0c437b
-- `reference_companion_roadmap_spine` · reference · 2211e34dc980c415
-- `reference_comprehensive_study` · reference · bd44eed1a89ce4dc
-- … +66 more (all included in the fingerprint)
+- … +68 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

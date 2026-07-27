@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:376
-source_sha: 270c42f102d4f697
+source: dir:supabase/migrations:377
+source_sha: 195bbb42f364cb0c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (376 migrations)
+## migration · catalog (377 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260520000026_persona_rename_hezekiah_zaniah` — tables:hives,worker_profiles
 - `20260520000027_security_definer_search_path_hardening` — (misc DDL/DML)
 - `20260521000001_fk_on_delete_hardening` — tables:parts_records,worker_achievements
 - `20260521120000_agentic_rag_traces` — policies:agentic_rag_traces_insert,agentic_rag_traces_read · tables:agentic_rag_traces
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260724000010_register_seller_public_canonical_source` — (misc DDL/DML)
 - `20260724000011_marketplace_review_requires_inquiry` — policies:mkt_reviews_insert
 - `20260724000012_marketplace_review_caps` — fns:cap_marketplace_reviews_text,enforce_marketplace_review_daily_cap · triggers:trg_review_daily_cap,trg_text_caps_mkt_reviews
+- `20260728000000_logbook_auth_uid_backfill` — (misc DDL/DML)
 
 (showing last 200)
 

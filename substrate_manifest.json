@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T11:38:01.051062+00:00",
+  "generated_at": "2026-07-27T20:26:18.143147+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -212,11 +212,6 @@
           "check": "unregistered",
           "skip": true,
           "reason": "`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
-        },
-        {
-          "check": "unregistered",
-          "skip": true,
-          "reason": "`validate_hive_deepwalk.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py)."
         }
       ],
       "issues": []
@@ -234,7 +229,7 @@
         "total_canonical_reads": 306,
         "total_drift_reads": 0,
         "total_gap_reads": 0,
-        "total_allowed_reads": 217
+        "total_allowed_reads": 218
       }
     },
     {

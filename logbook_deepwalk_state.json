@@ -1,0 +1,184 @@
+{
+  "_doc": "Anti-drift compass for the LOGBOOK DEEPWALK EXPANSION arc (Ian 2026-07-28: 'proceed to logbook roadmap next'). Companion to LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md. tools/logbook_deepwalk_scoreboard.py reads this and emits a MEASURED % per phase and per LG class. EXPANSION means growing BOTH denominators: journeys x personas x states (board 1) and new LG dimension classes (board 2). A cell moves only on cited live evidence.",
+  "_phases_def": [
+    ["G", "ground - map the surfaces, handlers, tables and caches the journey touches"],
+    ["W", "walk - live-MCP journey walk carrying the full lens; requires >=2 personas AND >=2 states"],
+    ["O", "observe - record friction with evidence (a clean walk is a real result, record it as such)"],
+    ["H", "harvest - Engine B, at spoke 5 ONLY, for a friction the walk actually surfaced"],
+    ["R", "resolve - fix, then LOCK with a gate; a fix without a gate is not done"]
+  ],
+  "_phase_values": ["todo", "partial", "done"],
+  "_class_stages": ["harvest", "define", "detect", "sweep", "fix", "gate"],
+  "_coverage_rule": "A journey's W phase is 'done' only when walked in >=2 personas AND >=2 states. One-persona/one-state is the shallowness this arc exists to kill.",
+  "personas": ["P-worker", "P-teammate", "P-supervisor", "P-multi", "P-new"],
+  "states": ["S-empty", "S-populated", "S-offline", "S-error", "S-stale", "S-closed"],
+  "journeys": {
+    "LB01": {
+      "type": "T1-onboarding",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "todo", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "First run -> empty logbook -> first capture. Empty/first-run states never mapped by the PDDA arc."
+    },
+    "LB02": {
+      "type": "T2-core",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Core 3-step wizard capture. G: LOGBOOK_DEEP_ARC Phase 0-2 mapped wizard + capture contract + live-drove step 1->2 (single persona, so W stays todo here)."
+    },
+    "LB03": {
+      "type": "T2-core",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "partial", "O": "partial", "H": "todo", "R": "partial"},
+      "walked": {"personas": ["P-worker"], "states": ["S-populated"]},
+      "notes": "Entry-KIND field routing. PDDA 2026-07-12: keystone inversion found (readings breakdown-only), fixed via kindTakesReadings(), gated #26 entry_kind_readings_shaping. W/O/R partial: one persona, one state; expansion re-walk across personas/states pending."
+    },
+    "LB04": {
+      "type": "T2-core",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Readings via equipment_reading_templates (inline readings_json). G: PDDA mapped templates (15 rows, config) + collectReadings() single path."
+    },
+    "LB05": {
+      "type": "T6-fabric",
+      "surfaces": ["logbook.html", "inventory.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Parts consumed on a fault -> inventory_deduct RPC (ledger-safe, x3 call sites). G: PDDA mapped; round-trip to inventory ledger never walked live."
+    },
+    "LB06": {
+      "type": "T2-core",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "partial", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Voice (voice-logbook-entry) / photo (visual-defect-capture) / OCR (equipment-label-ocr) capture paths. G partial: edge invokes named in substrate; per-path row contract unmapped (feeds LG10)."
+    },
+    "LB07": {
+      "type": "T4-transition",
+      "surfaces": ["logbook.html", "offline-queue.js"],
+      "phases": {"G": "done", "W": "done", "O": "done", "H": "done", "R": "done"},
+      "walked": {"personas": ["P-worker", "P-multi"], "states": ["S-populated", "S-offline", "S-error"]},
+      "notes": "WALKED LIVE 2026-07-28. Happy path clean end-to-end (offline insert -> queue -> reload keeps it queued -> reconnect -> DB row with correct auth_uid/hive_id; offline edit -> sync -> applied, updated_at touched by trg_logbook_touch_updated_at so the sync payload's missing updated_at is NOT a defect). DEFECT FOUND (S-error): a queued update matching 0 rows returns {error:null,status:204}, so `if (!error)` dropped the queued item and toasted '1 offline change synced.' while writing nowhere - proven by deleting the row server-side mid-offline, then confirming DB row absent + queue drained + success toast. 0 rows is the NORMAL RLS outcome (logbook UPDATE is owner-scoped on auth_uid, SELECT is hive-scoped). Same shape in the SHARED offline-queue.js drain() reaching 6 more surfaces. FIXED in both (read rows back, treat empty as unconfirmed, keep the worker's text, dead-letter, say so out loud); badge + feed-merge reconciled to the new _stalled state. HARVEST: web.dev offline-UX guidelines - 'never silent-fail, never false-success', 'on reconnect tell the user what synced + surface any conflict, do not silently drop'. GATED: tools/validate_offline_queue_confirm.py, teeth proven by reverting (FAILs on real pre-fix code at all 3 drain sites)."
+    },
+    "LB08": {
+      "type": "T3-collab",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Team feed role views + own-vs-others affordances. G: PDDA mapped feed + stat pills (worker-scoped exact counts verified); hive arc verified load-time role re-derivation (forged-role probe 2026-07-27)."
+    },
+    "LB09": {
+      "type": "T2-core",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "partial", "O": "done", "H": "done", "R": "done"},
+      "walked": {"personas": ["P-worker"], "states": ["S-populated", "S-offline"]},
+      "notes": "Walked 2026-07-28 while driving LB7; saveEditFromForm exercised online AND offline as P-worker. FOUND: the page collapsed three different 0-row causes into one message ('Entry was modified by someone else, reload...'), which is right for a concurrent edit and WRONG for the other two - and in the ownership case no reload can ever help. Worse, 72 of Pablo's 571 entries had auth_uid IS NULL while UPDATE/DELETE require auth_uid = auth.uid(), so the UI offered Edit and Delete on rows the database would ALWAYS refuse (verified: an update of one applied nothing, no error). RESOLVED BOTH WAYS: (a) DATA - migration 20260728000000_logbook_auth_uid_backfill.sql binds auth_uid from the unambiguous worker_name->auth_uid mapping in hive_members (skips any name resolving to 2+ accounts rather than guessing, since attribution IS the DOLE/ISO trail); applied locally, 72 rows repaired, re-run is a no-op, and the previously-uneditable row now updates (1 row affected, live-verified). (b) CODE - one explainZeroRowWrite() resolver used by BOTH the online save and the offline drain, so the two paths cannot tell the worker different stories; all 3 reachable branches verified live (deleted / someone else's / concurrent-edit). HARVEST: NN/g error-message guidelines (state the cause + a real remedy), the same standard MK11 cites. GATE: the offline half is locked by validate_offline_queue_confirm.py. W stays PARTIAL at one persona. THIRD FIX (the small one that turned out not to be small): openEditModal is async and set _editingId only at the END, after an entry re-fetch and an await on renderReadingsFields(), while the save button stayed LIVE - so a fast tap ran saveEditFromForm() with _editingId still null, which offline enqueues under a null IndexedDB keyPath, THROWS, and strands the form with a permanently disabled button. Fixed at the source (hold the button with a 'Loading...' label for the whole populate, release it where _editingId is set, and hand it back on the not-found path) plus a defence-in-depth guard in saveEditFromForm. Both verified live: during the await the button is disabled/'Loading...' with _editingId null, after it is enabled/'Update Entry' with the id set; the guard toasts 'That entry is still loading' and recovers the button instead of stranding it."
+    },
+    "LB10": {
+      "type": "T3-collab",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "todo", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "PRIORITY 1. Edit/delete boundary on someone ELSE's entry - glass AND data (RLS). Needs P-teammate; the PDDA had no second persona. Feeds LG9."
+    },
+    "LB11": {
+      "type": "T5-lifecycle",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Close/sign-off -> wo_state lifecycle -> audit row -> S-closed. G: PDDA gate #28 audit_trail_wiring locked create+edit wiring; post-close behaviour (immutability) unwalked. Feeds LG4."
+    },
+    "LB12": {
+      "type": "T6-fabric",
+      "surfaces": ["logbook.html", "shift-brain.html"],
+      "phases": {"G": "partial", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Shift handover composes FROM the logbook (shift_plans via shift-planner-orchestrator). G partial: compose-from verdict recorded (KEEP-DISTINCT, derived rollup); PDDA leftover - orchestrator still prefers lotoRx regex over loto_applied column."
+    },
+    "LB13": {
+      "type": "T6-fabric",
+      "surfaces": ["pm-scheduler.html", "logbook.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "PM completion -> logbook mirror (pm_completion_id). G: PDDA fixed mirror lineage (asset_node_id + tag) + gate #27 pm_mirror_asset_lineage; live-verified ONE create. Amend/delete direction unwalked (feeds LG8)."
+    },
+    "LB14": {
+      "type": "T6-fabric",
+      "surfaces": ["logbook.html", "asset-hub.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Asset linkage -> asset-hub equipment history. G: PDDA measured lineage EXACT (uuid FK, 3700/3700, v_asset_truth delta 0). Cross-surface walk (entry appears in history live) pending."
+    },
+    "LB15": {
+      "type": "T6-fabric",
+      "surfaces": ["logbook.html", "analytics.html"],
+      "phases": {"G": "partial", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Analytics lineage - a new corrective entry MOVES MTBF/downtime live. G partial: 5 RPCs + consumers enumerated; before/after lineage never walked. LG2's live territory."
+    },
+    "LB16": {
+      "type": "T4-transition",
+      "surfaces": ["logbook.html", "asset-hub.html", "analytics.html", "resume.html"],
+      "phases": {"G": "todo", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "PRIORITY 1. Amendment propagation - edit/delete a CONSUMED entry -> do the ~11 consumers reconcile? PDDA leftover: hive_audit_log amendment rows unseeded. Feeds LG6."
+    },
+    "LB17": {
+      "type": "T4-transition",
+      "surfaces": ["logbook.html", "nav-hub.js"],
+      "phases": {"G": "done", "W": "partial", "O": "done", "H": "done", "R": "done"},
+      "walked": {"personas": ["P-multi"], "states": ["S-offline", "S-stale"]},
+      "notes": "WALKED LIVE 2026-07-28 as Christine Dizon (worker in Manila, supervisor in Lucena). DEFECT FOUND: the server read is hive-filtered but the pending-queue MERGE was not, so after capturing offline in Manila and switching to Lucena the Manila entry rendered as a real card ('Pending sync') inside the Lucena feed - one tenant's work shown in another tenant's context. What is CORRECT and must stay: the queued row keeps its CAPTURE-time hive_id and syncs into THAT hive, not the current one (verified in the DB), which is why filtering is the right fix and re-homing would be wrong. FIXED (merge scoped to the active hive, reading hive_id from both the insert shape and the update shape - a first cut missed queued EDITS entirely because they carry hive_id inside `updates`). Re-verified all four ways: hidden in Lucena, still queued, visible again in Manila, lands in Manila on sync. GATED in validate_offline_queue_confirm.py (audit_queue_hive_scope); teeth proven on real pre-fix code. W stays PARTIAL: one persona only - the shallow-W guard is right to withhold full credit until a second persona walks it."
+    },
+    "LB18": {
+      "type": "T2-core",
+      "surfaces": ["logbook.html"],
+      "phases": {"G": "done", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Feed search/filter/pagination (loadMoreLogbook, _logRestoreFilters) + deep-link openDeep. G: handlers mapped in substrate page map."
+    },
+    "LB19": {
+      "type": "T6-fabric",
+      "surfaces": ["logbook.html", "integrations.html"],
+      "phases": {"G": "partial", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "External fabric: cmms-push-completion + embed-entry knowledge path. G partial: embed pipeline healed in the OWN-EMBEDDER arc (531/531 one space); CMMS push + S-error behaviour unwalked."
+    },
+    "LB20": {
+      "type": "T5-insight",
+      "surfaces": ["logbook.html", "assistant.html"],
+      "phases": {"G": "partial", "W": "todo", "O": "todo", "H": "todo", "R": "todo"},
+      "walked": {},
+      "notes": "Companion answers from v_logbook_truth incl. date-range. G partial: PDDA AI-1 recorded the weak date-range deflection ('check the Logbook page directly'); grounded wiring verified, answer-shape friction open."
+    }
+  },
+  "dim_classes": {
+    "LG1": {
+      "name": "Mutation-contract parity",
+      "stages": {"harvest": "done", "define": "done", "detect": "todo", "sweep": "todo", "fix": "partial", "gate": "todo"},
+      "notes": "Harvest = PDDA 2026-07-12: INSERT sets auth_uid, BOTH update paths omit it. DEFINED 2026-07-28 by the LB9 walk, and the rule is sharper than the original framing: an UPDATE omitting auth_uid is NOT itself the bug (the row keeps the auth_uid bound at insert, and the trg_bind_submitter_logbook trigger owns that). The real parity rule is that every mutating path must agree on how it CONFIRMS and EXPLAINS a write - which they did not: the online path checked rows and the offline drain did not, and each had its own story for the same failure. FIX PARTIAL: the confirmation and the explanation are now single-sourced (explainZeroRowWrite + the .select confirmation in both paths), and the auth_uid data gap that made the mismatch user-visible is backfilled. NOT DONE: the full enumeration of every logbook mutation site (saveEdit modal vs saveEditFromForm vs deleteEntry vs the PM mirror vs voice/photo capture) against one contract, and no detector or gate yet holds that parity - that is the class's next stage."
+    },
+    "LG2": {
+      "name": "Derived-definition single-sourcing",
+      "stages": {"harvest": "done", "define": "partial", "detect": "todo", "sweep": "todo", "fix": "todo", "gate": "todo"},
+      "notes": "OPEN. Harvest = PDDA 2026-07-12 measurement: three simultaneous 'corrective' definitions (is_corrective regex / exact string in v_asset_truth + 5 RPCs / ilike in trigger-ml-retrain), 0 divergent rows today. Define partial: check #11 locks vocab VALUES only, not definition parity."
+    },
+    "LG3": {
+      "name": "Offline-queue reconciliation — a queued write is a CACHE, and 0 rows is not 'synced'",
+      "stages": {"harvest": "done", "define": "done", "detect": "done", "sweep": "done", "fix": "done", "gate": "done"},
+      "notes": "EARNED BY THE LB7 WALK 2026-07-28 (born from observed friction, per the arc's rule). RULE: a drain that removes a queued item must confirm the write actually affected a row - PostgREST returns error:null/204 for a 0-row update or delete, so branching on `error` alone destroys the worker's only copy and reports success. HARVEST: web.dev offline-UX guidelines ('never silent-fail, never false-success'; 'on reconnect tell the user what synced + surface any conflict needing their resolution, do not silently overwrite or drop'). SWEEP: all 3 drain sites platform-wide (offline-queue.js whCreateQueue+drain serving 6 surfaces, logbook.html syncOfflineQueue). FIX: read the rows back; empty = UNCONFIRMED not failed (on inventory_items a hive_id-NULL row is writable but not readable, so empty can also mean 'applied, not visible'); keep the item, dead-letter it, tell the user. GATE: tools/validate_offline_queue_confirm.py, registered, teeth proven by reverting to HEAD."
+    },
+    "LG5": {
+      "name": "Transition tenant-integrity — data in flight carries CAPTURE-time identity",
+      "stages": {"harvest": "done", "define": "done", "detect": "done", "sweep": "done", "fix": "done", "gate": "done"},
+      "notes": "EARNED BY THE LB17 WALK 2026-07-28. RULE: a queue/draft/filter holds the hive it was CAPTURED in; a hive switch must neither re-home it (data) nor display it outside that hive (glass). The hive arc locked the ROLE marker; this is the DATA-in-flight analog. Evidence: a Manila entry captured offline rendered as a live card in the Lucena feed after a switch, because the pending-queue merge was unfiltered while the server read was hive-scoped. FIX + GATE as recorded on LB17. SWEEP COMPLETE, and it came back CLEAN - a real result, recorded as such: every other queue surface (community, dayplanner, inventory, pm-scheduler, skillmatrix, asset-hub FMEA) only ENQUEUES; none reads the queue back to render a list, so none can leak a queued row across hives. logbook.html is the only page that merges pending items into its feed, which is why it was the only page with this defect - the same shape as the hive arc's finding that hive.html was the only page mutating role without a reload. Their payloads also carry capture-time hive_id, so the drain cannot re-home them either."
+    },
+    "LG8": {
+      "name": "Mirror integrity, both directions",
+      "stages": {"harvest": "done", "define": "partial", "detect": "todo", "sweep": "todo", "fix": "todo", "gate": "todo"},
+      "notes": "OPENED ON MEASURED EVIDENCE 2026-07-28 (not yet walked). fault_knowledge.logbook_id has NO foreign key at all - the only FK on the table is hive_id. So deleting a logbook entry silently orphans its knowledge row, which stays in the RAG corpus and can be retrieved as knowledge citing an entry that no longer exists. Measured: 21 orphaned fault_knowledge rows live right now, dated 2026-07-20/21, none of them from this session's walk (checked explicitly) - so this is pre-existing drift against the PDDA arc's 529/529-valid measurement on 2026-07-12. Define partial: the rule is clear (a mirror must be reconciled on DELETE and AMEND, not only on CREATE; gate #27 locks CREATE lineage only), the detector and the fix decision - FK with ON DELETE SET NULL/CASCADE vs an application-side sweep - are open."
+    }
+  }
+}

@@ -155,6 +155,20 @@
           if (!_due(item)) continue;   // Arc S D-002: stalled (dead-letter) or still in backoff
           const op = item.op || 'insert';
           let error = null;
+          // LB7 (2026-07-28): a PostgREST update/delete that matches ZERO rows is NOT an error —
+          // it returns { error: null, status: 204 }. Branching on `error` alone therefore treated
+          // "changed nothing" as "synced", removed the item, and reported success. Proven live on
+          // the logbook queue: an offline edit of an entry deleted server-side drained to 0, toasted
+          // "1 offline change synced." and wrote nowhere. Zero rows happens whenever RLS filters the
+          // row out (logbook UPDATE is owner-scoped on auth_uid while SELECT is hive-scoped), the row
+          // was deleted, or the identity guard no longer matches — i.e. exactly when a worker most
+          // needs to be told. We ask for the affected rows back and treat an empty result as
+          // UNCONFIRMED rather than failed: on inventory_items a hive_id-NULL row is writable but not
+          // readable, so an empty read-back can also mean "applied, just not visible to us". Retrying
+          // an idempotent payload is safe, so unconfirmed items stay queued and ride the existing
+          // backoff into the dead-letter, where the widget surfaces them as stuck. Never dropped
+          // silently, never counted as synced.
+          let unconfirmed = false;
           try {
             if (op === 'insert') {
               const r = await supabase.from(cfg.table).insert(item.payload);
@@ -179,8 +193,9 @@
               if (cfg.identityKey && cfg.identityFn) {
                 q = q.eq(cfg.identityKey, cfg.identityFn());
               }
-              const r = await q;
+              const r = await q.select(cfg.confirmKey || 'id');
               error = r.error;
+              if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
             } else if (op === 'delete') {
               let q = supabase.from(cfg.table).delete();
               const match = item.match || {};
@@ -188,8 +203,9 @@
               if (cfg.identityKey && cfg.identityFn) {
                 q = q.eq(cfg.identityKey, cfg.identityFn());
               }
-              const r = await q;
+              const r = await q.select(cfg.confirmKey || 'id');
               error = r.error;
+              if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
             } else {
               errors += 1; continue;
             }
@@ -197,12 +213,23 @@
             error = e;
           }
 
-          if (!error) {
+          if (!error && !unconfirmed) {
             await remove(item.id);
             drained += 1;
             if (typeof cfg.onSyncedRow === 'function') {
               try { cfg.onSyncedRow(item); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: consumer hook isolation
             }
+          } else if (unconfirmed) {
+            // Applied nothing we can see. Keep the item (the payload is the worker's only copy),
+            // count it as an error so no caller reports it as synced, and let the existing backoff
+            // carry it to the dead-letter where the widget shows it as stuck.
+            const rc = (item.retry_count || 0) + 1;
+            const upd = { ...item, retry_count: rc, last_error_at: Date.now(),
+                          last_error: 'changed 0 rows: the target row is gone, or not permitted for this identity' };
+            if (rc >= MAX_RETRIES) upd.status = 'stalled';
+            try { await _idbReq(idb, cfg.store, 'readwrite', (s) => s.put(upd)); }
+            catch (_) { /* empty-catch-allow: best-effort persist of retry meta */ }
+            errors += 1;
           } else {
             // Arc S D-002: record the failure with backoff + dead-letter so a
             // permanently-failing item doesn't wedge the queue or retry forever.

@@ -52,6 +52,37 @@ VALID_MAINTENANCE_TYPES = [
 ]
 
 
+def function_body(content, pattern):
+    """
+    Return the REAL body of the function whose declaration matches `pattern`, by matching braces
+    from its opening `{`. Returns None when the function isn't found.
+
+    Why this exists (2026-07-28): checks anchored to a fixed character window (`content[start:start+3000]`)
+    silently measure the wrong thing the moment the function grows. The LB7/LB17 fixes added explanatory
+    comments to loadEntries(), which pushed `_allEntries =` past the 3000-char window and turned
+    check_new_fields_in_load_entries red against code that was correct and had MORE safety than before.
+    Teaching the gate to read the actual body is the fix; deleting the comments to fit an arbitrary
+    window would be bending the code to a broken ruler ([[feedback_teach_the_gate_not_bend_the_code]]).
+    """
+    m = re.search(pattern, content)
+    if not m:
+        return None
+    i = content.find("{", m.start())
+    if i == -1:
+        return None
+    depth, j = 0, i
+    while j < len(content):
+        c = content[j]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return content[i:j + 1]
+        j += 1
+    return content[i:]
+
+
 def strip_template_literals(text):
     return re.sub(r'\$\{[^}]*\}', '__INTERP__', text)
 
@@ -309,11 +340,10 @@ def check_new_fields_in_load_entries(content, page):
     accepted alongside the legacy `_allEntries = data.map(` form.
     Missing = fields are dropped from the local cache, openEditModal reads null.
     """
-    fn = re.search(r"async function loadEntries\s*\(", content)
-    if not fn:
+    body = function_body(content, r"async function loadEntries\s*\(")
+    if body is None:
         return [{"check": "new_fields_in_load_entries", "page": page,
                  "reason": "loadEntries() function not found"}]
-    body = content[fn.start():fn.start() + 3000]
     m = re.search(r"_allEntries\s*=", body)
     if not m:
         return [{"check": "new_fields_in_load_entries", "page": page,
