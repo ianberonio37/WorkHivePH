@@ -229,6 +229,85 @@ test.describe('hive.html — revocation leaves nothing behind (HK1)', () => {
     }
   });
 
+  /**
+   * The SWITCH path — the same defect's third door.
+   *
+   * The page-load fix (demotion) does not cover switching, because a switch never reloads: it calls
+   * initBoard() in place. So switching from a supervisor hive into one where you are a worker carried
+   * html.is-supervisor across and left #my-work-card hidden. The switch also used to adopt the role
+   * from the CACHED hive list with no server check, which is the same cache-answers-for-the-server
+   * mistake, and the multitenant rule says a board must DB-validate membership before it loads.
+   */
+  test('switching into a hive where you are a worker repaints for that role', async ({ whPage }) => {
+    const db = adminClient();
+    await whPage.goto(PAGE);
+    await waitForPageReady(whPage);
+
+    const { workerName, authUid } = await currentIdentity(whPage);
+    test.skip(!workerName, 'no signed-in worker resolved from the page');
+
+    const { data: home } = await db.from('hive_members')
+      .select('hive_id, role').eq('worker_name', workerName).eq('status', 'active').limit(1).maybeSingle();
+    test.skip(!home?.hive_id || home.role !== 'supervisor',
+      'switch-repaint test needs a supervisor home hive to switch AWAY from');
+
+    let tmpHiveId = '';
+    try {
+      const code = ('S' + Math.floor(Math.random() * 1e5).toString().padStart(5, '0')).slice(0, 6);
+      const { data: hive } = await db.from('hives')
+        .insert({ name: 'ZZ Switch Probe (test)', invite_code: code, created_by: workerName })
+        .select('id').single();
+      tmpHiveId = hive!.id as string;
+      // WORKER in the throwaway hive, supervisor at home: the switch must flip the paint.
+      await db.from('hive_members').insert({
+        hive_id: tmpHiveId, worker_name: workerName, auth_uid: authUid,
+        role: 'worker', status: 'active',
+      });
+
+      await whPage.goto(PAGE);
+      await waitForPageReady(whPage);
+      await whPage.waitForTimeout(3000);
+
+      const after = await whPage.evaluate(async (id) => {
+        // Make the switcher aware of it, then drive the app's own switch function.
+        const list = JSON.parse(localStorage.getItem('wh_hives') || '[]');
+        if (!list.some((h: any) => h.id === id)) {
+          // deliberately seed a WRONG cached role — the switch must take the server's, not this
+          list.push({ id, name: 'ZZ Switch Probe (test)', role: 'supervisor', code: '' });
+          localStorage.setItem('wh_hives', JSON.stringify(list));
+        }
+        await (window as any).switchToHive(id);
+        await new Promise(r => setTimeout(r, 5000));
+        return {
+          role: localStorage.getItem('wh_hive_role'),
+          marker: document.documentElement.classList.contains('is-supervisor'),
+          myWorkCard: (() => {
+            const el = document.getElementById('my-work-card');
+            return el ? getComputedStyle(el).display : 'absent';
+          })(),
+        };
+      }, tmpHiveId);
+
+      expect(after.role, 'the switch must take the role from the SERVER, not the cached list')
+        .toBe('worker');
+      expect(after.marker, 'is-supervisor must not carry across a switch into a worker hive')
+        .toBeFalsy();
+      expect(after.myWorkCard, 'the worker layout must return after switching into a worker hive')
+        .not.toBe('none');
+
+    } finally {
+      if (tmpHiveId) {
+        await db.from('hive_members').delete().eq('hive_id', tmpHiveId);
+        await db.from('hives').delete().eq('id', tmpHiveId);
+      }
+      await whPage.evaluate((id) => {
+        const list = JSON.parse(localStorage.getItem('wh_hives') || '[]');
+        localStorage.setItem('wh_hives', JSON.stringify(list.filter((h: any) => h.id !== id)));
+        localStorage.setItem('wh_active_hive_id', '');
+      }, tmpHiveId).catch(() => {});
+    }
+  });
+
   test('a hidden supervisor panel contains no filled data for a non-supervisor', async ({ whPage }) => {
     await whPage.goto(PAGE);
     await waitForPageReady(whPage);

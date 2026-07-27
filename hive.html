@@ -5194,11 +5194,48 @@ async function switchToHive(id) {
   if (id === HIVE_ID) return;
   const h = getHiveList().find(x => x.id === id);
   if (!h) return;
+
+  /* H8d (hive deepwalk 2026-07-27): the switch used to adopt the CACHED role from wh_hives and call
+     initBoard() with no server check at all. Two defects in one line.
+     (1) It trusted the cache for a membership decision. The multitenant rule is explicit — DB-validate
+         membership before loading a board, or a kicked worker whose cached list still names the old
+         hive walks straight back into it. RLS keeps the DATA safe (their queries return nothing), but
+         the board shell renders for a hive they do not belong to, which reads as a broken app rather
+         than a revoked membership.
+     (2) It never reconciled html.is-supervisor, so the marker carried across the switch. Verified
+         live: switching from a supervisor hive into a hive where she is a WORKER left the marker
+         painted and #my-work-card at display:none - the demotion bug (H8b) arriving through a third
+         door. My H8b fix sat in the page-load path; a switch never reloads, it calls initBoard().
+     So: ask the server who this worker is IN THAT HIVE, use the role it returns rather than the one
+     the cache remembered, and reconcile the paint marker with it. */
+  const { data: _m, error: _mErr } = await db
+    .from('v_worker_truth')
+    .select('role, hive_status')
+    .eq('hive_id', id)
+    .eq('worker_name', WORKER_NAME)
+    .maybeSingle();
+
+  if (_mErr) {
+    showToast('Could not verify your access to that hive. Check your connection and try again.');
+    return;
+  }
+  if (!_m || _m.hive_status === 'kicked') {
+    // No longer a member: drop the stale entry so the switcher stops offering it, and say why.
+    saveHiveList(getHiveList().filter(x => x.id !== id));
+    updateSwitchButton();
+    showToast(`You're no longer a member of ${h.name}.`);
+    return;
+  }
+  const _role = _m.role || 'worker';
+
   localStorage.setItem('wh_active_hive_id', h.id);
   localStorage.setItem('wh_hive_id',         h.id);
   localStorage.setItem('wh_hive_name',        h.name);
-  localStorage.setItem('wh_hive_role',        h.role);
-  HIVE_ID = h.id; HIVE_NAME = h.name; HIVE_ROLE = h.role;
+  localStorage.setItem('wh_hive_role',        _role);
+  HIVE_ID = h.id; HIVE_NAME = h.name; HIVE_ROLE = _role;
+  document.documentElement.classList.toggle('is-supervisor', _role === 'supervisor');
+  // Keep the cached list honest too, so the next paint-from-cache starts from the truth.
+  saveHiveList(getHiveList().map(x => (x.id === id ? { ...x, role: _role } : x)));
   memberNames = [];
   _pendingAssets = []; _pendingParts = [];
   // BUGFIX: reset PM-overdue count + banner on hive-switch — loadPMHealth early-returns
