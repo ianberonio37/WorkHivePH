@@ -599,6 +599,12 @@
           <div id="hive-menu" role="menu" aria-label="Hive actions" class="hidden"
                style="position:absolute; right:0; top:calc(100% + 6px); min-width:210px; background:var(--wh-elev-2); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:6px; z-index:var(--wh-z-overlay); box-shadow:var(--wh-shadow-3);">
             <button id="btn-show-code" role="menuitem" class="hive-menu-item hidden">Show Invite Code</button>
+            <!-- H11 (hive deepwalk 2026-07-27): renaming was the one hive-identity capability with no
+                 control anywhere, so a hive misnamed at creation stayed misnamed for every member.
+                 The server already allowed it (RLS hives_update: an ACTIVE SUPERVISOR of that hive),
+                 so only this door was missing. Supervisor-only, revealed by the same block that
+                 reveals Show Invite Code. -->
+            <button id="btn-rename-hive" role="menuitem" class="hive-menu-item hidden" data-i="rename_hive">Rename Hive</button>
             <button id="btn-switch-hive" role="menuitem" class="hive-menu-item hidden">Switch Hive</button>
             <!-- Phase H.2 / 4.1 / 5C: audit-log, AI-quality + plant-connections are
                  hidden in the primary nav-hub; this supervisor-only menu is their
@@ -1226,6 +1232,7 @@
         intent_comp:"Compliance: PSME, DOLE, ISO 14224 na ebidensya",
         intent_repl:"Palitan ang aming spreadsheets / CMMS",
         intent_other:"Iba pa", intent_save:"I-save", intent_later:"Mamaya",
+        rename_hive:"Palitan ang Pangalan",
         since:"Mula noong huli kang bumisita", updates:"mga update", synclive:"live", agosync:"&middot; naka-sync",
         eyebrow:"Hive Board", needsnow:"Kailangan ka ngayon", dofirst:"Kaligtasan &middot; unahin",
         pmoverdue:"Lumipas na PM tasks", schedule:"I-iskedyul na &#8594;",
@@ -2356,6 +2363,60 @@ document.getElementById('btn-show-code').addEventListener('click', async () => {
   }
 });
 
+/* H11 (hive deepwalk 2026-07-27): rename the hive. This was the one hive-identity capability with no
+   control anywhere on the page — a hive misnamed at creation stayed misnamed for every member, and
+   the name is what workers see on the board, in the switcher and on the join/welcome screens. The
+   SERVER already permitted it (RLS `hives_update` scopes UPDATE to an active supervisor of that
+   hive), so nothing was missing but the door; no migration needed.
+
+   THE NAME IS A CACHED, MULTI-SURFACE VALUE, which is exactly the shape this arc spent the day on
+   (see applyHiveRole and HK3). Renaming therefore has to reconcile every surface that renders it in
+   the same change: the board title, the module variable, the stored hint, and the cached hive list
+   the switcher draws from. Doing the write first and the local reconcile only on success keeps the
+   client from ever showing a name the server rejected. */
+async function renameHive() {
+  if (HIVE_ROLE !== 'supervisor') return;   // role-check-allow: mirrors the RLS policy this write must satisfy
+  document.getElementById('hive-menu')?.classList.add('hidden');
+
+  const current = HIVE_NAME || '';
+  const next = await whPrompt(
+    _t('Rename this hive. Everyone in it will see the new name.',
+       'Palitan ang pangalan ng hive na ito. Makikita ito ng lahat ng miyembro.'),
+    { inputLabel: _t('Hive name', 'Pangalan ng hive'), defaultValue: current,
+      okLabel: _t('Save', 'I-save'), cancelLabel: _t('Cancel', 'Kanselahin') });
+
+  if (next === null) return;                       // cancelled
+  const name = String(next).trim();
+  if (!name || name === current) return;           // nothing to do
+  if (name.length > 60) {                          // hives.name is free text; keep it board-renderable
+    showToast(_t('That name is too long (60 characters max).',
+                 'Masyadong mahaba ang pangalan (60 karakter lang).'));
+    return;
+  }
+
+  const { error } = await db.from('hives').update({ name }).eq('id', HIVE_ID);
+  if (error) {
+    // whWriteError distinguishes an expired session from a real failure, so we never invite a
+    // doomed retry on a 401 (the MK11 lesson from the marketplace arc).
+    showToast(whWriteError(error, _t('Could not rename the hive.',
+                                     'Hindi na-rename ang hive.')));
+    return;
+  }
+
+  HIVE_NAME = name;
+  localStorage.setItem('wh_hive_name', name);
+  saveHiveList(getHiveList().map(h => (h.id === HIVE_ID ? { ...h, name } : h)));
+  const titleEl = document.getElementById('board-hive-name');
+  if (titleEl) titleEl.textContent = name;         // textContent is XSS-safe; escHtml would double-escape
+  updateSwitchButton();
+
+  // targetName is the thing ACTED ON (the hive), not the actor — matching member_joined, where the
+  // target is the member. from/to stay in meta so the log reads as a change, not just a final state.
+  writeAuditLog('hive_renamed', 'hives', HIVE_ID, name, { from: current, to: name });
+  showToast(_t('Hive renamed', 'Na-rename ang hive'));
+}
+document.getElementById('btn-rename-hive').addEventListener('click', renameHive);
+
 // ── BOARD INIT ──
 async function initBoard() {
   document.getElementById('board-hive-name').textContent = HIVE_NAME || 'Hive Board'; // textContent is XSS-safe (no HTML parse); escHtml would double-escape. Fallback keeps the h1 non-empty (a11y).
@@ -2377,21 +2438,36 @@ async function initBoard() {
     });
   }
 
-  if (HIVE_ROLE === 'supervisor') {
-    document.getElementById('hive-role-tag').classList.remove('hidden');
-    document.getElementById('btn-show-code').classList.remove('hidden');
-    // Phase H.2: surface audit log here since it's no longer in primary nav.
-    const _auditBtn = document.getElementById('btn-audit-log');
-    if (_auditBtn) { _auditBtn.classList.remove('hidden'); _auditBtn.style.display = ''; }
-    // Phase 4.1: AI Quality + ROI also hidden in nav-hub — supervisor-only
-    // entry point lives here so it's actually discoverable.
-    const _aiqBtn = document.getElementById('btn-ai-quality');
-    if (_aiqBtn) { _aiqBtn.classList.remove('hidden'); _aiqBtn.style.display = ''; }
-    // Phase 5 Track C: Plant Connections also hidden in nav-hub — same fix.
-    const _pcBtn = document.getElementById('btn-plant-connections');
-    if (_pcBtn) { _pcBtn.classList.remove('hidden'); _pcBtn.style.display = ''; }
+  /* H11b (hive deepwalk 2026-07-27): this block used to only ever REVEAL. Every id below had its
+     `hidden` class removed for a supervisor and nothing ever put it back, so SWITCHING from a
+     supervisor hive into one where you are a worker left the whole supervisor menu on screen —
+     Show Invite Code, Rename Hive, Audit Log, AI Quality, Plant Connections, and the "Supervisor"
+     role tag. Found live while testing the H11 rename I had just added: the RLS write was correctly
+     refused (0 rows) and the function's own role check held, but the CONTROL was still offered, which
+     is the "boundary must be real, not cosmetic" class (HK1) arriving through the same one-way-toggle
+     mistake as the paint marker (HK3). The reveal is now SYMMETRIC — toggle, never remove — so the
+     chrome tracks the role on every path, including the ones that re-render in place without a
+     reload. Same reasoning that made applyHiveRole() use toggle() rather than remove().
+     Note this is not merely cosmetic for the invite code: handing out a hive's code is how people
+     get INTO the hive, so offering that button to a worker offers them a membership lever. */
+  const _isSup = HIVE_ROLE === 'supervisor';   // role-check-allow: drives supervisor-only CHROME on this board
+  [['hive-role-tag'], ['btn-show-code'], ['btn-rename-hive'],
+   ['btn-audit-log'], ['btn-ai-quality'], ['btn-plant-connections']].forEach(([id]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('hidden', !_isSup);
+    // Three of these also carry an inline display set elsewhere; clear it so the class decides.
+    if (el.style.display === 'none' && _isSup) el.style.display = '';
+  });
+  if (_isSup) {
     const savedCode = localStorage.getItem('wh_hive_code') || '';
     if (savedCode) document.getElementById('code-strip-value').textContent = savedCode;
+  } else {
+    // Leaving a supervisor hive must not leave the previous hive's code on screen.
+    const _strip = document.getElementById('code-strip');
+    const _stripVal = document.getElementById('code-strip-value');
+    if (_strip) _strip.classList.add('hidden');
+    if (_stripVal) _stripVal.textContent = '';
   }
 
   updateSwitchButton();
