@@ -2,7 +2,7 @@
 name: doc-HIVE_DEEPWALK_SCOREBOARD
 type: doc
 source: file:HIVE_DEEPWALK_SCOREBOARD.md
-source_sha: 15f0451732e55b46
+source_sha: 6bac9ade71b29d92
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -1805,6 +1805,19 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     if (!valErr && membership) {
       HIVE_ROLE = membership.role;
       localStorage.setItem('wh_hive_role', membership.role);
+      /* H8b (hive deepwalk 2026-07-27): reconcile the PAINT HINT with the role we just synced.
+         html.is-supervisor is stamped synchronously at parse from the CACHED role (a deliberate CLS
+         optimisation — see the stamp near the top of this file), and until now nothing re-derived it
+         once the server answered. On a DEMOTION that left the marker outliving the role on a page
+         that RENDERS, which is worse than the revocation case: the supervisor rules are not cosmetic.
+         html.is-supervisor sets `#my-work-card{display:none}` and hides `#pm-overdue-alert` and
+         `#stock-alert` (correct for a supervisor, who has their own summary instead). So a worker who
+         had just been demoted lost their own work card AND their overdue-PM and stock alerts, while
+         the board otherwise looked normal. Verified live: role synced to 'worker', marker still true,
+         all three elements computed display:none. toggle() rather than remove() because promotion is
+         the same bug mirrored — a freshly promoted supervisor would otherwise keep the worker layout
+         until their next sign-in. */
+      document.documentElement.classList.toggle('is-supervisor', membership.role === 'supervisor');
     }
     /* H10 (hive deepwalk 2026-07-27): the ACTIVE membership above is re-validated every load — role
        synced, kicked handled — but the LIST of hives behind the switcher was not. wh_hives is written

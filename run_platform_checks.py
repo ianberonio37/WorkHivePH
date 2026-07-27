@@ -5049,6 +5049,25 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        # HIVE DEEPWALK · HK1 detector — a role marker must not outlive the role.
+        "id":      "role_marker_revocation",
+        "script":  "tools/validate_role_marker_revocation.py",
+        "args":    [],
+        "label":   "A role-derived class on a PERSISTENT ROOT (<html>/<body>) must be removable — if a page adds one, it must also remove it on the path where the role is lost. Found live 2026-07-27 (hive deepwalk H8, remove-member): hive.html painted `html.is-supervisor` early from the CACHED role, deliberately, so supervisor-only chrome would not flash in after the async membership check (a CLS optimisation) — and nothing ever cleared it. Deleting a member's row left her browser carrying a supervisor marker on <html> with no supervisor membership behind it. Harmless ONLY because the board never renders for a removed member; the moment any supervisor-only rule keys off that class on a view a removed member CAN reach, it misapplies. Root elements are the whole point: unlike a card or a button they survive every view switch and re-render, so the removal has to be written, never inherited from a re-render. Verified as an instrument, not assumed — run against the pre-fix hive.html it FAILS on `is-supervisor`, against the fix it passes. Deliberately narrow so a PASS means something: only documentElement/body targets, only role-vocabulary names (so button-lock's `is-loading` is out of scope), and toggle() counts as a removal since it is add-and-remove by construction. This is HK1's SECOND assertion only; the first (a hidden element must be EMPTY, not display:none over real data) is a DOM property the live deepwalk checks, and folding it in here would let a static PASS imply a live guarantee it never made. Static/fast. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
+        # HIVE DEEPWALK · HK2 gate — a shipped capability must be reachable by the data that EXISTS.
+        "id":      "fixture_capability_coverage",
+        "script":  "tools/validate_fixture_capability_coverage.py",
+        "args":    [],
+        "label":   "A shipped capability must be EXERCISABLE by the data that actually exists, not merely by seeder code that could create it. Found 2026-07-27 (hive deepwalk): the hive switcher shipped, worked, and was UNWALKABLE BY CONSTRUCTION — seeded data was strictly one worker to one hive, so the switch button (rendered only when the list exceeds 1) never appeared and the switch path had never once been exercised. The moment a fixture existed, the first walk found a real defect behind it: the member list refreshed ONLY when the user had no active hive, so a membership granted after sign-in stayed invisible until sign-out. The class then proved itself again, which is why this gate queries LIVE ROWS rather than reading the seeder: walking H8 (remove a member) DELETED the platform's only multi-hive membership, the seeder still contained the code to create one, and the capability was silently unwalkable again — a seeder-reading gate would have said PASS while the fixture was gone. Prevents the most expensive false confidence there is: a green suite over a feature nobody can enter, which looks exactly like coverage. A failed query counts as a shortfall, never a silent pass, since \"I could not tell\" must not read as \"covered\". Skips clean when the local DB is down (fixture check, not an uptime check). Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # Arc R (S, OWASP A02) — no real secret in a TRACKED .env.* file (the hardcoded-secrets
         # scanner only opens *.html/js/ts/py, so a committed dotfile credential is invisible). Teeth.
         "id":      "committed_env_secret",

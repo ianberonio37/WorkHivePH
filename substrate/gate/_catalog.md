@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 830a6ed87c6c86d8
+source_sha: 2a9bfb260ce67033
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (655) — the 'what's already gated' brain
+## gate · registered validators (657) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -212,7 +212,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (459)
+### Platform (461)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -408,6 +408,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
 - `filter-case-consistency` ⚡ [fail] — Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)
+- `fixture_capability_coverage` [fail] — A shipped capability must be EXERCISABLE by the data that actually exists, not merely by seeder code that could create it. Found 2026-07-27 (hive deepwalk): the
 - `fk-on-delete` ⚡ [fail] — FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)
 - `flywheel-turn` ⚡ [fail] — Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)
 - `followup-queue-wiring` ⚡ [fail] — Follow-up Queue Wiring (Prospective layer: agent_followups store + _shared/followups.ts enqueue/recall-due/surface + ai-gateway surfacing + envelope-driven enqu
@@ -587,6 +588,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `role-checks` ⚡ [blocker] — Client RBAC Ratchet (PLATFORM_CENTRALIZATION +RBAC: raw `role === 'supervisor'` comparisons may only FALL — new client role-gates must use window.WHRoles.isSupe
 - `role-gate-server-backstop` [fail] — P5 UI-role-gate server-backstop gate (LIVE) — the LAST P5 sub-property: several pages source HIVE_ROLE from localStorage (tamperable) and hide supervisor-only a
 - `role-string-consistency` ⚡ [fail] — Role String Consistency (every role === '...' literal must use a canonical role name; forward-only ratchet)
+- `role_marker_revocation` ⚡ [fail] — A role-derived class on a PERSISTENT ROOT (<html>/<body>) must be removable — if a page adds one, it must also remove it on the path where the role is lost. Fou
 - `rpc-argument-consistency` ⚡ [fail] — RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)
 - `rpc-write-integrity` [fail] — RPC write-integrity (LIVE: every public plpgsql function's INSERT covers its target's NOT NULL columns + only writes tables that EXIST — locks two silent-100%-f
 - `rubric-coverage` [warn] — UFAI rubric coverage board (UR-P4, 2026-07-21) — aggregates the 61 single-page dims (family_rubric_scoreboard.json) + the 2 cross-page dims S2/S3 (component_con
