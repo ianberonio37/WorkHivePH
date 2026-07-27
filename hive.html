@@ -4742,7 +4742,7 @@ async function loadAuditLog() {
     alert_snoozed:         { icon: '⏳', color: '#F7A21B', label: 'Snoozed alert' },          // Arc Y Y3 alert agency
     alert_acknowledged:    { icon: '👁', color: '#94a3b8', label: 'Marked alert seen' },      // Arc Y Y3 alert agency
     member_left:           { icon: '↩',  color: '#94a3b8', label: 'Left hive' },
-    hive_renamed:          { icon: '✎',  color: '#29B6D9', label: 'Renamed the hive' },  // H11 rename shipped without its viewer entry, so it rendered as a generic dot
+    hive_renamed:          { icon: '✎',  color: 'var(--wh-blue)', label: 'Renamed the hive' },  // H11 rename shipped without its viewer entry, so it rendered as a generic dot
     kick_member:           { icon: '⊘',  color: '#f87171', label: 'Removed member' },
     role_change:           { icon: '⇄',  color: 'var(--wh-blue)', label: 'Changed role' },  // supervisor handoff-on-leave (hive.html transferOnLeave)
     new_device:            { icon: '⚠',  color: '#F7A21B', label: 'New device' },
@@ -4772,7 +4772,7 @@ async function loadAuditLog() {
     // page — a client-written row is skipped by any write that does not go through logbook.html,
     // and these are the two events an auditor most needs to see. Amber/red rather than blue:
     // changing a signed-off record is not an ordinary edit.
-    amend_closed_logbook_entry:  { icon: '✎', color: '#F7A21B', label: 'Amended a signed-off entry' },
+    amend_closed_logbook_entry:  { icon: '✎', color: 'var(--wh-orange)', label: 'Amended a signed-off entry' },
     reopen_closed_logbook_entry: { icon: '↺', color: '#f87171', label: 'Re-opened a signed-off entry' },
     // PM lifecycle
     complete_pm:           { icon: '✓',  color: '#4ade80', label: 'Completed PM' },
